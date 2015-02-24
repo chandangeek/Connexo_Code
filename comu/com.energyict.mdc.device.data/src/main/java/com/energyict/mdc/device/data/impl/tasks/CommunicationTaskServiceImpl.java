@@ -1010,19 +1010,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Finder<ComTaskExecutionSession> findSessionsByComTask(ComTask comTask) {
-        return DefaultFinder.of(ComTaskExecutionSession.class,
-                Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).isEqualTo(comTask),
-                this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
-    }
-
-    @Override
     public Optional<ComTaskExecutionSession> findSession(long sessionId) {
         return this.deviceDataModelService.dataModel().mapper(ComTaskExecutionSession.class).getOptional(sessionId);
     }
 
     @Override
-    public Finder<ComTaskExecutionSession> findByComTaskExecutionAndComTask(ComTaskExecution comTaskExecution, ComTask comTask) {
+    public Finder<ComTaskExecutionSession> findSessionsByComTaskExecutionAndComTask(ComTaskExecution comTaskExecution, ComTask comTask) {
         return DefaultFinder.of(ComTaskExecutionSession.class,
                 Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution).
                         and(Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).isEqualTo(comTask)),
