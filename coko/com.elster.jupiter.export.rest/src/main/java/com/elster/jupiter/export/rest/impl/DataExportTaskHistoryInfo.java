@@ -3,17 +3,21 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
@@ -68,6 +72,23 @@ public class DataExportTaskHistoryInfo {
         ReadingTypeDataExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime()).get();
         task = new DataExportTaskInfo();
         task.populate(version, thesaurus, timeService);
+
+        for (ReadingType readingType : version.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
+            task.readingTypes.add(new ReadingTypeInfo(readingType));
+        }
+        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
+        if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
+            task.schedule = null;
+        } else if (foundSchedule.isPresent()) {
+            ScheduleExpression scheduleExpression = foundSchedule.get();
+            if (scheduleExpression instanceof TemporalExpression) {
+                task.schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+            } else {
+                task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
+            }
+        }
+        task.properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
+
     }
 
     private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
