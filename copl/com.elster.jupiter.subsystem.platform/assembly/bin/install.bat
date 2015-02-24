@@ -109,11 +109,11 @@ set CONNEXO_ADMIN_PASSWORD=admin
 echo.
 echo Installing Connexo Facts ...
 echo ==========================================================================
-set /p FACTS_DB_HOST= "Please enter the database host name for Facts: "
-set /p FACTS_DB_PORT= "Please enter the database port for Facts: "
-set /p FACTS_DB_NAME= "Please enter the database name for Facts: "
-set /p FACTS_DBUSER= "Please enter the database user for Facts: "
-set /p FACTS_DBPASSWORD= "Please enter the database password for Facts database user: "
+set /p FACTS_DB_HOST= "Please enter the database host name for Connexo Facts: "
+set /p FACTS_DB_PORT= "Please enter the database port for Connexo Facts: "
+set /p FACTS_DB_NAME= "Please enter the database name for Connexo Facts: "
+set /p FACTS_DBUSER= "Please enter the database user forConnexo Facts: "
+set /p FACTS_DBPASSWORD= "Please enter the database password for Connexo Facts database user: "
 rem Trick Yellowfin silent installer to get around a bug
 cd /D "%FACTS_BASE%"
 mkdir appserver\bin
@@ -159,6 +159,13 @@ set DEMOWS_DIR=%TOMCAT_BASE%\%TOMCAT_DIR%\webapps\demows
 echo.
 echo Installing Connexo Flow ...
 echo ==========================================================================
+set /p FLOW_JDBC_URL= "Please enter the database url for Connexo Flow (format: jdbc:oracle:thin:@dbHost:dbPort:dbSID): "
+set /p FLOW_DB_USER= "Please enter the database user for Connexo Flow: "
+set /p FLOW_DB_PASSWORD= "Please enter the database password for Connexo Flow: "
+
+for /f "tokens=* delims= " %%a in ("%jdbcUrl%") do set FLOW_JDBC_URL=%%a
+for /f "tokens=* delims= " %%a in ("%dbUserName%") do set FLOW_DB_USER=%%a
+for /f "tokens=* delims= " %%a in ("%dbPassword%") do set FLOW_DB_PASSWORD=%%a
 
 set /p SMTP_HOST= "Please enter the mail server host name: "
 set /p SMTP_PORT= "Please enter the mail server port: "
@@ -178,11 +185,17 @@ cd /D "%DEMOWS_DIR%"
 del demows.war
 cd /D "%CONNEXO_DIR%"
 
-copy partners\flow\processes.zip "%TOMCAT_BASE%"
-cd /D "%TOMCAT_BASE%"
+copy partners\flow\processes.zip "%CATALINA_HOME%"
+cd /D "%CATALINA_HOME%"
 %JAVA_HOME%\bin\jar -xvf processes.zip
 del processes.zip
 cd /D "%CONNEXO_DIR%"
+
+copy partners\flow\resources.properties "%CATALINE_HOME%\conf"
+cd /D "%CATALINE_HOME%\conf"
+cscript //NoLogo %CONNEXO_DIR%/bin/replace.vbs resource.properties ${jdbc} %FLOW_JDBC_URL%
+cscript //NoLogo %CONNEXO_DIR%/bin/replace.vbs resource.properties ${user} %FLOW_DB_USER%
+cscript //NoLogo %CONNEXO_DIR%/bin/replace.vbs resource.properties ${password} %FLOW_DB_PASSWORD%
 
 copy partners\flow\CustomWorkItemHandlers.conf .
 cscript //NoLogo %CONNEXO_DIR%/bin/replace.vbs CustomWorkItemHandlers.conf ${host} %SMTP_HOST%
