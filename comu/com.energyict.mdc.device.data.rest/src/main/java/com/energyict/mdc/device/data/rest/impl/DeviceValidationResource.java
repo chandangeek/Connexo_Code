@@ -78,7 +78,7 @@ public class DeviceValidationResource {
             fillValidationRuleSetStatus(linkedRuleSets, activation, result);
         }
         Collections.sort(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR);
-        return Response.ok(PagedInfoList.asJson("rulesets",
+        return Response.ok(PagedInfoList.fromPagedList("rulesets",
                 ListPager.of(result).from(queryParameters).find(), queryParameters)).build();
     }
 

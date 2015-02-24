@@ -44,7 +44,7 @@ public class ProtocolDialectResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<ProtocolDialectConfigurationProperties> pagedDialectProtocols = ListPager.of(device.getProtocolDialects(), new ProtocolDialectComparator()).from(queryParameters).find();
         List<ProtocolDialectInfo> protocolDialectInfos = ProtocolDialectInfo.from(device, pagedDialectProtocols, uriInfo, mdcPropertyUtils);
-        return PagedInfoList.asJson("protocolDialects", protocolDialectInfos, queryParameters);
+        return PagedInfoList.fromPagedList("protocolDialects", protocolDialectInfos, queryParameters);
     }
 
     @GET

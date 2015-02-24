@@ -75,7 +75,7 @@ public class DeviceComTaskResource {
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
         List<DeviceComTaskInfo> deviceSchedulesInfos = deviceComTaskInfoFactory.from(comTaskExecutions, comTaskEnablements, device);
-        return Response.ok(PagedInfoList.asJson("comTasks", deviceSchedulesInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("comTasks", deviceSchedulesInfos, queryParameters)).build();
     }
 
     @PUT
@@ -197,7 +197,7 @@ public class DeviceComTaskResource {
             comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());
             infos.add(comTaskExecutionSessionInfo);
         }
-        return PagedInfoList.asJson("comTaskExecutionSessions", infos, queryParameters);
+        return PagedInfoList.fromPagedList("comTaskExecutionSessions", infos, queryParameters);
     }
 
     @GET
@@ -248,7 +248,7 @@ public class DeviceComTaskResource {
         }
         List<JournalEntryInfo> infos = comTaskExecutionSession.findComTaskExecutionJournalEntries(logLevels).from(queryParameters).stream().map(journalEntryInfoFactory::asInfo).collect(toList());
 
-        return PagedInfoList.asJson("comTaskExecutionSessions", infos, queryParameters);
+        return PagedInfoList.fromPagedList("comTaskExecutionSessions", infos, queryParameters);
 
     }
 

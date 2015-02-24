@@ -67,7 +67,7 @@ public class ComSessionResource {
         List<ComSessionInfo> comSessionsInPage = ListPager.of(comSessions).from(queryParameters).find().stream()
                 .sorted((cs1, cs2) -> cs2.getStartDate().compareTo(cs1.getStartDate()))
                 .map(comSessionInfoFactory::from).collect(toList());
-        PagedInfoList pagedInfoList = PagedInfoList.asJson("comSessions", comSessionsInPage, queryParameters);
+        PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("comSessions", comSessionsInPage, queryParameters);
         ComSessionsInfo info = new ComSessionsInfo();
         info.connectionMethod = connectionTask.getName();
         info.comSessions = pagedInfoList.getInfos();
@@ -99,7 +99,7 @@ public class ComSessionResource {
         List<ComTaskExecutionSession> comTaskExecutionSessionsInPage = ListPager.of(comSession.getComTaskExecutionSessions()).from(queryParameters).find();
         List<ComTaskExecutionSessionInfo> comTaskExecutionSessionInfos = comTaskExecutionSessionsInPage.stream().map(comTaskExecutionSessionInfoFactory::from).collect(toList());
         ComTaskExecutionSessionsInfo info = new ComTaskExecutionSessionsInfo();
-        PagedInfoList pagedInfoList = PagedInfoList.asJson("comTaskExecutionSessions", comTaskExecutionSessionInfos, queryParameters);
+        PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("comTaskExecutionSessions", comTaskExecutionSessionInfos, queryParameters);
         info.device = device.getName();
         info.total = pagedInfoList.getTotal();
         info.comTaskExecutionSessions = pagedInfoList.getInfos();
@@ -150,7 +150,7 @@ public class ComSessionResource {
         } else {
             comSession.getAllLogs(logLevels, start, limit).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));
         }
-        return PagedInfoList.asJson("journals", infos, queryParameters);
+        return PagedInfoList.fromPagedList("journals", infos, queryParameters);
     }
 
     private ComSession getComSessionOrThrowException(long comSessionId, ConnectionTask<?, ?> connectionTask) {

@@ -73,7 +73,7 @@ public class DeviceMessageResource {
 
         List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
 
-        PagedInfoList deviceMessages = PagedInfoList.asJson("deviceMessages", infosInPage, queryParameters);
+        PagedInfoList deviceMessages = PagedInfoList.fromPagedList("deviceMessages", infosInPage, queryParameters);
 
         DeviceMessageInfos info = new DeviceMessageInfos();
         info.deviceMessages = deviceMessages.getInfos();

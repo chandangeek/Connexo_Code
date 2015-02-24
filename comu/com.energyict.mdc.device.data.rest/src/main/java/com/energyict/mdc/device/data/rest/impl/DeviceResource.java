@@ -158,7 +158,7 @@ public class DeviceResource {
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
         List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
-        return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
+        return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
     }
 
     @POST
@@ -283,7 +283,7 @@ public class DeviceResource {
             }
         });
         List<DeviceMessageCategoryInfo> deviceMessageCategoryInfosInPage = ListPager.of(infos).from(queryParameters).find();
-        return PagedInfoList.asJson("categories", deviceMessageCategoryInfosInPage, queryParameters);
+        return PagedInfoList.fromPagedList("categories", deviceMessageCategoryInfosInPage, queryParameters);
     }
 
     @Path("/{mRID}/connectionmethods")
@@ -387,7 +387,7 @@ public class DeviceResource {
             stream = stream.limit(queryParameters.getLimit() + 1);
         }
         List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d))).collect(Collectors.toList());
-        return PagedInfoList.asJson("slaveDevices", topologyList, queryParameters);
+        return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {

@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -84,7 +83,7 @@ public class RegisterDataResource {
         // filter the list of readings based on user parameters
         readingInfos = filter(readingInfos, uriInfo.getQueryParameters());
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
-        return PagedInfoList.asJson("data", paginatedReadingInfo, queryParameters);
+        return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
     }
 
     private void calculateDeltaForNumericalReading(ReadingInfo previous, ReadingInfo current){
