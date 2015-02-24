@@ -1010,6 +1010,14 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public Finder<ComTaskExecutionSession> findByComTaskExecutionAndComTask(ComTaskExecution comTaskExecution, ComTask comTask) {
+        return DefaultFinder.of(ComTaskExecutionSession.class,
+                Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution).
+                        and(Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).isEqualTo(comTask)),
+                                this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
+    }
+
+    @Override
     public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(List<Device> devices, Range<Instant> range, Condition successIndicatorCondition) {
         List<Condition> conditions = new ArrayList<>();
         conditions.add(successIndicatorCondition);

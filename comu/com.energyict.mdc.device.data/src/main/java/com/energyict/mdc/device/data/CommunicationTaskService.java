@@ -19,6 +19,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Collection;
@@ -215,6 +216,7 @@ public interface CommunicationTaskService {
     public Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
 
     public Finder<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution);
+    public Finder<ComTaskExecutionSession> findByComTaskExecutionAndComTask(ComTaskExecution comTaskExecution, ComTask comTask);
 
     /**
      * Counts the {@link Device}s from the specified List that have had
