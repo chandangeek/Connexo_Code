@@ -49,7 +49,11 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
                 return dataTypeSelector.isBigEndianEncoded()
                         ? getFloatingPointParser(true)
                         : getFloatingPointParser(false);
-
+            case BCD_32BIT:
+            case BCD_64BIT:
+                return dataTypeSelector.isBigEndianEncoded()
+                        ? getBCDParser(true)
+                        : getBCDParser(false);
             case ASCII:
                 return dataTypeSelector.isBigEndianEncoded()
                         ? getAsciiParser(true)
@@ -72,7 +76,7 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
                     } else {
                         throw new ModbusException("ParserFactory, UnsignedValueParser, received data has invalid length (" + values.length + ")");
                     }
-                } catch (IOException e) {
+                } catch (NumberFormatException e) {
                     throw new ModbusException("ParserFactory, UnsignedValueParser, failed to parse the value: " + e.getMessage());
                 }
             }
@@ -83,14 +87,14 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
         return new Parser() {
             public Object val(int[] values, AbstractRegister register) throws ModbusException {
                 try {
-                    if (values.length == 1 | values.length == 2 | values.length == 4) {           // Signed register
+                    if (values.length == 1 || values.length == 2 || values.length == 4) {
                         byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
                         BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
                         return new BigDecimal(bigInteger);
                     } else {
                         throw new ModbusException("ParserFactory, SignedValueParser, received data has invalid length (" + values.length + ")");
                     }
-                } catch (IOException e) {
+                } catch (NumberFormatException e) {
                     throw new ModbusException("ParserFactory, SignedValueParser, failed to parse the value: " + e.getMessage());
                 }
             }
@@ -100,16 +104,37 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
     private Parser getFloatingPointParser(final boolean bigEndianEncoding) {
         return new Parser() {
             public Object val(int[] values, AbstractRegister register) throws ModbusException {
-                if (values.length == 2) {
-                    byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
-                    BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
-                    return new BigDecimal(Float.toString(Float.intBitsToFloat(bigInteger.intValue())));
-                } else if (values.length == 4) {
-                    byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
-                    BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
-                    return new BigDecimal(Double.toString(Double.longBitsToDouble(bigInteger.longValue())));
-                } else {
-                    throw new ModbusException("ParserFactory, FloatingPointParser, received data has invalid length (" + values.length + ")");
+                try {
+                    if (values.length == 2) {
+                        byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
+                        BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
+                        return new BigDecimal(Float.toString(Float.intBitsToFloat(bigInteger.intValue())));
+                    } else if (values.length == 4) {
+                        byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
+                        BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
+                        return new BigDecimal(Double.toString(Double.longBitsToDouble(bigInteger.longValue())));
+                    } else {
+                        throw new ModbusException("ParserFactory, FloatingPointParser, received data has invalid length (" + values.length + ")");
+                    }
+                } catch (NumberFormatException e) {
+                    throw new ModbusException("ParserFactory, FloatingPointParser, failed to parse the value: " + e.getMessage());
+                }
+            }
+        };
+    }
+
+    private Parser getBCDParser(final boolean bigEndianEncoding) {
+        return new Parser() {
+            public Object val(int[] values, AbstractRegister register) throws ModbusException {
+                try {
+                    if (values.length == 2 || values.length == 4) {
+                        byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
+                        return new BigDecimal(ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(intBitsArray, 0), ""));
+                    } else {
+                        throw new ModbusException("ParserFactory, BCDParser, received data has invalid length (" + values.length + ")");
+                    }
+                } catch (NumberFormatException e) {
+                    throw new ModbusException("ParserFactory, BCDParser, failed to parse the value: " + e.getMessage());
                 }
             }
         };
@@ -137,7 +162,6 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
 
     private byte[] getByteArrayFromValue(int[] values, boolean bigEndianEncoding) {
         byte[] byteArray = new byte[values.length * 2];
-
 
         if (bigEndianEncoding) {
             int index = 0;

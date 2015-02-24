@@ -73,6 +73,8 @@ public class DataTypeSelector {
         SIGNED_LONG(6, 4),
         FLOAT_32BIT(7, 2),
         FLOAT_64BIT(8, 4),
+        BCD_32BIT(9, 2),
+        BCD_64BIT(10, 4),
         ASCII(16, 1),
         UNKNOWN(-1, 0);
 

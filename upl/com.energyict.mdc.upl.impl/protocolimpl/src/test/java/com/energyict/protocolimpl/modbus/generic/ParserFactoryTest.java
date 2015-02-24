@@ -136,6 +136,30 @@ public class ParserFactoryTest {
     }
 
     @Test
+    public void test32BitsBCDParser() throws Exception {
+        int[] values = new int[]{0x0177, 0x0858};
+
+        // Business method
+        Object val = getParser(DataTypeSelector.DataType.BCD_32BIT.getDataTypeCode()).val(values, getDummyRegister());
+
+        // Asserts
+        BigDecimal expected = new BigDecimal("1770858");
+        Assert.assertEquals(expected, val);
+    }
+
+    @Test
+    public void test64BitsBCDParser() throws Exception {
+        int[] values = new int[]{0x123, 0x4567, 0x0177, 0x0858};
+
+        // Business method
+        Object val = getParser(DataTypeSelector.DataType.BCD_32BIT.getDataTypeCode()).val(values, getDummyRegister());
+
+        // Asserts
+        BigDecimal expected = new BigDecimal("123456701770858");
+        Assert.assertEquals(expected, val);
+    }
+
+    @Test
     public void testASCIIParser() throws Exception {
         int[] values = new int[]{0x4153, 0x4349, 0x4920};
 
