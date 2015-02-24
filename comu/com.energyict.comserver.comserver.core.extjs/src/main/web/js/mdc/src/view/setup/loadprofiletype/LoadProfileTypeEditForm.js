@@ -24,6 +24,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         },
         {
             xtype: 'textfield',
+            itemId: 'txt-load-profile-type-name',
             name: 'name',
             regex: /[a-zA-Z0-9]+/,
             allowBlank: false,
@@ -47,6 +48,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         },
         {
             xtype: 'obis-field',
+            itemId: 'txt-load-profile-type-obis-code',
             fieldLabel: 'OBIS code',
             name: 'obisCode',
             msgTarget: 'under'
