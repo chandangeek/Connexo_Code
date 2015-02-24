@@ -13,6 +13,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Optional;
 import javax.inject.Inject;
 
@@ -35,8 +36,8 @@ public class ComTaskExecutionSessionInfoFactory {
         ComTaskExecutionSessionInfo info = new ComTaskExecutionSessionInfo();
         Device device = comTaskExecutionSession.getDevice();
         ComTaskExecution comTaskExecution = comTaskExecutionSession.getComTaskExecution();
-        info.comTasks = comTaskExecution.getComTasks().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).map(IdWithNameInfo::new).collect(toList());
-        info.name = String.join(" + ", info.comTasks.stream().map(i -> i.name).collect(toList()));
+        info.comTasks = Arrays.asList(new IdWithNameInfo(comTaskExecutionSession.getComTask()));
+        info.name = comTaskExecutionSession.getComTask().getName();
         info.id = comTaskExecutionSession.getId();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
@@ -67,4 +68,5 @@ public class ComTaskExecutionSessionInfoFactory {
 
         return info;
     }
+
 }

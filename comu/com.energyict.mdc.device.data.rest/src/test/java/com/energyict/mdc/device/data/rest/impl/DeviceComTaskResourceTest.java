@@ -583,6 +583,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comSession.getConnectionTask()).thenReturn(connectionTask);
 
         ComTaskExecutionSession comTaskExecutionSession1 = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession1.getComTask()).thenReturn(comTask);
         when(comTaskExecutionSession1.getComTaskExecution()).thenReturn(comTaskExecution1);
         when(comTaskExecutionSession1.getDevice()).thenReturn(device);
         when(comTaskExecutionSession1.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.ConnectionError);
