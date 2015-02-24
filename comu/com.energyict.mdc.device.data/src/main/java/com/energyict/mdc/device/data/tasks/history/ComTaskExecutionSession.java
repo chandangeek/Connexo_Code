@@ -5,6 +5,8 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.tasks.ComTask;
+
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
@@ -36,6 +38,8 @@ public interface ComTaskExecutionSession extends HasId {
     public ComStatistics getStatistics();
 
     public ComTaskExecution getComTaskExecution ();
+
+    public ComTask getComTask();
 
     public List<ComTaskExecutionJournalEntry> getComTaskExecutionJournalEntries ();
 
