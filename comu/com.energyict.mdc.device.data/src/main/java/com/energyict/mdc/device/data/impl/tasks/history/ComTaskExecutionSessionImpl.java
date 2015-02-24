@@ -147,6 +147,11 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     @Override
+    public ComTask getComTask() {
+        return comTask.get();
+    }
+
+    @Override
     public List<ComTaskExecutionJournalEntry> getComTaskExecutionJournalEntries () {
         return this.getServerComTaskExecutionJournalEntries();
     }

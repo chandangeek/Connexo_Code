@@ -727,9 +727,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public List<ComTaskExecution> findComTasksByDefaultConnectionTask(Device device) {
         return this.deviceDataModelService.dataModel()
                 .query(ComTaskExecution.class)
-                .select( where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
-                    .and(where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true))
-                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
+                .select(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device)
+                        .and(where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true))
+                        .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull()));
     }
 
     @Override
@@ -1003,10 +1003,23 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public Finder<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution) {
+    public Finder<ComTaskExecutionSession> findSessionsByComTaskExecution(ComTaskExecution comTaskExecution) {
         return DefaultFinder.of(ComTaskExecutionSession.class,
                 Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution),
                 this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
+    }
+
+    @Override
+    public Optional<ComTaskExecutionSession> findSession(long sessionId) {
+        return this.deviceDataModelService.dataModel().mapper(ComTaskExecutionSession.class).getOptional(sessionId);
+    }
+
+    @Override
+    public Finder<ComTaskExecutionSession> findSessionsByComTaskExecutionAndComTask(ComTaskExecution comTaskExecution, ComTask comTask) {
+        return DefaultFinder.of(ComTaskExecutionSession.class,
+                Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution).
+                        and(Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).isEqualTo(comTask)),
+                                this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
     }
 
     @Override
