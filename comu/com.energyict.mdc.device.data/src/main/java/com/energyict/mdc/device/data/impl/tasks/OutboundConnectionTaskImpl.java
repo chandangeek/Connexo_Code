@@ -46,6 +46,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     @Override
     protected void doExecutionStarted(ComServer comServer, List<String> updatedColumns) {
         super.doExecutionStarted(comServer, updatedColumns);
+        this.lastExecutionFailed = false;
         updatedColumns.add(ConnectionTaskFields.LAST_EXECUTION_FAILED.fieldName());
     }
 
