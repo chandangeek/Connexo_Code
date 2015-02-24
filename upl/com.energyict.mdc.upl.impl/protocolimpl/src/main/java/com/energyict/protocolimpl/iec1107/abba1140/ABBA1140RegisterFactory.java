@@ -79,6 +79,7 @@ public class ABBA1140RegisterFactory {
     private ABBA1140Register schemeID;
     private ABBA1140Register serialNumber;
     private ABBA1140Register systemStatus;
+    private ABBA1140Register systemError;
     private ABBA1140Register tariffSources;
     private ABBA1140Register timeDate;
     private ABBA1140Register timeOfUse0;
@@ -326,6 +327,10 @@ public class ABBA1140RegisterFactory {
         return systemStatus;
     }
 
+    public ABBA1140Register getSystemError() {
+        return systemError;
+    }
+
     public ABBA1140Register getTariffSources() {
         return tariffSources;
     }
@@ -461,7 +466,8 @@ public class ABBA1140RegisterFactory {
         loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA1140RegisterData.ABBA_LOAD_PROFILE_BY_DATE,0, 2, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED);
         
         systemStatus = cr("724", "SystemStatus", ABBA1140RegisterData.ABBA_SYSTEMSTATUS,0,4, null);
-        
+        systemError = cr("724", "SystemError", ABBA1140RegisterData.ABBA_SYSTEMSTATUS,4,4, null);
+
         custDefRegConfig = cr("600", "CustDefRegConfig", ABBA1140RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
         
         tariffSources = cr("667", "TariffSources", ABBA1140RegisterData.ABBA_TARIFFSOURCES,0,8, null );

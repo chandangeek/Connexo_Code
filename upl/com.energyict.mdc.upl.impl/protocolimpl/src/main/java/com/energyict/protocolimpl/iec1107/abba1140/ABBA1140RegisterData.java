@@ -218,7 +218,7 @@ abstract public class ABBA1140RegisterData {
                     return new HistoricalEventRegister(data, getProtocolLink().getTimeZone());
                     
                 case ABBA_SYSTEMSTATUS:
-                    return new SystemStatus(data);
+                    return new SystemStatus(data, getOffset(), getLength());
                     
                 case ABBA_TARIFFSOURCES:
                     return new TariffSources(data);

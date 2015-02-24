@@ -113,11 +113,21 @@ public class ObisCodeMapper {
         /** Current System Status */
         else if (obisCode.toString().startsWith("0.0.96.50.0.255") ) { 
         	if (read) {
-        		SystemStatus ss = (SystemStatus)rFactory.getRegister("SystemStatus");
+        		SystemStatus ss = (SystemStatus)rFactory.getRegister(rFactory.getSystemStatus());
         		registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(ss.getValue()),Unit.get(255)));
         		return registerValue;
         	} else {
         		return new RegisterInfo("Current System Status (32 bit word)");
+        	}
+        }
+        /** Current System Error */
+        else if (obisCode.toString().startsWith("0.0.96.52.0.255") ) {
+        	if (read) {
+        		SystemStatus ss = (SystemStatus)rFactory.getRegister(rFactory.getSystemError());
+        		registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(ss.getValue()),Unit.get(255)));
+        		return registerValue;
+        	} else {
+        		return new RegisterInfo("Current System Error (32 bit word)");
         	}
         } else if (obisCode.toString().startsWith("0.0.96.51.0.255") ) { 
         	if (read) {

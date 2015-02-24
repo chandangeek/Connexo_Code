@@ -468,11 +468,9 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 		getRegisterFactory().setRegister("TimeDate", calendar.getTime());
     }
 
-    /* (non-Javadoc)
-	 * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
-      *
-      * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
-      */
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }
