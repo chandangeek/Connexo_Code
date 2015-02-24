@@ -86,10 +86,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                                 return '-'
                             }
                         }
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('device.registerData.multiplier', 'MDC', 'Multiplier'),
-                        name: 'multiplier'
                     }
                 ]
             },

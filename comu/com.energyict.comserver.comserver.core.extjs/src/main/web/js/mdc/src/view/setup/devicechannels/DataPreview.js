@@ -159,10 +159,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
 
         me.items.items[0].items.push(
             {
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.multiplier', 'MDC', 'Multiplier'),
-                name: 'multiplier'
-            },
-            {
                 xtype: 'interval-flags-displayfield',
                 name: 'intervalFlags'
             }

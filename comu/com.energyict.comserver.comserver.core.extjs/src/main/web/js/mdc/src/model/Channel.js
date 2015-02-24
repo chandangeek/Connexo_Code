@@ -8,7 +8,6 @@ Ext.define('Mdc.model.Channel', {
         {name: 'name', type: 'string', useNull: true},
         {name: 'overruledObisCode', type: 'string', useNull: true},
         {name: 'overflowValue', type: 'integer', useNull: true},
-        {name: 'multiplier', type: 'integer', useNull: true},
         {name: 'unitOfMeasure', type: 'auto', useNull: true},
         'measurementType',
         {name: 'readingType', mapping: 'measurementType.readingType'},

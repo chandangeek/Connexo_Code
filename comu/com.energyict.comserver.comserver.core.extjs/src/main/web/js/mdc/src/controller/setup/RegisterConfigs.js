@@ -203,7 +203,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                 me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'));
                                 widget.down('#editNumberOfDigitsField').setValue(8);
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
-                                widget.down('#editMultiplierField').setValue(1);
                                 widget.down('#editOverflowValueField').setValue(100000000);
                             }
                         });
@@ -383,16 +382,12 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         this.getRegisterConfigEditForm().down('#editNumberOfDigitsField').setVisible(visible);
         this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setVisible(visible);
         this.getRegisterConfigEditForm().down('#editOverflowValueField').setVisible(visible);
-        this.getRegisterConfigEditForm().down('#editMultiplierField').setVisible(visible);
-        this.getRegisterConfigEditForm().down('#multiplierMsg').setVisible(visible);
         this.getRegisterConfigEditForm().down('#overflowMsg').setVisible(visible);
         if(visible){
             var values = this.getRegisterConfigEditForm().getValues();
             if(values.numberOfDigits===''){this.getRegisterConfigEditForm().down('#editNumberOfDigitsField').setValue(8)};
             if(values.numberOfFractionDigits===''){this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setValue(0)};
-            if(values.overflow===''){this.getRegisterConfigEditForm().down('#editMultiplierField').setValue(1)};
-            if(values.multiplier===''){this.getRegisterConfigEditForm().down('#editOverflowValueField').setValue(100000000)};
-
+            if(values.overflow===''){this.getRegisterConfigEditForm().down('#editOverflowValueField').setValue(100000000)};
         }
     }
 

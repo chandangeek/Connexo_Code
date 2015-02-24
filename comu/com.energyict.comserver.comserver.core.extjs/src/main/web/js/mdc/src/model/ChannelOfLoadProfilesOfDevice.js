@@ -11,7 +11,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'readingType', type: 'auto'},
         {name: 'calculatedReadingType', type: 'auto'},
         {name: 'obisCode', type: 'string'},
-        {name: 'multiplier', type: 'int'},
         {name: 'overflowValue', type: 'int'},
         {name: 'nbrOfFractionDigits', type: 'int'},
         {name: 'flowUnit', type: 'string'},

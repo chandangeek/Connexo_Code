@@ -90,17 +90,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
 
                                     return Uni.I18n.translate('deviceregisterconfiguration.overflow.notspecified', 'MDC', 'Not specified')
                                 }
-                            },
-                            {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.multiplier', 'MDC', 'Multiplier'),
-                                name: 'multiplier',
-                                renderer: function (value) {
-                                    if (!Ext.isEmpty(value)) {
-                                        return value;
-                                    }
-
-                                    return Uni.I18n.translate('deviceregisterconfiguration.multiplier.notspecified', 'MDC', 'Not specified')
-                                }
                             }
                         ]
                     },

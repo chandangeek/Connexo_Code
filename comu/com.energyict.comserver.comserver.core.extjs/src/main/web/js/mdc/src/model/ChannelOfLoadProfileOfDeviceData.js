@@ -21,7 +21,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
 //                }
 //            }
         },
-        {name: 'multiplier', type: 'int', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
         {name: 'suspectReason', type: 'auto'},

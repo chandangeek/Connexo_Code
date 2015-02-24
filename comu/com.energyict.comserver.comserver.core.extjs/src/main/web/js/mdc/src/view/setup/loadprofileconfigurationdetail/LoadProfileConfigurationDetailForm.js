@@ -80,18 +80,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     width: 270
                 },
                 {
-                    xtype: 'textfield',
-                    required: true,
-                    allowBlank: false,
-                    fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.multiplierLabel', 'MDC', 'Multiplier'),
-                    name: 'multiplier',
-                    msgTarget: 'under',
-                    vtype: 'multiplier',
-                    value: 1,
-                    maxLength: 80,
-                    afterSubTpl: '<div class="x-form-display-field"><i>' + 'Multiplies the collected value. The multiplied value will be stored in the channel' + '</i></div>'
-                },
-                {
                     xtype: 'fieldcontainer',
                     ui: 'actions',
                     fieldLabel: '&nbsp',
@@ -147,20 +135,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     return false
                 }
             },
-            multiplier: function (val, field) {
-                var mult = /[\d]+/;
-                if (mult.test(val)) {
-                    if (val > 0) {
-                        return true
-                    } else {
-                        return false
-                    }
-                } else {
-                    return false
-                }
-            },
-            overflowValueText: Uni.I18n.translate('channelConfig.channelConfigForm.overflowValueText', 'MDC', 'Overflow value is wrong'),
-            multiplierText: Uni.I18n.translate('channelConfig.channelConfigForm.multiplierText', 'MDC', 'Multiplier is wrong')
+            overflowValueText: Uni.I18n.translate('channelConfig.channelConfigForm.overflowValueText', 'MDC', 'Overflow value is wrong')
+
         });
     }
 });

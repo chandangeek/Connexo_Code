@@ -12,11 +12,9 @@ Ext.define('Mdc.model.RegisterConfiguration', {
       //  {name: 'unitOfMeasure', useNull: true},
         {name: 'numberOfDigits', type: 'number', useNull: true},
         {name: 'numberOfFractionDigits', type: 'number', useNull: true},
-        {name: 'multiplier', type: 'number', useNull: true},
         {name: 'overflow', type: 'number', useNull: true},
         {name: 'timeOfUse', type:'number', useNull: true},
         {name: 'registerType', type:'number', useNull: true},
-        {name: 'multiplierMode', type:'string', useNull: true},
         {name: 'readingType', persist:false},
         {name: 'asText', type:'boolean'}
     ],

@@ -61,10 +61,6 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                             name: 'obisCode'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.multiplier', 'MDC', 'Multiplier'),
-                            name: 'multiplier'
-                        },
-                        {
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.overflowValue', 'MDC', 'Overflow value'),
                             name: 'overflowValue'
                         },

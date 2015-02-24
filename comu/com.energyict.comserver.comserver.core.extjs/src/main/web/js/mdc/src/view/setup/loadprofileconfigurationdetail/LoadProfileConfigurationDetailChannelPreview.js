@@ -40,10 +40,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         {
                             xtype: 'obis-displayfield',
                             name: 'overruledObisCode'
-                        },
-                        {
-                            fieldLabel: 'Multiplier',
-                            name: 'multiplier'
                         }
                     ]
                 },

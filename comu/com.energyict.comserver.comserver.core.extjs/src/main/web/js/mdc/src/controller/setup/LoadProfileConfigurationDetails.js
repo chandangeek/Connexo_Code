@@ -556,8 +556,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             title = Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
                                             readingTypeCombo = widget.down('reading-type-combo'),
                                             overruledObisField = widget.down('textfield[name=overruledObisCode]'),
-                                            overflowValueField = widget.down('textfield[name=overflowValue]'),
-                                            multiplierField = widget.down('textfield[name=multiplier]');
+                                            overflowValueField = widget.down('textfield[name=overflowValue]');
+
                                         readingTypeDisplayField = widget.down('reading-type-displayfield[name=readingType]');
 
                                         me.getApplication().fireEvent('changecontentevent', widget);
@@ -584,7 +584,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
                                         overruledObisField.setValue(channel.overruledObisCode);
                                         overflowValueField.setValue(channel.overflowValue);
-                                        multiplierField.setValue(channel.multiplier);
                                         widget.down('[name=nbrOfFractionDigits]').setValue(channel.nbrOfFractionDigits);
 
                                         me.deviceTypeName = deviceType.get('name');

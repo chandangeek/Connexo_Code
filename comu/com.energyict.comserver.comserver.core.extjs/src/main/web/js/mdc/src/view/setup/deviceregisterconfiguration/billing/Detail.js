@@ -120,17 +120,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                                 name: 'numberOfFractionDigits'
                                             },
                                             {
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.multiplier', 'MDC', 'Multiplier'),
-                                                name: 'multiplier',
-                                                renderer: function (value) {
-                                                    if (!Ext.isEmpty(value)) {
-                                                        return value;
-                                                    }
-
-                                                    return Uni.I18n.translate('deviceregisterconfiguration.multiplier.notspecified', 'MDC', 'Not specified')
-                                                }
-                                            },
-                                            {
                                                 xtype: 'deviceregisterdetailspreview-validation',
                                                 inputLabelWidth: 250,
                                                 router: me.router

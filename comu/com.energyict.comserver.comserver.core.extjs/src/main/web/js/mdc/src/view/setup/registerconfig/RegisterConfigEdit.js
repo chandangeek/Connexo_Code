@@ -146,33 +146,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         ]
                     },
                     {
-                        xtype: 'numberfield',
-                        name: 'multiplier',
-                        msgTarget: 'under',
-                        fieldLabel: Uni.I18n.translate('registerConfig.multiplier', 'MDC', 'Multiplier'),
-                        itemId: 'editMultiplierField',
-                        width: 450,
-                        //width: 64,
-                        hideTrigger: true,
-                        minValue: 1
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: '&nbsp',
-                        itemId: 'multiplierMsg',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items: [
-                            {
-                                html: '<span style="color: grey"><i>' + Uni.I18n.translate('registerConfig.multiplierInfo', 'MDC', 'Multiplies the collected value.  The multiplied value will be stored in the register.') + '</i></span>',
-                                xtype: 'component'
-
-                            }
-                        ]
-                    },
-                    {
                         xtype: 'fieldcontainer',
                         ui: 'actions',
                         fieldLabel: '&nbsp',
