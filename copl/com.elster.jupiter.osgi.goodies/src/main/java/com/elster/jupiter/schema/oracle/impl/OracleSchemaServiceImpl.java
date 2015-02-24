@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.schema.oracle.OracleSchemaService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -27,7 +28,7 @@ public class OracleSchemaServiceImpl implements OracleSchemaService {
 
     @Override
     public List<ExistingTable> getTableNames() {
-        return dataModel.mapper(ExistingTable.class).select(Condition.TRUE, "name");
+        return dataModel.mapper(ExistingTable.class).select(Condition.TRUE, Order.ascending("name"));
     }
 
 
