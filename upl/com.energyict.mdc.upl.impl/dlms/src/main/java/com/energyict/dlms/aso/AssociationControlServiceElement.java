@@ -367,9 +367,11 @@ public class AssociationControlServiceElement {
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x0E) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
+                                            throw new ProtocolException("Application Association Establishment Failed"
+                                                    + strResultSourceDiagnostics);
                                         } else {
                                             throw new ProtocolException(
-                                                    "Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
+                                                    "Application Association Establishment failed, ACSE_SERVICE_USER, unknown result code: " + responseData[i + 5]);
                                         }
                                     } else {
                                         throw new ProtocolException(
