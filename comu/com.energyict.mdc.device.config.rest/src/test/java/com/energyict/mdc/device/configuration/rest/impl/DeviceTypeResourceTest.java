@@ -44,7 +44,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
@@ -405,7 +404,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfigurationService.findDeviceType(6)).thenReturn(Optional.of(deviceType));
 
         Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
-        assertThat(jsonRegisterConfiguration).hasSize(15);
+        assertThat(jsonRegisterConfiguration).hasSize(13);
         assertThat(jsonRegisterConfiguration.get("id")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("name")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("readingType")).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -416,10 +415,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonRegisterConfiguration.get("unitOfMeasure")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("numberOfDigits")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("numberOfFractionDigits")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("multiplier")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("overflowValue")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("timeOfUse")).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonRegisterConfiguration.get("multiplierMode")).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonRegisterConfiguration.get("asText")).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
@@ -1031,7 +1028,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getUnit()).thenReturn(unit);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType = registerType_id;
-        registerConfigInfo.multiplier = BigDecimal.TEN;
         registerConfigInfo.numberOfFractionDigits = 6;
         registerConfigInfo.numberOfDigits = 4;
         registerConfigInfo.overflow = BigDecimal.TEN;
@@ -1042,8 +1038,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         ArgumentCaptor<RegisterType> registerTypeArgumentCaptor = ArgumentCaptor.forClass(RegisterType.class);
-        verify(registerSpecBuilder).setMultiplier(BigDecimal.TEN);
-        verify(registerSpecBuilder).setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
         verify(registerSpecBuilder).setNumberOfDigits(4);
         verify(registerSpecBuilder).setNumberOfFractionDigits(6);
         verify(registerSpecBuilder).setOverflowValue(BigDecimal.TEN);
@@ -1080,7 +1074,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getUnit()).thenReturn(unit);
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType = registerType_id;
-        registerConfigInfo.multiplier = BigDecimal.TEN;
         registerConfigInfo.numberOfFractionDigits = 6;
         registerConfigInfo.numberOfDigits = 4;
         registerConfigInfo.overflow = BigDecimal.valueOf(123);
@@ -1091,7 +1084,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<ObisCode> obisCodeArgumentCaptor = ArgumentCaptor.forClass(ObisCode.class);
-        verify(registerSpec).setMultiplier(BigDecimal.TEN);
         verify(registerSpec).setRegisterType(registerType);
         verify(registerSpec).setOverruledObisCode(obisCodeArgumentCaptor.capture());
         assertThat(obisCodeArgumentCaptor.getValue().toString()).isEqualTo(obisCode.toString());

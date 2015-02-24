@@ -20,7 +20,6 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public RegisterTypeInfo registerTypeInfo;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode overruledObisCode;
-    public BigDecimal multiplier;
     public BigDecimal overflowValue;
     public String unitOfMeasure;
     public int nbrOfFractionDigits;
@@ -38,7 +37,6 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         ChannelSpecFullInfo info = new ChannelSpecFullInfo();
         info.id = channelSpec.getId();
         info.overruledObisCode = channelSpec.getDeviceObisCode();
-        info.multiplier = channelSpec.getMultiplier();
         info.overflowValue = channelSpec.getOverflow();
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         // TODO check that it is truth (true for isLinkedByDeviceType)

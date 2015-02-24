@@ -7,7 +7,6 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -38,15 +37,10 @@ public class RegisterConfigInfo {
     public Integer numberOfDigits;
     @JsonProperty("numberOfFractionDigits")
     public Integer numberOfFractionDigits;
-    @JsonProperty("multiplier")
-    public BigDecimal multiplier;
     @JsonProperty("overflow")
     public BigDecimal overflow;
     @JsonProperty("timeOfUse")
     public Integer timeOfUse;
-    @JsonProperty("multiplierMode")
-    @XmlJavaTypeAdapter(MultiplierModeAdapter.class)
-    public MultiplierMode multiplierMode;
     @JsonProperty("asText")
     public boolean asText;
 
@@ -65,9 +59,7 @@ public class RegisterConfigInfo {
         this.unitOfMeasure = registerSpec.getUnit().toString();
         this.numberOfDigits = registerSpec.getNumberOfDigits();
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-        this.multiplier = registerSpec.getMultiplier();
         this.overflow = registerSpec.getOverflowValue();
-        this.multiplierMode = registerSpec.getMultiplierMode();
         this.asText = registerSpec.isTextual();
     }
 
@@ -83,9 +75,7 @@ public class RegisterConfigInfo {
         this.unitOfMeasure = registerSpec.getUnit().toString();
         this.numberOfDigits = null;
         this.numberOfFractionDigits = null;
-        this.multiplier = null;
         this.overflow = null;
-        this.multiplierMode = null;
         this.asText = registerSpec.isTextual();
     }
 
@@ -114,8 +104,6 @@ public class RegisterConfigInfo {
     }
 
     private void writeTo(NumericalRegisterSpec registerSpec) {
-        registerSpec.setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT);
-        registerSpec.setMultiplier(this.multiplier);
         registerSpec.setOverflowValue(this.overflow);
         registerSpec.setNumberOfDigits(this.numberOfDigits != null ? this.numberOfDigits : 0);
         registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits != null ? this.numberOfFractionDigits : 0);

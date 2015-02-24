@@ -14,7 +14,6 @@ import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigurationComparator;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import java.util.Optional;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
@@ -81,8 +80,6 @@ public class RegisterConfigurationResource {
                     .add();
         } else {
             registerSpec = deviceConfiguration.createNumericalRegisterSpec(registerType)
-                    .setMultiplierMode(MultiplierMode.CONFIGURED_ON_OBJECT)
-                    .setMultiplier(registerConfigInfo.multiplier)
                     .setNumberOfDigits(registerConfigInfo.numberOfDigits)
                     .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
                     .setOverflowValue(registerConfigInfo.overflow)
