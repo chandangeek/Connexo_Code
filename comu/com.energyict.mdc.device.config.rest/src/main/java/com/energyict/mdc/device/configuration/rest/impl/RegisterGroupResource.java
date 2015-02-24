@@ -73,7 +73,7 @@ public class RegisterGroupResource {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         int totalCount = registerGroupInfo.registerTypes.size();
         List<RegisterTypeInfo> pagedRegisterTypes = ListPager.of(registerGroupInfo.registerTypes).from(queryParameters).find();
-        return Response.ok(PagedInfoList.asJson("registerTypes", pagedRegisterTypes, queryParameters, totalCount)).build();
+        return Response.ok(PagedInfoList.fromCompleteList("registerTypes", pagedRegisterTypes, queryParameters)).build();
     }
 
     @DELETE
