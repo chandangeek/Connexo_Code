@@ -52,8 +52,6 @@ public interface Channel extends BaseChannel {
 
     BigDecimal getOverflow();
 
-    BigDecimal getMultiplier();
-
     ReadingType getReadingType();
 
     /**
