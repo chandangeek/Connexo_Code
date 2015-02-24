@@ -54,7 +54,7 @@ public class RegisterGroupResource {
             registerGroupInfos.add(new RegisterGroupInfo(registerGroup.getId(), registerGroup.getName()));
         }
 
-        return PagedInfoList.asJson("registerGroups", registerGroupInfos, queryParameters);
+        return PagedInfoList.fromPagedList("registerGroups", registerGroupInfos, queryParameters);
     }
 
     @GET
