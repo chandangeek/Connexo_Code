@@ -59,7 +59,7 @@ public class ComPortResource {
                 comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
             }
         }
-        return PagedInfoList.asJson("data", comPortInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", comPortInfos, queryParameters);
     }
 
     @GET

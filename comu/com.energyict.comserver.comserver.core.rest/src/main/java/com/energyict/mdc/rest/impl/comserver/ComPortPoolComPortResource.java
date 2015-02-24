@@ -55,7 +55,7 @@ public class ComPortPoolComPortResource {
         for (ComPort comPort : comPorts) {
             comPortInfos.add(ComPortInfoFactory.asInfo(comPort, engineConfigurationService));
         }
-        return PagedInfoList.asJson("data", comPortInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", comPortInfos, queryParameters);
     }
 
     @GET

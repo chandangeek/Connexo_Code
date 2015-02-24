@@ -55,7 +55,7 @@ public class ComServerResource {
             comServers.add(ComServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService));
         }
 
-        return PagedInfoList.asJson("data", comServers, queryParameters);
+        return PagedInfoList.fromPagedList("data", comServers, queryParameters);
     }
 
     private List<ComServer> getSortedComServers(QueryParameters queryParameters) {

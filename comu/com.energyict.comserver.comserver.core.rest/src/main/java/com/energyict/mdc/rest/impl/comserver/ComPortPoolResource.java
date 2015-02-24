@@ -97,7 +97,7 @@ public class ComPortPoolResource {
         for (ComPortPool comPortPool : comPortPools) {
             comPortPoolInfos.add(ComPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService));
         }
-        return PagedInfoList.asJson("data", comPortPoolInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", comPortPoolInfos, queryParameters);
     }
 
     private void getComPortPoolsByConnectionType(List<ComPortPool> comPortPools, String compatibleWithConnectionType) {
