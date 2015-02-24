@@ -56,7 +56,7 @@ public class ComTaskResource {
     public PagedInfoList getComTasks(@BeanParam QueryParameters queryParameters) {
         List<ComTaskInfo> comTaskInfos =
                 ComTaskInfo.from(ListPager.of(taskService.findAllComTasks(), new ComTaskComparator()).from(queryParameters).find());
-        return PagedInfoList.asJson("data", comTaskInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", comTaskInfos, queryParameters);
     }
 
     @GET
@@ -146,7 +146,7 @@ public class ComTaskResource {
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getCategories(@BeanParam QueryParameters queryParameters) {
         List<CategoryInfo> categoryInfos = CategoryInfo.from(ListPager.of(Arrays.asList(Categories.values())).from(queryParameters).find());
-        return PagedInfoList.asJson("data", categoryInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", categoryInfos, queryParameters);
     }
 
     @GET
@@ -158,7 +158,7 @@ public class ComTaskResource {
         if (categoryParameter.isPresent()) {
             List<ActionInfo> actionInfos = ActionInfo.from(ListPager.of(
                     Categories.valueOf(categoryParameter.get().toUpperCase()).getActions()).from(queryParameters).find());
-            return PagedInfoList.asJson("data", actionInfos, queryParameters);
+            return PagedInfoList.fromPagedList("data", actionInfos, queryParameters);
         }
         throw new WebApplicationException("No \"category\" query property is present",
                 Response.status(Response.Status.BAD_REQUEST).entity("No \"category\" query property is present").build());
