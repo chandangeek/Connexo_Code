@@ -104,9 +104,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                     INBOUND_DISCRIMINATOR, InboundConnectionTaskImpl.class,
                     SCHEDULED_DISCRIMINATOR, ScheduledConnectionTaskImpl.class);
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_DEVICE_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_DEVICE_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED + "}")
     private Reference<PCTT> partialConnectionTask = ValueReference.absent();
     private boolean isDefault = false;
     private ConnectionTaskLifecycleStatus status = ConnectionTaskLifecycleStatus.INCOMPLETE;
@@ -115,9 +115,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Instant lastSuccessfulCommunicationEnd;
     private transient PropertyCache<ConnectionType, ConnectionTaskProperty> cache;
     private long pluggableClassId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED_KEY + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private ConnectionTypePluggableClass pluggableClass;
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Reference<ComSession> lastSession = ValueReference.absent();

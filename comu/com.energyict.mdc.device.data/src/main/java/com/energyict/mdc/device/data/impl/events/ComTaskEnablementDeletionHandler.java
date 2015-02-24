@@ -51,7 +51,7 @@ public class ComTaskEnablementDeletionHandler implements TopicHandler {
     }
 
     /**
-     * Vetos the delection of the {@link ComTaskEnablement}
+     * Vetos the deletion of the {@link ComTaskEnablement}
      * by throwing an exception when the ComTaskEnablement
      * is used by at least on Device, i.e. at least one
      * ComTaskExecution that uses it on a Device.

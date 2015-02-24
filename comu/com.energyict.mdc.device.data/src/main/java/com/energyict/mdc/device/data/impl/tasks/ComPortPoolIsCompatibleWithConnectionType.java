@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = { ComPortPoolIsCompatibleWithConnectionTypeValidator.class })
 public @interface ComPortPoolIsCompatibleWithConnectionType {
 
-    String message() default "{" + MessageSeeds.Keys.COMPORT_TYPE_NOT_SUPPORTED_KEY + "}";
+    String message() default "{" + MessageSeeds.Keys.COMPORT_TYPE_NOT_SUPPORTED + "}";
 
     Class<?>[] groups() default { };
 

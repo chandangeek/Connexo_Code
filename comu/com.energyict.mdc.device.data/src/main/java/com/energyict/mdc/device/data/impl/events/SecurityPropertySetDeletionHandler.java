@@ -60,7 +60,7 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
     }
 
     /**
-     * Vetos the delection of the {@link SecurityPropertySet}
+     * Vetos the deletion of the {@link SecurityPropertySet}
      * by throwing an exception when the SecurityPropertySet
      * is used by at least on Device, i.e. at least one
      * Relation that uses it on a Device.

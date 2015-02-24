@@ -29,7 +29,7 @@ public class ComPortPoolIsCompatibleWithConnectionTypeValidator implements Const
             if (!connectionType.getSupportedComPortTypes().contains(comPortPool.getComPortType())) {
                 context.disableDefaultConstraintViolation();
                 context
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.COMPORT_TYPE_NOT_SUPPORTED_KEY + "}")
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.COMPORT_TYPE_NOT_SUPPORTED + "}")
                         .addPropertyNode("comPortPool").addConstraintViolation();
                 return false;
             }

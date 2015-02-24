@@ -2,9 +2,11 @@ package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.List;
@@ -18,13 +20,32 @@ import java.util.List;
 public interface DeviceService {
 
     /**
-     * Tests if there are {@link Device} that were created
+     * Tests if there are {@link Device}s that were created
      * from the specified {@link DeviceConfiguration}.
      *
      * @param deviceConfiguration The DeviceConfiguration
      * @return <code>true</code> iff there is at least one Device created from the DeviceConfiguration
      */
     public boolean hasDevices(DeviceConfiguration deviceConfiguration);
+
+    /**
+     * Tests if there are {@link Device}s that overrule properties
+     * defined by the same dialect as the {@link ProtocolDialectConfigurationProperties}.
+     *
+     * @param configurationProperties The DeviceConfiguration
+     * @return <code>true</code> iff there is at least one Device with overruling properties
+     */
+    public boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties);
+
+    /**
+     * Tests if there are {@link Device}s that overrule the specified {@link PropertySpec}
+     * defined by the same dialect as the {@link ProtocolDialectConfigurationProperties}.
+     *
+     * @param configurationProperties The DeviceConfiguration
+     * @param propertySpec The PropertySpec
+     * @return <code>true</code> iff there is at least one Device with overruling properties
+     */
+    public boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties, PropertySpec propertySpec);
 
     /**
      * Creates a new Device based on the given name and DeviceConfiguration

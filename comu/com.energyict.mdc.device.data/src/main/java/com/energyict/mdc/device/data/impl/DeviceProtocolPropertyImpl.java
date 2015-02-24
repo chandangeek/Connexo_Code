@@ -29,7 +29,7 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String propertyValue;
     private String propertySpec;

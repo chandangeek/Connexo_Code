@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,7 +51,7 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
                 }
             } catch (InvalidValueException e) {
                 context
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE + "}")
+                    .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
                     .addPropertyNode("properties").addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
                     .disableDefaultConstraintViolation();
                 this.valid = false;

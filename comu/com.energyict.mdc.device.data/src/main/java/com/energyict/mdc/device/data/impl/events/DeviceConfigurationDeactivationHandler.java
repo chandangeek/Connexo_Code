@@ -30,7 +30,7 @@ public class DeviceConfigurationDeactivationHandler implements TopicHandler {
     }
 
     /**
-     * Vetos the delection of the {@link DeviceConfiguration}
+     * Vetos the deletion of the {@link DeviceConfiguration}
      * by throwing an exception when there is at least
      * one Device created from that DeviceConfiguration.
      *

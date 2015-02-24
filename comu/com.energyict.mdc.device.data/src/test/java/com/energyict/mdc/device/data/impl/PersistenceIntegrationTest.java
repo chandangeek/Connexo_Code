@@ -61,11 +61,9 @@ public abstract class PersistenceIntegrationTest {
 
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
-    @Mock
-    protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    @Mock
-    protected DeviceProtocol deviceProtocol;
 
+    protected static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    protected static DeviceProtocol deviceProtocol;
     protected static InMemoryIntegrationPersistence inMemoryPersistence;
 
     EnumSet<DeviceMessageId> deviceMessageIds;
@@ -75,6 +73,10 @@ public abstract class PersistenceIntegrationTest {
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
         inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false);
+        deviceProtocol = mock(DeviceProtocol.class);
+        deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
     }
 
     @AfterClass
@@ -88,8 +90,6 @@ public abstract class PersistenceIntegrationTest {
 
     @Before
     public void initializeMocks() {
-        when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
                 DeviceMessageId.CONTACTOR_OPEN,
                 DeviceMessageId.CONTACTOR_ARM,
@@ -100,11 +100,11 @@ public abstract class PersistenceIntegrationTest {
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
         when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
-        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
-        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
-        when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);

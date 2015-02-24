@@ -611,7 +611,9 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     public Map<ComSession.SuccessIndicator, Long> getConnectionTaskLastComSessionSuccessIndicatorCount(EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("select ct.lastSessionSuccessIndicator, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct where ct.nextexecutiontimestamp is not null and ct.obsolete_date is null ");
+        sqlBuilder.append(" ct where ct.nextexecutiontimestamp is not null");
+        sqlBuilder.append("      and ct.obsolete_date is null");
+        sqlBuilder.append("      and ct.lastsession is not null");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append(" group by ct.lastSessionSuccessIndicator");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));

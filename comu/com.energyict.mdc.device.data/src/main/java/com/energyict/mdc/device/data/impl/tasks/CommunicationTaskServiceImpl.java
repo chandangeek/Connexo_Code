@@ -941,7 +941,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
         SqlBuilder sqlBuilder = new SqlBuilder("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" cte where obsolete_date is null group by cte.lastsess_highestpriocomplcode");
+        sqlBuilder.append(" cte where obsolete_date is null and lastsession is not null group by cte.lastsess_highestpriocomplcode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
     }
 
@@ -949,7 +949,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" cte where obsolete_date is null ");
+        sqlBuilder.append(" cte where obsolete_date is null and lastsession is not null");
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append(" group by cte.lastsess_highestpriocomplcode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
