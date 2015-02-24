@@ -42,7 +42,7 @@ public class PagedInfoListTest {
         ObjectMapper objectMapper = new ObjectMapper();
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getLimit()).thenReturn(2);
-        String response = objectMapper.writeValueAsString(PagedInfoList.asJson("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2, deviceTypeInfo3), queryParameters));
+        String response = objectMapper.writeValueAsString(PagedInfoList.fromPagedList("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2, deviceTypeInfo3), queryParameters));
         assertThat(response).contains("\"deviceTypes\":[{");
         assertThat(response).contains("\"total\":3");
         assertThat(response).doesNotContain("\"new 3\"");
@@ -55,7 +55,7 @@ public class PagedInfoListTest {
         when(queryParameters.getStart()).thenReturn(80);
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 6 objects
 
-        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        PagedInfoList list = PagedInfoList.fromPagedList("list", infos, queryParameters);
         assertThat(list.getTotal()).isEqualTo(86);
         assertThat(list.getInfos()).hasSize(5);
     }
@@ -67,7 +67,7 @@ public class PagedInfoListTest {
         when(queryParameters.getStart()).thenReturn(80);
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()); // 5 objects
 
-        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        PagedInfoList list = PagedInfoList.fromPagedList("list", infos, queryParameters);
         assertThat(list.getTotal()).isEqualTo(85);
         assertThat(list.getInfos()).hasSize(5);
     }
@@ -81,7 +81,7 @@ public class PagedInfoListTest {
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
                 , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
 
-        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        PagedInfoList list = PagedInfoList.fromPagedList("list", infos, queryParameters);
         assertThat(list.getTotal()).isEqualTo(21);
         assertThat(list.getInfos()).hasSize(10);
 
