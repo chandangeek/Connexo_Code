@@ -237,11 +237,6 @@ public class LoadProfileImpl implements LoadProfile {
         }
 
         @Override
-        public BigDecimal getMultiplier() {
-            return channelSpec.getMultiplier();
-        }
-
-        @Override
         public ReadingType getReadingType() {
             return channelSpec.getReadingType();
         }

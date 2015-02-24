@@ -218,9 +218,9 @@ public interface CommunicationTaskService {
 
     public Finder<ComTaskExecutionSession> findSessionsByComTaskExecution(ComTaskExecution comTaskExecution);
 
-    public Finder<ComTaskExecutionSession> findSessionsByComTask(ComTask comTask);
-
     public Optional<ComTaskExecutionSession> findSession(long sessionId);
+
+    public Finder<ComTaskExecutionSession> findSessionsByComTaskExecutionAndComTask(ComTaskExecution comTaskExecution, ComTask comTask);
 
     /**
      * Counts the {@link Device}s from the specified List that have had
