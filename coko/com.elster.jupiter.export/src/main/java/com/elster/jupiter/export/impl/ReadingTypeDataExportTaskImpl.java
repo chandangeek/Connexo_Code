@@ -411,7 +411,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public Set<ReadingType> getReadingTypes(Instant at) {
-        List<JournalEntry<ReadingTypeInExportTask>> readingTypes = dataModel.mapper(ReadingTypeInExportTask.class).at(at).find(ImmutableMap.of("task", this));
+        List<JournalEntry<ReadingTypeInExportTask>> readingTypes = dataModel.mapper(ReadingTypeInExportTask.class).at(at).find(ImmutableMap.of("readingTypeDataExportTask", this));
         return readingTypes.stream()
                 .map(JournalEntry::get)
                 .map(ReadingTypeInExportTask::getReadingType)
