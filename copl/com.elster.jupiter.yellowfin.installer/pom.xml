@@ -4,10 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.elster.jupiter.install</groupId>
-    <artifactId>reports</artifactId>
-    <version>1.0</version>
-    <name>[Jupiter] com.elster.jupiter.install.reports</name>
+	 <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>kore</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    <groupId>com.elster.jupiter</groupId>
+    <artifactId>yellowfin.installer</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>[Jupiter] com.elster.jupiter.yellowfin.installer</name>
 
     <dependencies>
         <dependency>
@@ -76,6 +81,15 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+						<configuration>
+							<artifactSet>
+								<excludes>
+									<exclude>org.glassfish.hk2.external:javax.inject</exclude>
+									<exclude>com.google.inject:guice</exclude>
+									<exclude>org.apache.servicemix.bundles:org.apache.servicemix.bundles.aopalliance</exclude>
+								</excludes>
+							</artifactSet>		
+						</configuration>
                     </execution>
                 </executions>
             </plugin>
