@@ -52,7 +52,7 @@ public class LogBookTypeResource {
                 return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });*/
-        return PagedInfoList.asJson("logbookTypes", LogBookTypeInfo.from(logbookTypes), queryParameters);
+        return PagedInfoList.fromPagedList("logbookTypes", LogBookTypeInfo.from(logbookTypes), queryParameters);
     }
 
     @GET
@@ -66,7 +66,7 @@ public class LogBookTypeResource {
         }
         LogBookType logBookType = logBookRef.get();
         List<DeviceConfiguration> deviceConfigurations = this.deviceConfigurationService.findDeviceConfigurationsUsingLogBookType(logBookType);
-        return PagedInfoList.asJson("logbookType", Collections.singletonList(LogBookTypeInfo.from(logBookType, !deviceConfigurations.isEmpty())), queryParameters);
+        return PagedInfoList.fromPagedList("logbookType", Collections.singletonList(LogBookTypeInfo.from(logBookType, !deviceConfigurations.isEmpty())), queryParameters);
     }
 
     @POST

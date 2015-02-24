@@ -77,7 +77,7 @@ public class LoadProfileTypeResource {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
 
         allProfileTypes = ListPager.of(allProfileTypes, (lp1, lp2) -> lp1.getName().compareToIgnoreCase(lp2.getName())).from(queryParameters).find();
-        return Response.ok(PagedInfoList.asJson("data", LoadProfileTypeInfo.from(allProfileTypes), queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(allProfileTypes), queryParameters)).build();
     }
 
     @GET
