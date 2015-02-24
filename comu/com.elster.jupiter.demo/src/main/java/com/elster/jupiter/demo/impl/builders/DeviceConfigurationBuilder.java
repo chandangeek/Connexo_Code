@@ -108,7 +108,6 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
                 builder.newNumericalRegisterSpec(registerType)
                         .setOverflowValue(new BigDecimal(99999999))
                         .setNumberOfDigits(8)
-                        .setMultiplier(new BigDecimal(1))
                         .setNumberOfFractionDigits(0);
             }
         }

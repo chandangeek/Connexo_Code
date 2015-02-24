@@ -174,7 +174,7 @@ public class CreateA3DeviceCommand {
         if (registerTypeTpls != null){
             for (RegisterTypeTpl registerTypeName : registerTypeTpls) {
                 RegisterType registerType = registerTypes.get(registerTypeName);
-                configurationBuilder.newNumericalRegisterSpec(registerType).setOverflowValue(new BigDecimal(100000000)).setNumberOfFractionDigits(3).setNumberOfDigits(8).setMultiplier(new BigDecimal(1))
+                configurationBuilder.newNumericalRegisterSpec(registerType).setOverflowValue(new BigDecimal(100000000)).setNumberOfFractionDigits(3).setNumberOfDigits(8)
                     .setOverruledObisCode(new ObisCode(registerType.getObisCode().getA(), 1, registerType.getObisCode().getC(), registerType.getObisCode().getD(), registerType.getObisCode().getE(), registerType.getObisCode().getF()));
             }
         }
@@ -187,7 +187,6 @@ public class CreateA3DeviceCommand {
                 String mrid = channelType.getTemplateRegister().getReadingType().getMRID();
                 if (channels.containsKey(mrid)){
                     configuration.createChannelSpec(channelType, loadProfileSpec)
-                            .setMultiplier(new BigDecimal(1))
                             .setOverflow(new BigDecimal(100000000))
                             .setNbrOfFractionDigits(3)
                             .setOverruledObisCode(ObisCode.fromString(channels.get(mrid)))
