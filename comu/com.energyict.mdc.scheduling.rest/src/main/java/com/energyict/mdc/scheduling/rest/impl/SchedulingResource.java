@@ -83,7 +83,7 @@ public class SchedulingResource {
         for (ComSchedule comSchedule : comSchedules) {
             comScheduleInfos.add(ComScheduleInfo.from(comSchedule, isInUse(comSchedule)));
         }
-        return PagedInfoList.asJson("schedules", comScheduleInfos, queryParameters);
+        return PagedInfoList.fromPagedList("schedules", comScheduleInfos, queryParameters);
     }
 
     private void filterAvailableSchedulesOnly(String mrid, List<ComSchedule> comSchedules) {
