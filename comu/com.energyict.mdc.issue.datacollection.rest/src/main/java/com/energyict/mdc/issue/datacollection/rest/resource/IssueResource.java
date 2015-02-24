@@ -97,7 +97,7 @@ public class IssueResource extends BaseResource {
                 IssueStatus.class, IssueType.class);
         Condition condition = getQueryCondition(params);
         List<? extends IssueDataCollection> list = query.select(condition, params.getFrom(), params.getTo(), params.getOrder("baseIssue."));
-        return PagedInfoList.asJson("data", issuesInfoFactory.asInfos(list), queryParams);
+        return PagedInfoList.fromPagedList("data", issuesInfoFactory.asInfos(list), queryParams);
     }
 
     @GET
