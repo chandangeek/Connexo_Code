@@ -65,7 +65,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     A1800_CORONIS(37, "com.energyict.protocolimpl.coronis.waveflowDLMS.A1800"),
     WAVE_LOG(38, "com.energyict.protocolimpl.coronis.wavelog.WaveLog", FamilyRule.CORONIS),
     CEWE_PROMETER(39, "com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer"),
-    MK10_STUB(40, "com.energyict.genericprotocolimpl.edmi.mk10.executer.Mk10Stub", FamilyRule.EDMI, FamilyRule.TEST),
     SDK_SAMPLE_PROTOCOL(41, "test.com.energyict.protocolimpl.sdksample.SDKSampleProtocol", FamilyRule.TEST),
     TRIMARAN_CJE(42, "com.energyict.protocolimpl.edf.trimarancje.Trimaran"),
     GEKV2(43, "com.energyict.protocolimpl.ge.kv2.GEKV2"),
@@ -259,6 +258,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     AM500_MBUS_DEVICE(226, "com.energyict.protocolimplv2.dlms.idis.am500.MBusDevice", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P1),
     AM130(227, "com.energyict.protocolimplv2.dlms.idis.am130.AM130", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
     AM130_MBUS_DEVICE(228, "com.energyict.protocolimplv2.dlms.idis.am130.MBusDevice", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
+    AM1540_MBUS_DEVICE(229, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.MBusDevice"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -276,6 +276,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_EK155(10015, "com.energyict.genericprotocolimpl.elster.ek155.EK155"),
     ELSTER_EK280(10016, "com.elster.genericprotocolimpl.dlms.ek280.EK280"),
     IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.ELSTER_IDIS),
+    MK10_STUB(10018, "com.energyict.genericprotocolimpl.edmi.mk10.executer.Mk10Stub", FamilyRule.EDMI, FamilyRule.TEST),
 
     //Not released, only technical class
     JEM10(20001, "com.energyict.protocolimpl.ametek.Jem10"),
