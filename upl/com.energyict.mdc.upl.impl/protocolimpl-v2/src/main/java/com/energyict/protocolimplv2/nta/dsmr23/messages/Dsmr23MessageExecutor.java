@@ -720,7 +720,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
+        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
         activityCalendarController.parseContent(activityCalendarContents);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet
@@ -745,7 +745,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
+        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
         activityCalendarController.parseContent(activityCalendarContents);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet

@@ -138,15 +138,30 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      */
     protected Map<String, Integer> tempShiftedDayIdMap = new HashMap<String, Integer>();
 
+    /**
+     * Boolean indicating if the xmlContent is encoded as Base64 or not.<br/>
+     * If the content is encoded as Base64, then during parsing it will be decoded back to plain content.?
+     */
+    protected final boolean xmlContentEncodedAsBase64;
+
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone) {
-        this(cosemObjectFactory, timeZone, ACTIVITY_CALENDAR_OBISCODE, SPECIAL_DAYS_TABLE_OBISCODE);
+        this(cosemObjectFactory, timeZone, true);
+    }
+
+    public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, boolean xmlContentEncodedAsBase64) {
+        this(cosemObjectFactory, timeZone, xmlContentEncodedAsBase64, ACTIVITY_CALENDAR_OBISCODE, SPECIAL_DAYS_TABLE_OBISCODE);
     }
 
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode) {
+        this(cosemObjectFactory, timeZone, true, activityCalendarObisCode, specialDaysCalendarObisCode);
+    }
+
+    public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, boolean xmlContentEncodedAsBase64, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode) {
         this.activityCalendarObisCode = activityCalendarObisCode;
         this.specialDaysCalendarObisCode = specialDaysCalendarObisCode;
         this.cosemObjectFactory = cosemObjectFactory;
         this.timeZone = timeZone;
+        this.xmlContentEncodedAsBase64 = xmlContentEncodedAsBase64;
         this.seasonArray = new Array();
         this.weekArray = new Array();
         this.dayArray = new Array();
@@ -198,11 +213,13 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      * @throws java.io.IOException if a parsing exception occurred
      */
     public void parseContent(String xmlContent) throws IOException {
-
-        final String openingTag = "<" + IDISMessageHandler.RAW_CONTENT + ">";
-        final String closingTag = "</" + IDISMessageHandler.RAW_CONTENT + ">";
-        String compressedBase64Content = getCompressedBase64Content(xmlContent, openingTag, closingTag);
-        String content = openingTag + ProtocolTools.decompress(compressedBase64Content) + closingTag;
+        String content = xmlContent;
+        if (xmlContentEncodedAsBase64) {
+            final String openingTag = "<" + IDISMessageHandler.RAW_CONTENT + ">";
+            final String closingTag = "</" + IDISMessageHandler.RAW_CONTENT + ">";
+            String compressedBase64Content = getCompressedBase64Content(xmlContent, openingTag, closingTag);
+            content = openingTag + ProtocolTools.decompress(compressedBase64Content) + closingTag;
+        }
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

@@ -224,7 +224,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DSMR40ActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
+        ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet
@@ -240,13 +240,17 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DSMR40ActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
+        ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet
         Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
         activationCal.setTimeInMillis(Long.parseLong(epoch));
         activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
+    }
+
+    protected DSMR40ActivityCalendarController getActivityCalendarController() {
+        return new DSMR40ActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
     }
 
     @Override

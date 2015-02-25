@@ -14,13 +14,14 @@ import java.util.TimeZone;
  */
 public class DSMR40ActivityCalendarController extends DLMSActivityCalendarController {
 
+    private static boolean CONTENT_NOT_ENCODED_AS_BASE64 = false;
 
     public DSMR40ActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone) {
-        super(cosemObjectFactory, timeZone);
+        super(cosemObjectFactory, timeZone, CONTENT_NOT_ENCODED_AS_BASE64);
     }
 
     public DSMR40ActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode) {
-        super(cosemObjectFactory, timeZone, activityCalendarObisCode, specialDaysCalendarObisCode);
+        super(cosemObjectFactory, timeZone, CONTENT_NOT_ENCODED_AS_BASE64, activityCalendarObisCode, specialDaysCalendarObisCode);
     }
 
     @Override
