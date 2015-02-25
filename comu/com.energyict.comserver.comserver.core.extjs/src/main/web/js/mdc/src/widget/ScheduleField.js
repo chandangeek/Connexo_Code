@@ -130,8 +130,8 @@ Ext.define('Mdc.widget.ScheduleField', {
                         fn: function (combo, newValue) {
                             me.clearOffsetValues();
                             me.adjustOffsetGui(newValue);
-                            me.clearValueField();
                             me.adjustValueFieldGui(newValue);
+                            me.clearValueField();
                             me.onItemChange();
                             me.fireEvent('schedulefieldupdated');
                         },
@@ -411,6 +411,11 @@ Ext.define('Mdc.widget.ScheduleField', {
                         [6, 6]
                     ]);
         };
+
+        var count = me.valueField.getStore().getCount();
+
+        me.valueField.setHideTrigger(count == 1);
+        me.valueField.setReadOnly(count == 1);
     },
 
     clear: function () {
@@ -440,7 +445,7 @@ Ext.define('Mdc.widget.ScheduleField', {
 
     clearValueField: function () {
         var me = this;
-        me.valueField.setValue(1);
+        me.setFieldValue(me.valueField);
     },
 
     clearConnectionScheduleValues: function () {
@@ -448,6 +453,25 @@ Ext.define('Mdc.widget.ScheduleField', {
         me.valueField.setValue(0);
         me.unitField.setValue(0);
     },
+
+    setFieldValue: function (field) {
+        var store = field.getStore(),
+            count = store.getCount();
+
+        if (store.find('valueFieldKey', field.getValue()) != -1) {
+            field.setValue(field.getValue());
+        }
+        else{
+            if (count == 0) {
+                field.clearValue();
+            }else {
+                field.setValue(store.getAt(0).data.valueFieldKey);
+            }
+        }
+        field.setHideTrigger(count == 1);
+        field.setReadOnly(count == 1);
+    },
+
 
     hideOffsetGui: function () {
         var me = this;
@@ -548,6 +572,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                     break;
             }
             me.adjustOffsetGui(schedule.every.timeUnit);
+            me.adjustValueFieldGui(schedule.every.timeUnit);
         }
 
         me.fireEvent('change', me, schedule);
