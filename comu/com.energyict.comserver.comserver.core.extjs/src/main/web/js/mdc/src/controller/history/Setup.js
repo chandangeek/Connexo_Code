@@ -478,7 +478,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showLoadProfileTypes',
                     items: {
                         create: {
-                            title: 'Add profile type',
+                            title: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                             route: 'add',
                             privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
