@@ -74,8 +74,6 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     	Subquery subQuery = deviceService.deviceQuery().asSubquery(conditions, "id");
     	Condition amrCondition = Where.where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId());
     	amrCondition = amrCondition.and(ListOperator.IN.contains(subQuery, "amrId"));
-        // TODO it will be better to rewrite it using sub-queries, so we will have only one request
-        Finder<Device> finder = deviceService.findAllDevices(conditions);
         Order order = Order.ascending("mRID");
         if (start > -1) {
             return meteringService.getEndDeviceQuery().select(amrCondition , start + 1, start + limit  + 1, order);
