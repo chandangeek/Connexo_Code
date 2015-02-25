@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
-
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -38,6 +39,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -52,12 +54,14 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     private final DeviceDataModelService deviceDataModelService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final QueryService queryService;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.protocolPluggableService = protocolPluggableService;
+        this.queryService = queryService;
     }
 
     @Override
@@ -177,4 +181,9 @@ public class DeviceServiceImpl implements ServerDeviceService {
         Condition condition = where("connectionTasks.pluggableClass.pluggableClass.javaClassName").isEqualTo("com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType");
         return this.deviceDataModelService.dataModel().query(Device.class, ConnectionTask.class, ConnectionTypePluggableClass.class, PluggableClass.class).select(condition);
     }
+
+	@Override
+	public Query<Device> deviceQuery() {	
+		return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
+	}
 }

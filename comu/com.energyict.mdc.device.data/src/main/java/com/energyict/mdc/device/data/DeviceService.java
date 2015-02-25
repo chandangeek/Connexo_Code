@@ -5,7 +5,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -113,4 +113,6 @@ public interface DeviceService {
      * @return a list of all devices matching the given criteria
      */
     public List<Device> findDevicesByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
+    public Query<Device> deviceQuery();
+    
 }
