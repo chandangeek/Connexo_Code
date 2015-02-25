@@ -6,6 +6,9 @@ Ext.define('Idc.store.UserList', {
     proxy: {
         type: 'rest',
         timeout: 60000,
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
         url: '/api/usr/users',
         reader: {
             type: 'json',
