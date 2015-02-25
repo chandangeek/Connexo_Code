@@ -1,7 +1,7 @@
 Ext.define('Uni.grid.column.Edited', {
     extend: 'Ext.grid.column.Column',
     xtype: 'edited-column',
-    header: '',
+    header: '&nbsp',
     width: 30,
     align: 'left',
     emptyText: '',
