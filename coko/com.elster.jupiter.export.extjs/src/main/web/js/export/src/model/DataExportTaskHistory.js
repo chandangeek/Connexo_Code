@@ -1,9 +1,11 @@
 Ext.define('Dxp.model.DataExportTaskHistory', {
-    extend: 'Dxp.model.DataExportTask',
+    extend: 'Ext.data.Model',
     requires: [
-        'Uni.property.model.Property'
+        'Uni.property.model.Property',
+        'Dxp.model.DataExportTask'
     ],
     fields: [
+        {name: 'task', persist: false},
         {name: 'id', type: 'number'},
         {name: 'startedOn', type: 'number'},
         {name: 'finishedOn', type: 'number'},
@@ -14,6 +16,56 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
         {name: 'exportPeriodTo', type: 'number'},
         {name: 'statusDate', type: 'number'},
         {name: 'statusPrefix', type: 'string'},
+        {name: 'trigger', type: 'string'},
+
+        {
+            name: 'properties',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.properties;
+            }
+        },
+
+        {
+            name: 'dataProcessor',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.dataProcessor;
+            }
+        },
+
+        {
+            name: 'exportperiod',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.exportperiod;
+            }
+        },
+
+        {
+            name: 'readingTypes',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.readingTypes;
+            }
+        },
+
+        {
+            name: 'deviceGroup',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.deviceGroup;
+            }
+        },
+
+        {
+            name: 'name',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.name;
+            }
+        },
+
         {
             name: 'statusOnDate',
             persist: false,
@@ -76,5 +128,16 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 return '-';
             }
         }
+    ],
+
+    associations: [
+        {
+            type: 'hasOne',
+            model: 'Dxp.model.DataExportTask',
+            associationKey: 'task',
+            name: 'task',
+            getterName: 'getTask'
+        }
     ]
+
 });

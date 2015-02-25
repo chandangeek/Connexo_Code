@@ -288,34 +288,10 @@ Ext.define('Dxp.controller.Tasks', {
         });
         me.getApplication().fireEvent('changecontentevent', view);
         me.initFilter();
-        //var grid = me.getHistory().down('tasks-history-grid');
-
-        /*Ext.Array.each(Ext.ComponentQuery.query('tasks-action-menu'), function (item) {
-         Ext.each(item.query(), function (menuitem) {
-         if (menuitem.action !== 'viewLog') {
-         menuitem.setVisible(false);
-         } else {
-         menuitem.setVisible(true);
-         }
-         });
-         });*/
-
 
         taskModel.load(currentTaskId, {
             success: function (record) {
-                var previewForm = view.down('tasks-history-preview-form');
-
-                previewForm.taskModel = record;
-
-                Ext.suspendLayouts();
                 view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
-                if (store.getCount()) {
-                    previewForm.loadRecord(record);
-                }
-                if (record.properties() && record.properties().count()) {
-                    previewForm.down('property-form').loadRecord(record);
-                }
-                Ext.resumeLayouts(true);
             }
         });
     },
@@ -329,10 +305,6 @@ Ext.define('Dxp.controller.Tasks', {
         if (record) {
             Ext.suspendLayouts();
             preview.setTitle(record.get('startedOn_formatted'));
-            /*previewForm.down('displayfield[name=lastRun]').setVisible(false);
-             previewForm.down('displayfield[name=nextRun_formatted]').setVisible(false);
-             previewForm.down('displayfield[name=startedOn]').setVisible(false);
-             previewForm.down('displayfield[name=finishedOn]').setVisible(false);*/
             previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
             previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
             previewForm.loadRecord(record);
@@ -342,8 +314,10 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 previewForm.down('#reason-field').hide();
             }
-            if (previewForm.taskModel) {
-                previewForm.loadRecord(previewForm.taskModel);
+
+            previewForm.loadRecord(record);
+            if (record.data.properties && record.data.properties.length) {
+                previewForm.down('property-form').loadRecord(record.getTask());
             }
             Ext.resumeLayouts(true);
         }
