@@ -45,8 +45,8 @@ public class Dsmr50Properties extends DlmsProperties {
         return getProperties().getTypedProperty(AARQ_TIMEOUT_PROPERTY, BigDecimal.ZERO).longValue();
     }
 
-    public long getAARQRetries() {
-        return getProperties().getTypedProperty(AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2)).longValue();
+    public int getAARQRetries() {
+        return getProperties().getTypedProperty(AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2)).intValue();
     }
 
     @Override

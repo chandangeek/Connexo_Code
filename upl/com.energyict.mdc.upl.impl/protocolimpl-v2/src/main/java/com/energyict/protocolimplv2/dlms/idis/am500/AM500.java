@@ -17,6 +17,7 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.exceptions.ConnectionTimeOutException;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
@@ -105,17 +106,16 @@ public class AM500 extends AbstractDlmsProtocol {
             ComServerRuntimeException exception;
             try {
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
-                    getDlmsSession().getDLMSConnection().setRetries(0);   //AARQ retries are handled here
                     getDlmsSession().createAssociation();
                 }
                 return;
             } catch (ComServerRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
+                } else if (e instanceof ConnectionTimeOutException) {
+                    throw e;
                 }
                 exception = e;
-            } finally {
-                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
