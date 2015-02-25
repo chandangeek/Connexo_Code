@@ -101,7 +101,7 @@ Ext.define('Uni.property.form.Property', {
                     userHasViewPrivilege: me.userHasViewPrivilege
                 }));
                 me.add(field);
-                field.on('checkRestoreAll', function() {
+                field.on('checkRestoreAll', function () {
                     me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
                 });
             }
@@ -138,7 +138,6 @@ Ext.define('Uni.property.form.Property', {
                 values[key] = field.getValue(raw);
             }
         });
-
         this.getForm().hydrator.hydrate(values, me.getRecord());
     },
 
@@ -186,7 +185,7 @@ Ext.define('Uni.property.form.Property', {
         me.items.each(function (item) {
             if (!item.getProperty().get('isInheritedOrDefaultValue')) {
                 isDefault = false;
-            };
+            }
         });
         return isDefault;
     },
