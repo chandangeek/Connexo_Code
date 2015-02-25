@@ -107,7 +107,14 @@ public class PagedInfoList {
     public static PagedInfoList fromCompleteList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
         int totalCount = infos.size();
         if (queryParameters.getStart() != null && queryParameters.getStart() < infos.size()) {
-            infos = infos.subList(queryParameters.getStart(), infos.size());
+            int startIndex = queryParameters.getStart();
+            int endIndex = infos.size();
+            if(null != queryParameters.getLimit()) {
+                endIndex = queryParameters.getStart()+queryParameters.getLimit();
+                if( endIndex > infos.size())
+                    endIndex = infos.size();
+            }
+            infos = infos.subList(startIndex, endIndex);
         }
         return new PagedInfoList(jsonListName, infos, totalCount);
     }
