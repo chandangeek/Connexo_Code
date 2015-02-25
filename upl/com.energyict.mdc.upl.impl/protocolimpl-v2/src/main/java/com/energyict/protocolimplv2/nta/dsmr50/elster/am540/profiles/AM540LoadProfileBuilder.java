@@ -1,7 +1,14 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles;
 
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides functionality to fetch and create ProfileData objects for the AM540 protocol
@@ -11,6 +18,8 @@ import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileB
  */
 public class AM540LoadProfileBuilder extends LGLoadProfileBuilder {
 
+    private IDISProfileDataReader idisProfileDataReader;
+
     /**
      * Default constructor
      *
@@ -18,5 +27,58 @@ public class AM540LoadProfileBuilder extends LGLoadProfileBuilder {
      */
     public AM540LoadProfileBuilder(AbstractDlmsProtocol meterProtocol) {
         super(meterProtocol);
+    }
+
+    @Override
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
+        List<LoadProfileReader> eMeterLoadProfileReaders = new ArrayList<>();
+        List<LoadProfileReader> mbusLoadProfileReaders = new ArrayList<>();
+
+        for (LoadProfileReader loadProfileReader : loadProfileReaders) {
+            if (loadProfileReader.getMeterSerialNumber().equals(getMeterProtocol().getSerialNumber())) {
+                eMeterLoadProfileReaders.add(loadProfileReader);
+            } else {
+                mbusLoadProfileReaders.add(loadProfileReader);
+            }
+        }
+
+        List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfileReaders.size());
+        loadProfileConfigurations.addAll(super.fetchLoadProfileConfiguration(eMeterLoadProfileReaders));
+        loadProfileConfigurations.addAll(fetchMBusLoadProfileConfiguration(mbusLoadProfileReaders));
+        return loadProfileConfigurations;
+    }
+
+    private List<CollectedLoadProfileConfiguration> fetchMBusLoadProfileConfiguration(List<LoadProfileReader> mbusLoadProfileReaders) {
+        return getIDISProfileDataReader().fetchLoadProfileConfiguration(mbusLoadProfileReaders);
+    }
+
+    @Override
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+        List<LoadProfileReader> eMeterLoadProfileReaders = new ArrayList<>();
+        List<LoadProfileReader> mbusLoadProfileReaders = new ArrayList<>();
+
+        for (LoadProfileReader loadProfile : loadProfiles) {
+            if (loadProfile.getMeterSerialNumber().equals(getMeterProtocol().getSerialNumber())) {
+                eMeterLoadProfileReaders.add(loadProfile);
+            } else {
+                mbusLoadProfileReaders.add(loadProfile);
+            }
+        }
+
+        List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>(loadProfiles.size());
+        collectedLoadProfileList.addAll(super.getLoadProfileData(eMeterLoadProfileReaders));
+        collectedLoadProfileList.addAll(getMBusLoadProfileData(mbusLoadProfileReaders));
+        return collectedLoadProfileList;
+    }
+
+    private List<CollectedLoadProfile> getMBusLoadProfileData(List<LoadProfileReader> mbusLoadProfileReaders) {
+        return getIDISProfileDataReader().getLoadProfileData(mbusLoadProfileReaders);
+    }
+
+    private IDISProfileDataReader getIDISProfileDataReader() {
+        if (idisProfileDataReader == null) {
+            idisProfileDataReader = new AM540MbusProfileDataReader(getMeterProtocol());
+        }
+        return idisProfileDataReader;
     }
 }

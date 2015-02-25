@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events;
+package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.logbooks;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
@@ -37,35 +37,35 @@ public class AM540MbusControlLog extends MbusControlLog {
     protected void buildMeterEvent(final List<MeterEvent> meterEvents, final Date eventTimeStamp, final int eventId) {
         switch (eventId) {
             case EVENT_LOCAL_DISCONNECTION_MBUS1: {
-                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally disconnected (MBus1)"));
+                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Local disconnection M-Bus channel 1"));
             }
             break;
             case EVENT_LOCAL_CONNECTION_MBUS1: {
-                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally connected (MBus1)"));
+                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Local connection M-Bus channel 1"));
             }
             break;
             case EVENT_LOCAL_DISCONNECTION_MBUS2: {
-                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally disconnected (MBus2)"));
+                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Local disconnection M-Bus channel 2"));
             }
             break;
             case EVENT_LOCAL_CONNECTION_MBUS2: {
-                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally connected (MBus2)"));
+                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Local connection M-Bus channel 2"));
             }
             break;
             case EVENT_LOCAL_DISCONNECTION_MBUS3: {
-                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally disconnected (MBus3)"));
+                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Local disconnection M-Bus channel 3"));
             }
             break;
             case EVENT_LOCAL_CONNECTION_MBUS3: {
-                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally connected (MBus3)"));
+                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Local connection M-Bus channel 3"));
             }
             break;
             case EVENT_LOCAL_DISCONNECTION_MBUS4: {
-                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally disconnected (MBus4)"));
+                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Local disconnection M-Bus channel 4"));
             }
             break;
             case EVENT_LOCAL_CONNECTION_MBUS4: {
-                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "The disconnector has been locally connected (MBus4)"));
+                meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Local connection M-Bus channel 4"));
             }
             break;
             default:

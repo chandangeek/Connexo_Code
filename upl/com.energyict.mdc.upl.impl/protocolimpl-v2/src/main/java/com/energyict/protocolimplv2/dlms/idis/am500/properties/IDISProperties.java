@@ -35,6 +35,9 @@ public class IDISProperties extends DlmsProperties {
     }
 
     public long getLimitMaxNrOfDays() {
-        return getProperties().getTypedProperty(IDISConfigurationSupport.LIMIT_MAX_NR_OF_DAYS_PROPERTY, BigDecimal.ZERO).longValue();
+        return getProperties().getTypedProperty(
+                IDISConfigurationSupport.LIMIT_MAX_NR_OF_DAYS_PROPERTY,
+                BigDecimal.valueOf(0)   // Do not limit, but use as-is
+        ).longValue();
     }
 }

@@ -1,11 +1,10 @@
-package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
+package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsMbusProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessaging;
-import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540;
 
 /**
  * Copyrights EnergyICT
@@ -18,8 +17,8 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540;
  */
 public class MBusDevice extends AbstractDlmsMbusProtocol {
 
-    private final AbstractDlmsProtocol securityCapabilities = new AM540();
-    private final IDISMBusMessaging idisMBusMessaging = new IDISMBusMessaging(securityCapabilities);
+    private final AbstractDlmsProtocol masterProtocol = new AM540();
+    private final IDISMBusMessaging idisMBusMessaging = new IDISMBusMessaging(masterProtocol);
 
     @Override
     public String getProtocolDescription() {
@@ -32,7 +31,7 @@ public class MBusDevice extends AbstractDlmsMbusProtocol {
     }
 
     protected DeviceProtocolSecurityCapabilities getSecurityCapabilities() {
-        return securityCapabilities;
+        return masterProtocol;
     }
 
     protected DeviceMessageSupport getDeviceMessageSupport() {

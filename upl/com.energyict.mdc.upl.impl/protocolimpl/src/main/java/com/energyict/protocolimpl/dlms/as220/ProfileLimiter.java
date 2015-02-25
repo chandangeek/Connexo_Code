@@ -49,7 +49,6 @@ public class ProfileLimiter {
         this.oldToDate = to;
         this.limitMaxNrOfDays = limitMaxNrOfDays;
 
-
         if (limitMaxNrOfDays > 0) {
             Calendar toCalendar = Calendar.getInstance();
             toCalendar.setTime(from);

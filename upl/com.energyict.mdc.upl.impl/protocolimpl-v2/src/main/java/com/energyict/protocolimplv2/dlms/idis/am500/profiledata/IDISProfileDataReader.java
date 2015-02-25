@@ -3,9 +3,20 @@ package com.energyict.protocolimplv2.dlms.idis.am500.profiledata;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
@@ -15,15 +26,24 @@ import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -41,13 +61,20 @@ public class IDISProfileDataReader {
     private static final ObisCode OBISCODE_MBUS_LOAD_PROFILE = ObisCode.fromString("0.x.24.3.0.255");
 
     private static final ObisCode OBISCODE_NR_OF_POWER_FAILURES = ObisCode.fromString("0.0.96.7.9.255");
+    private static final int DO_NOT_LIMIT_MAX_NR_OF_DAYS = 0;
 
-    protected final AM500 protocol;
+    private final long limitMaxNrOfDays;
+    protected final AbstractDlmsProtocol protocol;
     protected final List<ObisCode> supportedLoadProfiles;
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
 
-    public IDISProfileDataReader(AM500 protocol) {
+    public IDISProfileDataReader(AbstractDlmsProtocol protocol) {
+        this(protocol, DO_NOT_LIMIT_MAX_NR_OF_DAYS);
+    }
+
+    public IDISProfileDataReader(AbstractDlmsProtocol protocol, long limitMaxNrOfDays) {
         this.protocol = protocol;
+        this.limitMaxNrOfDays = limitMaxNrOfDays;
 
         supportedLoadProfiles = new ArrayList<>();
         supportedLoadProfiles.add(QUARTER_HOURLY_LOAD_PROFILE_OBISCODE);
@@ -56,7 +83,6 @@ public class IDISProfileDataReader {
     }
 
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfileReaders) {
-        long limitMaxNrOfDays = protocol.getDlmsSessionProperties().getLimitMaxNrOfDays();
         List<CollectedLoadProfile> result = new ArrayList<>();
 
         for (LoadProfileReader loadProfileReader : loadProfileReaders) {
@@ -65,18 +91,10 @@ public class IDISProfileDataReader {
             List<ChannelInfo> channelInfos = getChannelInfosMap().get(loadProfileReader);
             if (isSupported(loadProfileReader) && (channelInfos != null)) {
 
-                ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) limitMaxNrOfDays);
-                Calendar fromCal = Calendar.getInstance(protocol.getTimeZone());
-                fromCal.setTime(profileLimiter.getFromDate());
-                fromCal.set(Calendar.SECOND, 0);
-                Calendar toCal = Calendar.getInstance(protocol.getTimeZone());
-                toCal.setTime(profileLimiter.getToDate());
-                toCal.set(Calendar.SECOND, 0);
-
                 try {
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(getCorrectedLoadProfileObisCode(loadProfileReader));
                     profileGeneric.setDsmr4SelectiveAccessFormat(true);
-                    DataContainer buffer = profileGeneric.getBuffer(fromCal, toCal);
+                    DataContainer buffer = profileGeneric.getBuffer(getFromCalendar(loadProfileReader), getToCalendar(loadProfileReader));
                     Object[] loadProfileEntries = buffer.getRoot().getElements();
                     List<IntervalData> intervalDatas = new ArrayList<>();
                     IntervalValue value;
@@ -126,7 +144,23 @@ public class IDISProfileDataReader {
         return result;
     }
 
-    private ObisCode getCorrectedLoadProfileObisCode(LoadProfileReader loadProfileReader) {
+    private Calendar getFromCalendar(LoadProfileReader loadProfileReader) {
+        ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) getLimitMaxNrOfDays());
+        Calendar fromCal = Calendar.getInstance(protocol.getTimeZone());
+        fromCal.setTime(profileLimiter.getFromDate());
+        fromCal.set(Calendar.SECOND, 0);
+        return fromCal;
+    }
+
+    private Calendar getToCalendar(LoadProfileReader loadProfileReader) {
+        ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) getLimitMaxNrOfDays());
+        Calendar toCal = Calendar.getInstance(protocol.getTimeZone());
+        toCal.setTime(profileLimiter.getToDate());
+        toCal.set(Calendar.SECOND, 0);
+        return toCal;
+    }
+
+    protected ObisCode getCorrectedLoadProfileObisCode(LoadProfileReader loadProfileReader) {
         return protocol.getPhysicalAddressCorrectedObisCode(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
     }
 
@@ -284,5 +318,9 @@ public class IDISProfileDataReader {
             }
         }
         return false;
+    }
+
+    public long getLimitMaxNrOfDays() {
+        return limitMaxNrOfDays;
     }
 }

@@ -200,7 +200,7 @@ public class AM500 extends AbstractDlmsProtocol {
 
     public IDISProfileDataReader getIDISProfileDataReader() {
         if (idisProfileDataReader == null) {
-            idisProfileDataReader = new IDISProfileDataReader(this);
+            idisProfileDataReader = new IDISProfileDataReader(this, getDlmsSessionProperties().getLimitMaxNrOfDays());
         }
         return idisProfileDataReader;
     }

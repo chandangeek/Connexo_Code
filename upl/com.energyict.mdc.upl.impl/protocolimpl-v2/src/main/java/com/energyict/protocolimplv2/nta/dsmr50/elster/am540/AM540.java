@@ -75,6 +75,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private AM540Messaging am540Messaging;
     private long initialFrameCounter = -1;
     private IDISMeterTopology meterTopology;
+    private DLMSCache dlmsCache;
 
     public AM540() {
         super();
@@ -112,21 +113,18 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
-        DeviceProtocolCache deviceCache = super.getDeviceCache();
-        if (deviceCache == null || !(deviceCache instanceof AM540Cache)) {
-            deviceCache = new AM540Cache();
+        if (this.dlmsCache == null || !(this.dlmsCache instanceof AM540Cache)) {
+            this.dlmsCache = new AM540Cache();
         }
-        ((AM540Cache) deviceCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
-        setDeviceCache(deviceCache);
-        return deviceCache;
+        ((AM540Cache) this.dlmsCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+        return this.dlmsCache;
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
-            AM540Cache am540Cache = (AM540Cache) deviceProtocolCache;
-            super.setDeviceCache(am540Cache);
-            initialFrameCounter = am540Cache.getFrameCounter();
+            this.dlmsCache = (AM540Cache) deviceProtocolCache;
+            this.initialFrameCounter = ((AM540Cache) this.dlmsCache).getFrameCounter();
         }
     }
 

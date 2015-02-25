@@ -11,6 +11,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
@@ -32,6 +33,7 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
     public static final ObisCode RELAY_CONTROL_DEFAULT_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
 
     private AbstractMessageExecutor dsmr50MessageExecutor;
+    private AbstractMessageExecutor mbusMessageExecutor;
 
     public AM540MessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
@@ -42,78 +44,85 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
         CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         List<OfflineDeviceMessage> dsmr40Messages = new ArrayList<>();
+        List<OfflineDeviceMessage> mbusMessages = new ArrayList<>();
 
         // First try to execute all G3 PLC related messages
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-            CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
-            try {
-                if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetTMRTTL)) {
-                    setTMRTTL(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxFrameRetries)) {
-                    setMaxFrameRetries(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL)) {
-                    setNeighbourTableEntryTTL(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize)) {
-                    setHighPriorityWindowSize(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit)) {
-                    setCSMAFairnessLimit(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength)) {
-                    setBeaconRandomizationWindowLength(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMacA)) {
-                    setMacA(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMacK)) {
-                    setMacK(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinimumCWAttempts)) {
-                    setMinimumCWAttempts(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxBe)) {
-                    setMaxBe(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxCSMABackOff)) {
-                    setMaxCSMABackOff(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinBe)) {
-                    setMinBe(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName)) {
-                    setMaxNumberOfHops(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName)) {
-                    setWeakLQIValue(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSecurityLevel)) {
-                    setSecurityLevelpendingMessage(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetRoutingConfiguration)) {
-                    setRoutingConfiguration(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName)) {
-                    setBroadCastLogTableEntryTTL(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime)) {
-                    setMaxJoinWaitTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetPathDiscoveryTime)) {
-                    setPathDiscoveryTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMetricType)) {
-                    setMetricType(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetCoordShortAddress)) {
-                    setCoordShortAddress(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetDisableDefaultRouting)) {
-                    setDisableDefaultRouting(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetDeviceType)) {
-                    setDeviceType(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WritePlcG3Timeout)) {
-                    writePlcG3Timeout(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CLOSE_RELAY)) {
-                    closeRelay(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
-                    openRelay(pendingMessage);
-                } else {
-                    collectedMessage = null;
-                    dsmr40Messages.add(pendingMessage); // These messages are not specific for AM540, but can be executed by the super (= Dsmr 4.0) messageExecutor
-                }
-            } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+            CollectedMessage collectedMessage = null;
+            int mBusChannelId = getProtocol().getPhysicalAddressFromSerialNumber(pendingMessage.getDeviceSerialNumber());
+            if (mBusChannelId > 0) {
+                mbusMessages.add(pendingMessage);
+            } else {
+                collectedMessage = createCollectedMessage(pendingMessage);
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+                try {
+                    if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetTMRTTL)) {
+                        setTMRTTL(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxFrameRetries)) {
+                        setMaxFrameRetries(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL)) {
+                        setNeighbourTableEntryTTL(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize)) {
+                        setHighPriorityWindowSize(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit)) {
+                        setCSMAFairnessLimit(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength)) {
+                        setBeaconRandomizationWindowLength(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMacA)) {
+                        setMacA(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMacK)) {
+                        setMacK(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinimumCWAttempts)) {
+                        setMinimumCWAttempts(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxBe)) {
+                        setMaxBe(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxCSMABackOff)) {
+                        setMaxCSMABackOff(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinBe)) {
+                        setMinBe(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName)) {
+                        setMaxNumberOfHops(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName)) {
+                        setWeakLQIValue(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSecurityLevel)) {
+                        setSecurityLevelpendingMessage(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetRoutingConfiguration)) {
+                        setRoutingConfiguration(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName)) {
+                        setBroadCastLogTableEntryTTL(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime)) {
+                        setMaxJoinWaitTime(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetPathDiscoveryTime)) {
+                        setPathDiscoveryTime(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMetricType)) {
+                        setMetricType(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetCoordShortAddress)) {
+                        setCoordShortAddress(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetDisableDefaultRouting)) {
+                        setDisableDefaultRouting(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetDeviceType)) {
+                        setDeviceType(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WritePlcG3Timeout)) {
+                        writePlcG3Timeout(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CLOSE_RELAY)) {
+                        closeRelay(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
+                        openRelay(pendingMessage);
+                    } else {
+                        collectedMessage = null;
+                        dsmr40Messages.add(pendingMessage); // These messages are not specific for AM540, but can be executed by the super (= Dsmr 4.0) messageExecutor
+                    }
+                } catch (IOException e) {
+                    if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                        collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+                        collectedMessage.setDeviceProtocolInformation(e.getMessage());
+                    }   //Else: throw communication exception
+                } catch (IndexOutOfBoundsException | NumberFormatException e) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
-                }   //Else: throw communication exception
-            } catch (IndexOutOfBoundsException | NumberFormatException e) {
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
-                collectedMessage.setDeviceProtocolInformation(e.getMessage());
+                }
             }
             if (collectedMessage != null) {
                 result.addCollectedMessage(collectedMessage);
@@ -122,6 +131,10 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
 
         // Then delegate all other messages to the Dsmr 5.0 message executor
         result.addCollectedMessages(getDsmr50MessageExecutor().executePendingMessages(dsmr40Messages));
+
+        // Then delegate all MBus related messages to the Mbus message executor
+        result.addCollectedMessages(getMbusMessageExecutor().executePendingMessages(mbusMessages));
+
         return result;
     }
 
@@ -297,5 +310,12 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
             dsmr50MessageExecutor = new Dsmr50MessageExecutor(getProtocol());
         }
         return dsmr50MessageExecutor;
+    }
+
+    public AbstractMessageExecutor getMbusMessageExecutor() {
+        if (mbusMessageExecutor == null) {
+            mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol());
+        }
+        return mbusMessageExecutor;
     }
 }
