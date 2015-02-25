@@ -61,6 +61,20 @@ public class PagedInfoListTest {
     }
 
     @Test
+    public void testGetTotalImmutability() throws Exception {
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(5);
+        when(queryParameters.getStart()).thenReturn(80);
+        List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 6 objects
+
+        PagedInfoList list = PagedInfoList.fromPagedList("list", infos, queryParameters);
+        assertThat(list.getTotal()).isEqualTo(86);
+        assertThat(list.getInfos()).hasSize(5);
+        assertThat(list.getTotal()).isEqualTo(86);
+        assertThat(list.getInfos()).hasSize(5);
+    }
+
+    @Test
     public void testHasNoNextPage() throws Exception {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getLimit()).thenReturn(5);
