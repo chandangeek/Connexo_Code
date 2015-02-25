@@ -80,7 +80,7 @@ public class MdcPropertyUtils {
     private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec propertySpec, ValueVisibility valueVisibility, PrivilegePresence privilegePresence) {
         Object propertyValue = getPropertyValue(properties, propertySpec);
         Boolean propertyHasValue = true;
-        Object inheritedProperty = properties.getInheritedValue(propertySpec.getName());
+        Object inheritedProperty = this.getInheritedPropertyValue(properties, propertySpec);
         Object defaultValue = getDefaultValue(propertySpec);
         if (isNull(propertyValue) && (isNull(inheritedProperty)) && (isNull(defaultValue))) {
             propertyHasValue = false;
@@ -142,6 +142,9 @@ public class MdcPropertyUtils {
         return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getLocalValue(propertySpec.getName()));
     }
 
+    private Object getInheritedPropertyValue(TypedProperties properties, PropertySpec propertySpec) {
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getInheritedValue(propertySpec.getName()));
+    }
 
     private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, SimplePropertyType simplePropertyType, Device device) {
         List<?> possibleValues = null;
