@@ -82,19 +82,5 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
         }        
     }
 
-    private Condition getSplittedInCondition(String field, List<?> values){
-        if (values.size() >= ORACLE_IN_LIMIT){
-            Logger.getLogger(DeviceEndDeviceQueryProvider.class.getSimpleName()).warning("We have more than " + ORACLE_IN_LIMIT + " devices in group, it can slow down a select query");
-            Condition condition = where(field).in(values.subList(0, ORACLE_IN_LIMIT));
-            int i = ORACLE_IN_LIMIT;
-            while (i < values.size()){
-                int lastPartIdx = i + ORACLE_IN_LIMIT;
-                condition = condition.or(where(field).in(values.subList(i,  values.size() > lastPartIdx ? lastPartIdx : values.size())));
-                i = lastPartIdx;
-            }
-            return condition;
-        }
-        return where(field).in(values);
-    }
 }
 
