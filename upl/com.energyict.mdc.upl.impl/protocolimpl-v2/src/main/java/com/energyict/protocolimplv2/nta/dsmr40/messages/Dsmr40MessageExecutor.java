@@ -1,8 +1,20 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -80,6 +92,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
                 } else {
+                    collectedMessage = null;
                     notExecutedDeviceMessages.add(pendingMessage);  // These messages are not specific for Dsmr 4.0, but can be executed by the super (= Dsmr 2.3) messageExecutor
                 }
             } catch (IOException e) {
@@ -89,9 +102,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
             }
-            result.addCollectedMessage(collectedMessage);
+            if (collectedMessage != null) {
+                result.addCollectedMessage(collectedMessage);
+            }
         }
 
+        // Then delegate all other messages to the Dsmr 2.3 message executor
         result.addCollectedMessages(super.executePendingMessages(notExecutedDeviceMessages));
         return result;
     }

@@ -101,7 +101,8 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
                     openRelay(pendingMessage);
                 } else {
-                    dsmr40Messages.add(pendingMessage);
+                    collectedMessage = null;
+                    dsmr40Messages.add(pendingMessage); // These messages are not specific for AM540, but can be executed by the super (= Dsmr 4.0) messageExecutor
                 }
             } catch (IOException e) {
                 if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
@@ -114,7 +115,9 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 collectedMessage.setDeviceProtocolInformation(e.getMessage());
             }
-            result.addCollectedMessage(collectedMessage);
+            if (collectedMessage != null) {
+                result.addCollectedMessage(collectedMessage);
+            }
         }
 
         // Then delegate all other messages to the Dsmr 5.0 message executor
