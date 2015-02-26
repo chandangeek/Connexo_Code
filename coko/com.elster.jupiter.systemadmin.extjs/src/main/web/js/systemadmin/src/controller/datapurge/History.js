@@ -18,10 +18,6 @@ Ext.define('Sam.controller.datapurge.History', {
         {
             ref: 'detailsView',
             selector: 'data-purge-history-overview #data-purge-history-details'
-        },
-        {
-            ref: 'sortingToolbar',
-            selector: 'data-purge-history-overview #data-purge-history-sorting-toolbar'
         }
     ],
 
@@ -40,12 +36,6 @@ Ext.define('Sam.controller.datapurge.History', {
         me.getApplication().fireEvent('changecontentevent', Ext.widget('data-purge-history-overview', {
             router: router
         }));
-        me.getSortingToolbar().getContainer().add({
-            xtype: 'button',
-            ui: 'tag',
-            text: Uni.I18n.translate('datapurge.history.startedon', 'SAM', 'Started on'),
-            iconCls: 'x-btn-sort-item-desc'
-        });
     },
 
     showDetails: function (selectionModel, record) {

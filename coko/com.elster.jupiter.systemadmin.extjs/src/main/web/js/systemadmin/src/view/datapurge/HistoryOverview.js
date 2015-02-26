@@ -4,7 +4,6 @@ Ext.define('Sam.view.datapurge.HistoryOverview', {
     requires: [
         'Sam.view.datapurge.HistoryGrid',
         'Sam.view.datapurge.HistoryDetails',
-        'Sam.view.datapurge.HistorySortingToolbar',
         'Uni.component.filter.view.FilterTopPanel',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
@@ -19,11 +18,6 @@ Ext.define('Sam.view.datapurge.HistoryOverview', {
                 title: Uni.I18n.translate('datapurge.history.breadcrumb', 'SAM', 'Data purge history'),
                 ui: 'large',
                 items: [
-                    {
-                        itemId: 'data-purge-history-sorting-toolbar',
-                        xtype: 'data-purge-history-sorting-toolbar',
-                        hideEmpty: false
-                    },
                     {
                         xtype: 'preview-container',
                         grid: {
