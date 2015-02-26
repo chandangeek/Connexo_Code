@@ -90,7 +90,7 @@ public class AssigneeResource extends BaseResource {
         String searchText = params.getFirst(LIKE);
         Condition condition = Condition.TRUE;
         if (searchText != null && !searchText.isEmpty()) {
-            String dbSearchText = "%" + searchText + "%";
+            String dbSearchText = "*" + searchText + "*";
             condition = condition.and(where("authenticationName").likeIgnoreCase(dbSearchText));
         }
         Query<User> query = getUserService().getUserQuery();
