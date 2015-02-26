@@ -52,6 +52,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("/dataexporttask")
@@ -237,9 +238,16 @@ public class DataExportTaskResource {
     public DataSourceInfos getDataSources(@PathParam("id") long id, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         ReadingTypeDataExportTask task = fetchDataExportTask(id);
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends ReadingTypeDataExportItem> exportItems = ListPager.of(task.getExportItems()).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        List<? extends ReadingTypeDataExportItem> allExportItems = task.getExportItems();
+        List<ReadingTypeDataExportItem> activeExportItems = new ArrayList<>();
+        for (ReadingTypeDataExportItem item : allExportItems) {
+            if (item.isActive()) {
+                activeExportItems.add(item);
+            }
+        }
+        List<? extends ReadingTypeDataExportItem> exportItems = ListPager.of(activeExportItems).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
         DataSourceInfos dataSourceInfos = new DataSourceInfos(exportItems.subList(0, Math.min(queryParameters.getLimit(), exportItems.size())));
-        dataSourceInfos.total = task.getExportItems().size();
+        dataSourceInfos.total = activeExportItems.size();
 
         return dataSourceInfos;
     }
