@@ -468,10 +468,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         }
     },
 
-//    getPropertiesController: function () {
-//        return this.getController('Mdc.controller.setup.Properties');
-//    },
-
     showDeviceConnectionMethodEditView: function (mrid, connectionMethodId) {
         this.mrid = mrid;
         var me = this;
