@@ -44,4 +44,9 @@ public interface LoadProfileIdentifier<T extends BaseLoadProfile> extends Serial
     public String getXmlType();
 
     public void setXmlType(String ignore);
+
+    /**
+     * @return the DeviceIdentifier for this LoadProfileIdentifier
+     */
+    public DeviceIdentifier<?> getDeviceIdentifier();
 }

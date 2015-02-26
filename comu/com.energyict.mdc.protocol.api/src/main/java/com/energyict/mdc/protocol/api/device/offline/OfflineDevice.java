@@ -71,11 +71,27 @@ public interface OfflineDevice extends Offline {
     public List<OfflineLoadProfile> getAllOfflineLoadProfiles();
 
     /**
+     * Get a list of all offlineLoadProfiles which are valid for the given device MRID
+     *
+     * @param mrid the mrid of the device
+     * @return a list of offlineLoadProfiles
+     */
+    public List<OfflineLoadProfile> getAllOfflineLoadProfilesForMRID(String mrid);
+
+    /**
      * Get a list of <b>ALL</b> {@link OfflineLogBook offlineLoagBooks} which are owned by this {@link OfflineDevice}.
      *
      * @return a list of {@link OfflineLogBook offlineLoagBooks}
      */
     public List<OfflineLogBook> getAllOfflineLogBooks();
+
+    /**
+     * Get a list of all offlineLogBooks which are valid for the given device MRDi
+     *
+     * @param mrdi the mrid of the device
+     * @return a list of offlineLogBooks
+     */
+    public List<OfflineLogBook> getAllOfflineLogBooksForMRID(String mrdi);
 
     /**
      * Get a list of <b>ALL</b> {@link OfflineRegister}s which are configured on this {@link OfflineDevice}.
@@ -89,7 +105,7 @@ public interface OfflineDevice extends Offline {
      * <b>AND</b> are included in one of the given RegisterGroup that are specified by ID.
      *
      * @param registerGroupIds the list ID of RegisterGroup
-     * @param mrid
+     * @param mrid the mrid of the device
      * @return a list of {@link OfflineRegister}s filtered according to the given RegisterGroup
      */
     public List<OfflineRegister> getRegistersForRegisterGroupAndMRID(List<Long> registerGroupIds, String mrid);

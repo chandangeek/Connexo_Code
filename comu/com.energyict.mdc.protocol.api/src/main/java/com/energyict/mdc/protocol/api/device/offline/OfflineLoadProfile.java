@@ -86,6 +86,8 @@ public interface OfflineLoadProfile extends Offline {
      */
     public List<OfflineLoadProfileChannel> getAllChannels();
 
+    public String getDeviceMRID();
+
     public DeviceIdentifier<?> getDeviceIdentifier();
 
     public LoadProfileIdentifier getLoadProfileIdentifier();

@@ -62,4 +62,5 @@ public interface OfflineLogBook extends Offline {
 
     public LogBookIdentifier getLogBookIdentifier();
 
+    public String getDeviceMRID();
 }

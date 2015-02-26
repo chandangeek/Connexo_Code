@@ -43,4 +43,9 @@ public interface MessageIdentifier {
 
     public void setXmlType(String ignore);
 
+    /**
+     * @return the DeviceIdentifier for this MessageIdentifier
+     */
+    public DeviceIdentifier<?> getDeviceIdentifier();
+
 }

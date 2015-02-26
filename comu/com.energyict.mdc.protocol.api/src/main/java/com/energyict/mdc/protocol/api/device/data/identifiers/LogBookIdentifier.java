@@ -27,4 +27,8 @@ public interface LogBookIdentifier<T extends BaseLogBook> extends Serializable {
 
     public void setXmlType(String ignore);
 
+    /**
+     * @return the DeviceIdentifier for this LogBookIdentifier
+     */
+    public DeviceIdentifier<?> getDeviceIdentifier();
 }
