@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifierType;
@@ -50,6 +51,11 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
     @Override
     public void setXmlType(String ignore) {
 
+    }
+
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDevice(this.deviceMessage.getDevice());
     }
 
     @Override

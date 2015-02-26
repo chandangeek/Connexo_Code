@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 
 import javax.xml.bind.annotation.XmlAttribute;
