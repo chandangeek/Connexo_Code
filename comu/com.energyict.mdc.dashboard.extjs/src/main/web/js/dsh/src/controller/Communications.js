@@ -229,6 +229,15 @@ Ext.define('Dsh.controller.Communications', {
         //router.filter.startedBetween
         //router.filter.finishBetween
 
+        if(router.filter && router.filter.startedBetween){
+            var from = router.filter.startedBetween.get('from');
+            var to = router.filter.startedBetween.get('to');
+            reportFilter['CONNECTIONDATE'] ={
+                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
+                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
+            };
+        }
+
         router.getRoute('generatereport').forward(null, {
             category: 'MDC',
             subCategory: 'Device Communication',
