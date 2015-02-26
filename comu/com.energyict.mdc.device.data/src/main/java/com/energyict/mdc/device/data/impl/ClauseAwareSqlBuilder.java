@@ -20,7 +20,15 @@ public class ClauseAwareSqlBuilder {
     private final SqlBuilder actualBuilder;
     private final Where where = new Where();
 
-    public ClauseAwareSqlBuilder(SqlBuilder actualBuilder) {
+    public static ClauseAwareSqlBuilder with(String withClause, String alias) {
+        return new ClauseAwareSqlBuilder(new SqlBuilder("with " + alias + " as (" + withClause + ") "));
+    }
+
+    public static ClauseAwareSqlBuilder select(String selectClause) {
+        return new ClauseAwareSqlBuilder(new SqlBuilder("select " + selectClause));
+    }
+
+    private ClauseAwareSqlBuilder(SqlBuilder actualBuilder) {
         super();
         this.actualBuilder = actualBuilder;
     }

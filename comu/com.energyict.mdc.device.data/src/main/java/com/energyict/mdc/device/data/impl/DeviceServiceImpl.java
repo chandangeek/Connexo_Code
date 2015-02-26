@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
-
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.DefaultFinder;
@@ -23,7 +24,6 @@ import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinde
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -36,8 +36,10 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -52,12 +54,14 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     private final DeviceDataModelService deviceDataModelService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final QueryService queryService;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.protocolPluggableService = protocolPluggableService;
+        this.queryService = queryService;
     }
 
     @Override
@@ -82,19 +86,34 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties) {
-        return this.count(this.hasDevicesSqlBuilder(configurationProperties));
+        return this.count(this.hasDevicesSqlBuilder(configurationProperties)) > 0;
     }
 
     @Override
-    public boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties, PropertySpec propertySpec) {
-        SqlBuilder sqlBuilder = this.hasDevicesSqlBuilder(configurationProperties);
-        sqlBuilder.append("and ");
-        sqlBuilder.append(propertySpec.getName());
-        sqlBuilder.append(" is not null");
-        return this.count(sqlBuilder);
+    public long countDevicesThatRelyOnRequiredProperty(ProtocolDialectConfigurationProperties configurationProperties, PropertySpec propertySpec) {
+        SqlBuilder nullValueSqlBuilder = this.hasDevicesSqlBuilder(configurationProperties);
+        nullValueSqlBuilder.append(" and ");
+        nullValueSqlBuilder.append(propertySpec.getName());
+        nullValueSqlBuilder.append(" is null ");
+
+        SqlBuilder noPropertiesSqlBuilder = new SqlBuilder("select count(*) from ");
+        noPropertiesSqlBuilder.append(TableSpecs.DDC_DEVICE.name());
+        noPropertiesSqlBuilder.append(" dev where dev.deviceconfigid =");
+        noPropertiesSqlBuilder.addLong(configurationProperties.getDeviceConfiguration().getId());
+        noPropertiesSqlBuilder.append("and not exists (select *");
+        this.appendCountDevicesSql(configurationProperties, noPropertiesSqlBuilder);
+        noPropertiesSqlBuilder.append(" and props.deviceid = dev.id)");
+        return this.count(nullValueSqlBuilder) + count(noPropertiesSqlBuilder);
     }
 
     private SqlBuilder hasDevicesSqlBuilder(ProtocolDialectConfigurationProperties configurationProperties) {
+        SqlBuilder sqlBuilder = new SqlBuilder("select count(*) ");
+        this.appendCountDevicesSql(configurationProperties, sqlBuilder);
+        return sqlBuilder;
+    }
+
+    private void appendCountDevicesSql(ProtocolDialectConfigurationProperties configurationProperties, SqlBuilder sqlBuilder) {
+        Instant now = this.deviceDataModelService.clock().instant();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
         DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass =
                 this.protocolPluggableService
@@ -102,7 +121,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
                                 deviceProtocolPluggableClass,
                                 configurationProperties.getDeviceProtocolDialectName());
         String propertiesTable = deviceProtocolDialectUsagePluggableClass.findRelationType().getDynamicAttributeTableName();
-        SqlBuilder sqlBuilder = new SqlBuilder("select count(*) from ");
+        sqlBuilder.append(" from ");
         sqlBuilder.append(propertiesTable);
         sqlBuilder.append(" dru join ");
         sqlBuilder.append(TableSpecs.DDC_PROTOCOLDIALECTPROPS.name());
@@ -110,14 +129,18 @@ public class DeviceServiceImpl implements ServerDeviceService {
         sqlBuilder.append(DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
         sqlBuilder.append(" = props.id where props.configurationpropertiesid =");
         sqlBuilder.addLong(configurationProperties.getId());
-        return sqlBuilder;
+        sqlBuilder.append("and (fromdate <=");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append(" and (todate is null or todate >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("))");
     }
 
-    private boolean count(SqlBuilder sqlBuilder) {
+    private long count(SqlBuilder sqlBuilder) {
         try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(false))) {
             try (ResultSet counter = statement.executeQuery()) {
                 counter.next();
-                return counter.getLong(1) > 0;
+                return counter.getLong(1);
             }
         }
         catch (SQLException e) {
@@ -177,4 +200,9 @@ public class DeviceServiceImpl implements ServerDeviceService {
         Condition condition = where("connectionTasks.pluggableClass.pluggableClass.javaClassName").isEqualTo("com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType");
         return this.deviceDataModelService.dataModel().query(Device.class, ConnectionTask.class, ConnectionTypePluggableClass.class, PluggableClass.class).select(condition);
     }
+
+	@Override
+	public Query<Device> deviceQuery() {
+		return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
+	}
 }

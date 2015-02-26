@@ -38,10 +38,9 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(" cte where cte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null) ");
+            sqlBuilder.append(".id ) ");
             sqlBuilder.append("and ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -91,10 +90,9 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp is not null and (exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(" cte where cte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null)");
+            sqlBuilder.append(".id )");
             sqlBuilder.append("     or ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is not null)");
@@ -122,10 +120,9 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(" cte where cte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null) and ");
+            sqlBuilder.append(".id) and ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
             sqlBuilder.appendWhereOrAnd();
@@ -160,10 +157,9 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(" cte where cte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null)");
+            sqlBuilder.append(".id )");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -205,10 +201,9 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(" cte where cte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null)");
+            sqlBuilder.append(".id )");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -249,10 +244,9 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(" cte where cte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null) ");
+            sqlBuilder.append(".id) ");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -299,10 +293,9 @@ public enum ServerConnectionTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and (not exists (select * from ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(" cte where cte.connectiontask = ");
+            sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id and cte.obsolete_date is null and comport is not null) ");
+            sqlBuilder.append(".id) ");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -325,6 +318,8 @@ public enum ServerConnectionTaskStatus {
         }
 
     };
+
+    public static final String BUSY_TASK_ALIAS_NAME = "busytask";
 
     /**
      * Returns the public counterpart of this ServerConnectionTaskStatus.

@@ -55,7 +55,7 @@ public class ProtocolDialectConfigurationPropertyValueDeletionHandler implements
         ProtocolDialectConfigurationProperties configurationProperties = property.getProtocolDialectConfigurationProperties();
         PropertySpec propertySpec = configurationProperties.getDeviceProtocolDialect().getPropertySpec(property.getName());
         if (propertySpec != null && propertySpec.isRequired()) {
-            if (this.deviceDataModelService.deviceService().hasDevices(configurationProperties, propertySpec)) {
+            if (this.deviceDataModelService.deviceService().countDevicesThatRelyOnRequiredProperty(configurationProperties, propertySpec) > 0) {
                 throw new VetoDeleteProtocolDialectConfigurationPropertyException(this.thesaurus, property);
             }
         }

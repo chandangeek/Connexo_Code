@@ -84,6 +84,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class CommunicationTaskServiceImpl implements ServerCommunicationTaskService {
 
     private static final Logger LOGGER = Logger.getLogger(CommunicationTaskServiceImpl.class.getName());
+    private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
 
     private final DeviceDataModelService deviceDataModelService;
     private final MeteringService meteringService;
@@ -189,7 +190,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(filter)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, filter, taskStatus);
             } else {
                 sqlBuilder.unionAll();
@@ -244,7 +245,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByComScheduleAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
             }
             else {
@@ -291,7 +292,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         for (ServerComTaskStatus taskStatus : this.taskStatusesForCounting(taskStatuses)) {
             // Check first pass
             if (sqlBuilder == null) {
-                sqlBuilder = new ClauseAwareSqlBuilder(new SqlBuilder());
+                sqlBuilder = WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME);
                 this.countByDeviceTypeAndTaskStatusSqlBuilder(sqlBuilder, filterSpecification, taskStatus);
             }
             else {

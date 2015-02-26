@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Interval;
 
 import java.time.Clock;
 import java.util.EnumSet;
@@ -26,6 +26,8 @@ import java.util.Set;
  * @since 2014-08-22 (15:07)
  */
 public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
+
+    private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
 
     private Set<ServerComTaskStatus> taskStatuses;
     private Set<CompletionCode> completionCodes;
@@ -57,19 +59,20 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
      * @throws IllegalArgumentException Thrown when the specifications are not valid
      */
     protected void validate(ComTaskExecutionFilterSpecification filterSpecification) throws IllegalArgumentException {
-        if (!filterSpecification.latestResults.isEmpty()
-                && !this.isNull(filterSpecification.lastSessionEnd)) {
+        if (   !filterSpecification.latestResults.isEmpty()
+            && !this.isNull(filterSpecification.lastSessionEnd)) {
             throw new IllegalArgumentException("Latest result and last session end in interval cannot be combined");
         }
-        if (!filterSpecification.comTasks.isEmpty()
-                && !filterSpecification.comSchedules.isEmpty()) {
+        if (   !filterSpecification.comTasks.isEmpty()
+            && !filterSpecification.comSchedules.isEmpty()) {
             throw new IllegalArgumentException("Communiation tasks and communication schedules cannot be combined");
         }
     }
 
     public SqlBuilder build(DataMapper<ComTaskExecution> dataMapper, int pageStart, int pageSize) {
-        SqlBuilder sqlBuilder = dataMapper.builder(communicationTaskAliasName());
-        this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
+    	this.setActualBuilder(WithClauses.BUSY_CONNECTION_TASK.sqlBuilder(BUSY_ALIAS_NAME));
+    	SqlBuilder sqlBuilder = dataMapper.builder(communicationTaskAliasName());
+    	getActualBuilder().append(sqlBuilder);
         String sqlStartClause = sqlBuilder.getText();
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         while (statusIterator.hasNext()) {
@@ -85,7 +88,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.appendWhereOrAnd();
         this.append("obsolete_date is null");
         this.append(" order by lastexecutiontimestamp desc");
-        return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize);
+        return this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize);
     }
 
     @Override
@@ -150,7 +153,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     private boolean isNull(Interval interval) {
         return interval == null
-                || ((interval.getStart() == null)
+            || (   (interval.getStart() == null)
                 && (interval.getEnd() == null));
     }
 

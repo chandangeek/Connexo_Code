@@ -6,8 +6,12 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -67,33 +71,16 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
 
     @Override
     public List<EndDevice> findEndDevices(Instant instant, Condition conditions, int start, int limit) {
-        // TODO it will be better to rewrite it using sub-queries, so we will have only one request
-        Finder<Device> finder = deviceService.findAllDevices(conditions);
+    	Subquery subQuery = deviceService.deviceQuery().asSubquery(conditions, "id");
+    	Condition amrCondition = Where.where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId());
+    	amrCondition = amrCondition.and(ListOperator.IN.contains(subQuery, "amrId"));
+        Order order = Order.ascending("mRID");
         if (start > -1) {
-            finder = finder.paged(start, limit);
-        }
-        List<Device> devices = finder.sorted("mRID", true).find();
-        if (!devices.isEmpty()) {
-            List<Long> deviceIds = devices.stream().map(Device::getId).collect(Collectors.toList());
-            Condition condition = Operator.EQUAL.compare("amrSystemId", KnownAmrSystem.MDC.getId()).and(getSplittedInCondition("amrId", deviceIds));
-            return meteringService.getEndDeviceQuery().select(condition, Order.ascending("mRID"));
-        }
-        return Collections.emptyList();
+            return meteringService.getEndDeviceQuery().select(amrCondition , start + 1, start + limit  + 1, order);
+        } else {
+        	return meteringService.getEndDeviceQuery().select(amrCondition, order);
+        }        
     }
 
-    private Condition getSplittedInCondition(String field, List<?> values){
-        if (values.size() >= ORACLE_IN_LIMIT){
-            Logger.getLogger(DeviceEndDeviceQueryProvider.class.getSimpleName()).warning("We have more than " + ORACLE_IN_LIMIT + " devices in group, it can slow down a select query");
-            Condition condition = where(field).in(values.subList(0, ORACLE_IN_LIMIT));
-            int i = ORACLE_IN_LIMIT;
-            while (i < values.size()){
-                int lastPartIdx = i + ORACLE_IN_LIMIT;
-                condition = condition.or(where(field).in(values.subList(i,  values.size() > lastPartIdx ? lastPartIdx : values.size())));
-                i = lastPartIdx;
-            }
-            return condition;
-        }
-        return where(field).in(values);
-    }
 }
 

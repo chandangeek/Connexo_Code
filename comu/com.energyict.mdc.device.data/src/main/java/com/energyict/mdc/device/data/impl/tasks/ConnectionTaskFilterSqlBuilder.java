@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 import java.time.Clock;
 import java.util.EnumSet;
@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
  * @since 2014-08-06 (13:39)
  */
 public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuilder {
+
+    private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
 
     private Set<ServerConnectionTaskStatus> taskStatuses;
     private Set<ConnectionTask.SuccessIndicator> latestStatuses;
@@ -117,8 +119,9 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     }
 
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
-        SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
-        this.setActualBuilder(new ClauseAwareSqlBuilder(sqlBuilder));
+    	this.setActualBuilder(WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME));
+    	SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
+        getActualBuilder().append(sqlBuilder);
         this.appendJoinedTables();
         String sqlStartClause = sqlBuilder.getText();
         if (this.taskStatuses.isEmpty()) {
@@ -140,7 +143,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
 
     private boolean isNull(Interval interval) {
         return interval == null
-                || ((interval.getStart() == null)
+            || (   (interval.getStart() == null)
                 && (interval.getEnd() == null));
     }
 

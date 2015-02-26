@@ -73,7 +73,7 @@ public class ProtocolDialectConfigurationPropertyValueDeletionHandlerTest {
     public void handlerVetosWhenInUse() {
         ProtocolDialectConfigurationPropertyValueDeletionHandler handler = this.newTestHandler();
         when(this.propertySpec.isRequired()).thenReturn(true);
-        when(this.deviceService.hasDevices(this.configurationProperties, this.propertySpec)).thenReturn(true);
+        when(this.deviceService.countDevicesThatRelyOnRequiredProperty(this.configurationProperties, this.propertySpec)).thenReturn(1L);
 
         // Business method
         handler.handle(this.event);
@@ -84,7 +84,7 @@ public class ProtocolDialectConfigurationPropertyValueDeletionHandlerTest {
     @Test
     public void handlerDoesNotVetoWhenNotInUse() {
         ProtocolDialectConfigurationPropertyValueDeletionHandler handler = this.newTestHandler();
-        when(this.deviceService.hasDevices(this.configurationProperties, this.propertySpec)).thenReturn(false);
+        when(this.deviceService.countDevicesThatRelyOnRequiredProperty(this.configurationProperties, this.propertySpec)).thenReturn(0L);
 
         // Business method
         handler.handle(this.event);

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
@@ -45,6 +46,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -59,8 +61,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -94,6 +98,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile SecurityPropertyService securityPropertyService;
+    private volatile QueryService queryService;
 //    private volatile IdentificationService identificationService;
 
     private ServerConnectionTaskService connectionTaskService;
@@ -104,6 +109,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private DataCollectionKpiService dataCollectionKpiService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {super();}
@@ -174,6 +180,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.dataModel = dataModel;
     }
 
+    @Reference
+    public void setQueryService(QueryService queryService) {
+		this.queryService = queryService;
+	}
+    
     @Override
     public DataModel dataModel() {
         return dataModel;
@@ -364,7 +375,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
