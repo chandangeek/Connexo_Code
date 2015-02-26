@@ -16,10 +16,7 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -37,11 +34,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
@@ -52,7 +46,6 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.Optional;
 
@@ -197,6 +190,37 @@ public class KpiServiceImplIT {
 
     }
 
+    @Test
+    public void testRemoveKpi() {
+        long id = 0;
+        try (TransactionContext context = transactionService.getContext()) {
+            Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
+                    .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
+                    .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
+                    .build();
+            kpi.save();
+
+            Instant date = LocalDate.of(2013, 7, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
+
+            kpi.getMembers().get(0).score(date, BigDecimal.valueOf(8, 0));
+            kpi.getMembers().get(1).score(date, BigDecimal.valueOf(2, 2));
+
+            id = kpi.getId();
+            context.commit();
+        }
+        Optional<Kpi> found = kpiService.getKpi(id);
+        assertThat(found).isPresent();
+
+        Kpi kpi = found.get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            kpi.remove();
+            context.commit();
+        }
+
+        assertThat(kpiService.getKpi(id)).isAbsent();
+
+    }
 
     @Test
     public void testStoreDynamicTargets() {

@@ -11,17 +11,14 @@ import com.elster.jupiter.kpi.TargetStorer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-
-import java.util.Optional;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 class KpiMemberImpl implements IKpiMember {
 

@@ -63,16 +63,28 @@ class KpiImpl implements Kpi {
 
     @Override
     public void save() {
-        if (id == 0L) {
-            Vault vault = kpiService.getVault();
-            RecordSpec recordSpec = kpiService.getRecordSpec();
-            for (IKpiMember member : members) {
-                TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, getTimeZone(), getIntervalLength(), 0);
-                member.setTimeSeries(timeSeries);
-            }
-            dataModel.mapper(Kpi.class).persist(this);
-        } else {
+        if (hasId()) {
             dataModel.mapper(Kpi.class).update(this);
+            return;
+        }
+        Vault vault = kpiService.getVault();
+        RecordSpec recordSpec = kpiService.getRecordSpec();
+        members.forEach(member -> {
+            TimeSeries timeSeries = vault.createRegularTimeSeries(recordSpec, getTimeZone(), getIntervalLength(), 0);
+            member.setTimeSeries(timeSeries);
+        });
+        dataModel.mapper(Kpi.class).persist(this);
+    }
+
+    private boolean hasId() {
+        return id != 0L;
+    }
+
+    @Override
+    public void remove() {
+        if (hasId()) {
+            members.clear();
+            dataModel.mapper(Kpi.class).remove(this);
         }
     }
 

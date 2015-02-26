@@ -35,4 +35,9 @@ public interface Kpi extends HasName {
      * Saves this Kpi to DB.
      */
     void save();
+
+    /**
+     * Removes this Kpi from the DB
+     */
+    void remove();
 }

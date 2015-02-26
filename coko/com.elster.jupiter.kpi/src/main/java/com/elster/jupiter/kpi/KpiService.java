@@ -19,7 +19,7 @@ public interface KpiService {
 
     /**
      * @param id
-     * @return an Optional containg the Kpi instance for the given id, if any.
+     * @return an Optional containing the Kpi instance for the given id, if any.
      */
     Optional<Kpi> getKpi(long id);
 }
