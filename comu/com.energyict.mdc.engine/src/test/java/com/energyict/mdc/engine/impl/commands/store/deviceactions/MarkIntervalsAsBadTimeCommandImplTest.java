@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -44,8 +45,18 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTests {
 
+    private final String mrid = "MyMrid";
+
     @Mock
     ComTaskExecution comTaskExecution;
+    @Mock
+    private Device device;
+
+    @Before
+    public void initBefore() {
+        when(device.getmRID()).thenReturn(mrid);
+        when(comTaskExecution.getDevice()).thenReturn(device);
+    }
 
     @Test
     public void doExecuteWithLargerTimeDifferenceTest() {

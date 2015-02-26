@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
@@ -32,15 +33,14 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     public void doExecute (ComServerDAO comServerDAO) {
         this.comServerDAO = comServerDAO;
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
         updateMeterDataStorer(localLoadProfile);
     }
 
-    private void updateMeterDataStorer(final PreStoreLoadProfile.LocalLoadProfile localLoadProfile) {
-        if (!localLoadProfile.getIntervalBlocks().isEmpty()) {
-            DeviceIdentifier<Device> deviceIdentifier = this.comServerDAO.getDeviceIdentifierFor(this.collectedLoadProfile.getLoadProfileIdentifier());
-            this.meterDataStoreCommand.addIntervalReadings(deviceIdentifier, localLoadProfile.getIntervalBlocks());
-            this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), localLoadProfile.getLastReading());
+    private void updateMeterDataStorer(final Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile) {
+        if (!localLoadProfile.getLast().getIntervalBlocks().isEmpty()) {
+            this.meterDataStoreCommand.addIntervalReadings(localLoadProfile.getFirst(), localLoadProfile.getLast().getIntervalBlocks());
+            this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), localLoadProfile.getLast().getLastReading());
         }
     }
 

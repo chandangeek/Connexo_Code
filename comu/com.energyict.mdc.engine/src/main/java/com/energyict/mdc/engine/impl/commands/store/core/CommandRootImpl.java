@@ -174,7 +174,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     public LoadProfileCommand getLoadProfileCommand(final LoadProfilesTask loadProfilesTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         if(checkCommandTypeExistence(ComCommandTypes.LOAD_PROFILE_COMMAND, getCommands())){
             final LoadProfileCommand comCommand = (LoadProfileCommand) getComCommand(ComCommandTypes.LOAD_PROFILE_COMMAND);
-            comCommand.updateLoadProfileReaders(loadProfilesTask);
+            comCommand.updateLoadProfileReaders(loadProfilesTask, comTaskExecution.getDevice().getmRID());
             return comCommand;
         } else {
             return createLoadProfileCommand(loadProfilesTask, possibleCommandOwner, comTaskExecution);

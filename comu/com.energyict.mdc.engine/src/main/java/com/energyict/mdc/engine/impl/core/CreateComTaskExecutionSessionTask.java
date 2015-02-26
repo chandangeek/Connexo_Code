@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
@@ -13,9 +14,11 @@ import com.energyict.mdc.tasks.ProtocolTask;
 public class CreateComTaskExecutionSessionTask implements ProtocolTask {
 
     private final ComTask comTask;
+    private final ComTaskExecution comTaskExecution;
 
-    public CreateComTaskExecutionSessionTask(ComTask comTask) {
+    public CreateComTaskExecutionSessionTask(ComTask comTask, ComTaskExecution comTaskExecution) {
         this.comTask = comTask;
+        this.comTaskExecution = comTaskExecution;
     }
 
     @Override
@@ -33,4 +36,7 @@ public class CreateComTaskExecutionSessionTask implements ProtocolTask {
         // intentionally left blank
     }
 
+    public ComTaskExecution getComTaskExecution() {
+        return comTaskExecution;
+    }
 }

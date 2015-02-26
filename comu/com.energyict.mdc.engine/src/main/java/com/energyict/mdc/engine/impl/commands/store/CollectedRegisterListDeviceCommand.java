@@ -39,10 +39,6 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
         }
     }
 
-    private DeviceIdentifier<Device> getDeviceIdentifier() {
-        return (DeviceIdentifier<Device>) collectedRegisterList.getDeviceIdentifier();
-    }
-
     @Override
     public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;

@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
@@ -19,6 +20,7 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -62,9 +64,6 @@ public class LogBooksCommandImplTest {
     private static String SERIAL_NUMBER = "SerialNumber";
     private final TestSerialNumberDeviceIdentifier deviceIdentifier = new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER);
 
-//    @ClassRule
-//    public static TestRule mockEnvironmentTranslactions = new MockEnvironmentTranslations();
-
     @Mock
     private OfflineLogBook offlineLogBook_A;
     @Mock
@@ -83,11 +82,15 @@ public class LogBooksCommandImplTest {
     private ComTaskExecution comTaskExecution;
     @Mock
     private LogBookService logBookService;
+    @Mock
+    private Device device;
 
     private Clock clock = Clock.systemUTC();
 
     @Before
     public void setUp() throws Exception {
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        when(device.getmRID()).thenReturn("MyMrid");
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
         when(offlineLogBook_A.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_1, logBookService));
         when(offlineLogBook_A.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_1));
@@ -165,7 +168,7 @@ public class LogBooksCommandImplTest {
         OfflineDevice device = mock(OfflineDevice.class);
         when(device.getSerialNumber()).thenReturn(SERIAL_NUMBER);
         List<OfflineLogBook> logBooksForDevice = Arrays.asList(offlineLogBook_A, offlineLogBook_B, offlineLogBook_C);
-        when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
+        when(device.getAllOfflineLogBooksForMRID(any())).thenReturn(logBooksForDevice);
 
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider serviceProvider = mock(CommandRoot.ServiceProvider.class);
@@ -197,9 +200,10 @@ public class LogBooksCommandImplTest {
         when(logBooksTask.getLogBookTypes()).thenReturn(Arrays.asList(logBookType_A, logBookType_C));    // The logBookTypes are specified in the LogBooksTask
 
         OfflineDevice device = mock(OfflineDevice.class);
+        when(device.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(device.getSerialNumber()).thenReturn(SERIAL_NUMBER);
         List<OfflineLogBook> logBooksForDevice = Arrays.asList(offlineLogBook_A, offlineLogBook_B, offlineLogBook_C);
-        when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
+        when(device.getAllOfflineLogBooksForMRID(any())).thenReturn(logBooksForDevice);
         when(device.getSerialNumber()).thenReturn(SERIAL_NUMBER);
 
         CommandRoot commandRoot = mock(CommandRoot.class);

@@ -273,7 +273,7 @@ public class OfflineDeviceImplTest {
         assertNotNull(offlineDevice.getMasterOfflineLoadProfiles());
         assertEquals("Expected two loadProfiles on the master", 2, offlineDevice.getMasterOfflineLoadProfiles().size());
         assertNotNull(offlineDevice.getAllOfflineLoadProfiles());
-        assertEquals("Expected 6 loadProfiles in total", 6, offlineDevice.getAllOfflineLoadProfiles().size());
+        assertEquals("Expected 9 loadProfiles in total", 9, offlineDevice.getAllOfflineLoadProfiles().size());
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -87,9 +88,9 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        PreStoreLogBook.LocalLogBook localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
-        assertThat(localLogBook.getEndDeviceEvents()).hasSize(2);
+        assertThat(localLogBook.getLast().getEndDeviceEvents()).hasSize(2);
     }
 
     @Test
@@ -107,9 +108,9 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        PreStoreLogBook.LocalLogBook localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
-        assertThat(localLogBook.getEndDeviceEvents()).hasSize(1);
+        assertThat(localLogBook.getLast().getEndDeviceEvents()).hasSize(1);
     }
 
     @Test
@@ -127,9 +128,9 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 4).hasSize(4);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        PreStoreLogBook.LocalLogBook localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
-        assertThat(localLogBook.getEndDeviceEvents()).hasSize(2);
+        assertThat(localLogBook.getLast().getEndDeviceEvents()).hasSize(2);
     }
 
     protected ComServerDAOImpl mockComServerDAOWithOfflineLoadProfile(OfflineLogBook offlineLogBook) {

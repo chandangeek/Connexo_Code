@@ -217,21 +217,22 @@ public class OfflineDeviceImpl implements OfflineDevice {
         List<LoadProfile> allLoadProfiles = new ArrayList<>(device.getLoadProfiles());
         for (Device slave : topologyService.findPhysicalConnectedDevices(device)) {
             if (checkTheNeedToGoOffline(slave)) {
-                for (LoadProfile lp : getAllLoadProfilesIncludingDownStreams(slave, topologyService)) {
-                    if (lp.getLoadProfileTypeObisCode().anyChannel()) {
-                        allLoadProfiles.add(lp);
-                    } else {
-                        boolean doesNotExist = true;
-                        for (LoadProfile lpListItem : allLoadProfiles) {
-                            if (lp.getLoadProfileTypeObisCode().equals(lpListItem.getLoadProfileTypeObisCode())) {
-                                doesNotExist = false;
-                            }
-                        }
-                        if (doesNotExist) {
-                            allLoadProfiles.add(lp);
-                        }
-                    }
-                }
+//                for (LoadProfile lp : ) {
+//                    if (lp.getLoadProfileTypeObisCode().anyChannel()) {
+//                        allLoadProfiles.add(lp);
+//                    } else {
+//                        boolean doesNotExist = true;
+//                        for (LoadProfile lpListItem : allLoadProfiles) {
+//                            if (lp.getLoadProfileTypeObisCode().equals(lpListItem.getLoadProfileTypeObisCode())) {
+//                                doesNotExist = false;
+//                            }
+//                        }
+//                        if (doesNotExist) {
+//                            allLoadProfiles.add(lp);
+//                        }
+//                    }
+//                }
+                allLoadProfiles.addAll(getAllLoadProfilesIncludingDownStreams(slave, topologyService));
             }
         }
         return allLoadProfiles;
@@ -317,8 +318,18 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     @Override
+    public List<OfflineLoadProfile> getAllOfflineLoadProfilesForMRID(String mrid) {
+        return getAllOfflineLoadProfiles().stream().filter(offlineLoadProfile -> offlineLoadProfile.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
+    }
+
+    @Override
     public List<OfflineLogBook> getAllOfflineLogBooks() {
         return this.allLogBooks;
+    }
+
+    @Override
+    public List<OfflineLogBook> getAllOfflineLogBooksForMRID(String mrid) {
+        return getAllOfflineLogBooks().stream().filter(offlineLogBook -> offlineLogBook.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
     }
 
     @Override

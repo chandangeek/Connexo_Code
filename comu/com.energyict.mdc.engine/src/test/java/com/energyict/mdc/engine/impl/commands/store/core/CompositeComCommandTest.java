@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
@@ -22,6 +23,7 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -40,14 +42,24 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CompositeComCommandTest extends CommonCommandImplTests {
 
+    private final String mrid = "MyPrivateMrid";
+
     @Mock
     private ComTaskExecution comTaskExecution;
     @Mock
     private OfflineDevice offlineDevice;
+    @Mock
+    private Device device;
 
     private final TimeDuration MAX_CLOCK_DIFF = new TimeDuration(8);
     private final TimeDuration MIN_CLOCK_DIFF = new TimeDuration(2);
     private final TimeDuration MAX_CLOCK_SHIFT = new TimeDuration(5);
+
+    @Before
+    public void initBefore() {
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        when(device.getmRID()).thenReturn(mrid);
+    }
 
     @Test(expected = ComCommandException.class)
     public void uniqueCommandViolationTest(){

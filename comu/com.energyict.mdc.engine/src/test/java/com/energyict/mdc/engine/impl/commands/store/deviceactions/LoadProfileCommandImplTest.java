@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -21,6 +22,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -45,8 +47,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LoadProfileCommandImplTest extends CommonCommandImplTests {
 
+    private final static String MY_MRID = "MyMrid";
     @Mock
     ComTaskExecution comTaskExecution;
+    @Mock
+    private Device device;
 
     private static final ObisCode FIXED_LOAD_PROFILE_OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final TimeDuration FIXED_LOAD_PROFILE_INTERVAL = new TimeDuration(900);
@@ -55,6 +60,12 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
     private static final String FIXED_DEVICE_SERIAL_NUMBER = "FIXED_DEVICE_SERIAL_NUMBER";
     private static final long LOAD_PROFILE_TYPE_ID = 651;
     private static final Unit FIXED_CHANNEL_UNIT = Unit.get("kWh");
+
+    @Before
+    public void initBefore() {
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        when(device.getmRID()).thenReturn(MY_MRID);
+    }
 
     private OfflineLoadProfile getMockedOfflineLoadProfile() {
         OfflineLoadProfile loadProfile = mock(OfflineLoadProfile.class);
@@ -167,15 +178,15 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
+        when(offlineDevice.getAllOfflineLoadProfilesForMRID(MY_MRID)).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         // Business method
         LoadProfileCommandImpl loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, offlineDevice, commandRoot, comTaskExecution);
         //loadProfileCommand.createLoadProfileReaders(offlineDevice);
 
         // Asserts
-        assertThat(loadProfileCommand.getLoadProfileReaderMap()).isNotNull();
-        assertThat(loadProfileCommand.getLoadProfileReaderMap()).hasSize(4);
+        assertThat(loadProfileCommand.getLoadProfileReaders()).isNotNull();
+        assertThat(loadProfileCommand.getLoadProfileReaders()).hasSize(4);
         assertThat(loadProfileCommand.getLoadProfileReaders()).isNotNull();
         assertThat(loadProfileCommand.getLoadProfileReaders()).hasSize(4);
     }
@@ -201,14 +212,14 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile4.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
+        when(offlineDevice.getAllOfflineLoadProfilesForMRID(MY_MRID)).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         // Business method
         LoadProfileCommandImpl loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, offlineDevice, commandRoot, comTaskExecution);
 
         // Asserts
-        assertThat(loadProfileCommand.getLoadProfileReaderMap()).isNotNull();
-        assertThat(loadProfileCommand.getLoadProfileReaderMap()).hasSize(2);
+        assertThat(loadProfileCommand.getLoadProfileReaders()).isNotNull();
+        assertThat(loadProfileCommand.getLoadProfileReaders()).hasSize(2);
         assertThat(loadProfileCommand.getLoadProfileReaders()).isNotNull();
         assertThat(loadProfileCommand.getLoadProfileReaders()).hasSize(2);
         assertThat(loadProfileCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{loadProfileObisCodes: 1.0.99.1.0.255; markAsBadTime: false; createEventsFromStatusFlag: false}");
@@ -228,7 +239,7 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
+        when(offlineDevice.getAllOfflineLoadProfilesForMRID(MY_MRID)).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         // Business method
         LoadProfileCommandImpl loadProfileCommand = new LoadProfileCommandImpl(loadProfilesTask, offlineDevice, commandRoot, comTaskExecution);

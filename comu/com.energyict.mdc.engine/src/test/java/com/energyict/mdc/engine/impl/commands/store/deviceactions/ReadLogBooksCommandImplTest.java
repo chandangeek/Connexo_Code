@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -61,10 +62,13 @@ public class ReadLogBooksCommandImplTest extends AbstractComCommandExecuteTest {
 
     @Test
     public void testExecuteCommand() throws Exception {
-        OfflineDevice device = mock(OfflineDevice.class);
+        Device device = mock(Device.class);
+        when(device.getmRID()).thenReturn("MyMrid");
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         ExecutionContext executionContext = this.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(device, executionContext, commandRootServiceProvider);
+        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, commandRootServiceProvider);
         LogBooksCommand logBooksCommand = commandRoot.getLogBooksCommand(logBooksTask, commandRoot, comTaskExecution);
         ReadLogBooksCommand readLogBooksCommand = commandRoot.getReadLogBooksCommand(logBooksCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);

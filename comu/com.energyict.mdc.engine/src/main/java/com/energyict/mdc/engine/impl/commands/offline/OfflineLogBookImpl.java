@@ -54,6 +54,8 @@ public class OfflineLogBookImpl implements OfflineLogBook {
      */
     private long logBookTypeId;
 
+    private String deviceMRID;
+
     public OfflineLogBookImpl(LogBook logBook, IdentificationService identificationService) {
         this.logBook = logBook;
         this.identificationService = identificationService;
@@ -73,6 +75,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
         setObisCode(this.logBook.getLogBookSpec().getDeviceObisCode());
         setMasterSerialNumber(this.logBook.getDevice().getSerialNumber());
         setLastLogBook(this.logBook.getLastLogBook());
+        setDeviceMRID(this.logBook.getDevice().getmRID());
     }
 
     @Override
@@ -142,5 +145,13 @@ public class OfflineLogBookImpl implements OfflineLogBook {
 
     public void setLogBookTypeId(long logBookTypeId) {
         this.logBookTypeId = logBookTypeId;
+    }
+
+    public String getDeviceMRID() {
+        return deviceMRID;
+    }
+
+    private void setDeviceMRID(String deviceMRID) {
+        this.deviceMRID = deviceMRID;
     }
 }

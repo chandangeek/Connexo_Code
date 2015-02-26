@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -14,6 +15,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
@@ -41,7 +43,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -102,6 +106,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
                 getInjector().getInstance(DeviceService.class)
         );
         this.loadProfileType = createLoadProfileType();
+        when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(any())).thenAnswer(invocationOnMock -> new DeviceIdentifierForAlreadyKnownDevice((Device) invocationOnMock.getArguments()[0]));
     }
 
     private LoadProfileType createLoadProfileType() {
@@ -129,9 +134,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
-        assertThat(localLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(4);
+        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(4);
     }
 
     @Test
@@ -148,13 +153,13 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 assertThat(new BigDecimal(intervalValue.getNumber().toString()).multiply(BigDecimal.valueOf(1000)).compareTo(intervalReading.getValue()))
                         .overridingErrorMessage("Values are not the same -> %s and %s",
                                 new BigDecimal(intervalValue.getNumber().toString()).multiply(BigDecimal.valueOf(1000)),
@@ -178,13 +183,13 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 assertThat(new BigDecimal(intervalValue.getNumber().toString()).divide(BigDecimal.valueOf(1000)).compareTo(intervalReading.getValue()))
                         .overridingErrorMessage("Values are not the same -> %s and %s",
                                 new BigDecimal(intervalValue.getNumber().toString()).divide(BigDecimal.valueOf(1000)),
@@ -207,13 +212,13 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(new BigDecimal(intervalValue.getNumber().toString()).subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
                             .overridingErrorMessage("Values are not the same -> %s and %s",
@@ -252,13 +257,13 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 BigDecimal intervalValueBigDecimal = new BigDecimal(intervalValue.getNumber().toString()).multiply(BigDecimal.valueOf(1000));
                 if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
@@ -290,13 +295,13 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.LocalLoadProfile localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 BigDecimal intervalValueBigDecimal = new BigDecimal(intervalValue.getNumber().toString()).divide(BigDecimal.valueOf(1000));
                 if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
@@ -510,6 +515,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
         when(loadProfileIdentifier.findLoadProfile()).thenReturn(loadProfile);
         when(collectedLoadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileIdentifier);
+        when(loadProfileIdentifier.getDeviceIdentifier()).thenReturn(new DeviceIdentifierForAlreadyKnownDevice(loadProfile.getDevice()));
         return collectedLoadProfile;
     }
 

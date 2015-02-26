@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
@@ -52,7 +54,7 @@ public class PreStoreLoadProfile {
      * @param collectedLoadProfile the collected data from a LoadProfile to (pre)Store
      * @return the preStored LoadProfile
      */
-    LocalLoadProfile preStore(CollectedLoadProfile collectedLoadProfile) {
+    Pair<DeviceIdentifier<Device>, LocalLoadProfile> preStore(CollectedLoadProfile collectedLoadProfile) {
         OfflineLoadProfile offlineLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
         List<IntervalBlock> processedBlocks = new ArrayList<>();
         Instant lastReading = null;
@@ -75,7 +77,7 @@ public class PreStoreLoadProfile {
             }
             processedBlocks.add(processingBlock);
         }
-        return new LocalLoadProfile(processedBlocks, lastReading);
+        return Pair.of(collectedLoadProfile.getLoadProfileIdentifier().getDeviceIdentifier(), new LocalLoadProfile(processedBlocks, lastReading));
     }
 
     private IntervalReading getOverflowCheckedReading(BigDecimal channelOverFlowValue, IntervalReading scaledIntervalReading) {

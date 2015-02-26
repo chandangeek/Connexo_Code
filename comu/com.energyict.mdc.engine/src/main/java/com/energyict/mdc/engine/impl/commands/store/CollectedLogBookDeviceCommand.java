@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.config.ComServer;
@@ -29,15 +30,14 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     public void doExecute(ComServerDAO comServerDAO) {
         this.comServerDAO = comServerDAO;
         PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), comServerDAO);
-        PreStoreLogBook.LocalLogBook localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
+        Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
         updateMeterDataStorer(localLogBook);
     }
 
-    private void updateMeterDataStorer(final PreStoreLogBook.LocalLogBook localLogBook) {
-        if (!localLogBook.getEndDeviceEvents().isEmpty()) {
-            DeviceIdentifier<Device> deviceIdentifier = this.comServerDAO.getDeviceIdentifierFor(this.deviceLogBook.getLogBookIdentifier());
-            this.meterDataStoreCommand.addEventReadings(deviceIdentifier, localLogBook.getEndDeviceEvents());
-            this.meterDataStoreCommand.addLastLogBookUpdater(this.deviceLogBook.getLogBookIdentifier(), localLogBook.getLastLogbook());
+    private void updateMeterDataStorer(final Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook) {
+        if (!localLogBook.getLast().getEndDeviceEvents().isEmpty()) {
+            this.meterDataStoreCommand.addEventReadings(localLogBook.getFirst(), localLogBook.getLast().getEndDeviceEvents());
+            this.meterDataStoreCommand.addLastLogBookUpdater(this.deviceLogBook.getLogBookIdentifier(), localLogBook.getLast().getLastLogbook());
         }
     }
 

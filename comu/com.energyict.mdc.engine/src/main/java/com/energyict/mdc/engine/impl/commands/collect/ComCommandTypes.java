@@ -224,9 +224,9 @@ public enum ComCommandTypes implements ComCommandType {
      * @return the corresponding ComCommandType
      */
     public static ComCommandType forProtocolTask(ProtocolTask protocolTask) {
-        if (protocolTask instanceof CreateComTaskExecutionSessionCommand) {
-            CreateComTaskExecutionSessionCommand createComTaskExecutionSessionCommand = (CreateComTaskExecutionSessionCommand) protocolTask;
-            return new CreateComTaskExecutionSessionCommandType(createComTaskExecutionSessionCommand.getComTask());
+        if (protocolTask instanceof CreateComTaskExecutionSessionTask) {
+            CreateComTaskExecutionSessionTask createComTaskExecutionSessionTask = (CreateComTaskExecutionSessionTask) protocolTask;
+            return new CreateComTaskExecutionSessionCommandType(createComTaskExecutionSessionTask.getComTask(), createComTaskExecutionSessionTask.getComTaskExecution());
         }
         else {
             for (ComCommandTypes comCommandTypes : values()) {

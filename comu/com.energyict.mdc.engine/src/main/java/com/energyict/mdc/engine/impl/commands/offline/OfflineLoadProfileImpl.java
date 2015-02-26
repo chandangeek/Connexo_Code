@@ -78,6 +78,8 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      */
     private List<OfflineLoadProfileChannel> allLoadProfileChannels;
 
+    private String deviceMRID;
+
     public OfflineLoadProfileImpl(final LoadProfile loadProfile, TopologyService topologyService, IdentificationService identificationService) {
         super();
         this.loadProfile = loadProfile;
@@ -102,6 +104,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         setLoadProfileObisCode(this.loadProfile.getLoadProfileSpec().getDeviceObisCode());
         setLoadProfileChannels(convertToOfflineChannels(this.loadProfile.getChannels()));
         setAllLoadProfileChannels(convertToOfflineChannels(this.topologyService.getAllChannels(this.loadProfile)));
+        setDeviceMRID(this.loadProfile.getDevice().getmRID());
     }
 
     /**
@@ -252,5 +255,14 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
 
     private void setSerialNumber(final String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    private void setDeviceMRID(String deviceMRID) {
+        this.deviceMRID = deviceMRID;
+    }
+
+    @Override
+    public String getDeviceMRID() {
+        return deviceMRID;
     }
 }
