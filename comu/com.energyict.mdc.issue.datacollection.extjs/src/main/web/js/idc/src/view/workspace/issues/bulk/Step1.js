@@ -2,7 +2,6 @@ Ext.define('Idc.view.workspace.issues.bulk.Step1', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.bulk-step1',
     title: 'Select issues',
-    border: false,
 
     requires: [
         'Uni.util.FormErrorMessage',

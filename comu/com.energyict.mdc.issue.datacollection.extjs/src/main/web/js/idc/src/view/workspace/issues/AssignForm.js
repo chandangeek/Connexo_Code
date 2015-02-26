@@ -1,12 +1,10 @@
 Ext.define('Idc.view.workspace.issues.AssignForm', {
     extend: 'Ext.form.Panel',
-    defaults: {
-        border: false
-    },
     requires: [
         'Ext.form.Panel'
     ],
     ui: 'medium',
+    padding: 0,
     title: 'Assign issue',
     alias: 'widget.issues-assign-form',
     items: [
@@ -24,9 +22,7 @@ Ext.define('Idc.view.workspace.issues.AssignForm', {
             }
         },
         {
-            margin: '0 0 0 50',
             defaults: {
-                border: false,
                 width: 500
             },
             items: [

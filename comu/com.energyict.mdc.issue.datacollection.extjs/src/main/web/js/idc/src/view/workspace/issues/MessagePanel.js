@@ -1,29 +1,7 @@
 Ext.define('Idc.view.workspace.issues.MessagePanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.message-panel',
-    msgHeaderStyle: {
-        fontSize: '16px',
-        margin: '10 0 0 0'
-    },
-    msgItemStyle: {
-        fontSize: '12px',
-        margin: '5 0 0 10'
-    },
     itemId: 'message-panel',
-    autoShow: true,
-    resizable: false,
-    bodyBorder: false,
-    shadow: false,
-    animCollapse: true,
-    border: false,
-    header: false,
-    cls: 'isu-msg-panel',
-    margin: '2',
-    defaults: {
-        style: {
-            opacity: 1
-        }
-    },
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -56,13 +34,9 @@ Ext.define('Idc.view.workspace.issues.MessagePanel', {
         //MAIN BODY
         {
             xtype: 'panel',
-            cls: 'isu-msg-panel',
-            defaults: {
-                opacity: 1
-            },
             layout: {
                 type: 'hbox',
-                align: 'stretch'
+                align: 'top'
             },
             items: [
                 // ICON
@@ -70,54 +44,26 @@ Ext.define('Idc.view.workspace.issues.MessagePanel', {
                     itemId: 'msgIcon',
                     xtype: 'panel',
                     name: 'msgiconpanel',
-                    layout: {
-                        type: 'hbox',
-                        align: 'middle'
-                    },
-                    cls: 'isu-msg-panel',
-                    defaults: {
-                        opacity: 1
-                    }
+                    margin: '0 10 0 0'
                 },
                 // MESSAGE
                 {
                     itemId : 'msgmessage',
                     xtype: 'panel',
-                    name: 'msgmessagepanel',
-                    cls: 'isu-msg-panel',
-                    defaults: {
-                        opacity: 1
-                    },
-                    layout: {
-                        type: 'vbox',
-                        align: 'left'
-                    }
+                    name: 'msgmessagepanel'
                 },
                 // CLOSE BTN
                 {
                     itemId : 'closeBTN',
                     xtype: 'panel',
-                    name: 'msgclosepanel',
-                    cls: 'isu-msg-panel',
-                    defaults: {
-                        opacity: 1
-                    },
-                    layout: {
-                        type: 'hbox'
-                    }
+                    name: 'msgclosepanel'
                 }
             ]
         },
         // BOTTOM BAR
         {
             xtype: 'panel',
-            name: 'msgbottompanel',
-            cls: 'isu-msg-panel',
-            border: 0,
-            defaults: {
-                opacity: 1
-            },
-            padding: '0 0 0 40'
+            name: 'msgbottompanel'
         }
     ]
 })

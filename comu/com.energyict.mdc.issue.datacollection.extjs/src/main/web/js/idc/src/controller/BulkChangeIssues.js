@@ -186,7 +186,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                 text: (operation === 'assign' ? 'Assigning ' : 'Closing ') + requestData.issues.length + ' issue(s). Please wait...'
             })
         );
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
 
         Ext.Ajax.request({
             url: requestUrl,
@@ -279,7 +279,6 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                         ];
                     }
                     var successPanel = Ext.widget('message-panel', successMsgParams);
-                    successPanel.addClass('isu-bulk-message-panel');
                     step5panel.add(successPanel);
                 }
 
@@ -293,7 +292,6 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                         closeBtn: false
                     };
                     var warnPanel = Ext.widget('message-panel', warnMessageParams);
-//                    warnPanel.addClass('isu-bulk-message-panel');
                     step5panel.add(warnPanel);
                 }
 
@@ -314,7 +312,6 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                         closeBtn: false
                     };
                     var failedPanel = Ext.widget('message-panel', failedMessageParams);
-//                    failedPanel.addClass('isu-bulk-message-panel');
                     step5panel.add(failedPanel);
                 }
                 me.getBulkNavigation().moveNextStep();

@@ -1,7 +1,6 @@
 Ext.define('Idc.view.workspace.issues.bulk.Wizard', {
     extend: 'Ext.form.Panel',
     alias: 'widget.wizard',
-    cls: 'wizard',
     autoHeight: true,
     border: false,
     layout: 'card',
@@ -9,7 +8,6 @@ Ext.define('Idc.view.workspace.issues.bulk.Wizard', {
     inWizard: false,
     includeSubTitle: false,
     buttonAlign: 'left',
-    bodyCls: 'isu-bulk-wizard-no-border',
 
     requires: [
         'Ext.layout.container.Card'

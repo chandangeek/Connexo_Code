@@ -13,19 +13,13 @@ Ext.define('Idc.view.workspace.issues.bulk.BulkWizard', {
         'Idc.view.workspace.issues.bulk.Step5'
     ],
 
-    header: {
-        title: 'Wizard',
-        ui: 'large',
-        style: {
-            padding: '15px'
-        }
-    },
+    title: 'Wizard',
+    ui: 'large',
 
     items: [
         {
             itemId: 'bulk-step1',
             xtype: 'bulk-step1',
-            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: true,
                 nextbuttonDisabled: false,
@@ -41,7 +35,6 @@ Ext.define('Idc.view.workspace.issues.bulk.BulkWizard', {
         {
             itemId: 'bulk-step2',
             xtype: 'bulk-step2',
-            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: false,
@@ -57,7 +50,6 @@ Ext.define('Idc.view.workspace.issues.bulk.BulkWizard', {
         {
             itemId: 'bulk-step3',
             xtype: 'bulk-step3',
-            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: false,
@@ -73,7 +65,6 @@ Ext.define('Idc.view.workspace.issues.bulk.BulkWizard', {
         {
             itemId: 'bulk-step4',
             xtype: 'bulk-step4',
-            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: false,
                 nextbuttonDisabled: true,
@@ -89,7 +80,6 @@ Ext.define('Idc.view.workspace.issues.bulk.BulkWizard', {
         {
             itemId: 'bulk-step5',
             xtype: 'bulk-step5',
-            cls: 'bulk-step',
             buttonsConfig: {
                 prevbuttonDisabled: true,
                 nextbuttonDisabled: true,

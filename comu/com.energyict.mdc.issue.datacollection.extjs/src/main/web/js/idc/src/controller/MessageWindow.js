@@ -93,8 +93,7 @@ Ext.define('Idc.controller.MessageWindow', {
         var msgPanel = Ext.ComponentQuery.query('panel[name=msgmessagepanel]', panel)[0],
             msgBody = [];
         Ext.Array.each(panel.msgBody, function (item) {
-            item.xtype = 'label';
-            item.style = panel[item.style];
+            item.xtype = 'component';
             item.itemId = 'msgmessagepanel';
             msgBody.push(item)
         });
@@ -105,7 +104,7 @@ Ext.define('Idc.controller.MessageWindow', {
         var iconPanel = Ext.ComponentQuery.query('panel[name=msgiconpanel]', panel)[0],
             cls = panel.types[panel.type].iconCls;
         iconPanel.add({
-            xtype: 'box',
+            xtype: 'component',
             cls: cls
         });
     },
@@ -136,7 +135,6 @@ Ext.define('Idc.controller.MessageWindow', {
             bottomPanel = Ext.ComponentQuery.query('panel[name=msgbottompanel]', panel)[0];
         Ext.Array.each(panel.btns, function (item) {
             item.xtype = 'button';
-            item.margin = '0 0 0 5';
             item.handler = function(){
                 item.hnd();
                 panel.close();
@@ -147,10 +145,12 @@ Ext.define('Idc.controller.MessageWindow', {
     },
 
     fillWindow: function (panel) {
+        Ext.suspendLayouts();
         this.initMsgWindow(panel);
         this.fillMsgPanel(panel);
         this.fillIconPanel(panel);
         this.fillClosePanel(panel);
         this.fillBottomPanel(panel);
+        Ext.resumeLayouts(true);
     }
 });

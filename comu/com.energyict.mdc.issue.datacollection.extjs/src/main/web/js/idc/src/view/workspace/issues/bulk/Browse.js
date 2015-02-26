@@ -27,10 +27,7 @@ Ext.define('Idc.view.workspace.issues.bulk.Browse', {
 
     content: [
         {
-            xtype: 'bulk-wizard',
-            defaults: {
-                cls: 'content-wrapper'
-            }
+            xtype: 'bulk-wizard'
         }
     ]
 });

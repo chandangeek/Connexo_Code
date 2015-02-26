@@ -2,7 +2,6 @@ Ext.define('Idc.view.workspace.issues.bulk.Step2', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.bulk-step2',
     title: 'Select action',
-    border: false,
 
     requires: [
         'Ext.form.RadioGroup'
