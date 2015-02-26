@@ -36,7 +36,7 @@ public class TimedOutTasksSqlBuilder {
         sqlBuilder.append(" WHERE cte.connectiontask = ct.id");
         sqlBuilder.append("   AND ct.comportpool = ");
         sqlBuilder.addLong(comPortPool.getId());
-        sqlBuilder.append("   AND cte.executionStart + ");
+        sqlBuilder.append("   AND ct.lastcommunicationstart + ");
         sqlBuilder.addInt(timeOutSeconds);
         sqlBuilder.append(" < ");
         sqlBuilder.addLong(now);
