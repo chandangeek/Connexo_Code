@@ -102,7 +102,7 @@ Ext.define('Idc.view.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateLong(value) : '';
+                            return value ? Uni.DateTime.formatDateShort(value) : '';
                         }
                     },
                     {
