@@ -829,6 +829,11 @@ Ext.define('Dxp.controller.Tasks', {
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id.indexOf("readingTypes") !== -1) {
+                                form.down('#readingTypesFieldContainer').setActiveError(item.msg);
+                            }
+                        });
                         form.getForm().markInvalid(json.errors);
                         formErrorsPanel.show();
                     }
