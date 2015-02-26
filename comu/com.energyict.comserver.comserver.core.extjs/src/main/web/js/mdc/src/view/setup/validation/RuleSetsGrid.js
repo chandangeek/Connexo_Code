@@ -66,6 +66,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'),
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets/add'
                     }
                 ]
