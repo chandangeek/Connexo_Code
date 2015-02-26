@@ -5,7 +5,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
@@ -189,21 +188,32 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     public void setProperty(String name, Object value) {
         if (value != null) {
             if (getTypedProperties().hasValueFor(name)) {
-                removeProperty(name);
+                this.updateProperty(name, value);
             }
-            setNewProperty(name, value);
+            else {
+                this.setNewProperty(name, value);
+            }
         } else {
             removeProperty(name);
         }
     }
 
+    public void updateProperty(String name, Object value) {
+        this.findProperty(name).ifPresent(this::doRemoveProperty);
+        this.setNewProperty(name, value);
+    }
+
     @Override
     public void removeProperty(String name) {
-        findProperty(name).ifPresent(this::doRemoveProperty);
+        findProperty(name).ifPresent(this::validateAndRemoveProperty);
+    }
+
+    private void validateAndRemoveProperty(ProtocolDialectConfigurationPropertyImpl obsolete) {
+        obsolete.validateDelete();
+        doRemoveProperty(obsolete);
     }
 
     private void doRemoveProperty(ProtocolDialectConfigurationPropertyImpl obsolete) {
-        obsolete.validateDelete();
         this.propertyList.remove(obsolete);
         this.getLocalAdjustableTypedProperties().removeProperty(obsolete.getName());
     }
