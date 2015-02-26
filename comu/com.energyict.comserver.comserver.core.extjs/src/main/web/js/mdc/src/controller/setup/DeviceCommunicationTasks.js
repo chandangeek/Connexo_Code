@@ -113,27 +113,17 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         Ext.each(changeItems, function (item) {
             item.hide();
         });
-        if (selection.data.scheduleTypeKey === 'ON_REQUEST') {
-            changeItems[3].show();
-            changeItems[4].show();
-        } else if (selection.data.scheduleTypeKey === 'SHARED') {
-            changeItems[0].show();
-            changeItems[2].show();
-            changeItems[3].show();
-            changeItems[4].show();
-            changeItems[5].show();
-        } else {
-            changeItems[0].show();
-            changeItems[1].show();
-            changeItems[2].show();
-            changeItems[3].show();
-            changeItems[5].show();
-        }
-        if(selection.data.connectionDefinedOnDevice===false){
-            changeItems[3].hide();
-            changeItems[4].hide();
-        }
 
+        changeItems[0].show();
+        changeItems[2].show();
+        if (selection.data.scheduleTypeKey !== 'SHARED') {
+            changeItems[1].show();
+        }
+        changeItems[3].show();
+        if (selection.data.connectionStrategyKey !== 'asSoonAsPossible') {
+            changeItems[4].show();
+        }
+        changeItems[5].show();
     },
 
     showDeviceCommunicationTaskPreview: function () {
