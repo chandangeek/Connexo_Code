@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Application servers</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000016_EN Connexo MDC 1.0 System administrator's guide\01 DRAFT\01 SOURCE\000016_UMNL_Deployment.fm" />
+ <link rel="stylesheet" href="000016_UMNL_Deployment.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "4.1";
+</script>
+ <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/System_configuration.htm">
+ <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Configure_application_servers.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H2Section">Application servers</p>
+ 
+ <p class="FM_H3SectionTopic"><a name="TOC_Understand_application"></a>Understand application servers</p>
+ <p class="FM_H4Topic">What are application servers</p>
+ <p class="FM_Body">An <a title="Is a server on which different processes can run. With these servers the load can be balanced by dividing different tasks over different application servers. On the application server message services can be added and the number of threads can be changed to define the amount of parallel services.">application server</a> is a server that runs different services in the background which allows processes that run for a long period of time not hinder to the user. Examples of such processes are data export and import and the calculation of KPIs.</p>
+ <p class="FM_Body">The services that run on the application server are called <a title="Are the services that run on the application server for which queues are used.">message services</a> because the server handles messages. These message services can be configured to reduce the load on the system. This can be achieved by creating different application servers for different services. For example, two application servers can be created and configured for data export. This will divide the export messages over the two servers allowing them to be executed at the same time. </p>
+ <p class="FM_Body">You can also scale the threads of an application server by increasing the number of threads of the message service. This will determine the amount of services such as export tasks that can be performed in parallel on a single server.</p>
+ <p class="FM_Body">Using multiple servers also creates a more stable system because when one server is down due to error or maintenance, the second server can take over.</p>
+ <p class="FM_H4Topic">Application servers in Connexo</p>
+ <p class="FM_Body">Application servers in Connexo can easily be added and managed using the <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;application. When you add a new application server three parameters need to be defined: a unique name, the export path and the message services.</p>
+ <p class="FM_Body">The export path sets the default path where files and data will be exported to. However this path can be overruled when you configure an export task. Beware that if you create multiple application servers for data export tasks that belong together, the export path of the different applications servers is the same. Otherwise your data will be scattered over different locations.</p>
+ <p class="FM_Body">By default all <a title="Are the services that run on the application server for which queues are used.">message services</a> are added to the application server, but these can easily be removed to create the application server that meets your needs.</p>
+ </body>
+</html>

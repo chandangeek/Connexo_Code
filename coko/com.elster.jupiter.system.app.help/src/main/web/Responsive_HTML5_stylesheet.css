@@ -11,11 +11,11 @@
 
 @font-face {
   font-family: "Lato";
-  src:url("fonts/Lato.eot");
-  src:url("fonts/Lato.eot?#iefix") format("embedded-opentype"),
-    url("fonts/Lato.woff") format("woff"),
-    url("fonts/Lato.ttf") format("truetype"),
-    url("fonts/Lato.svg#Lato") format("svg");
+  src:url("fonts/Lato-Regular.eot");
+  src:url("fonts/Lato-Regular.eot?#iefix") format("embedded-opentype"),
+    url("fonts/Lato-Regular.woff") format("woff"),
+    url("fonts/Lato-Regular.ttf") format("truetype"),
+    url("fonts/Lato-Regular.svg#Lato") format("svg");
 }
 
 @font-face {
@@ -44,24 +44,6 @@
     url("fonts/OpenSans-CondLight.svg#OpenSans-CondLight") format("svg");
 }
 
-h1 {
-    font-family:Open Sans Condensed Light;
-    font-weight:700;
-    font-size:40pt;
-    color:#1e7d9e;
-    margin:12pt 0 36pt 0;
-    x-next-type:p;
-    x-next-class:h2;
-}
-h2 {
-    font-family:Open Sans Condensed Light;
-    font-weight:350;
-    font-size:28pt;
-    color:#1e7d9e;
-    margin:12pt 0 36pt 0;
-    x-next-type:p;
-    x-next-class:FM_H3SectionTopic;
-}
 caption {
       background-color:#ffffff;
 	  margin-left: 20.000pt;
@@ -74,7 +56,7 @@ caption {
 
 table {     
                    width:75%;
-				   max-width:400pt !important;
+				   /*max-width:400pt !important;*/
                    padding:10px;
                    margin-left:67pt !important;
                    margin-top:15pt;
@@ -83,12 +65,17 @@ table {
 
 table.TDefenition {     
                    width:75%;
-				   max-width:550pt !important;
+				   /*max-width:550pt !important;*/
                    padding:10px;
                    margin-left:50pt;
                    margin-top:15pt;
 				   border:none;
-				   background: #f0f0f0;
+				   background: #CFD9E3;
+}
+table.TDefenition tbody tr:nth-child(even)   {
+        
+                                             background:#CFD9E3;
+
 }
 a:link {
     text-decoration: none;
@@ -132,12 +119,29 @@ a.glossterm {
              border-bottom:dotted 1px #f36b22;
              text-decoration:none;
 }
+p.FM_Copyright {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      left;
+        text-indent:     0.000pt;
+        margin-top:      0.000pt;
+        margin-bottom:   28.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       30.0pt;
+        color:           #00699e;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+}
 p.FM_DropDownCaption {
         margin-left:     20.000pt;
         margin-right:    0.000pt;
         text-align:      justify;
         text-indent:     0.000pt;
-        margin-top:      10.000pt;
+        margin-top:      20.000pt;
         margin-bottom:   15.000pt;
         word-spacing:    0.250em;
         font-family:     Lato Bold;
@@ -150,51 +154,15 @@ p.FM_DropDownCaption {
 		letter-spacing:  0.00em;
 }
 
-caption.FM_DropDownCaption {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #1f7e9e;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
 p.FM_DropDownBody {
         line-height:     140%;
-		margin-left:     43.000pt;
-        margin-right:    0.000pt;
+		margin-left:     55.000pt !important; 
+        margin-right:    25.000pt;
         text-align:      justify;
         text-indent:     0.000pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_DropDownBody {
-        margin-left:     43.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
         font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
@@ -205,6 +173,7 @@ caption.FM_DropDownBody {
 		letter-spacing:  0.00em;
         
 }
+
 
 p.FM_FooterRightPortrait {
         margin-left:     0.000pt;
@@ -224,13 +193,15 @@ p.FM_FooterRightPortrait {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_FooterRightPortrait {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
+
+p.FM_BodyProcedure {
+        line-height:     140%;
+		margin-left:     67.000pt;
+        margin-right:    25.000pt;
+        text-align:      justify;
         text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
+        margin-top:      4.000pt;
+        margin-bottom:   4.000pt;
         word-spacing:    0.250em;
         font-family:     Lato;
         font-style:      normal;
@@ -242,43 +213,7 @@ caption.FM_FooterRightPortrait {
 		letter-spacing:  0.00em;
         
 }
-p.FM_BodyProcedure {
-        line-height:     140%;
-		margin-left:     67.000pt;
-        margin-right:    25.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_BodyProcedure {
-        margin-left:     67.000pt;
-        margin-right:    25.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_PProcedure {
         margin-left:     25.000pt;
         margin-right:    0.000pt;
@@ -298,25 +233,7 @@ p.FM_PProcedure {
 		display: inline;
         
 }
-caption.FM_PProcedure {
-        margin-left:     25.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     22.677pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-		display: inline;
-        
-}
+
 p.FM_Pprocedure2 {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -336,25 +253,7 @@ p.FM_Pprocedure2 {
 		display: inline;
         
 }
-caption.FM_Pprocedure2 {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   2.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-		display: inline;
-        
-}
+
 p.FM_PCaution {
         margin-left:     39.685pt;
         margin-right:    0.000pt;
@@ -373,25 +272,6 @@ p.FM_PCaution {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_PCaution {
-        margin-left:     39.685pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     -39.685pt;
-        margin-top:      22.000pt;
-        margin-bottom:   22.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #eb5642;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-
 
 p.FM_COTitle {
         margin-left:     0.000pt;
@@ -411,24 +291,7 @@ p.FM_COTitle {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_COTitle {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      36.000pt;
-        margin-bottom:   14.000pt;
-        word-spacing:    0.250em;
-        font-family:     Open Sans Condensed Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       36.0pt;
-        color:           #00699e;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_COTitleProduct {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -466,24 +329,7 @@ p.FM_CGraphicCell {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_CGraphicCell {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      2.000pt;
-        margin-bottom:   2.000pt;
-        word-spacing:    0.250em;
-        font-family:     Verdana;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       9.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_CellBody {
         margin-left:     0.000pt;
 		line-height: 	 140%;
@@ -493,7 +339,7 @@ p.FM_CellBody {
         margin-top:      0.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -503,24 +349,7 @@ p.FM_CellBody {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_CellBody {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 
 p.FM_User {
         margin-left:     0.000pt;
@@ -540,24 +369,7 @@ p.FM_User {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_User {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_FooterR {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -576,24 +388,7 @@ p.FM_FooterR {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_FooterR {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      right;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_BoldBody {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -612,24 +407,7 @@ p.FM_BoldBody {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_BoldBody {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_H3SectionTopicTOC {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -648,24 +426,7 @@ p.FM_H3SectionTopicTOC {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_H3SectionTopicTOC {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #0000ff;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListNumber2 {
         margin-left:     53.858pt;
         margin-right:    0.000pt;
@@ -684,24 +445,7 @@ p.FM_ListNumber2 {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListNumber2 {
-        margin-left:     53.858pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     -11.339pt;
-        margin-top:      7.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 
 p.FM_PImportant {
         margin-left:     25.000pt;
@@ -722,24 +466,7 @@ p.FM_PImportant {
 		display: inline;
         
 }
-caption.FM_PImportant {
-        margin-left:     5.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     22.677pt;
-        margin-top:      0.000pt;
-        margin-bottom:   13.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_PImportant2 {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -759,25 +486,7 @@ p.FM_PImportant2 {
 		display: inline;
         
 }
-caption.FM_PImportant2 {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   10.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-		display: inline;
-        
-}
+
 p.FM_ListNumber3 {
         margin-left:     93.543pt;
         margin-right:    0.000pt;
@@ -796,24 +505,7 @@ p.FM_ListNumber3 {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListNumber3 {
-        margin-left:     93.543pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     -8.504pt;
-        margin-top:      7.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_CReference {
         margin-left:     11.339pt;
         margin-right:    0.000pt;
@@ -822,24 +514,6 @@ p.FM_CReference {
         margin-top:      2.000pt;
         margin-bottom:   2.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      italic;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_CReference {
-        margin-left:     11.339pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      2.000pt;
-        margin-bottom:   2.000pt;
-        word-spacing:    0.250em;
         font-family:     Lato;
         font-style:      italic;
         font-weight:     normal;
@@ -850,6 +524,7 @@ caption.FM_CReference {
 		letter-spacing:  0.00em;
         
 }
+
 p.FM_CellHeading {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -862,30 +537,13 @@ p.FM_CellHeading {
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #686868;
+        color:           #ffffff;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
         
 }
-caption.FM_CellHeading {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListNumber0 {
         margin-left:     57pt;
         margin-right:    0.000pt;
@@ -894,7 +552,7 @@ p.FM_ListNumber0 {
         margin-top:      5.000pt;
         margin-bottom:   10.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -904,24 +562,7 @@ p.FM_ListNumber0 {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListNumber0 {
-        margin-left:     57pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     -15.591pt;
-        margin-top:      5.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_H2Section {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -940,24 +581,7 @@ p.FM_H2Section {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_H2Section {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   29.000pt;
-        word-spacing:    0.250em;
-        font-family:     Open Sans Condensed Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       28.0pt;
-        color:           #1f7e9e;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 table.TParameter {
                   width:75%;
                   padding:0px;
@@ -981,19 +605,19 @@ table.TParameter tr.t1Row td {
                                  font-size:11pt;
                                  color:#686868;
                                  border:none;
-                                 background-color:#fff;
+                                 background-color:#ffffff;
 }
 table.TParameter tr.t2Row td {
                                  font-size:11pt;
                                  border:none;
-                                 background-color:#f0f0f0;
+                                 background-color:#CFD9E3;
 }
 table.TParameter tr.t1st td {
                                 font-size:11pt;
                                 color:#686868;
                                 font-weight:700;
                                 border:none;
-                                background-color:#ffffff;
+                                background-color:#1f7e9e;
 }
 
 
@@ -1015,24 +639,7 @@ p.FM_CTableTitle {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_CTableTitle {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     14.173pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      italic;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 table.CGraphic {
                   width:75%;
                   padding:0px;
@@ -1057,7 +664,7 @@ p.FM_BodyGrey {
         margin-top:      0.000pt;
         margin-bottom:   5.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -1067,24 +674,7 @@ p.FM_BodyGrey {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_BodyGrey {
-        margin-left:     42.000pt;
-        margin-right:    25.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      5.000pt;
-        margin-bottom:   5.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_PGlossary {
         margin-left:     10.000pt;
         margin-right:    0.000pt;
@@ -1103,24 +693,7 @@ p.FM_PGlossary {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_PGlossary {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_OPortrait {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1139,24 +712,7 @@ p.FM_OPortrait {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_OPortrait {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListNumber1 {
         margin-left:     57pt;
         margin-right:    0.000pt;
@@ -1165,7 +721,7 @@ p.FM_ListNumber1 {
         margin-top:      8.000pt;
         margin-bottom:   10.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -1175,24 +731,7 @@ p.FM_ListNumber1 {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListNumber1 {
-        margin-left:     57pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     -14.173pt;
-        margin-top:      8.000pt;
-        margin-bottom:   10.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_COType {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1211,24 +750,7 @@ p.FM_COType {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_COType {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      24.000pt;
-        margin-bottom:   6.000pt;
-        word-spacing:    0.250em;
-        font-family:     Open Sans Condensed Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       24.0pt;
-        color:           #00699e;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_PNote2 {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1248,25 +770,7 @@ p.FM_PNote2 {
 		display: inline;
         
 }
-caption.FM_PNote2 {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   2.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-		display: inline;
-        
-}
+
 p.FM_PNote {
         margin-left:     25.000pt;
         margin-right:    0.000pt;
@@ -1286,24 +790,7 @@ p.FM_PNote {
 		display: inline;
         
 }
-caption.FM_PNote {
-        margin-left:     5.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     22.677pt;
-        margin-top:      13.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     iconfont;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_OLandscape {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1322,24 +809,7 @@ p.FM_OLandscape {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_OLandscape {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      2.000pt;
-        margin-bottom:   2.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_H1Chapter {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1352,30 +822,13 @@ p.FM_H1Chapter {
         font-style:      normal;
         font-weight:     normal;
         font-size:       30.0pt;
-        color:           #00699e;
+        color:           #1f7e9e;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
         
 }
-caption.FM_H1Chapter {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   28.000pt;
-        word-spacing:    0.250em;
-        font-family:     Open Sans Condensed Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       30.0pt;
-        color:           #00699e;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListBullet3 {
         margin-left:     10.000pt;
         margin-right:    0.000pt;
@@ -1394,24 +847,7 @@ p.FM_ListBullet3 {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListBullet3 {
-        margin-left:     99.213pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     -14.173pt;
-        margin-top:      7.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_H4Topic {
         margin-left:     10.000pt;
         margin-right:    0.000pt;
@@ -1430,24 +866,7 @@ p.FM_H4Topic {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_H4Topic {
-        margin-left:     10.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      27.000pt;
-        margin-bottom:   7.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       14pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_H3SectionTopic {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1466,24 +885,7 @@ p.FM_H3SectionTopic {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_H3SectionTopic {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   25.000pt;
-        word-spacing:    0.250em;
-        font-family:     Open Sans Condensed Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       24.0pt;
-        color:           #70BB51;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_PDefinition2 {
         margin-left:     7.000pt;
         margin-right:    0.000pt;
@@ -1502,24 +904,7 @@ p.FM_PDefinition2 {
 		letter-spacing:  0.00em;
         display: inline;        
 }
-caption.FM_PDefinition2 {
-        margin-left:     7.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     -59.528pt;
-        margin-top:      22.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_PDefinition {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1539,33 +924,16 @@ p.FM_PDefinition {
         display: inline;
         line-height: 50px;        
 }
-caption.FM_PDefinition {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     22.677pt;
-        margin-top:      13.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListBullet2 {
-        margin-left:     35pt !important;
+        margin-left:     10pt !important;
         margin-right:    0.000pt;
         text-align:      left;
         text-indent:     0pt !important;
         margin-top:      7.000pt;
         margin-bottom:   7.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -1575,24 +943,7 @@ p.FM_ListBullet2 {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListBullet2 {
-        margin-left:     10.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     -14.173pt;
-        margin-top:      7.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 
 p.FM_COCode {
         margin-left:     0.000pt;
@@ -1612,24 +963,7 @@ p.FM_COCode {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_COCode {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      12.000pt;
-        margin-bottom:   3.000pt;
-        word-spacing:    0.250em;
-        font-family:     Open Sans Condensed Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       12.0pt;
-        color:           #00699e;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_BoldTopic {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1648,24 +982,7 @@ p.FM_BoldTopic {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_BoldTopic {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListBullet1 {
         margin-left:     20.000pt;
         margin-right:    2.000pt;
@@ -1674,7 +991,7 @@ p.FM_ListBullet1 {
         margin-top:      7.000pt;
         margin-bottom:   7.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -1684,24 +1001,7 @@ p.FM_ListBullet1 {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListBullet1 {
-        margin-left:     40.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     -11.339pt;
-        margin-top:      7.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListBulletTable {
         margin-left:     0.000pt;
         margin-right:    2.000pt;
@@ -1710,7 +1010,7 @@ p.FM_ListBulletTable {
         margin-top:      0.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -1738,33 +1038,16 @@ p.FM_Landscape {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_Landscape {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      2.000pt;
-        margin-bottom:   2.000pt;
-        word-spacing:    0.250em;
-        font-family:     Verdana;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       9.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListLetters0 {
-        margin-left:     57.000pt;
+        margin-left:     57.000pt !important;
         margin-right:    45.000pt;
         text-align:      justify;
         text-indent:     -11.339pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -1774,24 +1057,7 @@ p.FM_ListLetters0 {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListLetters0 {
-        margin-left:     57.000pt;
-        margin-right:    45.000pt;
-        text-align:      justify;
-        text-indent:     -11.339pt;
-        margin-top:      7.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_ListLetters {
         margin-left:     57.000pt;
         margin-right:    45.000pt;
@@ -1800,7 +1066,7 @@ p.FM_ListLetters {
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -1810,24 +1076,7 @@ p.FM_ListLetters {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_ListLetters {
-        margin-left:     57.000pt;
-        margin-right:    45.000pt;
-        text-align:      justify;
-        text-indent:     -11.339pt;
-        margin-top:      7.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_CGraphic {
         margin-left:     25.000pt;
         margin-right:    0.000pt;
@@ -1866,7 +1115,7 @@ caption.FM_CGraphic {
 }
 p.FM_CGraphic {
         
-               font:italic 11px Lato Light;
+               font:italic 11px Lato;
 
 }
 p.FM_Body {
@@ -1878,7 +1127,7 @@ p.FM_Body {
         margin-top:      4.000pt;
         margin-bottom:   13.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -1888,24 +1137,7 @@ p.FM_Body {
 		letter-spacing:  0.00em;
         
 }
-caption.FM_Body {
-        margin-left:     41.000pt;
-        margin-right:    25.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   13.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
+
 p.FM_Body {
         
            right:8px;
@@ -1914,7 +1146,7 @@ p.FM_Body {
 OL, UL {
         margin-top: 0px;
         margin-bottom: 5pt;
-		margin-left: 25pt;
+		margin-left: 55pt;
 		color: #686868;
 }
 
@@ -1978,7 +1210,7 @@ span.FM_Bold_midgrey {
         
 }
 span.FM_blue_crossreference {
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-size:       11.0pt;
         color:           #71adc7;
@@ -2017,7 +1249,7 @@ span.FM_Bold {
         
 }
 span.FM_Underline {
-        font-family:     Lato Light;
+        font-family:     Lato;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
