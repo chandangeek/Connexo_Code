@@ -96,6 +96,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 
         issuesStoreProxy.extraParams = {};
         issuesStoreProxy.setExtraParam('status', 'status.open');
+        issuesStoreProxy.setExtraParam('sort', 'dueDate');
 
         widget = Ext.widget('bulk-browse');
         me.getApplication().fireEvent('changecontentevent', widget);
