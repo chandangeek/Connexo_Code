@@ -7333,7 +7333,7 @@ h6 {
 
 /* line 9, ../../sass/src/grid/ImageColumn.scss */
 .uni-icon-drop-yes {
-  background-image: url("images/grid/drop-yes.png") no-repeat !important;
+  background-image: url("images/grid/drop-yes.png") !important;
   width: 16px !important;
   height: 16px !important;
   background-repeat: no-repeat;
@@ -7344,6 +7344,15 @@ h6 {
 /* line 17, ../../sass/src/grid/ImageColumn.scss */
 .uni-icon-drop-above {
   background-image: url("images/tree/drop-above.png") !important;
+  width: 16px !important;
+  height: 16px !important;
+  background-repeat: no-repeat;
+  background-position: 8px 6px;
+  padding: 0 0 0 16px;
+}
+
+/* line 26, ../../sass/src/grid/ImageColumn.scss */
+.uni-no-icon {
   width: 16px !important;
   height: 16px !important;
   background-repeat: no-repeat;
