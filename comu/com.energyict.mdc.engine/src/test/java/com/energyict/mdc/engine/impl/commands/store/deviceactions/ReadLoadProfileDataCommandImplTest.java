@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -51,6 +52,9 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         ExecutionContext executionContext = newTestExecutionContext();
         CommandRoot commandRoot = new CommandRootImpl(mock(OfflineDevice.class), executionContext, this.commandRootServiceProvider);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        Device device = mock(Device.class);
+        when(device.getmRID()).thenReturn("MyMrid");
+        when(comTaskExecution.getDevice()).thenReturn(device);
         LoadProfileCommand loadProfileCommand = commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
         ReadLoadProfileDataCommand readLoadProfileDataCommand = commandRoot.getReadLoadProfileDataCommand(loadProfileCommand, comTaskExecution);
         readLoadProfileDataCommand.execute(deviceProtocol, executionContext);

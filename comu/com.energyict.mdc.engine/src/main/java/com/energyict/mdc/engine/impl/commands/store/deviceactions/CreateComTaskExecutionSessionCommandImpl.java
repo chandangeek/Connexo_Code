@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommandType;
@@ -47,7 +46,7 @@ public class CreateComTaskExecutionSessionCommandImpl extends SimpleComCommand i
 
     @Override
     public ComCommandType getCommandType() {
-        return new CreateComTaskExecutionSessionCommandType(this.getComTask());
+        return new CreateComTaskExecutionSessionCommandType(this.getComTask(), comTaskExecution);
     }
 
 }

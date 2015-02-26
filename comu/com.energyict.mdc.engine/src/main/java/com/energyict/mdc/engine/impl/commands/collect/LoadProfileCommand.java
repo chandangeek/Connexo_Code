@@ -72,7 +72,8 @@ public interface LoadProfileCommand extends CompositeComCommand {
      * Updates the loadProfileReader list with the LoadProfileTypes from the given task.
      *
      * @param loadProfilesTask the given task
+     * @param deviceMrid
      */
-    public void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask);
+    public void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask, String deviceMrid);
 
 }

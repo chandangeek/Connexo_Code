@@ -48,10 +48,9 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     private final OfflineDevice device;
 
     /**
-     * Mapping between the LoadProfileReaders which are used to collect LoadProfileData from the devices and the
-     * BaseLoadProfile from EIServer
+     * Summary of loadProfileReaders
      */
-    private Map<LoadProfileReader, OfflineLoadProfile> loadProfileReaderMap = new HashMap<>();
+    private List<LoadProfileReader> loadProfileReaders = new ArrayList<>();
 
     /**
      * The command that will be used to verify the LoadProfile configuration (if necessary)
@@ -110,7 +109,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
             this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
         }
 
-        createLoadProfileReaders();
+        createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
     }
 
     @Override
@@ -147,13 +146,14 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      * Create LoadProfileReaders for this LoadProfileCommand, based on the LoadProfileTypes specified in the {@link #loadProfilesTask}.
      * If no types are specified, then a LoadProfileReader for all
      * of the BaseLoadProfiles of the device will be created.
+     * @param deviceMrid
      */
-    protected void createLoadProfileReaders() {
-        createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask);
+    protected void createLoadProfileReaders(String deviceMrid) {
+        createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask, deviceMrid);
     }
 
-    private void createLoadProfileReadersForLoadProfilesTask(LoadProfilesTask localLoadProfilesTask) {
-        List<OfflineLoadProfile> listOfAllLoadProfiles = this.device.getAllOfflineLoadProfiles();
+    private void createLoadProfileReadersForLoadProfilesTask(LoadProfilesTask localLoadProfilesTask, String deviceMrid) {
+        List<OfflineLoadProfile> listOfAllLoadProfiles = this.device.getAllOfflineLoadProfilesForMRID(deviceMrid);
         if (localLoadProfilesTask.getLoadProfileTypes().isEmpty()) {
             for (OfflineLoadProfile loadProfile : listOfAllLoadProfiles) {
                 addLoadProfileToReaderList(loadProfile);
@@ -170,7 +170,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     /**
-     * Add the given BaseLoadProfile to the {@link #loadProfileReaderMap readerMap}
+     * Add the given BaseLoadProfile to the {@link #loadProfileReaders readerMap}
      *
      * @param offlineLoadProfile the loadProfile to add
      */
@@ -185,7 +185,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
                         offlineLoadProfile.getDeviceIdentifier(),
                         createChannelInfos(offlineLoadProfile), offlineLoadProfile.getMasterSerialNumber(),
                         offlineLoadProfile.getLoadProfileIdentifier());
-        this.loadProfileReaderMap.put(loadProfileReader, offlineLoadProfile);
+        this.loadProfileReaders.add(loadProfileReader);
     }
 
     /**
@@ -213,15 +213,6 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     /**
-     * Get a list of all the {@link LoadProfileReader LoadProfileReaders} for this Command
-     *
-     * @return the requested list
-     */
-    public List<LoadProfileReader> getLoadProfileReaders() {
-        return new ArrayList<>(getLoadProfileReaderMap().keySet());
-    }
-
-    /**
      * Get the configured interval of the BaseLoadProfile
      * corresponding with the given LoadProfileReader
      *
@@ -229,26 +220,27 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      * @return the requested interval in seconds
      */
     public int findLoadProfileIntervalForLoadProfileReader(final LoadProfileReader loadProfileReader) {
-        if (getLoadProfileReaderMap().containsKey(loadProfileReader)) {
-
-            return getLoadProfileReaderMap().get(loadProfileReader).getInterval().getSeconds();
+        if (getLoadProfileReaders().contains(loadProfileReader)) {
+            return this.device.getAllOfflineLoadProfiles().stream()
+                    .filter(offlineLoadProfile -> offlineLoadProfile.getObisCode().equals(loadProfileReader.getProfileObisCode()))
+                    .findFirst().get().getInterval().getSeconds();
         }
         return LoadProfileCommand.INVALID_LOAD_PROFILE_INTERVAL;
     }
 
     /**
-     * Remove all given LoadProfileReader loadProfileReaders from the {@link #loadProfileReaderMap}
+     * Remove all given LoadProfileReader loadProfileReaders from the {@link #loadProfileReaders}
      *
      * @param readersToRemove the list of LoadProfileReader loadProfileReaders to remove
      */
     public void removeIncorrectLoadProfileReaders(final List<LoadProfileReader> readersToRemove) {
         for (LoadProfileReader loadProfileReader : readersToRemove) {
-            getLoadProfileReaderMap().remove(loadProfileReader);
+            getLoadProfileReaders().remove(loadProfileReader);
         }
     }
 
-    protected Map<LoadProfileReader, OfflineLoadProfile> getLoadProfileReaderMap() {
-        return loadProfileReaderMap;
+    public List<LoadProfileReader> getLoadProfileReaders() {
+        return loadProfileReaders;
     }
 
     @Override
@@ -262,8 +254,8 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     @Override
-    public void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask) {
-        this.createLoadProfileReadersForLoadProfilesTask(loadProfilesTask);
+    public void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask, String deviceMrid) {
+        this.createLoadProfileReadersForLoadProfilesTask(loadProfilesTask, deviceMrid);
     }
 
     public VerifyLoadProfilesCommand getVerifyLoadProfilesCommand() {

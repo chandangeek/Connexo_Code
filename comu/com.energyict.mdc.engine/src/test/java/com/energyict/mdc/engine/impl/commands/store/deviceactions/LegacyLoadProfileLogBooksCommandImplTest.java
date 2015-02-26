@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
@@ -77,6 +78,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_1 = ObisCode.fromString("1.1.1.1.1.1");
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_2 = ObisCode.fromString("2.2.2.2.2.2");
     private static final ObisCode DEVICE_OBISCODE_LOGBOOK_3 = ObisCode.fromString("3.3.3.3.3.3");
+    private static final String MY_MRID = "MyMrid";
 
     @Mock
     private OfflineLogBook offlineLogBook_A;
@@ -93,6 +95,8 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private LogBookType logBookType_C;
     @Mock
     private ComTaskExecution comTaskExecution;
+    @Mock
+    private Device device;
 
     private static final ObisCode FIXED_LOAD_PROFILE_OBIS_CODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final TimeDuration FIXED_LOAD_PROFILE_INTERVAL = new TimeDuration(900);
@@ -122,6 +126,8 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
     @Before
     public void setUp() throws Exception {
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        when(device.getmRID()).thenReturn(MY_MRID);
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
         when(offlineLogBook_A.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_1, logBookService));
         when(offlineLogBook_A.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_1));
@@ -250,9 +256,9 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
-        when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
+        when(offlineDevice.getAllOfflineLoadProfilesForMRID(MY_MRID)).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
-        legacyCommand.createLoadProfileReaders();
+        legacyCommand.createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
 
         // Asserts
         assertNotNull(legacyCommand.getLoadProfileReaderMap());
@@ -283,9 +289,9 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile4.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
-        when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
+        when(offlineDevice.getAllOfflineLoadProfilesForMRID(MY_MRID)).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
-        legacyCommand.createLoadProfileReaders();
+        legacyCommand.createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
 
         // Asserts
         assertNotNull(legacyCommand.getLoadProfileReaderMap());
@@ -308,7 +314,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
-        when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
+        when(offlineDevice.getAllOfflineLoadProfilesForMRID(MY_MRID)).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(loadProfilesTask, mock(LogBooksTask.class), offlineDevice, commandRoot, comTaskExecution);
 
         List<LoadProfileReader> loadProfileReaders = legacyCommand.getLoadProfileReaders();
@@ -353,7 +359,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         when(offlineLoadProfile4.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
-        legacyCommand.createLoadProfileReaders();
+        legacyCommand.createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
 
         // Asserts
         int count = 0;
@@ -433,7 +439,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineDevice device = mock(OfflineDevice.class);
         when(device.getSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         List<OfflineLogBook> logBooksForDevice = Arrays.asList(offlineLogBook_A, offlineLogBook_B, offlineLogBook_C);
-        when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
+        when(device.getAllOfflineLogBooksForMRID(MY_MRID)).thenReturn(logBooksForDevice);
         when(device.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
         CommandRoot commandRoot = mock(CommandRoot.class);
@@ -464,7 +470,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineDevice device = mock(OfflineDevice.class);
         when(device.getSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         List<OfflineLogBook> logBooksForDevice = Arrays.asList(offlineLogBook_A, offlineLogBook_B, offlineLogBook_C);
-        when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
+        when(device.getAllOfflineLogBooksForMRID(MY_MRID)).thenReturn(logBooksForDevice);
         when(device.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
         CommandRoot commandRoot = mock(CommandRoot.class);
@@ -492,7 +498,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineDevice device = mock(OfflineDevice.class);
         when(device.getSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         List<OfflineLogBook> logBooksForDevice = Arrays.asList(offlineLogBook_A, offlineLogBook_B, offlineLogBook_C);
-        when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
+        when(device.getAllOfflineLogBooksForMRID(MY_MRID)).thenReturn(logBooksForDevice);
         when(device.getSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
 
         CommandRoot commandRoot = mock(CommandRoot.class);
@@ -544,7 +550,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(offlineLoadProfile.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
-        when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile));
+        when(offlineDevice.getAllOfflineLoadProfilesForMRID(MY_MRID)).thenReturn(Arrays.asList(offlineLoadProfile));
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(loadProfilesTask, null, offlineDevice, commandRoot, comTaskExecution);
 
         // asserts

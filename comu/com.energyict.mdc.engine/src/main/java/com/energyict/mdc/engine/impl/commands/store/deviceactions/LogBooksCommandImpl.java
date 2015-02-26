@@ -46,7 +46,7 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot");
         }
         this.logBooksTask = logBooksTask;
-        createLogBookReaders(device);
+        createLogBookReaders(device, comTaskExecution.getDevice().getmRID());
 
         ReadLogBooksCommand readLogBooksCommand = getCommandRoot().getReadLogBooksCommand(this, comTaskExecution);
         readLogBooksCommand.addLogBooks(this.logBookReaders);
@@ -72,9 +72,10 @@ public class LogBooksCommandImpl extends CompositeComCommandImpl implements LogB
      * of the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}s of the device will be created.
      *
      * @param device the <i>Master</i> Device for which LoadProfileReaders should be created
+     * @param deviceMrid
      */
-    private void createLogBookReaders(final OfflineDevice device) {
-        List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooks();
+    private void createLogBookReaders(final OfflineDevice device, String deviceMrid) {
+        List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooksForMRID(deviceMrid);
         if (this.logBooksTask.getLogBookTypes().isEmpty()) {
             listOfAllLogBooks.forEach(this::addLogBookToReaderList);
         } else {

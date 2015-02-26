@@ -117,13 +117,13 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
             if (this.loadProfilesTask.createMeterEventsFromStatusFlags()) {
                 this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
             }
-            createLoadProfileReaders();
+            createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
         }
 
         if (this.logBooksTask != null) {
             /* Adding it a second time is oké, the root will check if it exists and return the existing one */
             this.readLegacyLoadProfileLogBooksDataCommand = getCommandRoot().getReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
-            createLogBookReaders(this.device);
+            createLogBookReaders(this.device, comTaskExecution.getDevice().getmRID());
         }
     }
 
@@ -185,13 +185,14 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * Create LoadProfileReaders for this LoadProfileCommand, based on the {@link LoadProfileType}s specified in the {@link #loadProfilesTask}.
      * If no types are specified, then a {@link LoadProfileReader} for all
      * of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}s of the device will be created.
+     * @param deviceMrid
      */
-    protected void createLoadProfileReaders() {
-        createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask);
+    protected void createLoadProfileReaders(String deviceMrid) {
+        createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask, deviceMrid);
     }
 
-    private void createLoadProfileReadersForLoadProfilesTask(LoadProfilesTask localLoadProfilesTask) {
-        List<OfflineLoadProfile> listOfAllLoadProfiles = this.device.getAllOfflineLoadProfiles();
+    private void createLoadProfileReadersForLoadProfilesTask(LoadProfilesTask localLoadProfilesTask, String deviceMrid) {
+        List<OfflineLoadProfile> listOfAllLoadProfiles = this.device.getAllOfflineLoadProfilesForMRID(deviceMrid);
         if (localLoadProfilesTask.getLoadProfileTypes().isEmpty()) {
             listOfAllLoadProfiles.forEach(this::addLoadProfileToReaderList);
         } else {  // Read out the specified load profile types
@@ -248,9 +249,10 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * of the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}s of the device will be created.
      *
      * @param device the <i>Master</i> Device for which LoadProfileReaders should be created
+     * @param deviceMrid
      */
-    protected void createLogBookReaders(final OfflineDevice device) {
-        List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooks();
+    protected void createLogBookReaders(final OfflineDevice device, String deviceMrid) {
+        List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooksForMRID(deviceMrid);
         if (this.logBooksTask.getLogBookTypes().isEmpty()) {
             listOfAllLogBooks.forEach(this::addLogBookToReaderList);
         } else {
@@ -330,8 +332,8 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     }
 
     @Override
-    public void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask) {
-        createLoadProfileReadersForLoadProfilesTask(loadProfilesTask);
+    public void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask, String deviceMrid) {
+        createLoadProfileReadersForLoadProfilesTask(loadProfilesTask, deviceMrid);
     }
 
     @Override

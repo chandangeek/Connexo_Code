@@ -21,10 +21,12 @@ import java.util.List;
 public final class CreateComTaskExecutionSessionCommandType implements ComCommandType {
 
     private final long comTaskId;
+    private final ComTaskExecution comTaskExecution;
 
-    public CreateComTaskExecutionSessionCommandType(ComTask comTask) {
+    public CreateComTaskExecutionSessionCommandType(ComTask comTask, ComTaskExecution comTaskExecution) {
         super();
         this.comTaskId = comTask.getId();
+        this.comTaskExecution = comTaskExecution;
     }
 
     @Override
@@ -42,22 +44,26 @@ public final class CreateComTaskExecutionSessionCommandType implements ComComman
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof CreateComTaskExecutionSessionCommandType)) {
             return false;
         }
 
         CreateComTaskExecutionSessionCommandType that = (CreateComTaskExecutionSessionCommandType) o;
-        return comTaskId == that.comTaskId;
+
+        return comTaskExecution.getId() == that.comTaskExecution.getId() && comTaskId == that.comTaskId;
+
     }
 
     @Override
     public int hashCode() {
-        return (int) (comTaskId ^ (comTaskId >>> 32));
+        int result = (int) (comTaskId ^ (comTaskId >>> 32));
+        result = 31 * result + (int) (comTaskExecution.getId() ^ (comTaskExecution.getId() >>> 32));
+        return result;
     }
 
     @Override
     public String toString() {
-        return "CREATE_COM_TASK_EXECUTION_SESSION_COMMAND(" + this.comTaskId + ")";
+        return "CREATE_COM_TASK_EXECUTION_SESSION_COMMAND(" + this.comTaskId + " - " + this.comTaskExecution.getId() + ")";
     }
 
 }

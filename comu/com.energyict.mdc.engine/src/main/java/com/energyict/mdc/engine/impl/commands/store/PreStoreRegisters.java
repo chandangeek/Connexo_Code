@@ -45,17 +45,18 @@ public class PreStoreRegisters {
     public Map<DeviceIdentifier, List<Reading>> preStore(CollectedRegisterList collectedRegisterList) {
         Map<DeviceIdentifier, List<Reading>> processedReadings = new HashMap<>();
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
-            Pair<DeviceIdentifier, Reading> readingPair = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
+            DeviceIdentifier deviceIdentifier = collectedRegister.getRegisterIdentifier().getDeviceIdentifier();
+            Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
             if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
                 Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(collectedRegister.getReadingType().getMRID());
                 int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
                 OfflineRegister offlineRegister = comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier());
                 BigDecimal overflow = offlineRegister.getOverFlowValue();
-                Reading scaledReading = getScaledReading(scaler, readingPair.getLast());
+                Reading scaledReading = getScaledReading(scaler, reading);
                 Reading overflowCheckedReading = getOverflowCheckedReading(overflow, scaledReading);
-                addProcessedReadingFor(processedReadings, readingPair.getFirst(), overflowCheckedReading);
+                addProcessedReadingFor(processedReadings, deviceIdentifier, overflowCheckedReading);
             } else {
-                addProcessedReadingFor(processedReadings, readingPair.getFirst(), readingPair.getLast());
+                addProcessedReadingFor(processedReadings, deviceIdentifier, reading);
             }
         }
         return processedReadings;

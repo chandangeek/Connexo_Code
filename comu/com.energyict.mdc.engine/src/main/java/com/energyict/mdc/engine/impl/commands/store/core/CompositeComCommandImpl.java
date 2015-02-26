@@ -122,7 +122,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
     }
 
     private void doAddCommand(ComCommand command) {
-        this.comCommands.put(command.getCommandType(), command);
+        this.comCommands.putIfAbsent(command.getCommandType(), command);
     }
 
     @Override

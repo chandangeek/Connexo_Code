@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
@@ -41,7 +44,7 @@ public class PreStoreLogBook {
      * @param deviceLogBook the collected events from the device
      * @return the preStored logbook
      */
-    public LocalLogBook preStore(CollectedLogBook deviceLogBook) {
+    public Pair<DeviceIdentifier<Device>, LocalLogBook> preStore(CollectedLogBook deviceLogBook) {
         Set<UniqueDuo<String, Instant>> uniqueCheck = new HashSet<>();
         OfflineLogBook offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
 
@@ -58,7 +61,7 @@ public class PreStoreLogBook {
                 }
             }
         }
-        return new LocalLogBook(filteredEndDeviceEvents, lastLogbook);
+        return Pair.of(deviceLogBook.getLogBookIdentifier().getDeviceIdentifier(), new LocalLogBook(filteredEndDeviceEvents, lastLogbook));
     }
 
     class LocalLogBook {
