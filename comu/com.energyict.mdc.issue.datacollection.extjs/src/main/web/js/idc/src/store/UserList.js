@@ -9,10 +9,10 @@ Ext.define('Idc.store.UserList', {
         pageParam: false,
         startParam: false,
         limitParam: false,
-        url: '/api/usr/users',
+        url: '/api/isu/assignees/users',
         reader: {
             type: 'json',
-            root: 'users'
+            root: 'data'
         }
     }
 });

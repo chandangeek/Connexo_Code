@@ -10,10 +10,7 @@ Ext.define('Idc.model.UserList', {
             type: 'auto'
         },
         {
-            name: 'name',
-            mapping: function (data) {
-                return data.authenticationName
-            }
+            name: 'name'
         },
         {
             name: 'description',
