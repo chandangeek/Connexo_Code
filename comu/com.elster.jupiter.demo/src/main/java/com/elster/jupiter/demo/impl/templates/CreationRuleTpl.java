@@ -5,8 +5,8 @@ import com.elster.jupiter.issue.share.entity.CreationRule;
 
 public enum CreationRuleTpl implements Template<CreationRule, IssueRuleBuilder> {
     CONNECTION_LOST("Connection failed", "CONNECTION_LOST", "reason.connection.failed"),
-    COMMUNICATION_FAILED("Connection setup failed", "UNABLE_TO_CONNECT", "reason.failed.to.communicate"),
-    CONNECTION_SETUP_LOST("Device communication failed", "DEVICE_COMMUNICATION_FAILURE", "reason.connection.setup.failed"),
+    COMMUNICATION_FAILED("Connection setup failed", "UNABLE_TO_CONNECT", "reason.connection.setup.failed"),
+    CONNECTION_SETUP_LOST("Device communication failed", "DEVICE_COMMUNICATION_FAILURE", "reason.failed.to.communicate"),
     ;
     private String name;
     private String type;

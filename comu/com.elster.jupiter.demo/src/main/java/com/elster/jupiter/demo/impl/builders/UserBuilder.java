@@ -26,7 +26,7 @@ public class UserBuilder extends NamedBuilder<User, UserBuilder> {
     public UserBuilder(UserService userService) {
         super(UserBuilder.class);
         this.userService = userService;
-        this.password = "D3moAdmin";
+        this.password = "admin";
         this.description = "";
         this.language = Locale.ENGLISH.toLanguageTag();
     }
