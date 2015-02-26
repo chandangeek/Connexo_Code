@@ -73,10 +73,12 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     },
 
     showRegisterMappings: function (id) {
-        var me = this;
+        var me = this,
+            widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
+
         this.getRegisterTypesOfDevicetypeStore().getProxy().setExtraParam('deviceType', id);
-        var widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
         me.getAddRegisterMappingBtn().href = '#/administration/devicetypes/' + id + '/registertypes/add';
+
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -88,9 +90,10 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     },
 
     addRegisterMappings: function (id) {
-        var me = this;
+        var me = this,
+            store = Ext.data.StoreManager.lookup('AvailableRegisterTypes'),
+            widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
 
-        var store = Ext.data.StoreManager.lookup('AvailableRegisterTypes');
         store.getProxy().setExtraParam('deviceType', id);
         store.getProxy().setExtraParam('filter', Ext.encode([
             {
@@ -99,15 +102,14 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             }
         ]));
 
+        me.getApplication().fireEvent('changecontentevent', widget);
         store.load({
             callback: function () {
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
                     success: function (deviceType) {
-                        var widget = Ext.widget('registerMappingAdd', {deviceTypeId: id});
                         me.deviceTypeId = id;
                         store.fireEvent('load', store);
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
-                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             }
