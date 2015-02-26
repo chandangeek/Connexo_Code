@@ -41,7 +41,7 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
                 try {
                     RegisterValue registerValue = getPLCRegisterMapper().readRegister(obisCode);
                     CollectedRegister deviceRegister = getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
-                            this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
+                            register.getReadingType());
                     deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                     deviceRegister.setCollectedTimeStamps(registerValue.getReadTime().toInstant(), registerValue.getFromTime().toInstant(), registerValue.getToTime().toInstant(), registerValue.getEventTime().toInstant());
                     collectedRegisters.add(deviceRegister);

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr40.common.profiles;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -19,6 +20,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegister
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -52,15 +54,18 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
                 if (this.getRegisterUnitMap().containsKey(registerObject)) {
                     registerObject.getAttribute();
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
-                    if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject),
-                                getReadingTypeFromConfiguredChannels(registerObject.getObisCode(), configuredChannelInfos));
-                        channelInfos.add(ci);
-                    } else {
-                        //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true,
-                                getReadingTypeFromConfiguredChannels(registerObject.getObisCode(), configuredChannelInfos));
-                        channelInfos.add(ci);
+                    Optional<ReadingType> readingTypeFromConfiguredChannels = getReadingTypeFromConfiguredChannels(registerObject.getObisCode(), configuredChannelInfos);
+                    if(readingTypeFromConfiguredChannels.isPresent()){
+                        if (su.getUnitCode() != 0) {
+                            ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject),
+                                    readingTypeFromConfiguredChannels.get());
+                            channelInfos.add(ci);
+                        } else {
+                            //TODO CHECK if this is still correct!
+                            ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true,
+                                    readingTypeFromConfiguredChannels.get());
+                            channelInfos.add(ci);
+                        }
                     }
                 } else {
                     throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerObject + " - not in registerUnitMap.");

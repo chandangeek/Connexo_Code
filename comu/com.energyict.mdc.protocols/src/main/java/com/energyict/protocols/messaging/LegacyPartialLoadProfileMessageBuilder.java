@@ -350,6 +350,11 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
             public void setXmlType(String ignore) {
 
             }
+
+            @Override
+            public DeviceIdentifier<?> getDeviceIdentifier() {
+                throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper deviceidentifier ...");
+            }
         });
     }
 

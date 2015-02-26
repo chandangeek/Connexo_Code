@@ -12,7 +12,6 @@ import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -95,11 +94,11 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
      */
     @Override
     public TimeZone getTimeZone() {
-        TimeZoneInUse timeZoneInUse = properties.<TimeZoneInUse>getTypedProperty(TIMEZONE);
-        if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
+        TimeZone timeZone = properties.<TimeZone>getTypedProperty(TIMEZONE);
+        if (timeZone == null) {
             return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
         } else {
-            return timeZoneInUse.getTimeZone();
+            return timeZone;
         }
     }
 

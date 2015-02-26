@@ -244,7 +244,11 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.dlmsCache = (DLMSCache) deviceProtocolCache;
+        try {
+            this.dlmsCache = (DLMSCache) deviceProtocolCache;
+        } catch (ClassCastException e) {
+            this.dlmsCache = null;
+        }
     }
 
     @Override
