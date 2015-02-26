@@ -108,35 +108,36 @@ Ext.define('Dsh.controller.Communications', {
                     }
                 });
             }
-            if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
-                if (record.get('connectionTask').connectionStrategy.id === 'minimizeConnections') {
-                    menuItems.push({
-                        text: Uni.I18n.translate('connection.widget.details.menuItem.run', 'MDC', 'Run'),
-                        action: {
-                            action: 'run',
-                            record: record,
-                            me: me
-                        },
-                        listeners: {
-                            click: me.communicationRun
-                        }
-                    });
-                }
+        });
 
+        if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
+            if (record.get('connectionTask').connectionStrategy.id === 'minimizeConnections') {
                 menuItems.push({
-                    text: Uni.I18n.translate('connection.widget.details.menuItem.runNow', 'MDC', 'Run now'),
+                    text: Uni.I18n.translate('connection.widget.details.menuItem.run', 'MDC', 'Run'),
                     action: {
-                        action: 'runNow',
+                        action: 'run',
                         record: record,
                         me: me
                     },
                     listeners: {
-                        click: me.communicationRunNow
+                        click: me.communicationRun
                     }
                 });
-
             }
-        });
+
+            menuItems.push({
+                text: Uni.I18n.translate('connection.widget.details.menuItem.runNow', 'MDC', 'Run now'),
+                action: {
+                    action: 'runNow',
+                    record: record,
+                    me: me
+                },
+                listeners: {
+                    click: me.communicationRunNow
+                }
+            });
+
+        }
 
         var connectionMenuItem = {
             text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'MDC', 'View connection log'),

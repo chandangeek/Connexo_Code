@@ -1,9 +1,9 @@
 Ext.define('Dsh.store.Communications', {
     extend: 'Ext.data.Store',
     requires: [
-        'Dsh.model.CommunicationTask'
+        'Dsh.model.connection.CommunicationTask'
     ],
-    model: 'Dsh.model.CommunicationTask',
+    model: 'Dsh.model.connection.CommunicationTask',
     autoLoad: false,
     remoteFilter: true,
     url: '/api/dsr/connections/',

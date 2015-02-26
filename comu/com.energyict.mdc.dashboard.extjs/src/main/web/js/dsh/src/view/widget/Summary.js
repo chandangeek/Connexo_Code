@@ -53,7 +53,6 @@ Ext.define('Dsh.view.widget.Summary', {
                 listeners: {
                     refresh: function (view) {
                         Ext.suspendLayouts();
-                        //debugger;
                         Ext.each(view.getNodes(), function (node, index) {
                             var record = view.getRecord(node),
                                 pos = index + 1;

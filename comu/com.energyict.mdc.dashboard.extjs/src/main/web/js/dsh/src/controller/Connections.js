@@ -16,8 +16,8 @@ Ext.define('Dsh.controller.Connections', {
     views: [
         'Dsh.view.Connections',
         'Dsh.view.widget.PreviewConnection',
-        'Dsh.view.widget.CommunicationsList',
-        'Dsh.view.widget.PreviewCommunication'
+        'Dsh.view.widget.connection.CommunicationsList',
+        'Dsh.view.widget.connection.PreviewCommunication'
     ],
 
     refs: [
@@ -116,7 +116,7 @@ Ext.define('Dsh.controller.Connections', {
             devType: record.data.deviceType
         };
 
-        record.data.title = record.data.name + ' on ' + record.data.device.name;
+        record.data.title = record.data.comTask.name + ' on ' + record.data.device.name;
         preview.setTitle(record.data.title);
         preview.loadRecord(record);
         this.initMenu(record, menuItems);
@@ -132,16 +132,15 @@ Ext.define('Dsh.controller.Connections', {
         gridActionMenu.removeAll();
         previewActionMenu.removeAll();
 
-        Ext.each(record.get('comTasks'), function (item) {
             if (record.get('sessionId') !== 0) {
                 menuItems.push({
-                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), item.name),
+                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), record.get('comTask').name),
                     action: {
                         action: 'viewlog',
                         comTask: {
                             mRID: record.get('device').id,
                             sessionId: record.get('id'),
-                            comTaskId: item.id
+                            comTaskId: record.get('comTask').id
                         }
                     },
                     listeners: {
@@ -149,7 +148,6 @@ Ext.define('Dsh.controller.Connections', {
                     }
                 });
             }
-        });
 
         gridActionMenu.add(menuItems);
         previewActionMenu.add(menuItems);
@@ -171,7 +169,7 @@ Ext.define('Dsh.controller.Connections', {
 
             preview.loadRecord(record);
             preview.setTitle(title);
-            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationsOf', 'DSH', 'Communications of') + title);
+            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOf', 'DSH', 'Communication tasks of') + title);
 
             if (id) {
                 commStore.setConnectionId(id);

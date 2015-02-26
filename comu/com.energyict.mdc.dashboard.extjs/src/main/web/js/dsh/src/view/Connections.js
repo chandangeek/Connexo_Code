@@ -7,8 +7,8 @@ Ext.define('Dsh.view.Connections', {
         'Dsh.view.widget.ConnectionsList',
         'Dsh.view.widget.PreviewConnection',
         'Dsh.view.widget.SideFilter',
-        'Dsh.view.widget.CommunicationsList',
-        'Dsh.view.widget.PreviewCommunication',
+        'Dsh.view.widget.connection.CommunicationsList',
+        'Dsh.view.widget.connection.PreviewCommunication',
         'Dsh.store.ConnectionTasks'
     ],
 
@@ -56,7 +56,7 @@ Ext.define('Dsh.view.Connections', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'communications-list',
+                        xtype: 'connection-communications-list',
                         itemId: 'communicationsdetails',
                         store: 'Dsh.store.Communications'
                     },
@@ -69,7 +69,7 @@ Ext.define('Dsh.view.Connections', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'preview_communication',
+                        xtype: 'preview-connection-communication',
                         itemId: 'communicationpreview'
                     }
                 }
