@@ -110,13 +110,12 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     showDeviceConnectionMethods: function (mrid) {
         var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
 
         this.mrid = mrid;
 
         viewport.setLoading();
-
-        var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
         connectionStrategiesStore.load({
             callback: function () {
                 Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
@@ -131,12 +130,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                 viewport.setLoading(false);
                             }
                         });
-//                me.getDeviceConnectionMethodsGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
-        })
-
+        });
     },
 
     previewDeviceConnectionMethod: function () {
