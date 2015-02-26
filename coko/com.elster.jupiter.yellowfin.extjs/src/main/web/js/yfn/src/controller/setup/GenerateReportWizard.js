@@ -557,7 +557,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         },
                         {
                             xtype: 'date-time',
-                            disabled:fieldType != 'filter' && defaultValue,
+                            //disabled:fieldType != 'filter' && defaultValue,
                             value:(defaultValue && defaultValue.to) ||  me.getDefaultDateValue(filterRecord.get('filterDefaultValue2')),
                             dateConfig:{
                                 allowBlank: fieldType == 'filter'
