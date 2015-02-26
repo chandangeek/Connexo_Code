@@ -743,6 +743,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public abstract static class AbstractComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>, C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionUpdater<U, C> {
 
         private final CI comTaskExecution;
+        private boolean connectionTaskSchedulingMayHaveChanged = false;
         private final U self;
 
         protected AbstractComTaskExecutionUpdater(CI comTaskExecution, Class<U> clazz) {
@@ -794,6 +795,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         @Override
         public U useDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
             this.comTaskExecution.setDefaultConnectionTask(defaultConnectionTask);
+            this.connectionTaskSchedulingMayHaveChanged = true;
             return self;
         }
 
@@ -801,6 +803,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         public C update() {
             this.comTaskExecution.prepareForSaving();
             this.comTaskExecution.save();
+            if (this.connectionTaskSchedulingMayHaveChanged) {
+                if (this.comTaskExecution.getConnectionTask() != null) {
+                    this.comTaskExecution.getConnectionTask().scheduledComTaskRescheduled(this.comTaskExecution);
+                }
+            }
             return (C) this.comTaskExecution;
         }
 

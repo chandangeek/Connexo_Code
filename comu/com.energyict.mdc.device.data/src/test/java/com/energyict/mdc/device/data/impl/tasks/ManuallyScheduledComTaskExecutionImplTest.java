@@ -202,6 +202,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        assertThat(connectionTask.getNextExecutionTimestamp()).isNull();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties, temporalExpression);
         comTaskExecutionBuilder.connectionTask(connectionTask);
@@ -213,6 +214,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
         // Asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isFalse();
         assertThat(comTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(connectionTask.getNextExecutionTimestamp()).isEqualTo(comTaskExecution.getNextExecutionTimestamp());
     }
 
     @Test
