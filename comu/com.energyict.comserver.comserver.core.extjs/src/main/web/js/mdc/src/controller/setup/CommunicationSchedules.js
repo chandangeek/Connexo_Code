@@ -192,23 +192,19 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     previewCommunicationSchedule: function () {
         var communicationSchedule = this.getCommunicationSchedulesGrid().getSelectionModel().getLastSelected(),
             preview = this.getCommunicationSchedulePreview(),
-            previewForm = this.getCommunicationSchedulePreviewForm();
+            previewForm = this.getCommunicationSchedulePreviewForm(),
+            taskList = '';
 
         preview.setTitle(communicationSchedule.get('name'));
         previewForm.loadRecord(communicationSchedule);
         previewForm.down('#comTaskPreviewContainer').removeAll();
-        if (communicationSchedule.comTaskUsages().data.items.length === 0) {
-            previewForm.down('#comTaskPreviewContainer').add({
-                xtype: 'displayfield'
-            });
-        } else {
-            Ext.each(communicationSchedule.comTaskUsages().data.items, function (comTaskUsage) {
-                previewForm.down('#comTaskPreviewContainer').add({
-                    xtype: 'displayfield',
-                    value: '<a>' + comTaskUsage.get('name') + '</a>'
-                })
-            });
-        }
+        Ext.each(communicationSchedule.comTaskUsages().data.items, function (comTaskUsage) {
+            taskList += comTaskUsage.get('name') + '<br/>'
+        });
+        previewForm.down('#comTaskPreviewContainer').add({
+            xtype: 'displayfield',
+            value: taskList
+        })
     },
 
     saveCommunicationSchedule: function () {
@@ -223,9 +219,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             this.record.save({
                 success: function (record) {
                     location.href = '#/administration/communicationschedules';
-                    if(me.mode == 'edit'){
+                    if (me.mode == 'edit') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.saved', 'MDC', 'Shared communication schedule saved'));
-                    }else {
+                    } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.added', 'MDC', 'Shared communication schedule added'));
                     }
                     editView.setLoading(false);
@@ -399,19 +395,19 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     setEditFormPreview: function (startDate, schedule) {
         var store = this.getCommunicationScheduleEditForm().down('#communicationSchedulePreviewGrid').getStore(),
             storeData = [],
-        lastScheduledDate,
-        intervalInMillis;
+            lastScheduledDate,
+            intervalInMillis;
 
         if (schedule.every.timeUnit === 'minutes' || schedule.every.timeUnit === 'hours') {
             startDate = moment(startDate);
             intervalInMillis = moment.duration(schedule.every.count, schedule.every.timeUnit);
-            lastScheduledDate = moment(Math.floor(startDate/intervalInMillis)*intervalInMillis);
+            lastScheduledDate = moment(Math.floor(startDate / intervalInMillis) * intervalInMillis);
         } else if (schedule.every.timeUnit === 'days') {
             lastScheduledDate = moment(startDate).clone().startOf('day');
         } else if (schedule.every.timeUnit === 'weeks') {
             var startOf = schedule.every.timeUnit.slice(0, -1) === 'week' ? 'isoWeek' : schedule.every.timeUnit.slice(0, -1);
             lastScheduledDate = moment(startDate).clone().startOf(startOf);
-        } else if (schedule.every.timeUnit === 'months'){
+        } else if (schedule.every.timeUnit === 'months') {
             lastScheduledDate = moment(startDate).clone().startOf('month');
         }
 
@@ -423,7 +419,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 });
             } else {
                 storeData.push({
-                    date: lastScheduledDate.clone().endOf('month').startOf('day').add(schedule.every.timeUnit, schedule.every.count * (i-1)).endOf('month').startOf('day').add(schedule.offset.timeUnit, schedule.offset.count).toDate()
+                    date: lastScheduledDate.clone().endOf('month').startOf('day').add(schedule.every.timeUnit, schedule.every.count * (i - 1)).endOf('month').startOf('day').add(schedule.offset.timeUnit, schedule.offset.count).toDate()
                 });
             }
         }
