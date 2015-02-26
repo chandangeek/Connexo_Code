@@ -48,7 +48,7 @@ public class AssigneeResource extends BaseResource {
         Boolean findMe = Boolean.parseBoolean(params.getFirst(ME));
 
         if (searchText != null && !searchText.isEmpty()) {
-            String dbSearchText = "%" + searchText + "%";
+            String dbSearchText = "*" + searchText + "*";
             Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
             Query<User> queryUser = getUserService().getUserQuery();
             List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authname"));
