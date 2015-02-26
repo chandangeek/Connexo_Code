@@ -17,6 +17,7 @@ import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
@@ -39,6 +40,7 @@ public class ProtocolDialectConfigurationPropertyValueDeletionHandlerIT {
 
     private static final String DIALECT_NAME = TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.DIALECT_NAME;
     private static final String STRING_PROPERTY_NAME = TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.STRING_PROPERTY_NAME;
+    private static final String NUMERIC_PROPERTY_NAME = TestProtocolWithRequiredStringAndOptionalNumericDialectProperties.NUMERIC_PROPERTY_NAME;
     private static final String DEVICENAME = "deviceName";
     private static final String MRID = "MyUniqueMRID";
     private static final String DEVICE_TYPE_NAME = "ProtDialConfPropValueDelHandlerIT";
@@ -130,7 +132,7 @@ public class ProtocolDialectConfigurationPropertyValueDeletionHandlerIT {
 
     @Test
     @Transactional
-    public void deleteWhenNotUsed() {
+    public void deleteWhenNotUsedBecauseThereAreNotDevices() {
         List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList();
         ProtocolDialectConfigurationProperties configurationProperties = protocolDialectConfigurationPropertiesList.get(0);
 
@@ -141,12 +143,41 @@ public class ProtocolDialectConfigurationPropertyValueDeletionHandlerIT {
         assertThat(configurationProperties.getProperty(STRING_PROPERTY_NAME)).isNull();
     }
 
+    @Test
+    @Transactional
+    public void deleteWhenAllDevicesSpecifyAValue() {
+        Device device = this.createDevice();
+        device.setProtocolDialectProperty(DIALECT_NAME, NUMERIC_PROPERTY_NAME, BigDecimal.TEN);
+        device.save();
+        List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList();
+        ProtocolDialectConfigurationProperties configurationProperties = protocolDialectConfigurationPropertiesList.get(0);
+
+        // Business method
+        configurationProperties.removeProperty(NUMERIC_PROPERTY_NAME);
+
+        // Asserts
+        assertThat(configurationProperties.getProperty(NUMERIC_PROPERTY_NAME)).isNull();
+    }
+
     @Test(expected = VetoDeleteProtocolDialectConfigurationPropertyException.class)
     @Transactional
-    public void deleteWhenUsed() {
+    public void deleteWhenDeviceWithPropertiesReliesOnDefault() {
         Device device = this.createDevice();
-        device.setProtocolDialectProperty(DIALECT_NAME, STRING_PROPERTY_NAME, "device value");
+        device.setProtocolDialectProperty(DIALECT_NAME, NUMERIC_PROPERTY_NAME, BigDecimal.TEN);
         device.save();
+        List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList();
+        ProtocolDialectConfigurationProperties configurationProperties = protocolDialectConfigurationPropertiesList.get(0);
+
+        // Business method
+        configurationProperties.removeProperty(STRING_PROPERTY_NAME);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = VetoDeleteProtocolDialectConfigurationPropertyException.class)
+    @Transactional
+    public void deleteWhenDeviceWithoutPropertiesReliesOnDefault() {
+        Device device = this.createDevice();
         List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList();
         ProtocolDialectConfigurationProperties configurationProperties = protocolDialectConfigurationPropertiesList.get(0);
 

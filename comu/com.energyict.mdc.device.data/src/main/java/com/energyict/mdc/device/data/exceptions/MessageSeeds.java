@@ -67,7 +67,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     VETO_COM_TASK_ENABLEMENT_DELETION(2034, Keys.VETO_COM_TASK_ENABLEMENT_DELETION, "The communication task {0} is still used by devices of the following configuration {1}", SEVERE),
     VETO_DEVICE_CONFIGURATION_DEACTIVATION(2035, Keys.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device", SEVERE),
     VETO_PROTOCOL_DIALECT_CONFIGURATION_DELETION(2036, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_DELETION, "The properties of protocol dialect {0} cannot be deleted because they are still used by at least one device", SEVERE),
-    VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION(2037, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION, "The propertiy {0} of protocol dialect {1} cannot be deleted because they are still used by at least one device", SEVERE),
+    VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION(2037, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION, "The property ''{0}'' of protocol dialect ''{1}'' cannot be deleted because at least one device does not specify a value for it and therefore relies on the configuration level value", SEVERE),
     CONNECTION_TASK_STATUS_INCOMPLETE(2038, Keys.CONNECTION_TASK_STATUS_INCOMPLETE, "Incomplete", INFO),
     CONNECTION_TASK_STATUS_ACTIVE(2039, Keys.CONNECTION_TASK_STATUS_ACTIVE, "Active", INFO),
     CONNECTION_TASK_STATUS_INACTIVE(2040, Keys.CONNECTION_TASK_STATUS_INACTIVE, "Inactive", INFO),
