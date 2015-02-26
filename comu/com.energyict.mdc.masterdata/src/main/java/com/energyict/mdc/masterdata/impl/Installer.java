@@ -22,15 +22,13 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
     private final MeteringService meteringService;
-    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private final MasterDataService masterDataService;
 
-    public Installer(DataModel dataModel, EventService eventService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, MasterDataService masterDataService) {
+    public Installer(DataModel dataModel, EventService eventService, MeteringService meteringService, MasterDataService masterDataService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.meteringService = meteringService;
-        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         this.masterDataService = masterDataService;
     }
 
@@ -52,7 +50,7 @@ public class Installer {
     }
 
     private void createRegisterTypes() {
-        MasterDataGenerator.generateRegisterTypes(meteringService, mdcReadingTypeUtilService, masterDataService);
+        MasterDataGenerator.generateRegisterTypes(meteringService, masterDataService);
     }
 
     private void createEventTypes() {

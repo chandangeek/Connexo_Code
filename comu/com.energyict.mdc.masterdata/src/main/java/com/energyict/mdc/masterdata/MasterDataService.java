@@ -81,14 +81,6 @@ public interface MasterDataService {
     public Optional<ChannelType> findChannelTypeById(long id);
 
 
-    /**
-     * Finds the {@link MeasurementType} that is uniquely identified by the name.
-     *
-     * @param name The name
-     * @return The RegisterType or <code>null</code> if there is no such RegisterType
-     */
-    public Optional<MeasurementType> findMeasurementTypeByName(String name);
-
     public Optional<MeasurementType> findMeasurementTypeByReadingType(ReadingType readingType);
     public Optional<RegisterType> findRegisterTypeByReadingType(ReadingType readingType);
     public Optional<ChannelType> findChannelTypeByReadingType(ReadingType readingType);

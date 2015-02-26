@@ -157,11 +157,6 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
-    public Optional<MeasurementType> findMeasurementTypeByName(String name) {
-        return this.getDataModel().mapper((MeasurementType.class)).getUnique("name", name);
-    }
-
-    @Override
     public Optional<MeasurementType> findMeasurementTypeByReadingType(ReadingType readingType) {
         return this.getDataModel().mapper(MeasurementType.class).getUnique("readingType", readingType);
     }
@@ -289,7 +284,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     private void install(boolean exeuteDdl, boolean createDefaults) {
-        new Installer(this.dataModel, eventService, this.meteringService, this.mdcReadingTypeUtilService, this).install(exeuteDdl, createDefaults);
+        new Installer(this.dataModel, eventService, this.meteringService, this).install(exeuteDdl, createDefaults);
     }
 
     @Override
