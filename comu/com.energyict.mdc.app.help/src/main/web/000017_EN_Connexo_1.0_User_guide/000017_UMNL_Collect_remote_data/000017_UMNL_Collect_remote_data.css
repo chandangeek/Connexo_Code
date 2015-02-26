@@ -1573,7 +1573,7 @@ p.FM_Pprocedure2 {
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #a0a0a0;
+        color:           #000000;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -1591,7 +1591,7 @@ caption.FM_Pprocedure2 {
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #a0a0a0;
+        color:           #000000;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -1999,6 +1999,42 @@ caption.FM_COTitleProduct {
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.01em;
+        
+}
+p.FM_COApplication {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     0.000pt;
+        margin-top:      33.000pt;
+        margin-bottom:   15.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       24.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
+caption.FM_COApplication {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     0.000pt;
+        margin-top:      33.000pt;
+        margin-bottom:   15.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       24.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
         
 }
 p.FM_CellBodyParameter {
@@ -3851,6 +3887,42 @@ p.FM_ListBullet3 {
                   text-decoration:none;
                   letter-spacing:0.00em;
 
+}
+p.FM_HGlossary {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      left;
+        text-indent:     0.000pt;
+        margin-top:      22.000pt;
+        margin-bottom:   12.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       24.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
+caption.FM_HGlossary {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      left;
+        text-indent:     0.000pt;
+        margin-top:      22.000pt;
+        margin-bottom:   12.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       24.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
 }
 p.FM_H4Topic {
         margin-left:     0.000pt;

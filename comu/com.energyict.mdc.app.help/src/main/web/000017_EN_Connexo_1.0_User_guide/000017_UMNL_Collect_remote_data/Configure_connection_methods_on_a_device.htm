@@ -71,10 +71,10 @@ gTopicId = "2.5.0_3";
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body">All parameters of the device <a title="Allows you to define how to communicate with the device. Some devices can support multiple types of connection methods (GRPS, optical, SMS, etc.).">connection method</a> are inherited from the device configuration. Make sure that connection methods are configured in the device configuration.</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Select a device using <span class="FM_UIRef">Search</span>, see <a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“Advanced search”</span></a>.</p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Connection methods</span>&#160;in the menu on the left. </p>
- <p class="FM_ListNumber1">3. &#160; Edit or remove connection methods via the actions icon <img alt="masterActions00018.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image42" src="masterActions00018.png" />.</p>
+ <p class="FM_ListNumber1">3. &#160; Edit or remove connection methods via the actions icon <img alt="masterActions00025.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image51" src="masterActions00025.png" />.</p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add outbound connection method</span>&#160;or <span class="FM_UIRef">Add connection method</span><span class="FM_Bold">&#160;</span>&gt; <span class="FM_UIRef">Add outbound connection method</span>. Complete following fields:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
@@ -107,27 +107,35 @@ gTopicId = "2.5.0_3";
   <p class="FM_CellBody">Connection strategy</p>
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">AsSoonAsPossible: connect whenever a communication task needs a connection. </p>
-  <p class="FM_CellBody">MinimizeConnection: only connect with the device at the scheduled time you specified.</p>
+  <p class="FM_CellBody"><span class="FM_UIRef">As soon as possible</span>: connect whenever a communication task needs a connection. </p>
+  <p class="FM_CellBody"><span class="FM_UIRef">Minimize connections</span>: only connect with the device at the scheduled time you specified.</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t1Row">
+  <tr style=" height : 34.00pt;" class="t1Row">
   <td style="width : 115.730pt; vertical-align : top;">
-  <p class="FM_CellBody">Connection window</p>
+  <p class="FM_CellBody">Connection schedule</p>
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">&nbsp;</p>
+  <p class="FM_CellBody">Only available when “Minimize connections” is selected. The schedule when to set up a connection.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t2Row">
   <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection window</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Is the time window during which it is allowed to set up a connection and communication tasks can be executed. </p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Allow simultaneous connection</p>
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">Allow multiple connections at the same time.</p>
+  <p class="FM_CellBody">Allows multiple connections at the same time. Not possible when “Minimize connections” is selected.</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t1Row">
+  <tr style=" height : 21.00pt;" class="t2Row">
   <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Active</p>
 </td>
@@ -142,16 +150,16 @@ gTopicId = "2.5.0_3";
  <p class="FM_ListNumber1">7. &#160; Click the actions icon to activate the connection method and set as default.</p>
  <p class="FM_PNote"><span class="FM_Icons">3</span></p>
  <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
- <p class="FM_BodyGrey">It is possible to save an incomplete connection method when not all acquired fields are filled in. In this case a message is shown to ask whether you are certain to save an incomplete connection method. The connection method will appear in the overview table, but will have the status <span class="FM_UIRef">incomplete</span>.</p>
+ <p class="FM_BodyGrey">It is possible to save an incomplete connection method when not all acquired fields are filled in. In this case a message is shown to ask whether you are certain to save the incomplete connection method. The connection method will appear in the overview table, but will have the status <span class="FM_UIRef">incomplete</span>.</p>
  <p class="FM_H4Topic">Configure an <a title="Data is pushed from the device to for example a communication server.">inbound</a> connection method</p>
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body">All parameters of the device connection method are inherited from the device configuration. Make sure that connection methods are configured in the device configuration.</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Select a device using <span class="FM_UIRef">Search</span>, see <a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“Advanced search”</span></a>.</p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Connection methods</span>&#160;in the menu on the left. </p>
- <p class="FM_ListNumber1">3. &#160; Edit or remove connection methods via the actions icon <img alt="masterActions00019.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image43" src="masterActions00019.png" />.</p>
+ <p class="FM_ListNumber1">3. &#160; Edit or remove connection methods via the actions icon <img alt="masterActions00026.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image52" src="masterActions00026.png" />.</p>
  <p class="FM_Body">Click <span class="FM_UIRef">Add inbound connection method</span>&#160;or <span class="FM_UIRef">Add connection method</span><span class="FM_Bold">&#160;</span>&gt; <span class="FM_UIRef">Add inbound connection method</span>. Complete following fields:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">

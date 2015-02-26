@@ -66,16 +66,16 @@ gTopicId = "2.5.0_2";
  <p class="FM_H3SectionTopic">Configure connection methods on device configurations</p>
  <p class="FM_H4Topic">Understand connection methods</p>
  <p class="FM_Body">The connection method allows you to define how to communicate with the device. Some devices can support multiple types of connection methods (GRPS, optical, SMS, etc.). You can configure which is the preferred type. Using connection methods you can minimize your cost via the connection strategy. You can select to minimize the connections or connect as soon as possible.</p>
- <p class="FM_Body">If you choose to minimize the connections then <uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>&#160;will only connect to a device when the connection method allows it. A communication task will then only be executed at the time the connection is scheduled. If you choose to connect a soon as possible, then a connection will be set up as soon as a communication task needs a connection.</p>
+ <p class="FM_Body">If you choose to minimize the connections then <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will only connect to a device when the connection method allows it. A communication task will then only be executed at the time the connection is scheduled. If you choose to connect a soon as possible, then a connection will be set up as soon as a communication task needs a connection.</p>
  <p class="FM_H4Topic">Configure an <a title="Data from, for example a communication server, is pushed to a device.">outbound</a> connection method</p>
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
- <p class="FM_Body">Before you add a connection method make sure that the device is <span class="FM_UIRef">Directly accessible</span><span class="FM_Bold">. </span>If not, then no connection methods can be added.<span class="FM_Bold"> This can be selected</span>&#160;on the device configuration edit page. See <a href="Configure_device_configurations.htm#XREF_60728_Configure_device"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Configure device configurations”</span></a>. </p>
+ <p class="FM_Body">Before you add a connection method make sure that the device is <span class="FM_UIRef">Directly addressable</span><span class="FM_Bold">. </span>If not, then no connection methods can be added.<span class="FM_Bold"> This can be selected</span>&#160;on the device configuration edit page. See <a href="Configure_device_configurations.htm#XREF_60728_Configure_device"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Configure device configurations”</span></a>. </p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt; select a configuration.</p>
- <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Connection method</span> in the menu on the left.</p>
- <p class="FM_ListNumber1">3. &#160; Edit or remove connection methods via the actions icon <img alt="masterActions00016.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image40" src="masterActions00016.png" />.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Connection methods</span> in the menu on the left.</p>
+ <p class="FM_ListNumber1">3. &#160; Edit or remove connection methods via the actions icon <img alt="masterActions00023.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image49" src="masterActions00023.png" />.</p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add connection method</span><span class="FM_Bold">&#160;&gt; </span><span class="FM_UIRef">Add outbound connection method</span>. Complete the following fields: </p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
@@ -116,8 +116,24 @@ gTopicId = "2.5.0_2";
   <p class="FM_CellBody">Connection strategy</p>
 </td>
   <td style="width : 283.285pt; vertical-align : top;">
-  <p class="FM_CellBody">AsSoonAsPossible: connect whenever a communication task needs a connection. </p>
-  <p class="FM_CellBody">MinimizeConnectio: only connect with the device at the scheduled time.</p>
+  <p class="FM_CellBody"><span class="FM_UIRef">As soon as possible</span>: connect whenever a communication task needs a connection. </p>
+  <p class="FM_CellBody"><span class="FM_UIRef">Minimize connections</span>: only connect with the device at the scheduled time.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection schedule</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">Only available when “Minimize connections” is selected. The schedule when to set up a connection.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 133.408pt; vertical-align : top;">
+  <p class="FM_CellBody">Connection window</p>
+</td>
+  <td style="width : 283.285pt; vertical-align : top;">
+  <p class="FM_CellBody">Is the time window during which it is allowed to set up a connection and communication tasks can be executed. </p>
 </td>
 </tr>
   <tr style=" height : 21.00pt;" class="t2Row">
@@ -125,7 +141,7 @@ gTopicId = "2.5.0_2";
   <p class="FM_CellBody">Retry delay</p>
 </td>
   <td style="width : 283.285pt; vertical-align : top;">
-  <p class="FM_CellBody"> specifies the time to wait to retry connection.</p>
+  <p class="FM_CellBody">The period of delay before the connection will be retried.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t1Row">
@@ -133,7 +149,7 @@ gTopicId = "2.5.0_2";
   <p class="FM_CellBody">Allow simultaneous connection</p>
 </td>
   <td style="width : 283.285pt; vertical-align : top;">
-  <p class="FM_CellBody"> allow multiple connections at the same time.</p>
+  <p class="FM_CellBody">Allows multiple connections at the same time.</p>
 </td>
 </tr>
  </table>
@@ -145,10 +161,10 @@ gTopicId = "2.5.0_2";
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body">Before you add a connection method make sure that the device is <span class="FM_Bold">Directly accessible, this can be selected</span>&#160;on the device configuration edit page. See <a href="Configure_device_configurations.htm#XREF_60728_Configure_device"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Configure device configurations”</span></a>. If not, no connection methods can be added.</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt; select a configuration.</p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Connection method</span> in the menu on the left.</p>
- <p class="FM_ListNumber1">3. &#160; Edit or remove connection methods via the actions icon <img alt="masterActions00017.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image41" src="masterActions00017.png" />.</p>
+ <p class="FM_ListNumber1">3. &#160; Edit or remove connection methods via the actions icon <img alt="masterActions00024.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image50" src="masterActions00024.png" />.</p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add connection method</span><span class="FM_Bold">&#160;&gt; </span><span class="FM_UIRef">Add outbound connection method</span>. Complete the following fields:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">

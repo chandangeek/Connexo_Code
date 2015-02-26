@@ -1009,6 +1009,42 @@ caption.FM_TOCHC2Section {
 		letter-spacing:  0.00em;
         
 }
+p.FM_COVolume {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      center;
+        text-indent:     0.000pt;
+        margin-top:      50.000pt;
+        margin-bottom:   18.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       50.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.01em;
+        
+}
+caption.FM_COVolume {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      center;
+        text-indent:     0.000pt;
+        margin-top:      50.000pt;
+        margin-bottom:   18.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       50.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.01em;
+        
+}
 p.FM_Volume {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -1195,37 +1231,37 @@ p.FM_H5Overview {
 p.FM_COTitle {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
-        text-align:      left;
+        text-align:      center;
         text-indent:     0.000pt;
-        margin-top:      36.000pt;
-        margin-bottom:   14.000pt;
+        margin-top:      30.000pt;
+        margin-bottom:   11.000pt;
         word-spacing:    0.250em;
         font-family:     Open Sans Condensed Light;
         font-style:      normal;
         font-weight:     normal;
-        font-size:       36.0pt;
-        color:           #00699e;
+        font-size:       30.0pt;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
-		letter-spacing:  0.00em;
+		letter-spacing:  0.01em;
         
 }
 caption.FM_COTitle {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
-        text-align:      left;
+        text-align:      center;
         text-indent:     0.000pt;
-        margin-top:      36.000pt;
-        margin-bottom:   14.000pt;
+        margin-top:      30.000pt;
+        margin-bottom:   11.000pt;
         word-spacing:    0.250em;
         font-family:     Open Sans Condensed Light;
         font-style:      normal;
         font-weight:     normal;
-        font-size:       36.0pt;
-        color:           #00699e;
+        font-size:       30.0pt;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
-		letter-spacing:  0.00em;
+		letter-spacing:  0.01em;
         
 }
 p.FM_COTitle {
@@ -1360,16 +1396,16 @@ p.FM_CellBody {
 p.FM_COTitleProduct {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
-        text-align:      left;
+        text-align:      center;
         text-indent:     0.000pt;
-        margin-top:      40.000pt;
-        margin-bottom:   15.000pt;
+        margin-top:      30.000pt;
+        margin-bottom:   11.000pt;
         word-spacing:    0.250em;
         font-family:     Open Sans Condensed Light;
         font-style:      normal;
         font-weight:     normal;
-        font-size:       40.0pt;
-        color:           #00699e;
+        font-size:       30.0pt;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.01em;
@@ -1378,16 +1414,52 @@ p.FM_COTitleProduct {
 caption.FM_COTitleProduct {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
-        text-align:      left;
+        text-align:      center;
         text-indent:     0.000pt;
-        margin-top:      40.000pt;
-        margin-bottom:   15.000pt;
+        margin-top:      30.000pt;
+        margin-bottom:   11.000pt;
         word-spacing:    0.250em;
         font-family:     Open Sans Condensed Light;
         font-style:      normal;
         font-weight:     normal;
-        font-size:       40.0pt;
-        color:           #00699e;
+        font-size:       30.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.01em;
+        
+}
+p.FM_COApplication {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      center;
+        text-indent:     0.000pt;
+        margin-top:      30.000pt;
+        margin-bottom:   11.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       30.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.01em;
+        
+}
+caption.FM_COApplication {
+        margin-left:     0.000pt;
+        margin-right:    0.000pt;
+        text-align:      center;
+        text-indent:     0.000pt;
+        margin-top:      30.000pt;
+        margin-bottom:   11.000pt;
+        word-spacing:    0.250em;
+        font-family:     Open Sans Condensed Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       30.0pt;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.01em;
@@ -2441,16 +2513,16 @@ p.FM_ListBullet2 {
 p.FM_COCode {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
-        text-align:      justify;
+        text-align:      center;
         text-indent:     0.000pt;
-        margin-top:      12.000pt;
+        margin-top:      14.000pt;
         margin-bottom:   3.000pt;
         word-spacing:    0.250em;
-        font-family:     Open Sans Condensed Light;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
-        font-size:       12.0pt;
-        color:           #00699e;
+        font-size:       14.0pt;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -2459,16 +2531,16 @@ p.FM_COCode {
 caption.FM_COCode {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
-        text-align:      justify;
+        text-align:      center;
         text-indent:     0.000pt;
-        margin-top:      12.000pt;
+        margin-top:      14.000pt;
         margin-bottom:   3.000pt;
         word-spacing:    0.250em;
-        font-family:     Open Sans Condensed Light;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
-        font-size:       12.0pt;
-        color:           #00699e;
+        font-size:       14.0pt;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;

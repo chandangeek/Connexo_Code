@@ -69,10 +69,10 @@ gTopicId = "2.2.0_4";
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body">Add <a title="A register type contains all essential register parameters so that this register type can be reused for different device types and device configurations, but it doesn’t contain values.">register types</a> to device types to be able to add and configure register configurations.</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management </span>&gt;<span class="FM_UIRef">&#160;</span>click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt; select a configuration.</p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Register configurations</span>&#160;in the menu on the left. </p>
- <p class="FM_ListNumber1">3. &#160; Edit or remove register configurations via the actions icon <img alt="masterActions00007.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image24" src="masterActions00007.png" />.</p>
+ <p class="FM_ListNumber1">3. &#160; Edit or remove register configurations via the actions icon <img alt="masterActions00007.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image19" src="masterActions00007.png" />.</p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add register configuration</span>. Complete the following fields:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
@@ -117,12 +117,12 @@ gTopicId = "2.2.0_4";
   <p class="FM_CellBody">Text: store register data as text</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t2Row">
+  <tr style=" height : 34.00pt;" class="t2Row">
   <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Number of digits</p>
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">Amount of digits before the decimal</p>
+  <p class="FM_CellBody">Amount of digits before the decimal, only available when the data type of the register is number.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t1Row">
@@ -130,7 +130,7 @@ gTopicId = "2.2.0_4";
   <p class="FM_CellBody">Number of fraction digits</p>
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">Amount of digits after the decimal</p>
+  <p class="FM_CellBody">Amount of digits after the decimal, only available when the data type of the register is number</p>
 </td>
 </tr>
   <tr style=" height : 73.00pt;" class="t2Row">
@@ -139,14 +139,6 @@ gTopicId = "2.2.0_4";
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
   <p class="FM_CellBody">When the arithmetic operation attempts to create a numeric value that is too large to be represented within the available storage space, virtual space is created to accurately calculate usage. The overflow value defines the maximum value that can be stored.</p>
-</td>
-</tr>
-  <tr style=" height : 21.00pt;" class="t1Row">
-  <td style="width : 115.730pt; vertical-align : top;">
-  <p class="FM_CellBody">Multiplier</p>
-</td>
-  <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">Is the value to multiply the register values with.</p>
 </td>
 </tr>
  </table>

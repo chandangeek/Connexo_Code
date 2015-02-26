@@ -69,20 +69,20 @@ gTopicId = "2.2.0_5";
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body">Add <a title="A load profile type contains all essential load profile parameters so that this load profile type can be reused for different device types and device configurations, but it doesn’t contain values.">load profile types</a> to device types to be able to add and configure <a title="A load profile configuration contains further specification of different load profile parameters that are specific for a certain device configuration.">load profile configuration</a>s.</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt; select a configuration.</p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Load profile configurations</span> in the menu on the left.</p>
- <p class="FM_ListNumber1">3. &#160; Edit or remove configurations via the actions icon <img alt="masterActions00008.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image25" src="masterActions00008.png" />. </p>
+ <p class="FM_ListNumber1">3. &#160; Edit or remove configurations via the actions icon <img alt="masterActions00008.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image20" src="masterActions00008.png" />. </p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add load profile configuration</span>. Select one of the load profile types that were added previously to the device type. </p>
  <p class="FM_ListNumber1">5. &#160; The OBIS code is automatically generated based on the load profile type you selected. You can edit this value.</p>
  <p class="FM_ListNumber1">6. &#160; Click <span class="FM_UIRef">Add</span></p>
  <p class="FM_PNote"><span class="FM_Icons">3</span></p>
  <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
- <p class="FM_BodyGrey">Load profile configurations can only be added when the device configuration is inactive. This is to prevent any possible effects that &#160;&#160;on the data collection process.</p>
+ <p class="FM_BodyGrey">Load profile configurations can only be added when the device configuration is inactive. This is to prevent any possible effects on the data collection process.</p>
  <p class="FM_Body"><span style="color   : #a0a0a0; ">On the overview page of the load profile the applied validation rules are shown. From here you can go to the validation rules page, for more information see </span><a href="../000017_UMNL_Validate_data/Validate_data.htm#XREF_28448_2_Validate_data"><span class="FM_blue_crossreference">“Validate data”</span></a><span style="color   : #a0a0a0; ">.</span></p>
- <p class="FM_H4Topic"><a name="XREF_34579_Configure_channels"></a>Configure <a title="A channel contains the energy consumption data collected by a device.">channel</a>s</p>
+ <p class="FM_H4Topic"><a name="XREF_34579_Configure_channels"></a>Configure channels</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Click a load profile configuration.</p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add channel configuration</span>. Complete the following fields: </p>
 
@@ -100,7 +100,7 @@ gTopicId = "2.2.0_5";
   <p class="FM_CellBody">Register type</p>
 </td>
   <td style="width : 298.812pt; vertical-align : top;">
-  <p class="FM_CellBody">Select the data of which you want to see interval readings. Only register types that have not been used for other channels are available</p>
+  <p class="FM_CellBody">Select the data of which you want to see interval readings. Only register types that have not been used for other <a title="A channel contains the energy consumption data collected by a device.">channel</a>s are available</p>
 </td>
 </tr>
   <tr style=" height : 21.00pt;" class="t1Row">
@@ -111,15 +111,7 @@ gTopicId = "2.2.0_5";
   <p class="FM_CellBody">Overrule the OBIS code of the register type.</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t2Row">
-  <td style="width : 117.880pt; vertical-align : top;">
-  <p class="FM_CellBody">Unit of measure</p>
-</td>
-  <td style="width : 298.812pt; vertical-align : top;">
-  <p class="FM_CellBody">Unit of the data that will be represented by the channel.</p>
-</td>
-</tr>
-  <tr style=" height : 60.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t2Row">
   <td style="width : 117.880pt; vertical-align : top;">
   <p class="FM_CellBody">Overflow value</p>
 </td>
@@ -127,20 +119,12 @@ gTopicId = "2.2.0_5";
   <p class="FM_CellBody">When the arithmetic operation attempts to create a numeric value that is too large to be represented within the available storage space, virtual space is created to accurately calculate usage.</p>
 </td>
 </tr>
-  <tr style=" height : 34.00pt;" class="t2Row">
+  <tr style=" height : 34.00pt;" class="t1Row">
   <td style="width : 117.880pt; vertical-align : top;">
   <p class="FM_CellBody">Number of fraction digits</p>
 </td>
   <td style="width : 298.812pt; vertical-align : top;">
   <p class="FM_CellBody">Amount of digits after the decimal</p>
-</td>
-</tr>
-  <tr style=" height : 21.00pt;" class="t1Row">
-  <td style="width : 117.880pt; vertical-align : top;">
-  <p class="FM_CellBody">Multiplier</p>
-</td>
-  <td style="width : 298.812pt; vertical-align : top;">
-  <p class="FM_CellBody">Is the value to multiply the register values with.</p>
 </td>
 </tr>
  </table>

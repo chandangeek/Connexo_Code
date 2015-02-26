@@ -68,12 +68,9 @@ gTopicId = "5.1";
  <p class="FM_H3SectionTopic"><a name="TOC_Configure_issue_creation"></a><a name="XREF_77620_Configure_issue"></a>Configure issue creation rules</p>
  <p class="FM_H4Topic">Understand issue creation rules</p>
  <p class="FM_Body"><uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>&#160;offers the possibility the configure issue creation rules. This option limits the time you spend managing issues because you create rules to define which events will automatically trigger an issue. You can also define when the issue needs to be solved as well as what needs to be done with the issue such as assigning it to a specific user.</p>
- <p class="FM_Body">Different parameters are required to complete the configuration of a creation rule. First you will have to indicate the type of issue, this can be for example a data collection issue or a validation issue. Next you need to select a rule template to define the parameters of the rule. </p>
- <p class="FM_Body">A rule template is a collection of parameters that are specific for a certain rule. The exact values of the parameters are defined in the rule itself. An examples of such a template is the template to create an issue when a slope is detected. All parameters will be shown, but the you will have to compete the reading type, the trend period and the threshold.</p>
- <p class="FM_PDefinition"><span class="FM_Icons">2</span></p>
- <p class="FM_PDefinition2"><span class="FM_Bold">Definition</span></p>
- <p class="FM_Body" style="color   : #a0a0a0;">An issue represents a problem that occurred during the execution of a manual or automated task. It usually requires human intervention to analyse and fix the problem, although some issues can be fixed simply by automatically retrying them. </p>
- <p class="FM_H4Topic">Configure issue creation rules</p>
+ <p class="FM_Body">Different parameters are required to complete the configuration of a creation rule. First you will have to indicate the type of issue, this can be for example a data collection issue. Next you need to select a rule template to define the parameters of the rule. </p>
+ <p class="FM_Body">A rule template is a collection of parameters that are specific for a certain rule. The exact values of the parameters are defined in the rule itself. An examples of such a template is the template to create an issue when a slope is detected. All parameters will be shown, but then you will have to complete the reading type, the trend period and the threshold.</p>
+ <p class="FM_H4Topic"><a name="XREF_96938_Configure_issue"></a>Configure issue creation rules</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management</span>.</p>
@@ -113,7 +110,16 @@ gTopicId = "5.1";
   <p class="FM_CellBody">Select the template containing all parameters to configure the rule</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Auto resolution</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Close issues automatically when the connection or communication problem is solved.</p>
+  <p class="FM_CellBody">Note that this option is only available for specific rule templates.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
   <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Issue reason</p>
 </td>
@@ -121,7 +127,7 @@ gTopicId = "5.1";
   <p class="FM_CellBody">What is the cause of the issue</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t2Row">
+  <tr style=" height : 21.00pt;" class="t1Row">
   <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Due date</p>
 </td>
@@ -129,7 +135,7 @@ gTopicId = "5.1";
   <p class="FM_CellBody">When does the issue need to be solved.</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t1Row">
+  <tr style=" height : 21.00pt;" class="t2Row">
   <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Comment</p>
 </td>
@@ -137,7 +143,7 @@ gTopicId = "5.1";
   <p class="FM_CellBody">Add additional information to the issue.</p>
 </td>
 </tr>
-  <tr style=" height : 47.00pt;" class="t2Row">
+  <tr style=" height : 47.00pt;" class="t1Row">
   <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Actions</p>
 </td>
@@ -149,7 +155,7 @@ gTopicId = "5.1";
 
  <p class="FM_PNote"><span class="FM_Icons">3</span></p>
  <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
- <p class="FM_BodyGrey">Depending on the selected rule template, additional fields will have to be completed such as thresholds and reading types (to add reading types see <a><span class="FM_blue_crossreference">“Add reading type”</span></a>).</p>
+ <p class="FM_BodyGrey">Depending on the selected rule template, additional fields will have to be completed such as thresholds and reading types (to add reading types see <a href="../000017_UMNL_Collect_remote_data/Configure_register_types.htm#XREF_73074_Add_reading_type"><span class="FM_blue_crossreference">“Add reading type”</span></a>).</p>
  <p class="FM_H4Topic"><a name="XREF_57770_Add_actions_to"></a>Add actions to issue creation rules</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>

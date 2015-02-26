@@ -54,23 +54,117 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "8";
+gTopicId = "7_1";
 </script>
- <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Find_data/Perform_bulk_actions_on_search_results.htm">
- <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Glossary/C.htm">
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Find_data/Reporting2.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Copyright/Legal_notices.htm">
 </head>
 
 <body>
 <script type="text/javascript" src="../../ehlpdhtm.js"></script>
 
- <p class="FM_H1Chapter">Glossary</p>
- 
- <p class="FM_H3SectionTopic"><a name="TOC_A"></a>A</p>
- <p class="FM_PGlossary">API</p>
- <p class="FM_Body">&nbsp;</p>
- <p class="FM_PGlossary">Attribute</p>
- <p class="FM_Body">&nbsp;</p>
+ <p class="FM_H1Chapter" style="color   : #1f7e9e;">Glossary</p>
+ <p class="FM_HGlossary">A</p>
  <p class="FM_PGlossary">Authentication</p>
  <p class="FM_Body">Ensures that both ends of the connection are secure.</p>
- </body>
+ <p class="FM_HGlossary">C</p>
+ <p class="FM_PGlossary">Channel</p>
+ <p class="FM_Body">A channel contains the energy consumption data collected by a device.</p>
+ <p class="FM_PGlossary">Communication port</p>
+ <p class="FM_Body">A communication port is a physical modem (GSM, PSTN, etc.) or a logical connection (TCP, UDP, LAN, etc.). A communication port sets up a connection between the communication server and the device.</p>
+ <p class="FM_PGlossary">Communication port pool</p>
+ <p class="FM_Body">A communications port pool is a set of communication ports. The communication port pools can be grouped in ‘Inbound port pools’ and ‘Outbound port pools’. Typically communication port pools are spread over different communication servers.</p>
+ <p class="FM_PGlossary">Communication protocol</p>
+ <p class="FM_Body">A communication protocol defines the syntax of communication between different systems (e.g. between a communication server and a device) It consists of a system of message formats and rules for exchanging those messages. A single protocol can &#160;&#160;be used for multiple physical device models from various manufacturers.</p>
+ <p class="FM_PGlossary">Communication schedule</p>
+ <p class="FM_Body">A communication schedule defines the time and recurrence for reading a particular set of meter data from a device or a group of devices.</p>
+ <p class="FM_PGlossary">Communication server</p>
+ <p class="FM_Body">Communication servers are the part of the system responsible for communicating with various devices in the field. A communication server is capable of communicating with several devices simultaneously using ports and pools of ports. It reads data from, writes data to or performs actions on these devices.</p>
+ <p class="FM_PGlossary">Communication task</p>
+ <p class="FM_Body">Is a group of commands the user defines and communicates with the device to make the device carry out a specific action, e.g. read registers, reset the clock, update firmware, etc.</p>
+ <p class="FM_PGlossary">Connection method</p>
+ <p class="FM_Body">Allows you to define how to communicate with the device. Some devices can support multiple types of connection methods (GRPS, optical, SMS, etc.).</p>
+ <p class="FM_HGlossary">D</p>
+ <p class="FM_PGlossary">Device</p>
+ <p class="FM_Body">A device represents a physical element in the grid, this can be e.g. a meter, concentrator, gateway, in home display, etc.</p>
+ <p class="FM_PGlossary">Device action</p>
+ <p class="FM_Body">A device action is part of a communication task and needs to be executed on a device when communicating with this device during a single connection.</p>
+ <p class="FM_PGlossary">Device command</p>
+ <p class="FM_Body">Is used for infrequent adjustments of device parameters such as resetting a device. Device commands are only available when they are specified in a device protocol and this protocol is applied to the device type.</p>
+ <p class="FM_PGlossary">Device configuration</p>
+ <p class="FM_Body">Device configurations are used to customise or limit some of the functionality of the device type, but also configure additional parameters to interact with the physical device. The device configuration will determine the actual register specifications together with the number of channels. It also contains information on security levels, connection methods, etc. </p>
+ <p class="FM_PGlossary">Device command</p>
+ <p class="FM_Body">Is used for infrequent adjustments of device parameters such as resetting a device. Device commands are only available when they are specified in a device protocol and this protocol is applied to the device type.</p>
+ <p class="FM_PGlossary">Device type</p>
+ <p class="FM_Body">A device type defines the capabilities of a physical device. Every device has exactly one device type that defines which data (such as registers, load profiles and logbooks) can be read from it and what communication protocol is used to read it. A device type doesn't necessarily map to a single physical device model. A device type may represent several models from various manufacturers as long as they have similar behaviour and characteristics.</p>
+ <p class="FM_PGlossary">Dynamic device group</p>
+ <p class="FM_Body">is formed based on different search criteria. Single devices cannot be selected, all devices of the search result are part of the group. This group is dynamic because each time a new device that complies to the search criteria is added to the system, it will also be added to the device group.</p>
+ <p class="FM_HGlossary">E</p>
+ <p class="FM_PGlossary">Encryption</p>
+ <p class="FM_Body">Ensures that the information within a session is not compromised.</p>
+ <p class="FM_HGlossary">G</p>
+ <p class="FM_PGlossary">Gateway</p>
+ <p class="FM_Body">Device enabling the communication with (sub)meters by routing/translating the communication. A gateway will not store any data and works solely as a pas-through. This has the advantage that the (sub)meter needs a protocol to read the data.</p>
+ <p class="FM_HGlossary">I</p>
+ <p class="FM_PGlossary">Inbound</p>
+ <p class="FM_Body">Data is pushed from the device to for example a communication server.</p>
+ <p class="FM_PGlossary">Issue</p>
+ <p class="FM_Body">An issue represents a problem that occurred during the execution of a manual or automated task. It usually requires human intervention to analyse and fix the problem, although some issues can be fixed simply by automatically retrying them. The details of an issue and how to solve them depends on the type of task from which it originates. Issues can be assigned to a particular user or user group to solve it.</p>
+ <p class="FM_PGlossary">Issue creation rules</p>
+ <p class="FM_Body">Rules to define which events automatically trigger an issue and which actions should be taken.</p>
+ <p class="FM_HGlossary">L</p>
+ <p class="FM_PGlossary">Load profile</p>
+ <p class="FM_Body">A load profile is an object containing one or more channels with the same reading interval. </p>
+ <p class="FM_PGlossary">Load profile configuration</p>
+ <p class="FM_Body">A load profile configuration contains further specification of different load profile parameters that are specific for a certain device configuration.</p>
+ <p class="FM_PGlossary">Load profile type</p>
+ <p class="FM_Body">A load profile type contains all essential load profile parameters so that this load profile type can be reused for different device types and device configurations, but it doesn’t contain values.</p>
+ <p class="FM_PGlossary">Logbook</p>
+ <p class="FM_Body">A logbook categorizes events that have occurred on a device. A single logbook can contain different types of events. A device can have more than one logbook. Each logbook has its own unique identifier, which is needed to retrieve its contents from the device. The content of the logbook is recorded during periodic communication to a device. Typical events that are recorded are power outages, connection status, firmware logging, etc.</p>
+ <p class="FM_PGlossary">Logbook configuration</p>
+ <p class="FM_Body">A logbook configuration contains further specification of different logbook parameters that are specific for a certain device configuration.</p>
+ <p class="FM_PGlossary">Logbook type</p>
+ <p class="FM_Body">A logbook type contains all essential logbook parameters so that this logbook type can be reused for different device types and device configurations, but it doesn’t contain values.</p>
+ <p class="FM_HGlossary">M</p>
+ <p class="FM_PGlossary">Master data</p>
+ <p class="FM_Body">Registers, load profiles and logbooks</p>
+ <p class="FM_HGlossary">O</p>
+ <p class="FM_PGlossary">OBIS code</p>
+ <p class="FM_Body">OBIS stands for Object Identification System. OBIS provides standard identifiers for all data within the metering equipment, both measurement values and abstract values. OBIS uses six value groups in a hierarchical structure.</p>
+ <p class="FM_PGlossary">Outbound</p>
+ <p class="FM_Body">Data from, for example a communication server, is pushed to a device.</p>
+ <p class="FM_HGlossary">P</p>
+ <p class="FM_PGlossary">Privileges</p>
+ <p class="FM_Body">Designate what rights a user has to perform certain actions on a specific resource. This can be for example the viewing, adding, editing or removing of a communication server. A resource is a component of an application, e.g. role is a resource as well as issue rules, licenses and communication servers.</p>
+ <p class="FM_PGlossary">Protocol dialect</p>
+ <p class="FM_Body">Some tasks require specific properties such as the ability to download a large amount of data as it is often the case for firmware upgrades. Such specific properties can be acquired by configuring protocol dialects.</p>
+ <p class="FM_HGlossary">R</p>
+ <p class="FM_PGlossary">Reading type</p>
+ <p class="FM_Body">A reading type provides a detailed description of a reading value. It is described using 18 key attributes separated by a dot. </p>
+ <p class="FM_PGlossary">Register</p>
+ <p class="FM_Body">A register is a placeholder for data about a device or data measured by the device. It contains snapshot values that are captured at specific moments in time.</p>
+ <p class="FM_PGlossary">Register configuration</p>
+ <p class="FM_Body">A register configuration contains further specification of different register parameters that are specific for a certain device configuration.</p>
+ <p class="FM_PGlossary">Register group</p>
+ <p class="FM_Body">Register groups are used to collect different register readings that belong together. A group will contain all necessary information needed for a certain process.</p>
+ <p class="FM_PGlossary">Register type</p>
+ <p class="FM_Body">A register type contains all essential register parameters so that this register type can be reused for different device types and device configurations, but it doesn’t contain values.</p>
+ <p class="FM_PGlossary">Release date</p>
+ <p class="FM_Body">Is the date when a command comes available to be executed when there is a connection.</p>
+ <p class="FM_PGlossary">Rule template (issue)</p>
+ <p class="FM_Body">A rule template is a collection of parameters that are specific for a certain rule. The exact values of the parameters are defined in the rule itself. An examples of such a template is the template to create an issue when a slope is detected. All parameters will be shown, but the user will have to compete the reading type, the trend period and the threshold. </p>
+ <p class="FM_HGlossary">S</p>
+ <p class="FM_PGlossary">Static device group</p>
+ <p class="FM_Body">is a group of devices that was selected out of a search result based on different search criteria. The composition of this group does not change over time, to add new devices to the group, the search has to be repeated and devices manually added.</p>
+ <p class="FM_PGlossary">Shared communication schedule</p>
+ <p class="FM_Body">Is a system wide <a title="A communication schedule defines the time and recurrence for reading a particular set of meter data from a device or a group of devices.">communication schedule</a> that can be used for multiple devices.</p>
+ <p class="FM_HGlossary">V</p>
+ <p class="FM_PGlossary">Validation rules</p>
+ <p class="FM_Body">Rules&#160;to check whether collected data is valid by verifying if the data is in accordance with specific market rules.</p>
+ <p class="FM_PGlossary">Validation rule set</p>
+ <p class="FM_Body">Is a collection of validation rules that should be applied together.</p>
+ <p class="FM_PGlossary">Validator</p>
+ <p class="FM_Body">The validator is a template that sets the rules to check if the collected data is correct.</p>
+ <p class="FM_Body">&nbsp;</p>
+</body>
 </html>

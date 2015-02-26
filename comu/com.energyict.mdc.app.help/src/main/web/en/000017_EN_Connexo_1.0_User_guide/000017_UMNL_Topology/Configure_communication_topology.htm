@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Configure communication topology</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Topology.fm" />
+ <link rel="stylesheet" href="000017_UMNL_Topology.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "6.1.0_3";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Topology/Monitor_communication_topology.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Find_data/Find_data.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic">Configure communication topology</p>
+ <p class="FM_H4Topic">Set master device</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Select a device using <span class="FM_UIRef">Search</span>, see <a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“Advanced search”</span></a>.</p>
+ <p class="FM_ListNumber1">2. &#160; On the landing page in the Communication topology pane there are 4 different scenario’s:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 152.078pt; vertical-align : top;">
+  <p class="FM_CellHeading">Scenario</p>
+</td>
+  <td style="width : 264.615pt; vertical-align : top;">
+  <p class="FM_CellHeading">Options</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 152.078pt; vertical-align : top;">
+  <p class="FM_CellBody">Device is directly addressable</p>
+</td>
+  <td style="width : 264.615pt; vertical-align : top;">
+  <p class="FM_CellBody">Because the device can be addressed directly, it is not possible to assign a master device to this device. The device itself however can be a master for another device.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 152.078pt; vertical-align : top;">
+  <p class="FM_CellBody">Device is not directly addressable</p>
+</td>
+  <td style="width : 264.615pt; vertical-align : top;">
+  <p class="FM_CellBody">A master device can be assigned.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 152.078pt; vertical-align : top;">
+  <p class="FM_CellBody">Device can be a gateway</p>
+</td>
+  <td style="width : 264.615pt; vertical-align : top;">
+  <p class="FM_CellBody">A master device can be assigned to this device. The most recently added slave devices are shown. This device can also be a master device for other devices.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 152.078pt; vertical-align : top;">
+  <p class="FM_CellBody">Device cannot be a gateway</p>
+</td>
+  <td style="width : 264.615pt; vertical-align : top;">
+  <p class="FM_CellBody">The device cannot have slave devices.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">3. &#160; Click the edit icon <img alt="Edit.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image1" src="Edit.png" />&#160;to add or edit the master device. Click the remove icon to remove the master device.</p>
+ <p class="FM_ListNumber1">4. &#160; Select a master device from the list.</p>
+ <p class="FM_ListNumber1">5. &#160; Click the green checkmark.</p>
+</body>
+</html>

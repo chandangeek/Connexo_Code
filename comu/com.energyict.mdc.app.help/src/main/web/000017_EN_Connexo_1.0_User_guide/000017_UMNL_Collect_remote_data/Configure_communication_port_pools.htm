@@ -64,12 +64,12 @@ gTopicId = "2.4.0_5";
 <script type="text/javascript" src="../../ehlpdhtm.js"></script>
 
  <p class="FM_H3SectionTopic"><a name="XREF_61437_Configure"></a>Configure communication port pools</p>
- <p class="FM_H4Topic">Add/remove communication port pools</p>
+ <p class="FM_H4Topic">Add/remove outbound communication port pools</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device communication</span>.</p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Communication port pools</span>.</p>
- <p class="FM_ListNumber1">3. &#160; Edit or remove port pools via the actions icon <img alt="masterActions00015.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image38" src="masterActions00015.png" />. </p>
+ <p class="FM_ListNumber1">3. &#160; Edit or remove port pools via the actions icon <img alt="masterActions00021.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image46" src="masterActions00021.png" />. </p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add communication port pool</span>&#160;&gt; <span class="FM_UIRef">Outbound</span>. Complete the following fields:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
@@ -94,7 +94,54 @@ gTopicId = "2.4.0_5";
   <p class="FM_CellBody">Type</p>
 </td>
   <td style="width : 283.465pt; vertical-align : top;">
-  <p class="FM_CellBody">Select a communication type (serial, TCP and UDP).</p>
+  <p class="FM_CellBody">Select a communication type.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">Once a communication port pool has been configured and saved, the parameter <span class="FM_UIRef">Type</span>&#160;can no longer be edited. This is to prevent potential harmful effects on devices that use this port pool. </p>
+ <p class="FM_H4Topic">Add/remove inbound communication port pools</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device communication</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Communication port pools</span>.</p>
+ <p class="FM_ListNumber1">3. &#160; Edit or remove port pools via the actions icon <img alt="masterActions00022.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image47" src="masterActions00022.png" />. </p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add communication port pool</span>&#160;&gt; <span class="FM_UIRef">Inbound</span>. Complete the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 109.000pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 109.000pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">A unique name</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 109.000pt; vertical-align : top;">
+  <p class="FM_CellBody">Type</p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Select a communication type.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 109.000pt; vertical-align : top;">
+  <p class="FM_CellBody">Protocol detection</p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody">Discovery method used to detect devices</p>
 </td>
 </tr>
  </table>
