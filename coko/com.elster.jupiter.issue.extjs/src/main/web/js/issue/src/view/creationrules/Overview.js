@@ -26,8 +26,7 @@ Ext.define('Isu.view.creationrules.Overview', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('administration.issueCreationRules.empty.title', 'ISU', 'No issue creation rules found'),
                         reasons: [
-                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item1', 'ISU', 'No issue creation rules have been defined yet.'),
-                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item2', 'ISU', 'No issue creation rules comply to the filter.')
+                            Uni.I18n.translate('administration.issueCreationRules.empty.list.item1', 'ISU', 'No issue creation rules have been defined yet.')
                         ],
                         stepItems: [
                             {
