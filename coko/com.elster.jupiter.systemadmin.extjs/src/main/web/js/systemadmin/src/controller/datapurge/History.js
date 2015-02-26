@@ -46,10 +46,6 @@ Ext.define('Sam.controller.datapurge.History', {
             text: Uni.I18n.translate('datapurge.history.startedon', 'SAM', 'Started on'),
             iconCls: 'x-btn-sort-item-desc'
         });
-        me.getSortingToolbar().getClearButton().disable();
-        me.getSortingToolbar().on('afterlayout', function () {
-            this.getClearButton().disable();
-        });
     },
 
     showDetails: function (selectionModel, record) {
