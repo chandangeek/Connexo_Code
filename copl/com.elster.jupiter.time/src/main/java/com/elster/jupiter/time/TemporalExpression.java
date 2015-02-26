@@ -2,6 +2,7 @@ package com.elster.jupiter.time;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -194,7 +195,7 @@ public final class TemporalExpression implements ScheduleExpression {
             }
             result = result.with(ChronoField.DAY_OF_MONTH, ChronoField.DAY_OF_MONTH.rangeRefinedBy(result).getMaximum());
         } else {
-            result = result.with(offset.getTemporalField(), offset.getCount());
+            result = result.plus(offset.getCount(), offset.getTemporalUnit());
         }
         while (!result.isAfter(time)) {
             result = result.plus(every.getCount(), every.getTemporalUnit());
