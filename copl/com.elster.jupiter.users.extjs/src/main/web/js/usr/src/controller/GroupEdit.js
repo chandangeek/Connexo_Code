@@ -98,7 +98,7 @@ Ext.define('Usr.controller.GroupEdit', {
         me.getStore('Usr.store.Resources').clearFilter();
         me.getStore('Usr.store.Resources').load({
             callback: function () {
-                me.onPrivilegesStoreLoad();
+                //me.onPrivilegesStoreLoad();
                 var widget = Ext.widget('groupEdit', {edit: (me.mode == 'edit')}),
                     panel = widget.getCenterContainer().items.getAt(0),
                     name = '',
@@ -136,7 +136,7 @@ Ext.define('Usr.controller.GroupEdit', {
                         }
                     }
                 }
-
+                me.onPrivilegesStoreLoad();
                 this.commitChanges();
 
                 widget.setLoading(false);

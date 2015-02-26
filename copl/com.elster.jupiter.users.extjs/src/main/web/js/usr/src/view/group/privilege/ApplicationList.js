@@ -31,7 +31,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                                 metadata.tdCls = 'uni-icon-drop-no';
                                 break;
                             case 1:
-                                metadata.tdCls = 'uni-icon-drop-above';
+                                metadata.tdCls = 'uni-no-icon';
                                 break;
                             case 2:
                                 metadata.tdCls = 'uni-icon-drop-yes';

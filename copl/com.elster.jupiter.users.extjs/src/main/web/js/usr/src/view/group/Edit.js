@@ -87,7 +87,7 @@ Ext.define('Usr.view.group.Edit', {
                                     {
                                         xtype: 'featureList',
                                         itemId: 'featureList',
-                                        margin: '0 -12 0 0',
+                                        margin: '0 0 0 0',
                                         maxHeight: 300
                                     }
                                 ]

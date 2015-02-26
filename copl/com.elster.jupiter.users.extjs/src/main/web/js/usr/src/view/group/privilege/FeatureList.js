@@ -32,7 +32,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                             if (record.privileges().data.items.length == record.get('selected')) {
                                 metadata.tdCls = 'uni-icon-drop-yes';
                             } else {
-                                metadata.tdCls = 'uni-icon-drop-above';
+                                metadata.tdCls = 'uni-no-icon';
                             }
                         }
                         return name;
