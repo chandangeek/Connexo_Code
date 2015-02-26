@@ -206,6 +206,8 @@ Ext.define('Dsh.controller.Connections', {
         fieldsToFilterNameMap['comSchedules'] = 'SCHEDULENAME';
         fieldsToFilterNameMap['deviceTypes'] = null;
         fieldsToFilterNameMap['comTasks'] = 'COMTASKNAME';
+        fieldsToFilterNameMap['comPortPools'] = 'PORTPOOLNAME';
+        fieldsToFilterNameMap['connectionTypes'] = 'CONNECTIONTYPE';
 
         var reportFilter = false;
 
@@ -222,6 +224,19 @@ Ext.define('Dsh.controller.Connections', {
             }
             reportFilter[filterName] = fieldValue;
         });
+
+        //handle special startBetween and finishBetween;
+
+        if(router.filter && router.filter.startedBetween){
+            var from = router.filter.startedBetween.get('from');
+            var to = router.filter.startedBetween.get('to');
+            reportFilter['CONNECTIONDATE'] ={
+                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
+                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
+            };
+        }
+
+
 
         //handle special startBetween and finishBetween;
         //router.filter.startedBetween

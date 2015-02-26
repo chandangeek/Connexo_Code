@@ -22,14 +22,22 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             issuesCount = store.getCount();
 
         if (issuesCount > 0) {
+            grid.isHidden() && grid.show();
             grid.reconfigure(store);
+        } else {
+            grid.hide();
         }
         Ext.suspendLayouts();
         issuesCount = grid.getStore().getCount();
         countContainer.removeAll();
         dockedLinksContainer.removeAll();
         titleContainer.removeAll();
-
+        if (issuesCount === 0) {
+            countContainer.add({
+                xtype: 'label',
+                text: Uni.I18n.translate('operator.dashboard.issuesEmptyMsg', 'DSH', 'No open issues assigned to you.')
+            });
+        }
         if (issuesCount) {
             countContainer.add({
                 xtype: 'container',
@@ -126,7 +134,8 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             },
             {
                 xtype: 'container',
-                itemId: 'open-data-collection-issues-docked-links'
+                itemId: 'open-data-collection-issues-docked-links',
+                margin: '10 0 0 -9'
             }
         ];
 
