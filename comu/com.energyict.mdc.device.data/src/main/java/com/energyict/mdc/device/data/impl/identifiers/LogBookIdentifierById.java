@@ -1,15 +1,13 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -44,6 +42,11 @@ public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
     @Override
     public void setXmlType(String ignore) {
 
+    }
+
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return new DeviceIdentifierByLogBook(this);
     }
 
     /**

@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -51,6 +49,11 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
     @Override
     public void setXmlType(String ignore) {
 
+    }
+
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 
     public boolean equals(Object o) {

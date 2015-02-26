@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -32,5 +33,10 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
     @Override
     public void setXmlType(String ignore) {
 
+    }
+
+    @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDevice(getLogBook().getDevice());
     }
 }

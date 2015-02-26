@@ -74,6 +74,11 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     }
 
     @Override
+    public DeviceIdentifier<?> getDeviceIdentifier() {
+        return new DeviceIdentifierByLoadProfile(this);
+    }
+
+    @Override
     public String toString() {
         return "id" + this.id;
     }
