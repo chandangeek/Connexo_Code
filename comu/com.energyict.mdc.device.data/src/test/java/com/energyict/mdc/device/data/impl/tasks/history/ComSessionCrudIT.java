@@ -385,12 +385,9 @@ public class ComSessionCrudIT {
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSession comSession = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .incrementSuccessFulTasks()
-                    .incrementSuccessFulTasks()
-                    .incrementSuccessFulTasks()
-                    .incrementFailedTasks()
-                    .incrementFailedTasks()
-                    .incrementNotExecutedTasks()
+                    .incrementSuccessFulTasks(3)
+                    .incrementFailedTasks(2)
+                    .incrementNotExecutedTasks(1)
                     .addReceivedBytes(128)
                     .addSentBytes(64)
                     .addReceivedPackets(32)

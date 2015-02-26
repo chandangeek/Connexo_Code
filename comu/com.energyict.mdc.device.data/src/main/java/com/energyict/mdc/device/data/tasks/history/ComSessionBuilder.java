@@ -25,12 +25,6 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ComSessionBuilder storeDuration(Duration duration);
 
-    ComSessionBuilder incrementSuccessFulTasks();
-
-    ComSessionBuilder incrementFailedTasks();
-
-    ComSessionBuilder incrementNotExecutedTasks();
-
     ComSessionBuilder incrementFailedTasks(int numberOfFailedTasks);
 
     ComSessionBuilder incrementSuccessFulTasks(int numberOfSuccessFulTasks);

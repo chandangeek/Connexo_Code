@@ -116,20 +116,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
-        public ComSessionBuilder incrementFailedTasks() {
-            failedTasks.increment();
-            return parentBuilder();
-        }
-
-        @Override
         public ComSessionBuilder incrementFailedTasks(int numberOfFailedTasks) {
             failedTasks.add(numberOfFailedTasks);
-            return parentBuilder();
-        }
-
-        @Override
-        public ComSessionBuilder incrementNotExecutedTasks() {
-            notExecutedTasks.increment();
             return parentBuilder();
         }
 
@@ -164,12 +152,6 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             else {
                 return cause.toString();
             }
-        }
-
-        @Override
-        public ComSessionBuilder incrementSuccessFulTasks() {
-            successfulTasks.increment();
-            return parentBuilder();
         }
 
         @Override
@@ -256,28 +238,13 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
-    public ComSessionBuilder incrementFailedTasks() {
-        return state.incrementFailedTasks();
-    }
-
-    @Override
     public ComSessionBuilder incrementFailedTasks(int numberOfFailedTasks) {
         return state.incrementFailedTasks(numberOfFailedTasks);
     }
 
     @Override
-    public ComSessionBuilder incrementNotExecutedTasks() {
-        return state.incrementNotExecutedTasks();
-    }
-
-    @Override
     public ComSessionBuilder incrementNotExecutedTasks(int numberOfPlannedButNotExecutedTasks) {
         return state.incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
-    }
-
-    @Override
-    public ComSessionBuilder incrementSuccessFulTasks() {
-        return state.incrementSuccessFulTasks();
     }
 
     @Override
