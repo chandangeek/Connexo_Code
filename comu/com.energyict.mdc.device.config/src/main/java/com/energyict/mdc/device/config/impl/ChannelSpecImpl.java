@@ -148,11 +148,9 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     public List<ValidationRule> getValidationRules() {
         Set<ReadingType> result = new HashSet<>();
         ReadingType readingType = getReadingType();
+        result.add(readingType);
         if (readingType.isCumulative()) {
-            Optional<ReadingType> delta = readingType.getCalculatedReadingType();
-            if (delta.isPresent()) {
-                result.add(delta.get());
-            }
+            readingType.getCalculatedReadingType().ifPresent(result::add);
         }
         return getDeviceConfiguration().getValidationRules(result);
     }
