@@ -130,7 +130,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private PreparedComTaskExecution prepare(ComCommand comCommand, CommandRoot root, ComTaskExecution comTaskExecution) {
         root.addUniqueCommand(comCommand, comTaskExecution);
-        this.getInboundDiscoveryContext().getComSessionBuilder().incrementNotExecutedTasks();
+        this.getInboundDiscoveryContext().getComSessionBuilder().incrementNotExecutedTasks(comTaskExecution.getComTasks().size());
         return new PreparedComTaskExecution(comTaskExecution, root, getDeviceProtocol());
     }
 

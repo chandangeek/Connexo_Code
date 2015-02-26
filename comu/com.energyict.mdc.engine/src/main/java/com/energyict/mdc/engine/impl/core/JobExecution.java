@@ -238,12 +238,13 @@ public abstract class JobExecution implements ScheduledJob {
         } finally {
             if (!getExecutionContext().basickCheckHasFailed()) {
                 getNotExecutedComTaskExecutions().remove(preparedComTaskExecution.getComTaskExecution());
+                int actualNumberOfTasks = preparedComTaskExecution.getComTaskExecution().getComTasks().size();
                 if (success) {
                     getSuccessfulComTaskExecutions().add(preparedComTaskExecution.getComTaskExecution());
-                    getExecutionContext().getComSessionBuilder().incrementSuccessFulTasks();
+                    getExecutionContext().getComSessionBuilder().incrementSuccessFulTasks(actualNumberOfTasks);
                 } else {
                     getFailedComTaskExecutions().add(preparedComTaskExecution.getComTaskExecution());
-                    getExecutionContext().getComSessionBuilder().incrementFailedTasks();
+                    getExecutionContext().getComSessionBuilder().incrementFailedTasks(actualNumberOfTasks);
                 }
             }
             // if the basicCheck fails, then all other ComTasks will not be executed (except the logOff etc.)
