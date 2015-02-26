@@ -32,6 +32,14 @@ Ext.define('Uni.property.view.property.Number', {
         };
     },
 
+    getDisplayCmp: function () {
+        return {
+            xtype: 'displayfield',
+            name: this.getName(),
+            itemId: this.key + 'displayfield'
+        }
+    },
+
     getComboCmp: function () {
         var result = this.callParent(arguments);
         result.fieldStyle = 'text-align:right;';
