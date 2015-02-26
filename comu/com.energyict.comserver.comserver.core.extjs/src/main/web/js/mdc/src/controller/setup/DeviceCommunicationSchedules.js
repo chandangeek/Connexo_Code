@@ -170,6 +170,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
 
         var availableScheduleStore = this.getAvailableCommunicationSchedulesForDeviceStore();
         widget.down('#addSharedCommunicationScheduleGrid').reconfigure(availableScheduleStore);
+        availableScheduleStore.getProxy().pageParam = false;
+        availableScheduleStore.getProxy().limitParam = false;
+        availableScheduleStore.getProxy().startParam = false;
         availableScheduleStore.getProxy().setExtraParam('filter', Ext.encode([
             {
                 property: 'mrid',

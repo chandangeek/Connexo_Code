@@ -152,7 +152,6 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
         me.side = {
             xtype: 'panel',
             ui: 'medium',
-            title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
             width: 300,
             items: [
                 {
