@@ -206,7 +206,7 @@ public class DataExportTaskResource {
         ReadingTypeDataExportTask task = fetchDataExportTask(id);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStart())
-                .setLimit(queryParameters.getLimit());
+                .setLimit(queryParameters.getLimit() + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
