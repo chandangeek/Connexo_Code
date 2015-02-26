@@ -20,7 +20,6 @@ public class ChannelsOnDevConfPostBuilder implements Consumer<DeviceConfiguratio
             for (ChannelType channelType : availableChannelTypes) {
                 if (!channelsOnConfiguration.contains(channelType.getReadingType().getMRID())) {
                     configuration.createChannelSpec(channelType, loadProfileSpec)
-                            .setMultiplier(new BigDecimal(1))
                             .setOverflow(new BigDecimal(9999999999L))
                             .setNbrOfFractionDigits(0)
                             .add();
