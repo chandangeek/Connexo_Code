@@ -41,19 +41,11 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                 layout: {
                     type: 'vbox'
                 },
-
                 items: [
-//                    {
-//                        xtype: 'component',
-//                        html: '',
-//
-//                        margins: '10 10 10 10'
-//                    },
                     {
                         xtype: 'form',
                         border: false,
                         itemId: 'deviceConnectionMethodEditForm',
-                        width: 900,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
