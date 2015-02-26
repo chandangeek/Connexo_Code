@@ -16,7 +16,7 @@ public class ComTaskExecutionSessionInfo {
 
     public String name;
     public long id;
-    public List<IdWithNameInfo> comTasks;
+    public IdWithNameInfo comTask;
     public IdWithNameInfo device;
     public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
@@ -24,9 +24,9 @@ public class ComTaskExecutionSessionInfo {
     public TemporalExpressionInfo comScheduleFrequency;
     public int urgency;
     public TaskStatusInfo currentState;
-    public CompletionCodeInfo latestResult;
+    public CompletionCodeInfo result;
     public Instant startTime;
-    public Instant successfulFinishTime;
+    public Instant stopTime;
     public Instant nextCommunication;
     public boolean alwaysExecuteOnInbound;
 

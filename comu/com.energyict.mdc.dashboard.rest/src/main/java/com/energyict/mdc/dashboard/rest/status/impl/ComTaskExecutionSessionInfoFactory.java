@@ -45,10 +45,12 @@ public class ComTaskExecutionSessionInfoFactory {
     public ComTaskExecutionSessionInfo from(ComTaskExecutionSession comTaskExecutionSession) {
         ComTaskExecutionSessionInfo info = new ComTaskExecutionSessionInfo();
         ComTaskExecution comTaskExecution = comTaskExecutionSession.getComTaskExecution();
-        info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
+       /* info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
         for (ComTask comTask : comTaskExecution.getComTasks()) {
             info.comTasks.add(new IdWithNameInfo(comTask));
-        }
+        }*/
+        ComTask comTask = comTaskExecutionSession.getComTask();
+        info.comTask = new IdWithNameInfo(comTask.getId(), comTask.getName());
         if(comTaskExecution.usesSharedSchedule()){
             info.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
         } else {
@@ -77,9 +79,9 @@ public class ComTaskExecutionSessionInfoFactory {
         }
         info.urgency = comTaskExecution.getExecutionPriority();
         info.currentState = new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
-        info.latestResult = CompletionCodeInfo.from(comTaskExecutionSession.getHighestPriorityCompletionCode(), thesaurus);
-        info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
-        info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
+        info.result = CompletionCodeInfo.from(comTaskExecutionSession.getHighestPriorityCompletionCode(), thesaurus);
+        info.startTime = comTaskExecutionSession.getStartDate();
+        info.stopTime = comTaskExecutionSession.getStopDate();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         return info;
