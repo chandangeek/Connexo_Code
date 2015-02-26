@@ -25,77 +25,54 @@ Ext.define('Mdc.controller.setup.DeviceChannelOverview', {
             channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
             widget,
-            tabWidget,
-            defer = {
-                param: null,
-                callback: null,
-                resolve: function (arg) {
-                    arg && this.callback.apply(this, this.param)
-                },
-                setCallback: function (fn) {
-                    this.callback = fn;
-                    this.resolve(this.param)
-                },
-                setParam: function () {
-                    this.param = arguments;
-                    this.resolve(this.callback)
-                }
-            };
-
-        defer.setCallback(function (device) {
-
-            tabWidget = Ext.widget('tabbedDeviceChannelsView', {
-                router: router,
-                device: device,
-                channelsListLink: me.getController('Mdc.controller.setup.DeviceChannelData').makeLinkToList(router)
-            });
-
-            widget = Ext.widget('deviceLoadProfileChannelOverview', {
-                router: me.getController('Uni.controller.history.Router'),
-                device: device
-            });
-
-            tabWidget.down('#channel-specifications').add(widget);
-            tabController.showTab(0);
-            me.getApplication().fireEvent('changecontentevent', tabWidget);
-            widget.setLoading(true);
-            channelModel.getProxy().setUrl({
-                mRID: mRID
-            });
-            channelModel.load(channelId, {
-                success: function (record) {
-                    if (!widget.isDestroyed) {
-                        me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
-                        var readingType = record.get('readingType');
-                        tabWidget.down('#channelTabPanel').setTitle(readingType.aliasName + (!Ext.isEmpty(readingType.names.unitOfMeasure) ? (' (' + readingType.names.unitOfMeasure + ')') : ''));
-                        widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
-                        widget.down('deviceLoadProfileChannelsActionMenu').record = record;
-
-                        var calculatedReadingType = widget.down('#calculatedReadingType'),
-                            readingTypeLabel = widget.down('#readingType').labelEl;
-
-                        if (record.data.calculatedReadingType) {
-                            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'MDC', 'Collected reading type'));
-                            calculatedReadingType.show();
-                        } else {
-                            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'));
-                            calculatedReadingType.hide();
-                        }
-                    }
-                },
-                callback: function () {
-                    widget.setLoading(false);
-                }
-            });
-        });
-
+            tabWidget;
 
         me.getModel('Mdc.model.Device').load(mRID, {
-            success: function (record) {
-                me.getApplication().fireEvent('loadDevice', record);
-                defer.setParam(record)
+            success: function (device) {
+                me.getApplication().fireEvent('loadDevice', device);
+                tabWidget = Ext.widget('tabbedDeviceChannelsView', {
+                    router: router,
+                    device: device,
+                    channelsListLink: me.getController('Mdc.controller.setup.DeviceChannelData').makeLinkToList(router)
+                });
+
+                widget = Ext.widget('deviceLoadProfileChannelOverview', {
+                    router: me.getController('Uni.controller.history.Router'),
+                    device: device
+                });
+
+                tabWidget.down('#channel-specifications').add(widget);
+                tabController.showTab(0);
+                me.getApplication().fireEvent('changecontentevent', tabWidget);
+                widget.setLoading(true);
+                channelModel.getProxy().setUrl({
+                    mRID: mRID
+                });
+                channelModel.load(channelId, {
+                    success: function (record) {
+                        if (!widget.isDestroyed) {
+                            me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                            tabWidget.down('#channelTabPanel').setTitle(record.get('name'));
+                            widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
+                            widget.down('deviceLoadProfileChannelsActionMenu').record = record;
+
+                            var calculatedReadingType = widget.down('#calculatedReadingType'),
+                                readingTypeLabel = widget.down('#readingType').labelEl;
+
+                            if (record.data.calculatedReadingType) {
+                                readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'MDC', 'Collected reading type'));
+                                calculatedReadingType.show();
+                            } else {
+                                readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'));
+                                calculatedReadingType.hide();
+                            }
+                        }
+                    },
+                    callback: function () {
+                        widget.setLoading(false);
+                    }
+                });
             }
         });
-
     }
 });
