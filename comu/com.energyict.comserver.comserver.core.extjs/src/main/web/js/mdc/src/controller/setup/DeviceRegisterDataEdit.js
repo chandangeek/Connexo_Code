@@ -86,7 +86,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Ext.String.format(Uni.I18n.translate('device.registerData.delete.message', 'MDC', 'The register reading with measurment time {0} will no longer be available'), Ext.util.Format.date(new Date(lastSelected.get('timeStamp')), 'M j, Y \\a\\t G:i')),
+            msg: Ext.String.format(Uni.I18n.translate('device.registerData.delete.message', 'MDC', 'The register reading with measurement time {0} will no longer be available'), Ext.util.Format.date(new Date(lastSelected.get('timeStamp')), 'M j, Y \\a\\t G:i')),
             title: Uni.I18n.translate('device.registerData.delete.title', 'MDC', 'Remove reading') + '?',
             config: {
                 readingToDelete: lastSelected,
