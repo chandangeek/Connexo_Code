@@ -101,6 +101,7 @@ public class DeviceComTaskInfoFactory {
             ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
             String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
             deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
+            deviceComTasksInfo.connectionStrategyKey = connectionStrategyValue;
         }
     }
 
@@ -133,6 +134,7 @@ public class DeviceComTaskInfoFactory {
                 ConnectionStrategy connectionStrategy = scheduledConnectionTask.getConnectionStrategy();
                 String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
                 deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
+                deviceComTasksInfo.connectionStrategyKey = connectionStrategyValue;
             }
             else {
                 deviceComTasksInfo.connectionStrategy = thesaurus.getString(MessageSeeds.CONNECTION_TYPE_STRATEGY_NOT_APPLICABLE.name(), null);
@@ -170,6 +172,7 @@ public class DeviceComTaskInfoFactory {
                     ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
                     String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
                     deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
+                    deviceComTasksInfo.connectionStrategyKey = connectionStrategyValue;
                 }
 
             } else {
@@ -203,6 +206,7 @@ public class DeviceComTaskInfoFactory {
                     ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
                     String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
                     deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
+                    deviceComTasksInfo.connectionStrategyKey = connectionStrategyValue;
                 }
             }
         }

@@ -14,6 +14,8 @@ public class DeviceComTaskInfo {
     public String connectionMethod;
     @JsonProperty("connectionStrategy")
     public String connectionStrategy;
+    @JsonProperty("connectionStrategyKey")
+    public String connectionStrategyKey;
     @JsonProperty("nextCommunication")
     public Instant nextCommunication;
     @JsonProperty("lastCommunicationStart")
