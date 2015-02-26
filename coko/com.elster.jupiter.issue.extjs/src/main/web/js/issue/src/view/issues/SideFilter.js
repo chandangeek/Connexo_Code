@@ -30,7 +30,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
             forceSelection: true,
             anyMatch: true,
-            emptyText: 'Start typing'
+            emptyText: 'Start typing to select an assignee'
 
         },
         {
