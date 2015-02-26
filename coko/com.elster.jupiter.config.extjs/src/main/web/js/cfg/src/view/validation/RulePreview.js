@@ -55,7 +55,8 @@ Ext.define('Cfg.view.validation.RulePreview', {
         {
             xtype: 'fieldcontainer',
             fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
-            itemId: 'readingTypesArea'
+            itemId: 'readingTypesArea',
+            margin: '0 0 -8 0'
         },
         {
             xtype: 'property-form',
