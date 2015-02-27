@@ -80,7 +80,7 @@ Ext.define('Sam.view.licensing.Upload', {
                         {
                             itemId: 'navEl',
                             text: Uni.I18n.translate('licensing.sidemenu.uploadLic', 'SAM', 'Upload licenses'),
-                            href: '#/administration/licensing/upload'
+                            href: '#/administration/licenses/upload'
                         }
                     ]
                 }}
