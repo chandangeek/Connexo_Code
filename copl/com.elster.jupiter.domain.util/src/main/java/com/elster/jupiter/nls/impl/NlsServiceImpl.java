@@ -55,6 +55,8 @@ public class NlsServiceImpl implements NlsService, InstallService {
                 bind(MessageInterpolator.class).toInstance(messageInterpolator);
             }
         });
+        installed = dataModel.isInstalled();
+
     }
 
     @Deactivate
