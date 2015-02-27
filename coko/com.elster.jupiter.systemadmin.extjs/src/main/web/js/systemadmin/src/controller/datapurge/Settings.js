@@ -37,6 +37,7 @@ Ext.define('Sam.controller.datapurge.Settings', {
     },
 
     onCellEdit: function (editor, e) {
+        !e.value && e.record.set('retainedPartitionCount', 999);
         e.record.set('retention', e.record.get('retainedPartitionCount') * 30);
     },
 
