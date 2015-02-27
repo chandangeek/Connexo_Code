@@ -122,7 +122,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             var registerConfig = registerConfigs[0];
 
             me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
-            me.getRulesForRegisterConfigPreview().setTitle(registerConfig.get('name') + ' validation rules');
 
             me.getRegisterConfigValidationRulesStore().getProxy().extraParams =
                 ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfigs[0].getId()});
@@ -133,7 +132,13 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             } else {
                 me.getRegisterConfigNumberPanel().show();
             }
-            me.getRegisterConfigValidationRulesStore().load();
+            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'])) {
+                me.getRulesForRegisterConfigPreview().setTitle(registerConfig.get('name') + ' validation rules');
+                me.getRegisterConfigValidationRulesStore().load();
+            } else {
+                me.getRulesForRegisterConfigPreview().setTitle('');
+                me.getValidationRulesForRegisterConfigPreview().setVisible(false);
+            }
         }
     },
 
