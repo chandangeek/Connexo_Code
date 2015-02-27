@@ -7,17 +7,21 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     ],
 
     edit: false,
+    cancelLink: null,
 
     isEdit: function () {
         return this.edit;
     },
 
     initComponent: function () {
+        var me = this;
+
         this.content = [
             {
                 xtype: 'form',
                 width: '100%',
                 itemId: 'deviceTypeEditForm',
+                title: '&nbsp;',
                 ui: 'large',
                 defaults: {
                     labelWidth: 250
@@ -59,17 +63,18 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         },
                         items: [
                             {
-                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                text: me.edit ? Uni.I18n.translate('general.save', 'MDC', 'Save') : Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                 xtype: 'button',
                                 ui: 'action',
-                                action: 'createAction',
+                                action: me.edit ? 'editDeviceType' : 'createDeviceType',
                                 itemId: 'createEditButton'
                             },
                             {
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 xtype: 'button',
                                 ui: 'link',
-                                itemId: 'cancelLink'
+                                itemId: 'cancelLink',
+                                href: me.cancelLink
                             }
                         ]
                     }
@@ -78,13 +83,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
         ];
 
         this.callParent(arguments);
-        if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-            this.down('#createEditButton').action = 'editDeviceType';
-        } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-            this.down('#createEditButton').action = 'createDeviceType';
-        }
     }
 
 });
