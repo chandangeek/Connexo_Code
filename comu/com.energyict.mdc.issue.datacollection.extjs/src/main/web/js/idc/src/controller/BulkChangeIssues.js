@@ -471,13 +471,23 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                         type: "User",
                         title: activeCombo.rawValue
                     });
-                    message = '<h3>Assign ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + ' to ' + record.get('assignee').title + '?</h3><br>'
+                    if (record.get('issues')) {
+                        message = '<h3>Assign ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + ' to ' + record.get('assignee').title + '?</h3><br>'
                         + 'The selected issue(s) will be assigned to ' + record.get('assignee').title;
+                    } else {
+                        message = '<h3>Assign all issues to ' + record.get('assignee').title + '?</h3><br>'
+                        + 'All issues will be assigned to ' + record.get('assignee').title;
+                    }
                     break;
 
                 case 'close':
-                    message = '<h3>Close ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + '?</h3><br>'
+                    if (record.get('issues')) {
+                        message = '<h3>Close ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + '?</h3><br>'
                         + 'The selected issue(s) will be closed with status "<b>' + record.get('statusName') + '</b>"';
+                    } else {
+                        message = '<h3>Close all issues?</h3><br>'
+                        + 'All issues will be closed with status "<b>' + record.get('statusName') + '</b>"';
+                    }
                     break;
             }
 
