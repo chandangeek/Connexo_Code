@@ -19,10 +19,13 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
 /**
  * Copyrights EnergyICT
@@ -112,20 +115,37 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
             if (property.getName().equals(FormatterProperties.FILENAME_PREFIX.getKey())) {
                 String string = (String) property.getValue();
                 checkInvalidChars(string, FormatterProperties.FILENAME_PREFIX.getKey(), NON_PATH_INVALID);
-                checkIsRelativePath(string, FormatterProperties.FILENAME_PREFIX.getKey());
+                checkIsRelativeChildPath(string, FormatterProperties.FILENAME_PREFIX.getKey());
             } else if (property.getName().equals(FormatterProperties.FILE_EXTENSION.getKey())) {
                 checkInvalidChars((String) property.getValue(), FormatterProperties.FILE_EXTENSION.getKey(), NON_PATH_INVALID);
             } else if (property.getName().equals(FormatterProperties.FILE_PATH.getKey())) {
                 checkInvalidChars((String) property.getValue(), FormatterProperties.FILE_PATH.getKey(), PATH_INVALID);
+                checkIsRelativeChildPath((String) property.getValue(), FormatterProperties.FILE_PATH.getKey());
             }
         }
     }
 
-    private void checkIsRelativePath(String value, String fieldName) {
+    private void checkIsRelativeChildPath(String value, String fieldName) {
         Path path = FileSystems.getDefault().getPath(value);
         if (path.isAbsolute()) {
             throw new LocalizedFieldValidationException(MessageSeeds.ABSOLUTE_PATH_NOT_ALLOWED, "properties." + fieldName);
         }
+        if (!resolvesToSubDirectory(path)) {
+            throw new LocalizedFieldValidationException(MessageSeeds.PARENT_BREAKING_PATH_NOT_ALLOWED, "properties." + fieldName);
+        }
+    }
+
+    private boolean resolvesToSubDirectory(Path path) {
+        // construct imaginary root that can not be part of the given path
+        Path root = StreamSupport.stream(path.spliterator(), false)
+                .map(Path::toString)
+                .filter(s -> !"..".equals(s))
+                .max(Comparator.comparing(String::length))
+                .map(s -> Paths.get('/' + s + 'A'))
+                .orElse(Paths.get("/A"));
+        Path normalize = root.resolve(path).normalize();
+
+        return normalize.toString().startsWith(root.toString());
     }
 
     protected void checkInvalidChars(String value, String fieldName, String invalidCharacters) {
