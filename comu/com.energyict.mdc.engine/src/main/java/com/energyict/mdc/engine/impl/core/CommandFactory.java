@@ -26,6 +26,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import com.energyict.mdc.tasks.ProtocolTask;
 
 import java.util.List;
@@ -159,9 +161,9 @@ public final class CommandFactory {
      */
     public static CommandCreator commandCreatorForPluggableClass(DeviceProtocolPluggableClass pluggableClass) {
         DeviceProtocol deviceProtocol = pluggableClass.getDeviceProtocol();
-        if (deviceProtocol.getClass().getName().endsWith(".MeterProtocolAdapterImpl")) {
+        if (deviceProtocol instanceof MeterProtocolAdapter) {
             return new LegacyMeterProtocolCommandCreator();
-        } else if (deviceProtocol.getClass().getName().endsWith(".SmartMeterProtocolAdapterImpl")) {
+        } else if (deviceProtocol instanceof SmartMeterProtocolAdapter) {
             return new LegacySmartMeterProtocolCommandCreator();
         } else {
             return new DeviceProtocolCommandCreator();
