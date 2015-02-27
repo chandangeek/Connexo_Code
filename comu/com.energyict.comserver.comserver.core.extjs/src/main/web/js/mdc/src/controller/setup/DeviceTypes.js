@@ -77,15 +77,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             },
             '#deviceTypeEdit #communicationProtocolComboBox': {
                 change: this.proposeDeviceTypeName
-            },
-            '#deviceTypeEdit #cancelLink': {
-                click: this.moveToOverviewPage
             }
         });
-    },
-
-    moveToOverviewPage: function() {
-         this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes').forward();
     },
 
     previewDeviceType: function (grid, record) {
@@ -176,12 +169,15 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     showDeviceTypeEditView: function (deviceTypeId) {
-        var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
-        var me = this;
-        var widget = Ext.widget('deviceTypeEdit', {
-            edit: true,
-            deviceCommunicationProtocols: protocolStore
-        });
+        var me = this,
+            protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols'),
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('deviceTypeEdit', {
+                edit: true,
+                deviceCommunicationProtocols: protocolStore,
+                cancelLink: router.queryParams.fromDetails ? router.getRoute('administration/devicetypes/view').buildUrl() : router.getRoute('administration/devicetypes').buildUrl()
+            });
+
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
 
@@ -195,13 +191,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 success: function (results) {
                     var deviceType = results[0][0];
                     me.getApplication().fireEvent('loadDeviceType', deviceType);
+                    Ext.suspendLayouts();
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
                     me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                    Ext.resumeLayouts(true);
                     widget.setLoading(false);
                 },
                 failure: function () {
+                    Ext.suspendLayouts();
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
                     me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                    Ext.resumeLayouts(true);
                     widget.setLoading(false);
                 }
             }
@@ -264,21 +264,28 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     editDeviceType: function () {
-        var record = this.getDeviceTypeEditForm().getRecord(),
-            values = this.getDeviceTypeEditForm().getValues();
-        var me = this;
+        var me = this,
+            record = me.getDeviceTypeEditForm().getRecord(),
+            values = me.getDeviceTypeEditForm().getValues(),
+            router = me.getController('Uni.controller.history.Router'),
+            page = me.getDeviceTypeEditView();
+
         if (record) {
+            page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
             record.set(values);
             record.save({
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.saved', 'MDC', 'Device type saved'));
-                    location.href = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+                    router.queryParams.fromDetails ? router.getRoute('administration/devicetypes/view').forward() : router.getRoute('administration/devicetypes').forward();
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
                     }
+                },
+                callback: function () {
+                    page.setLoading(false);
                 }
             });
 
@@ -286,8 +293,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     editDeviceTypeFromDetails: function () {
-        var record = this.getDeviceTypeDetailForm().getRecord();
-        location.href = '#/administration/devicetypes/' + record.get('id') + '/edit';
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('administration/devicetypes/view/edit').forward(router.arguments, {fromDetails: true});
     },
 
     proposeDeviceTypeName: function (t, newValue) {

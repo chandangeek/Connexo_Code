@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
 
         if (config) {
 
-            hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.masterData');
+            hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.deviceType');
             actionMenuColumn = me.down('#load-profile-type-action-menu-column');
             actionMenuButton = me.down('#loadProfileTypePreview').tools[0];
 
