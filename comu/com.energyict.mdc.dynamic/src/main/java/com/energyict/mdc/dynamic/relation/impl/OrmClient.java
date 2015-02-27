@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationType;
 
 import java.util.List;

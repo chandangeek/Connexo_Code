@@ -27,7 +27,7 @@ public class RelationTypeDdlGenerator {
     private Thesaurus thesaurus;
     private RelationType relationType;
     private Map<RelationAttributeType, String> names = new HashMap<>();
-    private boolean checkExistence = false;
+    private boolean dontCheckExistence = true;
     private Logger logger = Logger.getLogger(RelationTypeDdlGenerator.class.getName());
 
     public RelationTypeDdlGenerator(DataModel dataModel, RelationType relationType, Thesaurus thesaurus, boolean checkExistence) {
@@ -35,7 +35,7 @@ public class RelationTypeDdlGenerator {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.relationType = relationType;
-        this.checkExistence = checkExistence;
+        this.dontCheckExistence = !checkExistence;
     }
 
     public void execute() throws SQLException {
@@ -102,22 +102,26 @@ public class RelationTypeDdlGenerator {
     }
 
     protected void createDynamicAttributeTable() throws SQLException {
-        if (!checkExistence || !tableExists(getDynamicAttributeTableName())) {
+        if (dontCheckExistence || !tableExists(getDynamicAttributeTableName())) {
             executeDdl(getCreateDynamicAttributeTableSql());
             logger.info("Created table " + getDynamicAttributeTableName());
         }
         else {
-            logger.info("Table " + getDynamicAttributeTableName() + " already exists");
+            this.logTableAlreadyExists(this.getDynamicAttributeTableName());
         }
     }
 
+    private void logTableAlreadyExists(String tableName) {
+        logger.info("Table " + tableName + " already exists");
+    }
+
     protected void createObsoleteAttributeTable() throws SQLException {
-        if (!checkExistence || !tableExists(getObsoleteAttributeTableName())) {
+        if (dontCheckExistence || !tableExists(getObsoleteAttributeTableName())) {
             executeDdl(getCreateObsoleteAttributeTableSql());
             logger.info("Created table " + getObsoleteAttributeTableName());
         }
         else {
-            logger.info("Table " + getObsoleteAttributeTableName() + " already exists");
+            this.logTableAlreadyExists(this.getObsoleteAttributeTableName());
         }
     }
 
@@ -133,19 +137,27 @@ public class RelationTypeDdlGenerator {
             String obsAttIdx = getObsoleteAttributeIndexName(attType);
             if (tableExists(getDynamicAttributeTableName()) && !indexExists(getDynamicAttributeTableName(), attType.getName())) {
                 executeDdl(getCreateDynamicAttributeIndexSql(attType));
-                logger.info("Created index " + dynAttIdx);
+                this.logCreatedIndex(dynAttIdx);
             }
             else {
-                logger.info("Index " + dynAttIdx + " already exists");
+                this.logIndexAlreadyExists(dynAttIdx);
             }
             if (tableExists(getObsoleteAttributeTableName()) && !indexExists(getObsoleteAttributeTableName(), attType.getName())) {
                 executeDdl(getCreateObsoleteAttributeIndexSql(attType));
-                logger.info("Created index " + obsAttIdx);
+                this.logCreatedIndex(obsAttIdx);
             }
             else {
-                logger.info("Index " + obsAttIdx + " already exists");
+                this.logIndexAlreadyExists(obsAttIdx);
             }
         }
+    }
+
+    private void logCreatedIndex(String indexName) {
+        logger.info("Created index " + indexName);
+    }
+
+    private void logIndexAlreadyExists(String indexName) {
+        logger.info("Index " + indexName + " already exists");
     }
 
     protected void dropAttributeIndexes(RelationAttributeType attributeType) throws SQLException {
@@ -154,13 +166,17 @@ public class RelationTypeDdlGenerator {
             String obsAttIdx = getObsoleteAttributeIndexName(attributeType);
             if (indexExists(getDynamicAttributeTableName(), attributeType.getName())) {
                 executeDdl(getDropDynamicAttributeIndexSql(attributeType));
-                logger.info("Dropped index " + dynAttIdx);
+                this.logIndexDropped(dynAttIdx);
             }
             if (indexExists(getObsoleteAttributeTableName(), attributeType.getName())) {
                 executeDdl(getDropObsoleteAttributeIndexSql(attributeType));
-                logger.info("Created index " + obsAttIdx);
+                this.logCreatedIndex(obsAttIdx);
             }
         }
+    }
+
+    private void logIndexDropped(String indexName) {
+        logger.info("Dropped index " + indexName);
     }
 
     protected void createDynamicAttributeSequence() throws SQLException {
@@ -169,8 +185,12 @@ public class RelationTypeDdlGenerator {
             logger.info("created sequence " + getDynamicAttributeSequenceName());
         }
         else {
-            logger.info("Sequence " + getDynamicAttributeSequenceName() + " already exists");
+            this.logSequenceAlreadyExists();
         }
+    }
+
+    private void logSequenceAlreadyExists() {
+        logger.info("Sequence " + getDynamicAttributeSequenceName() + " already exists");
     }
 
     protected String getDropDynamicAttributeIndexSql(RelationAttributeType attributeType) {
@@ -307,11 +327,20 @@ public class RelationTypeDdlGenerator {
     }
 
     private String getAlterAttributeColumnRequired(String tableName, String fieldName, boolean isRequired) {
-        return "ALTER TABLE " + tableName + " MODIFY " + fieldName + (isRequired ? " NOT NULL" : " NULL");
+        return "ALTER TABLE " + tableName + " MODIFY " + fieldName + this.isRequiredSqlClause(isRequired);
     }
 
     private String getAddColumnSql(String tableName, String fieldName, String dbType, boolean isRequired) {
-        return "ALTER TABLE  " + tableName + " ADD " + fieldName + " " + dbType + (isRequired ? " NOT NULL" : " NULL");
+        return "ALTER TABLE  " + tableName + " ADD " + fieldName + " " + dbType + this.isRequiredSqlClause(isRequired);
+    }
+
+    private String isRequiredSqlClause(boolean isRequired) {
+        if (isRequired) {
+            return " NOT NULL";
+        }
+        else {
+            return " NULL";
+        }
     }
 
     private String getDropColumnSql(String tableName, String fieldName) {
@@ -409,16 +438,9 @@ public class RelationTypeDdlGenerator {
     protected boolean isNullable(SqlBuilder builder) throws SQLException {
         try (PreparedStatement statement = builder.getStatement(getConnection())) {
             try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    return "Y".equals(rs.getString(1));
-                }
-                else {
-                    return false;
-                }
+                return rs.next() && "Y".equals(rs.getString(1));
             }
-
         }
-
     }
 
     protected int getMaxId() {

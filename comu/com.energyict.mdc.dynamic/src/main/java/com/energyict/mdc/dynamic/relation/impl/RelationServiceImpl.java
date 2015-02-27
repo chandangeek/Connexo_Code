@@ -167,7 +167,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public RelationType createRelationType(RelationTypeShadow shadow, PropertySpecService propertySpecService) {
-        RelationTypeImpl relationType = new RelationTypeImpl(this.dataModel, this, this.transactionService, this.thesaurus);
+        RelationTypeImpl relationType = new RelationTypeImpl(this.dataModel, this.transactionService, this.thesaurus);
         relationType.init(shadow, propertySpecService);
         return relationType;
     }

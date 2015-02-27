@@ -38,11 +38,12 @@ import java.util.logging.Logger;
  */
 public final class RelationFactory {
 
+    private static final String OBSOLETEDATE_COLUMN_NAME = "obsoletedate";
     private static final String[] FIXED_COLUMNS = {
             "id",
             "fromdate",
             "todate",
-            "obsoletedate",
+            OBSOLETEDATE_COLUMN_NAME,
             "flags",
             "cre_date",
             "mod_date",
@@ -51,12 +52,12 @@ public final class RelationFactory {
     };
 
     private RelationTypeImpl relationType;
-    private Logger sql_perf_logger;
+    private Logger sqlPerformanceLogger;
 
     public RelationFactory(RelationTypeImpl relationType) {
         super();
         this.relationType = relationType;
-        this.sql_perf_logger = Logger.getLogger("com.energyict.mdc.dynamic.relation.impl.RelationType." + relationType.getName());
+        this.sqlPerformanceLogger = Logger.getLogger("com.energyict.mdc.dynamic.relation.impl.RelationType." + relationType.getName());
     }
 
     public Relation create(RelationTransaction transaction) throws SQLException, BusinessException {
@@ -120,7 +121,7 @@ public final class RelationFactory {
         Holder<String> separator = HolderBuilder.first("").andThen(", ");
         List<String> columnNames = this.getColumnNames();
         for (String columnName : columnNames) {
-            if (!ignoreObsoleteDate || !columnName.equalsIgnoreCase("obsoletedate")) {
+            if (!ignoreObsoleteDate || !OBSOLETEDATE_COLUMN_NAME.equalsIgnoreCase(columnName)) {
                 builder.append(separator.get());
                 builder.append(columnName);
             }
@@ -130,7 +131,7 @@ public final class RelationFactory {
     private void appendValuesForInsert(com.elster.jupiter.util.sql.SqlBuilder builder, Relation relation, boolean ignoreObsoleteDate) {
         List<String> columnNames = this.getColumnNames();
         if (ignoreObsoleteDate) {
-            columnNames.remove("obsoletedate");
+            columnNames.remove(OBSOLETEDATE_COLUMN_NAME);
         }
         Holder<String> separator = HolderBuilder.first("").andThen(", ");
         for (String columnName : columnNames) {
@@ -152,7 +153,7 @@ public final class RelationFactory {
                     builder.addInt(relation.getFlags());
                     break;
                 }
-                case "obsoletedate": {
+                case OBSOLETEDATE_COLUMN_NAME: {
                     builder.addDate(relation.getObsoleteDate());
                     break;
                 }
@@ -329,20 +330,6 @@ public final class RelationFactory {
         return this.find(((Integer) key).intValue());
     }
 
-    public List<Relation> findModifiedSince(Instant since) {
-        SqlBuilder builder = new SqlBuilder();
-        builder.append(selectClause());
-        builder.appendWhereOrAnd();
-        builder.append(" mod_date >= ?");
-        builder.bindTimestamp(since);
-        List<Relation> modifiedSince = fetch(builder);
-        for (Relation aResult : modifiedSince) {
-            RelationImpl each = (RelationImpl) aResult;
-            each.doSetRelationType(this.relationType);
-        }
-        return modifiedSince;
-    }
-
     public boolean hasAny() throws SQLException {
         SqlBuilder builder = new SqlBuilder("select * from ");
         builder.append(this.getTableName());
@@ -502,7 +489,7 @@ public final class RelationFactory {
         List<String> columnNames = this.getColumnNames();
         for (String columnName : columnNames) {
             builder.append(separator.get());
-            if (columnName.equalsIgnoreCase("obsoletedate")) {
+            if (columnName.equalsIgnoreCase(OBSOLETEDATE_COLUMN_NAME)) {
                 builder.append("null ");
                 builder.append(columnName);
             }
@@ -562,8 +549,8 @@ public final class RelationFactory {
                 return this.fetch(stmnt);
             }
             finally {
-                if (sql_perf_logger.isLoggable(Level.FINE)) {
-                    sql_perf_logger.fine("Fetched " + builder.expandedText() + " in " + (System.currentTimeMillis() - start) + " ms");
+                if (sqlPerformanceLogger.isLoggable(Level.FINE)) {
+                    sqlPerformanceLogger.fine("Fetched " + builder.expandedText() + " in " + (System.currentTimeMillis() - start) + " ms");
                 }
             }
         }
@@ -579,8 +566,8 @@ public final class RelationFactory {
                 return this.fetch(resultSet);
             }
             finally {
-                if (sql_perf_logger.isLoggable(Level.FINE)) {
-                    sql_perf_logger.fine("Fetched " + preparedStatement.toString() + " in " + (System.currentTimeMillis() - start) + " ms");
+                if (sqlPerformanceLogger.isLoggable(Level.FINE)) {
+                    sqlPerformanceLogger.fine("Fetched " + preparedStatement.toString() + " in " + (System.currentTimeMillis() - start) + " ms");
                 }
             }
         }

@@ -2,7 +2,6 @@ package com.energyict.mdc.dynamic;
 
 import java.util.TimeZone;
 
-import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.ValueFactory;
@@ -20,7 +19,7 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
 
     /**
      * Creates a PropertySpec, creating the required ValueFactory by asking the injector (DataModel) to provide an instance,
-     * thereby enabling Injection on the ValueFactories
+     * thereby enabling Injection on the ValueFactories.
      *
      * @param name The name of the PropertySpec
      * @param required A flag that indicates if the PropertySpec should be required or not
@@ -45,7 +44,7 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
 
     /**
      * Creates a {@link PropertySpec} that references objects provided by the
-     * {@link AbstractValueFactory} with the specified factoryId.
+     * {@link com.elster.jupiter.properties.AbstractValueFactory} with the specified factoryId.
      *
      * @param name The PropertySpec name
      * @param required A flag that indicates if the PropertySpec should be required or not

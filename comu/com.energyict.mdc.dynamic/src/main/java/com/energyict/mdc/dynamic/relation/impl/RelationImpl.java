@@ -128,8 +128,12 @@ public class RelationImpl implements Relation {
     }
 
     protected Map<RelationAttributeType, Object> doGetAttributeMap() {
-        RelationType relationType = getRelationType();
-        return relationType == null ? new HashMap<>() : relationType.getAttributes(this);
+        if (this.getRelationType() == null) {
+            return new HashMap<>();
+        }
+        else {
+            return getRelationType().getAttributes(this);
+        }
     }
 
     public void init(RelationTransaction transaction) throws SQLException, BusinessException {
@@ -305,16 +309,11 @@ public class RelationImpl implements Relation {
 
     @Override
     public boolean matchAttributes(Map testMap) {
-        // looks like hashMap.equals() does not
-        // behave as expected, so we have to test for equality on our own
         Map<RelationAttributeType, Object> attributes = basicGetAttributeMap();
-        //unproxyMap(attributes);
         for (Map.Entry<RelationAttributeType, Object> relationAttributeTypeObjectEntry : attributes.entrySet()) {
             Object key = relationAttributeTypeObjectEntry.getKey();
             Object current = relationAttributeTypeObjectEntry.getValue();
             Object test = testMap.get(key);
-            // use Utils areEqual instead of current.equals(test)
-            // to handle BigDecimals
             if (!isEqual(current, test)) {
                 return false;
             }

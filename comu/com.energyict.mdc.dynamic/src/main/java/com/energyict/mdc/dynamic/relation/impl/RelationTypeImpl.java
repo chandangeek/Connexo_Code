@@ -8,7 +8,6 @@ import com.energyict.mdc.common.ShadowList;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
-import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
@@ -28,6 +27,7 @@ import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
 import com.energyict.mdc.dynamic.relation.exceptions.NoLockAttributeException;
 import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
+
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -35,7 +35,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,7 +51,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class RelationTypeImpl extends PersistentNamedObject implements RelationType {
 
-    private final DefaultAttributeTypeDetective defaultAttributeTypeDetective;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final List<RelationAttributeType> attributeTypes = new ArrayList<>();
@@ -66,9 +64,8 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private boolean system;
 
     @Inject
-    public RelationTypeImpl(DataModel dataModel, DefaultAttributeTypeDetective defaultAttributeTypeDetective, TransactionService transactionService, Thesaurus thesaurus) {
+    public RelationTypeImpl(DataModel dataModel, TransactionService transactionService, Thesaurus thesaurus) {
         super(dataModel);
-        this.defaultAttributeTypeDetective = defaultAttributeTypeDetective;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
     }

@@ -3,11 +3,10 @@ package com.energyict.mdc.dynamic.relation.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.relation.Constraint;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 
 /**
- * Models the exceptional situation that occurs when an attempt
- * is made to create a {@link Constraint} without {@link RelationAttributeType}s.
+ * Models the exceptional situation that occurs when an attempt is made to create a
+ * {@link Constraint} without {@link com.energyict.mdc.dynamic.relation.RelationAttributeType}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-23 (13:16)

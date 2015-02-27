@@ -7,6 +7,7 @@ import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.ConstraintShadow;
+import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
@@ -256,7 +257,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     }
 
     @SuppressWarnings("unchecked")
-    public List getViolatedRelations(RelationTransaction transaction) {
+    public List<Relation> getViolatedRelations(RelationTransaction transaction) {
         List result = new ArrayList();
         if (!getAttributeTypes().isEmpty() && !ignoreConstraint(transaction)) {
             try {

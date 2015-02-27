@@ -44,6 +44,10 @@ import java.util.List;
 
 public class RelationAttributeTypeImpl extends PersistentNamedObject implements RelationAttributeType {
 
+    private static final String[] RESERVED_WORDS = {"ID", "NAME", "MPTID", "EXTERNID", "FOLDERTYPEID",
+            "VERSION", "FROMDATE", "TODATE", "CLOSEDATE", "OBSOLETEDATE", "CRE_DATE", "MOD_DATE", "CREUSERID",
+            "MODUSERID", "FLAGS"};
+
     private Thesaurus thesaurus;
     private DefaultAttributeTypeDetective defaultAttributeTypeDetective;
     private PropertySpecService propertySpecService;
@@ -51,7 +55,6 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     private ValueFactory valueFactory;
     private String displayName;
     private String roleName;
-    private int numberLookupId;
     private int objectFactoryId;
     private boolean largeString = false;
     private boolean required;
@@ -379,8 +382,8 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     }
 
     protected boolean isInvalidName(String name) {
-        for (int i = 0; i < reservedWords.length; i++) {
-            if (name.toUpperCase().equals(reservedWords[i])) {
+        for (int i = 0; i < RESERVED_WORDS.length; i++) {
+            if (RESERVED_WORDS[i].equalsIgnoreCase(name)) {
                 return true;
             }
         }
@@ -407,10 +410,5 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     public String toString() {
         return getRelationType().getName() + "." + getName();
     }
-
-    private static final String[] reservedWords = {"ID", "NAME", "MPTID", "EXTERNID", "FOLDERTYPEID",
-            "VERSION", "FROMDATE", "TODATE", "CLOSEDATE", "OBSOLETEDATE", "CRE_DATE", "MOD_DATE", "CREUSERID",
-            "MODUSERID", "FLAGS"};
-
 
 }

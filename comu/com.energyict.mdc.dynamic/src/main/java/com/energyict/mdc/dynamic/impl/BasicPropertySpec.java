@@ -1,7 +1,6 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.ValueRequiredException;
@@ -11,7 +10,7 @@ import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
 
 /**
- * Provides an implementation for the {@link PropertySpec} interface.
+ * Provides an implementation for the {@link com.elster.jupiter.properties.PropertySpec} interface.
  *
  * User: jbr
  * Date: 7/05/12

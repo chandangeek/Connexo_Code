@@ -130,15 +130,16 @@ public abstract class PersistentIdObject implements IdBusinessObject {
     }
 
     protected void validateMaxLength(String value, String fieldName, String objectName, int maxlen, boolean isNullable) throws BusinessException {
+        String valueToValidate = value;
         if (!isNullable) {
-            validateNull(value, fieldName, objectName);
+            validateNull(valueToValidate, fieldName, objectName);
         }
         else {
-            if (value == null) {
-                value = "";
+            if (valueToValidate == null) {
+                valueToValidate = "";
             }
         }
-        if (value.length() > maxlen) {
+        if (valueToValidate.length() > maxlen) {
             throw new BusinessException(
                         "fieldXMaxYLong",
                         "The field \"{0}\" can only be {1} characters long",

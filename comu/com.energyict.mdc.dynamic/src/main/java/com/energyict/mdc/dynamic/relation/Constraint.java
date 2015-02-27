@@ -1,10 +1,8 @@
 package com.energyict.mdc.dynamic.relation;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NamedBusinessObject;
 import com.energyict.mdc.common.SqlBuilder;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -36,13 +34,13 @@ public interface Constraint extends NamedBusinessObject {
     public boolean isRejectViolations();
 
     /**
-     * return the list with the relations that would cause a violation when adding the new
-     * relation as described by the transaction
+     * Gets the list of {@link Relation}s that would cause a violation when adding the new
+     * Relation as described by the transaction.
      *
-     * @param transaction
+     * @param transaction The transaction
      * @return list of Relations
      */
-    public List getViolatedRelations(RelationTransaction transaction);
+    public List<Relation> getViolatedRelations(RelationTransaction transaction);
 
     /**
      * returns the constraint shadow for this constraint

@@ -1,7 +1,5 @@
 package com.energyict.mdc.dynamic.relation;
 
-import com.energyict.mdc.common.BusinessObjectFactory;
-
 import java.util.List;
 
 /**

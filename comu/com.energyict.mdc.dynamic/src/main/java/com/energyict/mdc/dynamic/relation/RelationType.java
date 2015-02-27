@@ -1,6 +1,5 @@
 package com.energyict.mdc.dynamic.relation;
 
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.NamedBusinessObject;
