@@ -55,6 +55,7 @@ Ext.define('Idc.view.Overview', {
                         xtype: 'issues-group-grid',
                         itemId: 'data-collection-issues-group-grid',
                         store: 'Idc.store.Groups',
+                        groupingType: me.groupingType,
                         hidden: true
                     },
                     {
