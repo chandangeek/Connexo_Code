@@ -185,7 +185,7 @@ Ext.define('Apr.controller.AppServers', {
                     success: function () {
                         confirmationWindow.show({
                             msg: Uni.I18n.translate('appServers.remove.msg', 'APR', 'This application server will no longer be available.'),
-                            title: Uni.I18n.translate('general.remove', 'UNI', 'Remove') + ' ' + record.data.name + '?',
+                            title: Uni.I18n.translate('general.remove', 'UNI', 'Remove') + ' \'' + record.data.name + '\'?',
                             fn: function (state) {
                                 if (state === 'confirm') {
                                     record.destroy({
