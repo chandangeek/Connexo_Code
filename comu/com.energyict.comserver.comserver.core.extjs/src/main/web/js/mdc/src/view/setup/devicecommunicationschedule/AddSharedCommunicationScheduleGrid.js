@@ -8,7 +8,6 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.AvailableCommunicationSchedulesForDevice'
     ],
-    height: 300,
     store: 'AvailableCommunicationSchedulesForDevice',
     columns: [
         {
