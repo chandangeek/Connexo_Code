@@ -75,6 +75,7 @@ Ext.define('Sam.view.licensing.Details', {
             fieldLabel: Uni.I18n.translate('licensing.licenseCoverage', 'SAM', 'License coverage'),
             itemId: 'license-coverage-container',
             labelAlign: 'top',
+            layout: 'form',
             defaults: {
                 xtype: 'displayfield',
                 labelWidth: 250
