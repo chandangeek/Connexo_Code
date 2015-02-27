@@ -2,36 +2,56 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
     extend: 'Ext.panel.Panel',
     ui: 'tile',
     alias: 'widget.open-data-collection-issues',
-    buttonAlign: 'right',
+    buttonAlign: 'left',
+    layout: 'fit',
     router: null,
-
-    tbar: {
-        xtype: 'container',
-        itemId: 'connection-summary-title-panel'
+    header: {
+        ui: 'small'
     },
 
     setRecord: function (record) {
         var me = this,
-            grid = me.down('#open-data-collection-issues-grid'),
+            elm = me.down('#issues-dataview'),
             countContainer = me.down('#open-data-collection-issues-count-container'),
             dockedLinksContainer = me.down('#open-data-collection-issues-docked-links'),
-            titleContainer = me.down('#connection-summary-title-panel'),
             assigned = record.getAssignedToMeIssues(),
             unassigned = record.getUnassignedIssues(),
             store = assigned.topMyIssues(),
             issuesCount = store.getCount();
 
-        if (issuesCount > 0) {
-            grid.isHidden() && grid.show();
-            grid.reconfigure(store);
-        } else {
-            grid.hide();
-        }
+
+        var title = Uni.I18n.translatePlural('overview.widget.openDataCollectionIssues.header', assigned.get('total'), 'DSH',  '<h3>' + 'Open data collection issues ({0})' + '</h3>');
+        me.setTitle(title);
+
+        store.each(function (item) {
+            var dueDate = item.get('dueDate');
+            item.set('href', me.router.getRoute('workspace/datacollectionissues/view').buildUrl({issueId: item.get('id')}));
+
+            if (dueDate) {
+                if (moment().isAfter(moment(dueDate))) {
+                    item.set('tooltip', Uni.I18n.translate('overview.widget.openDataCollectionIssues.overdue', 'DSH', 'Overdue'));
+                    item.set('icon', '/apps/dsh/resources/images/widget/blocked.png');
+                } else {
+                    if(moment().endOf('day').isAfter(moment(dueDate))) {
+                        item.set('tooltip', Uni.I18n.translate('overview.widget.openDataCollectionIssues.dueToday', 'DSH', 'Due today'));
+                        item.set('icon', '/apps/dsh/resources/images/widget/blocked.png');
+                    } else {
+                        if (moment().add(1, 'day').endOf('day').isAfter(moment(dueDate))) {
+                            item.set('tooltip', Uni.I18n.translate('overview.widget.openDataCollectionIssues.dueTomorrow', 'DSH', 'Due tomorrow'));
+                            item.set('icon', '/apps/dsh/resources/images/widget/inactive.png');
+                        }
+                    }
+                }
+            }
+        });
+
+        elm.bindStore(store);
+
         Ext.suspendLayouts();
-        issuesCount = grid.getStore().getCount();
+
         countContainer.removeAll();
         dockedLinksContainer.removeAll();
-        titleContainer.removeAll();
+
         if (issuesCount === 0) {
             countContainer.add({
                 xtype: 'label',
@@ -41,7 +61,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
         if (issuesCount) {
             countContainer.add({
                 xtype: 'container',
-                html: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.topIssues', 'DSH', 'Top {0} most urgent issues assigned to me'), issuesCount )
+                html: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.topIssues', 'DSH', 'Top {0} most urgent issues assigned to me'), issuesCount)
             });
         }
 
@@ -54,11 +74,6 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             assignee: unassigned.get('filter').assigneeId + ':' + unassigned.get('filter').assigneeType,
             status: ['status.open']
         };
-
-        titleContainer.add({
-            xtype: 'container',
-            html: '<h3>' + Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.header', 'DSH', 'Open data collection issues ({0})'), assigned.get('total') ) + '</h3>'
-        });
 
         dockedLinksContainer.add([
             {
@@ -79,67 +94,33 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
         Ext.resumeLayouts();
     },
 
-    initComponent: function () {
-        var me = this;
+    tbar: {
+        xtype: 'container',
+        itemId: 'open-data-collection-issues-count-container'
+    },
 
-        me.items = [
-            {
-                xtype: 'container',
-                margin: '5 0 0 0',
-                itemId: 'open-data-collection-issues-count-container'
-            },
-            {
-                xtype: 'grid',
-                emptyText: Uni.I18n.translate('overview.widget.openDataCollectionIssues.empty.title', 'MDC', 'No issues assigned to me found'),
-                margin: '5 0 10 0',
-                itemId: 'open-data-collection-issues-grid',
-                hideHeaders: true,
-                padding: 0,
-                viewConfig: {
-                    style: 'overflow-x: hidden !important;'
-                },
-                columns: [
-                    {
-                        dataIndex: 'dueDate',
-                        align: 'right',
-                        width: 40,
-                        renderer: function (value, meta, record) {
-                            if (value) {
-                                if ( moment().isAfter(moment(value))) {
-                                    meta['tdAttr'] = 'data-qtip="' + Uni.I18n.translate('overview.widget.openDataCollectionIssues.overdue', 'DSH', 'Overdue') + '"';
-                                    return '<img src="/apps/dsh/resources/images/widget/blocked.png" />';
-                                } else {
-                                    if(moment().endOf('day').isAfter(moment(value))) {
-                                        meta['tdAttr'] = 'data-qtip="' + Uni.I18n.translate('overview.widget.openDataCollectionIssues.dueToday', 'DSH', 'Due today') + '"';
-                                        return '<img src="/apps/dsh/resources/images/widget/blocked.png" />';
-                                    } else {
-                                        if (moment().add(1, 'day').endOf('day').isAfter(moment(value)) ) {
-                                            meta['tdAttr'] = 'data-qtip="' + Uni.I18n.translate('overview.widget.openDataCollectionIssues.dueTomorrow', 'DSH', 'Due tomorrow') + '"';
-                                            return '<img src="/apps/dsh/resources/images/widget/inactive.png" />';
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    {
-                        dataIndex: 'title',
-                        flex: 1,
-                        renderer: function (value, meta, record) {
-                            var href = me.router.getRoute('workspace/datacollectionissues/view').buildUrl({issueId: record.get('id')});
-                            return '<a href="' + href + '">' + value + '</a>'
-                        }
-                    }
-                ]
-            },
-            {
-                xtype: 'container',
-                itemId: 'open-data-collection-issues-docked-links',
-                margin: '10 0 0 -9'
-            }
-        ];
+    items: [
+        {
+            xtype: 'dataview',
+            itemId: 'issues-dataview',
+            overflowY: 'auto',
+            itemSelector: 'a.x-btn.flag-toggle',
 
-        this.callParent(arguments);
+            tpl: new Ext.XTemplate(
+                '<table  style="margin: 5px 0 10px 0">',
+                '<tpl for=".">',
+                '<tr id="{id}" class="issue">',
+                '<td width="40" data-qtip="{tooltip}"><img src="{icon}" /></td>',
+                '<td width="100%"><a href="{href}">{title}</a></td>',
+                '</tr>',
+                '</tpl>',
+                '</table>'
+            )
+        }
+    ],
+
+    bbar: {
+        xtype: 'container',
+        itemId: 'open-data-collection-issues-docked-links'
     }
-
 });
