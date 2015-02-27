@@ -57,7 +57,7 @@ Ext.define('Sam.controller.Main', {
                     items: [
                         {
                             text: Uni.I18n.translate('general.licenses', 'MDC', 'Licenses'),
-                            href: '#/administration/licensing/licenses',
+                            href: router.getRoute('administration/licenses').buildUrl(),
                             route: 'licenses'
                         }
                     ]
