@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',
                                     itemId: 'ctr-no-register-data',
-                                    title: Uni.I18n.translate('device.registerData.title', 'MDC', 'No readings found'),
+                                    title: Uni.I18n.translate('device.registerData.empty.title', 'MDC', 'No readings found'),
                                     reasons: [
                                         Uni.I18n.translate('device.registerData.list.item1', 'MDC', 'No readings have been defined yet.'),
                                         Uni.I18n.translate('device.registerData.list.item2', 'MDC', 'No readings comply to the filter.')
