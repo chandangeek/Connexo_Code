@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.Reference;
  * Time: 10:37
  */
 @Component(name = "com.energyict.mdc.device.data.delete.comportpool.eventhandler", service = TopicHandler.class, immediate = true)
+@SuppressWarnings("unused")
 public class ComPortPoolDeletionEventHandler implements TopicHandler {
 
     private volatile ServerConnectionTaskService connectionTaskService;
