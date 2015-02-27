@@ -9,6 +9,8 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
 
+import java.util.Optional;
+
 /**
  * Provides code reuse opportunities for components
  * that provide {@link com.energyict.mdc.pluggable.RelationSupport}
@@ -41,7 +43,7 @@ public abstract class AbstractSecurityPropertySetRelationSupport implements Secu
         return propertySpecService;
     }
 
-    protected RelationType findRelationType(String relationTypeName) {
+    protected Optional<RelationType> findRelationType(String relationTypeName) {
         return this.relationService.findRelationType(relationTypeName);
     }
 
@@ -67,12 +69,9 @@ public abstract class AbstractSecurityPropertySetRelationSupport implements Secu
     public RelationType doFindRelationType() {
         if (this.deviceProtocolHasSecurityProperties()) {
             String relationTypeName = this.appropriateRelationTypeName();
-            RelationType relationType = this.findRelationType(relationTypeName);
-            if (relationType == null) {
-                throw new ApplicationException("Creation of relation type for security properties of "
-                        + this.getSecuritySupport().getClass().getName() + " with relationTypeName " + relationTypeName + " was not created yet or failed before.");
-            }
-            return relationType;
+            Optional<RelationType> relationType = this.findRelationType(relationTypeName);
+            return relationType.orElseThrow(() -> new ApplicationException("Creation of relation type for security properties of "
+                    + this.getSecuritySupport().getClass().getName() + " with relationTypeName " + relationTypeName + " was not created yet or failed before."));
         } else {
             return null;
         }

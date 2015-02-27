@@ -32,6 +32,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME;
 
@@ -176,11 +177,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     private RelationType doFindRelationType () {
         if (this.connectionTypeHasProperties()) {
             String relationTypeName = this.relationTypeNameFor(this.newInstance());
-            RelationType relationType = this.findRelationType(relationTypeName);
-            if (relationType == null) {
-                throw new ApplicationException("Creation of relation type for connection type " + this.getJavaClassName() + " failed before.");
-            }
-            return relationType;
+            return this.findRelationType(relationTypeName).orElseThrow(() -> new ApplicationException("Creation of relation type for connection type " + this.getJavaClassName() + " failed before."));
         }
         else {
             return null;
@@ -196,24 +193,25 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         if (this.connectionTypeHasProperties()) {
             ConnectionType connectionType = this.newInstance();
             String relationTypeName = this.relationTypeNameFor(connectionType);
-            RelationType relationType = this.findRelationType(relationTypeName);
-            if (relationType == null) {
-                relationType = this.createRelationType(connectionType);
+            Optional<RelationType> relationType = this.findRelationType(relationTypeName);
+            if (!relationType.isPresent()) {
+                RelationType newRelationType = this.createRelationType(connectionType);
                 if (activate) {
-                    this.activate(relationType);
+                    this.activate(newRelationType);
                 }
+                relationType = Optional.of(newRelationType);
             }
-            if (relationType != null) {
-                this.registerRelationType(relationType);
+            if (relationType.isPresent()) {
+                this.registerRelationType(relationType.get());
             }
-            return relationType;
+            return relationType.orElse(null);
         }
         else {
             return null;
         }
     }
 
-    private RelationType findRelationType (String relationTypeName) {
+    private Optional<RelationType> findRelationType (String relationTypeName) {
         return this.relationService.findRelationType(relationTypeName);
     }
 

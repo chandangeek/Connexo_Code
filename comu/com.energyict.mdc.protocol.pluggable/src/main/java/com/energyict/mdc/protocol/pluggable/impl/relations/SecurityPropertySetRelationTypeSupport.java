@@ -21,6 +21,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 
+import java.util.Optional;
+
 /**
  * Provides {@link RelationTypeSupport} for the security properties of a {@link DeviceSecuritySupport}.
  *
@@ -48,17 +50,18 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
     public RelationType findOrCreateRelationType(boolean activate) {
         if (this.deviceProtocolHasSecurityProperties()) {
             String relationTypeName = this.appropriateRelationTypeName();
-            RelationType relationType = this.findRelationType(relationTypeName);
-            if (relationType == null) {
-                relationType = this.createRelationType(this.getSecuritySupport(), this.getPropertySpecService());
+            Optional<RelationType> relationType = this.findRelationType(relationTypeName);
+            if (!relationType.isPresent()) {
+                RelationType newRelationType = this.createRelationType(this.getSecuritySupport(), this.getPropertySpecService());
                 if (activate) {
-                    this.activate(relationType);
+                    this.activate(newRelationType);
                 }
+                relationType = Optional.of(newRelationType);
             }
-            if (relationType != null) {
-                this.registerRelationType();
+            if (relationType.isPresent()) {
+                this.registerRelationType(relationType.get());
             }
-            return relationType;
+            return relationType.orElse(null);
         } else {
             return null;
         }
@@ -139,8 +142,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         relationType.activate();
     }
 
-    private void registerRelationType() {
-        RelationType relationType = this.findRelationType();
+    private void registerRelationType(RelationType relationType) {
         PluggableClassRelationAttributeTypeRegistry registry = new PluggableClassRelationAttributeTypeRegistry(this.mapper);
         if (!registry.isDefaultAttribute(relationType.getAttributeType(DEVICE_ATTRIBUTE_NAME))) {
             registry.register(this.deviceProtocolPluggableClass, relationType.getAttributeType(DEVICE_ATTRIBUTE_NAME));

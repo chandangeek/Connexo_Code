@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME;
 
@@ -64,17 +65,18 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     public RelationType findOrCreateRelationType(boolean activate) {
         if (this.deviceProtocolDialectHasProperties()) {
             String relationTypeName = getConformRelationTypeName();
-            RelationType relationType = this.findRelationType(relationTypeName);
-            if (relationType == null) {
-                relationType = this.createRelationType(this.deviceProtocolDialect, this.propertySpecService);
+            Optional<RelationType> relationType = this.findRelationType(relationTypeName);
+            if (!relationType.isPresent()) {
+                RelationType newRelationType = this.createRelationType(this.deviceProtocolDialect, this.propertySpecService);
                 if (activate) {
-                    this.activate(relationType);
+                    this.activate(newRelationType);
                 }
+                relationType = Optional.of(newRelationType);
             }
-            if (relationType != null) {
-                this.registerRelationType(relationType, this.deviceProtocolPluggableClass);
+            if (relationType.isPresent()) {
+                this.registerRelationType(relationType.get(), this.deviceProtocolPluggableClass);
             }
-            return relationType;
+            return relationType.orElse(null);
         } else {
             return null;
         }
@@ -84,7 +86,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
         return RelationUtils.createConformRelationTypeName(this.deviceProtocolDialect.getDeviceProtocolDialectName());
     }
 
-    private RelationType findRelationType(String relationTypeName) {
+    private Optional<RelationType> findRelationType(String relationTypeName) {
         return this.relationService.findRelationType(relationTypeName);
     }
 
@@ -145,11 +147,11 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
 
     private RelationType doFindRelationType() {
         String relationTypeName = getConformRelationTypeName();
-        RelationType relationType = this.findRelationType(relationTypeName);
-        if (this.deviceProtocolDialectHasProperties() && relationType == null) {
+        Optional<RelationType> relationType = this.findRelationType(relationTypeName);
+        if (this.deviceProtocolDialectHasProperties() && !relationType.isPresent()) {
             throw new ApplicationException("Creation of relation type " + relationTypeName + " for device protocol class " + this.deviceProtocolPluggableClass.getJavaClassName() + " and dialect " + this.deviceProtocolDialect.getDeviceProtocolDialectName() + " failed before.");
         }
-        return relationType;
+        return relationType.orElse(null);
     }
 
     @Override
