@@ -19,6 +19,7 @@ Ext.define('Isu.view.issues.GroupGrid', {
             width: 100
         }
     ],
+    groupingType: 'default',
 
     initComponent: function () {
         var me = this;
@@ -28,16 +29,16 @@ Ext.define('Isu.view.issues.GroupGrid', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} items'),
-                displayMoreMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} items'),
-                emptyMsg: '0 reasons'
+                displayMsg: Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.displayMsg', 'ISU', '{0} - {1} of {2} items'),
+                displayMoreMsg: Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} items'),
+                emptyMsg: Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.emptyMsg', 'ISU', '0 items')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
                 deferLoading: true,
-                itemsPerPageMsg: Uni.I18n.translate('workspace.issues.groupGrid.pagingtoolbartop.itemsPerPageMsg', 'ISU', 'Items per page')
+                itemsPerPageMsg: Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.itemsPerPageMsg', 'ISU', 'Items per page')
             }
         ];
 
