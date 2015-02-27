@@ -54,7 +54,7 @@ public class ComTaskExecutionMessageJournalEntryImpl
 
     private ComTaskExecutionMessageJournalEntryImpl init(Instant timestamp, ComTaskExecutionSessionImpl comTaskExecutionSession, ComServer.LogLevel logLevel, String message, String errorDescription) {
         this.init(timestamp, logLevel, errorDescription);
-        this.comTaskExecutionSession.set(comTaskExecutionSession);
+        this.setComTaskExecutionSession(comTaskExecutionSession);
         this.message = message;
         return this;
     }

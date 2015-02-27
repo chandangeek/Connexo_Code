@@ -47,8 +47,7 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
         }
     }
 
-    Reference<ComTaskExecutionSession> comTaskExecutionSession = ValueReference.absent();
-
+    private Reference<ComTaskExecutionSession> comTaskExecutionSession = ValueReference.absent();
     private Instant timestamp;
     private ComServer.LogLevel logLevel;
     private String errorDescription;
@@ -67,6 +66,10 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
     @Override
     public ComTaskExecutionSession getComTaskExecutionSession () {
         return this.comTaskExecutionSession.get();
+    }
+
+    protected void setComTaskExecutionSession(ComTaskExecutionSession comTaskExecutionSession) {
+        this.comTaskExecutionSession.set(comTaskExecutionSession);
     }
 
     @Override

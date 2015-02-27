@@ -61,7 +61,7 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
 
     private ComCommandJournalEntryImpl init(ComTaskExecutionSession comTaskExecutionSession, Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
         this.init(timestamp, this.logLevelFor(completionCode), errorDescription);
-        this.comTaskExecutionSession.set(comTaskExecutionSession);
+        this.setComTaskExecutionSession(comTaskExecutionSession);
         this.completionCode = completionCode;
         this.commandDescription = commandDescription;
         return this;
