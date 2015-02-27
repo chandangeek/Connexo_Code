@@ -1,6 +1,7 @@
 package com.energyict.mdc.common;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 /**
  * BusinessException is the parent of all application
@@ -53,7 +54,7 @@ public class BusinessException extends java.lang.Exception {
     public BusinessException(String messageId, String defaultPattern, Object[] arguments) {
         super(format(defaultPattern, arguments));
         this.messageId = messageId;
-        this.arguments = arguments;
+        this.arguments = Arrays.copyOf(arguments, arguments.length);
     }
 
     /**
@@ -67,7 +68,7 @@ public class BusinessException extends java.lang.Exception {
     public BusinessException(String messageId, String defaultPattern, Object[] arguments, Throwable ex) {
         super(format(defaultPattern, arguments), ex);
         this.messageId = messageId;
-        this.arguments = arguments;
+        this.arguments = Arrays.copyOf(arguments, arguments.length);
     }
 
     /**

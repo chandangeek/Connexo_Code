@@ -388,12 +388,8 @@ public class TypedProperties {
             return false;
         }
         else {
-            return this.equals((TypedProperties)other);
+            return ((TypedProperties)other).props.equals(this.props);
         }
-    }
-
-    private boolean equals (TypedProperties other) {
-        return other.props.equals(this.props);
     }
 
     public TypedProperties getInheritedProperties () {
