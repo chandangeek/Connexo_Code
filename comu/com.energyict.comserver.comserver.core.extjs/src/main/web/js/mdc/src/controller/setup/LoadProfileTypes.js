@@ -32,7 +32,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         {ref: 'loadProfileDockedItems', selector: '#LoadProfileTypeDockedItems'},
         {ref: 'editPage', selector: 'load-profile-type-edit #load-profile-type-edit'},
         {ref: 'editForm', selector: 'load-profile-type-edit #load-profile-type-edit #load-profile-type-edit-form'},
-        {ref: 'setupPage', selector: 'loadProfileTypeSetup'}
+        {ref: 'setupPage', selector: 'loadProfileTypeSetup'},
+        {ref: 'addRegisterTypesGrid', selector: 'load-profile-type-add-register-types-grid'},
+        {ref: 'registerTypesGrid', selector: '#register-types-grid'}
     ],
 
     init: function () {
@@ -87,16 +89,16 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             model.destroy({
                 success: function () {
                     widget.setLoading(false);
-                        me.getApplication().fireEvent('acknowledge',Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
                 },
-                failure: function(response){
+                failure: function (response) {
                     var json;
                     json = Ext.decode(response.responseText, true);
                     if (json && json.message) {
                         me.getApplication().getController(
-                            'Uni.controller.Error').showError(Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile'),
-                            json.message
-                        );
+                                'Uni.controller.Error').showError(Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile'),
+                                json.message
+                            );
                     }
                 }
             });
@@ -129,11 +131,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 }
             ]
         }).show({
-            ui: 'notification-error',
-            title: headerText,
-            msg: errormsgs,
-            icon: Ext.MessageBox.ERROR
-        })
+                ui: 'notification-error',
+                title: headerText,
+                msg: errormsgs,
+                icon: Ext.MessageBox.ERROR
+            })
     },
 
     checkLoadProfileTypesCount: function () {
@@ -258,6 +260,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 success: function (record) {
                     me.getApplication().fireEvent('loadProfileType', record);
 
+                    me.getRegisterTypesGrid().getStore().removeAll();
+                    me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'));
+
                     if (intervalsStore.getCount()) {
                         form.loadRecord(record);
                     } else {
@@ -285,19 +290,60 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             form.setEdit(false, returnLink, addRegisterTypesLink);
             form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
         }
-        registerTypesStore.data.clear();
-        registerTypesStore.load(1);
     },
 
     showRegisterTypesAddView: function (id) {
-        var me = this;
+        var me = this,
+            assignedRegisterTypes = [],
+            store = Ext.getStore('Mdc.store.RegisterTypesToAdd');
+
 
         if (!me.getEditPage()) {
             me.showEdit(id);
         }
 
         me.getEditPage().getLayout().setActiveItem(1);
-        me.getEditPage().down('load-profile-type-add-register-types-grid gridview').refresh();
+
+        me.getEditPage().setLoading(true);
+        if (id) {
+            me.getModel('Mdc.model.LoadProfileType').load(id, {
+                success: function (record) {
+                    assignedRegisterTypes = record.get('registerTypes');
+                    if (store.getCount() < 1) {
+                        store.load({
+                            callback: function () {
+                                Ext.defer(function () {
+                                    me.getEditPage().down('radiogroup').items.items[1].setValue(true);
+                                    me.getAddRegisterTypesGrid().getSelectionModel().select(me.selectAssignedRegisterTypes(assignedRegisterTypes, store));
+                                }, 10);
+                                me.getEditPage().setLoading(false);
+                            }
+                        });
+                    } else if (!Ext.isEmpty(assignedRegisterTypes)) {
+                        me.getEditPage().down('radiogroup').items.items[1].setValue(true);
+                        me.getAddRegisterTypesGrid().setGridVisible(true);
+                        me.getAddRegisterTypesGrid().getSelectionModel().select(me.selectAssignedRegisterTypes(assignedRegisterTypes, store));
+                    }
+                },
+                callback: function () {
+                    me.getEditPage().setLoading(false);
+                }
+            });
+        } else {
+            store.load({
+                callback: function () {
+                    me.getEditPage().setLoading(false);
+                }
+            })
+        }
+    },
+
+    selectAssignedRegisterTypes: function (assignedRegisterTypes, store) {
+        var assignedRegisterTypesModels = [];
+        Ext.each(_.map(assignedRegisterTypes, function (rt) { return rt.id }), function (id) {
+            assignedRegisterTypesModels.push(store.getById(id));
+        });
+        return assignedRegisterTypesModels;
     },
 
     onAllRegisterTypesAdd: function () {
@@ -316,7 +362,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
         router.getRoute(router.currentRoute.replace('/addregistertypes', '')).forward();
 
-        //registerTypesStore.removeAll();
+        registerTypesStore.removeAll();
         registerTypesStore.add(selection);
         registerTypesGrid.setVisible(!all);
         page.down('#all-register-types').setVisible(all);
