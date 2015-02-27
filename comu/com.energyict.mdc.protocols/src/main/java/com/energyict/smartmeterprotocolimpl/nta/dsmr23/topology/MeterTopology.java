@@ -179,11 +179,9 @@ public class MeterTopology implements MasterMeter {
      * @return the physicalAddress or -1 if the serialNumber was not found.
      */
     public int getPhysicalAddress(final String serialNumber) {
-
-        if (serialNumber.equals(this.protocol.getSerialNumber())) {
+        if (serialNumber != null && serialNumber.equals(this.protocol.getSerialNumber())) {
             return this.protocol.getPhysicalAddress();
         }
-
         for (DeviceMapping dm : this.mbusMap) {
             if (dm.getSerialNumber().equals(serialNumber)) {
                 return dm.getPhysicalAddress();
