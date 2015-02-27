@@ -140,6 +140,7 @@ Ext.define('Uni.form.RelativePeriod', {
                     var startDate = new Date(dateLong);
                     var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
                     var zonedDate = new Date(startDateUtc - (60000 * zoneOffset));
+                    zonedDate.setSeconds(0);
                     dateString = Uni.DateTime.formatDateTimeLong(new Date(zonedDate));
                     dateString = me.formatPreviewTextFn(dateString);
                 }
