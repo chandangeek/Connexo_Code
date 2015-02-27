@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,17 +52,19 @@ public final class RelationFactory {
             "moduserid"
     };
 
-    private RelationTypeImpl relationType;
+    private final RelationTypeImpl relationType;
+    private final Clock clock;
     private Logger sqlPerformanceLogger;
 
-    public RelationFactory(RelationTypeImpl relationType) {
+    public RelationFactory(RelationTypeImpl relationType, Clock clock) {
         super();
         this.relationType = relationType;
         this.sqlPerformanceLogger = Logger.getLogger("com.energyict.mdc.dynamic.relation.impl.RelationType." + relationType.getName());
+        this.clock = clock;
     }
 
     public Relation create(RelationTransaction transaction) throws SQLException, BusinessException {
-        RelationImpl relation = new RelationImpl(this.relationType, this.getNewId());
+        RelationImpl relation = new RelationImpl(this.clock, this.relationType, this.getNewId());
         relation.init(transaction);
         this.postNew(relation);
         return relation;
@@ -579,7 +582,7 @@ public final class RelationFactory {
     private List<Relation> fetch(ResultSet resultSet) throws SQLException {
         List<Relation> result = new ArrayList<>();
         while (resultSet.next()) {
-            result.add(new RelationImpl(this.relationType, resultSet));
+            result.add(new RelationImpl(this.clock, this.relationType, resultSet));
         }
         return result;
     }

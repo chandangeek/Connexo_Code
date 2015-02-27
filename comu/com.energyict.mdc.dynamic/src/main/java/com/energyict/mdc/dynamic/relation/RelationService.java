@@ -3,6 +3,7 @@ package com.energyict.mdc.dynamic.relation;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides services that relate to {@link RelationType}s,
@@ -30,7 +31,7 @@ public interface RelationService {
      * @param id the unique identifier
      * @return the RelationType or <code>null</code> if no such RelationType exists.
      */
-    public RelationType findRelationType(int id);
+    public Optional<RelationType> findRelationType(int id);
 
     /**
      * Creates a new {@link RelationType} from the specifications
@@ -48,7 +49,7 @@ public interface RelationService {
      * @param name the name to match
      * @return the RelationType or <code>null</code> if no such RelationType exists.
      */
-    public RelationType findRelationType(String name);
+    public Optional<RelationType> findRelationType(String name);
 
     /**
      * Finds the {@link RelationAttributeType} that is uniquely
@@ -57,7 +58,7 @@ public interface RelationService {
      * @param id The unique identifier
      * @return The RelationAttributeType or <code>null</code> if no such RelationAttributeType exists
      */
-    public RelationAttributeType findRelationAttributeType(int id);
+    public Optional<RelationAttributeType> findRelationAttributeType(int id);
 
     /**
      * Finds the List of {@link RelationType}s that can be used

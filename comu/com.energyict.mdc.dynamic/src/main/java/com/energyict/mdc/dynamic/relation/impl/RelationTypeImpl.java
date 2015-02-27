@@ -40,6 +40,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class RelationTypeImpl extends PersistentNamedObject implements RelationType {
 
+    private final Clock clock;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final List<RelationAttributeType> attributeTypes = new ArrayList<>();
@@ -64,8 +66,9 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private boolean system;
 
     @Inject
-    public RelationTypeImpl(DataModel dataModel, TransactionService transactionService, Thesaurus thesaurus) {
+    public RelationTypeImpl(DataModel dataModel, Clock clock, TransactionService transactionService, Thesaurus thesaurus) {
         super(dataModel);
+        this.clock = clock;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
     }
@@ -86,7 +89,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
 
     @Override
     protected DataMapper<RelationType> getDataMapper() {
-        return Bus.getServiceLocator().getOrmClient().getRelationTypeFactory();
+        return this.getDataModel().mapper(RelationType.class);
     }
 
     @Override
@@ -265,7 +268,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private void processNewConstraints(List<ConstraintShadow> newShadows) {
         for (ConstraintShadow shadow : newShadows) {
             shadow.setRelationTypeId(getId());
-            ConstraintImpl constraint = new ConstraintImpl(this.getDataModel(), this, shadow.getName());
+            ConstraintImpl constraint = new ConstraintImpl(this.getDataModel(), this.clock, this, shadow.getName());
             constraint.init(this, shadow);
             this.constraints.add(constraint);
         }
@@ -622,7 +625,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow, PropertySpecService propertySpecService) {
-        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this.getDataModel(), this, this.thesaurus, raShadow.getName(), propertySpecService);
+        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this.getDataModel(), this.clock, this, this.thesaurus, raShadow.getName(), propertySpecService);
         relationAttributeType.init(this, raShadow);
         this.attributeTypes.add(relationAttributeType);
         return relationAttributeType;
@@ -682,7 +685,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     public RelationTransaction newRelationTransaction() {
-        return new RelationTransactionImpl(this);
+        return new RelationTransactionImpl(clock, this);
     }
 
     public boolean isDefault() {
@@ -708,7 +711,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     protected RelationFactory getBaseFactory() {
-        return new RelationFactory(this);
+        return new RelationFactory(this, this.clock);
     }
 
     Instant getModDate() {

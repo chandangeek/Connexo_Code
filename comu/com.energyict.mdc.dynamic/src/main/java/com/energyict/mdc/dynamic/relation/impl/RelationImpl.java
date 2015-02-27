@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,7 @@ public class RelationImpl implements Relation {
     private static final String CREDATE_ATTRIBUTE = "creDate";
     private static final String MODDATE_ATTRIBUTE = "modDate";
 
+    private final Clock clock;
     private int id;
     private int relationTypeId;
     private RelationType relationType;
@@ -51,16 +53,18 @@ public class RelationImpl implements Relation {
 
     private Map<RelationAttributeType, Object> dynamicAttributes = null;
 
-    public RelationImpl(RelationTypeImpl relationType, int id) {
+    public RelationImpl(Clock clock, RelationTypeImpl relationType, int id) {
         super();
+        this.clock = clock;
         this.id = id;
-        this.factory = new RelationFactory(relationType);
+        this.factory = new RelationFactory(relationType, clock);
         this.relationType = relationType;
         this.relationTypeId = relationType.getId();
     }
 
-    protected RelationImpl(RelationTypeImpl relationType, ResultSet resultSet) throws SQLException {
-        this.factory = new RelationFactory(relationType);
+    protected RelationImpl(Clock clock, RelationTypeImpl relationType, ResultSet resultSet) throws SQLException {
+        this.clock = clock;
+        this.factory = new RelationFactory(relationType, clock);
         this.relationType = relationType;
         this.relationTypeId = relationType.getId();
         doLoad(resultSet);
@@ -303,7 +307,7 @@ public class RelationImpl implements Relation {
         if (isObsolete()) {
             throw new BusinessException("relationIsAlreadyObsolete", "This relation is already obsolete");
         }
-        this.obsoleteDate = Bus.getServiceLocator().clock().instant();
+        this.obsoleteDate = this.clock.instant();
         this.factory.makeObsolete(this);
     }
 
@@ -441,7 +445,7 @@ public class RelationImpl implements Relation {
 
     @Override
     public RelationTransaction getTransaction() {
-        return new RelationTransactionImpl(this);
+        return new RelationTransactionImpl(this, clock);
     }
 
     @Override

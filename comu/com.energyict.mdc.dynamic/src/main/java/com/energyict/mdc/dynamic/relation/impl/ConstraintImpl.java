@@ -19,6 +19,7 @@ import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.exceptions.MultipleNonRejectConstraintsNotAllowedException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
+
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -27,16 +28,18 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ConstraintImpl extends PersistentNamedObject implements Constraint {
 
+    private final Clock clock;
     private Thesaurus thesaurus;
     private final List<ConstraintMember> members = new ArrayList<>();
     private final Reference<RelationType> relationType = ValueReference.absent();
@@ -44,19 +47,21 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     private Instant modDate;
 
     @Inject
-    ConstraintImpl(DataModel dataModel, Thesaurus thesaurus) {
+    ConstraintImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         super(dataModel);
+        this.clock = clock;
         this.thesaurus = thesaurus;
     }
 
-    public ConstraintImpl(DataModel dataModel, RelationType relationType, String name) {
+    public ConstraintImpl(DataModel dataModel, Clock clock, RelationType relationType, String name) {
         super(dataModel, name);
+        this.clock = clock;
         this.relationType.set(relationType);
     }
 
     @Override
     protected DataMapper getDataMapper() {
-        return Bus.getServiceLocator().getOrmClient().getConstraintFactory();
+        return this.getDataModel().mapper(Constraint.class);
     }
 
     @Override
@@ -143,7 +148,8 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     }
 
     protected void validateConstraint(String name, RelationType relationType) {
-        if (Bus.getServiceLocator().getOrmClient().findConstraintByNameAndRelationType(name, relationType) != null) {
+        Optional<Constraint> constraint = this.getDataModel().mapper(Constraint.class).getUnique("relationType", relationType, "name", name);
+        if (!constraint.isPresent()) {
             throw new DuplicateNameException(this.thesaurus, MessageSeeds.CONSTRAINT_ALREADY_EXISTS, name, relationType.getName());
         }
     }
@@ -286,7 +292,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
                     try (ResultSet rs = stmnt.executeQuery()) {
                         while (rs.next()) {
                             int relationId = rs.getInt(1);
-                            result.add(new RelationFactory((RelationTypeImpl) getRelationType()).find(relationId));
+                            result.add(new RelationFactory((RelationTypeImpl) getRelationType(), this.clock).find(relationId));
                         }
                     }
                 }

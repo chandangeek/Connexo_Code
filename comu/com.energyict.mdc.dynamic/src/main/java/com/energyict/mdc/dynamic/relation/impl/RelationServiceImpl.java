@@ -1,15 +1,7 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.BusinessObject;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -19,11 +11,20 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
 import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Order;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -32,7 +33,10 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link RelationService}.
@@ -41,10 +45,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @since 2013-12-17 (10:28)
  */
 @Component(name = "com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class, TranslationKeyProvider.class, DefaultAttributeTypeDetective.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
-public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService, TranslationKeyProvider, DefaultAttributeTypeDetective {
+public class RelationServiceImpl implements RelationService, InstallService, TranslationKeyProvider, DefaultAttributeTypeDetective {
 
     private volatile DataModel dataModel;
-    private volatile OrmClient ormClient;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile Clock clock;
@@ -85,11 +88,6 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         this.transactionService = transactionService;
     }
 
-    @Override
-    public Clock clock() {
-        return this.clock;
-    }
-
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -106,7 +104,6 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
-        this.ormClient = new OrmClientImpl(this.dataModel);
     }
 
     @Reference
@@ -126,7 +123,6 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Activate
     public void activate() {
-        Bus.setServiceLocator(this);
         this.dataModel.register(this.getModule());
     }
 
@@ -155,51 +151,41 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         return Arrays.asList("ORM", "EVT", "NLS");
     }
 
-    @Deactivate
-    public void deactivate() {
-        Bus.clearServiceLocator(this);
-    }
-
-    @Override
-    public OrmClient getOrmClient() {
-        return this.ormClient;
-    }
-
     @Override
     public RelationType createRelationType(RelationTypeShadow shadow, PropertySpecService propertySpecService) {
-        RelationTypeImpl relationType = new RelationTypeImpl(this.dataModel, this.transactionService, this.thesaurus);
+        RelationTypeImpl relationType = new RelationTypeImpl(this.dataModel, this.clock, this.transactionService, this.thesaurus);
         relationType.init(shadow, propertySpecService);
         return relationType;
     }
 
     @Override
     public List<RelationType> findAllActiveRelationTypes() {
-        return this.ormClient.getRelationTypeFactory().find("active", true);
+        return this.dataModel.mapper(RelationType.class).find("active", true);
     }
 
     @Override
-    public RelationType findRelationType(int id) {
-        return this.ormClient.getRelationTypeFactory().getUnique("id", id).orElse(null);
+    public Optional<RelationType> findRelationType(int id) {
+        return this.dataModel.mapper(RelationType.class).getOptional(id);
     }
 
     @Override
-    public RelationType findRelationType(String name) {
-        List<RelationType> relationTypes = this.ormClient.getRelationTypeFactory().find("name", name);
-        if (relationTypes.isEmpty()) {
-            return null;
-        } else {
-            return relationTypes.get(0);
-        }
+    public Optional<RelationType> findRelationType(String name) {
+        return this.dataModel.mapper(RelationType.class).getUnique("name", name);
     }
 
     @Override
     public List<RelationType> findRelationTypesByParticipant(RelationParticipant participant) {
-        return this.ormClient.findRelationTypesByParticipant((BusinessObject) participant);
+        IdBusinessObjectFactory factory = (IdBusinessObjectFactory) ((BusinessObject) participant).getFactory();
+        return this.dataModel.
+                query(RelationType.class, RelationAttributeType.class).
+                select(
+                    where("objectFactoryId").isEqualTo(factory.getId()),
+                    Order.ascending("name"));
     }
 
     @Override
-    public RelationAttributeType findRelationAttributeType(int id) {
-        return this.ormClient.getRelationAttributeTypeFactory().getUnique("id", id).orElse(null);
+    public Optional<RelationAttributeType> findRelationAttributeType(int id) {
+        return this.dataModel.mapper(RelationAttributeType.class).getOptional(id);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.relation.Constraint;
 import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -38,9 +39,13 @@ import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class RelationAttributeTypeImpl extends PersistentNamedObject implements RelationAttributeType {
 
@@ -48,6 +53,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
             "VERSION", "FROMDATE", "TODATE", "CLOSEDATE", "OBSOLETEDATE", "CRE_DATE", "MOD_DATE", "CREUSERID",
             "MODUSERID", "FLAGS"};
 
+    private final Clock clock;
     private Thesaurus thesaurus;
     private DefaultAttributeTypeDetective defaultAttributeTypeDetective;
     private PropertySpecService propertySpecService;
@@ -64,15 +70,17 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     private Boolean isDefault = null;
 
     @Inject
-    RelationAttributeTypeImpl(DataModel dataModel, Thesaurus thesaurus, DefaultAttributeTypeDetective defaultAttributeTypeDetective, PropertySpecService propertySpecService) {
+    RelationAttributeTypeImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DefaultAttributeTypeDetective defaultAttributeTypeDetective, PropertySpecService propertySpecService) {
         super(dataModel);
+        this.clock = clock;
         this.thesaurus = thesaurus;
         this.defaultAttributeTypeDetective = defaultAttributeTypeDetective;
         this.propertySpecService = propertySpecService;
     }
 
-    public RelationAttributeTypeImpl(DataModel dataModel, RelationType relationType, Thesaurus thesaurus, String name, PropertySpecService propertySpecService) {
+    public RelationAttributeTypeImpl(DataModel dataModel, Clock clock, RelationType relationType, Thesaurus thesaurus, String name, PropertySpecService propertySpecService) {
         super(dataModel, name);
+        this.clock = clock;
         this.thesaurus = thesaurus;
         this.relationType.set(relationType);
         this.propertySpecService = propertySpecService;
@@ -80,7 +88,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
 
     @Override
     protected DataMapper getDataMapper() {
-        return Bus.getServiceLocator().getOrmClient().getRelationAttributeTypeFactory();
+        return this.getDataModel().mapper(RelationAttributeType.class);
     }
 
     @Override
@@ -157,7 +165,9 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     }
 
     protected void validateConstraint(String name, RelationType relationType) {
-        if (Bus.getServiceLocator().getOrmClient().findByRelationTypeAndName(relationType, name) != null) {
+        Optional<RelationAttributeType> attributeType = this.getDataModel().mapper(RelationAttributeType.class).
+                getUnique("relationType", relationType, "name", name);
+        if (attributeType.isPresent()) {
             throw new DuplicateNameException(this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_ALREADY_EXISTS, name, relationType.getName());
         }
     }
@@ -210,10 +220,6 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
 
     public Object valueFromDb(Object object) throws SQLException {
         return getValueFactory().valueFromDatabase(object);
-    }
-
-    public String getStructType() {
-        return getValueFactory().getStructType();
     }
 
     public Object valueToDb(Object object) {
@@ -350,15 +356,15 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     }
 
     public List<Relation> getAllRelations(RelationParticipant participant) {
-        return new RelationFactory(this.getRelationType()).findByParticipantAndAttributeType(participant, this);
+        return new RelationFactory(this.getRelationType(), this.clock).findByParticipantAndAttributeType(participant, this);
     }
 
     public List<Relation> getRelations(RelationParticipant participant, boolean includeObsolete) {
-        return new RelationFactory(this.getRelationType()).findByParticipantAndAttributeType(participant, this, includeObsolete);
+        return new RelationFactory(this.getRelationType(), this.clock).findByParticipantAndAttributeType(participant, this, includeObsolete);
     }
 
     public List<Relation> getRelations(RelationParticipant participant, Instant when, boolean includeObsolete, int from, int to) {
-        return new RelationFactory(this.getRelationType()).findByParticipantAndAttributeType(participant, this, when, includeObsolete, from, to);
+        return new RelationFactory(this.getRelationType(), this.clock).findByParticipantAndAttributeType(participant, this, when, includeObsolete, from, to);
     }
 
     public List<Relation> getRelations(RelationParticipant participant, Range<Instant> period, boolean includeObsolete) {
@@ -387,7 +393,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
                 return true;
             }
         }
-        return Bus.getServiceLocator().getOrmClient().isDatabaseReservedWord(name) || !startsWithLetter(name);
+        return DatabaseReservedWord.isReservedWord(name) || !startsWithLetter(name);
     }
 
     private boolean startsWithLetter(String string) {
@@ -403,7 +409,9 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     }
 
     public boolean hasConstraint() {
-        return !Bus.getServiceLocator().getOrmClient().findByRelationAttributeType(this).isEmpty();
+        return !this.getDataModel().
+                    query(Constraint.class, ConstraintMember.class).
+                    select(where("attributeTypeId").isEqualTo(this.getId())).isEmpty();
     }
 
     @Override

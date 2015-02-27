@@ -16,6 +16,7 @@ import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentIdObject;
 import com.google.common.collect.Range;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,18 +25,21 @@ import java.util.Map;
 
 public class RelationTransactionImpl implements RelationTransaction, DynamicAttributeOwner {
 
-    private RelationTypeImpl relationType;
+    private final Clock clock;
+    private final RelationTypeImpl relationType;
     private Instant from;
     private Instant to;
     private Map<RelationAttributeType, Object> dynamicAttributes = new HashMap<>();
     private int flags;
     private boolean forcedClose = false;
 
-    public RelationTransactionImpl(RelationTypeImpl type) {
+    public RelationTransactionImpl(Clock clock, RelationTypeImpl type) {
+        this.clock = clock;
         this.relationType = type;
     }
 
-    public RelationTransactionImpl(Relation relation) {
+    public RelationTransactionImpl(Relation relation, Clock clock) {
+        this.clock = clock;
         this.relationType = (RelationTypeImpl) relation.getRelationType();
         this.from = relation.getFrom();
         this.to = relation.getTo();
@@ -46,7 +50,8 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
         this.flags = relation.getFlags();
     }
 
-    private RelationTransactionImpl(RelationTransactionImpl transaction) {
+    private RelationTransactionImpl(RelationTransactionImpl transaction, Clock clock) {
+        this.clock = clock;
         this.relationType = transaction.relationType;
         this.from = transaction.getFrom();
         this.to = transaction.getTo();
@@ -173,7 +178,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
             } else if ((relation.getFrom().equals(to))) { // connects before (adjacent)
                 if (relation.matchAttributes(dynamicAttributes)) { // if it has the same content
                     if (!extended) {
-                        RelationTransaction transaction = new RelationTransactionImpl(this);
+                        RelationTransaction transaction = new RelationTransactionImpl(this, clock);
                         transaction.setTo(relation.getTo());
                         relation.makeObsolete();
                         return basicCreateRelation(transaction);
@@ -200,7 +205,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
                             keepRelation = true;
                         }
                         if (after(relationTo, to)) {
-                            RelationTransaction transaction = new RelationTransactionImpl(relation);
+                            RelationTransaction transaction = new RelationTransactionImpl(relation, clock);
                             transaction.setFrom(to);
                             transaction.setTo(relationTo);
                             basicCreateRelation(transaction);
@@ -217,7 +222,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
     }
 
     private Relation basicCreateRelation(RelationTransaction transaction) throws BusinessException, SQLException {
-        return new RelationFactory(this.relationType).create(transaction);
+        return new RelationFactory(this.relationType, this.clock).create(transaction);
     }
 
     @Override
