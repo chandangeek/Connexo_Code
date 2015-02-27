@@ -31,6 +31,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             { header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'left', sortable: false, fixed: true },
             {
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
                 items: 'Cfg.view.validation.RuleSetActionMenu'
             }
         ]
