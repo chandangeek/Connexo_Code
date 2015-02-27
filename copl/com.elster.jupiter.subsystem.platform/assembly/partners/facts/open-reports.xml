@@ -11,8 +11,8 @@
     <sourceName>Connexo</sourceName>
     <sourceDescription/>
     <databasePath/>
-    <userName>CONNEXO</userName>
-    <password>Fn7an7vHXjE=</password>
+    <userName>${user}</userName>
+    <password>${password}</password>
     <connectionMethodCode>JDBC</connectionMethodCode>
     <connectionDriver>oracle.jdbc.OracleDriver</connectionDriver>
     <databaseURL>{$jdbc}</databaseURL>
