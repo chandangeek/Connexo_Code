@@ -22,7 +22,11 @@ public class VetoDeleteComPortPoolException extends LocalizedException {
     }
 
     private static String asString(List<PartialConnectionTask> clients) {
-        return clients.stream().map(PartialConnectionTask::getName).collect(Collectors.joining(", "));
+        return clients.stream().map(VetoDeleteComPortPoolException::asString).collect(Collectors.joining(", "));
+    }
+
+    private static String asString(PartialConnectionTask partialConnectionTask) {
+        return partialConnectionTask.getConfiguration().getDeviceType().getName() + "::" + partialConnectionTask.getConfiguration().getName() + "::" + partialConnectionTask.getName();
     }
 
 }
