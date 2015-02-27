@@ -27,6 +27,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAdd', {
                 },
                 {
                     xtype: 'preview-container',
+                    selectByDefault: false,
                     grid: {
                         xtype: 'registerMappingAddGrid',
                         itemId: 'register-mapping-add-grid'

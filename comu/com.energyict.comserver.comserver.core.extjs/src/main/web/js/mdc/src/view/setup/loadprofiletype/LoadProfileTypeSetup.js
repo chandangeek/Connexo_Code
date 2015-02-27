@@ -27,8 +27,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                         itemId: 'load-profile-type-empty-component',
                         title: Uni.I18n.translate('loadProfileTypes.empty.title', 'MDC', 'No load profile types found'),
                         reasons: [
-                            Uni.I18n.translate('loadProfileTypes.empty.list.item1', 'MDC', 'No load profile types have been defined yet.'),
-                            Uni.I18n.translate('loadProfileTypes.empty.list.item2', 'MDC', 'No load profile types comply to the filter.')
+                            Uni.I18n.translate('loadProfileTypes.empty.list.item1', 'MDC', 'No load profile types have been defined yet.')
                         ],
                         stepItems: [
                             {
@@ -79,7 +78,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
 
         if (config) {
 
-            hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.masterData');
+            hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.deviceType');
             actionMenuColumn = me.down('#load-profile-type-action-menu-column');
             actionMenuButton = me.down('#loadProfileTypePreview').tools[0];
 
