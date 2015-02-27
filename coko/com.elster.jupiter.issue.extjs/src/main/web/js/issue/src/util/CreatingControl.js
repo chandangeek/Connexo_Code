@@ -140,6 +140,8 @@ Ext.define('Isu.util.CreatingControl', {
             required: obj.constraint.required,
             fieldLabel: obj.label,
             emptyText: 'user@example.com',
+            regex: /^((([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z?]{2,5}){1,25})*(\n?)*)*$/,
+            regexText: 'This field should contains one e-mail address per line',
             formBind: false
         };
 
