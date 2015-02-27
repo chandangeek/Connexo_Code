@@ -352,8 +352,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 calculatedReadingTypeField.labelEl.update(Uni.I18n.translate('deviceloadprofiles.channels.calculatedReadingType', 'MDC', 'Calculated reading type'));
                 calculatedReadingTypeField.setVisible(true)
             }
-
-            this.getPage().down('#rulesForChannelConfig').setTitle(channelConfig.get('name') + ' validation rules');
+			
+            this.getPage().down('#rulesForChannelConfig').setTitle(
+                Uni.I18n.translate('channelConfig.validationRules.list', 'MDC', '{0} validation rules', [recordData.readingType.fullAliasName])
+            );
             if (me.getPage().down('#rulesForChannelPreviewContainer')) {
                 me.getPage().down('#rulesForChannelPreviewContainer').destroy();
             }
