@@ -1,158 +1,63 @@
 Ext.define('Sam.view.licensing.List', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.grid.Panel',
     requires: [
-        'Ext.layout.container.Column'
+        'Uni.view.toolbar.PagingTop'
     ],
     alias: 'widget.licensing-list',
-    border: false,
-    items: [
-        {
-            itemId: 'noLicenseFound',
-            name: 'empty-text',
-            cls: 'license-list-empty',
-            border: false,
-            hidden: true,
-            html: '<br><h3>No licenses found</h3>' +
-                '<p>No licenses have been uploaded yet</p>',
-            items: [
-                {
-                    xtype: 'toolbar',
-                    dock: 'top',
-                    items: [
-                        {
-                            xtype: 'container',
-                            items: [
-                                {
-                                    itemID: 'noLicenses',
-                                    xtype: 'label',
-                                    text: '0 licenses'
-                                }
-                            ]
-                        },
-                        {
-                            itemId: 'uploadLicense',
-                            xtype: 'button',
-                            text: 'Upload licenses',
-                            action: 'uploadlicenses',
-                            hrefTarget: '',
-                            href: '#/administration/licensing/upload',
-                            hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license'),
-                            ui: 'action'
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            itemId: 'LicensingGrid',
-            xtype: 'grid',
-            store: 'Sam.store.Licensing',
-            height: 285,
-            columns: {
-                defaults: {
-                    sortable: false,
-                    menuDisabled: true
-                },
-                items: [
-                    {
-                        itemId: 'License',
-                        header: 'License',
-                        dataIndex: 'applicationname',
-                        flex: 5
-                    },
-                    {
-                        itemId: 'Status',
-                        header: 'Status',
-                        dataIndex: 'status',
-                        flex: 2
-                    },
-                    {
-                        itemId: 'expirationDate',
-                        header: 'Expiration date',
-                        dataIndex: 'expires',
-                        sortable: true,
-                        renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateShort(value) : '';
-                        },
-                        flex: 2
-                    }
-                ]
-            },
-            dockedItems: [
-                {
-                    itemId: 'toolbarTop',
-                    xtype: 'pagingtoolbartop',
-                    dock: 'top',
-                    emptyMsg:'',
-                    items: [
-                        {
-                            xtype: 'container',
-                            name: 'gridcontainer',
-                            flex: 180
-                        },
-                        {
-                            itemId: 'uploadButton',
-                            xtype: 'button',
-                            text: 'Upload licenses',
-                            action: 'uploadlicenses',
-                            hrefTarget: '',
-                            href: '#/administration/licensing/upload',
-                            hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license')
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
+    store: 'Sam.store.Licensing',
+    router: null,
 
     initComponent: function () {
-        var self = this,
-            store;
+        var me = this;
 
-        self.callParent(arguments);
-
-        var grid = this.down('grid'),
-            emptyText = this.down('panel[name="empty-text"]');
-
-        if (grid && emptyText) {
-            grid.hide();
-            emptyText.show();
-            Ext.getBody().mask( 'Loading...' );
-        }
-
-        store = this.down('grid').getStore();
-        store.on({
-            load: {
-                fn: self.onStoreLoad,
-                scope: self
+        me.columns = [
+            {
+                itemId: 'License',
+                header: Uni.I18n.translate('licensing.license', 'SAM', 'License'),
+                dataIndex: 'applicationname',
+                flex: 1
+            },
+            {
+                itemId: 'Status',
+                header: Uni.I18n.translate('licensing.status', 'SAM', 'Status'),
+                dataIndex: 'status',
+                width: 150
+            },
+            {
+                itemId: 'expirationDate',
+                header: Uni.I18n.translate('licensing.expirationDate', 'SAM', 'Expiration date'),
+                dataIndex: 'expires',
+                sortable: true,
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateShort(value) : '';
+                },
+                width: 200
             }
-        });
-        store.load();
-    },
+        ];
 
-    onStoreLoad: function (store) {
-        var storeTotal = store.getTotalCount(),
-            gridTop = Ext.ComponentQuery.query('container[name="gridcontainer"]')[0];
-        if (storeTotal) {
-            Ext.suspendLayouts();
-            gridTop.removeAll();
-            gridTop.add({
-                xtype: 'label',
-                text: storeTotal + ' licenses'
-            });
-            Ext.resumeLayouts();
-            this.hideEmptyText();
-        }
-        Ext.getBody().unmask();
-    },
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('licensing.grid.displayMsg', 'SAM', '{0} - {1} of {2} licenses'),
+                displayMoreMsg: Uni.I18n.translate('licensing.grid.displayMoreMsg', 'SAM', '{0} - {1} of more than {2} licenses'),
+                emptyMsg: '',
+                items: [
+                    '->',
+                    {
+                        xtype: 'button',
+                        itemId: 'uploadButton',
+                        text: Uni.I18n.translate('licensing.uploadLicenses', 'SAM', 'Upload licenses'),
+                        action: 'uploadlicenses',
+                        href: me.router.getRoute('administration/licensing/upload').buildUrl(),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license')
+                    }
+                ]
+            }
+        ];
 
-    hideEmptyText: function () {
-        var grid = this.down('grid'),
-            emptyText = this.down('panel[name="empty-text"]');
-        if (grid && emptyText) {
-            grid.show();
-            emptyText.hide();
-        }
+        me.callParent(arguments);
     }
 });
 

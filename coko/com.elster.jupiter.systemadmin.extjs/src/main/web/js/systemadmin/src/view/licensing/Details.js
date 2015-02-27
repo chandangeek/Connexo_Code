@@ -1,107 +1,86 @@
 Ext.define('Sam.view.licensing.Details', {
-    extend: 'Ext.panel.Panel',
-
+    extend: 'Ext.form.Panel',
+    requires: [
+        'Uni.property.form.Property'
+    ],
     alias: 'widget.licensing-details',
-    height: 500,
-
-    initComponent: function () {
-        var self = this;
-        self.callParent();
-        self.addEvents('change');
-        self.on('change', self.onChange, self);
-    },
-
-    onChange: function (panel, record) {
-        var self = this;
-        self.removeAll();
-        self.add(self.getItems(record));
-    },
-
-    getItems: function (record) {
-        return {
+    frame: true,
+    title: '&nbsp;',
+    items: [
+        {
+            layout: 'column',
+            defaults: {
+                xtype: 'container',
+                layout: 'form',
+                columnWidth: 0.5
+            },
             items: [
                 {
-                    xtype: 'toolbar',
-                    cls: 'license-details-toolbar',
-                    ui: 'footer',
+                    defaults: {
+                        xtype: 'displayfield',
+                        labelWidth: 250
+                    },
                     items: [
                         {
-                            xtype: 'container',
-                            flex: 1,
-                            html: record.data.applicationname
+                            fieldLabel: Uni.I18n.translate('licensing.application', 'SAM', 'Application'),
+                            name: 'applicationname'
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('licensing.type', 'SAM', 'Type'),
+                            name: 'type'
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('licensing.description', 'SAM', 'Description'),
+                            name: 'description'
                         }
                     ]
                 },
                 {
-                    data: record.data,
-                    ui: 'medium',
-                    bodyPadding: '20 40',
-                    tpl: new Ext.XTemplate(
-                        '<table class="isu-item-data-table">',
-                        '<tr>',
-                        '<td><b>Application</b></td>',
-                        '<td><tpl if="applicationname">{applicationname} </tpl></td>',
-                        '<td><b>Status</b></td>',
-                        '<td><tpl if="status">{status}</tpl></td>',
-                        '</tr>',
-                        '<tr>',
-                        '<td><b>Type</b></td>',
-                        '<td><tpl if="type">{type} </tpl></td>',
-                        '<td><b>Activation date</b></td>',
-                        '<td>{[values.validfrom ? this.formatActivationDate(values.validfrom) : ""]}</td>',
-                        '</tr>',
-                        '<tr>',
-                        '<td><b>Description</b></td>',
-                        '<td><tpl if="description">{description} </tpl></td>',
-                        '<td><b>Expiration date</b></td>',
-                        '<td>{[values.expires ? this.formatActivationDate(values.expires) : ""]}</td>',
-                        '</tr>',
-                        '<tr>',
-                        '<td></td>',
-                        '<td></td>',
-                        '<td><tpl if="graceperiod"><b>Grace period</b></tpl></td>',
-                        '<td><tpl if="graceperiod">{graceperiod}<span> days</span></tpl></td>',
-                        '</tr>',
-                        '</table>',
-                        {
-                            formatActivationDate: function (date) {
-                                return Uni.DateTime.formatDateLong(date);
-                            }
-                        }
-                    )
-                },
-                {
-                    title: '<span class="license-title"><b>License coverage</b></span>',
-                    ui: 'plain',
-                    cls: 'license-details-coverage',
+                    defaults: {
+                        xtype: 'displayfield',
+                        labelWidth: 250
+                    },
                     items: [
                         {
-                            bodyPadding: '20 10 0 0',
-                            data: record.data,
-                            tpl: new Ext.XTemplate(
-                                '<table class="isu-item-data-table">',
-                                '<tpl foreach="content">',
-                                '<tr>',
-                                '<td><b>{[this.translateKey(values.key)]}</b></td>',
-                                '<td>{[this.formatValue(values.value)]}</td>',
-                                '</tr>',
-                                '</tpl>',
-                                '</table>',
-                                {
-                                    translateKey: function (value) {
-                                        return Uni.I18n.translate(value, 'SAM', value);
-                                    },
-                                    formatValue: function (value) {
-                                        var regexp = /,/g;
-                                        return value.replace(regexp, '<br>');
-                                    }
-                                }
-                            )
+                            fieldLabel: Uni.I18n.translate('licensing.status', 'SAM', 'Status'),
+                            name: 'status'
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('licensing.activationDate', 'SAM', 'Activation date'),
+                            name: 'validfrom',
+                            renderer: function (value) {
+                                return value ? Uni.DateTime.formatDateLong(value) : '';
+                            }
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('licensing.expirationDate', 'SAM', 'Expiration date'),
+                            name: 'expires',
+                            renderer: function (value) {
+                                return value ? Uni.DateTime.formatDateLong(value) : '';
+                            }
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('licensing.gracePeriod', 'SAM', 'Grace period'),
+                            name: 'graceperiod',
+                            renderer: function (value) {
+                                return value ? value + ' ' + Uni.I18n.translatePlural('licensing.days', value, 'SAM', 'days') : '';
+                            }
                         }
                     ]
                 }
             ]
-        };
-    }
+        },
+        {
+            xtype: 'fieldcontainer',
+            fieldLabel: Uni.I18n.translate('licensing.licenseCoverage', 'SAM', 'License coverage'),
+            itemId: 'license-coverage-container',
+            labelAlign: 'top',
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 250
+            },
+            hidden: true
+        }
+    ]
 });
 

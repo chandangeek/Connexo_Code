@@ -5,7 +5,6 @@ Ext.define('Sam.store.Licensing', {
     ],
     model: 'Sam.model.Licensing',
     pageSize: 10,
-    autoLoad: false,
-    sorters: { property: 'expires', direction : 'ASC' }
+    autoLoad: false
 });
 

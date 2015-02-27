@@ -9,6 +9,10 @@ Ext.define('Sam.controller.licensing.Licenses', {
         'Sam.store.Licensing'
     ],
 
+    models: [
+        'Uni.property.model.Property'
+    ],
+
     views: [
         'licensing.Overview',
         'licensing.Details'
@@ -27,72 +31,48 @@ Ext.define('Sam.controller.licensing.Licenses', {
 
     init: function () {
         this.control({
-            'licensing-overview breadcrumbTrail': {
-                afterrender: this.setBreadcrumb
-            },
-            'licensing-overview licensing-list gridview': {
-                itemclick: this.loadGridItemDetail,
-                refresh: this.showDefaults
+            'licensing-overview #licenses-list': {
+                select: this.loadGridItemDetail
             }
         });
-        this.gridItemModel = this.getModel('Sam.model.Licensing');
     },
 
     showOverview: function () {
-        var widget = Ext.widget('licensing-overview');
-        this.getApplication().fireEvent('changecontentevent', widget);
-    },
-
-    setBreadcrumb: function (breadcrumbs) {
         var me = this;
-        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'System administration',
-                href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview()
-            }),
-            breadcrumbChild1 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Licensing',
-                href: 'licensing'
-            }),
-            breadcrumbChild2 = Ext.create('Uni.model.BreadcrumbItem', {
-                text: 'Licenses',
-                href: 'licenses'
-            });
-        breadcrumbParent.setChild(breadcrumbChild1).setChild(breadcrumbChild2);
-        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+
+        me.getApplication().fireEvent('changecontentevent',  Ext.widget('licensing-overview', {
+            router: me.getController('Uni.controller.history.Router')
+        }));
+        me.getStore('Sam.store.Licensing').load();
     },
 
     loadGridItemDetail: function (grid, record) {
-        var itemPanel = this.getItemPanel(),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
-                target: itemPanel
-            });
-        if (this.displayedItemId != record.id) {
-            grid.clearHighlight();
-            preloader.show();
-        }
-        this.displayedItemId = record.id;
-        this.gridItemModel.load(record.data.id, {
-            success: function (rec) {
-                itemPanel.fireEvent('change', itemPanel, rec);
-                preloader.destroy();
+        var me = this,
+            itemPanel = this.getItemPanel(),
+            licenseCoverageContainer = itemPanel.down('#license-coverage-container');
+
+        itemPanel.setLoading();
+        me.getModel('Sam.model.Licensing').load(record.getId(), {
+            success: function (record) {
+                var content = record.get('content') || [];
+
+                if (itemPanel.rendered) {
+                    Ext.suspendLayouts();
+                    itemPanel.setTitle(record.get('applicationname'));
+                    itemPanel.loadRecord(record);
+                    licenseCoverageContainer.setVisible(!!content.length);
+                    licenseCoverageContainer.removeAll();
+                    Ext.Array.each(content, function (property) {
+                        licenseCoverageContainer.add({
+                            fieldLabel: Uni.I18n.translate(property.key, 'SAM', property.key),
+                            value: property.value.replace(/,/g, '<br>')
+                        });
+                    });
+                    Ext.resumeLayouts(true);
+                }
             },
-            failure: function (rec) {
-                preloader.destroy();
-            }
-        });
-    },
-
-    showDefaults: function (grid) {
-        var itemPanel = this.getItemPanel(),
-            index = 0,
-            store = grid.getStore(),
-            record = store.getAt(index);
-
-        grid.selModel.doSelect(record);
-        this.gridItemModel.load(record.data.id, {
-            success: function (rec) {
-                itemPanel.fireEvent('change', itemPanel, rec);
+            callback: function () {
+                itemPanel.setLoading(false);
             }
         });
     }
