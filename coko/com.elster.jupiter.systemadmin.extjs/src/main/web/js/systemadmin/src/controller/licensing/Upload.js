@@ -85,14 +85,14 @@ Ext.define('Sam.controller.licensing.Upload', {
                     uploadPanel.setLoading(false);
                     if (Ext.isEmpty(responseObject.errors)) {
                         router.getRoute('administration/licensing/licenses').forward();
-                        Ext.Array.each(responseObject.data.success, function (item, index) {
+                        Ext.Array.each(responseObject.success, function (item, index) {
                             if (index) {
                                 message += ', '
                             }
                             message += item
                         });
                         self.getApplication().fireEvent('acknowledge', message);
-                        self.getApplication().fireEvent('upload', responseObject.data.success[0]);
+                        self.getApplication().fireEvent('upload', responseObject.success[0]);
                         Ext.getStore('apps').load();
                     } else {
                         uploadPanel.down('#upload').disable();
