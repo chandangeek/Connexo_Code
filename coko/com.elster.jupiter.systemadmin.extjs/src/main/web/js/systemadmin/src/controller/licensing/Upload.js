@@ -83,7 +83,7 @@ Ext.define('Sam.controller.licensing.Upload', {
                 callback: function (config, success, response) {
                     var responseObject = JSON.parse(response.responseText);
                     uploadPanel.setLoading(false);
-                    if (Ext.isEmpty(responseObject.data.failure)) {
+                    if (Ext.isEmpty(responseObject.errors)) {
                         router.getRoute('administration/licensing/licenses').forward();
                         Ext.Array.each(responseObject.data.success, function (item, index) {
                             if (index) {
@@ -96,7 +96,7 @@ Ext.define('Sam.controller.licensing.Upload', {
                         Ext.getStore('apps').load();
                     } else {
                         uploadPanel.down('#upload').disable();
-                        self.getApplication().getController('Uni.controller.Error').showError('Failed to upload licenses', responseObject.data.failure);
+                        self.getApplication().getController('Uni.controller.Error').showError('Failed to upload licenses', responseObject.errors[0].msg);
                     }
                 }
             });
