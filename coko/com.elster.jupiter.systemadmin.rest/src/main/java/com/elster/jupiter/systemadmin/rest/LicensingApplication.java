@@ -7,9 +7,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.systemadmin.rest.resource.DataPurgeResource;
 import com.elster.jupiter.systemadmin.rest.resource.LicenseResource;
 import com.elster.jupiter.systemadmin.rest.resource.MessageSeeds;
@@ -51,7 +49,8 @@ public class LicensingApplication extends Application implements TranslationKeyP
                 DataPurgeResource.class,
                 MultiPartFeature.class,
                 ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class);
+                LocalizedExceptionMapper.class,
+                LocalizedFieldValidationExceptionMapper.class);
     }
 
     @Reference
@@ -131,6 +130,7 @@ public class LicensingApplication extends Application implements TranslationKeyP
             bind(thesaurus).to(Thesaurus.class);
             bind(thesaurus).to(MessageInterpolator.class);
             bind(jsonService).to(JsonService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.elster.jupiter.systemadmin.rest.resource;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.security.Privileges;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.systemadmin.rest.response.ActionInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseListInfo;
@@ -11,6 +12,7 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -29,7 +31,14 @@ import java.util.Optional;
 
 @Path("/license")
 public class LicenseResource extends BaseResource {
+    private Thesaurus thesaurus;
+
     public LicenseResource() {
+    }
+
+    @Inject
+    public void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -65,7 +74,7 @@ public class LicenseResource extends BaseResource {
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.UPLOAD_LICENSE)
     public Response uploadLicense(@FormDataParam("uploadField") InputStream fileInputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
@@ -75,7 +84,7 @@ public class LicenseResource extends BaseResource {
             signedObject = (SignedObject) serializedObject.readObject();
             serializedObject.close();
         } catch (Exception ex) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new InvalidLicenseFileException();
         }
 
         ActionInfo info = getTransactionService().execute(new UploadLicenseTransaction(getLicenseService(), getNlsService(), getJsonService(), signedObject));
