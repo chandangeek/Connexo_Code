@@ -2,7 +2,6 @@ package com.elster.jupiter.systemadmin.rest.resource;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.security.Privileges;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.systemadmin.rest.response.ActionInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseListInfo;
@@ -12,7 +11,6 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -31,14 +29,7 @@ import java.util.Optional;
 
 @Path("/license")
 public class LicenseResource extends BaseResource {
-    private Thesaurus thesaurus;
-
     public LicenseResource() {
-    }
-
-    @Inject
-    public void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -88,6 +79,6 @@ public class LicenseResource extends BaseResource {
         }
 
         ActionInfo info = getTransactionService().execute(new UploadLicenseTransaction(getLicenseService(), getNlsService(), getJsonService(), signedObject));
-        return Response.status(Response.Status.OK).entity(getJsonService().serialize(new RootEntity<ActionInfo>(info))).build();
+        return Response.status(Response.Status.OK).entity(getJsonService().serialize(info)).build();
     }
 }

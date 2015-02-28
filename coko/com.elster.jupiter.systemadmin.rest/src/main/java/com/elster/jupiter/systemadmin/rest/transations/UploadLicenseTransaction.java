@@ -1,8 +1,11 @@
 package com.elster.jupiter.systemadmin.rest.transations;
 
+import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.systemadmin.rest.resource.BaseResource;
 import com.elster.jupiter.systemadmin.rest.response.ActionInfo;
 import com.elster.jupiter.systemadmin.rest.response.RootEntity;
@@ -12,6 +15,7 @@ import com.elster.jupiter.util.json.JsonService;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.security.SignedObject;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -41,8 +45,8 @@ public class UploadLicenseTransaction implements Transaction<ActionInfo> {
             }
             info.setSuccess(translatedKeys);
         } catch (Exception ex) {
-            info.setFailure(ex.getMessage());
-            throw new WebApplicationException(Response.status(BaseResource.UNPROCESSIBLE_ENTITY).entity(jsonService.serialize(new RootEntity<ActionInfo>(info))).build());
+            info.setErrors(ex.getMessage());
+            throw new WebApplicationException(Response.status(BaseResource.UNPROCESSIBLE_ENTITY).entity(jsonService.serialize(info)).build());
         }
         return info;
     }
