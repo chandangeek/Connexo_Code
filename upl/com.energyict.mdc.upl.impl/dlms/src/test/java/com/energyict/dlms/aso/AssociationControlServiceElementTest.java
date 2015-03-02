@@ -136,7 +136,7 @@ public class AssociationControlServiceElementTest {
             AssociationControlServiceElement acse;
 
             acse = new AssociationControlServiceElement(null, 1, new SecurityContext(2, 2, 2, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
-            String hlSecurityResponse = "6141A109060760857405080101A203020100A305A10302010088020780890760857405080202AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
+            String hlSecurityResponse = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080202AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
             acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
             assertNotNull(acse.getRespondingAuthenticationValue());
             assertEquals("P6wRJ21F", new String(acse.getRespondingAuthenticationValue()));

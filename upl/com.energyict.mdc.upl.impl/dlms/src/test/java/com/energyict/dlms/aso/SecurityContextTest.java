@@ -206,7 +206,7 @@ public class SecurityContextTest {
         String digest = "3F2E2FA23A4CFCD40B0CD7091300673D";
 
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, new SecurityContext(3, 3, 3, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));
-        String hlSecurityResponse = "614AA109060760857405080101A203020100A305A10302010088020780890760857405080203AA1280104C332F6263564447365070506C556455BE10040E0800065F1F040000FC1F04000007";
+        String hlSecurityResponse = "614AA109060760857405080101A203020100A305A10302010E88020780890760857405080203AA1280104C332F6263564447365070506C556455BE10040E0800065F1F040000FC1F04000007";
         acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
         MockSecurityProvider msp = new MockSecurityProvider();
 //			msp.setHLSSecretString("12345678");

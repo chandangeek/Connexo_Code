@@ -298,6 +298,7 @@ public class AssociationControlServiceElement {
 
     public void analyzeAARE(byte[] responseData) throws IOException, DLMSConnectionException {
         int i = 0;
+        boolean resultOk = true;
         String strResultSourceDiagnostics = "";
         try {
             while (true) {
@@ -319,9 +320,11 @@ public class AssociationControlServiceElement {
                                 // Result OK
 //							return;	 //Don't return otherwise you don't get all info
                                 i += responseData[i]; // skip length + data
+                                resultOk = true;
                             } else {
                                 // the result wasn't OK, but we keep going so we get the proper info
                                 i += responseData[i]; // skip length + data
+                                resultOk = false;
                             }
                         } // else if (responseData[i] == AARE_RESULT)
 
@@ -367,8 +370,10 @@ public class AssociationControlServiceElement {
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x0E) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
+                                            if (!resultOk) {  //0x0E only represents an error code if the association result was not ok.
                                             throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
+                                            }
                                         } else {
                                             throw new ProtocolException(
                                                     "Application Association Establishment failed, ACSE_SERVICE_USER, unknown result code: " + responseData[i + 5]);
