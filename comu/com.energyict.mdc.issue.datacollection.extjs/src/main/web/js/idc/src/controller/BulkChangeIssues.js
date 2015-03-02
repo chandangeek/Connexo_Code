@@ -494,7 +494,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             record.set('comment', formPanel.down('textarea').getValue().trim());
 
             widget = Ext.widget('container', {
-                cls: 'isu-bulk-assign-confirmation-request-panel',
+                style: 'margin: 20px 0',
                 html: message
             });
             Ext.suspendLayouts();
