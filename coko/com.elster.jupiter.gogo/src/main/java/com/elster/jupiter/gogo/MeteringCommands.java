@@ -19,6 +19,9 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -55,6 +58,7 @@ import java.util.Set;
         }, immediate = true)
 public class MeteringCommands {
 
+    private volatile DeviceService deviceService;
     private volatile MeteringService meteringService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -65,6 +69,9 @@ public class MeteringCommands {
     public void setMeteringService(MeteringService service) {
         this.meteringService = service;
     }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) { this.deviceService = deviceService; }
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -123,8 +130,8 @@ public class MeteringCommands {
         }
     }
 
-    public void storeRegisterData(long meterId, String readingType, String startDateTime, int intervalInSeconds, int numberOfInterval, double minValue, double maxValue) {
-        final Optional<Meter> endDevice = meteringService.findMeter(meterId);
+    public void storeRegisterData(String mRID, String readingType, String startDateTime, int intervalInSeconds, int numberOfInterval, double minValue, double maxValue) {
+        final Optional<Meter> endDevice = meteringService.findMeter(mRID);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -154,13 +161,13 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with id " + meterId);
+            System.out.println("No meter found with mRID: " + mRID);
         }
     }
 
 
-    public void storeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double minValue, double maxValue) {
-        final Optional<Meter> endDevice = meteringService.findMeter(meterId);
+    public void storeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double minValue, double maxValue) {
+        final Optional<Meter> endDevice = meteringService.findMeter(mRID);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -194,16 +201,16 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with id " + meterId);
+            System.out.println("No meter found with mRID: " + mRID);
         }
     }
 
-    public void storeCumulativeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue) {
-        storeCumulativeIntervalData(meterId, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
+    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue) {
+        storeCumulativeIntervalData(mRID, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
     }
 
-    public void storeCumulativeIntervalData(long meterId, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue, String intervalFlagCimCode) {
-        final Optional<Meter> endDevice = meteringService.findMeter(meterId);
+    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue,  double minValue, double maxValue, String intervalFlagCimCode) {
+        final Optional<Meter> endDevice = meteringService.findMeter(mRID);
         if (endDevice.isPresent()) {
             try {
                 ZonedDateTime startDate = LocalDateTime.from(dateTimeFormat.parse(startDateTime)).atZone(ZoneId.systemDefault());
@@ -224,6 +231,8 @@ public class MeteringCommands {
                         }
                         meterReading.addIntervalBlock(intervalBlock);
 
+                        setLastReadingTypeForLoadProfile(mRID);
+
                         executeTransaction(new VoidTransaction() {
                             @Override
                             protected void doPerform() {
@@ -242,7 +251,19 @@ public class MeteringCommands {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No meter found with id " + meterId);
+            System.out.println("No meter found with id " + mRID);
+        }
+    }
+
+    private void setLastReadingTypeForLoadProfile(final String mrid) {
+        Device device = deviceService.findByUniqueMrid(mrid);
+        List<LoadProfile> loadProfiles = device.getLoadProfiles();
+        for (LoadProfile loadProfile : loadProfiles) {
+            LoadProfile.LoadProfileUpdater updater = device.getLoadProfileUpdaterFor(loadProfile);
+            for (com.energyict.mdc.device.data.Channel channel : loadProfile.getChannels()) {
+                channel.getLastDateTime().ifPresent(t -> updater.setLastReadingIfLater(t));
+            }
+            updater.update();
         }
     }
 
