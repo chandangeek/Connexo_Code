@@ -224,14 +224,16 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     showDeviceTypeCreateView: function () {
-        var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
-        var widget = Ext.widget('deviceTypeEdit', {
+        var me = this,
+            protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols'),
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('deviceTypeEdit', {
             edit: false,
-            returnLink: '#/administration/devicetypes/',
+            cancelLink: router.getRoute('administration/devicetypes').buildUrl(),
             deviceCommunicationProtocols: protocolStore
         });
-        var me = this;
-        this.getApplication().fireEvent('changecontentevent', widget);
+
+        me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         protocolStore.load({
             callback: function (store) {
