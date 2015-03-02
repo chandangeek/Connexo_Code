@@ -149,7 +149,6 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                     },
                     success: function () {
                         me.generateReportWizardWidget.setLoading(false);
-
                         // load report
                         me.loadReportFilters(reportUUID);
                     },
@@ -158,7 +157,11 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                     }
                 });
             }
-            return;
+            else{ // NO device groups are required or provided
+                me.generateReportWizardWidget.setLoading(false);
+                // load report
+                me.loadReportFilters(reportUUID);
+            }
         }
         else {
             var searchCriteria = {};

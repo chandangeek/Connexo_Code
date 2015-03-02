@@ -23,6 +23,7 @@ Ext.define('Yfn.view.ReportView', {
                     padding:10,
                     collapsible: false,
                     titleCollapse: true,
+                    minHeight:100,
                     maxHeight:400,
                     layout: {
                         type: 'column'
