@@ -56,6 +56,7 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     emptyMsg: Uni.I18n.translate('general.noItemsToDisplay', 'UNI', 'There are no items to display'),
 
     isFullTotalCount: false,
+    noBottomPaging: false,
     totalCount: -1,
 
     defaultButtonUI: 'default',
@@ -86,13 +87,17 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             if (me.usesExactCount) {
                 me.totalCount = store.getTotalCount();
             } else {
-                me.totalCount = me.totalCount < store.getTotalCount() ? store.getTotalCount() : me.totalCount;
+                if (!!me.noBottomPaging) {
+                    me.totalCount = store.getTotalCount();
+                } else {
+                    me.totalCount = me.totalCount <= store.getTotalCount() ? store.getTotalCount() : me.totalCount;
+                }
             }
             if (store.getCount() === 0) {
                 me.totalCount = -1;
                 msg = me.emptyMsg;
             } else {
-                totalCount = me.totalCount - 1;
+                totalCount = !!me.noBottomPaging ? me.totalCount : me.totalCount - 1;
                 msg = me.displayMoreMsg;
                 if (me.isFullTotalCount || store.pageSize * pageData.currentPage >= me.totalCount || me.usesExactCount) {
                     me.isFullTotalCount = true;
@@ -102,7 +107,7 @@ Ext.define('Uni.view.toolbar.PagingTop', {
                 msg = Ext.String.format(
                     msg,
                     pageData.fromRecord,
-                    pageData.toRecord,
+                    !!me.noBottomPaging ? store.getTotalCount() : pageData.toRecord,
                     totalCount
                 );
             }
