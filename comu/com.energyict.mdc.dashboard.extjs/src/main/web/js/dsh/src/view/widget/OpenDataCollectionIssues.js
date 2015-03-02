@@ -110,7 +110,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 '<table  style="margin: 5px 0 10px 0">',
                 '<tpl for=".">',
                 '<tr id="{id}" class="issue">',
-                '<td width="40" data-qtip="{tooltip}"><img src="{icon}" /></td>',
+                '<td height="26" width="40" data-qtip="{tooltip}"><img style="margin: 5px 5px 0 0" src="{icon}" /></td>',
                 '<td width="100%"><a href="{href}">{title}</a></td>',
                 '</tr>',
                 '</tpl>',
