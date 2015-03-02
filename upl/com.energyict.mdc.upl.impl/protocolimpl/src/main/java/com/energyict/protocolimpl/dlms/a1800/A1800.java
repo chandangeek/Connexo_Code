@@ -85,7 +85,7 @@ public class A1800 extends AbstractDlmsSessionProtocol {
 
     @Override
     public void disconnect() throws IOException {
-         getSession().disconnect(true); // Release of the application association is not supported
+        getSession().disconnect(false); // release of the application association is not supported, only disconnectMAC should be done
     }
 
     protected A1800Properties getProperties() {
