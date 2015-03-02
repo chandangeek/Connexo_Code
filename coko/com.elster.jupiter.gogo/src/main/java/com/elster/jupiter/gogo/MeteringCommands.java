@@ -231,12 +231,11 @@ public class MeteringCommands {
                         }
                         meterReading.addIntervalBlock(intervalBlock);
 
-                        setLastReadingTypeForLoadProfile(mRID);
-
                         executeTransaction(new VoidTransaction() {
                             @Override
                             protected void doPerform() {
                                 endDevice.get().store(meterReading);
+                                setLastReadingTypeForLoadProfile(mRID);
                             }
                         });
                     } catch (Exception e){
