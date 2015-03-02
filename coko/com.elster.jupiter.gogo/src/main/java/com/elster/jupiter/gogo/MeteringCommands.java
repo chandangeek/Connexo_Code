@@ -19,9 +19,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -58,7 +55,6 @@ import java.util.Set;
         }, immediate = true)
 public class MeteringCommands {
 
-    private volatile DeviceService deviceService;
     private volatile MeteringService meteringService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -69,9 +65,6 @@ public class MeteringCommands {
     public void setMeteringService(MeteringService service) {
         this.meteringService = service;
     }
-
-    @Reference
-    public void setDeviceService(DeviceService deviceService) { this.deviceService = deviceService; }
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -235,7 +228,6 @@ public class MeteringCommands {
                             @Override
                             protected void doPerform() {
                                 endDevice.get().store(meterReading);
-                                setLastReadingTypeForLoadProfile(mRID);
                             }
                         });
                     } catch (Exception e){
@@ -251,18 +243,6 @@ public class MeteringCommands {
             }
         } else {
             System.out.println("No meter found with id " + mRID);
-        }
-    }
-
-    private void setLastReadingTypeForLoadProfile(final String mrid) {
-        Device device = deviceService.findByUniqueMrid(mrid);
-        List<LoadProfile> loadProfiles = device.getLoadProfiles();
-        for (LoadProfile loadProfile : loadProfiles) {
-            LoadProfile.LoadProfileUpdater updater = device.getLoadProfileUpdaterFor(loadProfile);
-            for (com.energyict.mdc.device.data.Channel channel : loadProfile.getChannels()) {
-                channel.getLastDateTime().ifPresent(t -> updater.setLastReadingIfLater(t));
-            }
-            updater.update();
         }
     }
 
