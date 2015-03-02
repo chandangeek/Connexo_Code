@@ -186,49 +186,45 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     },
 
     showDeviceConnectionMethodHistoryLog: function (deviceMrId, deviceConnectionMethodId, deviceConnectionHistoryId) {
-        var me = this;
-        var router = this.getController('Uni.controller.history.Router');
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            deviceModel = Ext.ModelManager.getModel('Mdc.model.Device'),
+            connectionMethodModel = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionMethod'),
+            comSessionHistory = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionHistory'),
+            store = me.getDeviceConnectionLogStore(),
+            filter = router.filter,
+            widget;
 
-
-        var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
         deviceModel.load(deviceMrId, {
             success: function (device) {
-                var connectionMethodModel = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionMethod');
                 connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
                 connectionMethodModel.load(deviceConnectionMethodId, {
                     success: function (connectionMethod) {
-                        var comSessionHistory = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionHistory');
                         comSessionHistory.getProxy().setExtraParam('mRID', deviceMrId);
                         comSessionHistory.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                         comSessionHistory.load(deviceConnectionHistoryId, {
                             success: function (deviceConnectionHistory) {
-                                var widget = Ext.widget('deviceConnectionLogMain', {device: device, mrid: deviceMrId});
-                                me.getApplication().fireEvent('changecontentevent', widget);
-                                me.getDeviceConnectionLogOverviewForm().loadRecord(deviceConnectionHistory);
-                                me.getApplication().fireEvent('loadDevice', device);
-                                me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
-
-                                //to test
-
-                                var store = me.getDeviceConnectionLogStore();
                                 store.getProxy().setExtraParam('mRID', deviceMrId);
                                 store.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                                 store.getProxy().setExtraParam('sessionId', deviceConnectionHistoryId);
-
-
-                                var filter = router.filter;
-                                me.getDeviceconnectionhistorySideFilterForm().loadRecord(filter);
                                 store.setFilterModel(filter);
-                                for (prop in filter.data) {
-                                    if (filter.data.hasOwnProperty(prop) && prop.toString() !== 'id' && filter.data[prop]) {
-                                        if(prop.toString()==='logLevels'){
-                                            me.getDeviceConnectionLogFilterPanel().setFilter(prop.toString(), me.getDeviceconnectionhistorySideFilterForm().down('#logLevelField').getFieldLabel(), filter.data[prop]);
-                                        } else if (prop.toString()==='logTypes'){
-                                            me.getDeviceConnectionLogFilterPanel().setFilter(prop.toString(), me.getDeviceconnectionhistorySideFilterForm().down('#logTypeField').getFieldLabel(), filter.data[prop]);
+                                widget = Ext.widget('deviceConnectionLogMain', {device: device, mrid: deviceMrId});
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                                store.load(function () {
+                                    me.getApplication().fireEvent('loadDevice', device);
+                                    me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
+                                    me.getDeviceconnectionhistorySideFilterForm().loadRecord(filter);
+                                    for (prop in filter.data) {
+                                        if (filter.data.hasOwnProperty(prop) && prop.toString() !== 'id' && filter.data[prop]) {
+                                            if(prop.toString()==='logLevels'){
+                                                me.getDeviceConnectionLogFilterPanel().setFilter(prop.toString(), me.getDeviceconnectionhistorySideFilterForm().down('#logLevelField').getFieldLabel(), filter.data[prop]);
+                                            } else if (prop.toString()==='logTypes'){
+                                                me.getDeviceConnectionLogFilterPanel().setFilter(prop.toString(), me.getDeviceconnectionhistorySideFilterForm().down('#logTypeField').getFieldLabel(), filter.data[prop]);
+                                            }
                                         }
                                     }
-                                }
-                                store.load();
+                                    me.getDeviceConnectionLogOverviewForm().loadRecord(deviceConnectionHistory);
+                                });
                             }
                         });
                     }
