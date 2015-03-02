@@ -371,8 +371,8 @@ public class AssociationControlServiceElement {
                                         } else if (responseData[i + 5] == 0x0E) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
                                             if (!resultOk) {  //0x0E only represents an error code if the association result was not ok.
-                                            throw new ProtocolException("Application Association Establishment Failed"
-                                                    + strResultSourceDiagnostics);
+                                                throw new ProtocolException("Application Association Establishment Failed"
+                                                        + strResultSourceDiagnostics);
                                             }
                                         } else {
                                             throw new ProtocolException(
