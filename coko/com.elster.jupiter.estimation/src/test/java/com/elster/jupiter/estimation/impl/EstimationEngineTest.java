@@ -70,6 +70,11 @@ public class EstimationEngineTest {
         when(readingQualityRecord3.getBaseReadingRecord()).thenReturn(Optional.of(baseReadingRecord3));
         when(readingQualityRecord4.getBaseReadingRecord()).thenReturn(Optional.of(baseReadingRecord4));
         when(readingQualityRecord5.getBaseReadingRecord()).thenReturn(Optional.of(baseReadingRecord5));
+        when(baseReadingRecord1.getTimeStamp()).thenReturn(first.toInstant());
+        when(baseReadingRecord2.getTimeStamp()).thenReturn(first.plusHours(1).toInstant());
+        when(baseReadingRecord3.getTimeStamp()).thenReturn(first.plusHours(2).toInstant());
+        when(baseReadingRecord4.getTimeStamp()).thenReturn(first.plusHours(3).toInstant());
+        when(baseReadingRecord5.getTimeStamp()).thenReturn(first.plusHours(4).toInstant());
 
     }
 
@@ -104,5 +109,59 @@ public class EstimationEngineTest {
         assertThat(estimatable).isInstanceOf(MissingReadingRecordEstimatable.class);
     }
 
+    @Test
+    public void testFindBlocksWhenThereIsOneSuspectForReading() {
+        when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2));
+
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+
+        assertThat(blocksToEstimate).hasSize(1);
+
+        EstimationBlock estimationBlock = blocksToEstimate.get(0);
+
+        assertThat(estimationBlock.estimatables()).hasSize(1);
+
+        Estimatable estimatable = estimationBlock.estimatables().get(0);
+
+        assertThat(estimatable.getTimestamp()).isEqualTo(readingQualityRecord2.getTimestamp());
+        assertThat(estimatable).isInstanceOf(BaseReadingRecordEstimatable.class);
+    }
+
+    @Test
+    public void testFindBlocksWhenThereIsOneBlockOfSuspectForReading() {
+        when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
+
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+
+        assertThat(blocksToEstimate).hasSize(1);
+
+        EstimationBlock estimationBlock = blocksToEstimate.get(0);
+
+        assertThat(estimationBlock.estimatables()).hasSize(3);
+
+        assertThat(estimationBlock.estimatables().get(0).getTimestamp()).isEqualTo(readingQualityRecord2.getTimestamp());
+        assertThat(estimationBlock.estimatables().get(1).getTimestamp()).isEqualTo(readingQualityRecord3.getTimestamp());
+        assertThat(estimationBlock.estimatables().get(2).getTimestamp()).isEqualTo(readingQualityRecord4.getTimestamp());
+    }
+
+//    @Test
+//    public void testFindBlocksWhenThereIsOneBlockOfSuspectForReading() {
+//        when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
+//
+//        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+//
+//        assertThat(blocksToEstimate).hasSize(1);
+//
+//        EstimationBlock estimationBlock = blocksToEstimate.get(0);
+//
+//        assertThat(estimationBlock.estimatables()).hasSize(1);
+//
+//        Estimatable estimatable = estimationBlock.estimatables().get(0);
+//
+//        assertThat(estimatable.getTimestamp()).isEqualTo(readingQualityRecord2.getTimestamp());
+//        assertThat(estimatable).isInstanceOf(BaseReadingRecordEstimatable.class);
+//    }
+//
+//
 
 }
