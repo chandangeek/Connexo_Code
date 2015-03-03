@@ -11,8 +11,6 @@ public interface Estimator extends HasDynamicProperties {
 
     void init(Channel channel, ReadingType readingType, Range<Instant> interval);
 
-    void finish();
-
     EstimationResult estimate(EstimationBlock estimationBlock);
 
     String getDisplayName();
