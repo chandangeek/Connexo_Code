@@ -118,14 +118,20 @@ Ext.define('Uni.controller.AppController', {
         me.callParent(arguments);
     },
 
-    showContent: function (widget) {
+    showContent: function (widget, config) {
         var panel = this.getContentPanel();
 
         Ext.suspendLayouts();
 
         panel.removeAll();
-        panel.add(widget);
 
+        if (Ext.isString(widget)) {
+            widget = Ext.widget(widget, Ext.applyIf(config, {
+                router: this.getController('Uni.controller.history.Router')
+            }));
+        }
+
+        panel.add(widget);
         Ext.resumeLayouts();
 
         panel.doComponentLayout();
