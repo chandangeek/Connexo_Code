@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class FirstLoadProfileOnDeviceTest {
     public void testDeviceDoesNotExist () {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         doThrow(NotFoundException.class).when(deviceIdentifier).findDevice();
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method
         loadProfileIdentifier.getLoadProfile();
@@ -38,7 +39,7 @@ public class FirstLoadProfileOnDeviceTest {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.getLoadProfile();
@@ -50,7 +51,7 @@ public class FirstLoadProfileOnDeviceTest {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("id 1");
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method
         String toStringMessage = loadProfileIdentifier.toString();
@@ -67,7 +68,7 @@ public class FirstLoadProfileOnDeviceTest {
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.getLoadProfile();
@@ -84,7 +85,7 @@ public class FirstLoadProfileOnDeviceTest {
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile, anotherLoadProfile));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.getLoadProfile();

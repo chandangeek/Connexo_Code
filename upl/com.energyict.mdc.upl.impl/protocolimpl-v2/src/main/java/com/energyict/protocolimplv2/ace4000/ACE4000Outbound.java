@@ -101,7 +101,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this);
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {    //Slave device
-                CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId()));
+                CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("MBus slave device doesn't support load profiles"));
                 result.add(collectedLoadProfile);
             }

@@ -73,7 +73,7 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
         Date to = loadProfileReader.getEndReadingTime();
         ProfileData profileData = getProfileData(from, to);
 
-        CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId()));
+        CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
         collectedLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
 
         return Arrays.asList(collectedLoadProfile);

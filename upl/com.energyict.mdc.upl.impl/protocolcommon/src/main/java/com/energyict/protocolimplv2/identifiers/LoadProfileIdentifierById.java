@@ -7,6 +7,7 @@ import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileFactory;
 import com.energyict.mdw.core.LoadProfileFactoryProvider;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -24,17 +25,26 @@ import java.util.List;
 public class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
     private final int loadProfileId;
+    private final ObisCode profileObisCode;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public LoadProfileIdentifierById() {
+    private LoadProfileIdentifierById() {
         this.loadProfileId = 0;
+        this.profileObisCode = null;
     }
 
-    public LoadProfileIdentifierById(int loadProfileId) {
+    public LoadProfileIdentifierById(int loadProfileId, ObisCode profileObisCode) {
         super();
         this.loadProfileId = loadProfileId;
+        this.profileObisCode = profileObisCode;
+    }
+
+    @Override
+    @XmlAttribute
+    public ObisCode getProfileObisCode() {
+        return profileObisCode;
     }
 
     @Override

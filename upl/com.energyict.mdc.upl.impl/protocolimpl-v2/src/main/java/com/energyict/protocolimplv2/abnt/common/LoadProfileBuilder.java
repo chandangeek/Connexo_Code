@@ -119,7 +119,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>(loadProfiles.size());
         for (LoadProfileReader reader : loadProfiles) {
-            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(reader.getLoadProfileId()));
+            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(reader.getLoadProfileId(), reader.getProfileObisCode()));
             if (getChannelInfoMap().containsKey(reader)) {
                 readLoadProfileData(reader, collectedLoadProfile);
             } else {

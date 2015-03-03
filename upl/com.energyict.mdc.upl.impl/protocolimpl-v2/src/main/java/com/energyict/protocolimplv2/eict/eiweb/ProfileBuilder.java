@@ -8,6 +8,8 @@ import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -300,7 +302,7 @@ public class ProfileBuilder {
     }
 
     public void addCollectedData (List<CollectedData> collectedData) {
-        DeviceLoadProfile loadProfile = new DeviceLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier()));
+        DeviceLoadProfile loadProfile = new DeviceLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier(), DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
         loadProfile.setCollectedIntervalData(this.profileData.getIntervalDatas(), this.profileData.getChannelInfos());
         loadProfile.setDoStoreOlderValues(this.profileData.shouldStoreOlderValues());
         collectedData.add(loadProfile);

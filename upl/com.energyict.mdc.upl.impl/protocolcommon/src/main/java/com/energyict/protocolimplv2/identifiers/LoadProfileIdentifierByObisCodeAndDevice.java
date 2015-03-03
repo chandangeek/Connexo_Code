@@ -28,7 +28,7 @@ import java.util.List;
 @XmlRootElement
 public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIdentifier {
 
-    private final ObisCode loadProfileObisCode;
+    private final ObisCode profileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
     private LoadProfile loadProfile;
@@ -36,14 +36,20 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public LoadProfileIdentifierByObisCodeAndDevice() {
-        this.loadProfileObisCode = null;
+    private LoadProfileIdentifierByObisCodeAndDevice() {
+        this.profileObisCode = null;
         this.deviceIdentifier = null;
     }
 
-    public LoadProfileIdentifierByObisCodeAndDevice(ObisCode loadProfileObisCode, DeviceIdentifier deviceIdentifier) {
+    @Override
+    @XmlAttribute
+    public ObisCode getProfileObisCode() {
+        return profileObisCode;
+    }
+
+    public LoadProfileIdentifierByObisCodeAndDevice(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
-        this.loadProfileObisCode = loadProfileObisCode;
+        this.profileObisCode = profileObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
 
@@ -52,21 +58,16 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
         if (loadProfile == null) {
             final List<LoadProfile> loadProfiles = getLoadProfileFactory().findByDevice(deviceIdentifier.findDevice());
             for (LoadProfile profile : loadProfiles) {
-                if (profile.getDeviceObisCode().equals(this.loadProfileObisCode)) {
+                if (profile.getDeviceObisCode().equals(this.profileObisCode)) {
                     this.loadProfile = profile;
                     break;
                 }
             }
         }
         if (this.loadProfile == null) {
-            throw new NotFoundException("LoadProfile with ObisCode " + loadProfileObisCode + " for device with " + deviceIdentifier.toString() + " not found");
+            throw new NotFoundException("LoadProfile with ObisCode " + profileObisCode + " for device with " + deviceIdentifier.toString() + " not found");
         }
         return loadProfile;
-    }
-
-    @XmlAttribute
-    public ObisCode getLoadProfileObisCode() {
-        return loadProfileObisCode;
     }
 
     @XmlAttribute
@@ -81,7 +82,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
 
     @Override
     public List<Object> getIdentifier() {
-        return Collections.toList((Object) getDeviceIdentifier(), getLoadProfileObisCode());
+        return Collections.toList((Object) getDeviceIdentifier(), getProfileObisCode());
     }
 
     @XmlElement(name = "type")
@@ -95,7 +96,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
 
     @Override
     public String toString() {
-        return "deviceIdentifier = " + deviceIdentifier + " and ObisCode = " + loadProfileObisCode;
+        return "deviceIdentifier = " + deviceIdentifier + " and ObisCode = " + profileObisCode;
     }
 
     private LoadProfileFactory getLoadProfileFactory() {

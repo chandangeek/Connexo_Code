@@ -7,6 +7,7 @@ import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -24,17 +25,27 @@ import java.util.List;
 @XmlRootElement
 public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
 
-    private DeviceIdentifier deviceIdentifier;
+    private final ObisCode profileObisCode;
+    private final DeviceIdentifier deviceIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public FirstLoadProfileOnDevice() {
+    private FirstLoadProfileOnDevice() {
+        this.profileObisCode = null;
+        this.deviceIdentifier = null;
     }
 
-    public FirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier) {
+    public FirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier, ObisCode profileObisCode) {
         super();
         this.deviceIdentifier = deviceIdentifier;
+        this.profileObisCode = profileObisCode;
+    }
+
+    @Override
+    @XmlAttribute
+    public ObisCode getProfileObisCode() {
+        return profileObisCode;
     }
 
     @Override
