@@ -719,6 +719,7 @@ Ext.define('Dxp.controller.Tasks', {
             record.beginEdit();
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
+                form.down('#readingTypesGridPanel').removeCls('error-border');
             }
             if (button.action === 'editTask') {
                 record.readingTypes().removeAll();
@@ -831,6 +832,7 @@ Ext.define('Dxp.controller.Tasks', {
                     if (json && json.errors) {
                         Ext.Array.each(json.errors, function (item) {
                             if (item.id.indexOf("readingTypes") !== -1) {
+                                form.down('#readingTypesGridPanel').addCls('error-border');
                                 form.down('#readingTypesFieldContainer').setActiveError(item.msg);
                             }
                         });
