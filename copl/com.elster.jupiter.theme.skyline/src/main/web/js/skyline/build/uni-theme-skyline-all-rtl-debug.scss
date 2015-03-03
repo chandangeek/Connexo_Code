@@ -1,4 +1,4 @@
-$image-search-path: '/home/dev/Documents/Workspace/jupiter/com.elster.jupiter.theme.skyline/src/main/web/js/skyline/build/resources' !default;
+$image-search-path: 'D:/jupiter/com.elster.jupiter.theme.skyline/src/main/web/js/skyline/build/resources' !default;
 $theme-name:  'uni-theme-skyline' !default;
 $include-ext-abstractcomponent: true;
 $include-ext-abstractmanager: true;
@@ -544,6 +544,7 @@ $include-extthemeneptune-toolbar-toolbar: true;
 @import '../sass/var/window/Window';
 @import '../sass/var/form/Labelable';
 @import '../sass/var/form/field/Base';
+@import '../sass/var/form/field/CheckBox';
 @import '../sass/var/picker/Date';
 @import '../sass/var/panel/Table';
 @import '../sass/var/grid/header/Container';

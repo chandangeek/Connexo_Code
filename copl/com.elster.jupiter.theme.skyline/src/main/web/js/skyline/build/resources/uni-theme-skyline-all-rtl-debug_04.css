@@ -4244,6 +4244,11 @@
   color: #686868;
 }
 
+/* line 195, ../../sass/src/panel/Panel.scss */
+.error-border .x-panel-body {
+  border-color: #eb5642 !important;
+}
+
 /* line 1, ../../sass/src/tip/Tip.scss */
 .x-tip {
   border-color: #70bb51;
