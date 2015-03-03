@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,9 @@ import java.util.Set;
 public interface Channel {
 	long getId();
 	MeterActivation getMeterActivation();
+
+    Optional<TemporalAmount> getIntervalLength();
+
     List<? extends ReadingType> getReadingTypes();
     List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval);
     List<ReadingRecord> getRegisterReadings(Range<Instant> interval);

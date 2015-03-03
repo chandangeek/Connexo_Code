@@ -1,27 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import com.elster.jupiter.metering.EventType;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -33,6 +11,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -51,6 +30,25 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public final class ChannelImpl implements ChannelContract {
 
@@ -136,7 +134,8 @@ public final class ChannelImpl implements ChannelContract {
     	return timeSeries.get().getFirstDateTime();
     }
     
-    Optional<TemporalAmount> getIntervalLength() {
+    @Override
+    public Optional<TemporalAmount> getIntervalLength() {
         Iterator<ReadingTypeImpl> it = getReadingTypes().iterator();
         Optional<TemporalAmount> result = ((ReadingTypeImpl) it.next()).getIntervalLength();
         while (it.hasNext()) {
