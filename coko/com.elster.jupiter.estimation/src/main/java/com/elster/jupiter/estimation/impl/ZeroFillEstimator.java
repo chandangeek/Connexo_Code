@@ -13,6 +13,7 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class ZeroFillEstimator extends AbstractEstimator {
 
     @Override
     public List<String> getRequiredProperties() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -60,8 +61,6 @@ public class ZeroFillEstimator extends AbstractEstimator {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        //builder.add(getPropertySpecService().basicPropertySpec(FAIL_EQUAL_DATA, true, new BooleanFactory()));
-        return builder.build();
+        return Collections.emptyList();
     }
 }
