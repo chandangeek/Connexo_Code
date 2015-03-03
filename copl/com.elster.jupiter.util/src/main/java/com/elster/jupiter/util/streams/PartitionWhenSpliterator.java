@@ -48,7 +48,7 @@ class PartitionWhenSpliterator<E> extends Spliterators.AbstractSpliterator<List<
             lastAdded = tempHolder.getValue();
             partition.add(lastAdded);
         }
-        while ((didAdvance = spliterator.tryAdvance(tempHolder)) && !partitionPredicate.test(tempHolder.getValue(), lastAdded));
+        while ((didAdvance = spliterator.tryAdvance(tempHolder)) && !partitionPredicate.test(lastAdded, tempHolder.getValue()));
         if (!didAdvance) {
             holder = null;
         }

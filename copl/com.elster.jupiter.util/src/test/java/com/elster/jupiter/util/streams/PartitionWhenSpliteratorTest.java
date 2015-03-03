@@ -48,7 +48,7 @@ public class PartitionWhenSpliteratorTest {
     @Test
     public void testPartitionByIncreasingOrder() {
         Stream<String> stream = Arrays.asList("Ark", "Azure", "Ball", "Bench", "Almond", "Breach", "Clover", "End", "Evergreen").stream();
-        Stream<List<String>> listStream = PartitionWhenSpliterator.partitionWhen((a, b) -> a.compareTo(b) <= 0, stream);
+        Stream<List<String>> listStream = PartitionWhenSpliterator.partitionWhen((a, b) -> a.compareTo(b) > 0, stream);
         List<List<String>> lists = listStream.collect(Collectors.toList());
 
         assertThat(lists).hasSize(2);
