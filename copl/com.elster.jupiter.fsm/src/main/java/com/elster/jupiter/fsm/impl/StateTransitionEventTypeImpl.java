@@ -1,6 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fsm.StateTransitionEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.impl.constraints.UniqueName;
 import com.elster.jupiter.orm.DataModel;
@@ -10,6 +11,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link StateTransitionEventType} interface.
@@ -64,6 +66,11 @@ public class StateTransitionEventTypeImpl implements StateTransitionEventType {
     @Override
     public String getSymbol() {
         return this.symbol;
+    }
+
+    @Override
+    public StateTransitionEvent newInstance(String sourceId, Map<String, Object> properties) {
+        return this.dataModel.getInstance(StateTransitionEventImpl.class).initialize(this, sourceId, properties);
     }
 
     @Override

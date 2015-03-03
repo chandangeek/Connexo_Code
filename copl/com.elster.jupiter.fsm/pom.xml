@@ -38,6 +38,13 @@
       <artifactId>org.osgi.compendium</artifactId>
     </dependency>
 
+    <!-- Todo: Move me to the parent pom and manage me as a dependency -->
+    <dependency>
+      <groupId>com.github.oxo42</groupId>
+      <artifactId>stateless4j</artifactId>
+      <version>2.5.0</version>
+    </dependency>
+
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>domain.util</artifactId>

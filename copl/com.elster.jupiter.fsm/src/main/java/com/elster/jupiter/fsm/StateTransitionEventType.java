@@ -1,6 +1,7 @@
 package com.elster.jupiter.fsm;
 
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * A StateTransitionEventType models a {@link StateTransitionEvent}
@@ -21,6 +22,15 @@ public interface StateTransitionEventType {
      * @return The symbolic representation
      */
     public String getSymbol();
+
+    /**
+     * Creates a new instance from this StateTransitionEventType.
+     *
+     * @param sourceId The String that uniquely identifies the source of the new event
+     * @param properties The named properties
+     * @return The new event
+     */
+    public StateTransitionEvent newInstance(String sourceId, Map<String, Object> properties);
 
     public long getVersion();
 
