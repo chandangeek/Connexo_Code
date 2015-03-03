@@ -1,5 +1,7 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
@@ -38,20 +40,39 @@ public class EstimationServiceImpl implements EstimationService, InstallService 
     }
 
     @Override
-    public void estimate(MeterActivation meterActivation) {
-        //TODO automatically generated method body, provide implementation.
-
+    public EstimationResult estimate(MeterActivation meterActivation) {
+        List<ReadingType> readingTypes = meterActivation.getReadingTypes();
+        for (ReadingType readingType : readingTypes) {
+            if (estimate(meterActivation, readingType).equals(EstimationResult.COULD_NOT_ESTIMATE)) {
+                return EstimationResult.COULD_NOT_ESTIMATE;
+            }
+        }
+        return EstimationResult.ESTIMATED;
     }
 
     @Override
-    public void estimate(MeterActivation meterActivation, ReadingType readingType) {
-        //TODO automatically generated method body, provide implementation.
-
+    public EstimationResult estimate(MeterActivation meterActivation, ReadingType readingType) {
+        List<Estimator> availableEstimators = this.getAvailableEstimators();
+        for (Estimator estimator : availableEstimators) {
+            EstimationResult estimationResult = estimate(meterActivation, readingType, estimator);
+            if (estimationResult.equals(EstimationResult.ESTIMATED)) {
+                return estimationResult;
+            }
+        }
+        return EstimationResult.COULD_NOT_ESTIMATE;
     }
 
     @Override
-    public void estimate(MeterActivation meterActivation, ReadingType readingType, Estimator estimator) {
-
+    public EstimationResult estimate(MeterActivation meterActivation, ReadingType readingType, Estimator estimator) {
+        List<EstimationBlock> blocksToEstimate =
+                new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+        for (EstimationBlock estimationBlock : blocksToEstimate) {
+            EstimationResult estimationResult = estimator.estimate(estimationBlock);
+            if (estimationResult.equals(EstimationResult.COULD_NOT_ESTIMATE)) {
+                return EstimationResult.COULD_NOT_ESTIMATE;
+            }
+        }
+        return EstimationResult.ESTIMATED;
     }
 
     @Override
