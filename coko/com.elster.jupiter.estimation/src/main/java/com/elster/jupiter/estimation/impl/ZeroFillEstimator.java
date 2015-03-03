@@ -46,7 +46,7 @@ public class ZeroFillEstimator extends AbstractEstimator {
 
     @Override
     public EstimationResult estimate(EstimationBlock estimationBlock) {
-        List<? extends Estimatable> estimatables = estimationBlock.estimatable();
+        List<? extends Estimatable> estimatables = estimationBlock.estimatables();
         for (Estimatable estimatable : estimatables) {
             estimatable.setEstimation(BigDecimal.ZERO);
         }
