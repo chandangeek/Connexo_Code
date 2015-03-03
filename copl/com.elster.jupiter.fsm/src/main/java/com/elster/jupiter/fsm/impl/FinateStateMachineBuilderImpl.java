@@ -3,7 +3,6 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineBuilder;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
 
@@ -37,11 +36,6 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
     }
 
     @Override
-    public TransitionSourceBuilder on(StateTransitionEventType eventType) {
-        return new TransitionSourceBuilderImpl(eventType);
-    }
-
-    @Override
     public FinateStateMachine complete() {
         this.state.complete();
         this.state = new Complete();
@@ -51,31 +45,13 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
     private interface BuildState {
         StateBuilder newState(String name);
         FinateStateMachine complete();
-        void completed(StateBuilder stateBuilder);
     }
 
     private class UnderConstruction implements BuildState {
-        private StateBuilder stateUnderConstruction;
 
         @Override
         public StateBuilder newState(String name) {
-            if (this.stateUnderConstruction == null) {
-                this.stateUnderConstruction = doNewState(name);
-                return this.stateUnderConstruction;
-            }
-            else {
-                throw new IllegalStateException("The ongoing state building process should be completed first");
-            }
-        }
-
-        @Override
-        public void completed(StateBuilder stateBuilder) {
-            if (this.stateUnderConstruction == stateBuilder) {
-                this.stateUnderConstruction = null;
-            }
-            else {
-                throw new IllegalStateException("CodingException: receiving completed event from unknown StateBuilder");
-            }
+            return doNewState(name);
         }
 
         @Override
@@ -90,11 +66,6 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         public StateBuilder newState(String name) {
             illegalStateException();
             return null;
-        }
-
-        @Override
-        public void completed(StateBuilder stateBuilder) {
-            illegalStateException();
         }
 
         @Override
@@ -118,6 +89,11 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         }
 
         @Override
+        public TransitionBuilder on(StateTransitionEventType eventType) {
+            return new TransitionBuilderImpl(this, eventType, this.underConstruction);
+        }
+
+        @Override
         public StateBuilder onEntry(String deploymentId, String processId) {
             this.underConstruction.addOnEntry(deploymentId, processId);
             return this;
@@ -132,40 +108,38 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         @Override
         public State complete() {
             FinateStateMachineBuilderImpl.this.underConstruction.add(this.underConstruction);
-            FinateStateMachineBuilderImpl.this.state.completed(this);
             return this.underConstruction;
         }
     }
 
-    private class TransitionSourceBuilderImpl implements TransitionSourceBuilder {
-        private final StateTransitionEventType eventType;
-
-        private TransitionSourceBuilderImpl(StateTransitionEventType eventType) {
-            super();
-            this.eventType = eventType;
-        }
-
-        @Override
-        public TransitionTargetBuilder transitionFrom(State state) {
-            return new TransitionTargetBuilderImpl(this.eventType, state);
-        }
-    }
-
-    private class TransitionTargetBuilderImpl implements TransitionTargetBuilder {
+    private class TransitionBuilderImpl implements TransitionBuilder {
+        private final StateBuilder continuation;
         private final StateTransitionEventType eventType;
         private final State from;
 
-        private TransitionTargetBuilderImpl(StateTransitionEventType eventType, State from) {
+        private TransitionBuilderImpl(StateBuilder continuation, StateTransitionEventType eventType, State from) {
             super();
+            this.continuation = continuation;
             this.eventType = eventType;
             this.from = from;
         }
 
         @Override
-        public StateTransition to(State state) {
+        public StateBuilder transitionTo(State state) {
             StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, state, this.eventType);
             underConstruction.add(stateTransition);
-            return stateTransition;
+            return this.continuation;
+        }
+
+        @Override
+        public StateBuilder transitionTo(StateBuilder stateBuilder) {
+            return this.transitionTo((StateBuilderImpl) stateBuilder);
+        }
+
+        private StateBuilder transitionTo(StateBuilderImpl stateBuilder) {
+            StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, stateBuilder.underConstruction, this.eventType);
+            underConstruction.add(stateTransition);
+            return this.continuation;
         }
     }
 }

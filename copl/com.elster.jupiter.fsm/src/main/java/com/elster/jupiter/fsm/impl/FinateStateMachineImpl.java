@@ -62,7 +62,6 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     private String name;
     @Valid
     private List<State> states = new ArrayList<>();
-    private List<State> newStates = new ArrayList<>();
     @Valid
     private List<StateTransition> transitions = new ArrayList<>();
     private String userName;
@@ -107,13 +106,11 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     @Override
     public List<? extends State> getStates() {
-        List<State> allStates = new ArrayList<>(this.states);
-        allStates.addAll(this.newStates);
-        return Collections.unmodifiableList(allStates);
+        return Collections.unmodifiableList(this.states);
     }
 
     void add(State state) {
-        this.newStates.add(state);
+        this.states.add(state);
     }
 
     @Override
@@ -128,17 +125,6 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     @Override
     public void save() {
         Save.action(this.id).save(this.dataModel, this);
-        this.saveNewStates();
-    }
-
-    private void saveNewStates() {
-        this.newStates.forEach(this::save);
-        this.newStates = new ArrayList<>();
-    }
-
-    private void save(State state) {
-        Save.CREATE.validate(this.dataModel, state);
-        this.states.add(state);
     }
 
     @Override

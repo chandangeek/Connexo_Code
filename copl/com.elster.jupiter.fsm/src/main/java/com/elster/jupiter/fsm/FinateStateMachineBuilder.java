@@ -19,8 +19,6 @@ public interface FinateStateMachineBuilder {
      */
     public StateBuilder newState(String name);
 
-    public TransitionSourceBuilder on(StateTransitionEventType eventType);
-
     /**
      * Completes the building process, returning the {@link FinateStateMachine}
      * that was built from the instructions.
@@ -59,16 +57,23 @@ public interface FinateStateMachineBuilder {
          */
         public StateBuilder onExit(String deploymentId, String processId);
 
+        /**
+         * Assists in building a {@link StateTransition} from the {@link State}
+         * that is being built here to another State when the specified
+         * {@link StateTransitionEventType} occurs.
+         *
+         * @param eventType The StateTransitionEventType
+         * @return The builder on which you will specify the target State
+         */
+        public TransitionBuilder on(StateTransitionEventType eventType);
+
         public State complete();
 
     }
 
-    public interface TransitionSourceBuilder {
-        public TransitionTargetBuilder transitionFrom(State state);
-    }
-
-    public interface TransitionTargetBuilder {
-        public StateTransition to(State state);
+    public interface TransitionBuilder {
+        public StateBuilder transitionTo(State state);
+        public StateBuilder transitionTo(StateBuilder state);
     }
 
 }
