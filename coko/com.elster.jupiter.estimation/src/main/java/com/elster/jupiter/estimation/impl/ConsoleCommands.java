@@ -45,7 +45,7 @@ public class ConsoleCommands {
         builder.append("Block channel : ").append(estimationBlock.getChannel().getId()).append('\n')
                 .append("  readingType : ").append(estimationBlock.getReadingType().getMRID()).append('\n');
 
-        estimationBlock.estimatable().stream()
+        estimationBlock.estimatables().stream()
                 .map(Estimatable::getTimestamp)
                 .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
                 .map(FORMATTER::format)

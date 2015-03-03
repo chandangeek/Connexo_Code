@@ -11,7 +11,7 @@ public interface EstimationBlock {
 
     ReadingType getReadingType();
 
-    List<? extends Estimatable> estimatable();
+    List<? extends Estimatable> estimatables();
 
     void applyEstimations();
 }

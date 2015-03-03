@@ -35,7 +35,7 @@ class SimpleEstimationBlock implements EstimationBlock {
     }
 
     @Override
-    public List<? extends Estimatable> estimatable() {
+    public List<? extends Estimatable> estimatables() {
         return estimatables;
     }
 
