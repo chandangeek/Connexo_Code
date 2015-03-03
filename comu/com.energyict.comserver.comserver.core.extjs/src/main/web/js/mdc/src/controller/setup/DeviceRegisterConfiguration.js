@@ -163,7 +163,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 }
             });
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/registers/' + me.registerId + '/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -200,7 +200,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             confWindow.down('#validateRegisterDateErrors').setVisible(true);
         } else {
             Ext.Ajax.request({
-                url: '../../api/ddr/devices/' + me.mRID + '/registers/' + me.registerId + '/validate',
+                url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/validate',
                 method: 'PUT',
                 jsonData: {
                     lastChecked: confWindow.down('#validateRegisterFromDate').getValue().getTime()

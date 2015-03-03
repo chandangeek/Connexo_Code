@@ -20,7 +20,7 @@ Ext.define('Mdc.store.DeviceMessageCategories', {
     },
     setMrid: function (mrid) {
         var me = this;
-        me.getProxy().url = me.url + mrid + me.categoriesPostfix
+        me.getProxy().url = me.url + encodeURIComponent(mrid) + me.categoriesPostfix
     }
 
 });

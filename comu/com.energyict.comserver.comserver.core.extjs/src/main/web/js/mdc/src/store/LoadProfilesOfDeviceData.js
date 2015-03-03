@@ -19,7 +19,7 @@ Ext.define('Mdc.store.LoadProfilesOfDeviceData', {
         limitParam: false,
 
         setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{loadProfileId}', params.loadProfileId);
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{loadProfileId}', params.loadProfileId);
         }
     },
     setFilterModel: function (model) {

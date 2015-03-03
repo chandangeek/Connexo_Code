@@ -14,9 +14,9 @@ Ext.define('Mdc.store.LogbookOfDeviceData', {
 
         setUrl: function (params) {
             if (Ext.isDefined(params.logbookId)) {
-                this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{logbookId}', '/' + params.logbookId + '/');
+                this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{logbookId}', '/' + params.logbookId + '/');
             } else {
-                this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{logbookId}', '/');
+                this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{logbookId}', '/');
             }
         }
     },

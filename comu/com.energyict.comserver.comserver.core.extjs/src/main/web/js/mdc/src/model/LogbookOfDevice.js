@@ -17,7 +17,7 @@ Ext.define('Mdc.model.LogbookOfDevice', {
         },
 
         setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', mRID);
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

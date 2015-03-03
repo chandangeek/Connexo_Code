@@ -168,7 +168,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             mRID = me.mRID ? me.mRID : router.arguments.mRID;
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -246,7 +246,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             confWindow.down('#validateChannelDateErrors').setVisible(true);
         } else {
             Ext.Ajax.request({
-                url: '../../api/ddr/devices/' + mRID + '/channels/' + record.get('id') + '/validate',
+                url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/channels/' + record.get('id') + '/validate',
                 method: 'PUT',
                 jsonData: {
                     lastChecked: confWindow.down('#validateChannelFromDate').getValue().getTime()

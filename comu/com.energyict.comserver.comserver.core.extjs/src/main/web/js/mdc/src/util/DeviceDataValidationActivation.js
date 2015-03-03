@@ -17,7 +17,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             view.down('#deviceDataValidationStateChangeBtn').setDisabled(true);
         }
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
             callback: function () {
@@ -61,7 +61,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 }
             });
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
             success: function (response) {
@@ -99,7 +99,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         }
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'PUT',
             jsonData: {
                 isActive: 'true',
@@ -161,7 +161,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         Ext.Ajax.suspendEvent('requestexception');
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validate',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validate',
             method: 'PUT',
             timeout: 600000,
             success: function () {
@@ -271,7 +271,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     deactivateDataValidation: function (view) {
         var me = this;
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'PUT',
             jsonData: {
                 isActive: 'false'

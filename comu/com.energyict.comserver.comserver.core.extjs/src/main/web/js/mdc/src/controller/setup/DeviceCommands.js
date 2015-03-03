@@ -156,7 +156,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     triggerCommand: function (mRID, comTaskId) {
         var me = this;
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + mRID + '/comtasks/' + comTaskId + '/runnow',
+            url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/comtasks/' + comTaskId + '/runnow',
             method: 'PUT',
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
@@ -178,7 +178,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 if (btnId == 'confirm') {
                     record.set('status', {value: 'CommandRevoked'});
                     record.save({
-                        url: '/api/ddr/devices/' + mRID + '/devicemessages/',
+                        url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/devicemessages/',
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
                             me.getDeviceCommandsGrid().getStore().load()
@@ -375,7 +375,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             record.set('status', null);
             record.endEdit();
             record.save({
-                url: '/api/ddr/devices/' + btn.mRID + '/devicemessages',
+                url: '/api/ddr/devices/' + encodeURIComponent(btn.mRID) + '/devicemessages',
                 method: 'POST',
                 success: function (record, operation) {
                     if (operation.success) {

@@ -20,7 +20,7 @@ Ext.define('Mdc.store.ChannelOfLoadProfileOfDeviceData', {
         limitParam: false,
 
         setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{channelId}', params.channelId);
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{channelId}', params.channelId);
         }
     },
     setFilterModel: function (model) {

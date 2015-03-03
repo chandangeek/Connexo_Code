@@ -325,7 +325,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var request = {};
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + this.mrid + '/schedules/' + record.getId(),
+            url: '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/schedules/' + record.getId(),
             method: 'DELETE',
             params: '',
             jsonData: jsonData,
@@ -380,7 +380,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         request.id = this.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0].get('id');
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + me.mrid + '/schedules',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
             method: 'PUT',
             params: '',
             jsonData: jsonData,
@@ -403,7 +403,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         request.schedule = scheduleField.getValue();
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + me.mrid + '/schedules',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
             method: 'POST',
             params: '',
             jsonData: jsonData,
@@ -423,7 +423,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         request.id = this.getOnRequestCommunicationScheduleGrid().getSelectionModel().getSelection()[0].get('comTaskInfos')[0].id;
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + me.mrid + '/schedules',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
             method: 'POST',
             params: '',
             jsonData: jsonData,
@@ -444,7 +444,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         request.schedule = scheduleField.getValue();
         jsonData = Ext.encode(request);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + me.mrid + '/schedules',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
             method: 'PUT',
             params: '',
             jsonData: jsonData,

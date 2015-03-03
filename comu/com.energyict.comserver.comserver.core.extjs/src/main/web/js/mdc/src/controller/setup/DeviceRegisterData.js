@@ -136,7 +136,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             dataStore.load();
                         };
                         if (registersOfDeviceStore.getTotalCount() === 0) {
-                            registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', mRID);
+                            registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', encodeURIComponent(mRID));
                             registersOfDeviceStore.load(function () {
                                 func();
                             });

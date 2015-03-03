@@ -70,7 +70,7 @@ Ext.define('Mdc.model.DeviceCommunication', {
         },
 
         setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', mRID);
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

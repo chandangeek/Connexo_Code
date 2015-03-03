@@ -8,7 +8,7 @@ Ext.define('Mdc.store.DeviceCommands', {
     commandsPostfix: '/devicemessages',
     setMrid: function (mrid) {
         var me = this;
-        me.getProxy().url = me.url + mrid + me.commandsPostfix;
+        me.getProxy().url = me.url + encodeURIComponent(mrid) + me.commandsPostfix;
         return me
     }
 });

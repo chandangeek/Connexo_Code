@@ -139,7 +139,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             mRID = me.mRID ? me.mRID : router.arguments.mRID;
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -187,7 +187,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             confWindow.down('#validateLoadProfileDateErrors').setVisible(true);
         } else {
             Ext.Ajax.request({
-                url: '../../api/ddr/devices/' + mRID + '/loadprofiles/' + loadProfileId + '/validate',
+                url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/loadprofiles/' + loadProfileId + '/validate',
                 method: 'PUT',
                 jsonData: {
                     lastChecked: confWindow.down('#validateLoadProfileFromDate').getValue().getTime()

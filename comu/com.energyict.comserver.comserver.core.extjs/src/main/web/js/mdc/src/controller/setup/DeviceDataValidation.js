@@ -57,7 +57,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 Ext.Ajax.request({
-                    url: '/api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+                    url: '/api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
                     method: 'GET',
                     timeout: 60000,
                     success: function () {
@@ -157,7 +157,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             ruleSetName = record.get('name'),
             ruleSetIsActive = record.get('isActive');
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/' + ruleSetId + '/status',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/' + ruleSetId + '/status',
             method: 'PUT',
             jsonData: (!ruleSetIsActive).toString(),
             success: function () {
