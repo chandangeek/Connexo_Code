@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -267,4 +268,7 @@ public class DecoratedStream<T> implements Stream<T> {
         return new DecoratedStream<>(StreamSupport.stream(new GroupPerSpliterator<T>(decorated.spliterator(), n), decorated.isParallel()));
     }
 
+    public DecoratedStream<List<T>> partitionWhen(BiPredicate<? super T, ? super T> startNewPartition) {
+        return new DecoratedStream<>(StreamSupport.stream(new PartitionWhenSpliterator<T>(decorated.spliterator(), startNewPartition), decorated.isParallel()));
+    }
 }
