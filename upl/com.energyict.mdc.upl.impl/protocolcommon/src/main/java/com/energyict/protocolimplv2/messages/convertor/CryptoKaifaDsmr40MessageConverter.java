@@ -15,8 +15,6 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
  */
 public class CryptoKaifaDsmr40MessageConverter extends KaifaDsmr40MessageConverter {
 
-    protected static boolean supportBreaker = false;
-
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
@@ -27,13 +25,11 @@ public class CryptoKaifaDsmr40MessageConverter extends KaifaDsmr40MessageConvert
         registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_EK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
 
         //Contactor change is (by default) not supported in the crypto protocols
-        if (!supportBreaker) {
-            registry.remove(ContactorDeviceMessage.CONTACTOR_OPEN);
-            registry.remove(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-            registry.remove(ContactorDeviceMessage.CONTACTOR_CLOSE);
-            registry.remove(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-            registry.remove(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
-        }
+        registry.remove(ContactorDeviceMessage.CONTACTOR_OPEN);
+        registry.remove(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
+        registry.remove(ContactorDeviceMessage.CONTACTOR_CLOSE);
+        registry.remove(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
+        registry.remove(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
     }
 
     public CryptoKaifaDsmr40MessageConverter() {
