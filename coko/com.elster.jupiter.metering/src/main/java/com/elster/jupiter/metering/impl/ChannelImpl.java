@@ -414,9 +414,7 @@ public final class ChannelImpl implements ChannelContract {
         boolean regular = isRegular();
         List<TimeSeriesEntry> entries = getTimeSeries().getEntriesOnOrBefore(when, readingCount);
         ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
-        for (TimeSeriesEntry entry : entries) {
-            builder.add(createReading(regular, entry));
-        }
+        entries.forEach(entry -> builder.add(createReading(regular, entry)));
         return builder.build();
     }
 
