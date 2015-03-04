@@ -24,6 +24,7 @@ enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<IKpiMember> table = dataModel.addTable(name(), IKpiMember.class);
             table.map(KpiMemberImpl.class);
+            table.setJournalTableName("KPI_KPIMEMBERJRNL");
             Column kpiColumn = table.column("KPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column positionColumn = table.column("POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
             table.column("NAME").varChar(Table.NAME_LENGTH).map("name").add();
