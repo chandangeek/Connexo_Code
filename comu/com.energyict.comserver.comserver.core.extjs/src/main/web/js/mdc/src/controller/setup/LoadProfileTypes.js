@@ -237,18 +237,27 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             currentRoute = router.currentRoute.replace('/addregistertypes', ''),
             addRegisterTypesLink = router.getRoute(currentRoute + '/addregistertypes').buildUrl(),
             registerTypesStore = me.getStore('Mdc.store.RegisterTypesToAdd'),
-            intervalsStore = me.getStore('Mdc.store.Intervals'),
-            widget,
-            form;
+            intervalsStore = me.getStore('Mdc.store.Intervals'), widget, form;
 
         if (me.getEditPage()) {
-            this.getEditPage().getLayout().setActiveItem(0);
+            if (id) {
+                me.getModel('Mdc.model.LoadProfileType').load(id, {
+                    success: function (record) {
+                        me.getEditPage().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                        me.getEditPage().getLayout().setActiveItem(0);
+                    }
+                });
+            } else {
+                me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
+                me.getEditPage().getLayout().setActiveItem(0);
+            }
             return;
         }
 
         widget = Ext.widget('load-profile-type-edit', {
             currentRoute: router.getRoute(currentRoute).buildUrl()
         });
+
         me.getApplication().fireEvent('changecontentevent', widget);
         form = widget.down('#load-profile-type-edit-form');
         form.down('combobox[name=timeDuration]').bindStore(intervalsStore);
@@ -280,13 +289,13 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     }
                 },
                 callback: function (record) {
-                    form.setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                    me.getEditPage().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
                     form.setEdit(true, returnLink, addRegisterTypesLink);
                     widget.setLoading(false);
                 }
             });
         } else {
-            form.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
+            me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
             form.setEdit(false, returnLink, addRegisterTypesLink);
             form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
         }
@@ -303,8 +312,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         }
 
         me.getEditPage().getLayout().setActiveItem(1);
+        me.getEditPage().setTitle(Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesView.title', 'MDC', 'Add register types'));
 
-        me.getEditPage().setLoading(true);
         if (id) {
             me.getModel('Mdc.model.LoadProfileType').load(id, {
                 success: function (record) {
@@ -340,7 +349,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     selectAssignedRegisterTypes: function (assignedRegisterTypes, store) {
         var assignedRegisterTypesModels = [];
-        Ext.each(_.map(assignedRegisterTypes, function (rt) { return rt.id }), function (id) {
+        Ext.each(_.map(assignedRegisterTypes, function (rt) {
+            return rt.id
+        }), function (id) {
             assignedRegisterTypesModels.push(store.getById(id));
         });
         return assignedRegisterTypesModels;

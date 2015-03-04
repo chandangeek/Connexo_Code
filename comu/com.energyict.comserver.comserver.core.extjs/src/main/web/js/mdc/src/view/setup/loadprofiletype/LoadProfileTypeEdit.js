@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEdit', {
         me.content = {
             itemId: 'load-profile-type-edit',
             layout: 'card',
+            ui: 'large',
             items: [
                 {
                     xtype: 'load-profile-type-edit-form',
@@ -23,7 +24,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEdit', {
                     xtype: 'load-profile-type-add-register-types-grid',
                     itemId: 'load-profile-type-add-register-types-grid',
                     ui: 'large',
-                    title: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesView.title', 'MDC', 'Add register types'),
                     cancelHref: me.currentRoute
                 }
             ]
