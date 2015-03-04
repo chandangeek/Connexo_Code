@@ -291,12 +291,12 @@ set /p ENCRYPTED_PASSWORD= < password.tmp
 del password.tmp
 
 copy partners\facts\open-reports.xml datasource.xml
-cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml {$jdbc} %jdbcUrl%
-cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml {$user} %dbUserName%
-cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml {$password} %ENCRYPTED_PASSWORD%
-cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml {$host} %FACTS_DB_HOST%
-cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml {$port} %FACTS_DB_PORT%
-cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml {$instance} %FACTS_DB_NAME%
+cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml ${jdbc} %jdbcUrl%
+cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml ${user} %dbUserName%
+cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml ${password} %ENCRYPTED_PASSWORD%
+cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml ${host} %FACTS_DB_HOST%
+cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml ${port} %FACTS_DB_PORT%
+cscript //NoLogo "%CONNEXO_DIR%/bin/replace.vbs" datasource.xml ${instance} %FACTS_DB_NAME%
 
 "%JAVA_HOME%/bin/java" -cp partners\facts\yellowfin.installer.jar com.elster.jupiter.install.reports.OpenReports datasource.xml http://localhost:%TOMCAT_HTTP_PORT%/facts %CONNEXO_ADMIN_ACCOUNT% %CONNEXO_ADMIN_PASSWORD%
 del datasource.xml
