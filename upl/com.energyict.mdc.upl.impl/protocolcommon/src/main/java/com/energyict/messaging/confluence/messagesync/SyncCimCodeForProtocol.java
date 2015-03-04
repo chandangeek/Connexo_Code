@@ -75,6 +75,8 @@ public class SyncCimCodeForProtocol {
                     tableRowContent = tableRowMatcher.group(0);
 
                     eiserverEventCode = eiserverEventCode.replace("<p class=\"TableBody\">","");
+                    eiserverEventCode = eiserverEventCode.replace("<p align=\"right\">", "");
+                    eiserverEventCode = eiserverEventCode.replace("<p align=\"right\" class=\"TableBody\">", "");
                     eiserverEventCode = eiserverEventCode.replace("</p>","");
                     eiserverEventCode = eiserverEventCode.replace("<p>","");
                     eiserverEventCode = eiserverEventCode.replace("0X","0x");
