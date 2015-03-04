@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.cbo.HexString;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 
 /**
@@ -15,6 +17,8 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
  */
 public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
 
+    protected static boolean supportBreaker = false;
+
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
@@ -23,6 +27,15 @@ public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
         registry.put(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_HLSSECRET, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
         registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_AK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
         registry.put(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY, new MultipleAttributeMessageEntry(RtuMessageConstant.SERVICEKEY_EK, RtuMessageConstant.SERVICEKEY_PREPAREDDATA, RtuMessageConstant.SERVICEKEY_SIGNATURE, RtuMessageConstant.SERVICEKEY_VERIFYKEY));
+
+        //Contactor change is (by default) not supported in the crypto protocols
+        if (!supportBreaker) {
+            registry.remove(ContactorDeviceMessage.CONTACTOR_OPEN);
+            registry.remove(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
+            registry.remove(ContactorDeviceMessage.CONTACTOR_CLOSE);
+            registry.remove(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
+            registry.remove(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
+        }
     }
 
     public CryptoDsmr23MessageConverter() {
