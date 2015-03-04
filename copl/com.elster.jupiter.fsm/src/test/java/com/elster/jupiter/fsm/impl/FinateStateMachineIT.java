@@ -296,6 +296,22 @@ public class FinateStateMachineIT {
     }
 
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.UNIQUE_STATE_NAME, strict = false)
+    @Test
+    public void createStateMachineWithTwiceTheSameStateName() {
+        String expectedName = "createStateMachineWithTwiceTheSameStateName";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName);
+        builder.newState("State").complete();
+        builder.newState("State").complete();
+        FinateStateMachine stateMachine = builder.complete();
+
+        // Business method
+        stateMachine.save();
+
+        // Asserts: see expected contraint violation rule
+    }
+
+    @Transactional
     @Test(expected = IllegalStateException.class)
     public void addStateAfterCompletion() {
         String expectedName = "completeTwice";

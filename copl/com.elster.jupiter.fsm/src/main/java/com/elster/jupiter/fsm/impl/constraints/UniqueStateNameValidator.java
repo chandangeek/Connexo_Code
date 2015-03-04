@@ -34,7 +34,13 @@ public class UniqueStateNameValidator implements ConstraintValidator<UniqueName,
                     .getStates()
                     .stream()
                     .map(State::getName)
-                    .count() == 1;
+                    .filter(this::isNotNull)
+                    .filter(stateName -> stateName.equals(state.getName()))
+                    .count() <= 1;
+    }
+
+    private boolean isNotNull(String mistery) {
+        return mistery != null && !mistery.isEmpty();
     }
 
 }
