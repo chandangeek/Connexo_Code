@@ -2,6 +2,7 @@ package com.elster.jupiter.fsm.impl.constraints;
 
 import com.elster.jupiter.fsm.FinateStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -34,13 +35,9 @@ public class UniqueStateNameValidator implements ConstraintValidator<UniqueName,
                     .getStates()
                     .stream()
                     .map(State::getName)
-                    .filter(this::isNotNull)
+                    .filter(stateName -> !Checks.is(stateName).empty())
                     .filter(stateName -> stateName.equals(state.getName()))
                     .count() <= 1;
-    }
-
-    private boolean isNotNull(String mistery) {
-        return mistery != null && !mistery.isEmpty();
     }
 
 }
