@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.Privileges;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
@@ -19,11 +20,13 @@ public class Installer {
 
     private final DataModel dataModel;
     private final UserService userService;
+    private final EventService eventService;
 
-    public Installer(DataModel dataModel, UserService userService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     public void install(boolean executeDdl) {
@@ -34,6 +37,7 @@ public class Installer {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         this.createPrivileges();
+        this.createEventTypes();
     }
 
     private void createPrivileges() {
@@ -44,6 +48,16 @@ public class Installer {
                 new String[]{
                         Privileges.CONFIGURE_FINATE_STATE_MACHINES,
                         Privileges.VIEW_FINATE_STATE_MACHINES});
+    }
+
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            try {
+                eventType.install(this.eventService);
+            } catch (Exception e) {
+                this.logger.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
     }
 
 }

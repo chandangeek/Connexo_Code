@@ -1,11 +1,12 @@
 <html><body><h1>com.elster.jupiter.fsm</h1>
 <p>This bundle provides support for finate state machines.
 The main interface is FinateStateMachine, a named wrapper for a set of States and StateTransitions.
-Every State can be configured to trigger an external process on entry and on exit.
+Every State can be configured to trigger one or more external processes on entry and on exit.
 As events are produced, the finate state machine will respond to the event and change the state accordingly.
+When state actually changes, a new event is produced that can be picked up by other components
+that could e.g. change the actual persisted state of a device.
 Events are globally defined and can therefore be reused across different state machines.
 Currently, the external processes are defined in jBPM.
-States can be "standard" and linked to the device life cycle management. Finate state machine that contain these standard device life cycle management states are in fact DeviceLifeCycleFinateStateMachines.
 </p>
 <h2>Release History</h2>
 <h3>Version 1.0.0</h3>

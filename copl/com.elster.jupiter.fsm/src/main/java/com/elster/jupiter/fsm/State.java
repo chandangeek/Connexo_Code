@@ -19,6 +19,8 @@ public interface State {
 
     public FinateStateMachine getFinateStateMachine();
 
+    public List<StateTransition> getOutgoingStateTransitions();
+
     public List<ProcessReference> getOnEntryProcesses();
 
     public List<ProcessReference> getOnExitProcesses();

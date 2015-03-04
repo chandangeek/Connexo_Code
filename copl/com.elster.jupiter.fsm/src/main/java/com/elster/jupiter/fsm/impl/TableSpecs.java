@@ -29,6 +29,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column name = table.column("NAME").varChar().notNull().map(FinateStateMachineImpl.Fields.NAME.fieldName()).add();
+            Column topic = table.column("TOPIC").varChar().notNull().map(FinateStateMachineImpl.Fields.TOPIC.fieldName()).add();
             table.unique("UK_FSM_FINATESTATEMACHINE").on(name).add();
             table.primaryKey("PK_FSM_FINATESTATEMACHINE").on(id).add();
         }

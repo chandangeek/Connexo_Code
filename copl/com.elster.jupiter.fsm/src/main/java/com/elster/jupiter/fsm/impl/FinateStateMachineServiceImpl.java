@@ -1,10 +1,9 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineBuilder;
 import com.elster.jupiter.fsm.FinateStateMachineService;
-import com.elster.jupiter.fsm.ProcessReference;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -40,6 +39,7 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
     private volatile UserService userService;
+    private volatile EventService eventService;
     private Thesaurus thesaurus;
 
     // For OSGi purposes
@@ -49,18 +49,19 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
 
     // For unit testing purposes
     @Inject
-    public FinateStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService) {
+    public FinateStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setUserService(userService);
+        this.setEventService(eventService);
         this.activate();
         this.install();
     }
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.userService).install(true);
+        new Installer(this.dataModel, this.userService, eventService).install(true);
     }
 
     @Override
@@ -127,6 +128,11 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
         this.userService = userService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     @Override
     public StateTransitionEventType newStateTransitionEventType(String symbol) {
         return this.dataModel.getInstance(StateTransitionEventTypeImpl.class).initialize(symbol);
@@ -140,8 +146,8 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
     }
 
     @Override
-    public FinateStateMachineBuilder newFinateStateMachine(String name) {
-        FinateStateMachineImpl stateMachine = this.dataModel.getInstance(FinateStateMachineImpl.class).initialize(name);
+    public FinateStateMachineBuilder newFinateStateMachine(String name, String topic) {
+        FinateStateMachineImpl stateMachine = this.dataModel.getInstance(FinateStateMachineImpl.class).initialize(name, topic);
         return new FinateStateMachineBuilderImpl(dataModel, stateMachine);
     }
 

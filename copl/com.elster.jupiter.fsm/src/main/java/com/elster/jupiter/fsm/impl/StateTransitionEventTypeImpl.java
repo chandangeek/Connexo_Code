@@ -1,7 +1,8 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fsm.StateTransitionEvent;
+import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.impl.constraints.UniqueName;
 import com.elster.jupiter.orm.DataModel;
@@ -69,8 +70,8 @@ public class StateTransitionEventTypeImpl implements StateTransitionEventType {
     }
 
     @Override
-    public StateTransitionEvent newInstance(String sourceId, Map<String, Object> properties) {
-        return this.dataModel.getInstance(StateTransitionEventImpl.class).initialize(this, sourceId, properties);
+    public StateTransitionTriggerEvent newInstance(FinateStateMachine finateStateMachine, String sourceId, String sourceCurrentStateName, Map<String, Object> properties) {
+        return this.dataModel.getInstance(StateTransitionTriggerEventImpl.class).initialize(this, finateStateMachine, sourceId, properties, sourceCurrentStateName);
     }
 
     @Override

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link FinateStateMachine} interface.
@@ -40,6 +41,7 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     public enum Fields {
         NAME("name"),
+        TOPIC("topic"),
         STATES("states"),
         TRANSITIONS("transitions");
 
@@ -60,6 +62,9 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    private String topic;
     @Valid
     private List<State> states = new ArrayList<>();
     @Valid
@@ -74,8 +79,9 @@ public class FinateStateMachineImpl implements FinateStateMachine {
         this.dataModel = dataModel;
     }
 
-    public FinateStateMachineImpl initialize(String name) {
+    public FinateStateMachineImpl initialize(String name, String topic) {
         this.name = name;
+        this.topic = topic;
         return this;
     }
 
@@ -105,8 +111,18 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     }
 
     @Override
-    public List<? extends State> getStates() {
+    public String getTopic() {
+        return this.topic;
+    }
+
+    @Override
+    public List<State> getStates() {
         return Collections.unmodifiableList(this.states);
+    }
+
+    @Override
+    public Optional<State> getState(String name) {
+        return this.states.stream().filter(s -> name.equals(s.getName())).findFirst();
     }
 
     void add(State state) {

@@ -37,9 +37,10 @@ public interface FinateStateMachineService {
      * Note that you are responsible for saving the FinateStateMachine.
      *
      * @param name The name
+     * @param topic The name of the topic on which state change events will be published
      * @return The FinateStateMachineBuilder
      */
-    public FinateStateMachineBuilder newFinateStateMachine(String name);
+    public FinateStateMachineBuilder newFinateStateMachine(String name, String topic);
 
     /**
      * Finds the {@link FinateStateMachine} with the specified name

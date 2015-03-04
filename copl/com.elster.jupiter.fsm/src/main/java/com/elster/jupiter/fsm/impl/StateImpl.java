@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.impl.constraints.UniqueName;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -111,6 +112,15 @@ public abstract class StateImpl implements State {
 
     void setFinateStateMachine(FinateStateMachine finateStateMachine) {
         this.finateStateMachine.set(finateStateMachine);
+    }
+
+    @Override
+    public List<StateTransition> getOutgoingStateTransitions() {
+        return this.getFinateStateMachine()
+                .getTransitions()
+                .stream()
+                .filter(t -> t.getFrom().getId() == this.getId())
+                .collect(Collectors.toList());
     }
 
     @Override
