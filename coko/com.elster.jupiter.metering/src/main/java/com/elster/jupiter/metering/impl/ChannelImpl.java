@@ -349,7 +349,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private Condition ofThisChannel() {
-        return where("channelId").isEqualTo(getId());
+        return where("channel").isEqualTo(this);
     }
 
     private Condition ofType(ReadingQualityType type) {

@@ -288,7 +288,7 @@ public enum TableSpecs {
             table.map(ReadingQualityRecordImpl.class);
             table.setJournalTableName("MTR_READINGQUALITYJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).map("channelId").add();
+            Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
             Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
             table.column("ACTUAL").bool().notNull().map("actual").add();
