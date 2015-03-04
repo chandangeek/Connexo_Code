@@ -1,9 +1,8 @@
 Ext.define('Usr.view.group.Details', {
-    extend: 'Ext.form.Panel',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.groupDetails',
     itemId: 'groupDetails',
     frame: true,
-    hidden: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -84,7 +83,14 @@ Ext.define('Usr.view.group.Details', {
                                     name: 'createdOn',
                                     fieldLabel: Uni.I18n.translate('group.created', 'USR', 'Created on'),
                                     renderer: function (value) {
-                                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                                        if (value) {
+                                            var createdOnDate = moment(value).toDate();
+                                            if (createdOnDate instanceof Date && !isNaN(createdOnDate.valueOf())) {
+                                                return Uni.DateTime.formatDateTimeLong(createdOnDate);
+                                            }
+                                        } else {
+                                            return '';
+                                        }
                                     }
                                 },
                                 {
@@ -92,7 +98,14 @@ Ext.define('Usr.view.group.Details', {
                                     name: 'modifiedOn',
                                     fieldLabel: Uni.I18n.translate('group.modified', 'USR', 'Modified on'),
                                     renderer: function (value) {
-                                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                                        if (value) {
+                                            var modifiedOnDate = moment(value).toDate();
+                                            if (modifiedOnDate instanceof Date && !isNaN(modifiedOnDate.valueOf())) {
+                                                return Uni.DateTime.formatDateTimeLong(modifiedOnDate);
+                                            }
+                                        } else {
+                                            return '';
+                                        }
                                     }
                                 }
                             ]

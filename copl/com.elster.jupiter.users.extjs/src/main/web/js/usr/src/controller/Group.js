@@ -19,7 +19,7 @@ Ext.define('Usr.controller.Group', {
     init: function () {
         this.control({
             'groupBrowse groupList': {
-                selectionchange: this.selectGroup
+                select: this.selectGroup
             },
             'groupBrowse groupDetails menuitem[action=edit]': {
                 click: this.editGroupMenu
@@ -32,7 +32,7 @@ Ext.define('Usr.controller.Group', {
 
     showOverview: function () {
         var widget = Ext.widget('groupBrowse');
-        this.getApplication().getController('Usr.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     editGroupMenu: function (button) {
@@ -45,15 +45,12 @@ Ext.define('Usr.controller.Group', {
         this.getApplication().fireEvent('editRole', record);
     },
 
-    selectGroup: function (grid, record) {
-        if (record.length > 0) {
-            var panel = grid.view.up('#groupBrowse').down('#groupDetails'),
-                form = panel.down('form');
+    selectGroup: function (selectionModel, record) {
+        var me = this,
+            page = me.getGroupBrowse(),
+            form = page.down('#groupDetailsForm');
 
-            panel.setTitle(record[0].get('name'));
-            form.loadRecord(record[0]);
-
-            panel.show();
-        }
+        page.down('groupDetails').setTitle(record.get('name'));
+        form.loadRecord(record);
     }
 });
