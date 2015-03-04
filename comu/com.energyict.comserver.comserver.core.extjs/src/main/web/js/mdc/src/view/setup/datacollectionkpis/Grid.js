@@ -1,8 +1,6 @@
 Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.dataCollectionKpisGrid',
-    overflowY: 'auto',
-    itemId: 'dataCollectionKpisGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',

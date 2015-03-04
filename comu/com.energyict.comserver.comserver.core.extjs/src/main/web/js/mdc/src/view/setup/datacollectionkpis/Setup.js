@@ -18,10 +18,12 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Setup', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'dataCollectionKpisGrid'
+                        xtype: 'dataCollectionKpisGrid',
+                        itemId: 'datacollectionkpisgrid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-datacollectionkpis',
                         title: Uni.I18n.translate('datacollectionkpis.empty.title', 'MDC', 'No data collection KPIs found'),
                         reasons: [
                             Uni.I18n.translate('datacollectionkpis.empty.list.item1', 'MDC', 'No data collection KPIs have been created yet.')
@@ -34,7 +36,8 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'dataCollectionKpisPreview'
+                        xtype: 'dataCollectionKpisPreview',
+                        itemId: 'datacollectionkpispreview'
                     }
                 }
             ]

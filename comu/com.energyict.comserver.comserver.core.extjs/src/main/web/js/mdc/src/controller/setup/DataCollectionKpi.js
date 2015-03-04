@@ -14,17 +14,17 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         'Mdc.view.setup.datacollectionkpis.Edit'
     ],
     refs: [
-        {ref: 'dataCollectionKpisPreviewForm', selector: '#dataCollectionKpisPreviewForm'},
-        {ref: 'dataCollectionKpisGrid', selector: '#dataCollectionKpisGrid'},
+        {ref: 'dataCollectionKpisPreviewForm', selector: '#dataCollectionKpisDetailsForm'},
+        {ref: 'dataCollectionKpisGrid', selector: '#datacollectionkpisgrid'},
         {ref: 'dataCollectionKpiEditForm', selector: '#dataCollectionKpiEditForm'},
-        {ref: 'dataCollectionKpisPreviewContainer', selector: '#dataCollectionKpisPreview'},
+        {ref: 'dataCollectionKpisPreviewContainer', selector: '#datacollectionkpispreview'},
         {ref: 'kpiErrorContainer', selector: '#kpiErrorContainer'}
     ],
 
 
     init: function () {
         this.control({
-            '#dataCollectionKpiSetup #dataCollectionKpisGrid': {
+            '#dataCollectionKpiSetup #datacollectionkpisgrid': {
                 select: this.showKpiPreview
             },
             '#dataCollectionKpiSetup button[action=addDataCollectionKpi]': {
@@ -139,7 +139,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
     showDataCollectionKpiView: function () {
         var me = this,
             widget = Ext.widget('dataCollectionKpiSetup'),
-            store = widget.down('#dataCollectionKpisGrid').getStore();
+            store = widget.down('#datacollectionkpisgrid').getStore();
 
         me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
