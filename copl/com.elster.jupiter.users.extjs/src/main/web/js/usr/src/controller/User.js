@@ -14,6 +14,10 @@ Ext.define('Usr.controller.User', {
 
     refs: [
         {
+            ref: 'userBrowse',
+            selector: 'userBrowse'
+        },
+        {
             ref: 'userDetails',
             selector: 'userBrowse userDetails'
         }
@@ -22,7 +26,7 @@ Ext.define('Usr.controller.User', {
     init: function () {
         this.control({
             'userBrowse userList': {
-                selectionchange: this.selectUser
+                select: this.selectUser
             },
             'userBrowse userDetails menuitem[action=edit]': {
                 click: this.editUserMenu
@@ -35,7 +39,7 @@ Ext.define('Usr.controller.User', {
 
     showOverview: function () {
         var widget = Ext.widget('userBrowse');
-        this.getApplication().getController('Usr.controller.Main').showContent(widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
 
     editUserMenu: function (button) {
@@ -48,23 +52,19 @@ Ext.define('Usr.controller.User', {
         this.getApplication().fireEvent('editUser', record);
     },
 
-    selectUser: function (grid, record) {
-        if(record.length > 0) {
-            var detailsPanel = grid.view.up('#userBrowse').down('#userDetails'),
-                form = detailsPanel.down('form');
+    selectUser: function (selectionModel, record) {
+        var me = this,
+            page = me.getUserBrowse(),
+            form = page.down('#userDetailsForm'),
+            roles = '',
+            currentGroups = record.groups().data.items,
+            detailsRoles = form.down('[name=roles]');
 
-            detailsPanel.setTitle(record[0].get('authenticationName'));
-            form.loadRecord(record[0]);
-
-            var roles = '';
-            var currentGroups = record[0].groups().data.items;
-            for (var i = 0; i < currentGroups.length; i++) {
-                roles += currentGroups[i].data.name + '<br/>';
-            }
-
-            var detailsRoles = form.down('[name=roles]');
-            detailsRoles.setValue(roles);
-            detailsPanel.show();
+        page.down('userDetails').setTitle(record.get('name'));
+        form.loadRecord(record);
+        for (var i = 0; i < currentGroups.length; i++) {
+            roles += currentGroups[i].data.name + '<br/>';
         }
+        detailsRoles.setValue(roles);
     }
 });
