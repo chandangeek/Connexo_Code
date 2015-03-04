@@ -15,7 +15,7 @@
     <password>${password}</password>
     <connectionMethodCode>JDBC</connectionMethodCode>
     <connectionDriver>oracle.jdbc.OracleDriver</connectionDriver>
-    <databaseURL>{$jdbc}</databaseURL>
+    <databaseURL>${jdbc}</databaseURL>
     <databaseTypeCode>ORACLE</databaseTypeCode>
     <minConnections>1</minConnections>
     <maxConnections>5</maxConnections>
@@ -47,7 +47,7 @@
         <parameterTypeCode>TEXT</parameterTypeCode>
         <parameterKey>HOSTNAME</parameterKey>
         <parameterIndex>0</parameterIndex>
-        <parameterValue>{$host}</parameterValue>
+        <parameterValue>${host}</parameterValue>
         <documentId>0</documentId>
         <userVisible>true</userVisible>
       </sourceParameter>
@@ -65,7 +65,7 @@
         <parameterTypeCode>TEXT</parameterTypeCode>
         <parameterKey>PORT</parameterKey>
         <parameterIndex>0</parameterIndex>
-        <parameterValue>{$port}</parameterValue>
+        <parameterValue>${port}</parameterValue>
         <documentId>0</documentId>
         <userVisible>true</userVisible>
       </sourceParameter>
@@ -74,7 +74,7 @@
         <parameterTypeCode>TEXT</parameterTypeCode>
         <parameterKey>SID</parameterKey>
         <parameterIndex>0</parameterIndex>
-        <parameterValue>{$instance}</parameterValue>
+        <parameterValue>${instance}</parameterValue>
         <documentId>0</documentId>
         <userVisible>true</userVisible>
       </sourceParameter>
