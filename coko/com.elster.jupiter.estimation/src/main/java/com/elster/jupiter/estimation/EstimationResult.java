@@ -1,6 +1,11 @@
 package com.elster.jupiter.estimation;
 
-public enum EstimationResult {
+import java.util.List;
 
-    ESTIMATED, COULD_NOT_ESTIMATE
+public interface EstimationResult {
+
+    List<EstimationBlock> remainingToBeEstimated();
+
+    List<EstimationBlock> estimated();
+
 }

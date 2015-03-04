@@ -31,7 +31,7 @@ class EstimationEngine {
 
     private Stream<EstimationBlock> findBlocksToEstimate(Channel channel, ReadingType readingType) {
         return decorate(findSuspects(channel).stream())
-                .sorted(Comparator.comparing(ReadingQualityRecord::getTimestamp))
+                .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
                 .map(this::toEstimatable)
                 .partitionWhen((est1, est2) -> !est1.getTimestamp().plus(channel.getIntervalLength().get()).equals(est2.getTimestamp()))
                 .map(list -> SimpleEstimationBlock.of(channel, readingType, list));
@@ -44,6 +44,6 @@ class EstimationEngine {
     private Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
         return readingQualityRecord.getBaseReadingRecord()
                 .map((baseReadingRecord) -> (Estimatable) new BaseReadingRecordEstimatable(baseReadingRecord))
-                .orElseGet(() -> new MissingReadingRecordEstimatable(readingQualityRecord.getTimestamp()));
+                .orElseGet(() -> new MissingReadingRecordEstimatable(readingQualityRecord.getReadingTimestamp()));
     }
 }

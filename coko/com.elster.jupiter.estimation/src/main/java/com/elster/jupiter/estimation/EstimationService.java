@@ -14,9 +14,9 @@ public interface EstimationService {
 
     Optional<Estimator> getEstimator(String implementation);
 
-    EstimationResult estimate(MeterActivation meterActivation);
+    void estimate(MeterActivation meterActivation);
 
-    EstimationResult estimate(MeterActivation meterActivation, ReadingType readingType);
+    void estimate(MeterActivation meterActivation, ReadingType readingType);
 
-    EstimationResult estimate(MeterActivation meterActivation, ReadingType readingType, Estimator estimator);
+    void estimate(MeterActivation meterActivation, ReadingType readingType, Estimator estimator);
 }

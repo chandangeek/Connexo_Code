@@ -1,6 +1,5 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.metering.Channel;
@@ -8,7 +7,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -46,12 +44,13 @@ public class ZeroFillEstimator extends AbstractEstimator {
     }
 
     @Override
-    public EstimationResult estimate(EstimationBlock estimationBlock) {
-        List<? extends Estimatable> estimatables = estimationBlock.estimatables();
-        for (Estimatable estimatable : estimatables) {
-            estimatable.setEstimation(BigDecimal.ZERO);
-        }
-        return EstimationResult.ESTIMATED;
+    public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
+        estimationBlocks.forEach(this::estimate);
+        return SimpleEstimationResult.of(Collections.<EstimationBlock>emptyList(), estimationBlocks);
+    }
+
+    public void estimate(EstimationBlock estimationBlock) {
+        estimationBlock.estimatables().forEach(estimatable -> estimatable.setEstimation(BigDecimal.ZERO));
     }
 
     @Override

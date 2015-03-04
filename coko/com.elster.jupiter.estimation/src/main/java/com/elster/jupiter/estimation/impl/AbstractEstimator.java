@@ -9,8 +9,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,9 +32,7 @@ public abstract class AbstractEstimator implements IEstimator {
     AbstractEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
-        for (String propertyName : getRequiredProperties()) {
-            checkRequiredProperty(propertyName, properties);
-        }
+        getRequiredProperties().forEach(propertyName -> checkRequiredProperty(propertyName, properties));
         this.properties = properties;
     }
 
@@ -65,22 +61,16 @@ public abstract class AbstractEstimator implements IEstimator {
     }
 
     boolean isAProperty(final String property) {
-        return Iterables.any(getPropertySpecs(), new Predicate<PropertySpec>() {
-            @Override
-            public boolean apply(PropertySpec input) {
-                return property.equals(input.getName());
-            }
-        });
+        return getPropertySpecs().stream()
+                .anyMatch(input -> property.equals(input.getName()));
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec propertySpec : getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
+        return getPropertySpecs().stream()
+                .filter(propertySpec -> name.equals(propertySpec.getName()))
+                .findFirst()
+                .orElse(null);
     }
 
     protected String getBaseKey() {

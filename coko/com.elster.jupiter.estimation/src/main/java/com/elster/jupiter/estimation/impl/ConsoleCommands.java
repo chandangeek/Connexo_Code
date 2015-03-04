@@ -24,15 +24,19 @@ public class ConsoleCommands {
     private volatile MeteringService meteringService;
 
     public void estimationBlocks(long meterId) {
-        EstimationEngine estimationEngine = new EstimationEngine();
-        Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
-        meter.getCurrentMeterActivation().ifPresent(meterActivation -> {
-            meterActivation.getChannels().stream()
-                    .flatMap(channel -> channel.getReadingTypes().stream())
-                    .flatMap(readingType -> estimationEngine.findBlocksToEstimate(meterActivation, readingType).stream())
-                    .map(this::print)
-                    .forEach(System.out::println);
-        });
+        try {
+            EstimationEngine estimationEngine = new EstimationEngine();
+            Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
+            meter.getCurrentMeterActivation().ifPresent(meterActivation -> {
+                meterActivation.getChannels().stream()
+                        .flatMap(channel -> channel.getReadingTypes().stream())
+                        .flatMap(readingType -> estimationEngine.findBlocksToEstimate(meterActivation, readingType).stream())
+                        .map(this::print)
+                        .forEach(System.out::println);
+            });
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
     }
 
     @Reference
