@@ -91,6 +91,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
                     },
                     {
                         xtype: 'button',
+                        itemId: 'btn-data-collection-kpi',
                         text: Uni.I18n.translate('datacollectionkpis.add', 'MDC', 'Add data collection KPI'),
                         action: 'addDataCollectionKpi'
                     }
