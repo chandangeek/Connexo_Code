@@ -75,6 +75,16 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
     }
 
+    void handle(StateTransitionTriggerEvent triggerEvent) {
+        Optional<State> currentState = triggerEvent.getFinateStateMachine().getState(triggerEvent.getSourceCurrentStateName());
+        if (currentState.isPresent()) {
+            this.handle(triggerEvent, currentState.get());
+        }
+        else {
+            this.logger.fine(ignoreEventMessageSupplier(triggerEvent));
+        }
+    }
+
     private Supplier<String> ignoreEventMessageSupplier(StateTransitionTriggerEvent triggerEvent) {
         return () -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finate state machine '" + triggerEvent.getFinateStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because current state '" + triggerEvent.getSourceCurrentStateName() + "' does not exist in the finate state machine definition";
     }

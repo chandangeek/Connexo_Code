@@ -7,6 +7,7 @@ import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineBuilder;
 import com.elster.jupiter.fsm.FinateStateMachineService;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -17,6 +18,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -172,6 +175,14 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
         return this.dataModel
                 .mapper(FinateStateMachine.class)
                 .getUnique(FinateStateMachineImpl.Fields.NAME.fieldName(), name);
+    }
+
+    @Override
+    public List<FinateStateMachine> findFinateStateMachinesUsing(StateTransitionEventType eventType) {
+        Condition eventTypeMatches = Where.where(StateTransitionImpl.Fields.EVENT_TYPE.fieldName()).isEqualTo(eventType);
+        return this.dataModel
+                .query(FinateStateMachine.class, StateTransition.class)
+                .select(eventTypeMatches);
     }
 
 }
