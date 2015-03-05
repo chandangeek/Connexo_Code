@@ -38,6 +38,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
+            layout: 'fit',
             title: Uni.I18n.translate('devicechannels.channels', 'MDC', 'Channels'),
             items: [
                 {

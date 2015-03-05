@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             itemId: 'deviceSetupPanel',
             //title: Uni.I18n.translate('devicesetup.deviceConfigurations', 'MDC', 'deviceName'),
             layout: {
-                type: 'vbox',
+                type: 'fit',
                 align: 'stretch'
             },
             items: [
