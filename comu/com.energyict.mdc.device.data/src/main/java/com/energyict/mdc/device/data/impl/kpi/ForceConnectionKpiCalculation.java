@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-01-21 (13:55)
  */
-@Component(name = "com.energyict.device.data.kip.connection.force.calculation", service = ForceConnectionKpiCalculation.class, property = {"osgi.command.scope=mdcKPI", "osgi.command.function=calculateNow" }, immediate = true)
+@Component(name = "com.energyict.device.data.kpi.connection.force.calculation", service = ForceConnectionKpiCalculation.class, property = {"osgi.command.scope=mdcKPI", "osgi.command.function=calculateNow" }, immediate = true)
 @SuppressWarnings("unused")
 public class ForceConnectionKpiCalculation {
 

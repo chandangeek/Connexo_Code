@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.kpi;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
 
 import com.energyict.mdc.common.HasId;
@@ -37,6 +38,10 @@ public interface DataCollectionKpi extends HasId {
      * @return A flag that indicates if this DataCollectionKpi calculates the connection setup KPI.
      */
     public Optional<TemporalAmount> connectionSetupKpiCalculationIntervalLength();
+
+    void setDisplayRange(TimeDuration displayPeriod);
+
+    TimeDuration getDisplayRange();
 
     /**
      * @return  Returns the static target for the connection kpi, if present.
@@ -103,14 +108,26 @@ public interface DataCollectionKpi extends HasId {
 
     /**
      * Add a communication task KPI to this data collection KPI with the given frequency and static target
+     * The KPI calculation can be stopped by calling dropComTaskExecutionKpiCalculation
      * @param staticTarget target
      */
     public void calculateComTaskExecutionKpi(BigDecimal staticTarget);
 
     /**
+     * Stops calculation of the communication KPI / ComTaskExecution KPI
+     */
+    public void dropComTaskExecutionKpi();
+
+    /**
      * Add a communication task KPI to this data collection KPI with the given frequency and static target
+     * The calculation can be stopped by calling dropConnectionKpiCalculation
      * @param staticTarget target
      */
     public void calculateConnectionKpi(BigDecimal staticTarget);
+
+    /**
+     * Stops calculation of the connection KPI
+     */
+    public void dropConnectionSetupKpi();
 
 }

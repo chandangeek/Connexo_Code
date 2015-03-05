@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.kpi;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.services.Finder;
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
@@ -58,6 +59,14 @@ public interface DataCollectionKpiService {
      */
     public interface DataCollectionKpiBuilder {
 
+        /**
+         * The displayPeriod is the period for which the KPI will be displayed in the UI. So display period will be
+         * fixed for the moment.
+         *
+         * @param displayPeriod The period to be used for display, that is, the period over which KPI data will be displayed in the graph
+         * @return the current builder, augmented with displayPeriod.
+         */
+        public DataCollectionKpiBuilder displayPeriod(TimeDuration displayPeriod);
         /**
          * Specifies that the DataCollectionKpi that is under construction
          * will calculate the connection setup KPI and will do that e.g. every day.

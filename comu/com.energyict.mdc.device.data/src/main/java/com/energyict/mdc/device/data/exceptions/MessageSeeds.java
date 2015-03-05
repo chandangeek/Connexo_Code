@@ -30,6 +30,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIELD_TOO_LONG(1011, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device", SEVERE),
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by at data collection KPI", SEVERE),
+    FIELD_IS_REQUIRED(1014, Keys.FIELD_REQUIRED, "This field is required", Level.SEVERE),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Keys.CONNECTION_TASK_DEVICE_REQUIRED, "A connection type should be linked to a device", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED, "A connection type should be linked to a partial connection task from the device configuration", Level.SEVERE),
     DUPLICATE_CONNECTION_TASK(2002, Keys.DUPLICATE_CONNECTION_TASK, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be added", Level.SEVERE),
@@ -143,6 +144,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     public static class Keys {
         public static final String NAME_REQUIRED = "X.name.required";
+        public static final String FIELD_REQUIRED = "X.field.required";
         public static final String FIELD_TOO_LONG = "invalidFieldLength";
         public static final String MRID_REQUIRED = "mRIDRequired";
         public static final String DEVICE_TYPE_REQUIRED = "deviceTypeRequired";
