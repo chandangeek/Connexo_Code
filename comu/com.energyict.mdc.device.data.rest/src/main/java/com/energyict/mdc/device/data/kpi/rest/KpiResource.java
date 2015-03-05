@@ -12,7 +12,9 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
-
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -25,9 +27,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -41,7 +40,6 @@ public class KpiResource {
     private final DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final MeteringGroupsService meteringGroupsService;
-    private final Thesaurus thesaurus;
 
     @Inject
     public KpiResource(DataCollectionKpiService dataCollectionKpiService, DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus) {
@@ -49,7 +47,6 @@ public class KpiResource {
         this.dataCollectionKpiInfoFactory = dataCollectionKpiInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.meteringGroupsService = meteringGroupsService;
-        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -110,12 +107,16 @@ public class KpiResource {
             /* Send the correct validation error because if frequency is null we can't create connection or communication kpi -> FE receive unclear message */
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "frequency");
         }
+        if (kpiInfo.displayRange != null){
+            dataCollectionKpiBuilder.displayPeriod(kpiInfo.displayRange.asTimeDuration());
+        }
         if (kpiInfo.communicationTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
             dataCollectionKpiBuilder.calculateComTaskExecutionKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.communicationTarget);
         }
         if (kpiInfo.connectionTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
             dataCollectionKpiBuilder.calculateConnectionSetupKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.connectionTarget);
         }
+
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiBuilder.save();
         return Response.status(Response.Status.CREATED).entity(dataCollectionKpiInfoFactory.from(dataCollectionKpi)).build();
     }
@@ -127,20 +128,36 @@ public class KpiResource {
     public Response updateKpi(@PathParam("id") long id, DataCollectionKpiInfo kpiInfo) {
         DataCollectionKpi kpi = dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id));
 
-        if (kpiInfo.communicationTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
+        if (kpiInfo.communicationTarget!=null) {
+            if (kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
                 if (!kpi.calculatesComTaskExecutionKpi() || (kpi.calculatesComTaskExecutionKpi() && (!kpiInfo.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.comTaskExecutionKpiCalculationIntervalLength().get()) ||
                         !kpiInfo.communicationTarget.equals(kpi.getStaticCommunicationKpiTarget().get())))) {
                     // something changed about communication KPI
                     kpi.calculateComTaskExecutionKpi(kpiInfo.communicationTarget);
                 }
-        }
-        if (kpiInfo.connectionTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
-            if (!kpi.calculatesConnectionSetupKpi() || (kpi.calculatesConnectionSetupKpi() && (!kpiInfo.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.connectionSetupKpiCalculationIntervalLength().get()) ||
-                    !kpiInfo.connectionTarget.equals(kpi.getStaticConnectionKpiTarget().get())))) {
-                // something changed about connection KPI
-                kpi.calculateConnectionKpi(kpiInfo.connectionTarget);
+            }
+        } else {
+            // remove ComTaskExecutionKpi
+            if (kpi.calculatesComTaskExecutionKpi()) {
+                kpi.dropComTaskExecutionKpi();
             }
         }
+        if (kpiInfo.connectionTarget!=null) {
+            if (kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
+                if (!kpi.calculatesConnectionSetupKpi() || (kpi.calculatesConnectionSetupKpi() && (!kpiInfo.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.connectionSetupKpiCalculationIntervalLength().get()) ||
+                        !kpiInfo.connectionTarget.equals(kpi.getStaticConnectionKpiTarget().get())))) {
+                    // something changed about connection KPI
+                    kpi.calculateConnectionKpi(kpiInfo.connectionTarget);
+                }
+            }
+        } else {
+            // drop connection kpi
+            if (kpi.calculatesConnectionSetupKpi()) {
+                kpi.dropConnectionSetupKpi();
+            }
+        }
+        kpi.setDisplayRange(kpiInfo.displayRange==null?null:kpiInfo.displayRange.asTimeDuration());
+
         return Response.ok(dataCollectionKpiInfoFactory.from(dataCollectionKpiService.findDataCollectionKpi(id).get())).build();
     }
 

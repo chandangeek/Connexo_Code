@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.Finder;
@@ -64,6 +65,33 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(model.<Double>get("communicationTarget")).isEqualTo(15.8);
         assertThat(model.<Double>get("connectionTarget")).isNull();
         assertThat(model.<Instant>get("latestCalculationDate")).isEqualTo(10000000);
+        assertThat(model.<Integer>get("displayRange.count")).isEqualTo(1);
+        assertThat(model.<String>get("displayRange.timeUnit")).isEqualTo("days");
+    }
+
+    @Test
+    public void testGetKpiByIdWithoutKpis() throws Exception {
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mock(DataCollectionKpi.class);
+        QueryEndDeviceGroup deviceGroup = mockDeviceGroup("end device group bis", 2);
+        when(kpiMock.getDeviceGroup()).thenReturn(deviceGroup);
+        when(kpiMock.getId()).thenReturn(kpiId);
+        when(kpiMock.comTaskExecutionKpiCalculationIntervalLength()).thenReturn(Optional.<TemporalAmount>empty());
+        when(kpiMock.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.<TemporalAmount>empty());
+        when(kpiMock.getStaticCommunicationKpiTarget()).thenReturn(Optional.empty());
+        when(kpiMock.getStaticConnectionKpiTarget()).thenReturn(Optional.empty());
+        when(kpiMock.getLatestCalculation()).thenReturn(Optional.empty());
+        when(kpiMock.getDisplayRange()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
+        when(kpiMock.calculatesComTaskExecutionKpi()).thenReturn(false);
+        when(kpiMock.calculatesConnectionSetupKpi()).thenReturn(false);
+        when(dataCollectionKpiService.findDataCollectionKpi(71L)).thenReturn(Optional.of(kpiMock));
+        String response = target("/kpis/71").request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Integer>get("id")).isEqualTo(71);
+        assertThat(model.<Integer>get("deviceGroup.id")).isEqualTo(2);
+        assertThat(model.<String>get("deviceGroup.name")).isEqualTo("end device group bis");
+        assertThat(model.<BigDecimal>get("communicationTarget")).isNull();
+        assertThat(model.<BigDecimal>get("connectionTarget")).isNull();
     }
 
     @Test
@@ -109,7 +137,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testCreateKpiForDataCoConnection() throws Exception {
+    public void testCreateKpiForDataConnection() throws Exception {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.connectionTarget=BigDecimal.valueOf(99.1);
         info.deviceGroup=new LongIdWithNameInfo(102L, "some group");
@@ -201,6 +229,50 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         verify(kpiMock, never()).calculateConnectionKpi(anyObject());
     }
 
+    @Test
+    public void testRemoveCommunicationKpi() throws Exception {
+        DataCollectionKpiInfo info = new DataCollectionKpiInfo();
+        info.connectionTarget=BigDecimal.valueOf(60.0);
+        info.communicationTarget=null;
+        info.deviceGroup=new LongIdWithNameInfo(102L, "some group");
+        info.frequency = new TemporalExpressionInfo();
+        info.frequency.every = new TimeDurationInfo();
+        info.frequency.every.timeUnit="minutes";
+        info.frequency.every.count=15;
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2), Duration.ofMinutes(15), BigDecimal.valueOf(60.0), BigDecimal.valueOf(50.0));
+        when(dataCollectionKpiService.findDataCollectionKpi(kpiId)).thenReturn(Optional.of(kpiMock));
+
+        Response response = target("/kpis/71").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(kpiMock).dropComTaskExecutionKpi();
+        verify(kpiMock, never()).calculateConnectionKpi(anyObject());
+        verify(kpiMock, never()).calculateComTaskExecutionKpi(anyObject());
+    }
+
+    @Test
+    public void testRemoveConnectionKpi() throws Exception {
+        DataCollectionKpiInfo info = new DataCollectionKpiInfo();
+        info.connectionTarget=null;
+        info.communicationTarget=BigDecimal.valueOf(50.0);
+        info.deviceGroup=new LongIdWithNameInfo(102L, "some group");
+        info.frequency = new TemporalExpressionInfo();
+        info.frequency.every = new TimeDurationInfo();
+        info.frequency.every.timeUnit="minutes";
+        info.frequency.every.count=15;
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2), Duration.ofMinutes(15), BigDecimal.valueOf(60.0), BigDecimal.valueOf(50.0));
+        when(dataCollectionKpiService.findDataCollectionKpi(kpiId)).thenReturn(Optional.of(kpiMock));
+
+        Response response = target("/kpis/71").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(kpiMock).dropConnectionSetupKpi();
+        verify(kpiMock, never()).calculateConnectionKpi(anyObject());
+        verify(kpiMock, never()).calculateComTaskExecutionKpi(anyObject());
+    }
+
     private DataCollectionKpi mockKpi(long kpiId, QueryEndDeviceGroup endDeviceGroup) {
         DataCollectionKpi kpiMock = mock(DataCollectionKpi.class);
         when(kpiMock.getDeviceGroup()).thenReturn(endDeviceGroup);
@@ -210,6 +282,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(kpiMock.getStaticCommunicationKpiTarget()).thenReturn(Optional.of(BigDecimal.valueOf(15.8)));
         when(kpiMock.getStaticConnectionKpiTarget()).thenReturn(Optional.empty());
         when(kpiMock.getLatestCalculation()).thenReturn(Optional.of(Instant.ofEpochMilli(10000000L)));
+        when(kpiMock.getDisplayRange()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
         return kpiMock;
     }
 
@@ -235,6 +308,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
             when(kpiMock.getStaticConnectionKpiTarget()).thenReturn(Optional.empty());
             when(kpiMock.calculatesConnectionSetupKpi()).thenReturn(false);
         }
+        when(kpiMock.getDisplayRange()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
         when(kpiMock.getLatestCalculation()).thenReturn(Optional.of(Instant.ofEpochMilli(10000000L)));
         return kpiMock;
     }
