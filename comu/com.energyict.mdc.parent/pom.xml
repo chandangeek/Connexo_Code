@@ -121,6 +121,11 @@
                 <artifactId>mdc.issue.datacollection</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.protocols.api</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
 
             <!-- Kore (and by import also Platform) -->
             <dependency>
@@ -362,6 +367,9 @@
                 <module>../com.energyict.comserver.comserver.core.extjs</module>
                 <module>../com.energyict.comserver.comserver.core.rest</module>
                 <module>../com.energyict.mdc.protocols</module>
+                <module>../com.energyict.mdc.firmware</module>
+                <module>../com.energyict.mdc.firmware.extjs</module>
+                <module>../com.energyict.mdc.firmware.rest</module>
             </modules>
         </profile>
     </profiles>
