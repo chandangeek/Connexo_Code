@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.energyict.mdc.firmware.impl
+Export-Package:  \
+	com.energyict.mdc.firmware
