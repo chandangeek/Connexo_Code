@@ -66,7 +66,7 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.MBUS_SETUP_DECOMMISSION, new OneTagMessageEntry(RtuMessageConstant.MBUS_DECOMMISSION));
         registry.put(DeviceMessageId.MBUS_SETUP_SET_ENCRYPTION_KEYS, new SetMBusEncryptionKeysMessageEntry(openKeyAttributeName, transferKeyAttributeName));
 
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
         return registry;
     }
 

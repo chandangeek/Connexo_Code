@@ -132,9 +132,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     doTimedControlAction(pendingMessage, 2);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE)) {
                     changeControlMode(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE)) {
                     upgradeFirmware(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE)) {
                     upgradeFirmwareWithActivationDate(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.ACTIVITY_CALENDER_SEND)) {
                     activityCalendar(pendingMessage);

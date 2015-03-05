@@ -59,7 +59,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MULTICAST_ADDRESSES, new MultipleAttributeMessageEntry("SetMulticastAddresses", "Address 1", "Address 2", "Address 3"));
         registry.put(DeviceMessageId.SECURITY_CHANGE_CLIENT_PASSWORDS, new MultipleAttributeMessageEntry("ChangePasswords", "reading", "management", "firmware"));
 
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
         return registry;
     }
 

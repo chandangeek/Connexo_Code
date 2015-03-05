@@ -66,7 +66,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
                     setMaximumThreshold(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_TIME_OFFSETS_TABLE)) {
                     setTimeOffsetsTable(pendingMessage);
-                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE)) {
                     upgradeFirmware(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT)) {
                     writeActivityCalendar(pendingMessage);

@@ -97,8 +97,8 @@ public class AS300MessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.DISPLAY_SET_MESSAGE_ON_IHD_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToInHomeDisplay", "Message", "Duration of message", ActivationDate));
 
         // Firmware
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
 
         // Pricing Information
         registry.put(DeviceMessageId.PRICING_GET_INFORMATION, new SimpleTagMessageEntry("ReadPricePerUnit"));

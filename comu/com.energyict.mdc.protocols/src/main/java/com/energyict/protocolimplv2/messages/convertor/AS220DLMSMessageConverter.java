@@ -150,7 +150,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_REPEATER, new MultipleAttributeMessageEntry("SetSFSKRepeater", "REPEATER"));
 
         registry.put(DeviceMessageId.MBUS_SETUP_DECOMMISSION_ALL, new SimpleTagMessageEntry("DecommissionAll"));
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
         return registry;
     }
 

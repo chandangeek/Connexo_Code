@@ -54,7 +54,7 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
 
         registry.put(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, new SimpleTagMessageEntry(BILLING_RESET, false));
 
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE));
 
         registry.put(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME, new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME));
         return registry;

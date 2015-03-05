@@ -55,7 +55,7 @@ public class Messaging implements DeviceMessageSupport {
             DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF,
             DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATE,
             DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST,
-            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE
 
     );
 

@@ -139,7 +139,7 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.MBUS_SETUP_COMMISSION, new SimpleTagMessageEntry("SlaveCommission"));
         registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_TIMEOUT_NOT_ADDRESSED, new MultipleAttributeMessageEntry("SetTimeOutNotAddressed", "timeout_not_addressed"));
 
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName));
         return registry;
     }
 

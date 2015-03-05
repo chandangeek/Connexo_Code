@@ -88,9 +88,9 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToDisplay", "Message", "Duration of message", ActivationDate));
 
         // Firmware
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE,
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
                 new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE,
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE,
                 new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
 
         // Pricing Information
