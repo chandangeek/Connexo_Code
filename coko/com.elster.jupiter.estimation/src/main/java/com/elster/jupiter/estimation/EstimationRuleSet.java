@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.collections.KPermutation;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,6 +28,8 @@ public interface EstimationRuleSet extends IdentifiedObject {
     void delete();
 
     List<? extends EstimationRule> getRules();
+
+    void reorderRules(KPermutation permutation);
 
     List<? extends EstimationRule> getRules(int start, int limit);
 

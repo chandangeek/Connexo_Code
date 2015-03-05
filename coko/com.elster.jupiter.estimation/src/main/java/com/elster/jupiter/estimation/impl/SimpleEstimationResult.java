@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SimpleEstimationResult implements EstimationResult {
+class SimpleEstimationResult implements EstimationResult {
 
     private final ImmutableList<EstimationBlock> remain;
     private final ImmutableList<EstimationBlock> estimated;

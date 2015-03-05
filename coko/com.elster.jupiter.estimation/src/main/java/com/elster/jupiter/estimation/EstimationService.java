@@ -19,4 +19,17 @@ public interface EstimationService {
     void estimate(MeterActivation meterActivation, ReadingType readingType);
 
     void estimate(MeterActivation meterActivation, ReadingType readingType, Estimator estimator);
+
+    EstimationRuleSet createEstimationRuleSet(String name);
+
+    List<? extends EstimationRuleSet> getEstimationRuleSets();
+
+    Optional<? extends EstimationRuleSet> getEstimationRuleSet(long id);
+
+    Optional<? extends EstimationRuleSet> getEstimationRuleSet(String name);
+
+    boolean isEstimationRuleSetInUse(EstimationRuleSet validationRuleSet);
+
+    Optional<? extends EstimationRule> getEstimationRule(long id);
+
 }

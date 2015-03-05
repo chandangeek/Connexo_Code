@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -18,9 +19,7 @@ import javax.inject.Provider;
 import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +29,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class EstimationRuleSetImpl implements IEstimationRuleSet {
+class EstimationRuleSetImpl implements IEstimationRuleSet {
 
     static final String OBSOLETE_TIME_FIELD = "obsoleteTime";
 
@@ -191,7 +190,6 @@ public class EstimationRuleSetImpl implements IEstimationRuleSet {
     @Override
     public List<IEstimationRule> getRules() {
         return doGetRules()
-                .sorted(Comparator.comparing(rule -> rule.getName().toUpperCase()))
                 .collect(Collectors.toList());
     }
 
@@ -235,6 +233,23 @@ public class EstimationRuleSetImpl implements IEstimationRuleSet {
     public IEstimationRule updateRule(long id, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
         IEstimationRule rule = getExistingRule(id);
         return doUpdateRule(rule, name, activeStatus, mRIDs, properties);
+    }
+
+    @Override
+    public void reorderRules(KPermutation kpermutation) {
+        List<IEstimationRule> filteredRules = getRules();
+        if (!kpermutation.isPermutation(filteredRules)) {
+            throw new IllegalArgumentException();
+        }
+        List<IEstimationRule> target = kpermutation.perform(filteredRules);
+        target.addAll(obsoleteRules());
+        dataModel.reorder(rules, target);
+    }
+
+    private List<IEstimationRule> obsoleteRules() {
+        return rules.stream()
+                .filter(IEstimationRule::isObsolete)
+                .collect(Collectors.toList());
     }
 
     private IEstimationRule doUpdateRule(IEstimationRule rule, String name,  boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {

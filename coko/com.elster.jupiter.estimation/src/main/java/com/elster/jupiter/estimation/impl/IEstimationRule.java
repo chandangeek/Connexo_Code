@@ -7,7 +7,7 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.Map;
 
-public interface IEstimationRule extends EstimationRule {
+interface IEstimationRule extends EstimationRule {
 
     void delete();
 

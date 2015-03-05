@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class EstimationRuleImpl implements IEstimationRule {
+class EstimationRuleImpl implements IEstimationRule {
     private long id;
 
 //    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")

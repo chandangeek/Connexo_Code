@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class EstimationRulePropertiesImpl implements EstimationRuleProperties {
+class EstimationRulePropertiesImpl implements EstimationRuleProperties {
 
     private String name;
     private String stringValue;
