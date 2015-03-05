@@ -27,7 +27,6 @@ Ext.define('Sam.view.licensing.List', {
                 itemId: 'expirationDate',
                 header: Uni.I18n.translate('licensing.expirationDate', 'SAM', 'Expiration date'),
                 dataIndex: 'expires',
-                sortable: true,
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateShort(value) : '';
                 },
