@@ -1,15 +1,21 @@
 package com.elster.jupiter.util.collections;
 
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 
 /**
  * A k-permutation of a List is a reordering of k elements of the n elements of the given list.
  * This class models one such selection and reordering.
  */
-public class KPermutation {
+public final class KPermutation {
 
-    private int[] indices;
+    private final int[] indices;
 
     /**
      * Defines a k-permuation by index. While duplicate indices are not checked, and will produce reliable results, such instances are not strictly k-permutations.
@@ -18,6 +24,7 @@ public class KPermutation {
      * @param indices the selected indices in order.
      */
     public KPermutation(int... indices) {
+        IntStream.of(indices).forEach(cantBeNegative());
         this.indices = indices;
     }
 
@@ -34,6 +41,69 @@ public class KPermutation {
             variation.add(indexSafeGet(original, index));
         }
         return variation;
+    }
+
+    private int[] perform(int[] original) {
+        int[] result = new int[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            result[i] = original[indices[i]];
+        }
+        return result;
+    }
+
+    public <T> boolean isPermutation(List<T> original) {
+        if (original.size() != indices.length) {
+            return false;
+        }
+        int expectedSum = ((indices.length - 1) * indices.length) / 2;
+        return IntStream.of(indices)
+                .distinct()
+                .sum() == expectedSum;
+    }
+
+    public KPermutation andThen(KPermutation second) {
+        int[] result = second.perform(indices);
+        return new KPermutation(result);
+    }
+
+    public static <T> KPermutation of(List<? extends T> source, List<? super T> result) {
+        Counter counter = Counters.newLenientCounter();
+        int[] indices = result.stream()
+                .mapToInt(source::indexOf)
+                .peek(cantBeNegative())
+                .collect(
+                        () -> new int[result.size()],
+                        (array, index) -> {
+                            array[counter.getValue()] = index;
+                            counter.increment();
+                        },
+                        null
+                );
+        return new KPermutation(indices);
+    }
+
+    private static IntConsumer cantBeNegative() {
+        return i -> {
+            if (i < 0) {
+                throw new IllegalArgumentException();
+            }
+        };
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        KPermutation that = (KPermutation) o;
+
+        return Arrays.equals(indices, that.indices);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(indices);
     }
 
     private <T> T indexSafeGet(List<T> original, int index) {
