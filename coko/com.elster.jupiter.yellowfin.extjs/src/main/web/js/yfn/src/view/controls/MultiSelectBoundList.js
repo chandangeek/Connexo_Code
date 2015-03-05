@@ -61,24 +61,37 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                     xtype: 'tbfill'
                 },
                 {
-                    xtype: 'button',
-                    text: 'Select All',
-                    handler: function(btn, e) {
-                        combo.select(combo.getStore().getRange());
-                        //combo.setSelectedCount(combo.getStore().getRange().length);
-                        e.stopEvent();
-                    }
+                    xtype: 'container',
+                    items: [
+                        {
+                            xtype: 'button',
+                            text: 'Select All',
+                            handler: function(btn, e) {
+                                combo.select(combo.getStore().getRange());
+                                //combo.setSelectedCount(combo.getStore().getRange().length);
+                                e.stopEvent();
+                            }
+                        }
+                    ]
                 },
                 {
-                    xtype: 'button',
-                    text: 'Clear All',
-                    cls:'x-btn-default-small',
-                    handler: function(btn, e) {
-                        combo.select([]);
-                        //combo.setSelectedCount(0);
-                        //combo.reset();
-                        e.stopEvent();
-                    }
+                    xtype: 'container',
+                    items: [
+                        {
+                            xtype: 'button',
+                            text: 'Clear All',
+                            cls:'x-btn-default-small',
+                            handler: function(btn, e) {
+                                if (!combo.getSelection())
+                                    btn.disabled.setValue(true);
+                                else btn.disabled.setValue(false);
+                                combo.select([]);
+                                //combo.setSelectedCount(0);
+                                //combo.reset();
+                                e.stopEvent();
+                            }
+                        }
+                    ]
                 },
                 {
                     xtype: 'tbfill'
