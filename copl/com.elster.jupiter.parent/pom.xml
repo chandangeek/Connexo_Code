@@ -28,7 +28,7 @@
             <dependency>
                 <groupId>com.elster.jupiter.subsystem</groupId>
                 <artifactId>third-party</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -511,6 +511,8 @@
                 <module>../com.elster.jupiter.events.rest</module>
                 <module>../com.elster.jupiter.extjs</module>
                 <module>../com.elster.jupiter.fileimport</module>
+                <module>../com.elster.jupiter.fsm</module>
+                <module>../com.elster.jupiter.fsm.rest</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
                 <module>../com.elster.jupiter.install</module>
                 <module>../com.elster.jupiter.loaderjs</module>
