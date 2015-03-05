@@ -686,6 +686,37 @@ public class DataCollectionKpiImplTest {
 
     @Test
     @Transactional
+    public void testUpdateExistingConnectionTaskKpi() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.displayPeriod(TimeDuration.days(1));
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
+
+        // must reload to trigger postLoad and init strategies
+        kpi = (DataCollectionKpiImpl) deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
+
+        long connectionKpiId = kpi.connectionKpi().get().getId();
+        long communicationKpiId = kpi.communicationKpi().get().getId();
+        long connectionTaskId = kpi.connectionKpiTask().get().getId();
+        long communicationTaskId = kpi.communicationKpiTask().get().getId();
+
+
+        // Business method
+        kpi.calculateConnectionKpi(BigDecimal.valueOf(99.99));
+
+        // Asserts
+        assertThat(kpiService.getKpi(connectionKpiId).isPresent()).isTrue();
+        assertThat(kpiService.getKpi(communicationKpiId).isPresent()).isTrue();
+        kpiService.getKpi(connectionKpiId).get().
+                getMembers().stream().
+                forEach(member->assertThat(member.getTarget(Instant.now())).isEqualTo(BigDecimal.valueOf(99.99)));
+        assertThat(taskService.getRecurrentTask(connectionTaskId).isPresent()).isTrue();
+        assertThat(taskService.getRecurrentTask(communicationTaskId).isPresent()).isTrue();
+    }
+
+    @Test
+    @Transactional
     public void testRemoveExistingConnectionTaskKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);

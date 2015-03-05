@@ -150,9 +150,13 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
 
     @Override
     public void calculateComTaskExecutionKpi(BigDecimal staticTarget) {
-        KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
-        this.communicationKpiBuilder(kpiBuilder);
-        this.save();
+        if (this.communicationKpi.isPresent()) {
+            this.communicationKpi.get().getMembers().forEach(member -> member.updateTarget(staticTarget));
+        } else {
+            KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
+            this.communicationKpiBuilder(kpiBuilder);
+            this.save();
+        }
     }
 
     @Override
@@ -163,9 +167,13 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
 
     @Override
     public void calculateConnectionKpi(BigDecimal staticTarget) {
-        KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
-        this.connectionKpiBuilder(kpiBuilder);
-        this.save();
+        if (this.connectionKpi.isPresent()) {
+            this.connectionKpi.get().getMembers().forEach(member->member.updateTarget(staticTarget));
+        } else {
+            KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
+            this.connectionKpiBuilder(kpiBuilder);
+            this.save();
+        }
     }
 
     @Override
