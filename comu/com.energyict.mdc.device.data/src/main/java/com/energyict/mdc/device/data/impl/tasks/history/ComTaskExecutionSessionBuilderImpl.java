@@ -77,7 +77,7 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     }
 
     ComTaskExecutionSessionImpl addTo(ComSessionImpl comSession) {
-        ComTaskExecutionSessionImpl comTaskExecutionSession = comSession.createComTaskExecutionSession(comTaskExecution, comTask, device, Range.closed(startDate, stopDate), successIndicator);
+        ComTaskExecutionSessionImpl comTaskExecutionSession = comSession.createComTaskExecutionSession(comTaskExecution, comTask, comTaskExecution.getDevice(), Range.closed(startDate, stopDate), successIndicator);
         for (JournalEntryBuilder journalEntryBuilder : journalEntryBuilders) {
             journalEntryBuilder.build(comTaskExecutionSession);
         }
