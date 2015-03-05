@@ -60,11 +60,11 @@ public class EstimationEngineTest {
         when(channel1.getIntervalLength()).thenReturn(Optional.of(Duration.ofHours(1)));
         when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Collections.emptyList());
         ZonedDateTime first = ZonedDateTime.of(2010, 8, 14, 9, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-        when(readingQualityRecord1.getTimestamp()).thenReturn(first.toInstant());
-        when(readingQualityRecord2.getTimestamp()).thenReturn(first.plusHours(1).toInstant());
-        when(readingQualityRecord3.getTimestamp()).thenReturn(first.plusHours(2).toInstant());
-        when(readingQualityRecord4.getTimestamp()).thenReturn(first.plusHours(3).toInstant());
-        when(readingQualityRecord5.getTimestamp()).thenReturn(first.plusHours(4).toInstant());
+        when(readingQualityRecord1.getReadingTimestamp()).thenReturn(first.toInstant());
+        when(readingQualityRecord2.getReadingTimestamp()).thenReturn(first.plusHours(1).toInstant());
+        when(readingQualityRecord3.getReadingTimestamp()).thenReturn(first.plusHours(2).toInstant());
+        when(readingQualityRecord4.getReadingTimestamp()).thenReturn(first.plusHours(3).toInstant());
+        when(readingQualityRecord5.getReadingTimestamp()).thenReturn(first.plusHours(4).toInstant());
         when(readingQualityRecord1.getBaseReadingRecord()).thenReturn(Optional.of(baseReadingRecord1));
         when(readingQualityRecord2.getBaseReadingRecord()).thenReturn(Optional.of(baseReadingRecord2));
         when(readingQualityRecord3.getBaseReadingRecord()).thenReturn(Optional.of(baseReadingRecord3));
@@ -105,7 +105,7 @@ public class EstimationEngineTest {
 
         Estimatable estimatable = estimationBlock.estimatables().get(0);
 
-        assertThat(estimatable.getTimestamp()).isEqualTo(readingQualityRecord2.getTimestamp());
+        assertThat(estimatable.getTimestamp()).isEqualTo(readingQualityRecord2.getReadingTimestamp());
         assertThat(estimatable).isInstanceOf(MissingReadingRecordEstimatable.class);
     }
 
@@ -123,7 +123,7 @@ public class EstimationEngineTest {
 
         Estimatable estimatable = estimationBlock.estimatables().get(0);
 
-        assertThat(estimatable.getTimestamp()).isEqualTo(readingQualityRecord2.getTimestamp());
+        assertThat(estimatable.getTimestamp()).isEqualTo(readingQualityRecord2.getReadingTimestamp());
         assertThat(estimatable).isInstanceOf(BaseReadingRecordEstimatable.class);
     }
 
@@ -139,9 +139,9 @@ public class EstimationEngineTest {
 
         assertThat(estimationBlock.estimatables()).hasSize(3);
 
-        assertThat(estimationBlock.estimatables().get(0).getTimestamp()).isEqualTo(readingQualityRecord2.getTimestamp());
-        assertThat(estimationBlock.estimatables().get(1).getTimestamp()).isEqualTo(readingQualityRecord3.getTimestamp());
-        assertThat(estimationBlock.estimatables().get(2).getTimestamp()).isEqualTo(readingQualityRecord4.getTimestamp());
+        assertThat(estimationBlock.estimatables().get(0).getTimestamp()).isEqualTo(readingQualityRecord2.getReadingTimestamp());
+        assertThat(estimationBlock.estimatables().get(1).getTimestamp()).isEqualTo(readingQualityRecord3.getReadingTimestamp());
+        assertThat(estimationBlock.estimatables().get(2).getTimestamp()).isEqualTo(readingQualityRecord4.getReadingTimestamp());
     }
 
 //    @Test
