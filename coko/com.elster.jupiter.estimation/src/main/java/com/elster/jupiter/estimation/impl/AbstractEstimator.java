@@ -1,6 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.estimation.MessageSeeds;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.MissingRequiredProperty;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -79,7 +79,7 @@ public abstract class AbstractEstimator implements IEstimator {
 
     @Override
     public NlsKey getNlsKey() {
-        return SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, getBaseKey());
+        return SimpleNlsKey.key(EstimationService.COMPONENTNAME, Layer.DOMAIN, getBaseKey());
     }
 
     @Override

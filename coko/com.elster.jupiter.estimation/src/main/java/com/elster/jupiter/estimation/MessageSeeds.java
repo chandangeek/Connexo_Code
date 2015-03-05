@@ -1,9 +1,5 @@
 package com.elster.jupiter.estimation;
 
-/**
- * Created by igh on 3/03/2015.
- */
-
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -13,9 +9,8 @@ import java.util.logging.Logger;
 
 
 public enum MessageSeeds implements MessageSeed {
+    NO_SUCH_ESTIMATOR(1001, Constants.NO_SUCH_ESTIMATOR, "Validator {0} does not exist.", Level.SEVERE),
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE);
-
-    public static final String COMPONENT_NAME = "EST";
 
     private final int number;
     private final String key;
@@ -31,7 +26,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return COMPONENT_NAME;
+        return EstimationService.COMPONENTNAME;
     }
 
     @Override
@@ -64,5 +59,19 @@ public enum MessageSeeds implements MessageSeed {
         logger.log(getLevel(), format.format(args), t);
     }
 
+    public enum Constants {
+        ;
+//        public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
+//        public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
+//        public static final String INVALID_CHARS = "InvalidChars";
+        public static final String NO_SUCH_ESTIMATOR = "NoSuchEstimator";
+//        public static final String DUPLICATE_VALIDATION_RULE = "DuplicateValidationRule";
+//        public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
+//        public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
+//        public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
+//        public static final String VALIDATOR_PROPERTY_NOT_IN_SPEC_KEY = "ValidatorPropertyXIsNotInSpec";
+//        public static final String VALIDATOR_PROPERTY_INVALID_VALUE_KEY = "ValidatorPropertyValueInvalid";
+//        public static final String VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY = "ValidatorPropertyRequired";
+    }
 }
 
