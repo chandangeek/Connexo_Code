@@ -5,7 +5,7 @@ import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.fsm.impl.constraints.UniqueName;
+import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (15:20)
  */
-@UniqueName(message = MessageSeeds.Keys.UNIQUE_STATE_NAME, groups = { Save.Create.class, Save.Update.class })
+@Unique(message = MessageSeeds.Keys.UNIQUE_STATE_NAME, groups = { Save.Create.class, Save.Update.class })
 public abstract class StateImpl implements State {
 
     public static final String CUSTOM = "0";

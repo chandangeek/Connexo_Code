@@ -4,7 +4,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.orm.DataModel;
-import junit.framework.TestCase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,13 +17,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link StateTransitionEventTypeImpl} component.
+ * Tests the creation of a {@link StateTransitionTriggerEvent}
+ * from a {@link CustomStateTransitionEventTypeImpl}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (17:09)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class StateTransitionTriggerEventTypeImplTest extends TestCase {
+public class StateTransitionTriggerEventCreationTest {
 
     @Mock
     private DataModel dataModel;
@@ -40,7 +40,7 @@ public class StateTransitionTriggerEventTypeImplTest extends TestCase {
 
     @Test
     public void newInstanceCopiesAllProperties() {
-        StateTransitionEventTypeImpl eventType = new StateTransitionEventTypeImpl(this.dataModel);
+        CustomStateTransitionEventTypeImpl eventType = new CustomStateTransitionEventTypeImpl(this.dataModel);
         String expectedSourceId = "Test1";
         Map<String, Object> expectedProperties = new HashMap<>();
         expectedProperties.put("firstName", "Rudi");
@@ -64,7 +64,7 @@ public class StateTransitionTriggerEventTypeImplTest extends TestCase {
 
     @Test
     public void newInstanceWithoutProperties() {
-        StateTransitionEventTypeImpl eventType = new StateTransitionEventTypeImpl(this.dataModel);
+        CustomStateTransitionEventTypeImpl eventType = new CustomStateTransitionEventTypeImpl(this.dataModel);
         String expectedSourceId = "Test2";
 
         // Business method

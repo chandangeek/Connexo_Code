@@ -20,6 +20,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // StateTransitionEventType
     UNIQUE_EVENT_TYPE_SYMBOL(200, Keys.UNIQUE_EVENT_TYPE_SYMBOL, "The symbolic representation of a state transition event type must be unique"),
+    UNIQUE_STANDARD_EVENT_TYPE(201, Keys.UNIQUE_STANDARD_EVENT_TYPE, "A standard event type can only once be enabled for use in finate state machines"),
 
     // State
     UNIQUE_STATE_NAME(300, Keys.UNIQUE_STATE_NAME, "The name of a state must be unique in the finate state machine's context"),
@@ -73,6 +74,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String UNIQUE_EVENT_TYPE_SYMBOL = "state.transition.event.type.unique.symbol";
+        public static final String UNIQUE_STANDARD_EVENT_TYPE = "state.transition.event.type.unique.standard";
         public static final String UNIQUE_STATE_NAME = "state.unique.name";
         public static final String UNIQUE_FINATE_STATE_MACHINE_NAME = "finate.state.machine.unique.name";
         public static final String AT_LEAST_ONE_STATE = "finate.state.machine.min1state";

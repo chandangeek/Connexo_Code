@@ -8,12 +8,12 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Validates the {@link UniqueName} constraint against a {@link FinateStateMachine}.
+ * Validates the {@link Unique} constraint against a {@link FinateStateMachine}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (10:38)
  */
-public class UniqueFinateStateMachineNameValidator implements ConstraintValidator<UniqueName, FinateStateMachine> {
+public class UniqueFinateStateMachineNameValidator implements ConstraintValidator<Unique, FinateStateMachine> {
 
     private final FinateStateMachineService service;
 
@@ -24,7 +24,7 @@ public class UniqueFinateStateMachineNameValidator implements ConstraintValidato
     }
 
     @Override
-    public void initialize(UniqueName constraintAnnotation) {
+    public void initialize(Unique constraintAnnotation) {
         // No need to extract information from the annotation
     }
 

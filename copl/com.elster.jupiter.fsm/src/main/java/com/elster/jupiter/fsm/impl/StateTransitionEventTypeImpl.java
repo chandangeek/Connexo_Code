@@ -1,16 +1,11 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.fsm.impl.constraints.UniqueName;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
-import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Map;
 
@@ -20,11 +15,11 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:03)
  */
-@UniqueName(message = MessageSeeds.Keys.UNIQUE_EVENT_TYPE_SYMBOL, groups = { Save.Create.class, Save.Update.class })
-public class StateTransitionEventTypeImpl implements StateTransitionEventType {
+public abstract class StateTransitionEventTypeImpl implements StateTransitionEventType {
 
     public enum Fields {
-        SYMBOL("symbol");
+        SYMBOL("symbol"),
+        EVENT_TYPE("eventType");
 
         private final String javaFieldName;
 
@@ -37,12 +32,17 @@ public class StateTransitionEventTypeImpl implements StateTransitionEventType {
         }
 
     }
+
+    public static final String CUSTOM = "0";
+    public static final String STANDARD = "1";
+    public static final Map<String, Class<? extends StateTransitionEventType>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends StateTransitionEventType>>of(
+                    CUSTOM, CustomStateTransitionEventTypeImpl.class,
+                    STANDARD, StandardStateTransitionEventTypeImpl.class);
+
     private final DataModel dataModel;
 
     private long id;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
-    private String symbol;
     private String userName;
     private long version;
     private Instant createTime;
@@ -54,24 +54,13 @@ public class StateTransitionEventTypeImpl implements StateTransitionEventType {
         this.dataModel = dataModel;
     }
 
-    public StateTransitionEventType initialize(String symbol) {
-        this.symbol = symbol;
-        return this;
-    }
-
     @Override
     public long getId() {
         return id;
     }
 
-    @Override
-    public String getSymbol() {
-        return this.symbol;
-    }
-
-    @Override
-    public StateTransitionTriggerEvent newInstance(FinateStateMachine finateStateMachine, String sourceId, String sourceCurrentStateName, Map<String, Object> properties) {
-        return this.dataModel.getInstance(StateTransitionTriggerEventImpl.class).initialize(this, finateStateMachine, sourceId, properties, sourceCurrentStateName);
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     @Override

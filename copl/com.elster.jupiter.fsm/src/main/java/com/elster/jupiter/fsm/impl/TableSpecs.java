@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
@@ -8,7 +9,6 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 /**
@@ -29,7 +29,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column name = table.column("NAME").varChar().notNull().map(FinateStateMachineImpl.Fields.NAME.fieldName()).add();
-            Column topic = table.column("TOPIC").varChar().notNull().map(FinateStateMachineImpl.Fields.TOPIC.fieldName()).add();
+            table.column("TOPIC").varChar().notNull().map(FinateStateMachineImpl.Fields.TOPIC.fieldName()).add();
             table.unique("UK_FSM_FINATESTATEMACHINE").on(name).add();
             table.primaryKey("PK_FSM_FINATESTATEMACHINE").on(id).add();
         }
@@ -39,12 +39,20 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<StateTransitionEventType> table = dataModel.addTable(this.name(), StateTransitionEventType.class);
-            table.map(StateTransitionEventTypeImpl.class);
+            table.map(StateTransitionEventTypeImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            Column name = table.column("SYMBOL").varChar().notNull().map(StateTransitionEventTypeImpl.Fields.SYMBOL.fieldName()).add();
-            table.unique("UK_FSM_EVENTTYPE").on(name).add();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+            Column symbol = table.column("SYMBOL").varChar().map(StateTransitionEventTypeImpl.Fields.SYMBOL.fieldName()).add();
+            Column eventType = table.column("EVENTTYPE").type("char(80)").add();
+            table.unique("UK_FSM_EVENTTYPE_SYMBOL").on(symbol).add();
+            table.unique("UK_FSM_EVENTTYPE").on(eventType).add();
             table.primaryKey("PK_FSM_EVENTTYPE").on(id).add();
+            table.foreignKey("FK_FSM_EVENTTYPE")
+                .on(eventType)
+                .references(EventService.COMPONENTNAME, "EVT_EVENTTYPE")
+                .map(StateTransitionEventTypeImpl.Fields.EVENT_TYPE.fieldName())
+                .add();
         }
     },
 

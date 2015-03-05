@@ -1,9 +1,12 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.*;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineBuilder;
 import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -100,11 +103,12 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(NlsService.class).toInstance(nlsService);
-                bind(FinateStateMachineService.class).toInstance(FinateStateMachineServiceImpl.this);
-                bind(ServerFinateStateMachineService.class).toInstance(FinateStateMachineServiceImpl.this);
                 bind(UserService.class).toInstance(userService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+
+                bind(FinateStateMachineService.class).toInstance(FinateStateMachineServiceImpl.this);
+                bind(ServerFinateStateMachineService.class).toInstance(FinateStateMachineServiceImpl.this);
             }
         };
     }
@@ -134,15 +138,27 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
     }
 
     @Override
-    public StateTransitionEventType newStateTransitionEventType(String symbol) {
-        return this.dataModel.getInstance(StateTransitionEventTypeImpl.class).initialize(symbol);
+    public CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol) {
+        return this.dataModel.getInstance(CustomStateTransitionEventTypeImpl.class).initialize(symbol);
     }
 
     @Override
-    public Optional<StateTransitionEventType> findStateTransitionEventTypeBySymbol(String symbol) {
+    public StandardStateTransitionEventType newStandardStateTransitionEventType(com.elster.jupiter.events.EventType eventType) {
+        return this.dataModel.getInstance(StandardStateTransitionEventTypeImpl.class).initialize(eventType);
+    }
+
+    @Override
+    public Optional<CustomStateTransitionEventType> findCustomStateTransitionEventType(String symbol) {
         return this.dataModel
-                .mapper(StateTransitionEventType.class)
+                .mapper(CustomStateTransitionEventType.class)
                 .getUnique(StateTransitionEventTypeImpl.Fields.SYMBOL.fieldName(), symbol);
+    }
+
+    @Override
+    public Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType) {
+        return this.dataModel
+                .mapper(StandardStateTransitionEventType.class)
+                .getUnique(StateTransitionEventTypeImpl.Fields.EVENT_TYPE.fieldName(), eventType);
     }
 
     @Override

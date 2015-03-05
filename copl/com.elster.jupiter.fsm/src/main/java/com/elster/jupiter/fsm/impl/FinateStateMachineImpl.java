@@ -5,7 +5,7 @@ import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.impl.constraints.AtLeastOneState;
-import com.elster.jupiter.fsm.impl.constraints.UniqueName;
+import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.google.common.collect.ImmutableMap;
@@ -27,7 +27,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (15:29)
  */
-@UniqueName(message = MessageSeeds.Keys.UNIQUE_FINATE_STATE_MACHINE_NAME, groups = { Save.Create.class, Save.Update.class })
+@Unique(message = MessageSeeds.Keys.UNIQUE_FINATE_STATE_MACHINE_NAME, groups = { Save.Create.class, Save.Update.class })
 @AtLeastOneState(message = MessageSeeds.Keys.AT_LEAST_ONE_STATE, groups = { Save.Create.class, Save.Update.class })
 public class FinateStateMachineImpl implements FinateStateMachine {
 

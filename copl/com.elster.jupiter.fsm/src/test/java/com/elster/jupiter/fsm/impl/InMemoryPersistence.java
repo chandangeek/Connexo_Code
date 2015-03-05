@@ -2,6 +2,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
@@ -95,6 +96,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(OrmService.class);
             this.injector.getInstance(UserService.class);
             this.injector.getInstance(NlsService.class);
+            this.injector.getInstance(EventService.class);
             this.finateStateMachineService = this.injector.getInstance(FinateStateMachineServiceImpl.class);
             this.dataModel = this.finateStateMachineService.getDataModel();
             ctx.commit();
@@ -126,6 +128,10 @@ public class InMemoryPersistence {
 
     public FinateStateMachineServiceImpl getFinateStateMachineService() {
         return this.finateStateMachineService;
+    }
+
+    public <T> T getService(Class<T> serviceClass) {
+        return this.injector.getInstance(serviceClass);
     }
 
     private class MockModule extends AbstractModule {

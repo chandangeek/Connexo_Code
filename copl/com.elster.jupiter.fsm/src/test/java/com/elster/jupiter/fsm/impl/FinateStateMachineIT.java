@@ -528,7 +528,7 @@ public class FinateStateMachineIT {
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {
-        StateTransitionEventType commissionedEventType = this.getTestService().newStateTransitionEventType(symbol);
+        StateTransitionEventType commissionedEventType = this.getTestService().newCustomStateTransitionEventType(symbol);
         commissionedEventType.save();
         return commissionedEventType;
     }
