@@ -61,8 +61,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     itemId: 'emptyPanel',
                     title: Uni.I18n.translate('channelConfigurations.empty.title', 'MDC', 'No channel configurations found'),
                     reasons: [
-                        Uni.I18n.translate('channelConfigurations.empty.list.item1', 'MDC', 'No channel configurations have been defined yet.'),
-                        Uni.I18n.translate('channelConfigurations.empty.list.item2', 'MDC', 'No channel configurations comply to the filter.')
+                        Uni.I18n.translate('channelConfigurations.empty.list.item1', 'MDC', 'No channel configurations have been defined yet.')
                     ],
                     stepItems: [
                         {
