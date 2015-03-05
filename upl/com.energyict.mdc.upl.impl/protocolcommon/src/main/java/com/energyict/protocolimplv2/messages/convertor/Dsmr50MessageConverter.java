@@ -3,18 +3,14 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -25,6 +21,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * @since 30/10/13 - 14:00
  */
 public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
+
+    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(Dsmr40MessageConverter.registry);
+
+    @Override
+    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+        return registry;
+    }
 
     static {
 

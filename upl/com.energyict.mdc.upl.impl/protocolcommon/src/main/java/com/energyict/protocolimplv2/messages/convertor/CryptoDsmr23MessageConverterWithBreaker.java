@@ -1,7 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
@@ -12,6 +16,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
  * @author khe
  */
 public class CryptoDsmr23MessageConverterWithBreaker extends CryptoDsmr23MessageConverter {
+
+    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(CryptoDsmr23MessageConverter.registry);  //Clone the messages of the super class
+
+    @Override
+    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+        return registry;
+    }
 
     static {
         // contactor related

@@ -2,11 +2,15 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cbo.HexString;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Clone of CryptoDsmr40MessageConverter, but extends KaifaDsmr40MessageConverter instead of Dsmr40MessageConverter
@@ -14,6 +18,13 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
  * @author khe
  */
 public class CryptoKaifaDsmr40MessageConverter extends KaifaDsmr40MessageConverter {
+
+    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(KaifaDsmr40MessageConverter.registry);
+
+    @Override
+    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+        return registry;
+    }
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}

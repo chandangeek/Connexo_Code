@@ -15,6 +15,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +26,17 @@ import java.util.Map;
  * @since 28/10/13 - 14:22
  */
 
-public class AS300DPETMessageConverter extends AS300MessageConverter {;
+public class AS300DPETMessageConverter extends AS300MessageConverter {
 
     private static final String KEY = "Key";
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
+
+    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(AS300MessageConverter.registry);
+
+    @Override
+    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+        return registry;
+    }
 
     static {
         // Alliander PET
@@ -55,12 +63,9 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {;
         }
     }
 
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return super.getRegistry();
-    }
-
     /**
      * Return an XML representation of the key pairs of all devices present in the group
+     *
      * @param group the {@link Group} containing all devices
      */
     private String encodeGroup(Group group) {

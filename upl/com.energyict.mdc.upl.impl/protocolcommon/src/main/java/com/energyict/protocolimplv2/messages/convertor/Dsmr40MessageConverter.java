@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -12,6 +13,9 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
@@ -21,6 +25,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * @since 30/10/13 - 14:00
  */
 public class Dsmr40MessageConverter extends Dsmr23MessageConverter {
+
+    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(Dsmr23MessageConverter.registry);
+
+    @Override
+    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+        return registry;
+    }
 
     static {
         // Restore factory settings

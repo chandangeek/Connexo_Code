@@ -2,11 +2,15 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cbo.HexString;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a MessageConverter for the legacy Crypto DSMR4.0 protocols.
@@ -16,6 +20,13 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
  * @since 30/10/13 - 8:33
  */
 public class CryptoDsmr40MessageConverter extends Dsmr40MessageConverter {
+
+    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>(Dsmr40MessageConverter.registry);
+
+    @Override
+    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+        return registry;
+    }
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
