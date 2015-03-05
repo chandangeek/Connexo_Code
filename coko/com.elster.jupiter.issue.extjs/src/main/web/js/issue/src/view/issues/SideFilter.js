@@ -71,7 +71,7 @@ Ext.define('Isu.view.issues.SideFilter', {
 
             listConfig: {
                 cls: 'isu-combo-color-list',
-                emptyText: Uni.I18n.translate('general.title.device', 'ISU', 'Start typing for a MRID')
+                emptyText: Uni.I18n.translate('general.tooltip.meter', 'ISU', 'Start typing for a MRID')
             },
 
             queryMode: 'remote',
