@@ -251,6 +251,7 @@ public class DataCollectionKpiImplTest {
         // Asserts: no exception
         assertThat(save.calculatesComTaskExecutionKpi()).isFalse();
         assertThat(save.calculatesConnectionSetupKpi()).isFalse();
+        assertThat(save.getDisplayRange()).isEqualTo(TimeDuration.days(1));
     }
 
     @Test
@@ -265,6 +266,21 @@ public class DataCollectionKpiImplTest {
 
         // Asserts
         assertThat(found.isPresent()).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testDisplayPeriodIsPersisted() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
+
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId());
+
+        // Asserts
+        assertThat(found.isPresent()).isTrue();
+        assertThat(found.get().getDisplayRange()).isEqualTo(TimeDuration.days(1));
     }
 
     @Test
@@ -679,7 +695,7 @@ public class DataCollectionKpiImplTest {
         assertThat(kpiService.getKpi(communicationKpiId).isPresent()).isTrue();
         kpiService.getKpi(communicationKpiId).get().
                 getMembers().stream().
-                forEach(member->assertThat(member.getTarget(Instant.now())).isEqualTo(BigDecimal.valueOf(99.99)));
+                forEach(member -> assertThat(member.getTarget(Instant.now())).isEqualTo(BigDecimal.valueOf(99.99)));
         assertThat(taskService.getRecurrentTask(connectionTaskId).isPresent()).isTrue();
         assertThat(taskService.getRecurrentTask(communicationTaskId).isPresent()).isTrue();
     }
@@ -710,7 +726,7 @@ public class DataCollectionKpiImplTest {
         assertThat(kpiService.getKpi(communicationKpiId).isPresent()).isTrue();
         kpiService.getKpi(connectionKpiId).get().
                 getMembers().stream().
-                forEach(member->assertThat(member.getTarget(Instant.now())).isEqualTo(BigDecimal.valueOf(99.99)));
+                forEach(member -> assertThat(member.getTarget(Instant.now())).isEqualTo(BigDecimal.valueOf(99.99)));
         assertThat(taskService.getRecurrentTask(connectionTaskId).isPresent()).isTrue();
         assertThat(taskService.getRecurrentTask(communicationTaskId).isPresent()).isTrue();
     }
