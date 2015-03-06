@@ -191,10 +191,12 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                     if (deviceGroupStore.getCount() > 0) {
                         form.loadRecord(Ext.create(kpiModel));
                     } else {
+                        Ext.suspendLayouts();
                         deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datacollectionkpis.noDeviceGroup', 'MDC', 'No device group defined yet.') +  '</span>' );
                         deviceGroupDisplayField.show();
                         deviceGroupCombo.hide();
                         createBtn.disable();
+                        Ext.resumeLayouts(true);
                     }
                     widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.addDataCollectionKpi', 'MDC', 'Add data collection KPI'));
                     widget.setLoading(false);
