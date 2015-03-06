@@ -84,7 +84,7 @@ Ext.define('Sam.controller.licensing.Upload', {
                     var responseObject = JSON.parse(response.responseText);
                     uploadPanel.setLoading(false);
                     if (Ext.isEmpty(responseObject.errors)) {
-                        router.getRoute('administration/licensing/licenses').forward();
+                        router.getRoute('administration/licenses').forward();
                         Ext.Array.each(responseObject.success, function (item, index) {
                             if (index) {
                                 message += ', '
