@@ -39,7 +39,7 @@ public interface DataCollectionKpi extends HasId {
      */
     public Optional<TemporalAmount> connectionSetupKpiCalculationIntervalLength();
 
-    void setDisplayRange(TimeDuration displayPeriod);
+    void updateDisplayRange(TimeDuration displayPeriod);
 
     TimeDuration getDisplayRange();
 

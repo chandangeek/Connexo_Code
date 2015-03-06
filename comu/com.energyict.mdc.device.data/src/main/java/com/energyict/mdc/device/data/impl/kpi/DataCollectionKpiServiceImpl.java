@@ -91,7 +91,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
 
         @Override
         public DataCollectionKpiBuilder displayPeriod(TimeDuration displayPeriod) {
-            this.underConstruction.setDisplayRange(displayPeriod);
+            this.underConstruction.updateDisplayRange(displayPeriod);
             return this;
         }
 

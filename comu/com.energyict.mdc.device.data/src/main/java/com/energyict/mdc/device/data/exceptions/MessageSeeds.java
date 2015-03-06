@@ -103,6 +103,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER(2069, Keys.CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER, "Could not find a message for identifier '{0}'", Level.SEVERE),
     CAN_NOT_REPLACE_EXISTING_KPI(2070, Keys.CAN_NOT_REPLACE_EXISTING_KPI, "An existing KPI can not be replaced", Level.SEVERE ),
     DUPLICATE_DEVICE_MRID(2071, Keys.DUPLICATE_DEVICE_MRID, "MRID must be unique", Level.SEVERE),
+    DEVICE_GROUP_MUST_BE_UNIQUE(2072, Keys.DEVICE_GROUP_MUST_BE_UNIQUE, "There is already a KPI for this device group", Level.SEVERE),
     ;
 
     private final int number;
@@ -233,5 +234,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER = "logbookIdentifier.not.found";
         public static final String CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER = "messageIdentifier.not.found";
         public static final String CAN_NOT_REPLACE_EXISTING_KPI = "dataCollectionKpi.canNotReplaceExistingKpi";
+        public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "kpi.deviceGroup.unique";
     }
 }

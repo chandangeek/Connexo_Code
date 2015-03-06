@@ -532,7 +532,7 @@ public class DataCollectionKpiImplTest {
         builder.calculateConnectionSetupKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
-        builder.save();
+        builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Asserts: see expected exception rule
     }
@@ -545,7 +545,7 @@ public class DataCollectionKpiImplTest {
         builder.calculateConnectionSetupKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
-        builder.save();
+        builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Asserts: see expected exception rule
     }
@@ -602,7 +602,7 @@ public class DataCollectionKpiImplTest {
         builder.calculateComTaskExecutionKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
-        builder.save();
+        builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Asserts: see expected exception
     }

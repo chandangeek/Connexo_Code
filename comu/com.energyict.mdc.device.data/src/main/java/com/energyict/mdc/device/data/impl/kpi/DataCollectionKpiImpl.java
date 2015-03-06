@@ -24,6 +24,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.device.data.exceptions.CannotReplaceExistingKPI;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.google.common.collect.Range;
@@ -46,6 +47,7 @@ import javax.validation.constraints.NotNull;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-06 (10:25)
  */
+@MustHaveUniqueEndDeviceGroup(message=MessageSeeds.Keys.DEVICE_GROUP_MUST_BE_UNIQUE, groups={Save.Create.class, Save.Update.class})
 public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAware {
 
     public enum Fields {
@@ -53,7 +55,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         COMMUNICATION_KPI("communicationKpi"),
         CONNECTION_RECURRENT_TASK("connectionKpiTask"),
         COMMUNICATION_RECURRENT_TASK("communicationKpiTask"),
-        END_DEVICE_GROUP("endDeviceGroup"),
+        END_DEVICE_GROUP("deviceGroup"),
         DISPLAY_PERIOD("displayRange");
 
         private final String javaFieldName;
@@ -85,7 +87,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private Reference<Kpi> communicationKpi = ValueReference.absent();
     private CompositeKpiSaveStrategy kpiSaveStrategy = new KpiSaveStrategyAtCreationTime();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_GROUP_IS_REQUIRED + "}")
-    private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+    private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
     private Reference<RecurrentTask> connectionKpiTask = ValueReference.absent();
     private Reference<RecurrentTask> communicationKpiTask = ValueReference.absent();
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateAllSchedules();
@@ -101,14 +103,14 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     DataCollectionKpiImpl initialize(EndDeviceGroup group) {
-        this.endDeviceGroup.set(group);
+        this.deviceGroup.set(group);
         return this;
     }
 
     public void save() {
         if (this.getId() == 0) {
             // Save myself first (without validation) so that the payload of the recurrent task can contain my ID
-            this.dataModel.persist(this);
+            Save.CREATE.save(this.dataModel, this);
         }
         // Now save the KPIs and the recurrent task
         this.kpiSaveStrategy.save();
@@ -130,7 +132,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
 
     @Override
     public EndDeviceGroup getDeviceGroup() {
-        return this.endDeviceGroup.get();
+        return this.deviceGroup.get();
     }
 
     @Override
@@ -183,8 +185,9 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     @Override
-    public void setDisplayRange(TimeDuration displayPeriod) {
+    public void updateDisplayRange(TimeDuration displayPeriod) {
         this.displayRange = new TimeDuration(displayPeriod.getCount(), displayPeriod.getTimeUnit());
+        this.save();
     }
 
     @Override
