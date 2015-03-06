@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -75,7 +76,7 @@ public class EstimationEngineTest {
         when(baseReadingRecord3.getTimeStamp()).thenReturn(first.plusHours(2).toInstant());
         when(baseReadingRecord4.getTimeStamp()).thenReturn(first.plusHours(3).toInstant());
         when(baseReadingRecord5.getTimeStamp()).thenReturn(first.plusHours(4).toInstant());
-
+        when(channel1.getNextDateTime(any())).thenAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofHours(1)));
     }
 
     @After
