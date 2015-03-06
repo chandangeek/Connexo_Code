@@ -8,8 +8,8 @@ Ext.define('Mdc.model.DataCollectionKpi', {
         {name: 'deviceGroup', type: 'auto'},
         {name: 'frequency', type: 'auto', defaultValue: null},
         {name: 'displayRange', type: 'auto', defaultValue: null},
-        {name: 'connectionTarget', type: 'integer', useNull: true},
-        {name: 'communicationTarget', type: 'integer', useNull: true},
+        {name: 'connectionTarget', type: 'integer', useNull: true, defaultValue: null},
+        {name: 'communicationTarget', type: 'integer', useNull: true, defaultValue: null},
         {name: 'latestCalculationDate', dateFormat: 'time', type: 'date', persist: false}
     ],
     proxy: {

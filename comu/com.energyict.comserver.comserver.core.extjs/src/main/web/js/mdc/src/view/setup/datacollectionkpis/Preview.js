@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Preview', {
     requires: [
         'Mdc.view.setup.datacollectionkpis.ActionMenu'
     ],
-    title: Uni.I18n.translate('general.general', 'MDC', 'General'),
+    title: '&nbsp;',
 
     tools: [
         {
@@ -48,20 +48,16 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Preview', {
                         },
                         {
                             name: 'frequency',
-                            fieldLabel: Uni.I18n.translate('datacollectionkpis.frequency', 'MDC', 'Frequency'),
+                            fieldLabel: Uni.I18n.translate('datacollectionkpis.calculationFrequency', 'MDC', 'Calculation frequency'),
                             renderer: function (value) {
-                                return Mdc.util.ScheduleToStringConverter.convert(value);
+                                return value ? Mdc.util.ScheduleToStringConverter.convert(value) : '';
                             }
                         },
                         {
-                            name: 'latestCalculationDate',
-                            fieldLabel: Uni.I18n.translate('datacollectionkpis.lastcalculated', 'MDC', 'Last calculated'),
+                            name: 'displayRange',
+                            fieldLabel: Uni.I18n.translate('datacollectionkpis.displayRange', 'MDC', 'Display range'),
                             renderer: function (value) {
-                                if (value) {
-                                    return Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(value), 'MDC', 'M d, Y H:i');
-                                } else {
-                                    return Uni.I18n.translate('general.never', 'MDC', 'Never');
-                                }
+                                return value ? Ext.getStore('Mdc.store.DataCollectionKpiRange').getById(value.count + value.timeUnit).get('name') : '';
                             }
                         }
                     ]
@@ -97,8 +93,18 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Preview', {
                                     return 'No KPI';
                                 }
                             }
+                        },
+                        {
+                            name: 'latestCalculationDate',
+                            fieldLabel: Uni.I18n.translate('datacollectionkpis.lastcalculated', 'MDC', 'Last calculated'),
+                            renderer: function (value) {
+                                if (value) {
+                                    return Uni.DateTime.formatDateTimeLong(value);
+                                } else {
+                                    return Uni.I18n.translate('general.never', 'MDC', 'Never');
+                                }
+                            }
                         }
-
                     ]
                 }
 

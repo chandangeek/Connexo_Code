@@ -81,8 +81,11 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
     },
 
     showKpiPreview: function (selectionModel, record) {
+        var preview = this.getDataCollectionKpisPreviewContainer();
+
         Ext.suspendLayouts();
-        this.getDataCollectionKpisPreviewContainer().down('dataCollectionKpisActionMenu').record = record;
+        preview.down('dataCollectionKpisActionMenu').record = record;
+        preview.setTitle(record.get('deviceGroup').name);
         this.getDataCollectionKpisPreviewForm().loadRecord(record);
         Ext.resumeLayouts(true);
     },
@@ -131,7 +134,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         record.set('connectionTarget', connectionTarget);
         record.endEdit();
         record.save({
-            success: function (record) {
+            success: function () {
                 router.getRoute('administration/datacollectionkpis').forward();
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
@@ -237,7 +240,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
 
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
-            success: function (model, operation) {
+            success: function () {
                 gridToolbarTop.totalCount = 0;
                 grid.getStore().loadPage(1);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datacollectionkpis.kpiRemoved', 'MDC', 'Data collection KPI removed'));

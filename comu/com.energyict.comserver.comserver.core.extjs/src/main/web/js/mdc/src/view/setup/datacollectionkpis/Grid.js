@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('datacollectionkpis.frequency', 'MDC', 'Frequency'),
+                header: Uni.I18n.translate('datacollectionkpis.calculationFrequency', 'MDC', 'Calculation frequency'),
                 dataIndex: 'frequency',
                 renderer: function (value) {
                     return Mdc.util.ScheduleToStringConverter.convert(value);
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
                 flex: 1,
                 renderer: function (value) {
                     if (value) {
-                        return Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(value), 'MDC', 'M d, Y H:i');
+                        return Uni.DateTime.formatDateTimeShort(value);
                     } else {
                         return Uni.I18n.translate('general.never', 'MDC', 'Never');
                     }
