@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         {ref: 'dataCollectionKpisGrid', selector: '#datacollectionkpisgrid'},
         {ref: 'dataCollectionKpiEditForm', selector: '#dataCollectionKpiEditForm'},
         {ref: 'dataCollectionKpisPreviewContainer', selector: '#datacollectionkpispreview'},
-        {ref: 'kpiErrorContainer', selector: '#kpiErrorContainer'}
+        {ref: 'kpiErrorContainer', selector: '#kpiErrorContainer'},
+        {ref: 'dataCollectionKpisSetup', selector: 'dataCollectionKpiSetup'}
     ],
 
 
@@ -31,8 +32,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             '#dataCollectionKpiSetup button[action=addDataCollectionKpi]': {
                 click: this.moveToCreatePage
             },
-            'dataCollectionKpisActionMenu menuitem[action=edit]': {
-                click: this.moveToEditPage
+            'dataCollectionKpisActionMenu': {
+                click: this.chooseAction
             },
             '#dataCollectionKpiEdit button[action=cancelAction]': {
                 click: this.moveToViewPage
@@ -54,23 +55,36 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         this.getController('Uni.controller.history.Router').getRoute('administration/datacollectionkpis/add').forward();
     },
 
-    moveToEditPage: function () {
-        var grid = this.getDataCollectionKpisGrid(),
-            router = this.getController('Uni.controller.history.Router'),
-            record = grid.getSelectionModel().getLastSelected();
+    chooseAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('administration/datacollectionkpis/edit').forward({id: record.get('id')});
+        switch (item.action) {
+            case 'edit':
+                router.getRoute('administration/datacollectionkpis/edit').forward({id: menu.record.get('id')});
+                break;
+            case 'remove':
+                Ext.create('Uni.view.window.Confirmation').show({
+                    title: Uni.I18n.translate('datacollectionkpis.deleteConfirmation.title', 'MDC', 'Remove \'Selected data collection KPI\'?'),
+                    msg: Uni.I18n.translate('datacollectionkpis.deleteConfirmation.msg', 'MDC', 'This data collection KPI will no longer be available on connections &#38; communications overview.'),
+                    fn: function (state) {
+                        switch (state) {
+                            case 'confirm':
+                                me.removeKpi(menu.record);
+                                break;
+                            case 'cancel':
+                                break;
+                        }
+                    }
+                });
+        }
     },
 
-    showKpiPreview: function (selectionModel) {
-        var previewForm = this.getDataCollectionKpisPreviewForm(),
-            previewContainer = this.getDataCollectionKpisPreviewContainer(),
-            record = selectionModel.getLastSelected();
-
-        if (previewForm && record) {
-            previewContainer.setTitle(Uni.I18n.translate('general.general', 'MDC', 'General'));
-            previewForm.loadRecord(record);
-        }
+    showKpiPreview: function (selectionModel, record) {
+        Ext.suspendLayouts();
+        this.getDataCollectionKpisPreviewContainer().down('dataCollectionKpisActionMenu').record = record;
+        this.getDataCollectionKpisPreviewForm().loadRecord(record);
+        Ext.resumeLayouts(true);
     },
 
     showErrorPanel: function (value) {
@@ -146,12 +160,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
 
 
     showDataCollectionKpiView: function () {
-        var me = this,
-            widget = Ext.widget('dataCollectionKpiSetup'),
-            store = widget.down('#datacollectionkpisgrid').getStore();
-
-        me.getApplication().fireEvent('changecontentevent', widget);
-        store.load();
+        this.getApplication().fireEvent('changecontentevent', Ext.widget('dataCollectionKpiSetup'));
     },
 
     showDataCollectionKpiEditView: function (id) {
@@ -218,5 +227,24 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         }
         displayRangeCombo.reset();
         Ext.resumeLayouts(true);
+    },
+
+    removeKpi: function (record) {
+        var me = this,
+            page = me.getDataCollectionKpisSetup(),
+            grid = me.getDataCollectionKpisGrid(),
+            gridToolbarTop = grid.down('pagingtoolbartop');
+
+        page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
+        record.destroy({
+            success: function (model, operation) {
+                gridToolbarTop.totalCount = 0;
+                grid.getStore().loadPage(1);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datacollectionkpis.kpiRemoved', 'MDC', 'Data collection KPI removed'));
+            },
+            callback: function () {
+                page.setLoading(false);
+            }
+        });
     }
 });

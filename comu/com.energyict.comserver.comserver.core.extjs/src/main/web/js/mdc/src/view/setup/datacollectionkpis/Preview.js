@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Preview', {
     requires: [
         'Mdc.view.setup.datacollectionkpis.ActionMenu'
     ],
+    title: Uni.I18n.translate('general.general', 'MDC', 'General'),
 
     tools: [
         {
