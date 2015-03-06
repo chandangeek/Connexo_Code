@@ -2,6 +2,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
@@ -194,6 +195,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         DataCollectionKpi dataCollectionKpi = mock(DataCollectionKpi.class);
         when(dataCollectionKpi.calculatesConnectionSetupKpi()).thenReturn(true);
         when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
+        when(dataCollectionKpi.getDisplayRange()).thenReturn(TimeDuration.days(1));
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
         kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14, 0, 0).toInstant(ZoneOffset.UTC), 10, 80, 10, 100));
         kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,15, 0).toInstant(ZoneOffset.UTC), 20, 70, 10, 100));

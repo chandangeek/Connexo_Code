@@ -109,7 +109,7 @@ public class CommunicationOverviewInfoFactory {
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(queryEndDeviceGroup);
         if (dataCollectionKpiOptional.isPresent() &&  dataCollectionKpiOptional.get().calculatesComTaskExecutionKpi()) {
             TemporalAmount frequency = dataCollectionKpiOptional.get().comTaskExecutionKpiCalculationIntervalLength().get();
-            Range<Instant> intervalByPeriod = kpiScoreFactory.getRangeByFrequency(frequency);
+            Range<Instant> intervalByPeriod = kpiScoreFactory.getRangeByDisplayRange(dataCollectionKpiOptional.get().getDisplayRange().asTemporalAmount());
             List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getComTaskExecutionKpiScores(intervalByPeriod);
             if (!kpiScores.isEmpty()) {
                 BigDecimal currentTarget = kpiScores.get(kpiScores.size() - 1).getTarget();
