@@ -1,20 +1,39 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleProperties;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.estimation.console",
         service = ConsoleCommands.class,
         property = {"osgi.command.scope=estimation",
-                "osgi.command.function=estimationBlocks"
+                "osgi.command.function=estimationBlocks",
+                "osgi.command.function=availableEstimators",
+                "osgi.command.function=ruleSets",
+                "osgi.command.function=createRuleSet",
+                "osgi.command.function=addRule"
         },
         immediate = true)
 public class ConsoleCommands {
@@ -22,6 +41,9 @@ public class ConsoleCommands {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
     private volatile MeteringService meteringService;
+    private volatile EstimationService estimationService;
+    private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     public void estimationBlocks(long meterId) {
         try {
@@ -39,9 +61,82 @@ public class ConsoleCommands {
         }
     }
 
+    public void availableEstimators() {
+        estimationService.getAvailableEstimators().stream()
+                .peek(est -> System.out.println(est.getDefaultFormat()))
+                .flatMap(est -> est.getPropertySpecs().stream())
+                .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())
+                .forEach(System.out::println);
+    }
+
+    public void createRuleSet(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try {
+            transactionService.execute(VoidTransaction.of(() -> {
+                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name);
+                estimationRuleSet.save();
+                System.out.println(print(estimationRuleSet));
+            }));
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void ruleSets(String... name) {
+        Set<String> names = new HashSet<>(Arrays.asList(name));
+        estimationService.getEstimationRuleSets().stream()
+                .filter(set -> names.isEmpty() || names.contains(set.getName()))
+                .map(this::print)
+                .forEach(System.out::println);
+    }
+
+    public void addRule(long ruleSetId, String name, String implementation, String readingTypesCommaSeparated, String... properties) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(IllegalArgumentException::new);
+            EstimationRule estimationRule = set.addRule(implementation, name);
+
+            Stream.of(readingTypesCommaSeparated.split(","))
+                    .map(meteringService::getReadingType)
+                    .flatMap(Functions.asStream())
+                    .forEach(estimationRule::addReadingType);
+            Stream.of(properties)
+                    .map(string -> string.split(":"))
+                    .forEach(split -> {
+                        estimationRule.getPropertySpecs().stream()
+                                .filter(spec -> spec.getName().equals(split[0]))
+                                .findFirst()
+                                .ifPresent(spec -> {
+                                    Object value = spec.getValueFactory().fromStringValue(split[1]);
+                                    estimationRule.addProperty(split[0], value);
+                                });
+                    });
+            set.save();
+            System.out.println(print(set));
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     private String print(EstimationBlock estimationBlock) {
@@ -56,5 +151,22 @@ public class ConsoleCommands {
                 .forEach(formattedTime -> builder.append('\t').append(formattedTime).append('\n'));
 
         return builder.toString();
+    }
+    
+    private String print(EstimationRuleSet ruleSet) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(ruleSet.getId()).append(' ').append(ruleSet.getName()).append('\n');
+        ruleSet.getRules().stream().forEach(rule -> this.appendRule(builder, rule));
+        return builder.toString();
+    }
+
+    private void appendRule(StringBuilder builder, EstimationRule rule) {
+        builder.append('\t').append(rule.getId()).append(' ').append(rule.getName()).append(" : ").append(rule.getImplementation()).append('\n');
+        rule.getReadingTypes().stream()
+                .sorted(Comparator.comparing(IdentifiedObject::getMRID))
+                .forEach(rt -> builder.append('\t').append('\t').append(rt.getMRID()).append('\n'));
+        rule.getProperties().stream()
+                .sorted(Comparator.comparing(EstimationRuleProperties::getName))
+                .forEach(prop -> builder.append('\t').append('\t').append(prop.getName()).append(" : ").append(prop.getValue()).append('\n'));
     }
 }

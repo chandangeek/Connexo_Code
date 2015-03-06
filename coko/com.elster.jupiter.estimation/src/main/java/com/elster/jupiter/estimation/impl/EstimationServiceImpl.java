@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
-public class EstimationServiceImpl implements EstimationService, InstallService {
+public class EstimationServiceImpl implements IEstimationService, InstallService {
 
     private final List<EstimatorFactory> estimatorFactories = new CopyOnWriteArrayList<>();
     private final List<EstimationResolver> resolvers = new CopyOnWriteArrayList<>();
@@ -116,6 +116,11 @@ public class EstimationServiceImpl implements EstimationService, InstallService 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(EstimationService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override
