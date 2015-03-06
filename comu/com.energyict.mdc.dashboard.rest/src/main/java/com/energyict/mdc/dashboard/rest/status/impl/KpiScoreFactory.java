@@ -1,16 +1,16 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.util.Ranges;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
@@ -71,27 +71,67 @@ public class KpiScoreFactory {
         return kpiInfo;
     }
 
-    public Range<Instant> getIntervalByPeriod(TemporalAmount temporalAmount) {
+    public Range<Instant> getRangeByDisplayRange(TemporalAmount displayRange) {
+        LocalDate today = LocalDate.now(clock);
         LocalDate startDay=null;
         LocalDate endDay=null;
-        if (temporalAmount.getUnits().contains(ChronoUnit.SECONDS)) {
-            if (temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofMinutes(5).getSeconds()
-                    || temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofMinutes(15).getSeconds()
-                    || temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofMinutes(30).getSeconds()) {
+        if (displayRange.getUnits().contains(ChronoUnit.SECONDS)) {
+            if (displayRange.get(ChronoUnit.SECONDS) == Duration.ofHours(1).getSeconds()) {
+                Instant startTime = LocalDateTime.now(clock).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
+                Instant endTime = startTime.plus(1, ChronoUnit.HOURS);
+                return Ranges.closed(startTime, endTime);
+            } else if (displayRange.get(ChronoUnit.SECONDS) == Duration.ofDays(1).getSeconds()) {
+                startDay = today;
+                endDay = startDay;
+            }
+        } else {
+            if (displayRange.get(ChronoUnit.DAYS) == 1) {
+                startDay = today;
+                endDay = startDay;
+            } else if (displayRange.get(ChronoUnit.DAYS) == 7) {
+                startDay = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+                endDay = today.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+            } else if (displayRange.get(ChronoUnit.DAYS) == 14) {
+                startDay = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY)).with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+                endDay = today.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+            } else if (displayRange.get(ChronoUnit.MONTHS) == 1) {
+                startDay = today.with(TemporalAdjusters.firstDayOfMonth());
+                endDay = today.with(TemporalAdjusters.lastDayOfMonth());
+            } else if (displayRange.get(ChronoUnit.YEARS) == 1) {
+                startDay = today.with(TemporalAdjusters.firstDayOfYear());
+                endDay = today.with(TemporalAdjusters.lastDayOfYear());
+            }
+        }
+        if (startDay==null) {
+            throw exceptionFactory.newException(MessageSeeds.UNSUPPORTED_KPI_PERIOD);
+        }
+
+        return Ranges.closed(
+                startDay.atStartOfDay().toInstant(ZoneOffset.UTC),
+                endDay.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC));
+    }
+
+    public Range<Instant> getRangeByFrequency(TemporalAmount frequency) {
+        LocalDate startDay=null;
+        LocalDate endDay=null;
+        if (frequency.getUnits().contains(ChronoUnit.SECONDS)) {
+            if (frequency.get(ChronoUnit.SECONDS) == Duration.ofMinutes(5).getSeconds()
+                    || frequency.get(ChronoUnit.SECONDS) == Duration.ofMinutes(15).getSeconds()
+                    || frequency.get(ChronoUnit.SECONDS) == Duration.ofMinutes(30).getSeconds()) {
                 startDay = LocalDate.now(clock);
                 endDay = LocalDate.now(clock);
-            } else if (temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofHours(1).getSeconds()) {
+            } else if (frequency.get(ChronoUnit.SECONDS) == Duration.ofHours(1).getSeconds()) {
                 startDay = LocalDate.now(clock).with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
                 endDay = LocalDate.now(clock).with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-            } else if (temporalAmount.get(ChronoUnit.SECONDS) == Duration.ofDays(1).getSeconds()) {
+            } else if (frequency.get(ChronoUnit.SECONDS) == Duration.ofDays(1).getSeconds()) {
                 startDay = LocalDate.now(clock).with(TemporalAdjusters.firstDayOfMonth());
                 endDay = LocalDate.now(clock).with(TemporalAdjusters.lastDayOfMonth());
             }
         } else {
-            if (temporalAmount.get(ChronoUnit.DAYS) == 1) {
+            if (frequency.get(ChronoUnit.DAYS) == 1) {
                 startDay = LocalDate.now(clock).with(TemporalAdjusters.firstDayOfMonth());
                 endDay = LocalDate.now(clock).with(TemporalAdjusters.lastDayOfMonth());
-            } else if (temporalAmount.get(ChronoUnit.MONTHS) == 1) {
+            } else if (frequency.get(ChronoUnit.MONTHS) == 1) {
                 startDay = LocalDate.now(clock).with(TemporalAdjusters.firstDayOfYear());
                 endDay = LocalDate.now(clock).with(TemporalAdjusters.lastDayOfYear());
             }

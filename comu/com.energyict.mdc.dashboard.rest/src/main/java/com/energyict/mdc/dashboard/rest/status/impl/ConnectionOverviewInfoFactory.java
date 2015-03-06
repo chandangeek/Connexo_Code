@@ -2,7 +2,6 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
@@ -16,7 +15,6 @@ import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Range;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
@@ -67,7 +65,7 @@ public class ConnectionOverviewInfoFactory {
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup);
         if (dataCollectionKpiOptional.isPresent() && dataCollectionKpiOptional.get().calculatesConnectionSetupKpi()) {
             TemporalAmount frequency = dataCollectionKpiOptional.get().connectionSetupKpiCalculationIntervalLength().get();
-            Range<Instant> intervalByPeriod = kpiScoreFactory.getIntervalByPeriod(frequency);
+            Range<Instant> intervalByPeriod = kpiScoreFactory.getRangeByDisplayRange(dataCollectionKpiOptional.get().getDisplayRange().asTemporalAmount());
             List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getConnectionSetupKpiScores(intervalByPeriod);
             if (!kpiScores.isEmpty()) {
                 BigDecimal currentTarget = kpiScores.get(kpiScores.size() - 1).getTarget();
