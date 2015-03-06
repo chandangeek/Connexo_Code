@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
                 ],
                 listeners: {
                     change: function (field, newValue) {
-                        var numberField = me.down('numberfield[name=' + me.groupName + ']');
+                        var numberField = me.down('numberfield');
                         if (newValue[me.groupName]) {
                             numberField.enable();
                         } else {
