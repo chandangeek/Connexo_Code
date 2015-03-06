@@ -31,14 +31,6 @@ import java.util.Optional;
 @AtLeastOneState(message = MessageSeeds.Keys.AT_LEAST_ONE_STATE, groups = { Save.Create.class, Save.Update.class })
 public class FinateStateMachineImpl implements FinateStateMachine {
 
-    public static final String CUSTOM = "0";
-    public static final String DEVICE_LIFE_CYCLE = "1";
-
-    public static final Map<String, Class<? extends FinateStateMachine>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends FinateStateMachine>>of(
-                    CUSTOM, FinateStateMachineImpl.class,
-                    DEVICE_LIFE_CYCLE, DeviceLifeCycleFinateStateMachineImpl.class);
-
     public enum Fields {
         NAME("name"),
         TOPIC("topic"),

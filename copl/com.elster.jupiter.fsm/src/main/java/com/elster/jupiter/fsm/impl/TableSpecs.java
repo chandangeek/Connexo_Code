@@ -24,10 +24,9 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<FinateStateMachine> table = dataModel.addTable(this.name(), FinateStateMachine.class);
-            table.map(FinateStateMachineImpl.IMPLEMENTERS);
+            table.map(FinateStateMachineImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column name = table.column("NAME").varChar().notNull().map(FinateStateMachineImpl.Fields.NAME.fieldName()).add();
             table.column("TOPIC").varChar().notNull().map(FinateStateMachineImpl.Fields.TOPIC.fieldName()).add();
             table.unique("UK_FSM_FINATESTATEMACHINE").on(name).add();
