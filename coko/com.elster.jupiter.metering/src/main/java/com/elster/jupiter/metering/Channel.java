@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 import java.util.List;
@@ -42,12 +43,15 @@ public interface Channel {
 	void removeReadings(List<? extends BaseReadingRecord> readings);
 	Instant getFirstDateTime();
 	Instant getLastDateTime();
+    Instant getNextDateTime(Instant instant);
 	List<Instant> toList(Range<Instant> range);
 	default boolean hasReadingType(ReadingType readingType) {
 		return getReadingTypes().contains(readingType);
 	}
-	
-	interface ReadingsDeletedEvent {
+
+    ZoneId getZoneId();
+
+    interface ReadingsDeletedEvent {
 		Channel getChannel();
 		Set<Instant> getReadingTimeStamps();
 		default Range<Instant> getRange() {

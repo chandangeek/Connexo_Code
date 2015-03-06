@@ -221,8 +221,7 @@ public class MeterActivationImpl implements MeterActivation {
 	@Override
 	public ZoneId getZoneId() {
 		Set<ZoneId> candidates = getChannels().stream()
-			.map(ChannelImpl.class::cast)
-			.map(ChannelImpl::getZoneId)
+			.map(Channel::getZoneId)
 			.collect(Collectors.toSet());
 		if (candidates.size() > 1) {
 			throw new RuntimeException("More than one zone id for this meter activation");
