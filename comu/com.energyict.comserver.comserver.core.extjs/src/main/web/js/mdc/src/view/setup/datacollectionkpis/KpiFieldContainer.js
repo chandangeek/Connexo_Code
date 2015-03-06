@@ -15,9 +15,8 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
         me.items = [
 
             {
-                itemId: 'KpiRadioGroup',
                 xtype: 'radiogroup',
-                //itemId: me.groupName === 'connectionKpiContainer' ? 'rg-connection-kpi' : 'rg-communication-kpi',
+                itemId: me.groupName === 'connectionKpiContainer' ? 'rg-connection-kpi' : 'rg-communication-kpi',
                 columns: 1,
                 required: true,
                 vertical: true,
