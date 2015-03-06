@@ -111,40 +111,6 @@ public class KpiScoreFactory {
                 endDay.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC));
     }
 
-    public Range<Instant> getRangeByFrequency(TemporalAmount frequency) {
-        LocalDate startDay=null;
-        LocalDate endDay=null;
-        if (frequency.getUnits().contains(ChronoUnit.SECONDS)) {
-            if (frequency.get(ChronoUnit.SECONDS) == Duration.ofMinutes(5).getSeconds()
-                    || frequency.get(ChronoUnit.SECONDS) == Duration.ofMinutes(15).getSeconds()
-                    || frequency.get(ChronoUnit.SECONDS) == Duration.ofMinutes(30).getSeconds()) {
-                startDay = LocalDate.now(clock);
-                endDay = LocalDate.now(clock);
-            } else if (frequency.get(ChronoUnit.SECONDS) == Duration.ofHours(1).getSeconds()) {
-                startDay = LocalDate.now(clock).with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-                endDay = LocalDate.now(clock).with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-            } else if (frequency.get(ChronoUnit.SECONDS) == Duration.ofDays(1).getSeconds()) {
-                startDay = LocalDate.now(clock).with(TemporalAdjusters.firstDayOfMonth());
-                endDay = LocalDate.now(clock).with(TemporalAdjusters.lastDayOfMonth());
-            }
-        } else {
-            if (frequency.get(ChronoUnit.DAYS) == 1) {
-                startDay = LocalDate.now(clock).with(TemporalAdjusters.firstDayOfMonth());
-                endDay = LocalDate.now(clock).with(TemporalAdjusters.lastDayOfMonth());
-            } else if (frequency.get(ChronoUnit.MONTHS) == 1) {
-                startDay = LocalDate.now(clock).with(TemporalAdjusters.firstDayOfYear());
-                endDay = LocalDate.now(clock).with(TemporalAdjusters.lastDayOfYear());
-            }
-        }
-        if (startDay==null) {
-            throw exceptionFactory.newException(MessageSeeds.UNSUPPORTED_KPI_PERIOD);
-        }
-
-        return Ranges.closed(
-                startDay.atStartOfDay().toInstant(ZoneOffset.UTC),
-                endDay.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC));
-    }
-
     /**
      * Adding this sentinel at the end of array makes sure we never proceed down the kpiScore list (null object)
      */
