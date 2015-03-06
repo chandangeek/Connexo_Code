@@ -470,6 +470,32 @@ public class FinateStateMachineIT {
 
     @Transactional
     @Test
+    public void findFinateStateMachinesUsing() {
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        StateTransitionEventType otherEventType = this.createNewStateTransitionEventType("#other");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("UsingCommissioned", "test");
+        State commissioned = builder.newState("Commissioned").complete();
+        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachineUsingCommissioned = builder.complete();
+        stateMachineUsingCommissioned.save();
+
+        FinateStateMachineBuilder otherBuilder = this.getTestService().newFinateStateMachine("Other", "elsewhere");
+        FinateStateMachineBuilder.StateBuilder aStateBuilder = otherBuilder.newState("A");
+        FinateStateMachineBuilder.StateBuilder bStateBuilder = otherBuilder.newState("B");
+        State a = aStateBuilder.on(otherEventType).transitionTo(bStateBuilder).complete();
+        bStateBuilder.on(otherEventType).transitionTo(a).complete();
+        otherBuilder.complete().save();
+
+        // Business method
+        List<FinateStateMachine> finateStateMachines = this.getTestService().findFinateStateMachinesUsing(commissionedEventType);
+
+        // Asserts
+        assertThat(finateStateMachines).hasSize(1);
+        assertThat(finateStateMachines.get(0).getId()).isEqualTo(stateMachineUsingCommissioned.getId());
+    }
+
+    @Transactional
+    @Test
     public void buildDefaultLifeCycle() {
         String expectedName = "Default life cycle";
         // Create default StateTransitionEventTypes

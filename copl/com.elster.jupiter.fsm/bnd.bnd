@@ -1,5 +1,5 @@
--classpath: target/classes 
+-classpath: target/classes
 -dsannotations: *
 Include-Resource: README.HTML
-Private-Package: com.elster.jupiter.fsm.impl
+Private-Package: com.elster.jupiter.fsm.impl, com.elster.jupiter.fsm.impl.constraints
 Export-Package: com.elster.jupiter.fsm

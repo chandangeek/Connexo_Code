@@ -14,6 +14,8 @@ public interface FinateStateMachineService {
 
     String COMPONENT_NAME = "FSM";
 
+    public void addStandardEventPredicate(StandardEventPredicate predicate);
+
     /**
      * Creates a new {@link CustomStateTransitionEventType} with the specified symbol.
      * Note that you are responsible for saving the CustomStateTransitionEventType.
