@@ -71,7 +71,7 @@ public class KpiResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PagedInfoList getAllKpis(@BeanParam QueryParameters queryParameters) {
         List<DataCollectionKpiInfo> collection = dataCollectionKpiService.dataCollectionKpiFinder().
-                from(queryParameters).defaultSortColumn("deviceGroup.name").
+                from(queryParameters).
                 stream().
                 map(dataCollectionKpiInfoFactory::from).
                 collect(toList());
