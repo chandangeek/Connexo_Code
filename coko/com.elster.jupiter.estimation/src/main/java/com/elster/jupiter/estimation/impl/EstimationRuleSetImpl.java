@@ -298,7 +298,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         return dataModel.mapper(IEstimationRuleSet.class);
     }
 
-    public List<EstimationRule> getRules(Set<? extends ReadingType> readingTypes) {
+    public List<IEstimationRule> getRules(Set<? extends ReadingType> readingTypes) {
         return getRules().stream()
                 .filter(rule -> rule.getReadingTypes().stream().anyMatch(readingTypes::contains))
                 .collect(Collectors.toList());

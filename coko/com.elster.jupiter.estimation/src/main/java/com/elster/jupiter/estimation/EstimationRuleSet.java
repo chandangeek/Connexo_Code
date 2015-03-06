@@ -39,7 +39,7 @@ public interface EstimationRuleSet extends IdentifiedObject {
 
     void deleteRule(EstimationRule rule);
 
-    List<EstimationRule> getRules(Set<? extends ReadingType> readingTypes);
+    List<? extends EstimationRule> getRules(Set<? extends ReadingType> readingTypes);
 
     public Instant getObsoleteDate();
 }

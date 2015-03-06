@@ -23,7 +23,6 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.streams.Functions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -45,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 @Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
 public class EstimationServiceImpl implements IEstimationService, InstallService {
@@ -146,8 +146,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public void estimate(MeterActivation meterActivation, ReadingType readingType) {
         UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(getInitialBlocksToEstimateAsResult(meterActivation, readingType));
-        
-        determineEstimators(meterActivation).forEach(estimator -> result.update(estimator.estimate(result.get().remainingToBeEstimated())));
+
+        determineEstimationRules(meterActivation)
+                .filter(rule -> rule.getReadingTypes().contains(readingType))
+                .map(IEstimationRule::createNewEstimator)
+                .forEach(estimator -> result.update(estimator.estimate(result.get().remainingToBeEstimated())));
     }
 
     @Override
@@ -237,12 +240,12 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         return SimpleEstimationResult.of(blocksToEstimate, Collections.emptyList());
     }
 
-    private Stream<Estimator> determineEstimators(MeterActivation meterActivation) {
-        return resolvers.stream()
+    private Stream<IEstimationRule> determineEstimationRules(MeterActivation meterActivation) {
+        return decorate(resolvers.stream())
                     .flatMap(resolver -> resolver.resolve(meterActivation).stream())
-                    .distinct()
-                    .map(this::getEstimator)
-                    .flatMap(Functions.asStream());
+                    .map(IEstimationRuleSet.class::cast)
+                    .distinct(EstimationRuleSet::getId)
+                    .flatMap(set -> set.getRules().stream());
     }
 
     private List<EstimationBlock> getBlocksToEstimate(MeterActivation meterActivation, ReadingType readingType) {

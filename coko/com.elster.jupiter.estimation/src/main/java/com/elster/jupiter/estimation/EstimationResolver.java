@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface EstimationResolver {
 
-    List<String> resolve(MeterActivation meterActivation);
+    List<EstimationRuleSet> resolve(MeterActivation meterActivation);
 
     boolean isInUse(EstimationRuleSet estimationRuleSet);
 }
