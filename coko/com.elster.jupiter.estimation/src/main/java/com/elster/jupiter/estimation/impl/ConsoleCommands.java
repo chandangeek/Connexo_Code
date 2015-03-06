@@ -9,11 +9,9 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -26,9 +24,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -41,7 +39,8 @@ import java.util.stream.Stream;
                 "osgi.command.function=ruleSets",
                 "osgi.command.function=createRuleSet",
                 "osgi.command.function=addRule",
-                "osgi.command.function=estimate"
+                "osgi.command.function=estimate",
+                "osgi.command.function=estimateWithLambdas"
         },
         immediate = true)
 public class ConsoleCommands {
@@ -134,25 +133,19 @@ public class ConsoleCommands {
             EstimationEngine estimationEngine = new EstimationEngine();
             Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
             Optional<? extends MeterActivation> meterActivationOptional = meter.getCurrentMeterActivation();
-            if (!meterActivationOptional.isPresent()) {
-                System.out.println("no meter activation present or meter " + meter.getName());
-            } else {
-                MeterActivation meterActivation = meterActivationOptional.get();
-                for (Channel channel : meterActivation.getChannels()) {
-                    System.out.println("Handling channel id " + channel.getId());
-                    for (ReadingType readingType : channel.getReadingTypes()) {
-                        System.out.println("Handling reading type " + readingType.getAliasName());
-                        List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, readingType);
-                        estimator.estimate(blocks);
-                        for (EstimationBlock block : blocks) {
-                            for (Estimatable estimatable : block.estimatables()) {
-                                System.out.println("Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
-                            }
-                        }
-                        System.out.println("");
-                    }
-                }
-            }
+            MeterActivation meterActivation = meter.getCurrentMeterActivation().orElseThrow(() -> new IllegalArgumentException("no meter activation present for meter " + meter.getName()));
+
+            meterActivation.getChannels().stream()
+                    .peek(channel -> System.out.println("Handling channel id " + channel.getId()))
+                    .flatMap(channel -> channel.getReadingTypes().stream())
+                    .peek(readingType -> System.out.println("Handling reading type " + readingType.getAliasName()))
+                    .map(readingType -> estimationEngine.findBlocksToEstimate(meterActivation, readingType))
+                    .peek(estimator::estimate)
+                    .flatMap(Collection::stream)
+                    .flatMap(block -> block.estimatables().stream())
+                    .map(estimatable -> "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp())
+                    .forEach(System.out::println);
+
         } catch (IllegalArgumentException e) {
             System.out.println("Estimator class '" + estimatorName + "' not found");
         } catch (RuntimeException e) {
