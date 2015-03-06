@@ -50,6 +50,18 @@ public class EventTypeBuilderImpl implements EventTypeBuilder {
     }
 
     @Override
+    public EventTypeBuilder enableForUseInStateMachines() {
+        underConstruction.enableForUseInStateMachines();
+        return this;
+    }
+
+    @Override
+    public EventTypeBuilder disableForUseInStateMachines() {
+        underConstruction.disableForUseInStateMachines();
+        return this;
+    }
+
+    @Override
     public EventTypeBuilder withProperty(String name, ValueType valueType, String accessPath) {
         underConstruction.addProperty(name, valueType, accessPath);
         return this;

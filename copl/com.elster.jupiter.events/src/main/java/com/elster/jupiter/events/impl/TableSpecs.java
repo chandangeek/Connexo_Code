@@ -24,6 +24,7 @@ public enum TableSpecs {
             table.column("CATEGORY").varChar(NAME_LENGTH).notNull().map("category").add();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("PUBLISH").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("publish").add();
+            table.column("FSMENABLED").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("fsmEnabled").add();
             table.primaryKey("EVT_PK_EVENTTYPE").on(topicColumn).add();
         }
     },
@@ -42,8 +43,8 @@ public enum TableSpecs {
             table.unique("EVT_UK_EVENTPROPERTYTYPE").on(topicColumn, positionColumn).add();
             table.foreignKey("EVT_FK_EVENTTYPE_PROPERTY").references(EVT_EVENTTYPE.name()).onDelete(DeleteRule.CASCADE).map("eventType").reverseMap("eventPropertyTypes").on(topicColumn).composition().add();
         }
-    };   
-    
+    };
+
     abstract void addTo(DataModel dataModel);
 
 }
