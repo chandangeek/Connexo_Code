@@ -3,7 +3,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
     stores: [
         'Mdc.store.DataCollectionKpis',
         'Mdc.store.DataCollectionKpiFrequency',
-        'Mdc.store.MeterExportGroups'
+        'Mdc.store.MeterExportGroups',
+        'Mdc.store.DataCollectionKpiRange'
     ],
     models: [
         'Mdc.model.DataCollectionKpi'
@@ -38,6 +39,9 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             },
             '#dataCollectionKpiEdit #createEditButton': {
                 click: this.saveModel
+            },
+            'dataCollectionKpiEdit #cmb-frequency': {
+                change: this.onFrequencyChange
             }
         });
     },
@@ -77,15 +81,18 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         errorPanel.setVisible(value);
     },
 
-    saveModel: function (btn) {
+    saveModel: function () {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = me.getDataCollectionKpiEditForm(),
             record = editForm.getRecord(),
-            connectionKpiField = editForm.down('#connectionKpiField'),
-            communicationKpiField = editForm.down('#communicationKpiField'),
-            deviceGroupCombo = editForm.down('#deviceGroupCombo'),
-            frequencyCombo = editForm.down('#frequencyCombo'),
+            deviceGroup = {
+                id: editForm.down('[name=devicegroup]').getValue()
+            },
+            frequency = editForm.down('[name=frequency]').getValue(),
+            displayRange = editForm.down('[name=displayRange]').getValue(),
+            connectionTarget = editForm.down('#connectionKpiField').getValue(),
+            communicationTarget = editForm.down('#communicationKpiField').getValue(),
             successMessage = Uni.I18n.translate('datacollectionkpis.saved', 'MDC', 'Data collection KPI saved.'),
             kpiMessageContainer = me.getKpiErrorContainer();
 
@@ -93,18 +100,21 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         me.showErrorPanel(false);
         editForm.setLoading();
         record.beginEdit();
-        record.set('communicationTarget', communicationKpiField.getValue());
-        record.set('connectionTarget', connectionKpiField.getValue());
-
-        if (btn.action === 'add') {
-            successMessage = Uni.I18n.translate('datacollectionkpis.added', 'MDC', 'Data collection KPI added.');
-            record.set('deviceGroup', { id: deviceGroupCombo.getValue() });
-            if (frequencyCombo.getValue() === '') {
-                record.set('frequency', {});
-            } else {
-                record.set('frequency', frequencyCombo.getValue());
-            }
+        if (!record.getId()) {
+            record.set('deviceGroup', deviceGroup);
+        } else {
+            record.set('deviceGroup', {
+                id: record.get('deviceGroup').id
+            });
         }
+        if (frequency) {
+            record.set('frequency', me.getStore('Mdc.store.DataCollectionKpiFrequency').getById(frequency).get('value'));
+        }
+        if (displayRange) {
+            record.set('displayRange', me.getStore('Mdc.store.DataCollectionKpiRange').getById(displayRange).get('value'));
+        }
+        record.set('communicationTarget', communicationTarget);
+        record.set('connectionTarget', connectionTarget);
         record.endEdit();
         record.save({
             success: function (record) {
@@ -117,7 +127,6 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                     if(!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
-                            console.log(json.errors);
                             Ext.each(json.errors, function(error) {
                                if (error.id === 'communicationKpi') {
                                    kpiMessageContainer.update(error.msg);
@@ -151,7 +160,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             deviceGroupStore = widget.down('combobox[name=devicegroup]').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.model.DataCollectionKpi'),
             form = widget.down('#dataCollectionKpiEditForm'),
-            deviceGroupCombo = widget.down('#deviceGroupCombo'),
+            deviceGroupCombo = widget.down('#cmb-device-group'),
             deviceGroupDisplayField = widget.down('#devicegroupDisplayField'),
             createBtn = widget.down('#createEditButton');
 
@@ -163,47 +172,17 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                     widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.editDataCollectionKpi', 'MDC', 'Edit data collection KPI'));
                     kpiModel.load(id, {
                         success: function (kpiRecord) {
-                            var connectionKpiField = widget.down('#connectionKpiField'),
-                                connectionKpiDisplayField = widget.down('#connectionKpiDisplayField'),
-                                communicationKpiField = widget.down('#communicationKpiField'),
-                                communicationKpiDisplayField = widget.down('#communicationKpiDisplayField'),
-                                frequencyCombo = widget.down('#frequencyCombo'),
-                                frequencyDisplayField = widget.down('#frequencyDisplayField'),
-                                editTitle = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + kpiRecord.get('deviceGroup').name + "'",
-                                frequencyStore = frequencyCombo.getStore(),
-                                frequencyObject = kpiRecord.get('frequency').every;
+                            var editTitle = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + kpiRecord.get('deviceGroup').name + "'";
 
+                            Ext.suspendLayouts();
                             form.loadRecord(kpiRecord);
-
+                            form.down('[name=devicegroup]').disable();
+                            form.down('[name=frequency]').disable();
                             widget.down('#dataCollectionKpiEditForm').setTitle(editTitle);
                             me.getApplication().fireEvent('loadDataCollectionKpi', editTitle);
                             createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
                             createBtn.action = 'save';
-
-                            if (!Ext.isEmpty(kpiRecord.get('connectionTarget'))) {
-                                connectionKpiField.setValue(kpiRecord.get('connectionTarget'));
-                                connectionKpiField.hide();
-                                connectionKpiDisplayField.show();
-                            }
-
-                            if (!Ext.isEmpty(kpiRecord.get('communicationTarget'))) {
-                                communicationKpiField.setValue(kpiRecord.get('communicationTarget'));
-                                communicationKpiField.hide();
-                                communicationKpiDisplayField.show();
-                            }
-
-                            deviceGroupDisplayField.setValue(kpiRecord.get('deviceGroup').name);
-                            deviceGroupDisplayField.show();
-                            deviceGroupCombo.hide();
-
-                            frequencyDisplayField.show();
-                            frequencyCombo.hide();
-                            frequencyStore.each(function(record) {
-                                var value = record.get('every').every;
-                                if (value.count === frequencyObject.count && value.timeUnit === frequencyObject.timeUnit) {
-                                    frequencyDisplayField.setValue(record.get('name'));
-                                }
-                            });
+                            Ext.resumeLayouts(true);
 
                             widget.setLoading(false);
                         }
@@ -222,5 +201,20 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                 }
             }
         });
+    },
+
+    onFrequencyChange: function (combo, newValue) {
+        var me = this,
+            displayRangeCombo = me.getDataCollectionKpiEditForm().down('#displayRangeCombo');
+
+        Ext.suspendLayouts();
+        if (newValue) {
+            me.getStore('Mdc.store.DataCollectionKpiRange').filterByFrequency(newValue);
+            displayRangeCombo.enable();
+        } else {
+            displayRangeCombo.disable();
+        }
+        displayRangeCombo.reset();
+        Ext.resumeLayouts(true);
     }
 });
