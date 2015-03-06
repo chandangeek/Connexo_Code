@@ -29,7 +29,7 @@ public class KpiScoreFactoryTest {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 13, 11, 16).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
         KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
-        Range<Instant> range = kpiScoreFactory.getRangeByDisplayRange(Duration.ofHours(1));
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Duration.ofHours(1));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 1, 14, 0, 0).toInstant(ZoneOffset.UTC));
     }
@@ -39,7 +39,7 @@ public class KpiScoreFactoryTest {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
         KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
-        Range<Instant> range = kpiScoreFactory.getRangeByDisplayRange(Duration.ofHours(1));
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Duration.ofHours(1));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 1, 14, 0, 0).toInstant(ZoneOffset.UTC));
     }
@@ -49,7 +49,7 @@ public class KpiScoreFactoryTest {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
         KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
-        Range<Instant> range = kpiScoreFactory.getRangeByDisplayRange(Duration.ofDays(1));
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Duration.ofDays(1));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 1, 0, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 2, 0, 0, 0).toInstant(ZoneOffset.UTC));
     }
@@ -59,7 +59,7 @@ public class KpiScoreFactoryTest {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 0, 0, 0).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
         KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
-        Range<Instant> range = kpiScoreFactory.getRangeByDisplayRange(Duration.ofDays(1));
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Duration.ofDays(1));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 1, 0, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 2, 0, 0, 0).toInstant(ZoneOffset.UTC));
     }
@@ -69,7 +69,7 @@ public class KpiScoreFactoryTest {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
         KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
-        Range<Instant> range = kpiScoreFactory.getRangeByDisplayRange(Period.ofWeeks(1));
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Period.ofWeeks(1));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 7, 28, 0, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 4, 0, 0, 0).toInstant(ZoneOffset.UTC));
     }
@@ -79,7 +79,7 @@ public class KpiScoreFactoryTest {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
         KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
-        Range<Instant> range = kpiScoreFactory.getRangeByDisplayRange(Period.ofWeeks(2));
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Period.ofWeeks(2));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 7, 21, 0, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 4, 0, 0, 0).toInstant(ZoneOffset.UTC));
     }
@@ -89,7 +89,7 @@ public class KpiScoreFactoryTest {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
         KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
-        Range<Instant> range = kpiScoreFactory.getRangeByDisplayRange(Period.ofMonths(1));
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Period.ofMonths(1));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 1, 0, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2014, 9, 1, 0, 0, 0).toInstant(ZoneOffset.UTC));
     }
@@ -99,7 +99,7 @@ public class KpiScoreFactoryTest {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
         KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
-        Range<Instant> range = kpiScoreFactory.getRangeByDisplayRange(Period.ofYears(1));
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Period.ofYears(1));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2015, 1, 1, 0, 0, 0).toInstant(ZoneOffset.UTC));
     }

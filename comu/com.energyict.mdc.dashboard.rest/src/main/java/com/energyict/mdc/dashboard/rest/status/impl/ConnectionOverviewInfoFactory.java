@@ -65,15 +65,15 @@ public class ConnectionOverviewInfoFactory {
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup);
         if (dataCollectionKpiOptional.isPresent() && dataCollectionKpiOptional.get().calculatesConnectionSetupKpi()) {
             TemporalAmount frequency = dataCollectionKpiOptional.get().connectionSetupKpiCalculationIntervalLength().get();
-            Range<Instant> intervalByPeriod = kpiScoreFactory.getRangeByDisplayRange(dataCollectionKpiOptional.get().getDisplayRange().asTemporalAmount());
-            List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getConnectionSetupKpiScores(intervalByPeriod);
+            Range<Instant> rangeByDisplayRange = kpiScoreFactory.getActualRangeByDisplayRange(dataCollectionKpiOptional.get().getDisplayRange().asTemporalAmount());
+            List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getConnectionSetupKpiScores(rangeByDisplayRange);
             if (!kpiScores.isEmpty()) {
                 BigDecimal currentTarget = kpiScores.get(kpiScores.size() - 1).getTarget();
                 if (currentTarget != null) {
                     info.connectionSummary.target = currentTarget.longValue();
                 }
             }
-            info.kpi = kpiScoreFactory.getKpiAsInfo(frequency, kpiScores, intervalByPeriod);
+            info.kpi = kpiScoreFactory.getKpiAsInfo(frequency, kpiScores, rangeByDisplayRange);
         }
         info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
         return info;

@@ -71,7 +71,7 @@ public class KpiScoreFactory {
         return kpiInfo;
     }
 
-    public Range<Instant> getRangeByDisplayRange(TemporalAmount displayRange) {
+    public Range<Instant> getActualRangeByDisplayRange(TemporalAmount displayRange) {
         LocalDate today = LocalDate.now(clock);
         LocalDate startDay=null;
         LocalDate endDay=null;
