@@ -82,6 +82,7 @@ public enum TableSpecs {
             Table<ProcessReference> table = dataModel.addTable(this.name(), ProcessReference.class);
             table.map(ProcessReferenceImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addPositionColumn();
             table.column("PURPOSE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map(ProcessReferenceImpl.Fields.PURPOSE.fieldName()).add();
             table.column("DEPLOYMENTID").varChar().notNull().map(ProcessReferenceImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
             table.column("PROCESSID").varChar().notNull().map(ProcessReferenceImpl.Fields.PROCESS_ID.fieldName()).add();
@@ -92,6 +93,7 @@ public enum TableSpecs {
                     .references(FSM_STATE.name())
                     .map(ProcessReferenceImpl.Fields.STATE.fieldName())
                     .reverseMap(StateImpl.Fields.PROCESS_REFERENCES.fieldName())
+                    .reverseMapOrder(ProcessReferenceImpl.Fields.POSITION.fieldName())
                     .composition()
                     .add();
         }

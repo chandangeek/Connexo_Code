@@ -23,7 +23,8 @@ public class ProcessReferenceImpl implements ProcessReference {
         STATE("state"),
         DEPLOYMENT_ID("deploymentId"),
         PROCESS_ID("processId"),
-        PURPOSE("purpose");
+        PURPOSE("purpose"),
+        POSITION("position");
 
         private final String javaFieldName;
 
@@ -36,7 +37,10 @@ public class ProcessReferenceImpl implements ProcessReference {
         }
     }
 
+    @SuppressWarnings("unused")
     private long id;
+    @SuppressWarnings("unused")
+    private int position;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String deploymentId;
