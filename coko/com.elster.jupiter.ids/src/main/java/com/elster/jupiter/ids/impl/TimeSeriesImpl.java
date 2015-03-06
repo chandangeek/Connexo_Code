@@ -389,4 +389,9 @@ public final class TimeSeriesImpl implements TimeSeries {
         return next(instant, 1);
     }
 
+    @Override
+    public Instant getPreviousDateTime(Instant instant) {
+        return next(instant, -1);
+    }
+
 }

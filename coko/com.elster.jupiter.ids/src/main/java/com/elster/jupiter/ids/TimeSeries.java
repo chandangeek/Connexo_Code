@@ -33,4 +33,5 @@ public interface TimeSeries {
 	List<Instant> toList(Range<Instant> range);
 
     Instant getNextDateTime(Instant instant);
+    Instant getPreviousDateTime(Instant instant);
 }
