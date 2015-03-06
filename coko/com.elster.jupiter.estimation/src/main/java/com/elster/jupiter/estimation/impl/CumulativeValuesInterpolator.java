@@ -62,10 +62,12 @@ public class CumulativeValuesInterpolator extends AbstractEstimator {
     public void estimate(EstimationBlock block, List<EstimationBlock> remain, List<EstimationBlock> estimated) {
         List<? extends Estimatable> estimatables = block.estimatables();
         Channel channel = block.getChannel();
+        // find the reading before the first reading to be estimated
         BaseReadingRecord recordBefore =
                 channel.getReading(
                         channel.getPreviousDateTime(
                                 estimatables.get(0).getTimestamp())).orElse(null);
+        // find the reading after the last reading to be estimated
         BaseReadingRecord recordAfter =
                 channel.getReading(
                         channel.getNextDateTime(
