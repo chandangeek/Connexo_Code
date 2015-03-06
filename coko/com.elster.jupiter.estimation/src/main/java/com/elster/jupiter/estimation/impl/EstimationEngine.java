@@ -33,7 +33,7 @@ class EstimationEngine {
         return decorate(findSuspects(channel).stream())
                 .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
                 .map(this::toEstimatable)
-                .partitionWhen((est1, est2) -> !est1.getTimestamp().plus(channel.getIntervalLength().get()).equals(est2.getTimestamp()))
+                .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp()).equals(est2.getTimestamp()))
                 .map(list -> SimpleEstimationBlock.of(channel, readingType, list));
     }
 
