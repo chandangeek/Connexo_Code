@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
     initComponent: function () {
         var me = this,
             calculatedReadingType = me.channelRecord.get('calculatedReadingType'),
-            measurementType = me.channelRecord.get('unitOfMeasure_formatted');
+            measurementType = me.channelRecord.get('unitOfMeasure');
 
         me.columns = [
             {

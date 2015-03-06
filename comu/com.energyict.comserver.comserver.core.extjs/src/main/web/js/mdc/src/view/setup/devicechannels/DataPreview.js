@@ -37,13 +37,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     xtype: 'displayfield',
                     labelWidth: 200
                 },
-                items: [
-
-                ]
+                items: []
             },
-            {
-                xtype: 'deviceloadprofilechannelspreview-validation'
-            }
+            { xtype: 'deviceloadprofilechannelspreview-validation' }
         ]
     },
 
@@ -64,7 +60,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
         );
         var readingType = me.channelRecord.get('cimReadingType'),
-            measurementType = me.channelRecord.get('unitOfMeasure_formatted'),
+            measurementType = me.channelRecord.get('unitOfMeasure'),
             accumulationBehavior;
 
         //Getting 4th magic number of a reading type to understand if it holds cumulative values or not
@@ -84,10 +80,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             xtype: 'displayfield',
                             name: 'value',
                             renderer: function (v) {
-                                if(!Ext.isEmpty(v)) {
+                                if (!Ext.isEmpty(v)) {
                                     var value = Uni.Number.formatNumber(v, -1);
-                                    return !Ext.isEmpty(value)? value + ' ' + measurementType : '';
+                                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                                 }
+                                return '';
                             }
                         },
                         {
@@ -103,10 +100,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
                     hidden: true,
                     renderer: function (v) {
-                        if(!Ext.isEmpty(v)) {
+                        if (!Ext.isEmpty(v)) {
                             var value = Uni.Number.formatNumber(v, -1);
-                            return !Ext.isEmpty(value)? value + ' ' + measurementType : '';
+                            return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                         }
+                        return '';
                     }
                 },
                 {
@@ -129,10 +127,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             xtype: 'displayfield',
                             name: 'value',
                             renderer: function (v) {
-                                if(!Ext.isEmpty(v)) {
+                                if (!Ext.isEmpty(v)) {
                                     var value = Uni.Number.formatNumber(v, -1);
-                                    return !Ext.isEmpty(value)? value + ' ' + measurementType : '';
+                                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
                                 }
+                                return '';
                             }
                         },
                         {
@@ -148,10 +147,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
                     hidden: true,
                     renderer: function (v) {
-                        if(!Ext.isEmpty(v)) {
+                        if (!Ext.isEmpty(v)) {
                             var value = Uni.Number.formatNumber(v, -1);
-                            return !Ext.isEmpty(value)? value + ' ' + measurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                            return !Ext.isEmpty(value) ? value + ' ' + measurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                         }
+                        return '';
                     }
                 }
             );
