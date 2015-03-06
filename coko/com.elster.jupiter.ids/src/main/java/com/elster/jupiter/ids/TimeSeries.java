@@ -31,4 +31,6 @@ public interface TimeSeries {
 		removeEntries(Range.closed(instant, instant));
 	}
 	List<Instant> toList(Range<Instant> range);
+
+    Instant getNextDateTime(Instant instant);
 }

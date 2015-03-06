@@ -383,5 +383,10 @@ public final class TimeSeriesImpl implements TimeSeries {
 		}
 		return builder.build();
 	}
-	
+
+    @Override
+    public Instant getNextDateTime(Instant instant) {
+        return next(instant, 1);
+    }
+
 }
