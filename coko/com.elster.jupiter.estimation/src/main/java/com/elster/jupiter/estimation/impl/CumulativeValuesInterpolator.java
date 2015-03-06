@@ -61,14 +61,15 @@ public class CumulativeValuesInterpolator extends AbstractEstimator {
 
     public void estimate(EstimationBlock block, List<EstimationBlock> remain, List<EstimationBlock> estimated) {
         List<? extends Estimatable> estimatables = block.estimatables();
-        int numberOfIntervals = estimatables.size();
-        Instant first = estimatables.get(0).getTimestamp();
-        Instant last = estimatables.get(numberOfIntervals - 1).getTimestamp();
         Channel channel = block.getChannel();
-        Instant previousTimestamp = channel.getPreviousDateTime(first);
-        Instant nextTimestamp = channel.getNextDateTime(last);
-        BaseReadingRecord recordBefore = channel.getReading(previousTimestamp).orElse(null);
-        BaseReadingRecord recordAfter = channel.getReading(nextTimestamp).orElse(null);
+        BaseReadingRecord recordBefore =
+                channel.getReading(
+                        channel.getPreviousDateTime(
+                                estimatables.get(0).getTimestamp())).orElse(null);
+        BaseReadingRecord recordAfter =
+                channel.getReading(
+                        channel.getNextDateTime(
+                                estimatables.get(estimatables.size() - 1).getTimestamp())).orElse(null);
         if ((recordBefore == null) || (recordAfter == null)) {
             remain.add(block);
         } else {
