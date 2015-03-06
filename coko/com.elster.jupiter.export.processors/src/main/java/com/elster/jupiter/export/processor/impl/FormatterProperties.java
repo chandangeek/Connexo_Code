@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum FormatterProperties implements TranslationKey {
     FORMATTER("fileFormat", "File format"),
-    FILE_PATH(FORMATTER.getKey() + ".path", "Export folder path"),
+    FILE_PATH(FORMATTER.getKey() + ".path", "Relative export folder path"),
     FILENAME_PREFIX(FORMATTER.getKey() + ".filenamePrefix", "File name prefix"),
     FILE_EXTENSION(FORMATTER.getKey() + ".fileExtension", "File extension"),
     UPDATEDDATA("updatedData", "Updated data"),
