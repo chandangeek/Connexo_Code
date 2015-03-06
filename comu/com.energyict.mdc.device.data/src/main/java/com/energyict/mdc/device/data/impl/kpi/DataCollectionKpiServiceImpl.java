@@ -39,7 +39,7 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
 
     @Override
     public Finder<DataCollectionKpi> dataCollectionKpiFinder() {
-        return DefaultFinder.of(DataCollectionKpi.class, this.deviceDataModelService.dataModel(), EndDeviceGroup.class);
+        return DefaultFinder.of(DataCollectionKpi.class, this.deviceDataModelService.dataModel(), EndDeviceGroup.class).defaultSortColumn(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP.fieldName()+".name");
     }
 
     @Override
