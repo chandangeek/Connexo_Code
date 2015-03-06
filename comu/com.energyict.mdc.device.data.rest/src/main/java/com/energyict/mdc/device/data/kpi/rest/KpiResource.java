@@ -156,8 +156,7 @@ public class KpiResource {
                 kpi.dropConnectionSetupKpi();
             }
         }
-        kpi.setDisplayRange(kpiInfo.displayRange==null?null:kpiInfo.displayRange.asTimeDuration());
-
+        kpi.updateDisplayRange(kpiInfo.displayRange == null ? null : kpiInfo.displayRange.asTimeDuration());
         return Response.ok(dataCollectionKpiInfoFactory.from(dataCollectionKpiService.findDataCollectionKpi(id).get())).build();
     }
 
