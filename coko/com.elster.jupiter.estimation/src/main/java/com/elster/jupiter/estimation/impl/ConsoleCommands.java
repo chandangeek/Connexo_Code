@@ -7,8 +7,13 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.estimation.EstimatorFactory;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -23,6 +28,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -33,7 +40,8 @@ import java.util.stream.Stream;
                 "osgi.command.function=availableEstimators",
                 "osgi.command.function=ruleSets",
                 "osgi.command.function=createRuleSet",
-                "osgi.command.function=addRule"
+                "osgi.command.function=addRule",
+                "osgi.command.function=estimate"
         },
         immediate = true)
 public class ConsoleCommands {
@@ -116,6 +124,39 @@ public class ConsoleCommands {
             context.commit();
         } finally {
             threadPrincipalService.clear();
+        }
+    }
+
+    public void estimate(long meterId, String estimatorName) {
+        try {
+            EstimatorFactory estimatorFactory = new EstimatorFactoryImpl();
+            Estimator estimator = estimatorFactory.createTemplate(estimatorName);
+            EstimationEngine estimationEngine = new EstimationEngine();
+            Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
+            Optional<? extends MeterActivation> meterActivationOptional = meter.getCurrentMeterActivation();
+            if (!meterActivationOptional.isPresent()) {
+                System.out.println("no meter activation present or meter " + meter.getName());
+            } else {
+                MeterActivation meterActivation = meterActivationOptional.get();
+                for (Channel channel : meterActivation.getChannels()) {
+                    System.out.println("Handling channel id " + channel.getId());
+                    for (ReadingType readingType : channel.getReadingTypes()) {
+                        System.out.println("Handling reading type " + readingType.getAliasName());
+                        List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, readingType);
+                        estimator.estimate(blocks);
+                        for (EstimationBlock block : blocks) {
+                            for (Estimatable estimatable : block.estimatables()) {
+                                System.out.println("Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+                            }
+                        }
+                        System.out.println("");
+                    }
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Estimator class '" + estimatorName + "' not found");
+        } catch (RuntimeException e) {
+            e.printStackTrace();
         }
     }
 
