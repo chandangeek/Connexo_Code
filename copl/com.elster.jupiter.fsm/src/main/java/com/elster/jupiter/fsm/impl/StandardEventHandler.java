@@ -59,9 +59,12 @@ public class StandardEventHandler extends EventHandler<LocalEvent> {
     }
 
     private Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType) {
-        /* Todo: optimize this by checking a 'to be added' property on the EventType
-         * that indicates if the EventType is in use by a FinateStateMachine. */
-        return this.stateMachineService.findStandardStateTransitionEventType(eventType);
+        if (eventType.isEnabledForUseInStateMachines()) {
+            return this.stateMachineService.findStandardStateTransitionEventType(eventType);
+        }
+        else {
+            return Optional.empty();
+        }
     }
 
     private void handle(LocalEvent event, StandardStateTransitionEventType eventType) {

@@ -46,4 +46,20 @@ public class StandardStateTransitionEventTypeImpl extends StateTransitionEventTy
         return this.getEventType().getTopic();
     }
 
+    @Override
+    public void save() {
+        super.save();
+        EventType eventType = this.getEventType();
+        eventType.enableForUseInStateMachines();
+        eventType.save();
+    }
+
+    @Override
+    public void delete() {
+        EventType eventType = this.getEventType();
+        super.delete();
+        eventType.disableForUseInStateMachines();
+        eventType.save();
+    }
+
 }

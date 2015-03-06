@@ -8,7 +8,6 @@ import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import org.osgi.service.event.Event;
 
-import javax.jms.Topic;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,6 +60,7 @@ public class StandardEventHandlerTest {
         eventProperties.put(PROP2_NAME, PROP2_VALUE);
         Event osgiEvent = new Event(TOPIC, eventProperties);
         when(this.jupiterEventType.getTopic()).thenReturn(TOPIC);
+        when(this.jupiterEventType.isEnabledForUseInStateMachines()).thenReturn(true);
         when(this.localEvent.getType()).thenReturn(this.jupiterEventType);
         when(this.localEvent.toOsgiEvent()).thenReturn(osgiEvent);
         when(this.stateMachineService.findStandardStateTransitionEventType(this.jupiterEventType)).thenReturn(Optional.of(this.standardStateTransitionEventType));
@@ -71,13 +71,25 @@ public class StandardEventHandlerTest {
     @Test
     public void handlerChecksThatEventTypeIsEnabledForStatemachines() {
         StandardEventHandler handler = this.testEventHandlerWithoutExtractors();
-        when(this.stateMachineService.findStandardStateTransitionEventType(this.jupiterEventType)).thenReturn(Optional.empty());
+        when(this.jupiterEventType.isEnabledForUseInStateMachines()).thenReturn(false);
 
         // Business method
         handler.onEvent(this.localEvent);
 
         // Asserts
         verify(this.localEvent).getType();
+        verify(this.jupiterEventType).isEnabledForUseInStateMachines();
+    }
+
+    @Test
+    public void handlerFindsTheStandardStateTransitionEventTypeWhenTheEventTypeIsEnabledForStatemachines() {
+        StandardEventHandler handler = this.testEventHandlerWithoutExtractors();
+        when(this.stateMachineService.findStandardStateTransitionEventType(this.jupiterEventType)).thenReturn(Optional.empty());
+
+        // Business method
+        handler.onEvent(this.localEvent);
+
+        // Asserts
         verify(this.stateMachineService).findStandardStateTransitionEventType(this.jupiterEventType);
     }
 

@@ -163,6 +163,7 @@ public class StateTransitionEventTypeIT {
         // Asserts
         assertThat(stateTransitionEventType.getEventType().getTopic()).isEqualTo(EVENT1_TOPIC);
         assertThat(stateTransitionEventType.getSymbol()).isEqualTo(EVENT1_TOPIC);
+        assertThat(eventType.isEnabledForUseInStateMachines()).isTrue();
     }
 
     @Transactional
@@ -180,6 +181,8 @@ public class StateTransitionEventTypeIT {
         // Asserts
         assertThat(stateTransitionEventType1).isNotNull();
         assertThat(stateTransitionEventType2).isNotNull();
+        assertThat(eventType1.isEnabledForUseInStateMachines()).isTrue();
+        assertThat(eventType2.isEnabledForUseInStateMachines()).isTrue();
     }
 
     @Transactional
@@ -206,6 +209,22 @@ public class StateTransitionEventTypeIT {
         this.getTestService().newStandardStateTransitionEventType(eventType).save();
 
         // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @Test
+    public void deleteStandardClearsEnabledFlagOnJupiterEventType() {
+        com.elster.jupiter.events.EventType eventType = inMemoryPersistence.getService(EventService.class).getEventType(EVENT1_TOPIC).get();
+        StandardStateTransitionEventType stateTransitionEventType = this.getTestService().newStandardStateTransitionEventType(eventType);
+        stateTransitionEventType.save();
+
+        // Business method
+        stateTransitionEventType.delete();
+
+        // Asserts
+        assertThat(stateTransitionEventType.getEventType().getTopic()).isEqualTo(EVENT1_TOPIC);
+        assertThat(stateTransitionEventType.getSymbol()).isEqualTo(EVENT1_TOPIC);
+        assertThat(eventType.isEnabledForUseInStateMachines()).isFalse();
     }
 
     private FinateStateMachineServiceImpl getTestService() {
