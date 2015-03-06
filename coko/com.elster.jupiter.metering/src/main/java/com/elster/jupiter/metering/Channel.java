@@ -44,6 +44,7 @@ public interface Channel {
 	Instant getFirstDateTime();
 	Instant getLastDateTime();
     Instant getNextDateTime(Instant instant);
+    Instant getPreviousDateTime(Instant instant);
 	List<Instant> toList(Range<Instant> range);
 	default boolean hasReadingType(ReadingType readingType) {
 		return getReadingTypes().contains(readingType);

@@ -140,6 +140,11 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
+    public Instant getPreviousDateTime(Instant instant) {
+        return getTimeSeries().getPreviousDateTime(instant);
+    }
+
+    @Override
     public Optional<TemporalAmount> getIntervalLength() {
         Iterator<ReadingTypeImpl> it = getReadingTypes().iterator();
         Optional<TemporalAmount> result = ((ReadingTypeImpl) it.next()).getIntervalLength();
