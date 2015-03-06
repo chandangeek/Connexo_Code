@@ -15,8 +15,6 @@ public interface State {
 
     public String getName();
 
-    public boolean isCustom();
-
     public FinateStateMachine getFinateStateMachine();
 
     public List<StateTransition> getOutgoingStateTransitions();

@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -19,7 +18,6 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -30,15 +28,7 @@ import java.util.stream.Collectors;
  * @since 2015-03-02 (15:20)
  */
 @Unique(message = MessageSeeds.Keys.UNIQUE_STATE_NAME, groups = { Save.Create.class, Save.Update.class })
-public abstract class StateImpl implements State {
-
-    public static final String CUSTOM = "0";
-    public static final String DEVICE_LIFE_CYCLE = "1";
-
-    public static final Map<String, Class<? extends State>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends State>>of(
-                    CUSTOM, CustomStateImpl.class,
-                    DEVICE_LIFE_CYCLE, DeviceLifeCycleStateImpl.class);
+public class StateImpl implements State {
 
     public enum Fields {
         NAME("name"),
@@ -74,6 +64,12 @@ public abstract class StateImpl implements State {
     @Inject
     protected StateImpl(DataModel dataModel) {
         this.dataModel = dataModel;
+    }
+
+    public StateImpl initialize(FinateStateMachine finateStateMachine, String name) {
+        this.setFinateStateMachine(finateStateMachine);
+        this.setName(name);
+        return this;
     }
 
     @Override

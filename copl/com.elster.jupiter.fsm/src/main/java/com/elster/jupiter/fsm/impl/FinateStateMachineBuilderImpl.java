@@ -31,7 +31,7 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
     }
 
     private StateBuilder doNewState(String name) {
-        CustomStateImpl underConstruction = this.dataModel.getInstance(CustomStateImpl.class).initialize(this.underConstruction, name);
+        StateImpl underConstruction = this.dataModel.getInstance(StateImpl.class).initialize(this.underConstruction, name);
         return new StateBuilderImpl(underConstruction);
     }
 

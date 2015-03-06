@@ -167,7 +167,6 @@ public class FinateStateMachineIT {
         assertThat(stateMachine.getStates()).hasSize(1);
         State state = stateMachine.getStates().get(0);
         assertThat(state.getName()).isEqualTo(expectedStateName);
-        assertThat(state.isCustom()).isTrue();
     }
 
     @Transactional
@@ -225,7 +224,6 @@ public class FinateStateMachineIT {
         assertThat(reloaded.getStates()).hasSize(1);
         State state = reloaded.getStates().get(0);
         assertThat(state.getName()).isEqualTo(expectedStateName);
-        assertThat(state.isCustom()).isTrue();
     }
 
     @Transactional
@@ -269,7 +267,6 @@ public class FinateStateMachineIT {
         assertThat(stateMachine.getStates()).hasSize(1);
         State state = stateMachine.getStates().get(0);
         assertThat(state.getName()).isEqualTo(expectedStateName);
-        assertThat(state.isCustom()).isTrue();
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(1);
         assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
@@ -302,7 +299,6 @@ public class FinateStateMachineIT {
         assertThat(reloaded.getStates()).hasSize(1);
         State state = reloaded.getStates().get(0);
         assertThat(state.getName()).isEqualTo(expectedStateName);
-        assertThat(state.isCustom()).isTrue();
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(1);
         assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
@@ -336,7 +332,6 @@ public class FinateStateMachineIT {
         assertThat(stateMachine.getStates()).hasSize(1);
         State state = stateMachine.getStates().get(0);
         assertThat(state.getName()).isEqualTo(expectedStateName);
-        assertThat(state.isCustom()).isTrue();
         List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
         assertThat(onEntryProcesses).hasSize(2);
         assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");

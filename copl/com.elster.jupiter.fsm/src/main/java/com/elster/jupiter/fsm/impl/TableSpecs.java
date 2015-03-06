@@ -60,10 +60,9 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<State> table = dataModel.addTable(this.name(), State.class);
-            table.map(StateImpl.IMPLEMENTERS);
+            table.map(StateImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column name = table.column("NAME").varChar().notNull().map(StateImpl.Fields.NAME.fieldName()).add();
             Column finateStateMachine = table.column("FSM").number().notNull().add();
             table.unique("UK_FSM_STATE").on(name).add();
