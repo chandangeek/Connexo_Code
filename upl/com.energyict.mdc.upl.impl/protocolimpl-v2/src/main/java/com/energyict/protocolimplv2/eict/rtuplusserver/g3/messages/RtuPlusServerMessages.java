@@ -281,9 +281,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     changeDlmAuthLevel(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
                     activateDlmsEncryption(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
                     changeAuthKey(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
                     changeEncryptionKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
                     changeHlsSecret(pendingMessage);
@@ -416,13 +416,24 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
+        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
+
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
         keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
         encryptionKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(encryptionKeyArray);
+
+        //Update the key in the security provider, it is used instantly
+        session.getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(plainHexKey));
+
+        //Reset frame counter, only if a different key has been written
+        String oldHexKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
+        if (!oldHexKey.equalsIgnoreCase(plainHexKey)) {
+            session.getAso().getSecurityContext().setFrameCounter(1);
+        }
     }
 
     private SecuritySetup getSecuritySetup() throws IOException {
@@ -430,13 +441,18 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void changeAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String wrappedHexKey = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        Array globalKeyArray = new Array();
+        String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
+        String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
+
+        Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
         keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
-        globalKeyArray.addDataType(keyData);
-        getSecuritySetup().transferGlobalKey(globalKeyArray);
+        authenticationKeyArray.addDataType(keyData);
+        getSecuritySetup().transferGlobalKey(authenticationKeyArray);
+
+        //Update the key in the security provider, it is used instantly
+        session.getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(plainHexKey));
     }
 
     private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
