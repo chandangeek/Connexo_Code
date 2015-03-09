@@ -7,6 +7,9 @@ import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Provides an implementation for the {@link FinateStateMachineUpdater} interface.
  *
@@ -16,6 +19,7 @@ import com.elster.jupiter.orm.DataModel;
 public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl implements FinateStateMachineUpdater {
 
     private final Thesaurus thesaurus;
+    private final List<StateUpdaterImpl> completedStateUpdaters = new ArrayList<>();
 
     public FinateStateMachineUpdaterImpl(DataModel dataModel, Thesaurus thesaurus, FinateStateMachineImpl updateTarget) {
         super(dataModel, updateTarget);
@@ -37,18 +41,30 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
     @Override
     public FinateStateMachineUpdater removeState(String obsoleteStateName) {
         FinateStateMachineImpl stateMachine = this.getUnderConstruction();
-        State obsoleteState = stateMachine
-                .getState(obsoleteStateName)
-                .orElseThrow(() -> new UnknownStateException(this.thesaurus, stateMachine, obsoleteStateName));
+        StateImpl obsoleteState = this.findStateIfExists(obsoleteStateName, stateMachine);
         stateMachine.removeState(obsoleteState);
         return this;
+    }
+
+    /**
+     * Finds the {@link State} with the specified name and throws
+     * an {@link UnknownStateException} when the State does not exist.
+     *
+     * @param stateName The name of the State
+     * @param stateMachine The {@link FinateStateMachine}
+     * @return The State
+     */
+    private StateImpl findStateIfExists(String stateName, FinateStateMachineImpl stateMachine) {
+        return stateMachine
+                    .findInternalState(stateName)
+                    .orElseThrow(() -> new UnknownStateException(this.thesaurus, stateMachine, stateName));
     }
 
     @Override
     public FinateStateMachineUpdater removeState(State obsoleteState) {
         FinateStateMachineImpl stateMachine = this.getUnderConstruction();
         if (obsoleteState.getFinateStateMachine().getId() == stateMachine.getId()) {
-            stateMachine.removeState(obsoleteState);
+            stateMachine.removeState((StateImpl) obsoleteState);
             return this;
         }
         else {
@@ -57,10 +73,42 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
     }
 
     @Override
+    public StateUpdater state(String name) {
+        return new StateUpdaterImpl(this.findStateIfExists(name, this.getUnderConstruction()));
+    }
+
+    @Override
     public FinateStateMachine complete() {
         FinateStateMachine updated = super.complete();
+        this.completedStateUpdaters.forEach(StateUpdaterImpl::save);
         updated.save();
         return updated;
+    }
+
+    private class StateUpdaterImpl implements StateUpdater {
+        private final StateImpl underConstruction;
+
+        private StateUpdaterImpl(StateImpl underConstruction) {
+            super();
+            this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public StateUpdater setName(String newName) {
+            this.underConstruction.setName(newName);
+            return this;
+        }
+
+        @Override
+        public State complete() {
+            completedStateUpdaters.add(this);
+            return this.underConstruction;
+        }
+
+        private void save() {
+            this.underConstruction.save();
+        }
+
     }
 
 }

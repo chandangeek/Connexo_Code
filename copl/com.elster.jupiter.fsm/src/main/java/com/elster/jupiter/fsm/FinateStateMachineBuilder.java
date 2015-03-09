@@ -30,8 +30,6 @@ public interface FinateStateMachineBuilder {
     /**
      * Assists in building {@link State}s that will be added
      * to the main builder when completed.
-     * Note that you need to complete every StateBuilder
-     * before starting a new one.
      */
     public interface StateBuilder {
 

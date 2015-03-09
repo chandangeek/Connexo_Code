@@ -140,7 +140,7 @@ public class FinateStateMachineImpl implements FinateStateMachine {
         }
     }
 
-    private Optional<StateImpl> findInternalState(String name) {
+    Optional<StateImpl> findInternalState(String name) {
         return this.states.stream().filter(s -> name.equals(s.getName())).findFirst();
     }
 
@@ -148,11 +148,7 @@ public class FinateStateMachineImpl implements FinateStateMachine {
         this.states.add(state);
     }
 
-    void removeState(State obsoleteState) {
-        this.removeState((StateImpl) obsoleteState);
-    }
-
-    private void removeState(StateImpl obsoleteState) {
+    void removeState(StateImpl obsoleteState) {
         this.removeObsoleteTransitions(obsoleteState);
         obsoleteState.prepareDelete();
         this.states.remove(obsoleteState);

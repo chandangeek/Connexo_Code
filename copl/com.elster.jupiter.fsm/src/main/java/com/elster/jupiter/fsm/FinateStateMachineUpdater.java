@@ -45,4 +45,24 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
      */
     public FinateStateMachineUpdater removeState(State obsoleteState);
 
+    /**
+     * Starts the update process for the {@link State} with the specified name.
+     *
+     * @param name The name of the State that needs updating
+     * @return The StateUpdater
+     */
+    public StateUpdater state(String name);
+
+    /**
+     * Assists in updating {@link State}s that already exist
+     * in the main builder's update target.
+     */
+    public interface StateUpdater {
+
+        public StateUpdater setName(String newName);
+
+        public State complete();
+
+    }
+
 }

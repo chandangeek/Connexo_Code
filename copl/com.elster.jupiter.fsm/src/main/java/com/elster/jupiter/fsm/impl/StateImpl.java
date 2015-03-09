@@ -154,4 +154,8 @@ public class StateImpl implements State {
         this.processReferences.clear();
     }
 
+    void save() {
+        Save.UPDATE.save(this.dataModel, this);
+    }
+
 }

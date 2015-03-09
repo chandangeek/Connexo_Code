@@ -6,6 +6,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineBuilder;
+import com.elster.jupiter.fsm.FinateStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
@@ -816,6 +817,92 @@ public class FinateStateMachineIT {
         stateMachine.update().removeState("Single").complete();
 
         // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @Test
+    public void renameStateByName() {
+        String expectedName = "renameState";
+        String expectedTopic = "test-topic";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        String initialName = "Single";
+        builder.newState(initialName).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        String newName = "renamed";
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state(initialName).setName(newName).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        assertThat(stateMachine.getState(newName).isPresent()).isTrue();
+        assertThat(stateMachine.getState(initialName).isPresent()).isFalse();
+    }
+
+    @Transactional
+    @Test
+    public void findAfterRenameStateByName() {
+        String expectedName = "findAfterRenameStateByName";
+        String expectedTopic = "test-topic";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        String initialName = "Single";
+        builder.newState(initialName).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        String newName = "renamed";
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state(initialName).setName(newName).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        FinateStateMachine reloaded = this.getTestService().findFinateStateMachineByName(expectedName).get();
+        assertThat(reloaded.getState(newName).isPresent()).isTrue();
+        assertThat(reloaded.getState(initialName).isPresent()).isFalse();
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.UNIQUE_STATE_NAME, strict = false)
+    @Test
+    public void renameStateToOneThatAlreadyExists() {
+        String expectedName = "renameStateToOneThatAlreadyExists";
+        String expectedTopic = "test-topic";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        State commissioned = builder.newState("Commissioned").complete();
+        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        String newName = "InStock";
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("Commissioned").setName(newName).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @Test(expected = UnknownStateException.class)
+    public void renameStateThatDoesNotExist() {
+        String expectedName = "renameStateThatDoesNotExist";
+        String expectedTopic = "test-topic";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        String initialName = "Single";
+        builder.newState(initialName).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("does not exist").setName("whatever").complete();
+        stateMachineUpdater.complete();
+
+        // Asserts: see expected exception rule
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {
