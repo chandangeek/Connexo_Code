@@ -31,6 +31,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Setup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('datacollectionkpis.add', 'MDC', 'Add data collection KPI'),
+                                itemId: 'btn-data-collection-kpi',
                                 action: 'addDataCollectionKpi'
                             }
                         ]

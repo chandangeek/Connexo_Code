@@ -37,6 +37,14 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 }
             },
             {
+                header: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
+                dataIndex: 'lastReading',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                },
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'deviceLoadProfileChannelsActionMenu',

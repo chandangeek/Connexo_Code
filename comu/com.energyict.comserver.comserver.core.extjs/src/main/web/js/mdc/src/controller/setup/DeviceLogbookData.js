@@ -50,9 +50,6 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
 
     init: function () {
         this.control({
-            'deviceLogbookData #deviceLogbookDataGrid': {
-                select: this.showPreview
-            },
             '#deviceLogbookDataSideFilterApplyBtn': {
                 click: this.applyFilter
             },

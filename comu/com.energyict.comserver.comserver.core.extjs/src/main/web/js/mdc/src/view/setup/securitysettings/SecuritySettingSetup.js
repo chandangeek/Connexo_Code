@@ -49,8 +49,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('securitySetting.NoSecuritySettingsFound','MDC','No security settings found'),
                             reasons: [
-                                Uni.I18n.translate('securitySetting.reason1','MDC','No security settings have been defined yet.'),
-                                Uni.I18n.translate('securitySetting.reason2','MDC','No security settings comply to the filter.')
+                                Uni.I18n.translate('securitySetting.reason1','MDC','No security settings have been defined yet.')
                             ],
                             stepItems: [
                                 {
