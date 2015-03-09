@@ -46,6 +46,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -340,14 +341,17 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
-                    if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true,
-                                getReadingTypeFromConfiguredChannels(registerUnit.getObisCode(), configuredChannelInfos));
-                        channelInfos.add(ci);
-                    } else {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true,
-                                getReadingTypeFromConfiguredChannels(registerUnit.getObisCode(), configuredChannelInfos));
-                        channelInfos.add(ci);
+                    Optional<ReadingType> readingTypeFromConfiguredChannels = getReadingTypeFromConfiguredChannels(registerUnit.getObisCode(), configuredChannelInfos);
+                    if(readingTypeFromConfiguredChannels.isPresent()){
+                        if (su.getUnitCode() != 0) {
+                            ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true,
+                                    readingTypeFromConfiguredChannels.get());
+                            channelInfos.add(ci);
+                        } else {
+                            ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true,
+                                    readingTypeFromConfiguredChannels.get());
+                            channelInfos.add(ci);
+                        }
                     }
                 } else {
                     throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - not in registerUnitMap.");
@@ -357,8 +361,10 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return channelInfos;
     }
 
-    protected ReadingType getReadingTypeFromConfiguredChannels(ObisCode obisCode, List<ChannelInfo> configuredChannelInfos) throws LoadProfileConfigurationException {
-        return configuredChannelInfos.stream().filter(channelInfo -> channelInfo.getChannelObisCode().equals(obisCode)).findFirst().orElseThrow(() -> new LoadProfileConfigurationException("Could not found a correct ChannelInfo with the obiscode " + obisCode)).getReadingType();
+    protected Optional<ReadingType> getReadingTypeFromConfiguredChannels(ObisCode obisCode, List<ChannelInfo> configuredChannelInfos) {
+        return configuredChannelInfos.stream()
+                .filter(channelInfo -> channelInfo.getChannelObisCode().equals(obisCode))
+                .findFirst().map(ChannelInfo::getReadingType);
     }
 
     private int constructStatusMask(List<CapturedRegisterObject> registers) {
