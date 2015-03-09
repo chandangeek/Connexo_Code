@@ -418,6 +418,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     private void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
         String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
+        String oldHexKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
 
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
@@ -430,7 +431,6 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         session.getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(plainHexKey));
 
         //Reset frame counter, only if a different key has been written
-        String oldHexKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
         if (!oldHexKey.equalsIgnoreCase(plainHexKey)) {
             session.getAso().getSecurityContext().setFrameCounter(1);
         }
