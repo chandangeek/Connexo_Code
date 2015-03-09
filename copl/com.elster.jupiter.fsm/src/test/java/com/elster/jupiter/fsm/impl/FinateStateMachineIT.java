@@ -13,6 +13,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateException;
+import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Strings;
 
@@ -750,7 +751,7 @@ public class FinateStateMachineIT {
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
         State commissioned = builder.newState("Commissioned").complete();
-        State inStock = builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -903,6 +904,84 @@ public class FinateStateMachineIT {
         stateMachineUpdater.complete();
 
         // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @Test
+    public void removeTransition() {
+        String expectedName = "removeTransition";
+        StateTransitionEventType deliveredEventType = this.createNewStateTransitionEventType("#delivered");
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        String expectedTopic = "test-topic";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        State commissioned = builder.newState("Commissioned").complete();
+        FinateStateMachineBuilder.StateBuilder inStock = builder.newState("InStock");
+        builder.newState("Initial").on(deliveredEventType).transitionTo(inStock).complete();
+        inStock.on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("InStock").prohibit(commissionedEventType).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        // Check that there was no effect on the name and the topic
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getTopic()).isEqualTo(expectedTopic);
+        assertThat(stateMachine.getStates()).hasSize(3);
+        assertThat(stateMachine.getTransitions()).hasSize(1);
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        assertThat(stateTransition.getEventType().getId()).isEqualTo(deliveredEventType.getId());
+    }
+
+    @Transactional
+    @Test(expected = UnsupportedStateTransitionException.class)
+    public void removeTransitionThatDoesNotExist() {
+        String expectedName = "removeTransitionThatDoesNotExist";
+        StateTransitionEventType deliveredEventType = this.createNewStateTransitionEventType("#delivered");
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        String expectedTopic = "test-topic";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        State commissioned = builder.newState("Commissioned").complete();
+        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("InStock").prohibit(deliveredEventType).complete();
+
+        // Asserts: see expected exception rul
+    }
+
+    @Transactional
+    @Test
+    public void removeTransitionAndReload() {
+        String expectedName = "removeTransitionAndReload";
+        StateTransitionEventType deliveredEventType = this.createNewStateTransitionEventType("#delivered");
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        String expectedTopic = "test-topic";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        State commissioned = builder.newState("Commissioned").complete();
+        FinateStateMachineBuilder.StateBuilder inStock = builder.newState("InStock");
+        builder.newState("Initial").on(deliveredEventType).transitionTo(inStock).complete();
+        inStock.on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("InStock").prohibit(commissionedEventType).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        FinateStateMachine reloaded = this.getTestService().findFinateStateMachineByName(expectedName).get();
+        assertThat(reloaded.getStates()).hasSize(3);
+        assertThat(reloaded.getTransitions()).hasSize(1);
+        StateTransition stateTransition = reloaded.getTransitions().get(0);
+        assertThat(stateTransition.getEventType().getId()).isEqualTo(deliveredEventType.getId());
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {

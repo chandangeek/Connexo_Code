@@ -6,6 +6,8 @@ import com.elster.jupiter.fsm.FinateStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
 import com.elster.jupiter.fsm.impl.constraints.AtLeastOneState;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.nls.Thesaurus;
@@ -172,6 +174,20 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     void add(StateTransition stateTransition) {
         this.transitions.add(stateTransition);
+    }
+
+    void removeTransition(StateImpl state, StateTransitionEventType eventType) {
+        Optional<StateTransition> stateTransition = this.transitions
+                .stream()
+                .filter(t -> this.relatesTo(t, state))
+                .filter(t -> t.getEventType().getId() == eventType.getId())
+                .findFirst();
+        if (stateTransition.isPresent()) {
+            this.transitions.remove(stateTransition.get());
+        }
+        else {
+            throw new UnsupportedStateTransitionException(this.thesaurus, this, state, eventType);
+        }
     }
 
     @Override

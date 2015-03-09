@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;

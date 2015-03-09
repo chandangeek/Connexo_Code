@@ -61,6 +61,17 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
 
         public StateUpdater setName(String newName);
 
+        /**
+         * Prohibits the {@link StateTransitionEventType} to occur
+         * and as such is the inverse operation of {@link StateBuilder#on(StateTransitionEventType)}.
+         * Note that this may throw an {@link UnsupportedStateTransitionException}
+         * if the transition was not defined before.
+         *
+         * @param eventType The StateTransitionEventType
+         * @return This StateUpdater to support method chaining
+         */
+        public StateUpdater prohibit(StateTransitionEventType eventType);
+
         public State complete();
 
     }

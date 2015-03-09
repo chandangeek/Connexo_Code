@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class UnknownStateException extends LocalizedException {
 
     public UnknownStateException(Thesaurus thesaurus, FinateStateMachine finateStateMachine, String stateName) {
-        super(thesaurus, MessageSeeds.UNKNOWN_STATE, finateStateMachine.getName(), stateName);
+        super(thesaurus, MessageSeeds.UNKNOWN_STATE, stateName, finateStateMachine.getName());
         this.set("finateStateMachineId", finateStateMachine.getId());
         this.set("stateName", stateName);
     }

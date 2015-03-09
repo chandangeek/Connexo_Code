@@ -3,6 +3,7 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -96,6 +97,12 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
         @Override
         public StateUpdater setName(String newName) {
             this.underConstruction.setName(newName);
+            return this;
+        }
+
+        @Override
+        public StateUpdater prohibit(StateTransitionEventType eventType) {
+            FinateStateMachineUpdaterImpl.this.getUnderConstruction().removeTransition(this.underConstruction, eventType);
             return this;
         }
 
