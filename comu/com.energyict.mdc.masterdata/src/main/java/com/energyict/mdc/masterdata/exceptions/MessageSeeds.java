@@ -37,7 +37,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE(1412, Keys.CHANNEL_TYPE_SHOULD_BE_LINKED_TO_REGISTER_TYPE, "A channel type should have a link to it's corresponding register type", SEVERE),
     CHANNEL_TYPE_INTERVAL_REQUIRED(1413, Keys.CHANNEL_TYPE_INTERVAL_IS_REQUIRED, "The interval is required", SEVERE),
     CHANNEL_TYPE_WITH_REGISTER_TYPE_AND_INTERVAL_DUPLICATE(1414, Keys.CHANNEL_TYPE_WITH_REGISTER_TYPE_AND_INTERVAL_DUPLICATE, "There is already a channel type with this interval and register type", SEVERE),
-    REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED(1415, Keys.REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED, "The following register types could not be mapped to the load profile type's interval: {0}", SEVERE),
+    REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED(1415, Keys.REGISTER_TYPES_AND_LOAD_PROFILE_TYPE_INTERVAL_NOT_SUPPORTED, "The following register types could not be mapped to the load profile type''s interval: {0}", SEVERE),
 
     LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(1500, "loadProfileType.cannotUpdateObisCode", "The obis code of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(1501, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use", SEVERE),
