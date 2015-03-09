@@ -5,6 +5,7 @@ import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
+import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
@@ -37,7 +38,7 @@ public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
         ComChannel comChannel = super.connect(comPort, properties);
         try {
             atModemComponent.connect(comPort.getName(), comChannel);
-        } catch (Exception e) {
+        } catch (ModemException e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             throw new ConnectionException(e);
         }

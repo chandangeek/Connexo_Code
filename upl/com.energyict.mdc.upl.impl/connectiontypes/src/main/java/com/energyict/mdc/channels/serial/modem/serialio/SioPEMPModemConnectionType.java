@@ -4,7 +4,9 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.channels.serial.modem.*;
+import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
+import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
+import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
@@ -36,7 +38,7 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
         ComChannel comChannel = super.connect(comPort, properties);
         try {
             pempModemComponent.connect(comPort.getName(), (SerialComChannel) comChannel);
-        } catch (Exception e) {
+        } catch (ModemException e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             throw new ConnectionException(e);
         }
