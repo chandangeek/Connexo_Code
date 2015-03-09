@@ -2,6 +2,9 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineUpdater;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.UnknownStateException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 /**
@@ -12,8 +15,11 @@ import com.elster.jupiter.orm.DataModel;
  */
 public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl implements FinateStateMachineUpdater {
 
-    public FinateStateMachineUpdaterImpl(DataModel dataModel, FinateStateMachineImpl updateTarget) {
+    private final Thesaurus thesaurus;
+
+    public FinateStateMachineUpdaterImpl(DataModel dataModel, Thesaurus thesaurus, FinateStateMachineImpl updateTarget) {
         super(dataModel, updateTarget);
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -26,6 +32,28 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
     public FinateStateMachineUpdater setTopic(String newTopic) {
         this.getUnderConstruction().setTopic(newTopic);
         return this;
+    }
+
+    @Override
+    public FinateStateMachineUpdater removeState(String obsoleteStateName) {
+        FinateStateMachineImpl stateMachine = this.getUnderConstruction();
+        State obsoleteState = stateMachine
+                .getState(obsoleteStateName)
+                .orElseThrow(() -> new UnknownStateException(this.thesaurus, stateMachine, obsoleteStateName));
+        stateMachine.removeState(obsoleteState);
+        return this;
+    }
+
+    @Override
+    public FinateStateMachineUpdater removeState(State obsoleteState) {
+        FinateStateMachineImpl stateMachine = this.getUnderConstruction();
+        if (obsoleteState.getFinateStateMachine().getId() == stateMachine.getId()) {
+            stateMachine.removeState(obsoleteState);
+            return this;
+        }
+        else {
+            throw new UnknownStateException(this.thesaurus, stateMachine, obsoleteState.getName());
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
@@ -48,6 +49,7 @@ public class StateImpl implements State {
 
     private final DataModel dataModel;
 
+    @SuppressWarnings("unused")
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
@@ -56,9 +58,13 @@ public class StateImpl implements State {
     private Reference<FinateStateMachine> finateStateMachine = Reference.empty();
     @Valid
     private List<ProcessReferenceImpl> processReferences = new ArrayList<>();
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
@@ -142,6 +148,10 @@ public class StateImpl implements State {
 
     void addOnExit(String deploymentId, String processId) {
         this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onExit(this, deploymentId, processId));
+    }
+
+    void prepareDelete() {
+        this.processReferences.clear();
     }
 
 }

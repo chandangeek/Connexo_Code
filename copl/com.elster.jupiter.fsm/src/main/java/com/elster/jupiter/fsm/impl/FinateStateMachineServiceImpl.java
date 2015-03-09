@@ -2,14 +2,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.*;
 import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.FinateStateMachineBuilder;
-import com.elster.jupiter.fsm.FinateStateMachineService;
-import com.elster.jupiter.fsm.StandardEventPredicate;
-import com.elster.jupiter.fsm.StandardStateTransitionEventType;
-import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.*;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,7 +16,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.streams.Predicates;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -38,8 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 
@@ -86,7 +76,7 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Arrays.asList(com.elster.jupiter.fsm.MessageSeeds.values());
     }
 
     @Override

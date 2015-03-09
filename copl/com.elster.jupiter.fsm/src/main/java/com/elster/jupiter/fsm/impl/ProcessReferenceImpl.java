@@ -1,9 +1,9 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import org.hibernate.validator.constraints.NotEmpty;

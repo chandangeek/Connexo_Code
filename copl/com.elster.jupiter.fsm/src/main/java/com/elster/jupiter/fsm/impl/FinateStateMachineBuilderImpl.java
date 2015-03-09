@@ -4,6 +4,7 @@ import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineBuilder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 /**
@@ -25,7 +26,7 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         this.state = new UnderConstruction();
     }
 
-    FinateStateMachineImpl getUnderConstruction() {
+    protected FinateStateMachineImpl getUnderConstruction() {
         return underConstruction;
     }
 

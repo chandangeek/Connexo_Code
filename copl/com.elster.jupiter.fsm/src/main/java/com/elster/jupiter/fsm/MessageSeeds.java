@@ -1,13 +1,13 @@
-package com.elster.jupiter.fsm.impl;
+package com.elster.jupiter.fsm;
 
-import com.elster.jupiter.fsm.FinateStateMachineService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
 /**
- * Insert your comments here.
+ * Defines the different error messages that are produced by
+ * this "finate state machine" bundle.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:23)
@@ -27,7 +27,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // FinateStateMachine
     UNIQUE_FINATE_STATE_MACHINE_NAME(400, Keys.UNIQUE_FINATE_STATE_MACHINE_NAME, "The name of a finate state machine must be unique"),
-    AT_LEAST_ONE_STATE(401, Keys.AT_LEAST_ONE_STATE, "A finate state machine must have at least one state");
+    AT_LEAST_ONE_STATE(401, Keys.AT_LEAST_ONE_STATE, "A finate state machine must have at least one state"),
+    UNKNOWN_STATE(402, Keys.UNKNOWN_STATE, "Unable to remove state because it does not exist in the finate state machine");
 
     private final int number;
     private final String key;
@@ -70,7 +71,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return FinateStateMachineService.COMPONENT_NAME;
     }
 
-    static final class Keys {
+    public static final class Keys {
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String UNIQUE_EVENT_TYPE_SYMBOL = "state.transition.event.type.unique.symbol";
@@ -78,6 +79,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String UNIQUE_STATE_NAME = "state.unique.name";
         public static final String UNIQUE_FINATE_STATE_MACHINE_NAME = "finate.state.machine.unique.name";
         public static final String AT_LEAST_ONE_STATE = "finate.state.machine.min1state";
+        public static final String UNKNOWN_STATE = "finate.state.machine.unknown.state";
     }
 
 }

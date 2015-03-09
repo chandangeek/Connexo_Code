@@ -7,6 +7,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;

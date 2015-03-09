@@ -3,13 +3,14 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineUpdater;
+import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.impl.constraints.AtLeastOneState;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -19,8 +20,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link FinateStateMachine} interface.
@@ -50,7 +51,9 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     }
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
+    @SuppressWarnings("unused")
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
@@ -59,17 +62,22 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String topic;
     @Valid
-    private List<State> states = new ArrayList<>();
+    private List<StateImpl> states = new ArrayList<>();
     @Valid
     private List<StateTransition> transitions = new ArrayList<>();
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Inject
-    public FinateStateMachineImpl(DataModel dataModel) {
+    public FinateStateMachineImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     public FinateStateMachineImpl initialize(String name, String topic) {
@@ -123,11 +131,42 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     @Override
     public Optional<State> getState(String name) {
+        Optional<StateImpl> state = this.findInternalState(name);
+        if (state.isPresent()) {
+            return Optional.of(state.get());
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<StateImpl> findInternalState(String name) {
         return this.states.stream().filter(s -> name.equals(s.getName())).findFirst();
     }
 
-    void add(State state) {
+    void add(StateImpl state) {
         this.states.add(state);
+    }
+
+    void removeState(State obsoleteState) {
+        this.removeState((StateImpl) obsoleteState);
+    }
+
+    private void removeState(StateImpl obsoleteState) {
+        this.removeObsoleteTransitions(obsoleteState);
+        obsoleteState.prepareDelete();
+        this.states.remove(obsoleteState);
+    }
+
+    private void removeObsoleteTransitions(StateImpl obsoleteState) {
+        this.transitions.removeAll(this.transitions
+                .stream()
+                .filter(t -> this.relatesTo(t, obsoleteState))
+                .collect(Collectors.toList()));
+    }
+
+    private boolean relatesTo(StateTransition transition, StateImpl state) {
+        return transition.getFrom().getId() == state.getId() || transition.getTo().getId() == state.getId();
     }
 
     @Override
@@ -141,7 +180,7 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     @Override
     public FinateStateMachineUpdater update() {
-        return new FinateStateMachineUpdaterImpl(this.dataModel, this);
+        return new FinateStateMachineUpdaterImpl(this.dataModel, this.thesaurus, this);
     }
 
     @Override

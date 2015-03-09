@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.fsm.MessageSeeds;
+
 import java.util.HashSet;
 import java.util.Set;
 

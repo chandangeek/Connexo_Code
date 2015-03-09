@@ -6,10 +6,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.FinateStateMachineBuilder;
+import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Strings;
 
@@ -714,6 +716,106 @@ public class FinateStateMachineIT {
         stateMachine.update().setTopic(Strings.repeat("Too long", 100)).complete();
 
         // Asserts: see constraint violation rule
+    }
+
+    @Transactional
+    @Test
+    public void removeState() {
+        String expectedName = "removeState";
+        String expectedTopic = "test-topic";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        State commissioned = builder.newState("Commissioned").complete();
+        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().removeState(commissioned).complete();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getTopic()).isEqualTo(expectedTopic);
+        assertThat(stateMachine.getStates()).hasSize(1);
+        assertThat(stateMachine.getStates().get(0).getName()).isEqualTo("InStock");
+        assertThat(stateMachine.getTransitions()).isEmpty();
+    }
+
+    @Transactional
+    @Test
+    public void removeStateByName() {
+        String expectedName = "removeStateByName";
+        String expectedTopic = "test-topic";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        State commissioned = builder.newState("Commissioned").complete();
+        State inStock = builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().removeState("InStock").complete();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getTopic()).isEqualTo(expectedTopic);
+        assertThat(stateMachine.getStates()).hasSize(1);
+        assertThat(stateMachine.getStates().get(0).getName()).isEqualTo("Commissioned");
+        assertThat(stateMachine.getTransitions()).isEmpty();
+    }
+
+    @Transactional
+    @Test(expected = UnknownStateException.class)
+    public void removeStateThatDoesNotExist() {
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder targetBuilder = this.getTestService().newFinateStateMachine("removeStateThatDoesNotExist", "test-topic-1");
+        State commissioned = targetBuilder.newState("Commissioned").complete();
+        targetBuilder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = targetBuilder.complete();
+        stateMachine.save();
+
+        FinateStateMachineBuilder otherBuilder = this.getTestService().newFinateStateMachine("Other", "test-topic-2");
+        State whatever = otherBuilder.newState("Whatever").complete();
+        FinateStateMachine other = otherBuilder.complete();
+        other.save();
+
+        // Business method
+        stateMachine.update().removeState(whatever).complete();
+
+        // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @Test(expected = UnknownStateException.class)
+    public void removeStateByNameThatDoesNotExist() {
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("removeStateThatDoesNotExist", "test-topic-1");
+        State commissioned = builder.newState("Commissioned").complete();
+        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().removeState("does not exist").complete();
+
+        // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.AT_LEAST_ONE_STATE)
+    @Test
+    public void cannotRemoveLastState() {
+        String expectedName = "cannotRemoveLastState";
+        String expectedTopic = "test-topic";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        builder.newState("Single").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().removeState("Single").complete();
+
+        // Asserts: see expected constraint violation rule
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {

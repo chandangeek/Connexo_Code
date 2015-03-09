@@ -23,4 +23,26 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
 
     public FinateStateMachineUpdater setTopic(String newTopic);
 
+    /**
+     * Removes the {@link State} with the specified name as well
+     * as all incoming and outgoing transitions for that State.
+     * Note that this may throw an {@link UnknownStateException}
+     * if no such State exists.
+     *
+     * @param obsoleteStateName The name of the obsolete State
+     * @return This FinateStateMachineUpdater to support method chaining
+     */
+    public FinateStateMachineUpdater removeState(String obsoleteStateName);
+
+    /**
+     * Removes the specified {@link State} as well
+     * as all incoming and outgoing transitions for that State.
+     * Note that this may throw an {@link UnknownStateException}
+     * if the State is not actually part of the FinateStateMachine.
+     *
+     * @param obsoleteState The obsolete State
+     * @return This FinateStateMachineUpdater to support method chaining
+     */
+    public FinateStateMachineUpdater removeState(State obsoleteState);
+
 }

@@ -3,6 +3,7 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.orm.DataModel;
