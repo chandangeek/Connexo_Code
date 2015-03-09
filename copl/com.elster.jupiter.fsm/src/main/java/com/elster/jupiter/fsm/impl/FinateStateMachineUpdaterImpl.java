@@ -18,13 +18,13 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
 
     @Override
     public FinateStateMachineUpdater setName(String newName) {
-        this.getState().setName(newName);
+        this.getUnderConstruction().setName(newName);
         return this;
     }
 
     @Override
     public FinateStateMachineUpdater setTopic(String newTopic) {
-        this.getState().setTopic(newTopic);
+        this.getUnderConstruction().setTopic(newTopic);
         return this;
     }
 
