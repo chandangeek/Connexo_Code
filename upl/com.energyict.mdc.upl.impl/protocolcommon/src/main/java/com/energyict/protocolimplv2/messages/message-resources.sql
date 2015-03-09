@@ -16,18 +16,3 @@
 
 -- Use the following template to insert your keys:
 -- insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('your key', 'english translation', 'L', 'Y', 'N', 'MDW', sysdate);
-
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.RESET_DESCRIPTOR_FOR_ALARM_REGISTER_1_OR_2', 'Reset alarm descriptor', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.RESET_BITS_IN_ALARM_REGISTER_1_OR_2', 'Reset alarm bits', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2', 'Write alarm filter', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.alarmRegister', 'Alarm register', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.alarmBitMask', 'Alarm bit mask', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.SetUseDHCPFlag', 'Use DHCP', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.primaryDNSAddress', 'Primary DNS address', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.secondaryDNSAddress', 'Secondary DNS address', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.SetPrimaryDNSAddress', 'Set primary DNS address', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.SetSecondaryDNSAddress', 'Set secondary DNS address', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.SetAutoConnectMode', 'Set GPRS connect mode', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.gprsMode', 'GPRS connect mode', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.objectDefinitions', 'Object definitions', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AlarmConfigurationMessage.FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION', 'Configure push event notifications', 'L', 'Y', 'N', 'MDW', sysdate);
