@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.firmware.extjs
+-include: -../development.bnd
