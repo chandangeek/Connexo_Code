@@ -552,6 +552,14 @@ public class FinateStateMachineIT {
         assertThat(reloaded.getStates()).hasSize(7);
         List<StateTransition> transitions = reloaded.getTransitions();
         assertThat(transitions).hasSize(11);
+        Optional<State> reloadedActiveState = reloaded.getState(active.getName());
+        assertThat(reloadedActiveState.isPresent()).isTrue();
+        List<StateTransition> outgoingActiveStateTransitions = reloadedActiveState.get().getOutgoingStateTransitions();
+        assertThat(outgoingActiveStateTransitions).hasSize(2);
+        Optional<State> reloadedDeletedState = reloaded.getState(deleted.getName());
+        assertThat(reloadedDeletedState.isPresent()).isTrue();
+        List<StateTransition> outgoingDeletedStateTransitions = reloadedDeletedState.get().getOutgoingStateTransitions();
+        assertThat(outgoingDeletedStateTransitions).isEmpty();
     }
 
     @Transactional
