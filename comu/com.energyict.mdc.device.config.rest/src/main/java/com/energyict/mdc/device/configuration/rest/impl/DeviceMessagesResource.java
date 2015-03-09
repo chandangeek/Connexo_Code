@@ -70,7 +70,7 @@ public class DeviceMessagesResource {
         List<DeviceMessageEnablement> deviceMessageEnablements = deviceConfiguration.getDeviceMessageEnablements();
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
 
-        for (DeviceMessageCategory category : deviceMessageSpecificationService.allCategories()) {
+        for (DeviceMessageCategory category : deviceMessageSpecificationService.filteredCategoriesForUserSelection()) {
             List<DeviceMessageSpec> messages = category.getMessageSpecifications().stream()
                     .filter(m -> supportedMessages.contains(m.getId()))
                     .sorted((m1, m2) -> m1.getName().compareTo(m2.getName()))
