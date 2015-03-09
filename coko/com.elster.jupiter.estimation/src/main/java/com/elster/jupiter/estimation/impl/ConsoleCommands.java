@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -40,7 +42,9 @@ import java.util.stream.Stream;
                 "osgi.command.function=createRuleSet",
                 "osgi.command.function=addRule",
                 "osgi.command.function=estimate",
-                "osgi.command.function=estimateWithLambdas"
+                "osgi.command.function=estimateWithLambdas",
+                "osgi.command.function=removeRuleSet",
+                "osgi.command.function=removeRule"
         },
         immediate = true)
 public class ConsoleCommands {
@@ -126,6 +130,34 @@ public class ConsoleCommands {
         }
     }
 
+    public void removeRuleSet(long ruleSetId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(IllegalArgumentException::new);
+            set.delete();
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void removeRule(long ruleSetId, long ruleId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(IllegalArgumentException::new);
+            set.getRules().stream()
+                    .filter(rule -> rule.getId() == ruleId)
+                    .findFirst()
+                    .ifPresent(rule -> {
+                        set.deleteRule(rule);
+                        set.save();
+                        context.commit();
+                    });
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
     public void estimate(long meterId, String estimatorName) {
         try {
             EstimatorFactory estimatorFactory = new EstimatorFactoryImpl();
@@ -151,6 +183,30 @@ public class ConsoleCommands {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
+    }
+
+    public void estimate(long meterId) {
+        Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
+        meter.getCurrentMeterActivation()
+                .map(estimationService::estimate)
+                .map(EstimationReport::getResults)
+                .map(Stream::of)
+                .orElseGet(Stream::empty)
+                .forEach(map -> {
+                    map.entrySet().stream()
+                            .peek(entry -> System.out.println("ReadingType : " + entry.getKey().getMRID()))
+                            .map(Map.Entry::getValue)
+                            .forEach(result -> {
+                                result.estimated().stream()
+                                        .flatMap(block -> block.estimatables().stream())
+                                        .map(estimatable -> "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp())
+                                        .forEach(System.out::println);
+                                result.remainingToBeEstimated().stream()
+                                        .flatMap(block -> block.estimatables().stream())
+                                        .map(estimatable -> "No estimated value for " + estimatable.getTimestamp())
+                                        .forEach(System.out::println);
+                            });
+                });
     }
 
     @Reference
@@ -186,7 +242,7 @@ public class ConsoleCommands {
 
         return builder.toString();
     }
-    
+
     private String print(EstimationRuleSet ruleSet) {
         StringBuilder builder = new StringBuilder();
         builder.append(ruleSet.getId()).append(' ').append(ruleSet.getName()).append('\n');

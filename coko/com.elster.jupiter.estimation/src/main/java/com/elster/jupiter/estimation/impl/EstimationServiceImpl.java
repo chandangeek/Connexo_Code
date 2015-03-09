@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -139,18 +140,33 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
-    public void estimate(MeterActivation meterActivation) {
-        meterActivation.getReadingTypes().forEach(readingType -> this.estimate(meterActivation, readingType));
+    public EstimationReport estimate(MeterActivation meterActivation) {
+        EstimationReportImpl report = new EstimationReportImpl();
+
+        meterActivation.getReadingTypes().forEach(readingType -> {
+            EstimationReport subReport = this.estimate(meterActivation, readingType);
+            report.add(subReport);
+        });
+
+        return report;
     }
 
     @Override
-    public void estimate(MeterActivation meterActivation, ReadingType readingType) {
+    public EstimationReport estimate(MeterActivation meterActivation, ReadingType readingType) {
         UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(getInitialBlocksToEstimateAsResult(meterActivation, readingType));
+
+        EstimationReportImpl report = new EstimationReportImpl();
 
         determineEstimationRules(meterActivation)
                 .filter(rule -> rule.getReadingTypes().contains(readingType))
                 .map(IEstimationRule::createNewEstimator)
-                .forEach(estimator -> result.update(estimator.estimate(result.get().remainingToBeEstimated())));
+                .forEach(estimator -> {
+                    EstimationResult estimationResult = result.get();
+                    estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
+                    result.update(estimator.estimate(estimationResult.remainingToBeEstimated()));
+                });
+        result.get().estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
+        return report;
     }
 
     @Override

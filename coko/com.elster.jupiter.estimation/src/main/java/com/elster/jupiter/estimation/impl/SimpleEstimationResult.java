@@ -47,7 +47,7 @@ class SimpleEstimationResult implements EstimationResult {
         }
 
         public void addEstimated(EstimationBlock block) {
-            remain.add(block);
+            estimated.add(block);
         }
 
         public void addRemaining(EstimationBlock... block) {
