@@ -188,7 +188,7 @@ public class ComTaskImplTest extends PersistenceTest {
         loadedComTask = getTaskService().findComTask(comTask.getId()).get();
         assertThat(loadedComTask.getProtocolTasks()).hasSize(4);
 
-        comTask.createMessagesTask().deviceMessageCategories(this.getDeviceMessageService().allCategories()).add();
+        comTask.createMessagesTask().deviceMessageCategories(this.getDeviceMessageService().filteredCategoriesForUserSelection()).add();
         loadedComTask = getTaskService().findComTask(comTask.getId()).get();
         assertThat(loadedComTask.getProtocolTasks()).hasSize(5);
 
