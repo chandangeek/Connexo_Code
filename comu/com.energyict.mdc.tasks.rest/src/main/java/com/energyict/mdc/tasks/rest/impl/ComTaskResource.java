@@ -55,7 +55,7 @@ public class ComTaskResource {
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComTasks(@BeanParam QueryParameters queryParameters) {
         List<ComTaskInfo> comTaskInfos =
-                ComTaskInfo.from(ListPager.of(taskService.findAllComTasks(), new ComTaskComparator()).from(queryParameters).find());
+                ComTaskInfo.from(ListPager.of(taskService.findAllUserComTasks(), new ComTaskComparator()).from(queryParameters).find());
         return PagedInfoList.fromPagedList("data", comTaskInfos, queryParameters);
     }
 
