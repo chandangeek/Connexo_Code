@@ -75,6 +75,16 @@ public class KpiScoreFactoryTest {
     }
 
     @Test
+    public void testDisplayRangeOneWeekOnAMonday() throws Exception {
+        when(clock.instant()).thenReturn(LocalDateTime.of(2015, 3, 9, 8, 51, 0).toInstant(ZoneOffset.UTC));
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
+        KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Period.ofWeeks(1));
+        assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2015, 3, 9, 0, 0, 0).toInstant(ZoneOffset.UTC));
+        assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2015, 3, 16, 0, 0, 0).toInstant(ZoneOffset.UTC));
+    }
+
+    @Test
     public void testDisplayRangeTwoWeeks() throws Exception {
         when(clock.instant()).thenReturn(LocalDateTime.of(2014, 8, 1, 13, 0, 0).toInstant(ZoneOffset.UTC));
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
@@ -82,6 +92,16 @@ public class KpiScoreFactoryTest {
         Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Period.ofWeeks(2));
         assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2014, 7, 21, 0, 0, 0).toInstant(ZoneOffset.UTC));
         assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2014, 8, 4, 0, 0, 0).toInstant(ZoneOffset.UTC));
+    }
+
+    @Test
+    public void testDisplayRangeTwoWeeksOnAMonday() throws Exception {
+        when(clock.instant()).thenReturn(LocalDateTime.of(2015, 3, 9, 8, 51, 0).toInstant(ZoneOffset.UTC));
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
+        KpiScoreFactory kpiScoreFactory = new KpiScoreFactory(exceptionFactory, clock);
+        Range<Instant> range = kpiScoreFactory.getActualRangeByDisplayRange(Period.ofWeeks(2));
+        assertThat(range.lowerEndpoint()).isEqualTo(LocalDateTime.of(2015, 3, 2, 0, 0, 0).toInstant(ZoneOffset.UTC));
+        assertThat(range.upperEndpoint()).isEqualTo(LocalDateTime.of(2015, 3, 16, 0, 0, 0).toInstant(ZoneOffset.UTC));
     }
 
     @Test

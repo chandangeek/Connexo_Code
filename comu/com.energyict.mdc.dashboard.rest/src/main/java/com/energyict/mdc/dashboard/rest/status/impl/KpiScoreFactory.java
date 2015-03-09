@@ -89,10 +89,19 @@ public class KpiScoreFactory {
                 startDay = today;
                 endDay = startDay;
             } else if (displayRange.get(ChronoUnit.DAYS) == 7) {
-                startDay = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+                if (today.getDayOfWeek().equals(DayOfWeek.MONDAY)) {
+                    startDay=today;
+                } else {
+                    startDay = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+                }
                 endDay = today.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
             } else if (displayRange.get(ChronoUnit.DAYS) == 14) {
-                startDay = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY)).with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+                if (today.getDayOfWeek().equals(DayOfWeek.MONDAY)) {
+                    startDay=today;
+                } else {
+                    startDay = today.with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+                }
+                startDay = startDay.with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
                 endDay = today.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
             } else if (displayRange.get(ChronoUnit.MONTHS) == 1) {
                 startDay = today.with(TemporalAdjusters.firstDayOfMonth());
