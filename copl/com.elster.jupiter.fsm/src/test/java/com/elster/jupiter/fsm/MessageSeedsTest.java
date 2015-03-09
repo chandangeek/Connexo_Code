@@ -1,4 +1,4 @@
-package com.elster.jupiter.fsm.impl;
+package com.elster.jupiter.fsm;
 
 import com.elster.jupiter.fsm.MessageSeeds;
 

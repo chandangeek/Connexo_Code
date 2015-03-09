@@ -534,6 +534,7 @@ public class FinateStateMachineIT {
         State inStock = builder
                 .newState("InStock")
                 .on(activated).transitionTo(active)
+                .on(deactivated).transitionTo(inactive)
                 .on(commissionedEventType).transitionTo(commissioned)
                 .complete();
         builder
@@ -546,10 +547,11 @@ public class FinateStateMachineIT {
         stateMachine.save();
 
         // Asserts
-        assertThat(stateMachine.getName()).isEqualTo(expectedName);
-        assertThat(stateMachine.getStates()).hasSize(7);
-        List<StateTransition> transitions = stateMachine.getTransitions();
-        assertThat(transitions).hasSize(10);
+        FinateStateMachine reloaded = this.getTestService().findFinateStateMachineByName(expectedName).get();
+        assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getStates()).hasSize(7);
+        List<StateTransition> transitions = reloaded.getTransitions();
+        assertThat(transitions).hasSize(11);
     }
 
     @Transactional
@@ -741,6 +743,30 @@ public class FinateStateMachineIT {
         assertThat(stateMachine.getStates()).hasSize(1);
         assertThat(stateMachine.getStates().get(0).getName()).isEqualTo("InStock");
         assertThat(stateMachine.getTransitions()).isEmpty();
+    }
+
+    @Transactional
+    @Test
+    public void stateRemovedAfterFind() {
+        String expectedName = "stateRemovedAfterFind";
+        String expectedTopic = "test-topic";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        State commissioned = builder.newState("Commissioned").complete();
+        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().removeState(commissioned).complete();
+
+        // Asserts
+        FinateStateMachine reloaded = this.getTestService().findFinateStateMachineByName(expectedName).get();
+        assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getTopic()).isEqualTo(expectedTopic);
+        assertThat(reloaded.getStates()).hasSize(1);
+        assertThat(reloaded.getStates().get(0).getName()).isEqualTo("InStock");
+        assertThat(reloaded.getTransitions()).isEmpty();
     }
 
     @Transactional
@@ -982,6 +1008,189 @@ public class FinateStateMachineIT {
         assertThat(reloaded.getTransitions()).hasSize(1);
         StateTransition stateTransition = reloaded.getTransitions().get(0);
         assertThat(stateTransition.getEventType().getId()).isEqualTo(deliveredEventType.getId());
+    }
+
+    @Transactional
+    @Test
+    public void addBothEntryAndExitProcessesToExistingState() {
+        String expectedName = "addBothEntryAndExitProcessesToExistingState";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
+        String expectedStateName = "Initial";
+        builder.newState(expectedStateName).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("Initial").onEntry("onEntryDepId", "onEntry").onExit("onExitDepId", "onExit").complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getStates()).hasSize(1);
+        State state = stateMachine.getStates().get(0);
+        assertThat(state.getName()).isEqualTo(expectedStateName);
+        List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
+        assertThat(onEntryProcesses).hasSize(1);
+        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
+        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry");
+        List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
+        assertThat(onExitProcesses).hasSize(1);
+        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
+        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+    }
+
+    @Transactional
+    @Test
+    public void addMultipleEntryAndExitProcessesToExistingState() {
+        String expectedName = "addBothEntryAndExitProcessesToExistingState";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
+        String expectedStateName = "Initial";
+        builder.newState(expectedStateName).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("Initial")
+                .onEntry("onEntryDepId", "onEntry1")
+                .onEntry("onEntryDepId", "onEntry2")
+                .onExit("onExitDepId", "onExit1")
+                .onExit("onExitDepId", "onExit2")
+                .complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getStates()).hasSize(1);
+        State state = stateMachine.getStates().get(0);
+        assertThat(state.getName()).isEqualTo(expectedStateName);
+        List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
+        assertThat(onEntryProcesses).hasSize(2);
+        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
+        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry1");
+        assertThat(onEntryProcesses.get(1).getDeploymentId()).isEqualTo("onEntryDepId");
+        assertThat(onEntryProcesses.get(1).getProcessId()).isEqualTo("onEntry2");
+        List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
+        assertThat(onExitProcesses).hasSize(2);
+        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
+        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit1");
+        assertThat(onExitProcesses.get(1).getDeploymentId()).isEqualTo("onExitDepId");
+        assertThat(onExitProcesses.get(1).getProcessId()).isEqualTo("onExit2");
+    }
+
+    /**
+     * Builds an incomplete version of the default life cycle
+     * with missing {@link State}s and transitions and then
+     * completes that via the {@link FinateStateMachineUpdater} interface.
+     * This will test:
+     * <ul>
+     * <li>adding and remove states</li>
+     * <li>adding and remove state transitions</li>
+     * </ul>
+     *
+     * @see #buildDefaultLifeCycle()
+     */
+    @Transactional
+    @Test
+    public void completeDefaultLifeCycle() {
+        String expectedName = "Default life cycle";
+        // Create default StateTransitionEventTypes
+        StateTransitionEventType deliveredToWarehouse = this.createNewStateTransitionEventType("#delivered");
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        StateTransitionEventType activated = this.createNewStateTransitionEventType("#activated");
+        StateTransitionEventType deactivated = this.createNewStateTransitionEventType("#deactivated");
+        StateTransitionEventType decommissionedEventType = this.createNewStateTransitionEventType("#decommissioned");
+        StateTransitionEventType deletedEventType = this.createNewStateTransitionEventType("#deleted");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
+        // Create default States
+        State deleted = builder.newState("Deleted").complete();
+        State temporary = builder.newState("Temporary").on(deletedEventType).transitionTo(deleted).complete();
+        State decommissioned = builder
+            .newState("Decommissioned")
+            .on(deletedEventType).transitionTo(deleted)
+            .complete();
+        State commissioned = builder
+            .newState("Commissioned")
+            .on(activated).transitionTo(temporary)
+            .complete();
+        State inStock = builder
+            .newState("InStock")
+            .on(activated).transitionTo(temporary)
+            .on(commissionedEventType).transitionTo(commissioned)
+            .complete();
+        builder
+            .newState("Ordered")
+            .on(deliveredToWarehouse).transitionTo(inStock)
+            .complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.removeState(temporary);
+        FinateStateMachineBuilder.StateBuilder activeBuilder = stateMachineUpdater.newState("Active");
+        FinateStateMachineBuilder.StateBuilder inactiveBuilder = stateMachineUpdater.newState("Inactive");
+        State active = activeBuilder
+            .on(decommissionedEventType).transitionTo(decommissioned)
+            .on(deactivated).transitionTo(inactiveBuilder)
+            .onEntry("onEntryDepId", "onEntry")
+            .onExit("onExitDepId", "onExit")
+            .complete();
+        stateMachineUpdater
+            .state("Commissioned")
+            .on(activated).transitionTo(active)
+            .on(deactivated).transitionTo(inactiveBuilder)
+            .complete();
+        State inactive = inactiveBuilder
+            .on(activated).transitionTo(active)
+            .on(decommissionedEventType).transitionTo(decommissioned)
+            .complete();
+        stateMachineUpdater
+            .state("InStock")
+            .on(activated).transitionTo(active)
+            .on(deactivated).transitionTo(inactive)
+            .complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        FinateStateMachine reloaded = this.getTestService().findFinateStateMachineByName(expectedName).get();
+        assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getStates()).hasSize(7);
+        List<StateTransition> transitions = reloaded.getTransitions();
+        assertThat(transitions).hasSize(11);
+        assertThat(reloaded.getState(active.getName()).isPresent()).isTrue();
+        List<ProcessReference> onEntryProcesses = reloaded.getState(active.getName()).get().getOnEntryProcesses();
+        assertThat(onEntryProcesses).hasSize(1);
+        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
+        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry");
+        List<ProcessReference> onExitProcesses = reloaded.getState(active.getName()).get().getOnExitProcesses();
+        assertThat(onExitProcesses).hasSize(1);
+        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
+        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+    }
+
+    @Transactional
+    @Test
+    public void testAddTransitionByStateName() {
+        String expectedName = "testAddTransitionByStateName";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
+        builder.newState("Commissioned").complete();
+        builder.newState("InStock").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business methods
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo("Commissioned");
+
+        // Asserts
+        FinateStateMachine reloaded = this.getTestService().findFinateStateMachineByName(expectedName).get();
+        assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getStates()).hasSize(2);
+        List<StateTransition> transitions = reloaded.getTransitions();
+        assertThat(transitions).hasSize(1);
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {

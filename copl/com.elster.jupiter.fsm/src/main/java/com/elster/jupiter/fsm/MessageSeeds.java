@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     UNIQUE_FINATE_STATE_MACHINE_NAME(400, Keys.UNIQUE_FINATE_STATE_MACHINE_NAME, "The name of a finate state machine must be unique"),
     AT_LEAST_ONE_STATE(401, Keys.AT_LEAST_ONE_STATE, "A finate state machine must have at least one state"),
     UNKNOWN_STATE(402, Keys.UNKNOWN_STATE, "Unable to remove state {0} because it does not exist in the finate state machine {1}"),
-    UNKNOWN_STATE_TRANSITION(403, Keys.UNKNOWN_STATE, "Unable to remove state transition from {0} and event type {1} because it does not exist in the finate state machine {2}");
+    UNKNOWN_STATE_TRANSITION(403, Keys.UNKNOWN_STATE_TRANSITION, "Unable to remove state transition from {0} and event type {1} because it does not exist in the finate state machine {2}");
 
     private final int number;
     private final String key;

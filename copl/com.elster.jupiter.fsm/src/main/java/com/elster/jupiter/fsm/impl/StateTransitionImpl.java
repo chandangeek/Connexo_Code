@@ -7,6 +7,9 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Provides an implementation for the {@link StateTransitionImpl} interface.
  *
@@ -68,6 +71,19 @@ public class StateTransitionImpl implements StateTransition {
     @Override
     public StateTransitionEventType getEventType() {
         return this.eventType.get();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "(" + this.toStringAttributes().collect(Collectors.joining(", ")) +")";
+    }
+
+    private Stream<String> toStringAttributes() {
+        return Stream.of(
+             "from:" + this.getFrom().getName(),
+             "to:" + this.getTo().getName(),
+             "eventTYpe:" + this.getEventType().getSymbol()
+        );
     }
 
 }

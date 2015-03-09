@@ -26,6 +26,10 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         this.state = new UnderConstruction();
     }
 
+    protected DataModel getDataModel() {
+        return dataModel;
+    }
+
     protected FinateStateMachineImpl getUnderConstruction() {
         return underConstruction;
     }
@@ -36,12 +40,16 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
     }
 
     private StateBuilder doNewState(String name) {
-        StateImpl underConstruction = this.dataModel.getInstance(StateImpl.class).initialize(this.underConstruction, name);
+        StateImpl underConstruction = this.newInitializedState(name);
         return new StateBuilderImpl(underConstruction);
     }
 
+    protected StateImpl newInitializedState(String name) {
+        return this.dataModel.getInstance(StateImpl.class).initialize(this.underConstruction, name);
+    }
+
     @Override
-    public FinateStateMachine complete() {
+    public FinateStateMachineImpl complete() {
         this.state.complete();
         this.state = new Complete();
         return this.underConstruction;
@@ -84,12 +92,17 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
 
     };
 
-    private class StateBuilderImpl implements StateBuilder {
+    private class StateBuilderImpl implements ServerStateBuilder {
         private final StateImpl underConstruction;
 
         private StateBuilderImpl(StateImpl underConstruction) {
             super();
             this.underConstruction = underConstruction;
+        }
+
+        @Override
+        public StateImpl getUnderConstruction() {
+            return this.underConstruction;
         }
 
         @Override
@@ -137,11 +150,11 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
 
         @Override
         public StateBuilder transitionTo(StateBuilder stateBuilder) {
-            return this.transitionTo((StateBuilderImpl) stateBuilder);
+            return this.transitionTo((ServerStateBuilder) stateBuilder);
         }
 
-        private StateBuilder transitionTo(StateBuilderImpl stateBuilder) {
-            StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, stateBuilder.underConstruction, this.eventType);
+        private StateBuilder transitionTo(ServerStateBuilder stateBuilder) {
+            StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, stateBuilder.getUnderConstruction(), this.eventType);
             underConstruction.add(stateTransition);
             return this.continuation;
         }

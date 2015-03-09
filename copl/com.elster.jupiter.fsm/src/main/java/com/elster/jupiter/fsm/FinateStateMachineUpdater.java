@@ -62,6 +62,38 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
         public StateUpdater setName(String newName);
 
         /**
+         * Adds the external process definition to the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param deploymentId The deployment id of the external process
+         * @param processId The process id of the external process
+         * @return The StateBuilder
+         */
+        public StateUpdater onEntry(String deploymentId, String processId);
+
+        /**
+         * Adds the external process definition to the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is exited.
+         *
+         * @param deploymentId The deployment id of the external process
+         * @param processId The process id of the external process
+         * @return The StateBuilder
+         */
+        public StateUpdater onExit(String deploymentId, String processId);
+
+        /**
+         * Assists in building a {@link StateTransition} from the {@link State}
+         * that is being built here to another State when the specified
+         * {@link StateTransitionEventType} occurs.
+         *
+         * @param eventType The StateTransitionEventType
+         * @return The builder on which you will specify the target State
+         */
+        public TransitionBuilder on(StateTransitionEventType eventType);
+
+        /**
          * Prohibits the {@link StateTransitionEventType} to occur
          * and as such is the inverse operation of {@link StateBuilder#on(StateTransitionEventType)}.
          * Note that this may throw an {@link UnsupportedStateTransitionException}
@@ -74,6 +106,12 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
 
         public State complete();
 
+    }
+
+    public interface TransitionBuilder {
+        public StateUpdater transitionTo(State state);
+        public StateUpdater transitionTo(StateBuilder stateBuilder);
+        public StateUpdater transitionTo(String stateName);
     }
 
 }
