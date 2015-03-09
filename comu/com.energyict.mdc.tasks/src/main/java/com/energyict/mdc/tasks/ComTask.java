@@ -92,6 +92,10 @@ public interface ComTask extends HasId, HasName {
      */
     public int getMaxNumberOfTries();
 
+    /**
+     * It seems like this is legacy code from 9.1 but never used ...
+     */
+    @Deprecated
     public String getType();
 
     public void save();
@@ -105,4 +109,16 @@ public interface ComTask extends HasId, HasName {
     public void setMaxNrOfTries(int maxNrOfTries);
 
     public void setStoreData(boolean storeData);
+
+    /**
+     * User ComTask should be maintained by the users
+     * @return true if this is a User defined ComTask, false otherwise
+     */
+    boolean isUserComTask();
+
+    /**
+     * System ComTasks should be maintained by the system
+     * @return true if this is a System defined ComTask, false otherwise
+     */
+    boolean isSystemComTask();
 }

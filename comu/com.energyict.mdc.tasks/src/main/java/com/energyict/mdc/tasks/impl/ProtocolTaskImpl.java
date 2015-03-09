@@ -24,7 +24,7 @@ import javax.inject.Inject;
  * @author gna
  * @since 23/04/12 - 11:47
  */
-abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
+abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceContext {
     protected static final String BASIC_CHECK_DISCRIMINATOR = "0";
     protected static final String CLOCK_DISCRIMINATOR = "1";
     protected static final String MESSAGES_DISCRIMINATOR = "2";
@@ -33,6 +33,7 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
     protected static final String REGISTER_TASK_DISCRIMINATOR = "5";
     protected static final String STATUS_INFORMATION_DISCRIMINATOR = "6";
     protected static final String TOPOLOGY_DISCRIMINATOR = "7";
+    protected static final String FIRMWARE_DISCRIMINATOR = "8";
 
     static final Map<String, Class<? extends ProtocolTask>> IMPLEMENTERS = new HashMap<>();
     static {
@@ -44,6 +45,7 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
         IMPLEMENTERS.put(REGISTER_TASK_DISCRIMINATOR, RegistersTaskImpl.class);
         IMPLEMENTERS.put(STATUS_INFORMATION_DISCRIMINATOR, StatusInformationTaskImpl.class);
         IMPLEMENTERS.put(TOPOLOGY_DISCRIMINATOR, TopologyTaskImpl.class);
+        IMPLEMENTERS.put(FIRMWARE_DISCRIMINATOR, FirmwareUpgradeTaskImpl.class);
     }
 
     private final DataModel dataModel;

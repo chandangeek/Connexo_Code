@@ -16,6 +16,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.FirmwareUpgradeTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -44,7 +45,9 @@ import java.util.List;
  * @since 2/05/12 - 16:10
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_NAME + "}")
-public class ComTaskImpl implements ComTask {
+@UniqueComTaskForFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
+@OnlyOneProtocolTaskIfFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
+public class ComTaskImpl implements ServerComTask {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
@@ -57,6 +60,7 @@ public class ComTaskImpl implements ComTask {
     private final Provider<RegistersTaskImpl> registersTaskProvider;
     private final Provider<StatusInformationTaskImpl> statusInformationTaskProvider;
     private final Provider<TopologyTaskImpl> topologyTaskProvider;
+    private final Provider<FirmwareUpgradeTaskImpl> firmwareUpgradeTaskProvider;
 
     enum Fields {
         NAME("name"),
@@ -107,7 +111,8 @@ public class ComTaskImpl implements ComTask {
                        Provider<MessagesTaskImpl> messagesTaskProvider,
                        Provider<RegistersTaskImpl> registersTaskProvider,
                        Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
-                       Provider<TopologyTaskImpl> topologyTaskProvider) {
+                       Provider<TopologyTaskImpl> topologyTaskProvider,
+                       Provider<FirmwareUpgradeTaskImpl> firmwareUpgradeTaskProvider) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.eventService = eventService;
@@ -119,6 +124,7 @@ public class ComTaskImpl implements ComTask {
         this.registersTaskProvider = registersTaskProvider;
         this.statusInformationTaskProvider = statusInformationTaskProvider;
         this.topologyTaskProvider = topologyTaskProvider;
+        this.firmwareUpgradeTaskProvider = firmwareUpgradeTaskProvider;
     }
 
     @Override
@@ -219,6 +225,14 @@ public class ComTaskImpl implements ComTask {
     }
 
     @Override
+    public FirmwareUpgradeTask createFirmwareUpgradeTask() {
+        FirmwareUpgradeTaskImpl firmwareUpgradeTask = firmwareUpgradeTaskProvider.get();
+        firmwareUpgradeTask.ownedBy(this);
+        addProtocolTask(firmwareUpgradeTask);
+        return firmwareUpgradeTask;
+    }
+
+    @Override
     public void removeTask(ProtocolTask protocolTaskToDelete) {
         Iterator<ProtocolTaskImpl> iterator = this.protocolTasks.iterator();
         while (iterator.hasNext()) {
@@ -227,6 +241,21 @@ public class ComTaskImpl implements ComTask {
                 iterator.remove();
             }
         }
+    }
+
+    @Override
+    public boolean isUserComTask() {
+        return !isSystemComTask();
+    }
+
+    @Override
+    public boolean isSystemComTask() {
+        // currently only the FirmwareComTask is a System defined comtask
+        return containsFirmwareProtocolTask();
+    }
+
+    private boolean containsFirmwareProtocolTask() {
+        return this.getProtocolTasks().stream().filter(protocolTask -> ((ServerProtocolTask) protocolTask).isFirmwareUpgradeTask()).count() != 0;
     }
 
     @Override

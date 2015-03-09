@@ -18,6 +18,8 @@ import java.util.List;
  */
 public interface ServerTaskService extends TaskService {
 
+    static final String FIRMWARE_COMTASK_NAME = "Firmware management";
+
     public Thesaurus getThesaurus();
 
     public List<LogBooksTask> findTasksUsing(LogBookType logBookType);

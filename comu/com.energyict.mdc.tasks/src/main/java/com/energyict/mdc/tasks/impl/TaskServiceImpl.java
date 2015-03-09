@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -16,6 +15,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.FirmwareUpgradeTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -38,8 +38,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
 public class TaskServiceImpl implements ServerTaskService, InstallService {
@@ -70,8 +68,11 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
 
     @Override
     public void install() {
-        dataModel.install(true, true);
+        if(!dataModel.isInstalled()){
+            dataModel.install(true, true);
+        }
         this.createEventTypes();
+        this.createFirmwareComTaskIfNotPresentYet();
     }
 
     @Override
@@ -117,11 +118,23 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
             try {
-                eventType.install(this.eventService);
+                eventType.createIfNotExists(this.eventService);
             } catch (Exception e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
+    }
+
+    private void createFirmwareComTaskIfNotPresentYet() {
+        if (!this.findFirmwareComTask().isPresent()) {
+            createFirmwareComTask();
+        }
+    }
+
+    private void createFirmwareComTask() {
+        ServerComTask serverComTask = (ServerComTask) this.newComTask(FIRMWARE_COMTASK_NAME);
+        serverComTask.createFirmwareUpgradeTask();
+        serverComTask.save();
     }
 
     Module getModule() {
@@ -144,6 +157,7 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
                 bind(LogBooksTask.class).to(LogBooksTaskImpl.class);
                 bind(TopologyTask.class).to(TopologyTaskImpl.class);
                 bind(MessagesTask.class).to(MessagesTaskImpl.class);
+                bind(FirmwareUpgradeTask.class).to(FirmwareUpgradeTaskImpl.class);
             }
         };
     }
@@ -171,8 +185,24 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
     }
 
     @Override
+    public List<ComTask> findAllUserComTasks() {
+        return findAllComTasks().stream().filter(ComTask::isUserComTask).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ComTask> findAllSystemComTasks() {
+        return findAllComTasks().stream().filter(ComTask::isSystemComTask).collect(Collectors.toList());
+    }
+
+    @Override
     public List<ComTask> findAllComTasks() {
         return dataModel.mapper(ComTask.class).find();
+    }
+
+    @Override
+    public Optional<ComTask> findFirmwareComTask() {
+        List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", FIRMWARE_COMTASK_NAME);
+        return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
     }
 
     @Override
