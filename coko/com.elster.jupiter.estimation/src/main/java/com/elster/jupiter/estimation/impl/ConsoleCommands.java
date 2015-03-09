@@ -28,9 +28,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.estimation.console",
@@ -44,7 +47,8 @@ import java.util.stream.Stream;
                 "osgi.command.function=estimate",
                 "osgi.command.function=estimateWithLambdas",
                 "osgi.command.function=removeRuleSet",
-                "osgi.command.function=removeRule"
+                "osgi.command.function=removeRule",
+                "osgi.command.function=updateRule"
         },
         immediate = true)
 public class ConsoleCommands {
@@ -130,6 +134,39 @@ public class ConsoleCommands {
         }
     }
 
+    public void updateRule(long ruleSetId, long ruleId, String name, String implementation, String readingTypesCommaSeparated, String... properties) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(IllegalArgumentException::new);
+            EstimationRule rule = set.getRules().stream()
+                    .filter(hasId(ruleId))
+                    .findFirst()
+                    .orElseThrow(IllegalArgumentException::new);
+
+            List<String> readingTypes = Stream.of(readingTypesCommaSeparated.split(","))
+                    .collect(Collectors.toList());
+
+            Map<String, Object> props = Stream.of(properties)
+                    .map(string -> string.split(":"))
+                    .collect(Collectors.toMap(
+                            split -> split[0],
+                            split -> rule.getPropertySpecs().stream()
+                                    .filter(spec -> spec.getName().equals(split[0]))
+                                    .map(spec -> spec.getValueFactory().fromStringValue(split[1]))
+                                    .findFirst()
+                                    .orElse(null)
+                    ));
+
+            set.updateRule(ruleId, name, rule.isActive(), readingTypes, props);
+
+            set.save();
+            System.out.println(print(set));
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
     public void removeRuleSet(long ruleSetId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
@@ -146,7 +183,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(IllegalArgumentException::new);
             set.getRules().stream()
-                    .filter(rule -> rule.getId() == ruleId)
+                    .filter(hasId(ruleId))
                     .findFirst()
                     .ifPresent(rule -> {
                         set.deleteRule(rule);
@@ -156,6 +193,10 @@ public class ConsoleCommands {
         } finally {
             threadPrincipalService.clear();
         }
+    }
+
+    private Predicate<EstimationRule> hasId(long ruleId) {
+        return rule -> rule.getId() == ruleId;
     }
 
     public void estimate(long meterId, String estimatorName) {
