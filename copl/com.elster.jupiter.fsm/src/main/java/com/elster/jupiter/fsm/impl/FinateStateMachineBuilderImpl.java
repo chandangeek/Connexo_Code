@@ -25,6 +25,14 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         this.state = new UnderConstruction();
     }
 
+    protected BuildState getState() {
+        return state;
+    }
+
+    FinateStateMachineImpl getUnderConstruction() {
+        return underConstruction;
+    }
+
     @Override
     public StateBuilder newState(String name) {
         return this.state.newState(name);
@@ -42,12 +50,23 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         return this.underConstruction;
     }
 
-    private interface BuildState {
+    protected interface BuildState {
+        void setName(String newName);
+        void setTopic(String newTopic);
         StateBuilder newState(String name);
         FinateStateMachine complete();
     }
 
     private class UnderConstruction implements BuildState {
+        @Override
+        public void setName(String newName) {
+            underConstruction.setName(newName);
+        }
+
+        @Override
+        public void setTopic(String newTopic) {
+            underConstruction.setTopic(newTopic);
+        }
 
         @Override
         public StateBuilder newState(String name) {
@@ -62,6 +81,16 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
     }
 
     private class Complete implements BuildState {
+        @Override
+        public void setName(String newName) {
+            illegalStateException();
+        }
+
+        @Override
+        public void setTopic(String newTopic) {
+            illegalStateException();
+        }
+
         @Override
         public StateBuilder newState(String name) {
             illegalStateException();

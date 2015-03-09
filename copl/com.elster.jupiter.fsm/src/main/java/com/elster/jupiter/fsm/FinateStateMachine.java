@@ -53,6 +53,8 @@ public interface FinateStateMachine {
 
     public List<StateTransition> getTransitions();
 
+    public FinateStateMachineUpdater update();
+
     public void save();
 
     public void delete();

@@ -149,6 +149,26 @@ public class FinateStateMachineIT {
     }
 
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.UNIQUE_FINATE_STATE_MACHINE_NAME)
+    @Test
+    public void createDuplicateStateMachine() {
+        String expectedName = "notUnique";
+        FinateStateMachineBuilder builder1 = this.getTestService().newFinateStateMachine(expectedName, "test");
+        builder1.newState("Initial").complete();
+        FinateStateMachine stateMachine = builder1.complete();
+        stateMachine.save();
+
+        FinateStateMachineBuilder builder2 = this.getTestService().newFinateStateMachine(expectedName, "test");
+        builder2.newState("More initial").complete();
+        FinateStateMachine duplicate = builder2.complete();
+
+        // Business method
+        duplicate.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
     @Test
     public void createStateMachineWithOneStateButNoProcesses() {
         String expectedName = "stateMachineWithOneStateButNoProcesses";
@@ -224,26 +244,6 @@ public class FinateStateMachineIT {
         assertThat(reloaded.getStates()).hasSize(1);
         State state = reloaded.getStates().get(0);
         assertThat(state.getName()).isEqualTo(expectedStateName);
-    }
-
-    @Transactional
-    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.UNIQUE_FINATE_STATE_MACHINE_NAME)
-    @Test
-    public void createDuplicateStateMachine() {
-        String expectedName = "notUnique";
-        FinateStateMachineBuilder builder1 = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder1.newState("Initial").complete();
-        FinateStateMachine stateMachine = builder1.complete();
-        stateMachine.save();
-
-        FinateStateMachineBuilder builder2 = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder2.newState("More initial").complete();
-        FinateStateMachine duplicate = builder2.complete();
-
-        // Business method
-        duplicate.save();
-
-        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
@@ -385,7 +385,7 @@ public class FinateStateMachineIT {
     }
 
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "states[0].name")
     @Test
     public void createStateMachineWithOneStateWithNullName() {
         String expectedName = "createStateMachineWithOneStateWithNullName";
@@ -400,7 +400,7 @@ public class FinateStateMachineIT {
     }
 
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "states[0].name")
     @Test
     public void createStateMachineWithOneStateWithEmptyName() {
         String expectedName = "createStateMachineWithOneStateWithEmptyName";
@@ -546,6 +546,174 @@ public class FinateStateMachineIT {
         assertThat(stateMachine.getStates()).hasSize(7);
         List<StateTransition> transitions = stateMachine.getTransitions();
         assertThat(transitions).hasSize(10);
+    }
+
+    @Transactional
+    @Test
+    public void renameStateMachine() {
+        String initialName = "renameStateMachine";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test");
+        State commissioned = builder.newState("Commissioned").complete();
+        State inStock = builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        String newName = "renamed";
+        stateMachine.update().setName(newName).complete();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(newName);
+        // Check that there was no effect on the States and transitions
+        assertThat(stateMachine.getStates()).hasSize(2);
+        assertThat(stateMachine.getTransitions()).hasSize(1);
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        assertThat(stateTransition.getEventType().getId()).isEqualTo(commissionedEventType.getId());
+        assertThat(stateTransition.getFrom().getId()).isEqualTo(inStock.getId());
+        assertThat(stateTransition.getTo().getId()).isEqualTo(commissioned.getId());
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.UNIQUE_FINATE_STATE_MACHINE_NAME)
+    @Test
+    public void renameStateMachineToOneThatAlreadyExists() {
+        String duplicateName = "alreadyExists";
+        FinateStateMachineBuilder builder1 = this.getTestService().newFinateStateMachine(duplicateName, "test-topic-1");
+        builder1.newState("Initial").complete();
+        builder1.complete().save();
+
+        String initialName = "initialName";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test-topic-2");
+        builder.newState("Commissioned").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().setName(duplicateName).complete();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
+    @Test
+    public void setNameToEmptyString() {
+        String initialName = "setNameToEmptyString";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test-topic");
+        builder.newState("Commissioned").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().setName("").complete();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
+    @Test
+    public void setNameToNull() {
+        String initialName = "setNameToNull";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test-topic");
+        builder.newState("Commissioned").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().setName(null).complete();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
+    @Test
+    public void setNameToExtremelyLongString() {
+        String initialName = "setNameToExtremelyLongString";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test-topic");
+        builder.newState("Commissioned").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().setName(Strings.repeat("Too long", 100)).complete();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @Test
+    public void changeTopic() {
+        String expectedName = "changeTopic";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
+        State commissioned = builder.newState("Commissioned").complete();
+        State inStock = builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        String updatedTopic = "changed-topic";
+        stateMachine.update().setTopic(updatedTopic).complete();
+
+        // Asserts
+        assertThat(stateMachine.getTopic()).isEqualTo(updatedTopic);
+        // Check that there was no effect on the name
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        // Check that there was no effect on the States and transitions
+        assertThat(stateMachine.getStates()).hasSize(2);
+        assertThat(stateMachine.getTransitions()).hasSize(1);
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        assertThat(stateTransition.getEventType().getId()).isEqualTo(commissionedEventType.getId());
+        assertThat(stateTransition.getFrom().getId()).isEqualTo(inStock.getId());
+        assertThat(stateTransition.getTo().getId()).isEqualTo(commissioned.getId());
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "topic")
+    @Test
+    public void changeTopicToEmptyString() {
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("changeTopicToEmptyString", "test-topic");
+        builder.newState("Commissioned").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().setTopic("").complete();
+
+        // Asserts: see constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "topic")
+    @Test
+    public void changeTopicToNull() {
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("changeTopicToNull", "test-topic");
+        builder.newState("Commissioned").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().setTopic(null).complete();
+
+        // Asserts: see constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "topic")
+    @Test
+    public void changeTopicToExtremelyLongName() {
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("changeTopicToExtremelyLongName", "test-topic");
+        builder.newState("Commissioned").complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.update().setTopic(Strings.repeat("Too long", 100)).complete();
+
+        // Asserts: see constraint violation rule
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {

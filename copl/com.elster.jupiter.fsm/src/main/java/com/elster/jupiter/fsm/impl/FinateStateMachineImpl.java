@@ -2,6 +2,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FinateStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.impl.constraints.AtLeastOneState;
@@ -102,9 +103,17 @@ public class FinateStateMachineImpl implements FinateStateMachine {
         return this.name;
     }
 
+    void setName(String newName) {
+        this.name = newName;
+    }
+
     @Override
     public String getTopic() {
         return this.topic;
+    }
+
+    void setTopic(String topic) {
+        this.topic = topic;
     }
 
     @Override
@@ -128,6 +137,11 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     void add(StateTransition stateTransition) {
         this.transitions.add(stateTransition);
+    }
+
+    @Override
+    public FinateStateMachineUpdater update() {
+        return new FinateStateMachineUpdaterImpl(this.dataModel, this);
     }
 
     @Override

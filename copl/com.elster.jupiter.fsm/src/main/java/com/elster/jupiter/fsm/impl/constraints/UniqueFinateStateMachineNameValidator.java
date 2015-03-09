@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.FinateStateMachineService;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 /**
  * Validates the {@link Unique} constraint against a {@link FinateStateMachine}.
@@ -30,7 +31,13 @@ public class UniqueFinateStateMachineNameValidator implements ConstraintValidato
 
     @Override
     public boolean isValid(FinateStateMachine finateStateMachine, ConstraintValidatorContext context) {
-        return !this.service.findFinateStateMachineByName(finateStateMachine.getName()).isPresent();
+        Optional<FinateStateMachine> stateMachine = this.service.findFinateStateMachineByName(finateStateMachine.getName());
+        if (stateMachine.isPresent()) {
+            return stateMachine.get().getId() == finateStateMachine.getId();
+        }
+        else {
+            return true;
+        }
     }
 
 }
