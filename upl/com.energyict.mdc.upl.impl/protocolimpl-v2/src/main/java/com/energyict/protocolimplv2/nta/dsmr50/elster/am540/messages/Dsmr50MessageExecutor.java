@@ -122,24 +122,24 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     @Override
     protected void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        String newEncrytionKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
-        String newWrappedEncryptionKey = getDeviceMessageAttributeValue(pendingMessage, newWrappedEncryptionKeyAttributeName);
-        byte[] encryptionKeysBytes = ProtocolTools.getBytesFromHexString(newWrappedEncryptionKey);
+        String newHexKey = getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName);
+        String wrappedHexKey = getDeviceMessageAttributeValue(pendingMessage, newWrappedEncryptionKeyAttributeName);
+        String oldHexKey = ProtocolTools.getHexStringFromBytes(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey(), "");
 
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(encryptionKeysBytes));
+        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
         encryptionKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
         ss.transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newEncrytionKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newHexKey, ""));
 
         //Reset frame counter, only if a different key has been written
-        if (!newEncrytionKey.equalsIgnoreCase(newWrappedEncryptionKey)) {
+        if (!newHexKey.equalsIgnoreCase(oldHexKey)) {
             getProtocol().getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
         }
     }
