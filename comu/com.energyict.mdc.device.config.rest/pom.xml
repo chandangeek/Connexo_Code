@@ -21,7 +21,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -31,12 +30,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.masterdata</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -66,7 +63,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
