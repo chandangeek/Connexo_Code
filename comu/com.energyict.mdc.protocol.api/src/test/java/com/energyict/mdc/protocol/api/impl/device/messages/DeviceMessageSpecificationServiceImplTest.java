@@ -85,7 +85,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Test
     public void testAllCategories () {
         // Business method
-        List<DeviceMessageCategory> categories = this.newService().allCategories();
+        List<DeviceMessageCategory> categories = this.newService().filteredCategoriesForUserSelection();
 
         // Asserts
         assertThat(categories).isNotEmpty();
@@ -95,7 +95,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     public void testAllCategoriesHaveAnId() {
         // Business method
         List<Integer> primaryKeys =
-                this.newService().allCategories().stream().
+                this.newService().filteredCategoriesForUserSelection().stream().
                     map(DeviceMessageCategory::getId).
                     collect(Collectors.toList());
 
@@ -107,7 +107,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Test
     public void testAllCategoriesHaveAUniqueId() {
         Set<Integer> uniqueIds = new HashSet<>();
-        for (DeviceMessageCategory category : this.newService().allCategories()) {
+        for (DeviceMessageCategory category : this.newService().filteredCategoriesForUserSelection()) {
             if (!uniqueIds.add(category.getId())) {
                 fail("DeviceMessageCategory " + category.getName() + " does not have a unique id:" + category.getId());
             }
@@ -117,7 +117,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Test
     public void testCategoryNameUseThesaurus () {
         // Business method
-        this.newService().allCategories().
+        this.newService().filteredCategoriesForUserSelection().
             stream().
             forEach(DeviceMessageCategory::getName);
 
@@ -127,7 +127,7 @@ public class DeviceMessageSpecificationServiceImplTest {
 
     @Test
     public void testAllMessageSpecsHaveAUniqueId () {
-        List<DeviceMessageSpec> deviceMessageSpecs = this.newService().allCategories().stream().
+        List<DeviceMessageSpec> deviceMessageSpecs = this.newService().filteredCategoriesForUserSelection().stream().
                 flatMap(category -> category.getMessageSpecifications().stream()).
                 collect(Collectors.toList());
 
@@ -142,7 +142,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Test
     public void testAllMessageSpecsNamesUseThesaurus () {
         // Business method
-        this.newService().allCategories().
+        this.newService().filteredCategoriesForUserSelection().
             stream().
             flatMap(category -> category.getMessageSpecifications().stream()).
             forEach(DeviceMessageSpec::getName);
@@ -153,7 +153,7 @@ public class DeviceMessageSpecificationServiceImplTest {
 
     @Test
     public void testAllMessageSpecsLinkToTheParentCategory () {
-        this.newService().allCategories().stream().
+        this.newService().filteredCategoriesForUserSelection().stream().
             filter(category -> !category.getMessageSpecifications().isEmpty()).
             forEach(this::doTestAllMessageSpecsLinkToTheParentCategory);
     }
@@ -180,7 +180,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     private void testNoCategoriesHaveUnsupportedReferenceProperties (FactoryIds unsupportedFactoryId) {
-        List<DeviceMessageCategory> categories = this.newServiceWithRealPropertSpecService().allCategories();
+        List<DeviceMessageCategory> categories = this.newServiceWithRealPropertSpecService().filteredCategoriesForUserSelection();
 
         // Business method
         List<PropertySpec> propertySpecs = categories.stream().
