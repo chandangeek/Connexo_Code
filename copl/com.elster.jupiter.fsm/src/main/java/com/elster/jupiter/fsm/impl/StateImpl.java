@@ -7,7 +7,9 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.UnknownProcessReferenceException;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -49,6 +51,7 @@ public class StateImpl implements State {
     }
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
     @SuppressWarnings("unused")
     private long id;
@@ -69,8 +72,10 @@ public class StateImpl implements State {
     private Instant modTime;
 
     @Inject
-    protected StateImpl(DataModel dataModel) {
+    protected StateImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super();
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     public StateImpl initialize(FinateStateMachine finateStateMachine, String name) {
@@ -149,6 +154,28 @@ public class StateImpl implements State {
 
     void addOnExit(String deploymentId, String processId) {
         this.processReferences.add(this.dataModel.getInstance(ProcessReferenceImpl.class).onExit(this, deploymentId, processId));
+    }
+
+    void removeOnEntry(String deploymentId, String processId) {
+        this.removeProcessReferences(deploymentId, processId, ProcessReferenceImpl::isOnEntry);
+    }
+
+    void removeOnExit(String deploymentId, String processId) {
+        this.removeProcessReferences(deploymentId, processId, ProcessReferenceImpl::isOnExit);
+    }
+
+    private void removeProcessReferences(String deploymentId, String processId, Predicate<ProcessReferenceImpl> isEntryOrExit) {
+        List<ProcessReferenceImpl> obsoleteReferences = this.processReferences
+                .stream()
+                .filter(isEntryOrExit)
+                .filter(p -> p.matches(deploymentId, processId))
+                .collect(Collectors.toList());
+        if (obsoleteReferences.isEmpty()) {
+            throw new UnknownProcessReferenceException(this.thesaurus, this, deploymentId, processId);
+        }
+        else {
+            this.processReferences.removeAll(obsoleteReferences);
+        }
     }
 
     void prepareDelete() {

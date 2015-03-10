@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.util.Checks;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -80,6 +81,10 @@ public class ProcessReferenceImpl implements ProcessReference {
         return Purpose.OnExit.equals(this.purpose);
     }
 
+    public boolean matches(String deploymentId, String processId) {
+        return Checks.is(this.deploymentId).equalTo(deploymentId)
+            && Checks.is(this.processId).equalTo(processId);
+    }
     @Override
     public String getDeploymentId() {
         return this.deploymentId;

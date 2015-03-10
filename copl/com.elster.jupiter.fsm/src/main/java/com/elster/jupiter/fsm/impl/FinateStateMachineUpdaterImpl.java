@@ -117,8 +117,20 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
         }
 
         @Override
+        public StateUpdater removeOnEntry(String deploymentId, String processId) {
+            this.underConstruction.removeOnEntry(deploymentId, processId);
+            return this;
+        }
+
+        @Override
         public StateUpdater onExit(String deploymentId, String processId) {
             this.underConstruction.addOnExit(deploymentId, processId);
+            return this;
+        }
+
+        @Override
+        public StateUpdater removeOnExit(String deploymentId, String processId) {
+            this.underConstruction.removeOnExit(deploymentId, processId);
             return this;
         }
 

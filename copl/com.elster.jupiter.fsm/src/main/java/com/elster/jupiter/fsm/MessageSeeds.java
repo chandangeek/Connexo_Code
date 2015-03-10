@@ -24,6 +24,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // State
     UNIQUE_STATE_NAME(300, Keys.UNIQUE_STATE_NAME, "The name of a state must be unique in the finate state machine's context"),
+    NO_SUCH_PROCESS(301, Keys.NO_SUCH_PROCESS, "No external business process with deployment id {0} and process id {1} is linked to state {2} of finate state machine {3}"),
 
     // FinateStateMachine
     UNIQUE_FINATE_STATE_MACHINE_NAME(400, Keys.UNIQUE_FINATE_STATE_MACHINE_NAME, "The name of a finate state machine must be unique"),
@@ -82,6 +83,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String AT_LEAST_ONE_STATE = "finate.state.machine.min1state";
         public static final String UNKNOWN_STATE = "finate.state.machine.unknown.state";
         public static final String UNKNOWN_STATE_TRANSITION = "finate.state.machine.unknown.state.transition";
+        public static final String NO_SUCH_PROCESS = "finate.state.machine.unknown.state.process";
     }
 
 }

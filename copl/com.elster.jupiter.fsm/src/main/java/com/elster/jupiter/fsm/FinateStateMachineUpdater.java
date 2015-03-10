@@ -73,6 +73,17 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
         public StateUpdater onEntry(String deploymentId, String processId);
 
         /**
+         * Removes the external process definition from the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param deploymentId The deployment id of the external process
+         * @param processId The process id of the external process
+         * @return The StateBuilder
+         */
+        public StateUpdater removeOnEntry(String deploymentId, String processId);
+
+        /**
          * Adds the external process definition to the list of
          * processes that need to execute when the {@link State}
          * that is currently being built is exited.
@@ -82,6 +93,17 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
          * @return The StateBuilder
          */
         public StateUpdater onExit(String deploymentId, String processId);
+
+        /**
+         * Removes the external process definition from the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is exited.
+         *
+         * @param deploymentId The deployment id of the external process
+         * @param processId The process id of the external process
+         * @return The StateBuilder
+         */
+        public StateUpdater removeOnExit(String deploymentId, String processId);
 
         /**
          * Assists in building a {@link StateTransition} from the {@link State}

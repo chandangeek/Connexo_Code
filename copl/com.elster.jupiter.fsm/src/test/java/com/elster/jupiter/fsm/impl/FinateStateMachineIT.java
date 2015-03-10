@@ -12,6 +12,7 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.UnknownProcessReferenceException;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
 import com.elster.jupiter.transaction.TransactionService;
@@ -188,6 +189,7 @@ public class FinateStateMachineIT {
         // Asserts
         assertThat(stateMachine.getName()).isEqualTo(expectedName);
         assertThat(stateMachine.getTopic()).isEqualTo(expectedTopic);
+        assertThat(stateMachine.getCreationTimestamp()).isNotNull();
         assertThat(stateMachine.getStates()).hasSize(1);
         State state = stateMachine.getStates().get(0);
         assertThat(state.getName()).isEqualTo(expectedStateName);
@@ -209,6 +211,7 @@ public class FinateStateMachineIT {
         // Asserts
         assertThat(found).isNotNull();
         assertThat(found.isPresent()).isTrue();
+        assertThat(found.get().getCreationTimestamp()).isNotNull();
     }
 
     @Transactional
@@ -572,6 +575,7 @@ public class FinateStateMachineIT {
         State inStock = builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
+        long initialVersion = stateMachine.getVersion();
 
         // Business method
         String newName = "renamed";
@@ -579,6 +583,8 @@ public class FinateStateMachineIT {
 
         // Asserts
         assertThat(stateMachine.getName()).isEqualTo(newName);
+        assertThat(stateMachine.getVersion()).isGreaterThan(initialVersion);
+        assertThat(stateMachine.getModifiedTimestamp()).isNotNull();
         // Check that there was no effect on the States and transitions
         assertThat(stateMachine.getStates()).hasSize(2);
         assertThat(stateMachine.getTransitions()).hasSize(1);
@@ -883,7 +889,7 @@ public class FinateStateMachineIT {
         String expectedTopic = "test-topic";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
         String initialName = "Single";
-        builder.newState(initialName).complete();
+        long initialStateVersion = builder.newState(initialName).complete().getVersion();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -897,6 +903,9 @@ public class FinateStateMachineIT {
         FinateStateMachine reloaded = this.getTestService().findFinateStateMachineByName(expectedName).get();
         assertThat(reloaded.getState(newName).isPresent()).isTrue();
         assertThat(reloaded.getState(initialName).isPresent()).isFalse();
+        State updatedState = reloaded.getState(newName).get();
+        assertThat(updatedState.getVersion()).isGreaterThan(initialStateVersion);
+        assertThat(updatedState.getModifiedTimestamp()).isNotNull();
     }
 
     @Transactional
@@ -1199,6 +1208,100 @@ public class FinateStateMachineIT {
         assertThat(reloaded.getStates()).hasSize(2);
         List<StateTransition> transitions = reloaded.getTransitions();
         assertThat(transitions).hasSize(1);
+    }
+
+    @Transactional
+    @Test
+    public void removeEntryAndExitProcesses() {
+        String expectedName = "removeEntryAndExitProcesses";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
+        String expectedStateName = "Initial";
+        builder.newState(expectedStateName)
+                .onEntry("onEntryDepId", "onEntry1")
+                .onEntry("onEntryDepId", "onEntry2")
+                .onExit("onExitDepId", "onExit1")
+                .onExit("onExitDepId", "onExit2")
+                .complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("Initial")
+                .removeOnEntry("onEntryDepId", "onEntry1")
+                .removeOnExit("onExitDepId", "onExit2")
+                .complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getStates()).hasSize(1);
+        State state = stateMachine.getStates().get(0);
+        assertThat(state.getName()).isEqualTo(expectedStateName);
+        List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
+        assertThat(onEntryProcesses).hasSize(1);
+        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
+        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry2");
+        List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
+        assertThat(onExitProcesses).hasSize(1);
+        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
+        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit1");
+    }
+
+    @Transactional
+    @Test
+    public void removeAllEntryAndExitProcesses() {
+        String expectedName = "removeEntryAndExitProcesses";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
+        String expectedStateName = "Initial";
+        builder.newState(expectedStateName)
+                .onEntry("onEntryDepId", "onEntry1")
+                .onEntry("onEntryDepId", "onEntry2")
+                .onExit("onExitDepId", "onExit1")
+                .onExit("onExitDepId", "onExit2")
+                .complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("Initial")
+                .removeOnEntry("onEntryDepId", "onEntry1")
+                .removeOnEntry("onEntryDepId", "onEntry2")
+                .removeOnExit("onExitDepId", "onExit1")
+                .removeOnExit("onExitDepId", "onExit2")
+                .complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getStates()).hasSize(1);
+        State state = stateMachine.getStates().get(0);
+        assertThat(state.getName()).isEqualTo(expectedStateName);
+        assertThat(state.getOnEntryProcesses()).isEmpty();
+        assertThat(state.getOnExitProcesses()).isEmpty();
+    }
+
+    @Transactional
+    @Test(expected = UnknownProcessReferenceException.class)
+    public void removeNonExistingEntryProcesses() {
+        String expectedName = "removeNonExistingEntryProcesses";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
+        String expectedStateName = "Initial";
+        builder.newState(expectedStateName)
+                .onEntry("onEntryDepId", "onEntry")
+                .onExit("onExitDepId", "onExit")
+                .complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("Initial")
+                .removeOnEntry("onEntryDepId", "does not exist")
+                .complete();    // Not expecting to get this far in fact
+
+        // Asserts: see expected exception rule
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {
