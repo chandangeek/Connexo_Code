@@ -89,7 +89,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(8000,20, "Buffer"));
         getRegisters().add(new HoldingRegister(8021,1,"CommandStatus").setParser("IntegerParser"));
 
-
+        // Sensor rating
+        getRegisters().add(new HoldingRegister(8750,1,ObisCode.fromString("1.1.130.6.0.255"),Unit.get("A"))); // Circuit breaker nominal current In
 	}
 	
     protected void initParsers() {
@@ -103,7 +104,6 @@ public class RegisterFactory extends AbstractRegisterFactory {
             	}
                 BigDecimal bd = new BigDecimal(""+val);
                 return bd;
-//                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
             }
         });
     	

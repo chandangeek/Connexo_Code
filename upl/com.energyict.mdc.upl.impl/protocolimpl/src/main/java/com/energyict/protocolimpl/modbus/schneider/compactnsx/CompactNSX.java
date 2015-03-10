@@ -57,6 +57,9 @@ public class CompactNSX extends Modbus {
 		return null;
 	}
 
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }
