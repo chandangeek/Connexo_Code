@@ -87,12 +87,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
     @Test
     public void testDelete() {
-        DataValidationTaskImpl rule = newTask();
-        rule.setEndDeviceGroup(endDeviceGroup);
-        rule.setName("taskname");
-        field("id").ofType(Long.TYPE).in(rule).set(ID);
-        rule.save();
-        rule.delete();
+        DataValidationTaskImpl task = newTask();
+        task.setEndDeviceGroup(endDeviceGroup);
+        task.setName("taskname");
+        field("id").ofType(Long.TYPE).in(task).set(ID);
+        task.save();
+        verify(dataModel).update(task);
+        task.delete();
+        verify(dataModel).remove(task);
     }
 
 }

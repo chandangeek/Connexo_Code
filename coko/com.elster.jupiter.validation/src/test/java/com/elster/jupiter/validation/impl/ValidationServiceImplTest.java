@@ -29,6 +29,8 @@ import java.util.Set;
 
 import javax.inject.Provider;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.validation.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -65,14 +67,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -99,6 +93,8 @@ public class ValidationServiceImplTest {
     private DataMapper<IValidationRule> validationRuleFactory;
     @Mock
     private DataMapper<MeterValidationImpl> meterValidationFactory;
+    @Mock
+    private DataMapper<DataValidationTaskImpl> dataValidationTaskFactory;
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -157,6 +153,7 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);        
         when(dataModel.mapper(IChannelValidation.class)).thenReturn(channelValidationFactory);
         when(dataModel.mapper(MeterValidationImpl.class)).thenReturn(meterValidationFactory);
+        when(dataModel.mapper(DataValidationTaskImpl.class)).thenReturn(dataValidationTaskFactory);
         when(dataModel.query(IChannelValidation.class, IMeterActivationValidation.class)).thenReturn(channelValidationQuery);
         when(channelValidationQuery.select(any())).thenReturn(Collections.emptyList());
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
@@ -171,6 +168,7 @@ public class ValidationServiceImplTest {
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
         Provider<ValidationRuleImpl> provider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, provider));
+        when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> new DataValidationTaskImpl(dataModel));
         when(dataModel.query(IMeterActivationValidation.class, IChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any())).thenReturn(nlsMessageFormat);
@@ -618,4 +616,22 @@ public class ValidationServiceImplTest {
         verify(dataModel, never()).getInstance(MeterValidationImpl.class);
 
     }
+    @Test
+    public void testCreateAndSaveDataValidationTask() {
+        EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
+        DataValidationTask task = validationService.createValidationTask(NAME, endDeviceGroup);
+        verify(dataModel).persist(task);
+        assertThat(task.getName()).isEqualTo(NAME);
+        assertThat(task.getEndDeviceGroup()).isEqualTo(endDeviceGroup);
+    }
+
+    @Test
+    public void testCreateDataValidationTask() {
+        DataValidationTask task = validationService.createValidationTask(NAME);
+        verify(dataModel, never()).persist(task);
+        assertThat(task.getName()).isEqualTo(NAME);
+    }
+
+
+
 }

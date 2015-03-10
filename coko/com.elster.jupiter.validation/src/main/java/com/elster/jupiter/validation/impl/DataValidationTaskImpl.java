@@ -40,13 +40,12 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         this.dataModel = dataModel;
     }
 
-    static DataValidationTaskImpl from(DataModel model,String name, EndDeviceGroup endDeviceGroup) {
-        return model.getInstance(DataValidationTaskImpl.class).init(name, endDeviceGroup);
+    static DataValidationTaskImpl from(DataModel model,String name) {
+        return model.getInstance(DataValidationTaskImpl.class).init(name);
     }
 
-    private DataValidationTaskImpl init(String name, EndDeviceGroup endDeviceGroup) {
+    private DataValidationTaskImpl init(String name) {
         this.name = name;
-        this.endDeviceGroup.set(endDeviceGroup);
         return this;
     }
 

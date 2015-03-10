@@ -470,9 +470,16 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 	}
 
     @Override
-    public DataValidationTask createValidationTask(String name,EndDeviceGroup endDeviceGroup) {
-        return DataValidationTaskImpl.from(dataModel,name, endDeviceGroup);
+    public DataValidationTask createValidationTask(String name) {
+        return DataValidationTaskImpl.from(dataModel, name);
 
+    }
+    @Override
+    public DataValidationTask createValidationTask(String name,EndDeviceGroup endDeviceGroup) {
+        DataValidationTask task =  DataValidationTaskImpl.from(dataModel,name);
+        task.setEndDeviceGroup(endDeviceGroup);
+        task.save();
+        return task;
     }
 
     @Override

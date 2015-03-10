@@ -83,11 +83,13 @@ public interface ValidationService {
 	void addValidatorFactory(ValidatorFactory validatorfactory);
 	void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
 
+    DataValidationTask createValidationTask(String name);
+
     DataValidationTask createValidationTask(String name,EndDeviceGroup endDeviceGroup);
 
     List<DataValidationTask> findValidationTasks();
 
     Query<DataValidationTask> findValidationTasksQuery();
 
-    Optional<DataValidationTask> findValidationTask(Long id);
+    Optional<DataValidationTask> findValidationTask(long id);
 }
