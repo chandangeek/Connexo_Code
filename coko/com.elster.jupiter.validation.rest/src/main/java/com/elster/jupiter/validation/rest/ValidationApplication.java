@@ -36,6 +36,7 @@ public class ValidationApplication extends Application implements ServiceLocator
 	public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 ValidationResource.class,
+                DataValidationTaskResource.class,
                 LocalizedExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class);
