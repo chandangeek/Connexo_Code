@@ -35,17 +35,22 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
     }
 
     @Override
-    public StateBuilder newState(String name) {
-        return this.state.newState(name);
+    public StateBuilder newCustomState(String name) {
+        return this.state.newState(true, name);
     }
 
-    private StateBuilder doNewState(String name) {
-        StateImpl underConstruction = this.newInitializedState(name);
+    @Override
+    public StateBuilder newStandardState(String symbolicName) {
+        return this.state.newState(false, symbolicName);
+    }
+
+    private StateBuilder doNewState(boolean custom, String name) {
+        StateImpl underConstruction = this.newInitializedState(custom, name);
         return new StateBuilderImpl(underConstruction);
     }
 
-    protected StateImpl newInitializedState(String name) {
-        return this.dataModel.getInstance(StateImpl.class).initialize(this.underConstruction, name);
+    protected StateImpl newInitializedState(boolean custom, String name) {
+        return this.dataModel.getInstance(StateImpl.class).initialize(this.underConstruction, custom, name);
     }
 
     @Override
@@ -56,14 +61,14 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
     }
 
     protected interface BuildState {
-        StateBuilder newState(String name);
+        StateBuilder newState(boolean custom, String name);
         FinateStateMachine complete();
     }
 
     private class UnderConstruction implements BuildState {
         @Override
-        public StateBuilder newState(String name) {
-            return doNewState(name);
+        public StateBuilder newState(boolean custom, String name) {
+            return doNewState(custom, name);
         }
 
         @Override
@@ -75,7 +80,7 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
 
     private class Complete implements BuildState {
         @Override
-        public StateBuilder newState(String name) {
+        public StateBuilder newState(boolean custom, String name) {
             illegalStateException();
             return null;
         }

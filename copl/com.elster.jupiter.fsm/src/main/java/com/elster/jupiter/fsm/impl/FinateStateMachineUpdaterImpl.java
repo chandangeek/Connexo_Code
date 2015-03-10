@@ -82,8 +82,17 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
     }
 
     @Override
-    public StateBuilder newState(String name) {
-        return new AddState(this.getUnderConstruction(), this.newInitializedState(name));
+    public StateBuilder newCustomState(String name) {
+        return this.newState(true, name);
+    }
+
+    @Override
+    public StateBuilder newStandardState(String name) {
+        return this.newState(false, name);
+    }
+
+    public StateBuilder newState(boolean custom, String name) {
+        return new AddState(this.getUnderConstruction(), this.newInitializedState(custom, name));
     }
 
     @Override

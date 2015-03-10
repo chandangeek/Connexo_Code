@@ -62,7 +62,7 @@ public class FinateStateMachineIT {
     @Test
     public void stateMachineCannotHaveANullName() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(null, "test");
-        builder.newState("Just one").complete();
+        builder.newCustomState("Just one").complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -76,7 +76,7 @@ public class FinateStateMachineIT {
     @Test
     public void stateMachineCannotHaveAnEmptyName() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("", "test");
-        builder.newState("Just one").complete();
+        builder.newCustomState("Just one").complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -90,7 +90,7 @@ public class FinateStateMachineIT {
     @Test
     public void stateMachineCannotHaveAnExtremelyLongName() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(Strings.repeat("Too long", 100), "test");
-        builder.newState("Just one").complete();
+        builder.newCustomState("Just one").complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -104,7 +104,7 @@ public class FinateStateMachineIT {
     @Test
     public void stateMachineCannotHaveANullTopic() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("stateMachineCannotHaveANullTopic", null);
-        builder.newState("Just one").complete();
+        builder.newCustomState("Just one").complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -118,7 +118,7 @@ public class FinateStateMachineIT {
     @Test
     public void stateMachineCannotHaveAnEmptyTopic() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("stateMachineCannotHaveANullTopic", "");
-        builder.newState("Just one").complete();
+        builder.newCustomState("Just one").complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -132,7 +132,7 @@ public class FinateStateMachineIT {
     @Test
     public void stateMachineCannotHaveAnExtremelyLongTopic() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("stateMachineCannotHaveANullTopic", Strings.repeat("Too long", 100));
-        builder.newState("Just one").complete();
+        builder.newCustomState("Just one").complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -159,12 +159,12 @@ public class FinateStateMachineIT {
     public void createDuplicateStateMachine() {
         String expectedName = "notUnique";
         FinateStateMachineBuilder builder1 = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder1.newState("Initial").complete();
+        builder1.newCustomState("Initial").complete();
         FinateStateMachine stateMachine = builder1.complete();
         stateMachine.save();
 
         FinateStateMachineBuilder builder2 = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder2.newState("More initial").complete();
+        builder2.newCustomState("More initial").complete();
         FinateStateMachine duplicate = builder2.complete();
 
         // Business method
@@ -180,7 +180,7 @@ public class FinateStateMachineIT {
         String expectedTopic = "test";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
         String expectedStateName = "Initial";
-        builder.newState(expectedStateName).complete();
+        builder.newCustomState(expectedStateName).complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -201,7 +201,7 @@ public class FinateStateMachineIT {
         String expectedName = "findStateThatExists";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
         String expectedStateName = "Initial";
-        builder.newState(expectedStateName).complete();
+        builder.newCustomState(expectedStateName).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -219,7 +219,7 @@ public class FinateStateMachineIT {
     public void findStateThatDoesNotExist() {
         String expectedName = "findStateThatDoesNotExist";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder.newState("Initial").complete();
+        builder.newCustomState("Initial").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -233,12 +233,12 @@ public class FinateStateMachineIT {
 
     @Transactional
     @Test
-    public void findCreatedStateMachineWithOneStateButNoProcesses() {
-        String expectedName = "stateMachineWithOneStateButNoProcesses";
+    public void findCreatedStateMachineWithOneCustomStateButNoProcesses() {
+        String expectedName = "findCreatedStateMachineWithOneCustomStateButNoProcesses";
         String expectedTopic = "test";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
         String expectedStateName = "Initial";
-        builder.newState(expectedStateName).complete();
+        builder.newCustomState(expectedStateName).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -251,6 +251,30 @@ public class FinateStateMachineIT {
         assertThat(reloaded.getStates()).hasSize(1);
         State state = reloaded.getStates().get(0);
         assertThat(state.getName()).isEqualTo(expectedStateName);
+        assertThat(state.isCustom()).isTrue();
+    }
+
+    @Transactional
+    @Test
+    public void findCreatedStateMachineWithOneStandardStateButNoProcesses() {
+        String expectedName = "findCreatedStateMachineWithOneStandardStateButNoProcesses";
+        String expectedTopic = "test";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
+        String expectedStateName = "Initial";
+        builder.newStandardState(expectedStateName).complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        FinateStateMachine reloaded = getTestService().findFinateStateMachineByName(stateMachine.getName()).get();
+
+        // Asserts
+        assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getTopic()).isEqualTo(expectedTopic);
+        assertThat(reloaded.getStates()).hasSize(1);
+        State state = reloaded.getStates().get(0);
+        assertThat(state.getName()).isEqualTo(expectedStateName);
+        assertThat(state.isCustom()).isFalse();
     }
 
     @Transactional
@@ -260,7 +284,7 @@ public class FinateStateMachineIT {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
         String expectedStateName = "Initial";
         builder
-            .newState(expectedStateName)
+            .newCustomState(expectedStateName)
             .onEntry("onEntryDepId", "onEntry")
             .onExit("onExitDepId", "onExit")
             .complete();
@@ -291,7 +315,7 @@ public class FinateStateMachineIT {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
         String expectedStateName = "Initial";
         builder
-            .newState(expectedStateName)
+            .newCustomState(expectedStateName)
             .onEntry("onEntryDepId", "onEntry")
             .onExit("onExitDepId", "onExit")
             .complete();
@@ -323,7 +347,7 @@ public class FinateStateMachineIT {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
         String expectedStateName = "Initial";
         builder
-            .newState(expectedStateName)
+            .newCustomState(expectedStateName)
             .onEntry("onEntryDepId", "onEntry1")
             .onEntry("onEntryDepId", "onEntry2")
             .onExit("onExitDepId", "onExit1")
@@ -361,7 +385,7 @@ public class FinateStateMachineIT {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
         String expectedStateName = "Initial";
         builder
-            .newState(expectedStateName)
+            .newCustomState(expectedStateName)
             .onEntry(Strings.repeat("deploymentId", 100), "onEntry")
             .complete();
         FinateStateMachine stateMachine = builder.complete();
@@ -380,7 +404,7 @@ public class FinateStateMachineIT {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
         String expectedStateName = "Initial";
         builder
-            .newState(expectedStateName)
+            .newCustomState(expectedStateName)
             .onEntry("deploymentId", Strings.repeat("onEntry", 100))
             .complete();
         FinateStateMachine stateMachine = builder.complete();
@@ -397,7 +421,7 @@ public class FinateStateMachineIT {
     public void createStateMachineWithOneStateWithNullName() {
         String expectedName = "createStateMachineWithOneStateWithNullName";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder.newState(null).complete();
+        builder.newCustomState(null).complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -412,7 +436,7 @@ public class FinateStateMachineIT {
     public void createStateMachineWithOneStateWithEmptyName() {
         String expectedName = "createStateMachineWithOneStateWithEmptyName";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder.newState("").complete();
+        builder.newCustomState("").complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -427,8 +451,8 @@ public class FinateStateMachineIT {
     public void createStateMachineWithTwiceTheSameStateName() {
         String expectedName = "createStateMachineWithTwiceTheSameStateName";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder.newState("State").complete();
-        builder.newState("State").complete();
+        builder.newCustomState("State").complete();
+        builder.newCustomState("State").complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -442,11 +466,11 @@ public class FinateStateMachineIT {
     public void addStateAfterCompletion() {
         String expectedName = "completeTwice";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
-        builder.newState("Before completion").complete();
+        builder.newCustomState("Before completion").complete();
         builder.complete();
 
         // Business method
-        builder.newState("After completion");
+        builder.newCustomState("After completion");
 
         // Asserts: see expected exception rule
     }
@@ -457,8 +481,8 @@ public class FinateStateMachineIT {
         String expectedName = "createStateMachineWithOneStateTransition";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
-        State commissioned = builder.newState("Commissioned").complete();
-        State inStock = builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        State inStock = builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
 
         // Business method
@@ -481,14 +505,14 @@ public class FinateStateMachineIT {
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         StateTransitionEventType otherEventType = this.createNewStateTransitionEventType("#other");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("UsingCommissioned", "test");
-        State commissioned = builder.newState("Commissioned").complete();
-        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachineUsingCommissioned = builder.complete();
         stateMachineUsingCommissioned.save();
 
         FinateStateMachineBuilder otherBuilder = this.getTestService().newFinateStateMachine("Other", "elsewhere");
-        FinateStateMachineBuilder.StateBuilder aStateBuilder = otherBuilder.newState("A");
-        FinateStateMachineBuilder.StateBuilder bStateBuilder = otherBuilder.newState("B");
+        FinateStateMachineBuilder.StateBuilder aStateBuilder = otherBuilder.newCustomState("A");
+        FinateStateMachineBuilder.StateBuilder bStateBuilder = otherBuilder.newCustomState("B");
         State a = aStateBuilder.on(otherEventType).transitionTo(bStateBuilder).complete();
         bStateBuilder.on(otherEventType).transitionTo(a).complete();
         otherBuilder.complete().save();
@@ -514,13 +538,13 @@ public class FinateStateMachineIT {
         StateTransitionEventType deletedEventType = this.createNewStateTransitionEventType("#deleted");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
         // Create default States
-        State deleted = builder.newState("Deleted").complete();
+        State deleted = builder.newCustomState("Deleted").complete();
         State decommissioned = builder
-                .newState("Decommissioned")
+                .newCustomState("Decommissioned")
                 .on(deletedEventType).transitionTo(deleted)
                 .complete();
-        FinateStateMachineBuilder.StateBuilder activeBuilder = builder.newState("Active");
-        FinateStateMachineBuilder.StateBuilder inactiveBuilder = builder.newState("Inactive");
+        FinateStateMachineBuilder.StateBuilder activeBuilder = builder.newCustomState("Active");
+        FinateStateMachineBuilder.StateBuilder inactiveBuilder = builder.newCustomState("Inactive");
         State active = activeBuilder
                             .on(decommissionedEventType).transitionTo(decommissioned)
                             .on(deactivated).transitionTo(inactiveBuilder)
@@ -530,18 +554,18 @@ public class FinateStateMachineIT {
                             .on(decommissionedEventType).transitionTo(decommissioned)
                             .complete();
         State commissioned = builder
-                .newState("Commissioned")
+                .newCustomState("Commissioned")
                 .on(activated).transitionTo(active)
                 .on(deactivated).transitionTo(inactive)
                 .complete();
         State inStock = builder
-                .newState("InStock")
+                .newCustomState("InStock")
                 .on(activated).transitionTo(active)
                 .on(deactivated).transitionTo(inactive)
                 .on(commissionedEventType).transitionTo(commissioned)
                 .complete();
         builder
-            .newState("Ordered")
+            .newCustomState("Ordered")
             .on(deliveredToWarehouse).transitionTo(inStock)
             .complete();
         FinateStateMachine stateMachine = builder.complete();
@@ -571,8 +595,8 @@ public class FinateStateMachineIT {
         String initialName = "renameStateMachine";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test");
-        State commissioned = builder.newState("Commissioned").complete();
-        State inStock = builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        State inStock = builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
         long initialVersion = stateMachine.getVersion();
@@ -600,12 +624,12 @@ public class FinateStateMachineIT {
     public void renameStateMachineToOneThatAlreadyExists() {
         String duplicateName = "alreadyExists";
         FinateStateMachineBuilder builder1 = this.getTestService().newFinateStateMachine(duplicateName, "test-topic-1");
-        builder1.newState("Initial").complete();
+        builder1.newCustomState("Initial").complete();
         builder1.complete().save();
 
         String initialName = "initialName";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test-topic-2");
-        builder.newState("Commissioned").complete();
+        builder.newCustomState("Commissioned").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -621,7 +645,7 @@ public class FinateStateMachineIT {
     public void setNameToEmptyString() {
         String initialName = "setNameToEmptyString";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test-topic");
-        builder.newState("Commissioned").complete();
+        builder.newCustomState("Commissioned").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -637,7 +661,7 @@ public class FinateStateMachineIT {
     public void setNameToNull() {
         String initialName = "setNameToNull";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test-topic");
-        builder.newState("Commissioned").complete();
+        builder.newCustomState("Commissioned").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -653,7 +677,7 @@ public class FinateStateMachineIT {
     public void setNameToExtremelyLongString() {
         String initialName = "setNameToExtremelyLongString";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(initialName, "test-topic");
-        builder.newState("Commissioned").complete();
+        builder.newCustomState("Commissioned").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -669,8 +693,8 @@ public class FinateStateMachineIT {
         String expectedName = "changeTopic";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
-        State commissioned = builder.newState("Commissioned").complete();
-        State inStock = builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        State inStock = builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -696,7 +720,7 @@ public class FinateStateMachineIT {
     @Test
     public void changeTopicToEmptyString() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("changeTopicToEmptyString", "test-topic");
-        builder.newState("Commissioned").complete();
+        builder.newCustomState("Commissioned").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -711,7 +735,7 @@ public class FinateStateMachineIT {
     @Test
     public void changeTopicToNull() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("changeTopicToNull", "test-topic");
-        builder.newState("Commissioned").complete();
+        builder.newCustomState("Commissioned").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -726,7 +750,7 @@ public class FinateStateMachineIT {
     @Test
     public void changeTopicToExtremelyLongName() {
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("changeTopicToExtremelyLongName", "test-topic");
-        builder.newState("Commissioned").complete();
+        builder.newCustomState("Commissioned").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -743,8 +767,8 @@ public class FinateStateMachineIT {
         String expectedTopic = "test-topic";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
-        State commissioned = builder.newState("Commissioned").complete();
-        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -766,8 +790,8 @@ public class FinateStateMachineIT {
         String expectedTopic = "test-topic";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
-        State commissioned = builder.newState("Commissioned").complete();
-        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -790,8 +814,8 @@ public class FinateStateMachineIT {
         String expectedTopic = "test-topic";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
-        State commissioned = builder.newState("Commissioned").complete();
-        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -811,13 +835,13 @@ public class FinateStateMachineIT {
     public void removeStateThatDoesNotExist() {
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder targetBuilder = this.getTestService().newFinateStateMachine("removeStateThatDoesNotExist", "test-topic-1");
-        State commissioned = targetBuilder.newState("Commissioned").complete();
-        targetBuilder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = targetBuilder.newCustomState("Commissioned").complete();
+        targetBuilder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = targetBuilder.complete();
         stateMachine.save();
 
         FinateStateMachineBuilder otherBuilder = this.getTestService().newFinateStateMachine("Other", "test-topic-2");
-        State whatever = otherBuilder.newState("Whatever").complete();
+        State whatever = otherBuilder.newCustomState("Whatever").complete();
         FinateStateMachine other = otherBuilder.complete();
         other.save();
 
@@ -832,8 +856,8 @@ public class FinateStateMachineIT {
     public void removeStateByNameThatDoesNotExist() {
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine("removeStateThatDoesNotExist", "test-topic-1");
-        State commissioned = builder.newState("Commissioned").complete();
-        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -850,7 +874,7 @@ public class FinateStateMachineIT {
         String expectedName = "cannotRemoveLastState";
         String expectedTopic = "test-topic";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
-        builder.newState("Single").complete();
+        builder.newCustomState("Single").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -867,7 +891,7 @@ public class FinateStateMachineIT {
         String expectedTopic = "test-topic";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
         String initialName = "Single";
-        builder.newState(initialName).complete();
+        builder.newCustomState(initialName).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -889,7 +913,7 @@ public class FinateStateMachineIT {
         String expectedTopic = "test-topic";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
         String initialName = "Single";
-        long initialStateVersion = builder.newState(initialName).complete().getVersion();
+        long initialStateVersion = builder.newCustomState(initialName).complete().getVersion();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -916,8 +940,8 @@ public class FinateStateMachineIT {
         String expectedTopic = "test-topic";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
-        State commissioned = builder.newState("Commissioned").complete();
-        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -937,7 +961,7 @@ public class FinateStateMachineIT {
         String expectedTopic = "test-topic";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
         String initialName = "Single";
-        builder.newState(initialName).complete();
+        builder.newCustomState(initialName).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -957,9 +981,9 @@ public class FinateStateMachineIT {
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         String expectedTopic = "test-topic";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
-        State commissioned = builder.newState("Commissioned").complete();
-        FinateStateMachineBuilder.StateBuilder inStock = builder.newState("InStock");
-        builder.newState("Initial").on(deliveredEventType).transitionTo(inStock).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        FinateStateMachineBuilder.StateBuilder inStock = builder.newCustomState("InStock");
+        builder.newCustomState("Initial").on(deliveredEventType).transitionTo(inStock).complete();
         inStock.on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
@@ -987,8 +1011,8 @@ public class FinateStateMachineIT {
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         String expectedTopic = "test-topic";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
-        State commissioned = builder.newState("Commissioned").complete();
-        builder.newState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -1007,9 +1031,9 @@ public class FinateStateMachineIT {
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         String expectedTopic = "test-topic";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, expectedTopic);
-        State commissioned = builder.newState("Commissioned").complete();
-        FinateStateMachineBuilder.StateBuilder inStock = builder.newState("InStock");
-        builder.newState("Initial").on(deliveredEventType).transitionTo(inStock).complete();
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        FinateStateMachineBuilder.StateBuilder inStock = builder.newCustomState("InStock");
+        builder.newCustomState("Initial").on(deliveredEventType).transitionTo(inStock).complete();
         inStock.on(commissionedEventType).transitionTo(commissioned).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
@@ -1033,7 +1057,7 @@ public class FinateStateMachineIT {
         String expectedName = "addBothEntryAndExitProcessesToExistingState";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
         String expectedStateName = "Initial";
-        builder.newState(expectedStateName).complete();
+        builder.newCustomState(expectedStateName).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -1063,7 +1087,7 @@ public class FinateStateMachineIT {
         String expectedName = "addBothEntryAndExitProcessesToExistingState";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
         String expectedStateName = "Initial";
-        builder.newState(expectedStateName).complete();
+        builder.newCustomState(expectedStateName).complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -1121,23 +1145,23 @@ public class FinateStateMachineIT {
         StateTransitionEventType deletedEventType = this.createNewStateTransitionEventType("#deleted");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test");
         // Create default States
-        State deleted = builder.newState("Deleted").complete();
-        State temporary = builder.newState("Temporary").on(deletedEventType).transitionTo(deleted).complete();
+        State deleted = builder.newStandardState("Deleted").complete();
+        State temporary = builder.newStandardState("Temporary").on(deletedEventType).transitionTo(deleted).complete();
         State decommissioned = builder
-            .newState("Decommissioned")
+            .newStandardState("Decommissioned")
             .on(deletedEventType).transitionTo(deleted)
             .complete();
         State commissioned = builder
-            .newState("Commissioned")
+            .newStandardState("Commissioned")
             .on(activated).transitionTo(temporary)
             .complete();
         State inStock = builder
-            .newState("InStock")
+            .newStandardState("InStock")
             .on(activated).transitionTo(temporary)
             .on(commissionedEventType).transitionTo(commissioned)
             .complete();
         builder
-            .newState("Ordered")
+            .newStandardState("Ordered")
             .on(deliveredToWarehouse).transitionTo(inStock)
             .complete();
         FinateStateMachine stateMachine = builder.complete();
@@ -1146,8 +1170,8 @@ public class FinateStateMachineIT {
         // Business method
         FinateStateMachineUpdater stateMachineUpdater = stateMachine.update();
         stateMachineUpdater.removeState(temporary);
-        FinateStateMachineBuilder.StateBuilder activeBuilder = stateMachineUpdater.newState("Active");
-        FinateStateMachineBuilder.StateBuilder inactiveBuilder = stateMachineUpdater.newState("Inactive");
+        FinateStateMachineBuilder.StateBuilder activeBuilder = stateMachineUpdater.newStandardState("Active");
+        FinateStateMachineBuilder.StateBuilder inactiveBuilder = stateMachineUpdater.newStandardState("Inactive");
         State active = activeBuilder
             .on(decommissionedEventType).transitionTo(decommissioned)
             .on(deactivated).transitionTo(inactiveBuilder)
@@ -1174,6 +1198,11 @@ public class FinateStateMachineIT {
         FinateStateMachine reloaded = this.getTestService().findFinateStateMachineByName(expectedName).get();
         assertThat(reloaded.getName()).isEqualTo(expectedName);
         assertThat(reloaded.getStates()).hasSize(7);
+        for (State state : reloaded.getStates()) {
+            assertThat(state.isCustom())
+                    .as("Expecting all states to be standard but found that " + state.getName() + " is not")
+                    .isFalse();
+        }
         List<StateTransition> transitions = reloaded.getTransitions();
         assertThat(transitions).hasSize(11);
         assertThat(reloaded.getState(active.getName()).isPresent()).isTrue();
@@ -1193,8 +1222,8 @@ public class FinateStateMachineIT {
         String expectedName = "testAddTransitionByStateName";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
-        builder.newState("Commissioned").complete();
-        builder.newState("InStock").complete();
+        builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("InStock").complete();
         FinateStateMachine stateMachine = builder.complete();
         stateMachine.save();
 
@@ -1216,7 +1245,7 @@ public class FinateStateMachineIT {
         String expectedName = "removeEntryAndExitProcesses";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
         String expectedStateName = "Initial";
-        builder.newState(expectedStateName)
+        builder.newCustomState(expectedStateName)
                 .onEntry("onEntryDepId", "onEntry1")
                 .onEntry("onEntryDepId", "onEntry2")
                 .onExit("onExitDepId", "onExit1")
@@ -1254,7 +1283,7 @@ public class FinateStateMachineIT {
         String expectedName = "removeEntryAndExitProcesses";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
         String expectedStateName = "Initial";
-        builder.newState(expectedStateName)
+        builder.newCustomState(expectedStateName)
                 .onEntry("onEntryDepId", "onEntry1")
                 .onEntry("onEntryDepId", "onEntry2")
                 .onExit("onExitDepId", "onExit1")
@@ -1288,7 +1317,7 @@ public class FinateStateMachineIT {
         String expectedName = "removeNonExistingEntryProcesses";
         FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
         String expectedStateName = "Initial";
-        builder.newState(expectedStateName)
+        builder.newCustomState(expectedStateName)
                 .onEntry("onEntryDepId", "onEntry")
                 .onExit("onExitDepId", "onExit")
                 .complete();

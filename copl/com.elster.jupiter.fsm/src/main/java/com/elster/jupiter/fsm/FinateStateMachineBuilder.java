@@ -12,12 +12,22 @@ package com.elster.jupiter.fsm;
 public interface FinateStateMachineBuilder {
 
     /**
-     * Starts the building process of a new {@link State}.
+     * Starts the building process of a new custom {@link State}.
      *
-     * @param name The name of the new State
+     * @param name The name of the new custom State
      * @return The StateBuilder
+     * @see State#isCustom()
      */
-    public StateBuilder newState(String name);
+    public StateBuilder newCustomState(String name);
+
+    /**
+     * Starts the building process of a new standard {@link State}.
+     *
+     * @param symbolicName The symbolic name of the new State
+     * @return The StateBuilder
+     * @see State#isCustom()
+     */
+    public StateBuilder newStandardState(String symbolicName);
 
     /**
      * Completes the building process, returning the {@link FinateStateMachine}

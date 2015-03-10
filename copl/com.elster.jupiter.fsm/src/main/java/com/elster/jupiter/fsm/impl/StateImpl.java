@@ -36,6 +36,7 @@ public class StateImpl implements State {
 
     public enum Fields {
         NAME("name"),
+        CUSTOM("custom"),
         FINATE_STATE_MACHINE("finateStateMachine"),
         PROCESS_REFERENCES("processReferences");
 
@@ -58,6 +59,7 @@ public class StateImpl implements State {
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
+    private boolean custom;
     @IsPresent
     private Reference<FinateStateMachine> finateStateMachine = Reference.empty();
     @Valid
@@ -78,9 +80,10 @@ public class StateImpl implements State {
         this.thesaurus = thesaurus;
     }
 
-    public StateImpl initialize(FinateStateMachine finateStateMachine, String name) {
+    public StateImpl initialize(FinateStateMachine finateStateMachine, boolean custom, String name) {
         this.setFinateStateMachine(finateStateMachine);
         this.setName(name);
+        this.custom = custom;
         return this;
     }
 
@@ -102,6 +105,11 @@ public class StateImpl implements State {
     @Override
     public Instant getModifiedTimestamp() {
         return modTime;
+    }
+
+    @Override
+    public boolean isCustom() {
+        return this.custom;
     }
 
     @Override

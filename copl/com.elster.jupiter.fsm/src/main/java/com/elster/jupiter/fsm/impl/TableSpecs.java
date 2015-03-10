@@ -63,6 +63,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(StateImpl.Fields.NAME.fieldName()).add();
+            table.column("CUSTOM").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.CUSTOM.fieldName()).add();
             Column finateStateMachine = table.column("FSM").number().notNull().add();
             table.unique("UK_FSM_STATE").on(name).add();
             table.foreignKey("FK_FSM_STATE_FSM")
