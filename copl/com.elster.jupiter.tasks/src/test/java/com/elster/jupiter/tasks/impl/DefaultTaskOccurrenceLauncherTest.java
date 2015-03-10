@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
@@ -42,10 +43,12 @@ public class DefaultTaskOccurrenceLauncherTest {
     private DestinationSpec destination1, destination2;
     @Mock
     private MessageBuilder builder1, builder2;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() {
-        defaultTaskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(transactionService, dueTaskFetcher);
+        defaultTaskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, dueTaskFetcher);
 
         when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(task1, task2));
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);

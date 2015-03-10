@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
@@ -46,6 +47,8 @@ public class TaskOccurrenceLauncherTest {
     private MessageBuilder messageBuilder;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() {
@@ -77,7 +80,7 @@ public class TaskOccurrenceLauncherTest {
             }
         });
 
-        launcher = new DefaultTaskOccurrenceLauncher(transactionService, dueTaskFetcher);
+        launcher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, dueTaskFetcher);
     }
 
     @After

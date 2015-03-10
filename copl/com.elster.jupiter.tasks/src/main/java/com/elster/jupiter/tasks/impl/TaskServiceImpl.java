@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -29,18 +30,19 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -56,6 +58,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     private volatile TransactionService transactionService;
     private volatile CompositeScheduleExpressionParser scheduleExpressionParser;
     private volatile JsonService jsonService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private Thread schedulerThread;
     private volatile DataModel dataModel;
@@ -171,9 +174,9 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
         if (isLaunched()) {
             throw new TaskServiceAlreadyLaunched();
         }
-        TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(transactionService, getDueTaskFetcher());
+        TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(threadPrincipalService, transactionService, getDueTaskFetcher());
         TaskScheduler taskScheduler = new TaskScheduler(taskOccurrenceLauncher, 1, TimeUnit.MINUTES);
-        schedulerThread = new Thread(taskScheduler);
+        schedulerThread = new Thread(threadPrincipalService.withContextAdded(taskScheduler, () -> "TaskService"));
         schedulerThread.setName("SchedulerThread");
         schedulerThread.start();
     }
@@ -235,6 +238,11 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     void setDueTaskFetcher(DueTaskFetcher dueTaskFetcher) {
