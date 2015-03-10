@@ -10,6 +10,8 @@ import java.util.Set;
  */
 public interface FirmwareService {
 
+    public static String COMPONENT_NAME = "FWC";
+
     /**
      * Provides a set of ProtocolSupportedFirmwareOptions for the given DeviceType
      */
