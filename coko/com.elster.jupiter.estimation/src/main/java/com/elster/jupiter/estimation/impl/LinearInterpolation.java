@@ -22,13 +22,13 @@ import java.util.Map;
 /**
  * Created by igh on 6/03/2015.
  */
-public class CumulativeValuesInterpolator extends AbstractEstimator {
+public class LinearInterpolation extends AbstractEstimator {
 
-    CumulativeValuesInterpolator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    LinearInterpolation(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 
-    CumulativeValuesInterpolator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    LinearInterpolation(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
     }
 
@@ -52,12 +52,13 @@ public class CumulativeValuesInterpolator extends AbstractEstimator {
         List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
         List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
         for (EstimationBlock block : estimationBlocks) {
+            if (block.getReadingType().isCumulative())
             estimate(block, remain, estimated);
         }
         return SimpleEstimationResult.of(remain, estimated);
     }
 
-    public void estimate(EstimationBlock block, List<EstimationBlock> remain, List<EstimationBlock> estimated) {
+    private void estimate(EstimationBlock block, List<EstimationBlock> remain, List<EstimationBlock> estimated) {
         List<? extends Estimatable> estimatables = block.estimatables();
         Channel channel = block.getChannel();
         // find the reading before the first reading to be estimated
@@ -98,7 +99,7 @@ public class CumulativeValuesInterpolator extends AbstractEstimator {
 
     @Override
     public String getDefaultFormat() {
-        return "Cumulative values interpolator";
+        return "Linear interpolation";
     }
 
     @Override
