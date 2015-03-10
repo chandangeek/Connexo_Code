@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.devicechannels.EditReadingsGrid', {
     initComponent: function () {
         var me = this,
             calculatedReadingType = me.channel.get('calculatedReadingType'),
-            measurementType = me.channel.get('unitOfMeasure_formatted');
+            measurementType = me.channel.get('unitOfMeasure');
 
         me.columns = [
             {
