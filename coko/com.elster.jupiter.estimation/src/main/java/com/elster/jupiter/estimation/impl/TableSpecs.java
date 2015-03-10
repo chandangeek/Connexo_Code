@@ -5,10 +5,13 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.tasks.TaskService;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
@@ -77,6 +80,33 @@ public enum TableSpecs {
             table.primaryKey("EST_PK_RTYPEINESTRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
             table.foreignKey("EST_FK_RTYPEINESTRULE_RULE").references(EST_ESTIMATIONRULE.name()).onDelete(DeleteRule.RESTRICT).map("rule").reverseMap("readingTypesInRule").composition().on(ruleIdColumn).add();
             table.foreignKey("EST_FK_RTYPEINESTRULE_RTYPE").references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
+        }
+    },
+    EST_ESTIMATIONTASK {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<IEstimationTask> table = dataModel.addTable(name(), IEstimationTask.class);
+            table.map(EstimationTaskImpl.class);
+            table.setJournalTableName("EST_ESTIMATIONTASKJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.addAuditColumns();
+
+            table.foreignKey("EST_FK_ETSK_RECURRENTTASK")
+                    .on(recurrentTaskId)
+                    .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
+                    .map("recurrentTask")
+                    .add();
+            table.foreignKey("EST_FK_ETSK_ENDDEVICEFROUP")
+                    .on(endDeviceGroupId)
+                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
+                    .map("endDeviceGroup")
+                    .add();
+            table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
         }
     };
 

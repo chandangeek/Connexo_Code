@@ -8,22 +8,30 @@ import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.estimation.EstimationTaskBuilder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -50,6 +58,8 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 @Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
 public class EstimationServiceImpl implements IEstimationService, InstallService {
 
+    static final String DESTINATION_NAME = "EstimationTask";
+    static final String SUBSCRIBER_NAME = "EstimationTask";
     private final List<EstimatorFactory> estimatorFactories = new CopyOnWriteArrayList<>();
     private final List<EstimationResolver> resolvers = new CopyOnWriteArrayList<>();
 
@@ -58,17 +68,25 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
+    private volatile TaskService taskService;
+    private volatile MessageService messageService;
+
+    private volatile MeteringGroupsService meteringGroupsService;
+    private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
     public EstimationServiceImpl() {
     }
 
     @Inject
-    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService) {
+    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService) {
         setMeteringService(meteringService);
         setOrmService(ormService);
         setQueryService(queryService);
         setNlsService(nlsService);
         setEventService(eventService);
+        setTaskService(taskService);
+        setMeteringGroupsService(meteringGroupsService);
+        setMessageService(messageService);
         activate();
         install();
     }
@@ -84,6 +102,8 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(EventService.class).toInstance(eventService);
                 bind(EstimatorCreator.class).toInstance(new DefaultEstimatorCreator());
+                bind(TaskService.class).toInstance(taskService);
+                bind(IEstimationService.class).toInstance(EstimationServiceImpl.this);
             }
         });
     }
@@ -222,12 +242,37 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel).install();
+        new InstallerImpl(dataModel, messageService).install();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("MTR");
+    }
+
+    @Override
+    public DestinationSpec getDestination() {
+        if (!destinationSpec.isPresent()) {
+            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
+        }
+        return destinationSpec.orElse(null);
+    }
+
+    @Override
+    public EstimationTaskBuilder newBuilder() {
+        return new EstimationTaskBuilderImpl(dataModel);
+    }
+
+    @Override
+    public Optional<? extends EstimationTask> findEstimationTask(long id) {
+        return dataModel.mapper(IEstimationTask.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends EstimationTask> findEstimationTask(RecurrentTask recurrentTask) {
+        return dataModel.stream(IEstimationTask.class)
+                .filter(Where.where("recurrentTask").isEqualTo(recurrentTask))
+                .findFirst();
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -266,6 +311,21 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     private List<EstimationBlock> getBlocksToEstimate(MeterActivation meterActivation, ReadingType readingType) {
         return new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     class DefaultEstimatorCreator implements EstimatorCreator {

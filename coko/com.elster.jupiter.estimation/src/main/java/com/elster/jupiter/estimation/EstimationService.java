@@ -32,4 +32,7 @@ public interface EstimationService {
 
     Optional<? extends EstimationRule> getEstimationRule(long id);
 
+    EstimationTaskBuilder newBuilder();
+
+    Optional<? extends EstimationTask> findEstimationTask(long id);
 }

@@ -8,19 +8,29 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
+import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +58,8 @@ import java.util.stream.Stream;
                 "osgi.command.function=estimateWithLambdas",
                 "osgi.command.function=removeRuleSet",
                 "osgi.command.function=removeRule",
-                "osgi.command.function=updateRule"
+                "osgi.command.function=updateRule",
+                "osgi.command.function=createEstimationTask"
         },
         immediate = true)
 public class ConsoleCommands {
@@ -59,6 +70,8 @@ public class ConsoleCommands {
     private volatile EstimationService estimationService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile CompositeScheduleExpressionParser scheduleExpressionParser;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     public void estimationBlocks(long meterId) {
         try {
@@ -250,6 +263,32 @@ public class ConsoleCommands {
                 });
     }
 
+    public void createEstimationTask(String name, long nextExecution, String scheduleExpression, long groupId) {
+        threadPrincipalService.set(() -> "console");
+        try (TransactionContext context = transactionService.getContext()) {
+            EstimationTask estimationTask = estimationService.newBuilder()
+                    .setName(name)
+                    .setNextExecution(Instant.ofEpochMilli(nextExecution))
+                    .setEndDeviceGroup(endDeviceGroup(groupId))
+                    .setScheduleExpression(parse(scheduleExpression)).build();
+            estimationTask.save();
+            context.commit();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    private ScheduleExpression parse(String scheduleExpression) {
+        return scheduleExpressionParser.parse(scheduleExpression).orElseThrow(IllegalArgumentException::new);
+    }
+
+    private EndDeviceGroup endDeviceGroup(long groupId) {
+        return meteringGroupsService.findEndDeviceGroup(groupId).orElseThrow(IllegalArgumentException::new);
+    }
+
+
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
@@ -268,6 +307,21 @@ public class ConsoleCommands {
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
+        CompositeScheduleExpressionParser composite = new CompositeScheduleExpressionParser();
+        composite.add(cronExpressionParser);
+        composite.add(PeriodicalScheduleExpressionParser.INSTANCE);
+        composite.add(new TemporalExpressionParser());
+        composite.add(Never.NEVER);
+        this.scheduleExpressionParser = composite;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     private String print(EstimationBlock estimationBlock) {
