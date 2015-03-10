@@ -96,5 +96,14 @@ public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 		}
 		oraConnection.setEndToEndMetrics(metrics, ecid);
 	}
-	
+
+    @Override
+    public Runnable withContextAdded(Runnable runnable, Principal principal) {
+        return new RunnableWithContext(runnable, this, principal);
+    }
+
+    @Override
+    public Runnable withContextAdded(Runnable runnable, Principal principal, String module, String action, Locale locale) {
+        return new RunnableWithContext(runnable, this, principal, module, action, locale);
+    }
 }

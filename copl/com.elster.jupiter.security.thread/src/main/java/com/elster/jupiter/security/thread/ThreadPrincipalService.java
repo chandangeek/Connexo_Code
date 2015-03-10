@@ -67,4 +67,8 @@ public interface ThreadPrincipalService {
 
 
     void setEndToEndMetrics(Connection connection) throws SQLException;
+
+    Runnable withContextAdded(Runnable runnable, Principal principal);
+
+    Runnable withContextAdded(Runnable runnable, Principal principal, String module, String action, Locale locale);
 }
