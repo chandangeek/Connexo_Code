@@ -33,7 +33,7 @@ public class Base64EncoderDecoder {
         }
     }
 
-    public final String encode(byte[] data) throws UnsupportedEncodingException {
+    public final String encode(byte[] data) {
         return encode(data, 0, data != null ? data.length : 0);
     }
 
@@ -42,7 +42,7 @@ public class Base64EncoderDecoder {
      *
      * @return the number of bytes produced.
      */
-    public final String encode(byte[] data, int off, int length) throws UnsupportedEncodingException {
+    public final String encode(byte[] data, int off, int length) {
         int modulus = length % 3;
         int dataLength = (length - modulus);
         int a1, a2, a3;
@@ -94,7 +94,11 @@ public class Base64EncoderDecoder {
                 break;
         }
 
-        return new String(out.toByteArray(), US_ASCII);
+        try {
+            return new String(out.toByteArray(), US_ASCII);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private final boolean ignore(char c) {

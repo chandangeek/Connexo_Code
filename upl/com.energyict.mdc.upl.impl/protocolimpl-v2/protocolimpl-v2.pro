@@ -8,6 +8,11 @@
     public static void main(java.lang.String[]);
 }
 
+# Keep annotations,
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes Signature
+
 -keepnames class * implements java.io.Serializable
 
 -keepclassmembers class * implements java.io.Serializable {
@@ -54,6 +59,22 @@
 -keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Outbound
 -keepnames class com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer
+-keep public class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayConfigurationSupport {
+	public *;
+	protected *;
+}
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer
 -keepnames class com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP
 -keepnames class com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540

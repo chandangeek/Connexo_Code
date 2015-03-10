@@ -56,14 +56,14 @@ import java.util.*;
 public class RtuPlusServer implements DeviceProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
-    private G3GatewayProperties dlmsProperties;
-    private G3GatewayConfigurationSupport configurationSupport;
-    private OfflineDevice offlineDevice;
-    private DlmsSession dlmsSession;
-    private DsmrSecuritySupport dlmsSecuritySupport;
+    protected G3GatewayProperties dlmsProperties;
+    protected G3GatewayConfigurationSupport configurationSupport;
+    protected OfflineDevice offlineDevice;
+    protected DlmsSession dlmsSession;
+    protected DeviceProtocolSecurityCapabilities dlmsSecuritySupport;
     private G3GatewayRegisters g3GatewayRegisters;
     private G3GatewayEvents g3GatewayEvents;
-    private RtuPlusServerMessages rtuPlusServerMessages;
+    protected RtuPlusServerMessages rtuPlusServerMessages;
     private DLMSCache dlmsCache = null;
     private ComChannel comChannel = null;
 
@@ -88,6 +88,11 @@ public class RtuPlusServer implements DeviceProtocol {
         this.comChannel = comChannel;
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        initDlmsSession(comChannel);
+    }
+
+    //Cryptoserver protocol overrides this
+    protected void initDlmsSession(ComChannel comChannel) {
         dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
     }
 
@@ -234,7 +239,7 @@ public class RtuPlusServer implements DeviceProtocol {
         return g3GatewayEvents;
     }
 
-    private RtuPlusServerMessages getRtuPlusServerMessages() {
+    protected RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
             rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), offlineDevice);
         }
@@ -266,7 +271,7 @@ public class RtuPlusServer implements DeviceProtocol {
         return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
     }
 
-    private DeviceProtocolSecurityCapabilities getSecuritySupport() {
+    protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
             dlmsSecuritySupport = new DsmrSecuritySupport();
         }
@@ -276,7 +281,7 @@ public class RtuPlusServer implements DeviceProtocol {
     /**
      * Holder for all properties: security, general and dialects.
      */
-    private G3GatewayProperties getDlmsSessionProperties() {
+    protected G3GatewayProperties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new G3GatewayProperties();
         }
@@ -309,7 +314,7 @@ public class RtuPlusServer implements DeviceProtocol {
         return getConfigurationSupport().getOptionalProperties();
     }
 
-    private ConfigurationSupport getConfigurationSupport() {
+    protected ConfigurationSupport getConfigurationSupport() {
         if (configurationSupport == null) {
             configurationSupport = new G3GatewayConfigurationSupport();
         }

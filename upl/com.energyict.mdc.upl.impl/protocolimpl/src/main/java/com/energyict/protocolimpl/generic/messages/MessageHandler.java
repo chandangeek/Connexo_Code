@@ -657,7 +657,7 @@ public class MessageHandler extends DefaultHandler {
     }
 
 	/* Authentication and Encryption functionality Related messages
-	/***********************************************/
+    /***********************************************/
 
 
     private String securityLevel = "";
@@ -695,12 +695,12 @@ public class MessageHandler extends DefaultHandler {
     /* Change the authentication key */
 
     private byte[] wrappedAuthenticationKey = new byte[0];
-    private byte[] plainAuthenticationKey = new byte[0];
+    private String plainAuthenticationKey = "";
 
     protected void handleChangeAuthenticationKey(Attributes attrbs) {
         this.wrappedAuthenticationKey = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_NEW_AUTHENTICATION_KEY));
         if (attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_AUTHENTICATION_KEY) != null) {
-            this.plainAuthenticationKey = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_AUTHENTICATION_KEY));
+            this.plainAuthenticationKey = attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_AUTHENTICATION_KEY);
         }
     }
 
@@ -708,19 +708,19 @@ public class MessageHandler extends DefaultHandler {
         return wrappedAuthenticationKey;
     }
 
-    public byte[] getPlainAuthenticationKey() {
+    public String getPlainAuthenticationKey() {
         return plainAuthenticationKey;
     }
 
     /* Change the encryption key */
 
     private byte[] wrappedEncryptionKey = new byte[0];
-    private byte[] plainEncryptionKey = new byte[0];
+    private String plainEncryptionKey = "";
 
     protected void handleChangeEncryptionKey(Attributes attrbs) {
         this.wrappedEncryptionKey = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_NEW_ENCRYPTION_KEY));
         if (attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_ENCRYPTION_KEY) != null) {
-            this.plainEncryptionKey = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_ENCRYPTION_KEY));
+            this.plainEncryptionKey = attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_ENCRYPTION_KEY);
         }
     }
 
@@ -728,7 +728,7 @@ public class MessageHandler extends DefaultHandler {
         return wrappedEncryptionKey;
     }
 
-    public byte[] getPlainEncryptionKey() {
+    public String getPlainEncryptionKey() {
         return plainEncryptionKey;
     }
 

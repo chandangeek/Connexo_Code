@@ -26,6 +26,7 @@ import java.util.logging.Logger;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
+    private final boolean hasBreaker;
     private int mbusAddress = -1;        // this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
     private int physicalAddress = -1;    // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
     private int medium = 15;
@@ -39,6 +40,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private Logger logger;
 
     public MbusDevice() {
+        hasBreaker = true;
+    }
+
+    public MbusDevice(boolean hasBreaker) {
+        this.hasBreaker = hasBreaker;
     }
 
     public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
@@ -50,6 +56,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         this.mbusUnit = unit;
         this.logger = protocol.getLogger();
         this.iskra = protocol;
+        this.hasBreaker = iskra.hasBreaker();
         if (mbus != null) {
             setProperties(mbus.getProtocolProperties().toStringProperties());
         }
@@ -57,7 +64,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new IskraMx372MbusMessaging();
+        return new IskraMx372MbusMessaging(hasBreaker);
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {

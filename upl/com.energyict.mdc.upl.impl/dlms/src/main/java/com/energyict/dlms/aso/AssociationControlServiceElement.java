@@ -43,8 +43,8 @@ public class AssociationControlServiceElement {
     private int mechanismId = 0;
     private byte[] userInformationData;
     private byte[] respondingAuthenticationValue;
-    private byte[] respondingAPTitle;
-    private XdlmsAse xdlmsAse;
+    protected byte[] respondingAPTitle;
+    protected XdlmsAse xdlmsAse;
     private byte[] callingApplicationProcessTitle;
     private byte[] calledApplicationProcessTitle;
     private byte[] calledApplicationEntityQualifier;
@@ -114,18 +114,24 @@ public class AssociationControlServiceElement {
         byte[] userInformation = this.xdlmsAse.getInitiatRequestByteArray();
 
         if (getSecurityContext().getSecurityPolicy() != SecurityContext.SECURITYPOLICY_NONE) {
-            XDlmsEncryption xdlmsEncryption = new XDlmsEncryption();
-            xdlmsEncryption.setPlainText(userInformation);
-            xdlmsEncryption.setSystemTitle(getSecurityContext().getSystemTitle());
-            xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
-            xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
-            xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
-            xdlmsEncryption.setSecurityControlByte((byte) 0x30);
-            userInformation = xdlmsEncryption.generateCipheredAPDU();
+            userInformation = encryptAndAuthenticateUserInformation(userInformation);
             getSecurityContext().incFrameCounter();
         }
 
         setUserInformation(userInformation);
+    }
+
+    protected byte[] encryptAndAuthenticateUserInformation(byte[] userInformation) {
+        XDlmsEncryption xdlmsEncryption = new XDlmsEncryption();
+        xdlmsEncryption.setPlainText(userInformation);
+        byte[] paddedSystemTitle = Arrays.copyOf(getSecurityContext().getSystemTitle(), SecurityContext.SYSTEM_TITLE_LENGTH);
+        xdlmsEncryption.setSystemTitle(paddedSystemTitle);
+        xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
+        xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
+        xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
+        xdlmsEncryption.setSecurityControlByte((byte) 0x30);
+        userInformation = xdlmsEncryption.generateCipheredAPDU();
+        return userInformation;
     }
 
     /**
@@ -573,15 +579,22 @@ public class AssociationControlServiceElement {
             throw new ACSEParsingException("Unexpected end of encryptedUserInformation", e, encryptedUserInformation);
         }
 
+        getSecurityContext().setResponseFrameCounter(ProtocolUtils.getInt(fc));
+        return decrypt(at, ct, fc, scb);
+    }
+
+    /**
+     * Subclasses can override the decryption implementation
+     */
+    protected byte[] decrypt(byte[] authenticationTag, byte[] cipheredText, byte[] frameCounter, byte securityControl) throws ConnectionException {
         XDlmsDecryption decryption = new XDlmsDecryption();
         decryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
         decryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
-        decryption.setAuthenticationTag(at);
-        decryption.setCipheredText(ct);
-        decryption.setFrameCounter(fc);
-        decryption.setSecurityControlByte(scb);
+        decryption.setAuthenticationTag(authenticationTag);
+        decryption.setCipheredText(cipheredText);
+        decryption.setFrameCounter(frameCounter);
+        decryption.setSecurityControlByte(securityControl);
         decryption.setSystemTitle(respondingAPTitle);
-        getSecurityContext().setResponseFrameCounter(ProtocolUtils.getInt(fc));
         return decryption.generatePlainText();
     }
 
@@ -917,7 +930,7 @@ public class AssociationControlServiceElement {
     }
 
     /**
-     * Checks if the calling- and responding authenticationValue are identical, if so then it is possible a fake meter is on the oter side ...
+     * Checks if the calling- and responding authenticationValue are identical, if so then it is possible a fake meter is on the other side ...
      *
      * @return true if both challenges are the same, false otherwise.
      */

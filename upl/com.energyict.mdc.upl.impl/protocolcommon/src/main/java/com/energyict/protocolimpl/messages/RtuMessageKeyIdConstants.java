@@ -42,6 +42,9 @@ public class RtuMessageKeyIdConstants {
     public static final String MBUSDECOMMISSION = "Decommission";
     public static final String MBUSENCRYPTIONKEY = "Set Encryption keys";
     public static final String CRYPTO_MBUSENCRYPTIONKEY = "Set Encryption keys using Cryptoserver";
+    public static final String SERVICE_KEY_HLS = "Set service HLS Secret";
+    public static final String SERVICE_KEY_AK = "Set service authentication key";
+    public static final String SERVICE_KEY_EK = "Set service encryption key";
     //	public static final String MBUSGASCORRECTION = "Correction switch";
     public static final String MBUSVALUESCORRECTED = "Use Corrected Mbus values";
     public static final String MBUSVALUESUNCORRECTED = "Use UnCorrected Mbus values";

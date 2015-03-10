@@ -1,16 +1,8 @@
 package com.energyict.dlms.protocolimplv2;
 
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
@@ -36,10 +28,10 @@ public class DlmsSession implements ProtocolLink {
 
     private final ComChannel comChannel;
     private final DlmsSessionProperties properties;
-    private final ApplicationServiceObjectV2 aso;
-    private final DLMSMeterConfig dlmsMeterConfig;
-    private final SecureConnection dlmsConnection;
-    private final CosemObjectFactory cosemObjectFactory;
+    protected ApplicationServiceObjectV2 aso;
+    protected DLMSMeterConfig dlmsMeterConfig;
+    protected SecureConnection dlmsConnection;
+    protected CosemObjectFactory cosemObjectFactory;
 
     public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties) {
         this(comChannel, properties, null, "");
@@ -48,6 +40,10 @@ public class DlmsSession implements ProtocolLink {
     public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, HHUSignOnV2 hhuSignOn, String deviceId) {
         this.comChannel = comChannel;
         this.properties = properties;
+        init(hhuSignOn, deviceId);
+    }
+
+    protected void init(HHUSignOnV2 hhuSignOn, String deviceId) {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
         this.dlmsMeterConfig = DLMSMeterConfig.getInstance(getProperties().getManufacturer());
         this.aso = buildAso();

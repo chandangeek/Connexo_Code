@@ -129,7 +129,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         protocol.getDlmsSession().getCosemObjectFactory().getSecuritySetup().transferGlobalKey(authenticationKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        protocol.getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(messageHandler.getPlainAuthenticationKey());
+        protocol.getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(messageHandler.getPlainAuthenticationKey(), ""));
     }
 
     @Override
@@ -145,10 +145,10 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         protocol.getDlmsSession().getCosemObjectFactory().getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        protocol.getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(messageHandler.getPlainEncryptionKey());
+        protocol.getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(messageHandler.getPlainEncryptionKey(), ""));
 
         //Reset frame counter, only if a different key has been written
-        if (!oldGlobalKey.equalsIgnoreCase(ProtocolTools.getHexStringFromBytes(messageHandler.getPlainEncryptionKey(), ""))) {
+        if (!oldGlobalKey.equalsIgnoreCase(ProtocolTools.getHexStringFromBytes(ProtocolTools.getBytesFromHexString(messageHandler.getPlainEncryptionKey(), ""), ""))) {
             protocol.getDlmsSession().getAso().getSecurityContext().setFrameCounter(1);
         }
     }

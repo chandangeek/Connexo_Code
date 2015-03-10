@@ -52,6 +52,19 @@ public enum DeviceSecurityProperty {
             getPossibleClientMacAddressValues(1, 0x7F))),
 
     /**
+     * Defines the phase of Cryptoserver usage.
+     * 0: No Cryptoserver usage.
+     * 1: Phase 1 communication. The keys are decrypted at runtime using the Cryptoserver. The resulting plain text keys are used for the communication session but are never stored or visible.
+     * 2: Phase 2 communication. The keys are never decrypted. Each frame in the communication is encrypted/decrypted by the Cryptoserver, using the encrypted keys.
+     * S: Phase S has the same key format as for phase 0. The s indicates the meter has service keys injected.
+     */
+    CRYPTOSERVER_PHASE(PropertySpecFactory.stringPropertySpecWithValues(
+            SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(),
+            "0", "1", "2", "S")),
+
+    SECURITY_LEVEL(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.SECURITY_LEVEL.toString())),
+
+    /**
      * A character identification of the accessing client
      */
     DEVICE_ACCESS_IDENTIFIER(PropertySpecBuilder

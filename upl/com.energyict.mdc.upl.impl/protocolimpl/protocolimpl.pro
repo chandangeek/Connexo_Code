@@ -109,7 +109,6 @@
 }
 -keepnames class com.energyict.protocolimpl.dlms.g3.G3SecurityProvider
 -keepnames class com.energyict.protocol.MessageProtocol
--keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging
 -keepnames class com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessageExecutor
@@ -119,6 +118,52 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MbusMessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler
 -keep public class com.energyict.protocolimpl.dlms.common.NTASecurityProvider {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemComDsmr50MessageExecutor {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372 {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology {
+	public *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372 {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology {
+	public *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging {
 	public *;
 	protected *;
 }

@@ -50,7 +50,7 @@ import java.util.logging.Level;
  */
 public class RtuPlusServerMessages implements DeviceMessageSupport {
 
-    private final DlmsSession session;
+    protected final DlmsSession session;
     private final OfflineDevice offlineDevice;
     private List<DeviceMessageSpec> supportedMessages = null;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
@@ -99,8 +99,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
             supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
             supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
-            supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY);
-            supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY);
+            supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
+            supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
             supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
 
             supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION);
@@ -415,7 +415,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         cof.getAssociationLN().changeHLSSecret(ProtocolTools.getBytesFromHexString(hex, ""));
     }
 
-    private void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
         String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
         String oldHexKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
@@ -436,11 +436,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         }
     }
 
-    private SecuritySetup getSecuritySetup() throws IOException {
+    protected SecuritySetup getSecuritySetup() throws IOException {
         return this.session.getCosemObjectFactory().getSecuritySetup();
     }
 
-    private void changeAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void changeAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
         String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName).getDeviceMessageAttributeValue();
 

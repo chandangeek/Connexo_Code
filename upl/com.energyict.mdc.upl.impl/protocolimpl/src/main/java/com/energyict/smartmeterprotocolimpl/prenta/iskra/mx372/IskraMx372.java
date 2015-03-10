@@ -68,6 +68,13 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private static final int MBUS = 0x01;
 
     /**
+     * Indicating if the meter has a breaker.
+     * This implies whether or not we can control the breaker and read the control logbook.
+     * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
+     */
+    private boolean hasBreaker = true;
+
+    /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *
      * @return the requested Properties
@@ -532,5 +539,16 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
             }
         }
         return null;
+    }
+
+    public boolean hasBreaker() {
+        return hasBreaker;
+    }
+
+    /**
+     * Setter is only called from the cryptoserver protocols to remove the breaker functionality
+     */
+    public void setHasBreaker(boolean hasBreaker) {
+        this.hasBreaker = hasBreaker;
     }
 }

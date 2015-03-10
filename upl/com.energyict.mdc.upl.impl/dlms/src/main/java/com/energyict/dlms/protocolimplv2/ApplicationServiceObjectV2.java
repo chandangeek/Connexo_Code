@@ -47,6 +47,10 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         super(xDlmsAse, protocolLink, securityContext, contextId, calledAPTitle, calledAEQualifier);
     }
 
+    public ApplicationServiceObjectV2(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext) {
+        super(xDlmsAse, protocolLink, securityContext);
+    }
+
     /**
      * Create an ApplicationAssociation.
      * Depending on the securityLevel encrypted challenges will be used to authenticate the client and server

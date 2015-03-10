@@ -20,6 +20,11 @@ import java.util.List;
  */
 public class IskraMx372MbusMessaging  extends GenericMessaging implements MessageProtocol {
 
+    private final boolean hasBreaker;
+
+    public IskraMx372MbusMessaging(boolean hasBreaker) {
+        this.hasBreaker = hasBreaker;
+    }
 
     /**
      * Abstract method to define your message categories *
@@ -29,10 +34,13 @@ public class IskraMx372MbusMessaging  extends GenericMessaging implements Messag
         List messageCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec(RtuMessageCategoryConstants.BASICMESSAGES_DESCRIPTION);
 
-        MessageSpec msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
-        cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
-        cat.addMessageSpec(msgSpec);
+        MessageSpec msgSpec;
+        if (hasBreaker) {
+            msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
+            cat.addMessageSpec(msgSpec);
+            msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
+            cat.addMessageSpec(msgSpec);
+        }
         msgSpec = addMessageWithValue("Set vif to mbus device", RtuMessageConstant.MBUS_SET_VIF, false);
         cat.addMessageSpec(msgSpec);
         messageCategories.add(cat);
