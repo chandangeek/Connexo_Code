@@ -1,12 +1,5 @@
 package com.elster.jupiter.tasks.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -14,6 +7,13 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 class DueTaskFetcher {
 
@@ -48,8 +48,9 @@ class DueTaskFetcher {
         Instant now = clock.instant();
         DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
         SqlBuilder builder = mapper.builder("a");
-        builder.append(" where nextExecution < ? for update skip locked");
+        builder.append(" where nextExecution < ");
         builder.addLong(now.toEpochMilli());
+        builder.append(" for update skip locked");
         try(Fetcher<RecurrentTaskImpl> fetcher = mapper.fetcher(builder)) {
         	return getRecurrentTasks(fetcher);
         }
