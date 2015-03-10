@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
+import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -11,11 +12,13 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
@@ -55,7 +58,7 @@ import java.util.stream.Stream;
                 "osgi.command.function=createRuleSet",
                 "osgi.command.function=addRule",
                 "osgi.command.function=estimate",
-                "osgi.command.function=estimateWithLambdas",
+                "osgi.command.function=estimateWithoutLambdas",
                 "osgi.command.function=removeRuleSet",
                 "osgi.command.function=removeRule",
                 "osgi.command.function=updateRule",
@@ -212,7 +215,52 @@ public class ConsoleCommands {
         return rule -> rule.getId() == ruleId;
     }
 
-    public void estimate(long meterId, String estimatorName) {
+    public void estimateWithoutLambdas(long meterId, String estimatorName) {
+        try {
+            EstimatorFactory estimatorFactory = new EstimatorFactoryImpl();
+            Estimator estimator = estimatorFactory.createTemplate(estimatorName);
+            EstimationEngine estimationEngine = new EstimationEngine();
+            Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
+            Optional<? extends MeterActivation> meterActivationOptional = meter.getCurrentMeterActivation();
+            if (!meterActivationOptional.isPresent()) {
+                System.out.println("no meter activation present or meter " + meter.getName());
+            } else {
+                MeterActivation meterActivation = meterActivationOptional.get();
+                for (Channel channel : meterActivation.getChannels()) {
+                    System.out.println("Handling channel id " + channel.getId());
+                    for (ReadingType readingType : channel.getReadingTypes()) {
+                        System.out.println("Handling reading type " + readingType.getAliasName());
+                        List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, readingType);
+                        EstimationResult result = estimator.estimate(blocks);
+                        List<EstimationBlock> estimated = result.estimated();
+                        List<EstimationBlock> remaining = result.remainingToBeEstimated();
+                        for (EstimationBlock block : estimated) {
+                            System.out.println("Start estimated block");
+                            for (Estimatable estimatable : block.estimatables()) {
+                                System.out.println("Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+                            }
+                            System.out.println("End estimated block");
+                            System.out.println("");
+                        }
+                        for (EstimationBlock block : remaining) {
+                            System.out.println("Start remaining block");
+                            for (Estimatable estimatable : block.estimatables()) {
+                                System.out.println("No estimated value for " + estimatable.getTimestamp());
+                            }
+                            System.out.println("End remaining block");
+                            System.out.println("");
+                        }
+                    }
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Estimator class '" + estimatorName + "' not found");
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*public void estimate(long meterId, String estimatorName) {
         try {
             EstimatorFactory estimatorFactory = new EstimatorFactoryImpl();
             Estimator estimator = estimatorFactory.createTemplate(estimatorName);
@@ -237,7 +285,7 @@ public class ConsoleCommands {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     public void estimate(long meterId) {
         Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
