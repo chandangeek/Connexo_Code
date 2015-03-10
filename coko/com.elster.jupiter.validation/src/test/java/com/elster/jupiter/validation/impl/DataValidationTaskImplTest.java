@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.verify;
 
@@ -67,11 +68,31 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
     @Test
     public void testPersist() {
-        DataValidationTaskImpl testPersistValidationRule = newTask();
-        testPersistValidationRule.setName("testname");
-        testPersistValidationRule.setEndDeviceGroup(endDeviceGroup);
-        testPersistValidationRule.save();
-        verify(dataModel).persist(testPersistValidationRule);
+        DataValidationTaskImpl testPersistDataValidationTask = newTask();
+        testPersistDataValidationTask.setName("testname");
+        testPersistDataValidationTask.setEndDeviceGroup(endDeviceGroup);
+        testPersistDataValidationTask.save();
+        verify(dataModel).persist(testPersistDataValidationTask);
+    }
+
+    @Test
+    public void testUpdate() {
+        DataValidationTaskImpl testUpdateDataValidationTask = newTask();
+        testUpdateDataValidationTask.setName("taskname");
+        testUpdateDataValidationTask.setEndDeviceGroup(endDeviceGroup);
+        field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
+        testUpdateDataValidationTask.save();
+        verify(dataModel).update(testUpdateDataValidationTask);
+    }
+
+    @Test
+    public void testDeleteWithProperties() {
+        ValidationRuleImpl rule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
+        rule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
+        field("id").ofType(Long.TYPE).in(rule).set(ID);
+        rule.save();
+        rule.delete();
+        assertThat(rule.getObsoleteDate()).isNotNull();
     }
 
 }

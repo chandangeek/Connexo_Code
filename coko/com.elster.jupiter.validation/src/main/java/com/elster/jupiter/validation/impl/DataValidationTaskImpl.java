@@ -72,7 +72,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @Override
     public void save() {
-        if (id == 0) {
+        if (getId() == 0) {
             dataModel.persist(this);
         } else {
             dataModel.update(this);
@@ -110,6 +110,14 @@ public final class DataValidationTaskImpl implements DataValidationTask {
             return false;
         }
 
-        return id == ((DataValidationTaskImpl) o).id;
+        return getId() == ((DataValidationTaskImpl) o).getId();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

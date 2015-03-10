@@ -26,4 +26,8 @@ public interface DataValidationTask {
 
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
+    public long getId();
+
+    public void setId(long id);
+
 }
