@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -104,6 +106,14 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     @Override
     public Optional<DeviceMessageSpec> findMessageSpecById(long messageSpecIdDbValue) {
         return this.allMessageSpecs().stream().filter(messageSpec -> messageSpecIdDbValue == messageSpec.getId().dbValue()).findFirst();
+    }
+
+    @Override
+    public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId) {
+        return Stream.of(FirmwareDeviceMessage.values())
+                .filter(firmwareDeviceMessage -> firmwareDeviceMessage.getId().equals(deviceMessageId))
+                .map(FirmwareDeviceMessage::getProtocolSupportedFirmwareOption)
+                .findAny().orElse(Optional.empty());
     }
 
     private List<DeviceMessageSpec> allMessageSpecs() {

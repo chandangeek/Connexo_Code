@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
+import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.List;
@@ -50,5 +51,7 @@ public interface DeviceMessageSpecificationService {
      * @see DeviceMessageId#dbValue()
      */
     public Optional<DeviceMessageSpec> findMessageSpecById(long messageSpecIdDbValue);
+
+    public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId);
 
 }
