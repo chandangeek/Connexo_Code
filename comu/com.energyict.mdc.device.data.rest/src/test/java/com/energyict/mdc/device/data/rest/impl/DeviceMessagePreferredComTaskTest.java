@@ -48,8 +48,8 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
 
     private Device device;
     private DeviceConfiguration deviceConfiguration;
-    private int categoryId = 1011;
-    private int WRONG_CATEGORY = categoryId+1;
+    private DeviceMessageCategory wrongCategory = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR, thesaurus, propertySpecService);
+    private DeviceMessageCategory deviceMessageCategory = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS, thesaurus, propertySpecService);
 
     @Override
     @Before
@@ -59,8 +59,8 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
-        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
-        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", categoryId, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService)).collect(Collectors.toList()));
+        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(10), null, deviceMessageCategory);
         when(device.getMessages()).thenReturn(Arrays.asList(command1));
         EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_CLOSE,DeviceMessageId.CONTACTOR_ARM);
 
@@ -93,24 +93,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", categoryId, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", categoryId, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", deviceMessageCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", categoryId, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", categoryId, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", categoryId, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", categoryId, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", categoryId, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -130,24 +130,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", categoryId, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", deviceMessageCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", categoryId, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", categoryId, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", categoryId, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", categoryId, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", categoryId, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -167,24 +167,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", categoryId, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", categoryId, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", categoryId, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", categoryId, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", categoryId, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -204,24 +204,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", categoryId, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", categoryId, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", categoryId, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", categoryId, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -241,24 +241,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", categoryId, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", categoryId, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", categoryId, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -278,24 +278,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", categoryId, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", categoryId, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -315,24 +315,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", categoryId, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -352,24 +352,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -388,24 +388,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", categoryId, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -422,24 +422,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", categoryId, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", deviceMessageCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -458,24 +458,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", categoryId, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -492,24 +492,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", categoryId, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -526,24 +526,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", categoryId, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -560,24 +560,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", categoryId, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -594,24 +594,24 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         List<ComTaskEnablement> allEnablements = new ArrayList<>();
         List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
 
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
 
-        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", WRONG_CATEGORY, allEnablements);
+        ComTask comTask2 = mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
-        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", WRONG_CATEGORY, allEnablements);
+        ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
 
-        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask4 = mockComTaskWithProtocolTaskForCategory(4L, "Manually scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask4, OnHold, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", WRONG_CATEGORY, allEnablements);
+        ComTask comTask5 = mockComTaskWithProtocolTaskForCategory(5L, "Manually scheduled running", wrongCategory, allEnablements);
         mockComTaskExecution(comTask5, Planned, ManuallyScheduled, allComTaskExecutions);
 
-        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", WRONG_CATEGORY, allEnablements);
+        ComTask comTask6 = mockComTaskWithProtocolTaskForCategory(6L, "Scheduled on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask6, OnHold, SharedScheduled, allComTaskExecutions);
 
-        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", categoryId, allEnablements);
+        ComTask comTask7 = mockComTaskWithProtocolTaskForCategory(7L, "Scheduled running", deviceMessageCategory, allEnablements);
         mockComTaskExecution(comTask7, Planned, SharedScheduled, allComTaskExecutions);
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
@@ -633,7 +633,7 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         return mock;
     }
 
-    private DeviceMessage<Device> mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Integer categoryId, String categoryName, Instant creationDate, Instant releaseDate, Instant sentDate) {
+    private DeviceMessage<Device> mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Instant creationDate, Instant releaseDate, Instant sentDate, DeviceMessageCategory deviceMessageCategory) {
         DeviceMessage mock = mock(DeviceMessage.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getSentDate()).thenReturn(Optional.ofNullable(sentDate));
@@ -644,10 +644,7 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         when(mock.getTrackingId()).thenReturn(trackingId);
         when(mock.getUser()).thenReturn(userName);
         DeviceMessageSpec specification = mock(DeviceMessageSpec.class);
-        DeviceMessageCategory category = mock(DeviceMessageCategory.class);
-        when(category.getName()).thenReturn(categoryName);
-        when(category.getId()).thenReturn(categoryId);
-        when(specification.getCategory()).thenReturn(category);
+        when(specification.getCategory()).thenReturn(deviceMessageCategory);
         when(specification.getId()).thenReturn(deviceMessageId);
         when(specification.getName()).thenReturn(messageSpecName);
         when(mock.getSpecification()).thenReturn(specification);
@@ -661,14 +658,12 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         return mock;
     }
 
-    private ComTask mockComTaskWithProtocolTaskForCategory(long id, String name, Integer categoryId, List<ComTaskEnablement> allEnablements) {
+    private ComTask mockComTaskWithProtocolTaskForCategory(long id, String name, DeviceMessageCategory deviceMessageCategory, List<ComTaskEnablement> allEnablements) {
         ProtocolTask task2 = mock(ProtocolTask.class); // non matching task
-        DeviceMessageCategory category1 = mock(DeviceMessageCategory.class);
-        when(category1.getId()).thenReturn(categoryId);
         DeviceMessageCategory category2 = mock(DeviceMessageCategory.class);
         when(category2.getId()).thenReturn(-1); // non matching id
         MessagesTask task1 = mock(MessagesTask.class);
-        when(task1.getDeviceMessageCategories()).thenReturn(Arrays.asList(category1, category2));
+        when(task1.getDeviceMessageCategories()).thenReturn(Arrays.asList(deviceMessageCategory, category2));
         ComTask comTask = mock(ComTask.class);
         when(task1.getComTask()).thenReturn(comTask);
         when(task2.getComTask()).thenReturn(comTask);
@@ -677,36 +672,6 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         when(comTask.getId()).thenReturn(id);
         allEnablements.add(mockComTaskEnablement(comTask));
         return comTask;
-    }
-
-    private class DeviceMessageCategoryImpl implements DeviceMessageCategory {
-        private final DeviceMessageCategories category;
-
-        private DeviceMessageCategoryImpl(DeviceMessageCategories category) {
-            super();
-            this.category = category;
-        }
-
-        @Override
-        public String getName() {
-            return thesaurus.getString(this.category.getNameResourceKey(), this.category.defaultTranslation());
-        }
-
-        @Override
-        public String getDescription() {
-            return thesaurus.getString(this.category.getDescriptionResourceKey(), this.category.getDescriptionResourceKey());
-        }
-
-        @Override
-        public int getId() {
-            return this.category.ordinal();
-        }
-
-        @Override
-        public List<DeviceMessageSpec> getMessageSpecifications() {
-            return this.category.getMessageSpecifications(this, propertySpecService, thesaurus);
-        }
-
     }
 
     enum Progress {
