@@ -2,7 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -11,7 +10,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
-
+import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -25,8 +24,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Path("/registertypes")
 public class RegisterTypeResource {
@@ -35,16 +34,14 @@ public class RegisterTypeResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final MeteringService meteringService;
     private final ResourceHelper resourceHelper;
-    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public RegisterTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ResourceHelper resourceHelper, ExceptionFactory exceptionFactory) {
+    public RegisterTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ResourceHelper resourceHelper) {
         super();
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
         this.resourceHelper = resourceHelper;
-        this.exceptionFactory = exceptionFactory;
     }
 
     /**
@@ -55,11 +52,11 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public PagedInfoList getRegisterTypes(@BeanParam QueryParameters queryParameters) {
-        List<RegisterType> registerTypes = this.masterDataService.findAllRegisterTypes().from(queryParameters).find();
-        List<RegisterTypeInfo> registerTypeInfos = new ArrayList<>();
-        for (RegisterType registerType : registerTypes) {
-            registerTypeInfos.add(new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false));
-        }
+        List<RegisterTypeInfo> registerTypeInfos = this.masterDataService.
+                findAllRegisterTypes().
+                from(queryParameters).stream().
+                map(registerType->new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false)).
+                collect(toList());
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 
