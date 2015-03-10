@@ -16,13 +16,14 @@ import java.util.Map;
 public class EstimatorFactoryImpl implements EstimatorFactory {
 
     public static final String ZERO_FILL = "Zero fill";
+    public static final String CUMULATIVE_VALUES_INTERPOLATION = "Cumulative values interpolation";
     private volatile EstimationService estimationService;
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
 
     @Override
     public List<String> available() {
-        return Arrays.asList(ZERO_FILL);
+        return Arrays.asList(ZERO_FILL, CUMULATIVE_VALUES_INTERPOLATION);
     }
 
     @Override
@@ -37,6 +38,8 @@ public class EstimatorFactoryImpl implements EstimatorFactory {
     public Estimator createTemplate(String implementation) {
         if (implementation.equals(ZERO_FILL)) {
             return new ZeroFillEstimator(thesaurus, propertySpecService);
+        } else if (implementation.equals(CUMULATIVE_VALUES_INTERPOLATION)) {
+            return new CumulativeValuesInterpolator(thesaurus, propertySpecService);
         }
         throw new IllegalArgumentException();
     }

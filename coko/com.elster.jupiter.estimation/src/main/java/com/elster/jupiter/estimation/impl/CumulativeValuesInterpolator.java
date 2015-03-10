@@ -73,22 +73,26 @@ public class CumulativeValuesInterpolator extends AbstractEstimator {
         if ((recordBefore == null) || (recordAfter == null)) {
             remain.add(block);
         } else {
-            estimate(block, recordBefore, recordAfter);
-            estimated.add(block);
+            Quantity qtyBefore = recordBefore.getQuantity(block.getReadingType());
+            Quantity qtyAfter = recordAfter.getQuantity(block.getReadingType());
+            if ((qtyBefore == null) || (qtyAfter == null)) {
+                remain.add(block);
+            } else {
+                estimate(block, qtyBefore, qtyAfter);
+                estimated.add(block);
+            }
         }
     }
 
-    private void estimate(EstimationBlock block, BaseReadingRecord recordBefore, BaseReadingRecord recordAfter) {
-        ReadingType readingType = block.getReadingType();
+    private void estimate(EstimationBlock block, Quantity qtyBefore, Quantity qtyAfter) {
         List<? extends Estimatable> estimatables = block.estimatables();
         int numberOfIntervals = estimatables.size();
-        Quantity qtyBefore = recordBefore.getQuantity(readingType);
-        Quantity qtyAfter = recordAfter.getQuantity(readingType);
         BigDecimal consumption = qtyAfter.getValue().subtract(qtyBefore.getValue());
-        BigDecimal step = consumption.divide(new BigDecimal(numberOfIntervals + 1));
-        BigDecimal currentValue = recordBefore.getValue();
+        BigDecimal step = consumption.divide(new BigDecimal(numberOfIntervals + 1), BigDecimal.ROUND_HALF_UP);
+        BigDecimal currentValue = qtyBefore.getValue();
         for (Estimatable estimatable : estimatables) {
-            estimatable.setEstimation(currentValue.add(step));
+            currentValue = currentValue.add(step);
+            estimatable.setEstimation(currentValue);
         }
     }
 
