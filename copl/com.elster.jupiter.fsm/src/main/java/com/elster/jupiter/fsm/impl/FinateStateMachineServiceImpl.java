@@ -156,6 +156,10 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
         this.createStandardEventType(predicate);
     }
 
+    public void removeStandardEventPredicate(StandardEventPredicate predicate) {
+        this.standardEventPredicates.remove(predicate);
+    }
+
     private void createStandardEventType(StandardEventPredicate predicate) {
         try (TransactionContext context = this.transactionService.getContext()) {
             this.createStandardEventType(predicate, this.eventService.getEventTypes());
