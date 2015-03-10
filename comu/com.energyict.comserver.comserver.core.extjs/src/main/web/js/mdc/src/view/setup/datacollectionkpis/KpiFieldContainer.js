@@ -75,17 +75,19 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
 
         me.setValue = function (value) {
             var radiogroup = me.down('radiogroup'),
-                numberField = me.down('numberfield');
+                numberField = me.down('numberfield'),
+                radioGroupValue = {};
 
-            if (Ext.isEmpty(value)) {
-                radiogroup.setValue(false);
-            } else {
-                radiogroup.setValue(true);
+            if (!Ext.isEmpty(value)) {
+                radioGroupValue[me.groupName] = true;
                 numberField.setValue(value);
+            } else {
+                radioGroupValue[me.groupName] = false;
             }
+
+            radiogroup.setValue(radioGroupValue);
         };
 
         me.callParent(arguments);
     }
-
 });
