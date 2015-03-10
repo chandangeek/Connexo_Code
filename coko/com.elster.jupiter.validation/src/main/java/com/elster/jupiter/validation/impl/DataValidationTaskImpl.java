@@ -117,7 +117,5 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+
 }

@@ -28,6 +28,4 @@ public interface DataValidationTask {
 
     public long getId();
 
-    public void setId(long id);
-
 }
