@@ -31,17 +31,17 @@ import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides an implementation for the {@link MasterDataService} interface.
@@ -123,7 +123,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public Finder<ChannelType> findAllChannelTypes() {
-        return DefaultFinder.of(ChannelType.class, this.getDataModel());
+        return DefaultFinder.of(ChannelType.class, this.getDataModel()); // TODO SORT
     }
 
     @Override
@@ -133,7 +133,9 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public Finder<RegisterType> findAllRegisterTypes() {
-        return DefaultFinder.of(RegisterType.class, this.getDataModel());
+        List<RegisterType> registerTypes = this.getDataModel().mapper(RegisterType.class).find(); // Must use in memory sorting because DB is already fixed structure: no change allowed
+        Collections.sort(registerTypes, (a,b)->a.getReadingType().getFullAliasName().toLowerCase().compareTo(b.getReadingType().getFullAliasName().toLowerCase()));
+        return com.energyict.mdc.common.services.ListPager.of(registerTypes);
     }
 
     @Override
@@ -298,7 +300,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
                     .mapper(ChannelType.class)
                     .getUnique(
                             MeasurementTypeImpl.Fields.TEMPLATE_REGISTER_ID.fieldName(), templateRegisterType.getId(),
-                            MeasurementTypeImpl.Fields.INTERVAl.fieldName(), interval);
+                            MeasurementTypeImpl.Fields.INTERVAL.fieldName(), interval);
     }
 
     @Override

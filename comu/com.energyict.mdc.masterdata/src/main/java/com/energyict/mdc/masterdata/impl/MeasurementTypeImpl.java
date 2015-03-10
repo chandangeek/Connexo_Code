@@ -1,11 +1,5 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -16,16 +10,18 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.google.common.collect.ImmutableMap;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -48,7 +44,7 @@ public abstract class MeasurementTypeImpl extends PersistentIdObject<Measurement
     enum Fields {
         READING_TYPE("readingType"),
         OBIS_CODE("obisCode"),
-        INTERVAl("interval"),
+        INTERVAL("interval"),
         TEMPLATE_REGISTER_ID("templateRegisterId");
         private final String javaFieldName;
 
