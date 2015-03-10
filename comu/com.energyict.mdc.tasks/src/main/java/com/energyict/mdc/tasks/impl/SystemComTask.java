@@ -7,7 +7,7 @@ import com.energyict.mdc.tasks.FirmwareUpgradeTask;
  * Adds behavior to ComTask that is private
  * to the server side implementation.
  * */
-public interface ServerComTask extends ComTask{
+public interface SystemComTask extends ComTask{
 
     /**
      * Create a FirmwareUpgradeTask

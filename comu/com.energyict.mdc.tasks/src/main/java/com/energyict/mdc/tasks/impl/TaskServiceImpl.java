@@ -7,7 +7,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -132,9 +131,10 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
     }
 
     private void createFirmwareComTask() {
-        ServerComTask serverComTask = (ServerComTask) this.newComTask(FIRMWARE_COMTASK_NAME);
-        serverComTask.createFirmwareUpgradeTask();
-        serverComTask.save();
+        SystemComTask systemComTask = dataModel.getInstance(SystemComTask.class);
+        systemComTask.setName(FIRMWARE_COMTASK_NAME);
+        systemComTask.createFirmwareUpgradeTask();
+        systemComTask.save();
     }
 
     Module getModule() {
@@ -148,7 +148,8 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
                 bind(EventService.class).toInstance(eventService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(TaskService.class).toInstance(TaskServiceImpl.this);
-                bind(ComTask.class).to(ComTaskImpl.class);
+                bind(ComTask.class).to(ComTaskDefinedByUserImpl.class);
+                bind(SystemComTask.class).to(ComTaskDefinedBySystemImpl.class);
                 bind(BasicCheckTask.class).to(BasicCheckTaskImpl.class);
                 bind(ClockTask.class).to(ClockTaskImpl.class);
                 bind(StatusInformationTask.class).to(StatusInformationTaskImpl.class);
@@ -186,12 +187,12 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
 
     @Override
     public List<ComTask> findAllUserComTasks() {
-        return findAllComTasks().stream().filter(ComTask::isUserComTask).collect(Collectors.toList());
+        return dataModel.mapper(ComTaskDefinedByUserImpl.class).find().stream().map(userComTask -> (ComTask) userComTask).collect(Collectors.toList());
     }
 
     @Override
     public List<ComTask> findAllSystemComTasks() {
-        return findAllComTasks().stream().filter(ComTask::isSystemComTask).collect(Collectors.toList());
+        return dataModel.mapper(ComTaskDefinedBySystemImpl.class).find().stream().map(comTaskDefinedBySystem -> (ComTask)comTaskDefinedBySystem).collect(Collectors.toList());
     }
 
     @Override

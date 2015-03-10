@@ -22,7 +22,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for the {@link com.energyict.mdc.tasks.impl.ComTaskImpl} component.
+ * Tests for the {@link ComTaskImpl} component.
  *
  * @author gna
  * @since 7/05/12 - 11:46
@@ -239,8 +239,9 @@ public class ComTaskImplTest extends PersistenceTest {
     public void createMultipleComTasksForFirmwareTest() {
         // the system will create one by default, so creating a second one should fail
 
-        ServerComTask myFirmwareComTask = ((ServerComTask) getTaskService().newComTask("MyFirmwareComTask"));
-        FirmwareUpgradeTask firmwareUpgradeTask = myFirmwareComTask.createFirmwareUpgradeTask();
+        SystemComTask myFirmwareComTask = getDataModel().getInstance(SystemComTask.class);
+        myFirmwareComTask.setName("MyFirmwareComTask");
+        myFirmwareComTask.createFirmwareUpgradeTask();
         myFirmwareComTask.save();
     }
 
@@ -250,7 +251,8 @@ public class ComTaskImplTest extends PersistenceTest {
         ComTask comTask = getTaskService().findFirmwareComTask().get();
         comTask.delete();
 
-        ServerComTask newFirmwareTask = ((ServerComTask) getTaskService().newComTask(ServerTaskService.FIRMWARE_COMTASK_NAME));
+        SystemComTask newFirmwareTask = getDataModel().getInstance(SystemComTask.class);
+        newFirmwareTask.setName(ServerTaskService.FIRMWARE_COMTASK_NAME);
         newFirmwareTask.createFirmwareUpgradeTask();
         newFirmwareTask.save();
 
@@ -262,23 +264,13 @@ public class ComTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
-    public void updateComTaskToBecomeFirmwareTest() {
-        ComTask comTask = createSimpleComTaskWithStatusInformation();
-        ProtocolTask protocolTask = comTask.getProtocolTasks().get(0);
-        comTask.removeTask(protocolTask);
-        ((ServerComTask) comTask).createFirmwareUpgradeTask();
-        comTask.save();
-    }
-
-    @Test
-    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.ONLY_ONE_PROTOCOLTASK_WHEN_FIRMWARE_UPGRADE + "}")
     public void createFirmwareUpgradeTaskWithMultipleProtocolTasksTest() {
         ComTask comTask = getTaskService().findFirmwareComTask().get();
         comTask.delete();
 
-        ServerComTask newFirmwareTask = ((ServerComTask) getTaskService().newComTask(ServerTaskService.FIRMWARE_COMTASK_NAME));
+        SystemComTask newFirmwareTask = getDataModel().getInstance(SystemComTask.class);
+        newFirmwareTask.setName(ServerTaskService.FIRMWARE_COMTASK_NAME);
         newFirmwareTask.createFirmwareUpgradeTask();
         newFirmwareTask.createTopologyTask(TopologyAction.UPDATE);
         newFirmwareTask.save();

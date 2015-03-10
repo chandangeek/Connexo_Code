@@ -20,9 +20,10 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ComTask> table = dataModel.addTable(name(), ComTask.class);
-            table.map(ComTaskImpl.class);
+            table.map(ComTaskImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.addAuditColumns();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("NAME").varChar().map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();

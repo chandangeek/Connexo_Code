@@ -16,7 +16,6 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -24,6 +23,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -37,30 +37,36 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
- * An implementation for a {@link com.energyict.mdc.tasks.ComTask}.
+ * An implementation for a User defined ComTask
  *
  * @author gna
  * @since 2/05/12 - 16:10
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_NAME + "}")
-@UniqueComTaskForFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
-@OnlyOneProtocolTaskIfFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
-public class ComTaskImpl implements ServerComTask {
+public abstract class ComTaskImpl implements ComTask {
 
-    private final DataModel dataModel;
-    private final Thesaurus thesaurus;
-    private final EventService eventService;
-    private final Provider<BasicCheckTaskImpl> basicCheckTaskProvider;
-    private final Provider<ClockTaskImpl> clockTaskProvider;
-    private final Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider;
-    private final Provider<LogBooksTaskImpl> logBooksTaskProvider;
-    private final Provider<MessagesTaskImpl> messagesTaskProvider;
-    private final Provider<RegistersTaskImpl> registersTaskProvider;
-    private final Provider<StatusInformationTaskImpl> statusInformationTaskProvider;
-    private final Provider<TopologyTaskImpl> topologyTaskProvider;
-    private final Provider<FirmwareUpgradeTaskImpl> firmwareUpgradeTaskProvider;
+    protected static final String USER_DEFINED_COMTASK = "1";
+    protected static final String SYSTEM_DEFINED_COMTASK = "2";
+
+    protected final DataModel dataModel;
+    protected final Thesaurus thesaurus;
+    protected final EventService eventService;
+    protected final Provider<BasicCheckTaskImpl> basicCheckTaskProvider;
+    protected final Provider<ClockTaskImpl> clockTaskProvider;
+    protected final Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider;
+    protected final Provider<LogBooksTaskImpl> logBooksTaskProvider;
+    protected final Provider<MessagesTaskImpl> messagesTaskProvider;
+    protected final Provider<RegistersTaskImpl> registersTaskProvider;
+    protected final Provider<StatusInformationTaskImpl> statusInformationTaskProvider;
+    protected final Provider<TopologyTaskImpl> topologyTaskProvider;
+
+    static final Map<String, Class<? extends ComTask>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends ComTask>>of(
+                    USER_DEFINED_COMTASK, ComTaskDefinedByUserImpl.class,
+                    SYSTEM_DEFINED_COMTASK, ComTaskDefinedBySystemImpl.class);
 
     enum Fields {
         NAME("name"),
@@ -78,6 +84,12 @@ public class ComTaskImpl implements ServerComTask {
         }
     }
 
+    /**
+     * Holds a list of all {@link com.energyict.mdc.tasks.ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
+     */
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK + "}")
+    @Valid
+    private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
@@ -89,42 +101,24 @@ public class ComTaskImpl implements ServerComTask {
     private Instant modTime;
 
     /**
-     * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
-     */
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK + "}")
-    @Valid
-    private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
-
-    /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
      */
     @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.VALUE_TOO_SMALL + "}")
     private int maxNrOfTries = 3;
 
     @Inject
-    public ComTaskImpl(DataModel dataModel, Thesaurus thesaurus,
-                       EventService eventService,
-                       Provider<BasicCheckTaskImpl> basicCheckTaskProvider,
-                       Provider<ClockTaskImpl> clockTaskProvider,
-                       Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider,
-                       Provider<LogBooksTaskImpl> logBooksTaskProvider,
-                       Provider<MessagesTaskImpl> messagesTaskProvider,
-                       Provider<RegistersTaskImpl> registersTaskProvider,
-                       Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
-                       Provider<TopologyTaskImpl> topologyTaskProvider,
-                       Provider<FirmwareUpgradeTaskImpl> firmwareUpgradeTaskProvider) {
-        this.dataModel = dataModel;
-        this.thesaurus = thesaurus;
-        this.eventService = eventService;
-        this.basicCheckTaskProvider = basicCheckTaskProvider;
-        this.clockTaskProvider = clockTaskProvider;
-        this.loadProfilesTaskProvider = loadProfilesTaskProvider;
+    public ComTaskImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider, DataModel dataModel, Provider<StatusInformationTaskImpl> statusInformationTaskProvider, Provider<MessagesTaskImpl> messagesTaskProvider, Provider<BasicCheckTaskImpl> basicCheckTaskProvider, Provider<RegistersTaskImpl> registersTaskProvider, EventService eventService, Provider<ClockTaskImpl> clockTaskProvider, Provider<TopologyTaskImpl> topologyTaskProvider, Thesaurus thesaurus, Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider) {
         this.logBooksTaskProvider = logBooksTaskProvider;
-        this.messagesTaskProvider = messagesTaskProvider;
-        this.registersTaskProvider = registersTaskProvider;
+        this.dataModel = dataModel;
         this.statusInformationTaskProvider = statusInformationTaskProvider;
+        this.messagesTaskProvider = messagesTaskProvider;
+        this.basicCheckTaskProvider = basicCheckTaskProvider;
+        this.registersTaskProvider = registersTaskProvider;
+        this.eventService = eventService;
+        this.clockTaskProvider = clockTaskProvider;
         this.topologyTaskProvider = topologyTaskProvider;
-        this.firmwareUpgradeTaskProvider = firmwareUpgradeTaskProvider;
+        this.thesaurus = thesaurus;
+        this.loadProfilesTaskProvider = loadProfilesTaskProvider;
     }
 
     @Override
@@ -156,7 +150,7 @@ public class ComTaskImpl implements ServerComTask {
         return Collections.unmodifiableList(this.protocolTasks);
     }
 
-    private void addProtocolTask(ProtocolTaskImpl protocolTask) {
+    protected void addProtocolTask(ProtocolTaskImpl protocolTask) {
         verifyUniqueProtocolTaskType(protocolTask.getClass());
         Save.CREATE.validate(dataModel, protocolTask); // explicit call for validation
         ComTaskImpl.this.protocolTasks.add(protocolTask);
@@ -225,14 +219,6 @@ public class ComTaskImpl implements ServerComTask {
     }
 
     @Override
-    public FirmwareUpgradeTask createFirmwareUpgradeTask() {
-        FirmwareUpgradeTaskImpl firmwareUpgradeTask = firmwareUpgradeTaskProvider.get();
-        firmwareUpgradeTask.ownedBy(this);
-        addProtocolTask(firmwareUpgradeTask);
-        return firmwareUpgradeTask;
-    }
-
-    @Override
     public void removeTask(ProtocolTask protocolTaskToDelete) {
         Iterator<ProtocolTaskImpl> iterator = this.protocolTasks.iterator();
         while (iterator.hasNext()) {
@@ -244,28 +230,8 @@ public class ComTaskImpl implements ServerComTask {
     }
 
     @Override
-    public boolean isUserComTask() {
-        return !isSystemComTask();
-    }
-
-    @Override
-    public boolean isSystemComTask() {
-        // currently only the FirmwareComTask is a System defined comtask
-        return containsFirmwareProtocolTask();
-    }
-
-    private boolean containsFirmwareProtocolTask() {
-        return this.getProtocolTasks().stream().filter(protocolTask -> ((ServerProtocolTask) protocolTask).isFirmwareUpgradeTask()).count() != 0;
-    }
-
-    @Override
     public int getMaxNumberOfTries() {
         return this.maxNrOfTries;
-    }
-
-    @Override
-    public String getType() {
-        return ComTask.class.getName();
     }
 
     private void verifyUniqueProtocolTaskType(Class<? extends ProtocolTask> taskClass) {
