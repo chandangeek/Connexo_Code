@@ -236,22 +236,29 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             returnLink = router.getRoute('administration/loadprofiletypes').buildUrl(),
             currentRoute = router.currentRoute.replace('/addregistertypes', ''),
             addRegisterTypesLink = router.getRoute(currentRoute + '/addregistertypes').buildUrl(),
-            registerTypesStore = me.getStore('Mdc.store.RegisterTypesToAdd'),
-            intervalsStore = me.getStore('Mdc.store.Intervals'), widget, form;
+            intervalsStore = me.getStore('Mdc.store.Intervals'),
+            editPage = me.getEditPage(),
+            widget,
+            form;
 
-        if (me.getEditPage()) {
-            if (id) {
+        if (editPage) {
+            if (!id) {
+                Ext.suspendLayouts();
+                editPage.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
+                editPage.getLayout().setActiveItem(0);
+                Ext.resumeLayouts(true);
+                return;
+            } else if (id == editPage.down('#load-profile-type-edit-form').getRecord().getId()) {
                 me.getModel('Mdc.model.LoadProfileType').load(id, {
                     success: function (record) {
-                        me.getEditPage().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
-                        me.getEditPage().getLayout().setActiveItem(0);
+                        Ext.suspendLayouts();
+                        editPage.setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                        editPage.getLayout().setActiveItem(0);
+                        Ext.resumeLayouts(true);
                     }
                 });
-            } else {
-                me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
-                me.getEditPage().getLayout().setActiveItem(0);
+                return;
             }
-            return;
         }
 
         widget = Ext.widget('load-profile-type-edit', {
