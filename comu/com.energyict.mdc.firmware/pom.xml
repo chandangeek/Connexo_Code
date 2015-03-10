@@ -55,6 +55,19 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>transaction</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+        </dependency>
+
         <!-- Testing -->
         <!--<dependency>-->
             <!--<groupId>com.google.inject</groupId>-->
