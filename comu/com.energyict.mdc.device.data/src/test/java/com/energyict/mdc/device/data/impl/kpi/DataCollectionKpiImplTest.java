@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -43,6 +44,7 @@ import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
@@ -242,16 +244,14 @@ public class DataCollectionKpiImplTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.EMPTY_DATA_COLLECTION_KPI + "}")
     public void testCreateEmptyKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
 
         // Business method
-        DataCollectionKpi save = builder.displayPeriod(TimeDuration.days(1)).save();
+        builder.displayPeriod(TimeDuration.days(1)).save();
 
-        // Asserts: no exception
-        assertThat(save.calculatesComTaskExecutionKpi()).isFalse();
-        assertThat(save.calculatesConnectionSetupKpi()).isFalse();
-        assertThat(save.getDisplayRange()).isEqualTo(TimeDuration.days(1));
+        // Asserts: see expected ConstraintViolationsRule
     }
 
     @Test

@@ -48,6 +48,7 @@ import javax.validation.constraints.NotNull;
  * @since 2014-10-06 (10:25)
  */
 @MustHaveUniqueEndDeviceGroup(message=MessageSeeds.Keys.DEVICE_GROUP_MUST_BE_UNIQUE, groups={Save.Create.class, Save.Update.class})
+@MustHaveEitherConnectionSetupOrComTaskExecution(groups = {Save.Update.class})
 public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAware {
 
     public enum Fields {
@@ -155,7 +156,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         if (this.communicationKpi.isPresent()) {
             this.communicationKpi.get().getMembers().forEach(member -> member.updateTarget(staticTarget));
         } else {
-            KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
+            KpiBuilder kpiBuilder = newKpi(this.connectionKpi.get().getIntervalLength(), staticTarget);
             this.communicationKpiBuilder(kpiBuilder);
             this.save();
         }
@@ -189,6 +190,12 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         this.displayRange = new TimeDuration(displayPeriod.getCount(), displayPeriod.getTimeUnit());
         this.save();
     }
+
+    public void setDisplayRange(TimeDuration displayPeriod) {
+        this.displayRange = new TimeDuration(displayPeriod.getCount(), displayPeriod.getTimeUnit());
+    }
+
+
 
     @Override
     public TimeDuration getDisplayRange() {
