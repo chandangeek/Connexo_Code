@@ -66,22 +66,37 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                 {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCreationDate', 'MDC', 'Creation date'),
                     name: 'creationDate',
-                    renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                    renderer: function (val) {
+                        var res = "";
+                        if (val) {
+                            var date = new Date(val);
+                            res =  Ext.Date.format(date, 'd/m/Y H:i')
+                        }
+                        return res;
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.releaseDate', 'MDC', 'Release date'),
                     name: 'releaseDate',
-                    renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                    renderer: function (val) {
+                        var res = "";
+                        if (val) {
+                            var date = new Date(val);
+                            res =  Ext.Date.format(date, 'd/m/Y H:i')
+                        }
+                        return res;
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('deviceCommands.view.sentDate', 'MDC', 'Sent date'),
                     name: 'sentDate',
-                    renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                    renderer: function (val) {
+                        var res = "";
+                        if (val) {
+                            var date = new Date(val);
+                            res =  Ext.Date.format(date, 'd/m/Y H:i')
+                        }
+                        return res;
                     }
                 }
             ]

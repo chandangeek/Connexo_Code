@@ -43,16 +43,26 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 text: Uni.I18n.translate('deviceCommands.view.releaseDate', 'MDC', 'Release date'),
                 dataIndex: 'releaseDate',
                 flex: 2,
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
+                renderer: function (val) {
+                    var res = "";
+                    if (val) {
+                        var date = new Date(val);
+                        res =  Ext.Date.format(date, 'd/m/Y H:i')
+                    }
+                    return res;
                 }
             },
             {
                 text: Uni.I18n.translate('deviceCommands.view.sentDate', 'MDC', 'Sent date'),
                 dataIndex: 'sentDate',
                 flex: 2,
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
+                renderer: function (val) {
+                    var res = "";
+                    if (val) {
+                        var date = new Date(val);
+                        res =  Ext.Date.format(date, 'd/m/Y H:i')
+                    }
+                    return res;
                 }
             },
             {
