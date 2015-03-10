@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -19,14 +20,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.*;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -475,5 +469,26 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 			.collect(Collectors.toList());				
 	}
 
+    @Override
+    public DataValidationTask createValidationTask(String name,EndDeviceGroup endDeviceGroup) {
+        return DataValidationTaskImpl.from(dataModel,name, endDeviceGroup);
+
+    }
+
+    @Override
+    public Query<DataValidationTask> findValidationTasksQuery(){
+        Query<DataValidationTask> ruleSetQuery = queryService.wrap(dataModel.query(DataValidationTask.class));
+        return ruleSetQuery;
+    }
+
+    @Override
+    public List<DataValidationTask> findValidationTasks() {
+        return findValidationTasksQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
+    }
+
+    @Override
+    public Optional<DataValidationTask> findValidationTask(Long id) {
+        return dataModel.mapper(DataValidationTask.class).getOptional(id);
+    }
     
 }

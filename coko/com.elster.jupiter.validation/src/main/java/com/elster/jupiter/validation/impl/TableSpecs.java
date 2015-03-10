@@ -1,14 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.validation.ReadingTypeInValidationRule;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.orm.*;
+import com.elster.jupiter.validation.*;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
@@ -123,7 +117,40 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition().on(ruleIdColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE").references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
         }
+    },
+    VAL_DATAVALIDATIONTASK{
+        @Override
+        void addTo(DataModel dataModel){
+            Table<DataValidationTask> table = dataModel.addTable(name(),DataValidationTask.class);
+            table.map(DataValidationTaskImpl.class);
+            table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map("endDeviceGroup").add();
+
+            //reccurent task column;
+
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.addModTimeColumn("MODTIME", "modTime");
+            table.addUserNameColumn("USERNAME", "userName");
+
+//            table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP").on(endDeviceGroupId).references(MeteringService.COMPONENTNAME, "MTG_ED_GROUP").map("endDeviceGroup").add();
+            table.primaryKey("VAL_PK_DATAVALIDATIONTASK").on(idColumn).add();
+        }
+//    },
+//    VAL_OCCURENCE{
+//        @Override
+//        void addTo(DataModel dataModel){
+//            Table<DataValidationOccurence> table = dataModel.addTable(name(),DataValidationOccurence.class);
+//            table.map(DataValidationOccurenceImpl.class);
+//
+//            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
+//
+//        }
     };
+
 
     abstract void addTo(DataModel component);
         

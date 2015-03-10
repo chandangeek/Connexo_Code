@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -81,4 +82,12 @@ public interface ValidationService {
     
 	void addValidatorFactory(ValidatorFactory validatorfactory);
 	void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
+
+    DataValidationTask createValidationTask(String name,EndDeviceGroup endDeviceGroup);
+
+    List<DataValidationTask> findValidationTasks();
+
+    Query<DataValidationTask> findValidationTasksQuery();
+
+    Optional<DataValidationTask> findValidationTask(Long id);
 }
