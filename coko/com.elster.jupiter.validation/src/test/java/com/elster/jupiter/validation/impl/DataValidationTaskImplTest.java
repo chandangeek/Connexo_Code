@@ -86,13 +86,13 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     }
 
     @Test
-    public void testDeleteWithProperties() {
-        ValidationRuleImpl rule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
-        rule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
+    public void testDelete() {
+        DataValidationTaskImpl rule = newTask();
+        rule.setEndDeviceGroup(endDeviceGroup);
+        rule.setName("taskname");
         field("id").ofType(Long.TYPE).in(rule).set(ID);
         rule.save();
         rule.delete();
-        assertThat(rule.getObsoleteDate()).isNotNull();
     }
 
 }
