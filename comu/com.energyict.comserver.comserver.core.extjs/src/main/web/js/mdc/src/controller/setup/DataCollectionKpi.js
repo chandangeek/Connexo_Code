@@ -110,7 +110,6 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             displayRange = editForm.down('[name=displayRange]').getValue(),
             connectionTarget = editForm.down('#connectionKpiField').getValue(),
             communicationTarget = editForm.down('#communicationKpiField').getValue(),
-            successMessage = Uni.I18n.translate('datacollectionkpis.saved', 'MDC', 'Data collection KPI saved.'),
             kpiMessageContainer = me.getKpiErrorContainer();
 
         kpiMessageContainer.hide();
@@ -134,7 +133,18 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         record.set('connectionTarget', connectionTarget);
         record.endEdit();
         record.save({
-            success: function () {
+            success: function (record, operation) {
+                var successMessage = '';
+
+                switch (operation.action) {
+                    case 'update':
+                        successMessage = Uni.I18n.translate('datacollectionkpis.saved', 'MDC', 'Data collection KPI saved');
+                        break;
+                    case 'create':
+                        successMessage = Uni.I18n.translate('datacollectionkpis.added', 'MDC', 'Data collection KPI added');
+                        break;
+                }
+
                 router.getRoute('administration/datacollectionkpis').forward();
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
