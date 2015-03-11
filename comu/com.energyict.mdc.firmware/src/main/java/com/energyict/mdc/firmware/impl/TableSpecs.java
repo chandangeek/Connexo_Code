@@ -35,7 +35,6 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWAREUPGRADEOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE").on(deviceTypeColumn).map("deviceType").references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
-            table.unique("FWC_OPTIONS_U_DEVICETYPE").on(deviceTypeColumn).add();
         }
     };
 
