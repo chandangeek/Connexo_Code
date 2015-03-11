@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.transaction.Transaction;
@@ -76,6 +77,8 @@ public class TaskServiceImplTest {
     private JsonService jsonService;
     @Mock
     private MessageBuilder messageBuilder;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() throws SQLException {
@@ -90,6 +93,7 @@ public class TaskServiceImplTest {
             }
         });
         when(clock.instant()).thenReturn(NOW);
+        when(threadPrincipalService.withContextAdded(any(), any())).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         taskService = new TaskServiceImpl();
         taskService.setDueTaskFetcher(dueTaskFetcher);
@@ -97,6 +101,7 @@ public class TaskServiceImplTest {
         taskService.setOrmService(ormService);
         taskService.setTransactionService(transactionService);
         taskService.setJsonService(jsonService);
+        taskService.setThreadPrincipalService(threadPrincipalService);
     }
 
     @After
