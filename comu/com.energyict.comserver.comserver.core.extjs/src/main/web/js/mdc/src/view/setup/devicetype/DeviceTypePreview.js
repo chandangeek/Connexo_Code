@@ -101,32 +101,29 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 layout: {
                                     type: 'vbox'
                                 },
+                                defaults: {
+                                    xtype: 'button',
+                                    ui: 'link',
+                                    href: '#',
+                                    style: 'text-decoration: underline'
+                                },
                                 items: [
                                     {
-                                        xtype: 'button',
                                         name: 'registerCount',
                                         text: Uni.I18n.translate('devicetype.registers', 'MDC', 'Register types'),
-                                        ui: 'link',
-                                        itemId: 'deviceTypeRegistersLink',
-                                        href: '#'
+                                        itemId: 'deviceTypeRegistersLink'
                                     },
 
                                     {
-                                        xtype: 'button',
                                         name: 'loadProfileCount',
                                         text: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofile types'),
-                                        ui: 'link',
-                                        itemId: 'deviceTypeLoadProfilesLink',
-                                        href: '#'
+                                        itemId: 'deviceTypeLoadProfilesLink'
                                     },
 
                                     {
-                                        xtype: 'button',
                                         name: 'logBookCount',
                                         text: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'),
-                                        ui: 'link',
-                                        itemId: 'deviceTypeLogBooksLink',
-                                        href: '#'
+                                        itemId: 'deviceTypeLogBooksLink'
                                     }
                                 ]
                             },
@@ -139,14 +136,17 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 layout: {
                                     type: 'vbox'
                                 },
+                                defaults: {
+                                    xtype: 'button',
+                                    ui: 'link',
+                                    href: '#',
+                                    style: 'text-decoration: underline'
+                                },
                                 items: [
                                     {
-                                        xtype: 'button',
                                         name: 'deviceConfigurationCount',
                                         text: Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'),
-                                         ui: 'link',
-                                        itemId: 'deviceConfigurationsLink',
-                                        href: '#'
+                                        itemId: 'deviceConfigurationsLink'
                                     }
                                 ]
                             }
