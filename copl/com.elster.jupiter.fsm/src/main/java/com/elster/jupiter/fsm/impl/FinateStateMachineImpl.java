@@ -66,7 +66,7 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     @Valid
     private List<StateImpl> states = new ArrayList<>();
     @Valid
-    private List<StateTransition> transitions = new ArrayList<>();
+    private List<StateTransitionImpl> transitions = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -172,12 +172,12 @@ public class FinateStateMachineImpl implements FinateStateMachine {
         return Collections.unmodifiableList(this.transitions);
     }
 
-    void add(StateTransition stateTransition) {
+    void add(StateTransitionImpl stateTransition) {
         this.transitions.add(stateTransition);
     }
 
     void removeTransition(StateImpl state, StateTransitionEventType eventType) {
-        Optional<StateTransition> stateTransition = this.transitions
+        Optional<StateTransitionImpl> stateTransition = this.transitions
                 .stream()
                 .filter(t -> this.relatesTo(t, state))
                 .filter(t -> t.getEventType().getId() == eventType.getId())
@@ -202,7 +202,19 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     @Override
     public void delete() {
+        this.deleteAllTransitions();
+        this.deleteAllStates();
         this.dataModel.remove(this);
+    }
+
+    private void deleteAllTransitions() {
+        this.transitions.forEach(StateTransitionImpl::prepareDelete);
+        this.transitions.clear();
+    }
+
+    private void deleteAllStates() {
+        this.states.forEach(StateImpl::prepareDelete);
+        this.states.clear();
     }
 
 }

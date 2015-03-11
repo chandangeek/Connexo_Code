@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -28,8 +29,8 @@ public class CustomStateTransitionEventTypeImpl extends StateTransitionEventType
     private String symbol;
 
     @Inject
-    public CustomStateTransitionEventTypeImpl(DataModel dataModel) {
-        super(dataModel);
+    public CustomStateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFinateStateMachineService stateMachineService) {
+        super(dataModel, thesaurus, stateMachineService);
     }
 
     public CustomStateTransitionEventTypeImpl initialize(String symbol) {

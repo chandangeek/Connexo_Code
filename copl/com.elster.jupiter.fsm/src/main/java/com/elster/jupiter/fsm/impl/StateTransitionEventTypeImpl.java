@@ -1,12 +1,16 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionEventTypeStillInUseException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,17 +45,25 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
                     STANDARD, StandardStateTransitionEventTypeImpl.class);
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
+    private final ServerFinateStateMachineService stateMachineService;
 
+    @SuppressWarnings("unused")
     private long id;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
-    @Inject
-    public StateTransitionEventTypeImpl(DataModel dataModel) {
+    protected StateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFinateStateMachineService stateMachineService) {
         super();
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
+        this.stateMachineService = stateMachineService;
     }
 
     @Override
@@ -90,7 +102,10 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
     }
 
     private void validateDelete() {
-        // TODO: check of this EventType is not used in any StateTransition
+        List<FinateStateMachine> stateMachines = this.stateMachineService.findFinateStateMachinesUsing(this);
+        if (!stateMachines.isEmpty()) {
+            throw new StateTransitionEventTypeStillInUseException(this.thesaurus, this, stateMachines);
+        }
     }
 
 }

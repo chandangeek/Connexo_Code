@@ -73,6 +73,11 @@ public class StateTransitionImpl implements StateTransition {
         return this.eventType.get();
     }
 
+    void prepareDelete() {
+        this.from.set(null);
+        this.to.set(null);
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "(" + this.toStringAttributes().collect(Collectors.joining(", ")) +")";

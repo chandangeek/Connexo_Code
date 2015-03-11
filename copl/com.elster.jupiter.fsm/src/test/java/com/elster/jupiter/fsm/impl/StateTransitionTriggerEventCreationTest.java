@@ -3,6 +3,7 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FinateStateMachine;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 import java.util.HashMap;
@@ -32,6 +33,10 @@ public class StateTransitionTriggerEventCreationTest {
     private EventService eventService;
     @Mock
     private FinateStateMachine stateMachine;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private ServerFinateStateMachineService stateMachineService;
 
     @Before
     public void initializeMocks() {
@@ -40,7 +45,7 @@ public class StateTransitionTriggerEventCreationTest {
 
     @Test
     public void newInstanceCopiesAllProperties() {
-        CustomStateTransitionEventTypeImpl eventType = new CustomStateTransitionEventTypeImpl(this.dataModel);
+        CustomStateTransitionEventTypeImpl eventType = new CustomStateTransitionEventTypeImpl(this.dataModel, this.thesaurus, this.stateMachineService);
         String expectedSourceId = "Test1";
         Map<String, Object> expectedProperties = new HashMap<>();
         expectedProperties.put("firstName", "Rudi");
@@ -64,7 +69,7 @@ public class StateTransitionTriggerEventCreationTest {
 
     @Test
     public void newInstanceWithoutProperties() {
-        CustomStateTransitionEventTypeImpl eventType = new CustomStateTransitionEventTypeImpl(this.dataModel);
+        CustomStateTransitionEventTypeImpl eventType = new CustomStateTransitionEventTypeImpl(this.dataModel, this.thesaurus, this.stateMachineService);
         String expectedSourceId = "Test2";
 
         // Business method

@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -25,8 +26,8 @@ public class StandardStateTransitionEventTypeImpl extends StateTransitionEventTy
     private Reference<com.elster.jupiter.events.EventType> eventType = ValueReference.absent();
 
     @Inject
-    public StandardStateTransitionEventTypeImpl(DataModel dataModel) {
-        super(dataModel);
+    public StandardStateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFinateStateMachineService stateMachineService) {
+        super(dataModel, thesaurus, stateMachineService);
     }
 
     StandardStateTransitionEventTypeImpl initialize(com.elster.jupiter.events.EventType eventType) {

@@ -1333,6 +1333,26 @@ public class FinateStateMachineIT {
         // Asserts: see expected exception rule
     }
 
+    @Transactional
+    @Test
+    public void deleteStateMachineWithOneStateAndBothEntryAndExitProcesses() {
+        String expectedName = "deleteStateMachineWithOneStateAndBothEntryAndExitProcesses";
+        FinateStateMachineBuilder builder = this.getTestService().newFinateStateMachine(expectedName, "test-topic");
+        builder
+            .newCustomState("Initial")
+            .onEntry("onEntryDepId", "onEntry")
+            .onExit("onExitDepId", "onExit")
+            .complete();
+        FinateStateMachine stateMachine = builder.complete();
+        stateMachine.save();
+
+        // Business method
+        stateMachine.delete();
+
+        // Asserts
+        assertThat(this.getTestService().findFinateStateMachineByName(expectedName).isPresent()).isFalse();
+    }
+
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {
         StateTransitionEventType commissionedEventType = this.getTestService().newCustomStateTransitionEventType(symbol);
         commissionedEventType.save();
