@@ -57,7 +57,7 @@ Ext.define('Sam.view.licensing.Upload', {
                                     text: 'Cancel',
                                     ui: 'link',
                                     hrefTarget: '',
-                                    href: '#/administration/licensing/licenses'
+                                    href: '#/administration/licenses'
                                 }
                             ]
                         }
