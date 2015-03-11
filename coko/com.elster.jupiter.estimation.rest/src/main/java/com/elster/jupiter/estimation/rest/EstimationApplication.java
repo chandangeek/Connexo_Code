@@ -23,7 +23,7 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.elster.jupiter.estimation.rest" , service=Application.class , immediate = true , property = {"alias=/val", "app=SYS", "name=" + EstimationApplication.COMPONENT_NAME} )
 public class EstimationApplication extends Application implements ServiceLocator, BinderProvider {
-    public static final String COMPONENT_NAME = "VAL";
+    public static final String COMPONENT_NAME = "EST";
 
 	private volatile EstimationService estimationService;
 	private volatile TransactionService transactionService;
