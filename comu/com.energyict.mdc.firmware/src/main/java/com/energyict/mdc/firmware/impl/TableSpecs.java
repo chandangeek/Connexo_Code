@@ -11,18 +11,18 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<FirmwareVersion> table = dataModel.addTable(name(),FirmwareVersion.class);
             table.map(FirmwareVersionImpl.class);
-            table.setJournalTableName("FWC_FIRMWAREVERSIONJRNL");
             Column idColumn = table.addAutoIdColumn();
-            table.column("VERSION").varChar(Table.NAME_LENGTH).map("firmwareVersion").notNull().add();
+            table.column("FIRMWAREVERSION").varChar(Table.NAME_LENGTH).map("firmwareVersion").notNull().add();
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
             table.column("TYPE").varChar(Table.NAME_LENGTH).map("firmwareType").conversion(ColumnConversion.CHAR2ENUM).add();
             table.column("STATUS").varChar(Table.NAME_LENGTH).map("firmwareStatus").conversion(ColumnConversion.CHAR2ENUM).add();
             table.column("FILE").type("blob").map("firmwareFile").conversion(ColumnConversion.BLOB2BYTE).add();
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
-            table.foreignKey("FWC_FK_DEVICETYPE").on(deviceTypeColumn).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.RESTRICT).add();
+            table.foreignKey("FWC_FK_DEVICETYPE").on(deviceTypeColumn).map("deviceType").references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
         }
     },
+
     FWC_FIRMWAREUPGRADEOPTIONS {
         @Override
         void addTo(DataModel dataModel) {
@@ -34,7 +34,7 @@ public enum TableSpecs {
             table.column("ACTIVATEONDATE").bool().map("activateOnDate").add();
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWAREUPGRADEOPTIONS").on(deviceTypeColumn).add();
-            table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE").on(deviceTypeColumn).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE").on(deviceTypeColumn).map("deviceType").references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
             table.unique("FWC_OPTIONS_U_DEVICETYPE").on(deviceTypeColumn).add();
         }
     };
