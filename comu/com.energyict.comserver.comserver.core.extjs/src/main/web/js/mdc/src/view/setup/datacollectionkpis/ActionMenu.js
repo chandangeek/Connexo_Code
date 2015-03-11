@@ -8,6 +8,10 @@ Ext.define('Mdc.view.setup.datacollectionkpis.ActionMenu', {
         {
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'edit'
+        },
+        {
+            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+            action: 'remove'
         }
     ]
 });
