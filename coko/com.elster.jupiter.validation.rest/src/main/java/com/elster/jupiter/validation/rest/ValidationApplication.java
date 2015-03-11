@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,6 +30,7 @@ public class ValidationApplication extends Application implements ServiceLocator
 	private volatile TransactionService transactionService;
 	private volatile RestQueryService restQueryService;
     private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -62,7 +64,7 @@ public class ValidationApplication extends Application implements ServiceLocator
         return meteringService;
     }
 
-	@Reference
+    @Reference
 	public void setValidationService(ValidationService validationService) {
 		this.validationService = validationService;
 	}
@@ -83,6 +85,11 @@ public class ValidationApplication extends Application implements ServiceLocator
     }
 
     @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(validationService.COMPONENTNAME, Layer.REST);
@@ -98,6 +105,7 @@ public class ValidationApplication extends Application implements ServiceLocator
                 bind(nlsService).to(NlsService.class);
                 bind(validationService).to(ValidationService.class);
                 bind(transactionService).to(TransactionService.class);
+                bind(meteringGroupsService).to(MeteringGroupsService.class);
                 bind(thesaurus).to(Thesaurus.class);
             }
         };

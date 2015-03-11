@@ -28,17 +28,35 @@ public class DataValidationTaskInfo {
 
     public long id = 0;
     public String name = "blank_name";
-    public EndDeviceGroup endDeviceGroup;
+    public MeterGroupInfo endDeviceGroup;
     public Instant lastRun;
     public Instant nextRun;
     public PeriodicalExpressionInfo schedule;
 
     public DataValidationTaskInfo(DataValidationTask dataValidationTask) {//), Thesaurus thesaurus, TimeService timeService) {
+
         id = dataValidationTask.getId();
         name = dataValidationTask.getName();
-        endDeviceGroup = dataValidationTask.getEndDeviceGroup();
+        endDeviceGroup = new MeterGroupInfo();
+
+        endDeviceGroup.id = dataValidationTask.getEndDeviceGroup().getId();
+        endDeviceGroup.name = dataValidationTask.getEndDeviceGroup().getName();
+
+        //endDeviceGroup.setName("group1");
+        lastRun = Instant.now();
+        //endDeviceGroup.se
+        /*
+        try {
+            endDeviceGroup = dataValidationTask.getEndDeviceGroup();
+        }
+        catch(Exception ex)
+        {
+
+        }
+        */
         nextRun = dataValidationTask.getNextExecution();
     }
+
 
     public long getId()
     {
