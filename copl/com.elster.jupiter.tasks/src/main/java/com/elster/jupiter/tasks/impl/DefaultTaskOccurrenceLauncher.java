@@ -5,10 +5,15 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * TaskOccurrenceLauncher that queries for due tasks and creates a TaskOccurrence for each, then posts a message
  */
 class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
+
+    private static final Logger LOGGER = Logger.getLogger(DefaultTaskOccurrenceLauncher.class.getName());
 
     private final DueTaskFetcher dueTaskFetcher;
     private final TransactionService transactionService;
@@ -35,6 +40,9 @@ class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
                     launchOccurrencesForDueTasks();
                 }
             });
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
+            e.printStackTrace();
         } finally {
             threadPrincipalService.clear();
         }
