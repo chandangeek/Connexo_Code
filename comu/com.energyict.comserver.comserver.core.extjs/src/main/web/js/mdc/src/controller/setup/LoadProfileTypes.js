@@ -44,7 +44,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             },
             'load-profile-type-edit #load-profile-type-add-register-types-grid': {
                 allitemsadd: this.onAllRegisterTypesAdd,
-                selecteditemsadd: this.onSelectedRegisterTypesAdd
+                selecteditemsadd: this.onSelectedRegisterTypesAdd,
+                beforedeselect: this.unassignRegisterType,
+                select: this.assignRegisterType
             },
             'load-profile-type-edit #load-profile-type-edit-form #save-load-profile-type-button': {
                 click: this.saveLoadProfileType
@@ -276,8 +278,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 success: function (record) {
                     me.getApplication().fireEvent('loadProfileType', record);
 
-                    me.getRegisterTypesGrid().getStore().removeAll();
-                    me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'));
+                    me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'), false);
 
                     if (intervalsStore.getCount()) {
                         form.loadRecord(record);
@@ -296,8 +297,12 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     }
                 },
                 callback: function (record) {
-                    me.getEditPage().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                    Ext.suspendLayouts();
+                    if (router.currentRoute !== 'administration/loadprofiletypes/edit/addregistertypes') {
+                        me.getEditPage().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                    }
                     form.setEdit(true, returnLink, addRegisterTypesLink);
+                    Ext.resumeLayouts(true);
                     widget.setLoading(false);
                 }
             });
@@ -310,47 +315,94 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     showRegisterTypesAddView: function (id) {
         var me = this,
-            assignedRegisterTypes = [],
-            store = Ext.getStore('Mdc.store.RegisterTypesToAdd');
+            store = Ext.getStore('Mdc.store.RegisterTypesToAdd'),
+            editPage = me.getEditPage(),
+            registerTypesStore;
 
 
-        if (!me.getEditPage()) {
+        if (!editPage) {
             me.showEdit(id);
+            editPage = me.getEditPage();
         }
 
-        me.getEditPage().getLayout().setActiveItem(1);
-        me.getEditPage().setTitle(Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesView.title', 'MDC', 'Add register types'));
+        Ext.suspendLayouts();
+        editPage.getLayout().setActiveItem(1);
+        editPage.setTitle(Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesView.title', 'MDC', 'Add register types'));
+        Ext.resumeLayouts(true);
 
         if (id) {
-            me.getModel('Mdc.model.LoadProfileType').load(id, {
-                success: function (record) {
-                    assignedRegisterTypes = record.get('registerTypes');
-                    if (store.getCount() < 1) {
-                        store.load({
-                            callback: function () {
-                                Ext.defer(function () {
-                                    me.getEditPage().down('radiogroup').items.items[1].setValue(true);
-                                    me.getAddRegisterTypesGrid().getSelectionModel().select(me.selectAssignedRegisterTypes(assignedRegisterTypes, store));
-                                }, 10);
-                                me.getEditPage().setLoading(false);
-                            }
-                        });
-                    } else if (!Ext.isEmpty(assignedRegisterTypes)) {
-                        me.getEditPage().down('radiogroup').items.items[1].setValue(true);
-                        me.getAddRegisterTypesGrid().setGridVisible(true);
-                        me.getAddRegisterTypesGrid().getSelectionModel().select(me.selectAssignedRegisterTypes(assignedRegisterTypes, store));
-                    }
-                },
-                callback: function () {
-                    me.getEditPage().setLoading(false);
-                }
-            });
+            registerTypesStore = editPage.down('#register-types-grid').getStore();
+            if (editPage.down('#load-profile-type-edit-form').getRecord()) {
+                me.loadRegisterTypesToAddStore(registerTypesStore.getRange());
+            } else {
+                registerTypesStore.on('refresh', function () {
+                    me.loadRegisterTypesToAddStore(registerTypesStore.getRange());
+                }, me, {single: true});
+            }
         } else {
-            store.load({
-                callback: function () {
-                    me.getEditPage().setLoading(false);
+            me.loadRegisterTypesToAddStore([]);
+        }
+    },
+
+    loadRegisterTypesToAddStore: function (assignedRegisterTypes) {
+        var me = this,
+            store = Ext.getStore('Mdc.store.RegisterTypesToAdd'),
+            grid = me.getAddRegisterTypesGrid();
+
+        store.un('prefetch', me.selectExistingRecords, me);
+        grid.existingRecords = assignedRegisterTypes;
+        grid.onSelectionChange();
+        if (assignedRegisterTypes.length) {
+            store.on('load', function () {
+                var editPage = me.getEditPage();
+
+                if (editPage) {
+                    editPage.down('radiogroup').items.items[1].setValue(true);
+                    grid.setGridVisible(true);
                 }
-            })
+            }, me, {single: true});
+            store.on('prefetch', me.selectExistingRecords, me);
+        }
+        grid.getSelectionModel().deselectAll(true);
+        store.data.clear();
+        store.loadPage(1);
+    },
+
+    selectExistingRecords: function (store, records) {
+        var me = this,
+            grid = me.getAddRegisterTypesGrid();
+
+        if (grid) {
+            grid.selectSuspended = true;
+            grid.getSelectionModel().select(Ext.Array.filter(grid.existingRecords, function (existingItem) {
+                return !!Ext.Array.findBy(records, function (item) {
+                    return existingItem.getId() === item.getId();
+                });
+            }), true);
+            grid.selectSuspended = undefined;
+        } else {
+            store.un('prefetch', me.selectExistingRecords, me);
+        }
+    },
+
+    assignRegisterType: function (selectionModel, record) {
+        var me = this,
+            grid = me.getAddRegisterTypesGrid();
+
+        if (!grid.selectSuspended) {
+            grid.existingRecords.push(record);
+        }
+    },
+
+    unassignRegisterType: function (selectionModel, record) {
+        var me = this,
+            grid = me.getAddRegisterTypesGrid();
+
+        for (var i = 0; i < grid.existingRecords.length; i++) {
+            if (grid.existingRecords[i].getId() === record.getId()) {
+                grid.existingRecords.splice(i, 1);
+                break;
+            }
         }
     },
 
@@ -368,8 +420,10 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         this.addRegisterTypes([], true);
     },
 
-    onSelectedRegisterTypesAdd: function (selection) {
-        this.addRegisterTypes(selection, false);
+    onSelectedRegisterTypesAdd: function () {
+        var me = this;
+
+        this.addRegisterTypes(me.getAddRegisterTypesGrid().existingRecords, false);
     },
 
     addRegisterTypes: function (selection, all) {
