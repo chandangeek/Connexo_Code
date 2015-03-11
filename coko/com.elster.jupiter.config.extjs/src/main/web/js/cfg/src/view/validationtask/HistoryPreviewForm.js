@@ -1,9 +1,10 @@
-Ext.define('Cfg.view.validationtask.PreviewForm', {
+Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.tasks-preview-form',
+    alias: 'widget.tasks-history-preview-form',
 
-    requires: [        
-        'Uni.form.field.Duration'        
+    requires: [
+        'Uni.property.form.Property',
+        'Uni.form.field.Duration'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -37,7 +38,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                                 return value.name;
                             }
                         }
-                    }
+                    }                    
                 ]
             },
             {
@@ -55,13 +56,6 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                         name: 'trigger'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.lastRun', 'CFG', 'Last run'),
-                        name: 'lastRun',
-                        renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
-                        }
-                    },
-                    {
                         fieldLabel: Uni.I18n.translate('dataValidationTasks.general.status', 'CFG', 'Status'),
                         name: 'status'
                     },
@@ -70,14 +64,6 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                         itemId: 'reason-field',
                         name: 'reason',
                         hidden: true
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.startedOn', 'CFG', 'Started on'),
-                        name: 'startedOn'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.finishedOn', 'CFG', 'Finished on'),
-                        name: 'finishedOn'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('dataValidationTasks.general.startedOn', 'CFG', 'Started on'),
@@ -92,13 +78,9 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                     {
                         xtype: 'uni-form-field-duration',
                         name: 'duration'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.nextRun', 'CFG', 'Next run'),
-                        name: 'nextRun_formatted'
                     }
                 ]
-            }         
+            }
         ];
         me.callParent();
     }

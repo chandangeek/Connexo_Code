@@ -4,17 +4,23 @@ Ext.define('Cfg.controller.Tasks', {
         'Cfg.view.validationtask.Add',
         'Cfg.view.validationtask.Setup',
         'Cfg.view.validationtask.Details',
+		'Cfg.view.validationtask.History',
+        'Cfg.view.validationtask.HistoryPreview',
+        'Cfg.view.validationtask.HistoryPreviewForm',
         'Uni.form.field.DateTime'
     ],
     stores: [
         'Cfg.store.DeviceGroups',
-        'Cfg.store.DaysWeeksMonths',
-        'Cfg.store.DataValidationTasks'
+        'Cfg.store.DaysWeeksMonths',		
+        'Cfg.store.DataValidationTasks',
+		'Cfg.store.DataValidationTasksHistory'
     ],
     models: [
         'Cfg.model.DeviceGroup',
         'Cfg.model.DayWeekMonth',        
-        'Cfg.model.DataValidationTask'
+        'Cfg.model.DataValidationTask',
+		'Cfg.model.DataValidationTaskHistory',
+		'Cfg.model.HistoryFilter'
     ],
     refs: [
         {
@@ -32,6 +38,18 @@ Ext.define('Cfg.controller.Tasks', {
         {
             ref: 'actionMenu',
             selector: 'tasks-action-menu'
+        },
+		{
+            ref: 'history',
+            selector: 'data-validation-tasks-history'
+        },
+		   {
+            ref: 'filterTopPanel',
+            selector: '#tasks-history-filter-top-panel'
+        },
+		{
+            ref: 'sideFilterForm',
+            selector: '#side-filter #filter-form'
         }
     ],
     fromDetails: false,
@@ -44,60 +62,23 @@ Ext.define('Cfg.controller.Tasks', {
         this.control({
             'data-validation-tasks-add #recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
-            },/*
-            'data-validation-tasks-add #start-on': {
-                change: this.fillScheduleGridOrNot
             },
-            'data-validation-tasks-add #recurrence-number': {
-                change: this.fillScheduleGridOrNot
-            },
-            'data-validation-tasks-add #recurrence-type': {
-                change: this.fillScheduleGridOrNot
-            },
-            'data-validation-tasks-add #export-period-combo': {
-                change: this.fillScheduleGridOrNot
-            },*/
             'data-validation-tasks-add #add-button': {
                 click: this.addTask
             },
-            /*'data-validation-tasks-add #file-formatter-combo': {
-                change: this.updateProperties
-            },
-            'data-validation-tasks-add #addReadingTypeButton': {
-                click: this.showAddReadingGrid
-            },
-            'data-validation-tasks-add #add-task-add-validation-period': {
-                click: this.redirectToRelativePeriodsPage
-            },
-            '#AddReadingTypesToTaskSetup button[name=cancel]': {
-                click: this.forwardToPreviousPage
-            },
-            '#AddReadingTypesToTaskSetup button[name=add]': {
-                click: this.addSelectedReadingTypes
-            },*/
-            'data-validation-tasks-setup tasks-grid': {
+			'data-validation-tasks-setup tasks-grid': {
                 select: this.showPreview
-            }/*,
-            'data-validation-tasks-history tasks-history-grid': {
-                select: this.showHistoryPreview
-            }*/,
+            },
             'tasks-action-menu': {
                 click: this.chooseAction
             },
             'tasks-history-action-menu': {
                 click: this.chooseAction
-            }/*,
-            '#AddReadingTypesToTaskSetup rt-side-filter button[action=applyfilter]': {
-                click: this.loadReadingTypes
             },
-            '#AddReadingTypesToTaskSetup #filterReadingTypes': {
-                removeFilter: this.removeFilter,
-                clearAllFilters: this.clearAllFilters
+            'data-validation-tasks-history tasks-history-grid': {
+                select: this.showHistoryPreview
             },
-            '#AddReadingTypesToTaskSetup rt-side-filter button[action=clearfilter]': {
-                click: this.clearAllCombos
-            },
-            'history-filter-form  button[action=applyfilter]': {
+			 'history-filter-form  button[action=applyfilter]': {
                 click: this.applyHistoryFilter
             },
             'history-filter-form  button[action=clearfilter]': {
@@ -106,7 +87,7 @@ Ext.define('Cfg.controller.Tasks', {
             '#tasks-history-filter-top-panel': {
                 removeFilter: this.removeHistoryFilter,
                 clearAllFilters: this.clearHistoryFilter
-            }*/
+            }
         });
     },
 
@@ -151,6 +132,55 @@ Ext.define('Cfg.controller.Tasks', {
         });
     },
 
+	showDataValidationTaskHistory: function (currentTaskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            store = me.getStore('Cfg.store.DataValidationTasksHistory'),
+            taskModel = me.getModel('Cfg.model.DataValidationTask'),
+            view;
+
+
+        store.getProxy().setUrl(router.arguments);
+        view = Ext.widget('data-validation-tasks-history', {
+            router: router,
+            taskId: currentTaskId
+        });
+        me.getApplication().fireEvent('changecontentevent', view);
+        me.initFilter();
+
+        taskModel.load(currentTaskId, {
+            success: function (record) {
+                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+            }
+        });
+    },
+
+    showHistoryPreview: function (selectionModel, record) {
+        var me = this,
+            page = me.getHistory(),
+            preview = page.down('tasks-history-preview'),
+            previewForm = page.down('tasks-history-preview-form');
+
+        if (record) {
+            Ext.suspendLayouts();
+            preview.setTitle(record.get('startedOn_formatted'));
+            previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
+            previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
+            previewForm.loadRecord(record);
+            preview.down('tasks-history-action-menu').record = record;
+            if (record.get('status') === 'Failed') {
+                previewForm.down('#reason-field').show();
+            } else {
+                previewForm.down('#reason-field').hide();
+            }
+
+            previewForm.loadRecord(record);
+            /*if (record.data.properties && record.data.properties.length) {
+                previewForm.down('property-form').loadRecord(record.getTask());
+            }*/
+            Ext.resumeLayouts(true);
+        }
+    },
 
     showAddValidationTask: function () {
         var me = this,
@@ -291,7 +321,12 @@ Ext.define('Cfg.controller.Tasks', {
             router = me.getController('Uni.controller.history.Router'),
             route;
 
-        router.arguments.taskId = menu.record.getId();
+		if (me.getHistory()) {
+            router.arguments.occurrenceId = menu.record.getId();
+        } else {
+            router.arguments.taskId = menu.record.getId();
+        }
+        
         
 
         switch (item.action) {
@@ -303,22 +338,58 @@ Ext.define('Cfg.controller.Tasks', {
                 break;
             case 'removeTask':
                 me.removeTask(menu.record);
-                break;
-         /*   case 'viewLog':
+                break;         
+			case 'viewLog':
                 route = 'administration/datavalidationtasks/datavalidationtask/history/occurrence';
                 break;
             case 'viewHistory':
                 route = 'administration/datavalidationtasks/datavalidationtask/history';
                 break;
-            case 'run':
-                me.runTask(menu.record);
-                break;*/
         }
 
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments);
     },
 
+	initFilter: function () {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            filter = router.filter,
+            date;
+
+        me.getSideFilterForm().loadRecord(filter);
+        for (var f in filter.getData()) {
+            var name = '', exportPeriod;
+            switch (f) {
+                case 'startedOnFrom':
+                    name = Uni.I18n.translate('general.startedFrom', 'DES', 'Started from');
+                    break;
+                case 'startedOnTo':
+                    name = Uni.I18n.translate('general.startedTo', 'DES', 'Started to');
+                    break;
+                case 'finishedOnFrom':
+                    name = Uni.I18n.translate('general.finishedFrom', 'DES', 'Finished from');
+                    name = 'Finished from';
+                    break;
+                case 'finishedOnTo':
+                    name = Uni.I18n.translate('general.finishedTo', 'DES', 'Finished to');
+                    break;
+                case 'exportPeriodContains':
+                    name = Uni.I18n.translate('general.exportPeriodContains', 'DES', 'Export period contains');
+                    exportPeriod = true;
+                    break;
+            }
+            if (!Ext.isEmpty(filter.get(f))) {
+                date = new Date(filter.get(f));
+                me.getFilterTopPanel().setFilter(f, name, exportPeriod
+                    ? Uni.DateTime.formatDateLong(date)
+                    : Uni.DateTime.formatDateLong(date)
+                + ' ' + Uni.I18n.translate('general.at', 'DES', 'At').toLowerCase() + ' '
+                + Uni.DateTime.formatTimeShort(date));
+            }
+        }
+        me.getFilterTopPanel().setVisible(true);
+    },
 
     removeTask: function (record) {
         var me = this,
@@ -530,86 +601,24 @@ Ext.define('Cfg.controller.Tasks', {
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(0));
         }  		
     },
-/*
-    onRecurrenceTriggerChange: function (field, newValue, oldValue) {
-        var me = this,
-            page = me.getAddPage(),
-            recurrenceNumberField = page.down('#recurrence-number'),
-            recurrenceTypeCombo = page.down('#recurrence-type'),
-            exportPeriodValue = page.down('#export-period-combo').getValue(),
-            gridPreview = page.down('#schedule-preview'),
-            scheduleRecords = [];
-
-        if (newValue.recurrence && !recurrenceNumberField.getValue() && !recurrenceTypeCombo.getValue()) {
-            recurrenceNumberField.setValue(recurrenceNumberField.minValue);
-            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(0));
-        }
-        if (newValue.recurrence && exportPeriodValue) {
-            me.fillGrid(0, scheduleRecords);
-        }
-        if (!newValue.recurrence && !gridPreview.isHidden()) {
-            gridPreview.hide();
-        }
-    },
-*/
-   /* fillScheduleGridOrNot: function () {
-        var me = this,
-            page = me.getAddPage(),
-            exportPeriodValue = page.down('#export-period-combo').getValue(),
-            recurrenceTriggerValue = page.down('#recurrence-trigger').getValue(),
-            scheduleRecords = [];
-
-        if (recurrenceTriggerValue.recurrence && exportPeriodValue) {
-            me.fillGrid(0, scheduleRecords);
-        }
+	
+	 applyHistoryFilter: function () {
+        this.getSideFilterForm().updateRecord();
+        this.getSideFilterForm().getRecord().save();
     },
 
-    fillGrid: function (i, scheduleRecords) {
-        var me = this,
-            page = me.getAddPage(),
-            startOnDate = page.down('#start-on').getValue(),
-            everyAmount = page.down('#recurrence-number').getValue(),
-            everyTimeKey = page.down('#recurrence-type').getValue(),
-            grid = page.down('add-schedule-grid'),
-            gridPreview = page.down('#schedule-preview'),
-            exportPeriodId = page.down('#export-period-combo').getValue(),
-            sendingData = {};
-        sendingData.zoneOffset = startOnDate.getTimezoneOffset();
-        sendingData.date = moment(startOnDate).add(everyAmount * i, everyTimeKey).valueOf();
-        Ext.Ajax.request({
-            url: '/api/tmr/relativeperiods/' + exportPeriodId + '/preview',
-            method: 'PUT',
-            jsonData: sendingData,
-            success: function (response) {
-                var obj = Ext.decode(response.responseText, true),
-                    scheduleRecord = Ext.create('Cfg.model.SchedulePeriod'),
-                    startDateLong = obj.start.date,
-                    zoneOffset = obj.start.zoneOffset || obj.end.zoneOffset,
-                    endDateLong = obj.end.date,
-                    startZonedDate,
-                    endZonedDate;
-                if (typeof startDateLong !== 'undefined') {
-                    var startDate = new Date(startDateLong),
-                        startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
-                    startZonedDate = startDateUtc - (60000 * zoneOffset);
-                }
-                if (typeof endDateLong !== 'undefined') {
-                    var endDate = new Date(endDateLong),
-                        endDateUtc = endDate.getTime() + (endDate.getTimezoneOffset() * 60000);
-                    endZonedDate = endDateUtc - (60000 * zoneOffset);
-                }
-                scheduleRecord.set('schedule', moment(startOnDate).add(everyAmount * i, everyTimeKey).valueOf());
-                scheduleRecord.set('start', startZonedDate);
-                scheduleRecord.set('end', endZonedDate);
-                scheduleRecords.push(scheduleRecord);
-                if (i < 4) {
-                    i++;
-                    me.fillGrid(i, scheduleRecords);
-                } else {
-                    grid.getStore().loadData(scheduleRecords, false);
-                    gridPreview.show();
-                }
-            }
-        });
-    }*/
+    clearHistoryFilter: function () {
+        this.getSideFilterForm().getForm().reset();
+        this.getFilterTopPanel().setVisible(false);
+        this.getSideFilterForm().getRecord().getProxy().destroy();
+    },
+
+    removeHistoryFilter: function (key) {
+        var router = this.getController('Uni.controller.history.Router'),
+            record = router.filter;
+        if (record) {
+            delete record.data[key];
+            record.save();
+        }
+    }
 });

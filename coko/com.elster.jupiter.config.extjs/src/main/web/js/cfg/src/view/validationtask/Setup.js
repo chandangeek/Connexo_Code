@@ -1,9 +1,6 @@
 Ext.define('Cfg.view.validationtask.Setup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.data-validation-tasks-setup',
-
-    router: null,
-
+    alias: 'widget.data-validation-tasks-setup',    
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Cfg.view.validationtask.Menu',
@@ -11,7 +8,8 @@ Ext.define('Cfg.view.validationtask.Setup', {
         'Cfg.view.validationtask.Preview',
         'Cfg.view.validationtask.ActionMenu'
     ],
-
+	router: null,
+	
     initComponent: function () {
         var me = this;
 
@@ -20,8 +18,7 @@ Ext.define('Cfg.view.validationtask.Setup', {
             ui: 'large',
             title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTasks', 'CFG', 'Data validation tasks'),
             items: [					
-                {
-					
+                {					
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'tasks-grid',

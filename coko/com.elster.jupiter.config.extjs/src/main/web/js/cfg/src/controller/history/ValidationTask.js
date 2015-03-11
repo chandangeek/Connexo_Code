@@ -13,7 +13,7 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                     title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTasks', 'CFG', 'Data validation tasks'),
                     route: 'datavalidationtasks',
                     controller: 'Cfg.controller.Tasks',
-                    privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration'],
+                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
                     action: 'showDataValidationTasks',
                     items: {
                         add: {
@@ -21,16 +21,7 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                             route: 'add',
                             controller: 'Cfg.controller.Tasks',
                             privileges: ['privilege.administrate.validationConfiguration'],
-                            action: 'showAddValidationTask'/*,
-                            items: {
-                                readingtypes: {
-                                    title: 'Add reading types',
-                                    route: 'readingtypes',
-                                    controller: 'Cfg.controller.Tasks',
-                                    privileges: ['privilege.administrate.dataExportTask'],
-                                    action: 'addReadingTypes'
-                                }
-                            }*/
+                            action: 'showAddValidationTask'
                         },
                         datavalidationtask: {
                             title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTask', 'CFG', 'Data validation task'),
@@ -50,16 +41,22 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                                     route: 'edit',
                                     controller: 'Cfg.controller.Tasks',
                                     privileges: ['privilege.administrate.validationConfiguration'],
-                                    action: 'showEditValidationTask'/*,
+                                    action: 'showEditValidationTask'
+                                },
+                                history: {
+                                    title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTaskHistory', 'CFG', 'Data validation task history'),
+                                    route: 'history',
+                                    controller: 'Cfg.controller.Tasks',
+                                    action: 'showDataValidationTaskHistory',
+                                    filter: 'Cfg.model.HistoryFilter',
                                     items: {
-                                        readingtypes: {
-                                            title: 'Add reading types',
-                                            route: 'readingtypes',
-                                            controller: 'Cfg.controller.Tasks',
-                                            privileges: ['privilege.update.dataExportTask','privilege.update.schedule.dataExportTask'],
-                                            action: 'addReadingTypes'
+                                        occurrence: {
+                                            title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTaskLog', 'CFG', 'Data validation task log'),
+                                            route: '{occurrenceId}',
+                                            controller: 'Cfg.controller.Log',
+                                            action: 'showLog'
                                         }
-                                    }*/
+                                    }
                                 }
                             }
                         }

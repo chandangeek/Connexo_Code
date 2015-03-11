@@ -21,7 +21,13 @@ Ext.define('Cfg.view.validationtask.ActionMenu', {
             itemId: 'view-details',
             text: Uni.I18n.translate('dataValidationTasks.general.viewDetails', 'CFG', 'View details'),
             action: 'viewDetails'
+        },
+		{
+            itemId: 'view-history',
+            text: Uni.I18n.translate('dataValidationTasks.general.viewHistory', 'CFG', 'View history'),
+            action: 'viewHistory'
         }
+
     ]
 });
 

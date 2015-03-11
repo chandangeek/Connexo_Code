@@ -7,13 +7,13 @@ Ext.define('Cfg.store.DeviceGroups', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/export/metergroups',
+        url: '/api/ddr/devicegroups',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
         reader: {
             type: 'json',
-            root: 'metergroups'
+            root: 'devicegroups'
         }
     }
 });

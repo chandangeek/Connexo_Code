@@ -3,8 +3,6 @@ Ext.define('Cfg.view.validationtask.Add', {
     alias: 'widget.data-validation-tasks-add',
     requires: [
         'Uni.form.field.DateTime',        
-        //'Uni.property.form.Property',
-        //'Dxp.view.validationtask.PropertyForm',
         'Uni.util.FormErrorMessage'
     ],
 

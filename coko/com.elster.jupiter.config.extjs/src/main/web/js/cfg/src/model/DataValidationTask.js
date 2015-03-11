@@ -116,25 +116,6 @@ Ext.define('Cfg.model.DataValidationTask', {
             }
         }
     ],
-/*
-    associations: [
-        {
-            name: 'properties',
-            type: 'hasMany',
-            model: 'Uni.property.model.Property',
-            associationKey: 'properties',
-            foreignKey: 'properties',
-            getTypeDiscriminator: function (node) {
-                return 'Uni.property.model.Property';
-            }
-        },
-        {
-            type: 'hasMany',
-            model: 'Dxp.model.ReadingType',
-            associationKey: 'readingTypes',
-            name: 'readingTypes'
-        }
-    ],*/
     proxy: {
         type: 'rest',
         url: '/api/export/dataexporttask',
