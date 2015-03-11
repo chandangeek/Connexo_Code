@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
 
@@ -28,4 +29,7 @@ public interface DataValidationTask {
 
     public long getId();
 
+    void setScheduleImmediately(boolean scheduleImmediately);
+
+    void setScheduleExpression(ScheduleExpression scheduleExpression);
 }

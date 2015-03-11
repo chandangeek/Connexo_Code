@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.validation.*;
 
@@ -131,12 +132,14 @@ public enum TableSpecs {
             //reccurent task column;
 
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
-            table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.addModTimeColumn("MODTIME", "modTime");
-            table.addUserNameColumn("USERNAME", "userName");
 
-//            table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP").on(endDeviceGroupId).references(MeteringService.COMPONENTNAME, "MTG_ED_GROUP").map("endDeviceGroup").add();
+            table.addAuditColumns();
+            //table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
+            //table.addCreateTimeColumn("CREATETIME", "createTime");
+            //table.addModTimeColumn("MODTIME", "modTime");
+            //table.addUserNameColumn("USERNAME", "userName");
+
+            table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP").on(endDeviceGroupId).references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP").map("endDeviceGroup").add();
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK").on(idColumn).add();
         }
 //    },

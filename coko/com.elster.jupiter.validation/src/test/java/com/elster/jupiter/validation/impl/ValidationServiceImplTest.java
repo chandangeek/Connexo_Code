@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.inject.Provider;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.validation.*;
 import org.junit.After;
 import org.junit.Before;
@@ -88,6 +89,8 @@ public class ValidationServiceImplTest {
     @Mock
     private Validator validator;
     @Mock
+    private DataValidationTask iDataTask;
+    @Mock
     private DataMapper<IValidationRuleSet> validationRuleSetFactory;
     @Mock
     private DataMapper<IValidationRule> validationRuleFactory;
@@ -95,6 +98,8 @@ public class ValidationServiceImplTest {
     private DataMapper<MeterValidationImpl> meterValidationFactory;
     @Mock
     private DataMapper<DataValidationTaskImpl> dataValidationTaskFactory;
+    @Mock
+    private DataMapper<DataValidationTask> dataValidationTaskFactory2;
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -114,6 +119,8 @@ public class ValidationServiceImplTest {
     private Clock clock = Clock.systemDefaultZone();
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MeteringGroupsService meteringGroupsService;
     @Mock
     private NlsService nlsService;
     @Mock
@@ -149,6 +156,7 @@ public class ValidationServiceImplTest {
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
+        when(dataModel.<DataValidationTask>mapper(any())).thenReturn(dataValidationTaskFactory2);
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);        
         when(dataModel.mapper(IChannelValidation.class)).thenReturn(channelValidationFactory);
@@ -161,7 +169,7 @@ public class ValidationServiceImplTest {
         when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
         when(queryService.wrap(eq(validationRuleQueryExecutor))).thenReturn(allValidationRuleQuery);
 
-        validationService = new ValidationServiceImpl(clock, eventService, meteringService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class)); 
+        validationService = new ValidationServiceImpl(clock, eventService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
@@ -617,20 +625,32 @@ public class ValidationServiceImplTest {
 
     }
     @Test
-    public void testCreateAndSaveDataValidationTask() {
+    public void testCreateDataValidationTask() {
         EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
-        DataValidationTask task = validationService.createValidationTask(NAME, endDeviceGroup);
-        verify(dataModel).persist(task);
+        DataValidationTask task = validationService.newTaskBuilder().setName(NAME).setEndDeviceGroup(endDeviceGroup).build();
+        verify(dataModel, never()).persist(task);
         assertThat(task.getName()).isEqualTo(NAME);
         assertThat(task.getEndDeviceGroup()).isEqualTo(endDeviceGroup);
     }
 
     @Test
-    public void testCreateDataValidationTask() {
-        DataValidationTask task = validationService.createValidationTask(NAME);
-        verify(dataModel, never()).persist(task);
-        assertThat(task.getName()).isEqualTo(NAME);
+    public void testFindDataValidationTaskById() {
+        when(dataValidationTaskFactory2.getOptional(ID)).thenReturn(Optional.of(iDataTask));
+        assertThat(validationService.findValidationTask(ID).get()).isEqualTo(iDataTask);
     }
+
+    @Test
+    public void testFindDataValidationTaskByIdNotFound() {
+        when(dataValidationTaskFactory2.getOptional(ID)).thenReturn(Optional.<DataValidationTask>empty());
+        assertThat(validationService.findValidationTask(ID).isPresent()).isFalse();
+    }
+
+//    @Test
+//    public void testFindDataValidationTasks(){
+//        when(dataValidationTaskFactory2.getOptional()).thenReturn(Optional.of(iDataTask));
+//        assertThat(validationService.findValidationTasks().
+//
+//    }
 
 
 

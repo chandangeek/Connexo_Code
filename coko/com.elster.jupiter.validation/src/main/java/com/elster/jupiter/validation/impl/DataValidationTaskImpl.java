@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.MessageSeeds;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationOccurence;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -34,6 +35,9 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private final DataModel dataModel;
+
+    private boolean scheduleImmediately;
+    private ScheduleExpression scheduleExpression;
 
     @Inject
     DataValidationTaskImpl(DataModel dataModel) {
@@ -117,4 +121,13 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
 
+    @Override
+    public void setScheduleImmediately(boolean scheduleImmediately) {
+        this.scheduleImmediately = scheduleImmediately;
+    }
+
+    @Override
+    public void setScheduleExpression(ScheduleExpression scheduleExpression) {
+        this.scheduleExpression = scheduleExpression;
+    }
 }

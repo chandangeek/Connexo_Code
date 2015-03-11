@@ -3,12 +3,8 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,22 +19,13 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.*;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -50,6 +37,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile Clock clock;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -63,10 +51,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
+    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
         this.clock = clock;
         this.eventService = eventService;
         this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -87,6 +76,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
                 bind(Clock.class).toInstance(clock);
                 bind(EventService.class).toInstance(eventService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
                 bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
@@ -108,7 +98,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR");
+        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR", "MTG");
 
     }
 
@@ -123,6 +113,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
@@ -470,16 +465,8 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 	}
 
     @Override
-    public DataValidationTask createValidationTask(String name) {
-        return DataValidationTaskImpl.from(dataModel, name);
-
-    }
-    @Override
-    public DataValidationTask createValidationTask(String name,EndDeviceGroup endDeviceGroup) {
-        DataValidationTask task =  DataValidationTaskImpl.from(dataModel,name);
-        task.setEndDeviceGroup(endDeviceGroup);
-        task.save();
-        return task;
+    public DataValidationTaskBuilder newTaskBuilder() {
+        return new DataValidationTaskBuilderImpl(dataModel);
     }
 
     @Override
@@ -494,7 +481,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Override
-    public Optional<DataValidationTask> findValidationTask(Long id) {
+    public Optional<DataValidationTask> findValidationTask(long id) {
         return dataModel.mapper(DataValidationTask.class).getOptional(id);
     }
     
