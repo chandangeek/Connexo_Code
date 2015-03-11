@@ -171,15 +171,18 @@ public class ComTaskEnablementResource {
     public PagedInfoList getAllowedComTasksWhichAreNotDefinedYetFor(long deviceTypeId, long deviceConfigurationId, QueryParameters queryParameters, UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        List<ComTaskEnablementInfo.ComTaskInfo> deviceConfigurationComTaskInfos = getAllowedComTaskInfos(deviceType, deviceConfiguration);
+        return PagedInfoList.fromPagedList("data", deviceConfigurationComTaskInfos, queryParameters);
+    }
+
+    private List<ComTaskEnablementInfo.ComTaskInfo> getAllowedComTaskInfos(DeviceType deviceType, DeviceConfiguration deviceConfiguration) {
         List<ComTask> allowedComTasks = taskService.findAllComTasks().stream()
                 .filter(comTask ->
                         comTaskIsNotAlreadyDefinedOnDeviceConfig(deviceConfiguration.getComTaskEnablements(), comTask) // filter all which are not enabled yet
                                 && comTaskIsAllowedOnDeviceType(comTask, deviceType))   // filter FirmwareTask if DeviceType doesn't allow
                 .collect(Collectors.toList());
 
-        List<ComTaskEnablementInfo.ComTaskInfo> deviceConfigurationComTaskInfos = ComTaskEnablementInfo.ComTaskInfo.from(ListPager.of(allowedComTasks, new ComTaskComparator()).find());
-
-        return PagedInfoList.fromPagedList("data", deviceConfigurationComTaskInfos, queryParameters);
+        return ComTaskEnablementInfo.ComTaskInfo.from(ListPager.of(allowedComTasks, new ComTaskComparator()).find());
     }
 
     private boolean comTaskIsNotAlreadyDefinedOnDeviceConfig(List<ComTaskEnablement> deviceConfigurationComTaskEnablements, ComTask comTask) {
@@ -198,7 +201,7 @@ public class ComTaskEnablementResource {
     }
 
     private boolean deviceTypeAllowsFirmwareUpgrade(DeviceType deviceType) {
-        return !this.firmwareService.getFirmwareOptionsFor(deviceType).isEmpty();
+        return this.firmwareService.findFirmwareUpgradeOptionsByDeviceType(deviceType).isPresent();
     }
 
     private void setComTaskEnablementActive(long deviceTypeId, long deviceConfigurationId, long comTaskEnablementId, boolean setActive) {

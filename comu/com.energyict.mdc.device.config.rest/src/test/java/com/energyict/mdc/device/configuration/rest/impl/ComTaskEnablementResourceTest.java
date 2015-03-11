@@ -3,11 +3,13 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -17,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +33,11 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
     private final String registersComTaskName = "RegistersComTask";
     private final String loadProfilesComTaskName = "LoadProfilesComTask";
     private final String firmwareComTaskName = "Firmware management";
+
+    @Before
+    public void initBefore() {
+        when(firmwareService.findFirmwareUpgradeOptionsByDeviceType(any(DeviceType.class))).thenReturn(Optional.<FirmwareUpgradeOptions>empty());
+    }
 
     @Test
     public void getAllowedComTasksWhichAreNotDefinedYetNoComTasksWithFirmwareTest() {
@@ -203,7 +211,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
 
     private DeviceType mockDeviceTypeWithConfigWhichAllowsFirmwareUpgrade() {
         DeviceType deviceType = mockSimpleDeviceTypeAndConfig();
-        when(firmwareService.getFirmwareOptionsFor(deviceType)).thenReturn(EnumSet.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE));
+        FirmwareUpgradeOptions firmwareUpgradeOption = mock(FirmwareUpgradeOptions.class);
+        when(firmwareService.findFirmwareUpgradeOptionsByDeviceType(deviceType)).thenReturn(Optional.of(firmwareUpgradeOption));
         return deviceType;
     }
 
