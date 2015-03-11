@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
     <artifactId>mdc.parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <inceptionYear>2013</inceptionYear>
     <packaging>pom</packaging>
 
@@ -21,10 +21,8 @@
     </organization>
 
     <properties>
-        <!--<eiserver.version>${project.version}</eiserver.version>-->
-        <eiserver.version>1.0.0-SNAPSHOT</eiserver.version>
-        <comserver.version>1.0.0-SNAPSHOT</comserver.version>
-        <jupiter.version>1.0.0-SNAPSHOT</jupiter.version>
+        <comserver.version>1.1.0-SNAPSHOT</comserver.version>
+        <jupiter.version>1.1.0-SNAPSHOT</jupiter.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <serialio.version>10.0.4.2</serialio.version>
@@ -126,43 +124,43 @@
             <dependency>
                 <groupId>com.elster.jupiter.subsystem</groupId>
                 <artifactId>kore</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>util</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools.persistence</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools.rest</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bootstrap.h2</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>messaging.h2</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
 
@@ -339,6 +337,7 @@
                 <module>../com.energyict.mdc.protocol.pluggable</module>
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
+                <module>../com.energyict.mdc.device.lifecycle</module>
                 <module>../com.energyict.mdc.device.config</module>
                 <module>../com.energyict.mdc.device.config.rest</module>
                 <module>../com.energyict.mdc.device.data</module>
