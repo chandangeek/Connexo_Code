@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.device.lifecycle.impl.*
+Export-Package: com.energyict.mdc.device.lifecycle
