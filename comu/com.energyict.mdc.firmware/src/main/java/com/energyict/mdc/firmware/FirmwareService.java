@@ -33,6 +33,6 @@ public interface FirmwareService {
 
     void deprecateFirmwareVersion(FirmwareVersion firmwareVersion);
 
-    Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceTypeId);
+    Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
 
 }
