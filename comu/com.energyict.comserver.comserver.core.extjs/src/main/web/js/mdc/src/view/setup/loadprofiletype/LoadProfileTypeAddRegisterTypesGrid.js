@@ -38,14 +38,14 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid',
 
     columns: [
         {
-            xtype: 'obis-column',
-            dataIndex: 'obisCode',
-            flex: 1
-        },
-        {
             xtype: 'reading-type-column',
             dataIndex: 'readingType',
             flex: 2
+        },
+        {
+            xtype: 'obis-column',
+            dataIndex: 'obisCode',
+            flex: 1
         }
     ],
 
