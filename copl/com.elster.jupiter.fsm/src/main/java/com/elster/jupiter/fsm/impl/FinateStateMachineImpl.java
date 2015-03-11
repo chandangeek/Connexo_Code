@@ -37,7 +37,6 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     public enum Fields {
         NAME("name"),
-        TOPIC("topic"),
         STATES("states"),
         TRANSITIONS("transitions");
 
@@ -60,9 +59,6 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
-    private String topic;
     @Valid
     private List<StateImpl> states = new ArrayList<>();
     @Valid
@@ -82,9 +78,8 @@ public class FinateStateMachineImpl implements FinateStateMachine {
         this.thesaurus = thesaurus;
     }
 
-    public FinateStateMachineImpl initialize(String name, String topic) {
+    public FinateStateMachineImpl initialize(String name) {
         this.name = name;
-        this.topic = topic;
         return this;
     }
 
@@ -115,15 +110,6 @@ public class FinateStateMachineImpl implements FinateStateMachine {
 
     void setName(String newName) {
         this.name = newName;
-    }
-
-    @Override
-    public String getTopic() {
-        return this.topic;
-    }
-
-    void setTopic(String topic) {
-        this.topic = topic;
     }
 
     @Override

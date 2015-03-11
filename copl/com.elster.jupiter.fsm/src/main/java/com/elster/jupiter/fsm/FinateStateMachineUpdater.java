@@ -21,8 +21,6 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
      */
     public FinateStateMachineUpdater setName(String newName);
 
-    public FinateStateMachineUpdater setTopic(String newTopic);
-
     /**
      * Removes the {@link State} with the specified name as well
      * as all incoming and outgoing transitions for that State.

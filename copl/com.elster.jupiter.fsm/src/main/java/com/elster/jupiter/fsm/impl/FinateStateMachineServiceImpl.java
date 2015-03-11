@@ -1,7 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.*;
-import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.fsm.*;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -160,6 +159,11 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
         this.standardEventPredicates.remove(predicate);
     }
 
+    @Override
+    public String stateTransitionChangeEventTopic() {
+        return EventType.CHANGE_EVENT.topic();
+    }
+
     private void createStandardEventType(StandardEventPredicate predicate) {
         try (TransactionContext context = this.transactionService.getContext()) {
             this.createStandardEventType(predicate, this.eventService.getEventTypes());
@@ -167,10 +171,10 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
         }
     }
 
-    private void createStandardEventType(StandardEventPredicate predicate, List<EventType> allEventTypes) {
+    private void createStandardEventType(StandardEventPredicate predicate, List<com.elster.jupiter.events.EventType> allEventTypes) {
         allEventTypes
                 .stream()
-                .filter(not(EventType::isEnabledForUseInStateMachines))
+                .filter(not(com.elster.jupiter.events.EventType::isEnabledForUseInStateMachines))
                 .filter(predicate::isCandidate)
                 .map(this::newStandardStateTransitionEventType)
                 .forEach(StandardStateTransitionEventType::save);
@@ -194,15 +198,15 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
     }
 
     @Override
-    public Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType) {
+    public Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(com.elster.jupiter.events.EventType eventType) {
         return this.dataModel
                 .mapper(StandardStateTransitionEventType.class)
                 .getUnique(StateTransitionEventTypeImpl.Fields.EVENT_TYPE.fieldName(), eventType);
     }
 
     @Override
-    public FinateStateMachineBuilder newFinateStateMachine(String name, String topic) {
-        FinateStateMachineImpl stateMachine = this.dataModel.getInstance(FinateStateMachineImpl.class).initialize(name, topic);
+    public FinateStateMachineBuilder newFinateStateMachine(String name) {
+        FinateStateMachineImpl stateMachine = this.dataModel.getInstance(FinateStateMachineImpl.class).initialize(name);
         return new FinateStateMachineBuilderImpl(dataModel, stateMachine);
     }
 

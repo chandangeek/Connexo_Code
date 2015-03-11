@@ -28,7 +28,6 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(FinateStateMachineImpl.Fields.NAME.fieldName()).add();
-            table.column("TOPIC").varChar().notNull().map(FinateStateMachineImpl.Fields.TOPIC.fieldName()).add();
             table.unique("UK_FSM_FINATESTATEMACHINE").on(name).add();
             table.primaryKey("PK_FSM_FINATESTATEMACHINE").on(id).add();
         }

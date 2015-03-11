@@ -37,12 +37,6 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
     }
 
     @Override
-    public FinateStateMachineUpdater setTopic(String newTopic) {
-        this.getUnderConstruction().setTopic(newTopic);
-        return this;
-    }
-
-    @Override
     public FinateStateMachineUpdater removeState(String obsoleteStateName) {
         FinateStateMachineImpl stateMachine = this.getUnderConstruction();
         StateImpl obsoleteState = this.findStateIfExists(obsoleteStateName, stateMachine);

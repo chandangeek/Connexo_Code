@@ -17,8 +17,6 @@ import java.util.Optional;
  * when first created. A subset of the states can be final, indicating that once
  * the machine is in that state, the state will no longer change.
  * Every state that has no outgoing transitions is by consequence a final state.
- * Every change of state is published on the finate state machine's topic
- * as a {@link StateTransitionChangeEvent}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (11:45)
@@ -44,8 +42,6 @@ public interface FinateStateMachine {
     public Instant getModifiedTimestamp();
 
     public String getName();
-
-    public String getTopic();
 
     public List<State> getStates();
 

@@ -14,6 +14,13 @@ public interface FinateStateMachineService {
 
     String COMPONENT_NAME = "FSM";
 
+    /**
+     * Returns the topic onto which {@link StateTransitionChangeEvent}s are published.
+     *
+     * @return The topic
+     */
+    public String stateTransitionChangeEventTopic();
+
     public void addStandardEventPredicate(StandardEventPredicate predicate);
 
     /**
@@ -59,10 +66,9 @@ public interface FinateStateMachineService {
      * Note that you are responsible for saving the FinateStateMachine.
      *
      * @param name The name
-     * @param topic The name of the topic on which state change events will be published
      * @return The FinateStateMachineBuilder
      */
-    public FinateStateMachineBuilder newFinateStateMachine(String name, String topic);
+    public FinateStateMachineBuilder newFinateStateMachine(String name);
 
     /**
      * Finds the {@link FinateStateMachine} with the specified name

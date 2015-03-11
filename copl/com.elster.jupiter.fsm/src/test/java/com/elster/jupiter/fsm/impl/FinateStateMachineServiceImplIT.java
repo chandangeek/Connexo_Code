@@ -43,6 +43,15 @@ public class FinateStateMachineServiceImplIT {
     }
 
     @Test
+    public void stateTransitionChangeEventTopicIsNotEmpty() {
+        // Business method
+        String topic = this.getTestService().stateTransitionChangeEventTopic();
+
+        // Asserts
+        assertThat(topic).isNotEmpty();
+    }
+
+    @Test
     public void addStandardEventTypePredicateThatRejectsAllCandidates() {
         FinateStateMachineServiceImpl service = this.getTestService();
         StandardEventPredicate predicate = mock(StandardEventPredicate.class);
