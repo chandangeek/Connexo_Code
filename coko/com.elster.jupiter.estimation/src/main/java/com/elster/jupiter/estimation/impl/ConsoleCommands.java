@@ -16,9 +16,9 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
@@ -38,7 +38,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -292,9 +291,7 @@ public class ConsoleCommands {
         meter.getCurrentMeterActivation()
                 .map(estimationService::estimate)
                 .map(EstimationReport::getResults)
-                .map(Stream::of)
-                .orElseGet(Stream::empty)
-                .forEach(map -> {
+                .ifPresent(map -> {
                     map.entrySet().stream()
                             .peek(entry -> System.out.println("ReadingType : " + entry.getKey().getMRID()))
                             .map(Map.Entry::getValue)
