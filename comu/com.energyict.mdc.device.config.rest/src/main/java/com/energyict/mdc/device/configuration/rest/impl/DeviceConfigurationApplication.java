@@ -23,6 +23,7 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -66,6 +67,7 @@ public class DeviceConfigurationApplication extends Application implements Trans
     private volatile DeviceService deviceService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile License license;
+    private volatile FirmwareService firmwareService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -199,6 +201,11 @@ public class DeviceConfigurationApplication extends Application implements Trans
         this.license = license;
     }
 
+    @Reference
+    public void setFirmwareService(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -226,6 +233,7 @@ public class DeviceConfigurationApplication extends Application implements Trans
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
+            bind(firmwareService).to(FirmwareService.class);
         }
     }
 

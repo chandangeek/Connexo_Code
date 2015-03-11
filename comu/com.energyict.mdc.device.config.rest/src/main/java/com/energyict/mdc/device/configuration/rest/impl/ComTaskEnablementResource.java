@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -30,20 +31,22 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ComTaskEnablementResource {
 
     private final ResourceHelper resourceHelper;
     private final TaskService taskService;
     private final Thesaurus thesaurus;
+    private final FirmwareService firmwareService;
 
     @Inject
-    public ComTaskEnablementResource(ResourceHelper resourceHelper, TaskService taskService, Thesaurus thesaurus) {
+    public ComTaskEnablementResource(ResourceHelper resourceHelper, TaskService taskService, Thesaurus thesaurus, FirmwareService firmwareService) {
         this.resourceHelper = resourceHelper;
         this.taskService = taskService;
         this.thesaurus = thesaurus;
+        this.firmwareService = firmwareService;
     }
 
     @GET
@@ -161,25 +164,41 @@ public class ComTaskEnablementResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    public PagedInfoList getComTasks(long deviceTypeId, long deviceConfigurationId, QueryParameters queryParameters, UriInfo uriInfo) {
+    /**
+     * @return A list of ComTasks which are allowed for the given DeviceType. If the DeviceType doesn't support firmwareUpgrades,
+     * then the 'Firmware Management' ComTask is not displayed.
+     */
+    public PagedInfoList getAllowedComTasksWhichAreNotDefinedYetFor(long deviceTypeId, long deviceConfigurationId, QueryParameters queryParameters, UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        List<ComTask> allowedComTasks = taskService.findAllComTasks().stream()
+                .filter(comTask ->
+                        comTaskIsNotAlreadyDefinedOnDeviceConfig(deviceConfiguration.getComTaskEnablements(), comTask) // filter all which are not enabled yet
+                                && comTaskIsAllowedOnDeviceType(comTask, deviceType))   // filter FirmwareTask if DeviceType doesn't allow
+                .collect(Collectors.toList());
 
-        String availableParameter = uriInfo.getQueryParameters().getFirst("available");
-
-        List<ComTaskEnablement> deviceConfigurationComTaskEnablements = deviceConfiguration.getComTaskEnablements();
-        List<ComTask> deviceConfigurationComTasks = new ArrayList<>(deviceConfigurationComTaskEnablements.size());
-        for (ComTaskEnablement comTaskEnablement : deviceConfigurationComTaskEnablements) {
-            deviceConfigurationComTasks.add(comTaskEnablement.getComTask());
-        }
-        if (availableParameter != null && "true".equalsIgnoreCase(availableParameter)) {
-            List<ComTask> filteredDeviceConfigurationComTasks = filterComTasks(deviceConfigurationComTasks);
-            deviceConfigurationComTasks.clear();
-            deviceConfigurationComTasks.addAll(filteredDeviceConfigurationComTasks);
-        }
-        List<ComTaskEnablementInfo.ComTaskInfo> deviceConfigurationComTaskInfos = ComTaskEnablementInfo.ComTaskInfo.from(ListPager.of(deviceConfigurationComTasks, new ComTaskComparator()).find());
+        List<ComTaskEnablementInfo.ComTaskInfo> deviceConfigurationComTaskInfos = ComTaskEnablementInfo.ComTaskInfo.from(ListPager.of(allowedComTasks, new ComTaskComparator()).find());
 
         return PagedInfoList.fromPagedList("data", deviceConfigurationComTaskInfos, queryParameters);
+    }
+
+    private boolean comTaskIsNotAlreadyDefinedOnDeviceConfig(List<ComTaskEnablement> deviceConfigurationComTaskEnablements, ComTask comTask) {
+        return !deviceConfigurationComTaskEnablements.stream().filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == comTask.getId()).findAny().isPresent();
+    }
+
+    /**
+     * Will only check if the DeviceType allows the firmwareUpgrade task and if the given ComTask is a firmwareUpgradeTask
+     */
+    private boolean comTaskIsAllowedOnDeviceType(ComTask comTask, DeviceType deviceType) {
+        return deviceTypeAllowsFirmwareUpgrade(deviceType) || !isFirmwareUpgradeComTask(comTask);
+    }
+
+    private boolean isFirmwareUpgradeComTask(ComTask comTask) {
+        return taskService.findFirmwareComTask().map(firmwareComTask -> firmwareComTask.getId() == comTask.getId()).orElse(false);
+    }
+
+    private boolean deviceTypeAllowsFirmwareUpgrade(DeviceType deviceType) {
+        return !this.firmwareService.getFirmwareOptionsFor(deviceType).isEmpty();
     }
 
     private void setComTaskEnablementActive(long deviceTypeId, long deviceConfigurationId, long comTaskEnablementId, boolean setActive) {
@@ -196,23 +215,6 @@ public class ComTaskEnablementResource {
                 comTaskEnablement.suspend();
             }
         }
-    }
-
-    private List<ComTask> filterComTasks(List<ComTask> deviceConfigurationComTasks) {
-        List<ComTask> filteredResult = new ArrayList<>();
-        List<ComTask> allComTasks = taskService.findAllComTasks();
-
-        outer:
-        for (ComTask comTask : allComTasks) {
-            for (ComTask dcComTask : deviceConfigurationComTasks) {
-                if (comTask.getId() == dcComTask.getId()) {
-                    continue outer;
-                }
-            }
-            filteredResult.add(comTask);
-        }
-
-        return filteredResult;
     }
 
     private SecurityPropertySet findSecurityPropertySetByIdOrThrowException(DeviceConfiguration deviceConfiguration, long securityPropertySetId) {
