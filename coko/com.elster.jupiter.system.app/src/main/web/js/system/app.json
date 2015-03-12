@@ -2,13 +2,13 @@
     "name": "com.elster.jupiter.system.app",
 
     "requires": [
-        "com.elster.jupiter.loaderjs",
-        "com.elster.jupiter.unifyingjs",
-        "com.elster.jupiter.users.extjs",
-        "com.elster.jupiter.systemadmin.extjs",
-        "com.elster.jupiter.export.extjs",
-        "com.elster.jupiter.time.extjs",
-        "com.elster.jupiter.appserver.extjs"
+      "com.elster.jupiter.loaderjs@1.0.2",
+      "com.elster.jupiter.unifyingjs@1.0.2",
+      "com.elster.jupiter.users.extjs@1.0.2",
+      "com.elster.jupiter.systemadmin.extjs@1.0.2",
+      "com.elster.jupiter.export.extjs@1.0.2",
+      "com.elster.jupiter.time.extjs@1.0.2",
+      "com.elster.jupiter.appserver.extjs@1.0.2"
     ],
 
     "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"
