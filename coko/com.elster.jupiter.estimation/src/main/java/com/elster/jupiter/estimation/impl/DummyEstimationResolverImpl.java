@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.Priority;
 import com.elster.jupiter.metering.MeterActivation;
 import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;
@@ -28,5 +29,10 @@ public class DummyEstimationResolverImpl implements EstimationResolver {
     @Override
     public boolean isInUse(EstimationRuleSet estimationRuleSet) {
         return false;
+    }
+
+    @Override
+    public Priority getPriority() {
+        return Priority.NORMAL;
     }
 }

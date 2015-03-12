@@ -9,4 +9,6 @@ public interface EstimationResolver {
     List<EstimationRuleSet> resolve(MeterActivation meterActivation);
 
     boolean isInUse(EstimationRuleSet estimationRuleSet);
+
+    Priority getPriority();
 }

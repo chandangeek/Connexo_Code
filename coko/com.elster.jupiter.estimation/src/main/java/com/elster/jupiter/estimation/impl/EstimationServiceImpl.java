@@ -44,6 +44,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -303,6 +304,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     private Stream<IEstimationRule> determineEstimationRules(MeterActivation meterActivation) {
         return decorate(resolvers.stream())
+                    .sorted(Comparator.comparing(EstimationResolver::getPriority).reversed())
                     .flatMap(resolver -> resolver.resolve(meterActivation).stream())
                     .map(IEstimationRuleSet.class::cast)
                     .distinct(EstimationRuleSet::getId)
