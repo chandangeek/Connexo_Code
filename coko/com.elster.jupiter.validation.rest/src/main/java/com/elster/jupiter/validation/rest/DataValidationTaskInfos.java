@@ -13,10 +13,7 @@ import java.util.List;
 public class DataValidationTaskInfos {
     public int total;
     public List<DataValidationTaskInfo> dataValidationTasks = new ArrayList<>();
-/*
-    public DataValidationTaskInfos() {
-    }
-*/
+
     public DataValidationTaskInfos(Iterable<? extends DataValidationTask> sets){//), Thesaurus thesaurus, TimeService timeService) {
         addAll(sets);//, thesaurus, timeService);
     }

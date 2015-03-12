@@ -12,6 +12,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -64,79 +65,37 @@ public class DataValidationTaskResource {
         //this.timeService = timeService;
     }
 
-    /*
-        @POST
-        @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-        @Consumes(MediaType.APPLICATION_JSON)
-        @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-        public Response createDataValidationTask(DataValidationTaskInfo info) {
-            return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(transactionService.execute(new Transaction<DataValidationTask>() {
-                @Override
-                public DataValidationTask perform() {
-                    return validationService.createValidationTask(info.name, info.endDeviceGroup);
-                }
-            }))).build();
+    @POST
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    public Response createDataValidationTask(DataValidationTaskInfo info) {
+
+        DataValidationTaskBuilder builder = validationService.newTaskBuilder()
+                .setName(info.name)
+                .setEndDeviceGroup(endDeviceGroup(info.endDeviceGroup.id));
+
+        DataValidationTask dataValidationTask = builder.build();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            dataValidationTask.save();
+            context.commit();
         }
-        */
-        @POST
-        @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-        @Consumes(MediaType.APPLICATION_JSON)
-        @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-        public Response createDataValidationTask(DataValidationTaskInfo info) {
+        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask)).build();
 
-            DataValidationTaskBuilder builder = validationService.newTaskBuilder()
-                    .setName(info.name)
-                    .setEndDeviceGroup(endDeviceGroup(info.endDeviceGroup.id));
-            /*
-            .setDataProcessorName(info.dataProcessor.name)
-                    .setScheduleExpression(getScheduleExpression(info))
-                    .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
-                    .setExportPeriod(getRelativePeriod(info.exportperiod))
-                    .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
-                    .setValidatedDataOption(info.validatedDataOption)
-                    .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id))
-                    .exportContinuousData(info.exportContinuousData)
-                    .exportUpdate(info.exportUpdate);
-
-*/
-
-            DataValidationTask dataValidationTask = builder.build();
-
-            try (TransactionContext context = transactionService.getContext()) {
-                //dataValidationTask.save();
-                context.commit();
-            }
-            return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask)).build();
-            /*
-            dataValidationTask
-            return Response.status(Response.Status.CREATED).entity(dataValidationTask);
-            return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(transactionService.execute(new Transaction<DataValidationTask>() {
-                @Override
-                public DataValidationTask perform() {
-
-                    DataValidationTask dt =  validationService.createValidationTask(info.name);
-                    dt.setEndDeviceGroup(endDeviceGroup(info.endDeviceGroup.id));
-
-                    dt.save();
-                    return dt;
-                }
-            }))).build();
-            */
-        }
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
             Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public DataValidationTaskInfos getDataValidationTasks(@Context UriInfo uriInfo) {
-        //QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
 
         List<DataValidationTask> list = validationService.findValidationTasks();
 
         DataValidationTaskInfos infos = new DataValidationTaskInfos(list);//, this.thesaurus, this.timeService);
 
         return infos;
-
 
     }
 
@@ -170,34 +129,27 @@ public class DataValidationTaskResource {
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public DataValidationTaskInfos editDataValidationTask(@PathParam("dataValidationTaskId") final long dataValidationTaskId, final DataValidationTaskInfo info, @Context SecurityContext securityContext) {
-        //DataValidationTaskInfos result = new DataValidationTaskInfos();
-        //result.add(transactionService.execute(new Transaction<DataValidationTask>() {
-        /*    @Override
+    public Response updateReadingTypeDataExportTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
+        DataValidationTask task = validationService.findValidationTask(dataValidationTaskId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
-        public ValidationRule perform() {
-                ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        try (TransactionContext context = transactionService.getContext()) {
+            task.setName(info.name);
+            //task.setScheduleExpression(getScheduleExpression(info));
+            //if (Never.NEVER.equals(task.getScheduleExpression())) {
+            //    task.setNextExecution(null);
+            //} else {
+            //    task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+            //}
+            //task.setExportPeriod(getRelativePeriod(info.exportperiod));
+            //task.setUpdatePeriod(getRelativePeriod(info.updatePeriod));
 
-                ValidationRule rule = getValidationRuleFromSetOrThrowException(ruleSet, ruleId);
+            task.setEndDeviceGroup(endDeviceGroup(info.endDeviceGroup.id));
 
-                List<String> mRIDs = new ArrayList<>();
-                for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                    mRIDs.add(readingTypeInfo.mRID);
-                }
-                Map<String, Object> propertyMap = new HashMap<>();
-                PropertyUtils propertyUtils = new PropertyUtils();
-                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                    if (value != null) {
-                        propertyMap.put(propertySpec.getName(), value);
-                    }
-                }
-                rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
-                ruleSet.save();
-                return rule;
-            }
-        }));*/
-        return null;
+            task.save();
+            context.commit();
+        }
+        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(task)).build();
+
     }
 
     @POST
@@ -205,7 +157,7 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        //transactionService.execute(VoidTransaction.of(() -> fetchDataExportTask(id).triggerNow()));
+        //transactionService.execute(VoidTransaction.of(() -> fetchDataValidationtTask(id).triggerNow()));
         return Response.status(Response.Status.OK).build();
     }
 
