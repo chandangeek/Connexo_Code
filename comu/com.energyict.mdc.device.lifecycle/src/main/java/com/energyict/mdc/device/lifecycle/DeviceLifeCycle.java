@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.State;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Models the life cycle of a device.
@@ -41,6 +43,20 @@ public interface DeviceLifeCycle {
      * @return The timestamp of last modification
      */
     public Instant getModifiedTimestamp();
+
+    /**
+     * Gets all {@link AuthorizedAction}s.
+     *
+     * @return The List of AuthorizedAction
+     */
+    public List<AuthorizedAction> getAuthorizedActions();
+
+    /**
+     * Gets all {@link AuthorizedAction}s for the specified {@link State}.
+     *
+     * @return The List of AuthorizedAction
+     */
+    public List<AuthorizedAction> getAuthorizedActions(State state);
 
     public void save();
 
