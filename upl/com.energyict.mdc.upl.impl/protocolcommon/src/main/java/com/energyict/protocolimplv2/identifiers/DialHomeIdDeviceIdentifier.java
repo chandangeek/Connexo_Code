@@ -39,7 +39,7 @@ public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public DialHomeIdDeviceIdentifier() {
+    private DialHomeIdDeviceIdentifier() {
         callHomeID = "";
     }
 

@@ -31,7 +31,7 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public LogBookIdentifierById() {
+    private LogBookIdentifierById() {
         this.logBookId = -1;
         this.logBookObisCode = null;
     }

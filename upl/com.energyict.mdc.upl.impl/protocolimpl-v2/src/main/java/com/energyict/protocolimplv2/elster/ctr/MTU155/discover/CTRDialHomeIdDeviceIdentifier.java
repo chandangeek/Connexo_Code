@@ -38,7 +38,7 @@ public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public CTRDialHomeIdDeviceIdentifier() {
+    private CTRDialHomeIdDeviceIdentifier() {
         callHomeID = "";
     }
 

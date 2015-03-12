@@ -39,7 +39,7 @@ public class DeviceIdentifierBySerialNumber implements ServerDeviceIdentifier {
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public DeviceIdentifierBySerialNumber() {
+    private DeviceIdentifierBySerialNumber() {
     }
 
     public DeviceIdentifierBySerialNumber(String serialNumber) {

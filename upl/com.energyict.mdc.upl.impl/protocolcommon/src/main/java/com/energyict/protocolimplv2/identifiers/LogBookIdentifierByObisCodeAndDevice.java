@@ -32,7 +32,7 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public LogBookIdentifierByObisCodeAndDevice() {
+    private LogBookIdentifierByObisCodeAndDevice() {
     }
 
     public LogBookIdentifierByObisCodeAndDevice(DeviceIdentifier deviceIdentifier, ObisCode logBookObisCode) {

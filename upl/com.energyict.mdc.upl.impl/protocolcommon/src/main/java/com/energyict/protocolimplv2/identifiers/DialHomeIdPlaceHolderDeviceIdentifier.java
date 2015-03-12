@@ -39,7 +39,7 @@ public class DialHomeIdPlaceHolderDeviceIdentifier implements ServerDeviceIdenti
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public DialHomeIdPlaceHolderDeviceIdentifier() {
+    private DialHomeIdPlaceHolderDeviceIdentifier() {
         callHomeIdPlaceHolder = new CallHomeIdPlaceHolder();
     }
 

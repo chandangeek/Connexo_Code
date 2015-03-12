@@ -36,7 +36,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public RegisterDataIdentifierByObisCodeAndDevice() {
+    private RegisterDataIdentifierByObisCodeAndDevice() {
         this.registerObisCode = null;
         this.deviceIdentifier = null;
     }

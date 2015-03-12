@@ -33,7 +33,7 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public DeviceIdentifierById() {
+    private DeviceIdentifierById() {
     }
 
     public DeviceIdentifierById(int id) {

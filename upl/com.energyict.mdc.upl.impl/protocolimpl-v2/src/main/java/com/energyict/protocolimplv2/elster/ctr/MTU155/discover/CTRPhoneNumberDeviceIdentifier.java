@@ -39,7 +39,7 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public CTRPhoneNumberDeviceIdentifier() {
+    private CTRPhoneNumberDeviceIdentifier() {
         phoneNumber = "";
     }
 

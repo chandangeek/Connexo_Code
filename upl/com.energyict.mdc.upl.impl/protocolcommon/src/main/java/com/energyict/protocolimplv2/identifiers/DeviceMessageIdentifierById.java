@@ -26,7 +26,7 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public DeviceMessageIdentifierById() {
+    private DeviceMessageIdentifierById() {
         messageId = -1;
     }
 
