@@ -151,7 +151,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(FinateStateMachine finateStateMachine) {
-        return new DeviceLifeCycleBuilderImpl(this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finateStateMachine));
+        return new DeviceLifeCycleBuilderImpl(dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finateStateMachine));
     }
 
 }

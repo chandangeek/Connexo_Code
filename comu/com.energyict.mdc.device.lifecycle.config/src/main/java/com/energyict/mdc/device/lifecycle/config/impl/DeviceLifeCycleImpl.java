@@ -97,6 +97,10 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
                 .collect(Collectors.toList());
     }
 
+    void add(AuthorizedAction action) {
+        this.actions.add(action);
+    }
+
     @Override
     public long getVersion() {
         return version;

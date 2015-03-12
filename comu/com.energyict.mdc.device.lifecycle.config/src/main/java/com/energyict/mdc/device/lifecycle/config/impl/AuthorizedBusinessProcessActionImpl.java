@@ -36,6 +36,13 @@ public class AuthorizedBusinessProcessActionImpl extends AuthorizedActionImpl im
         super(dataModel);
     }
 
+    AuthorizedBusinessProcessActionImpl initialize(State state, String deploymentId, String processId) {
+        this.state.set(state);
+        this.deploymentId = deploymentId;
+        this.processId = processId;
+        return this;
+    }
+
     public boolean matches(String deploymentId, String processId) {
         return Checks.is(this.deploymentId).equalTo(deploymentId)
                 && Checks.is(this.processId).equalTo(processId);
