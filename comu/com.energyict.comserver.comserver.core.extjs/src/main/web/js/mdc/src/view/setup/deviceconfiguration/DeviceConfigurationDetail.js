@@ -166,32 +166,29 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             layout: {
                                                 type: 'vbox'
                                             },
+                                            defaults: {
+                                                xtype: 'button',
+                                                ui: 'link',
+                                                href: '#',
+                                                style: 'text-decoration: underline'
+                                            },
                                             items: [
                                                 {
-                                                    xtype: 'button',
                                                     name: 'registerCount',
                                                     text: Uni.I18n.translate('deviceconfig.registerconfigs', 'MDC', 'register configurations'),
-                                                    ui: 'link',
-                                                    itemId: 'deviceConfigurationDetailRegistersLink',
-                                                    href: '#'
+                                                    itemId: 'deviceConfigurationDetailRegistersLink'
                                                 },
 
                                                 {
-                                                    xtype: 'button',
                                                     name: 'loadProfileCount',
                                                     text: Uni.I18n.translate('general.loadProfileConfigurations', 'MDC', 'load profile configurations'),
-                                                    ui: 'link',
-                                                    itemId: 'deviceConfigurationDetailLoadProfilesLink',
-                                                    href: '#'
+                                                    itemId: 'deviceConfigurationDetailLoadProfilesLink'
                                                 },
 
                                                 {
-                                                    xtype: 'button',
                                                     name: 'logBookCount',
                                                     text: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'logbook configurations'),
-                                                    ui: 'link',
-                                                    itemId: 'deviceConfigurationDetailLogBooksLink',
-                                                    href: '#'
+                                                    itemId: 'deviceConfigurationDetailLogBooksLink'
                                                 }
                                             ]
                                         }

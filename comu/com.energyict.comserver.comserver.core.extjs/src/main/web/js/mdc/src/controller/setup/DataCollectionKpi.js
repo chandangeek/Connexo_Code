@@ -86,7 +86,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             communicationKpiField = editForm.down('#communicationKpiField'),
             deviceGroupCombo = editForm.down('#deviceGroupCombo'),
             frequencyCombo = editForm.down('#frequencyCombo'),
-            successMessage = Uni.I18n.translate('datacollectionkpis.saved', 'MDC', 'Data collection KPI saved.'),
+            successMessage = Uni.I18n.translate('datacollectionkpis.saved', 'MDC', 'Data collection KPI saved'),
             kpiMessageContainer = me.getKpiErrorContainer();
 
         kpiMessageContainer.hide();
@@ -97,7 +97,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         record.set('connectionTarget', connectionKpiField.getValue());
 
         if (btn.action === 'add') {
-            successMessage = Uni.I18n.translate('datacollectionkpis.added', 'MDC', 'Data collection KPI added.');
+            successMessage = Uni.I18n.translate('datacollectionkpis.added', 'MDC', 'Data collection KPI added');
             record.set('deviceGroup', { id: deviceGroupCombo.getValue() });
             if (frequencyCombo.getValue() === '') {
                 record.set('frequency', {});
@@ -117,7 +117,6 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                     if(!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
-                            console.log(json.errors);
                             Ext.each(json.errors, function(error) {
                                if (error.id === 'communicationKpi') {
                                    kpiMessageContainer.update(error.msg);

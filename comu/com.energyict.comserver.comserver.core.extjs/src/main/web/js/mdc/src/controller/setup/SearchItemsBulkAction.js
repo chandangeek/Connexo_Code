@@ -344,9 +344,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         var me = this,
             layout = me.getSearchItemsWizard().getLayout(),
             errorContainer = currentCmp.down('#stepSelectionError'),
-            validation = true,
-            errorPanel = null,
-            progressBar;
+            errorPanel = null, progressBar;
 
         switch (currentCmp.name) {
             case 'selectDevices':
@@ -399,10 +397,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             layout.setActiveItem(nextCmp);
             this.updateButtonsState(nextCmp);
             this.updateTitles();
+            me.getStatusPage().setLoading(false);
             return true;
         } else {
             errorPanel.show();
             errorContainer && errorContainer.show();
+            me.getStatusPage().setLoading(false);
             return false;
         }
     },
@@ -525,14 +525,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     showViewDevices: function (button) {
-        var layout = this.getSearchItemsWizard().getLayout(),
-            viewFailureDevices = this.getSearchItemsWizard().down('#searchitems-bulk-step5-viewdevices'),
+        var me = this, layout = me.getSearchItemsWizard().getLayout(),
+            viewFailureDevices = me.getSearchItemsWizard().down('#searchitems-bulk-step5-viewdevices'),
             viewDevicesData = button.viewDevicesData;
+
+        me.getStatusPage().setLoading(true);
 
         viewFailureDevices.down('#failuremessage').update(viewDevicesData.message);
         viewFailureDevices.down('#failuredevicesgrid').getStore().loadData(viewDevicesData.devices);
 
-        this.changeContent(layout.getNext(), layout.getActiveItem());
+        me.changeContent(layout.getNext(), layout.getActiveItem());
     }
 })
 ;

@@ -55,6 +55,6 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5ViewDevices', {
                 }
             }
         ];
-        me.callParent(arguments)
+        me.callParent(arguments);
     }
 });

@@ -6,6 +6,8 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
     itemId: 'outboundportcomportpools',
     margin: '0 0 -30 0',
     width: 538,
+    overflowY: 'hidden',
+    autoHeight: true,
     columns: [
         {
             dataIndex: 'name',
@@ -25,7 +27,6 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
             ]
         }
     ],
-    height: 220,
     tbar: [
         {
             xtype: 'container',

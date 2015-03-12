@@ -38,14 +38,35 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid',
 
     columns: [
         {
-            xtype: 'obis-column',
-            dataIndex: 'obisCode',
-            flex: 1
-        },
-        {
             xtype: 'reading-type-column',
             dataIndex: 'readingType',
             flex: 2
+        },
+        {
+            xtype: 'obis-column',
+            dataIndex: 'obisCode',
+            flex: 1
         }
-    ]
+    ],
+
+    existingRecords: [],
+
+    onClickUncheckAllButton: function (button) {
+        var me = this;
+
+        me.existingRecords = [];
+        me.view.getSelectionModel().deselectAll();
+        button.setDisabled(true);
+    },
+
+    onSelectionChange: function () {
+        var me = this,
+            selection = me.existingRecords;
+
+        Ext.suspendLayouts();
+        me.getSelectionCounter().setText(me.counterTextFn(selection.length));
+        me.getUncheckAllButton().setDisabled(selection.length === 0);
+        me.doLayout();
+        Ext.resumeLayouts(true);
+    }
 });
