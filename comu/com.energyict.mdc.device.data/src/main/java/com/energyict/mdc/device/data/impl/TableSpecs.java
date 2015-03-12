@@ -507,8 +507,8 @@ public enum TableSpecs {
             table.map(DataCollectionKpiImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("DISPLAYRANGEVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName()+".count").add();
-            table.column("DISPLAYRANGEUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName()+".timeUnitCode").add();
+            table.column("DISPLAYRANGEVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName()+".count").notNull().add();
+            table.column("DISPLAYRANGEUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName()+".timeUnitCode").notNull().add();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
             Column connectionKpi = table.column("CONNECTIONKPI").number().add();
             Column comTaskExecKpi = table.column("COMMUNICATIONKPI").number().add();
