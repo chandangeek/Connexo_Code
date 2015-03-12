@@ -1,7 +1,7 @@
 Ext.define('Uni.property.view.property.Date', {
     extend: 'Uni.property.view.property.Base',
 
-    format: 'd/m/Y',
+    format: 'd M \'y',
     formats: [
         'd.m.Y',
         'd m Y'
