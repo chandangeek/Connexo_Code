@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
 import com.energyict.mdc.device.data.kpi.rest.LongIdWithNameInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.jayway.jsonpath.JsonModel;
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -134,6 +135,23 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         verify(communicationKpiTargetBuilder).expectingAsMaximum(BigDecimal.valueOf(99.9));
         verify(connectionKpiTargetBuilder, never()).expectingAsMaximum(anyObject());
         verify(kpiBuilder).save();
+    }
+
+    @Test
+    public void testCreateKpiWithoutDeviceGroup() throws Exception {
+        DataCollectionKpiInfo info = new DataCollectionKpiInfo();
+        info.communicationTarget=BigDecimal.valueOf(99.9);
+        info.deviceGroup =new LongIdWithNameInfo(null, null);
+        info.frequency = new TemporalExpressionInfo();
+        info.frequency.every = new TimeDurationInfo();
+        info.frequency.every.timeUnit="minutes";
+        info.frequency.every.count=15;
+        Response response = target("/kpis/").request().post(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<List>get("$.errors")).isNotEmpty();
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("deviceGroup");
     }
 
     @Test
