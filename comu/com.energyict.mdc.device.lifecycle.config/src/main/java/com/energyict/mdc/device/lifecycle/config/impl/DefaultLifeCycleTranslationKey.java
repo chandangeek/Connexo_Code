@@ -4,20 +4,15 @@ import com.elster.jupiter.nls.TranslationKey;
 
 /**
  * Represents the translation keys for the elements of the default life cycle.
+ * Note that the information about the {@link com.elster.jupiter.fsm.State}s
+ * has been extracted into {@link com.energyict.mdc.device.lifecycle.config.DefaultState}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (11:42)
  */
 public enum DefaultLifeCycleTranslationKey implements TranslationKey {
 
-    DEFAULT_FINATE_STATE_MACHINE_NAME("dlc.default.finate.state.machine", "Default life cycle"),
-    ORDERED_DEFAULT_STATE("dlc.default.ordered", "Ordered"),
-    IN_STOCK_DEFAULT_STATE("dlc.default.inStock", "In Stock"),
-    COMMISSIONED_DEFAULT_STATE("dlc.default.commissioned", "Commissioned"),
-    ACTIVE_DEFAULT_STATE("dlc.default.active", "Active"),
-    INACTIVE_DEFAULT_STATE("dlc.default.inactive", "Inactive"),
-    DECOMMISSIONED_DEFAULT_STATE("dlc.default.decommissioned", "Decommissioned"),
-    DELETED_DEFAULT_STATE("dlc.default.deleted", "Deleted");
+    DEFAULT_FINATE_STATE_MACHINE_NAME("dlc.default.finate.state.machine", "Default life cycle");
 
     private final String key;
     private final String defaultFormat;

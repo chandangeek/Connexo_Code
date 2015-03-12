@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -72,8 +72,8 @@ public class DeviceLifeCycleIT {
                 .orElseThrow(() -> new IllegalStateException("Please rerun " + DeviceLifeCycleConfigurationServiceIT.class.getName() + " to find out why the installer has not created the default finate state machine"));
     }
 
-    private DeviceLifeCycleService getTestService() {
-        return inMemoryPersistence.getDeviceLifeCycleService();
+    private DeviceLifeCycleConfigurationService getTestService() {
+        return inMemoryPersistence.getDeviceLifeCycleConfigurationService();
     }
 
 }

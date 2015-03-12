@@ -9,4 +9,7 @@ package com.energyict.mdc.device.lifecycle.config;
  * @since 2015-03-12 (09:04)
  */
 public enum MicroCheck {
+
+    EXAMPLE;
+
 }

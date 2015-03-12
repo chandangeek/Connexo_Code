@@ -128,7 +128,7 @@ public class InMemoryPersistence {
         return this.transactionService;
     }
 
-    public DeviceLifeCycleConfigurationServiceImpl getDeviceLifeCycleService() {
+    public DeviceLifeCycleConfigurationServiceImpl getDeviceLifeCycleConfigurationService() {
         return this.lifeCycleService;
     }
 

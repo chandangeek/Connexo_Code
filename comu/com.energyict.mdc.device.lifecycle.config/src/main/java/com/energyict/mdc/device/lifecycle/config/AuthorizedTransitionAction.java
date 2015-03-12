@@ -2,6 +2,8 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.StateTransition;
 
+import java.util.Set;
+
 /**
  * Models an action that can be authorized to initiate a {@link StateTransition}.
  *
@@ -11,5 +13,9 @@ import com.elster.jupiter.fsm.StateTransition;
 public interface AuthorizedTransitionAction extends AuthorizedAction {
 
     public StateTransition getStateTransition();
+
+    public Set<MicroCheck> getChecks();
+
+    public Set<MicroAction> getActions();
 
 }

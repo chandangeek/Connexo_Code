@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
@@ -23,8 +24,10 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycleConfigurationService} interface.
@@ -72,7 +75,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        Stream.of(MessageSeeds.values()).forEach(keys::add);
+        Stream.of(DefaultState.values()).forEach(keys::add);
+        Stream.of(DefaultLifeCycleTranslationKey.values()).forEach(keys::add);
+        return keys;
     }
 
     @Override

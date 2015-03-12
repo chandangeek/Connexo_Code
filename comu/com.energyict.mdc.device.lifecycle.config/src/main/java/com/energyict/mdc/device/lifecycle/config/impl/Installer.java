@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 
@@ -85,13 +86,13 @@ public class Installer {
 
         FinateStateMachineBuilder builder = this.stateMachineService.newFinateStateMachine(DefaultLifeCycleTranslationKey.DEFAULT_FINATE_STATE_MACHINE_NAME.getDefaultFormat());
         // Create default States
-        State deleted = builder.newStandardState(DefaultLifeCycleTranslationKey.DELETED_DEFAULT_STATE.getKey()).complete();
+        State deleted = builder.newStandardState(DefaultState.DELETED.getKey()).complete();
         State decommissioned = builder
-                .newStandardState(DefaultLifeCycleTranslationKey.DECOMMISSIONED_DEFAULT_STATE.getKey())
+                .newStandardState(DefaultState.DECOMMISSIONED.getKey())
                 .on(deletedEventType).transitionTo(deleted)
                 .complete();
-        FinateStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState(DefaultLifeCycleTranslationKey.ACTIVE_DEFAULT_STATE.getKey());
-        FinateStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultLifeCycleTranslationKey.INACTIVE_DEFAULT_STATE.getKey());
+        FinateStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState(DefaultState.ACTIVE.getKey());
+        FinateStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultState.INACTIVE.getKey());
         State active = activeBuilder
                 .on(decommissionedEventType).transitionTo(decommissioned)
                 .on(deactivated).transitionTo(inactiveBuilder)
@@ -101,18 +102,18 @@ public class Installer {
                 .on(decommissionedEventType).transitionTo(decommissioned)
                 .complete();
         State commissioned = builder
-                .newStandardState(DefaultLifeCycleTranslationKey.COMMISSIONED_DEFAULT_STATE.getKey())
+                .newStandardState(DefaultState.COMMISSIONED.getKey())
                 .on(activated).transitionTo(active)
                 .on(deactivated).transitionTo(inactive)
                 .complete();
         State inStock = builder
-                .newStandardState(DefaultLifeCycleTranslationKey.IN_STOCK_DEFAULT_STATE.getKey())
+                .newStandardState(DefaultState.IN_STOCK.getKey())
                 .on(activated).transitionTo(active)
                 .on(deactivated).transitionTo(inactive)
                 .on(commissionedEventType).transitionTo(commissioned)
                 .complete();
         builder
-            .newStandardState(DefaultLifeCycleTranslationKey.ORDERED_DEFAULT_STATE.getKey())
+            .newStandardState(DefaultState.ORDERED.getKey())
             .on(deliveredToWarehouse).transitionTo(inStock)
             .complete();
         FinateStateMachine stateMachine = builder.complete();

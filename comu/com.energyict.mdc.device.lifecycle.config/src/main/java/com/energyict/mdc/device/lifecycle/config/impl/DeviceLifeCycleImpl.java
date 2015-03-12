@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -11,6 +13,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycle} interface.
@@ -73,6 +77,16 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     @Override
     public FinateStateMachine getFinateStateMachine() {
         return this.stateMachine.get();
+    }
+
+    @Override
+    public List<AuthorizedAction> getAuthorizedActions() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<AuthorizedAction> getAuthorizedActions(State state) {
+        return Collections.emptyList();
     }
 
     @Override
