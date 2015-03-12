@@ -10,6 +10,6 @@
     "local": true,
     "requires": [
       "com.elster.jupiter.unifyingjs@1.0.2",
-      "com.energyict.comserver.comserver.core.extjs@1.0.2"
+      "com.energyict.comserver.comserver.core.extjs@1.0.0"
     ]
 }
