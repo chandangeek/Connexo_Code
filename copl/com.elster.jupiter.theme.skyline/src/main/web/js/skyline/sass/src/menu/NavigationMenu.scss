@@ -24,6 +24,15 @@
     padding: $menu-navigation-item-padding;
     height: $menu-navigation-item-height;
     background-color: transparent;
+
+    &.not-a-clickable {
+      cursor: default;
+
+      a,
+      .#{$prefix}menu-item-text {
+        cursor: default;
+      }
+    }
   }
 
   .#{$prefix}menu-item:first-child {
