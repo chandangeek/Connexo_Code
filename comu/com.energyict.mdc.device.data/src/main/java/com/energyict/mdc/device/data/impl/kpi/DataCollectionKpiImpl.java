@@ -136,6 +136,10 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         return this.deviceGroup.get();
     }
 
+    public boolean hasDeviceGroup() {
+        return this.deviceGroup.isPresent();
+    }
+
     @Override
     public boolean calculatesConnectionSetupKpi() {
         return this.connectionKpi.isPresent();
