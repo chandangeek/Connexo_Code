@@ -31,11 +31,20 @@ Ext.define('Uni.view.menu.NavigationMenu', {
 
     updateItemCls: function (index) {
         var me = this,
-            item = me.items.getAt(index - 1);
-        item.removeCls(['step-completed', 'step-active', 'step-non-completed']);
-        index < me.activeStep ? item.addCls('step-completed') :
-            (index > me.activeStep ? item.addCls('step-non-completed') :
-                item.addCls('step-active'));
+            item = me.items.getAt(index - 1),
+            classesToAdd;
+
+        item.removeCls(['step-completed', 'step-active', 'step-non-completed', 'not-a-clickable']);
+
+        if (index < me.activeStep) {
+            classesToAdd = me.jumpBack ? 'step-completed' : ['step-completed', 'not-a-clickable'];
+        } else if (index > me.activeStep) {
+            classesToAdd = me.jumpForward ? 'step-non-completed' : ['step-non-completed', 'not-a-clickable'];
+        } else {
+            classesToAdd = ['step-active', 'not-a-clickable'];
+        }
+
+        item.addCls(classesToAdd);
     },
 
     moveTo: function (step) {
