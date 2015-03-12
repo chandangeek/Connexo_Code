@@ -96,7 +96,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 
         widget = Ext.widget('bulk-browse');
         me.getApplication().fireEvent('changecontentevent', widget);
-
+        issuesStore.data.clear();
         issuesStore.loadPage(1);
     },
 
