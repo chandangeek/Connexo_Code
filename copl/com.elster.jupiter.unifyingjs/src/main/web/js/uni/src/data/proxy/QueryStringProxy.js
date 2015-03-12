@@ -67,7 +67,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
 
         operation.setStarted();
         if (!_.isUndefined(router.queryParams[me.root])) {
-            var data = Ext.decode(router.queryParams[me.root], true);
+            var data = Ext.decode(atob(router.queryParams[me.root], true));
 
             if (this.hydrator) {
                 var record = Ext.create(Model);
@@ -126,7 +126,7 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
         operation.setCompleted();
         operation.setSuccessful();
 
-        queryParams[this.root] = Ext.encode(data);
+        queryParams[this.root] = btoa(Ext.encode(data));
         router.getRoute().forward(null, queryParams);
     }
 });
