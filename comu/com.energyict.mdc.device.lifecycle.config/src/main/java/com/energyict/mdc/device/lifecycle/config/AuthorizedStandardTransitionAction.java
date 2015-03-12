@@ -15,4 +15,9 @@ public interface AuthorizedStandardTransitionAction extends AuthorizedTransition
 
     public TransitionType getType();
 
+    @Override
+    public default boolean isStandard() {
+        return true;
+    }
+
 }

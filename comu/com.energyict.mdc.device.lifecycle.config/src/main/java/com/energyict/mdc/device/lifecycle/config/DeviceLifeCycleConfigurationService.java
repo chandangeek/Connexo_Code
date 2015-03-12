@@ -12,6 +12,14 @@ public interface DeviceLifeCycleConfigurationService {
 
     String COMPONENT_NAME = "DLD";
 
-    public DeviceLifeCycle newDeviceLifeCycleUsing(FinateStateMachine finateStateMachine);
+    /**
+     * Starts the building process of a new {@link DeviceLifeCycle}.
+     *
+     * @param finateStateMachine The FinateStateMachine that is providing all the
+     * {@link com.elster.jupiter.fsm.State}s and {@link com.elster.jupiter.fsm.StateTransition}s.
+     *
+     * @return The DeviceLifeCycleBuilder
+     */
+    public DeviceLifeCycleBuilder newDeviceLifeCycleUsing(FinateStateMachine finateStateMachine);
 
 }

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.elster.jupiter.fsm.FinateStateMachine;
@@ -151,8 +150,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    public DeviceLifeCycle newDeviceLifeCycleUsing(FinateStateMachine finateStateMachine) {
-        return this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finateStateMachine);
+    public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(FinateStateMachine finateStateMachine) {
+        return new DeviceLifeCycleBuilderImpl(this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finateStateMachine));
     }
 
 }

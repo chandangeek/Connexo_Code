@@ -53,7 +53,7 @@ public class DeviceLifeCycleIT {
         FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
 
         // Business method
-        DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(stateMachine);
+        DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(stateMachine).complete();
         deviceLifeCycle.save();
 
         // Asserts

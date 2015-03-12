@@ -12,9 +12,12 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycle} interface.
@@ -45,6 +48,8 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
     private Reference<FinateStateMachine> stateMachine = ValueReference.absent();
+    @Valid
+    private List<AuthorizedAction> actions = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -59,7 +64,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         this.dataModel = dataModel;
     }
 
-    public DeviceLifeCycle initialize(FinateStateMachine stateMachine) {
+    public DeviceLifeCycleImpl initialize(FinateStateMachine stateMachine) {
         this.stateMachine.set(stateMachine);
         return this;
     }
@@ -81,12 +86,15 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public List<AuthorizedAction> getAuthorizedActions() {
-        return Collections.emptyList();
+        return Collections.unmodifiableList(this.actions);
     }
 
     @Override
     public List<AuthorizedAction> getAuthorizedActions(State state) {
-        return Collections.emptyList();
+        return this.actions
+                .stream()
+                .filter(a -> state.getId() == a.getState().getId())
+                .collect(Collectors.toList());
     }
 
     @Override

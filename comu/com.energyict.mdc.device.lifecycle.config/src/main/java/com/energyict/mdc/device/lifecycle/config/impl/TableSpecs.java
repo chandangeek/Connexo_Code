@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.fsm.FinateStateMachineService;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
@@ -23,11 +25,38 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column stateMachine = table.column("FSM").number().notNull().add();
-            table.primaryKey("PK_DLC_DEVICELIFECYCLE").on(id).add();
-            table.foreignKey("FK_DLC_FSM")
+            table.primaryKey("PK_DLD_DEVICELIFECYCLE").on(id).add();
+            table.foreignKey("FK_DLD_FSM")
                     .on(stateMachine)
                     .references(FinateStateMachineService.COMPONENT_NAME, "FSM_FINATE_STATE_MACHINE")
                     .map(DeviceLifeCycleImpl.Fields.STATE_MACHINE.fieldName())
+                    .add();
+        }
+    },
+    DLD_AUTHORIZED_ACTION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<AuthorizedAction> table = dataModel.addTable(this.name(), AuthorizedAction.class);
+            table.map(AuthorizedActionImpl.IMPLEMENTERS);
+            Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
+            Column deviceLifeCycle = table.column("DEVICELIFECYCLE").number().notNull().add();
+            table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(AuthorizedActionImpl.Fields.LEVELS.fieldName()).add();
+            // AuthorizedTransitionAction
+            table.column("CHECKBITS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.CHECKS.fieldName()).add();
+            table.column("ACTIONBITS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
+            // AuthorizedStandardTransitionAction
+            table.column("TRANSITIONTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map(AuthorizedActionImpl.Fields.TYPE.fieldName()).add();
+            // AuthorizedBusinessProcessAction
+            table.column("DEPLOYMENTID").varChar().notNull().map(AuthorizedActionImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
+            table.column("PROCESSID").varChar().notNull().map(AuthorizedActionImpl.Fields.PROCESS_ID.fieldName()).add();
+            table.primaryKey("PK_DLD_AUTHORIZED_ACTION").on(id).add();
+            table.foreignKey("FK_DLD_AUTH_ACTION_DLC")
+                    .on(deviceLifeCycle)
+                    .references(DLD_DEVICE_LIFE_CYCLE.name())
+                    .map(AuthorizedActionImpl.Fields.DEVICE_LIFE_CYCLE.fieldName())
+                    .reverseMap(DeviceLifeCycleImpl.Fields.ACTIONS.fieldName())
+                    .composition()
                     .add();
         }
     };
