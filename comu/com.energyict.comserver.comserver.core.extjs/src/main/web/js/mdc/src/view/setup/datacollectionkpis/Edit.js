@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                 },
                 {
                     xtype: 'combobox',
-                    name: 'devicegroup',
+                    name: 'deviceGroup',
                     emptyText: Uni.I18n.translate('datacollectionkpis.selectDeviceGroup', 'MDC', 'Select a device group'),
                     itemId: 'deviceGroupCombo',
                     fieldLabel: Uni.I18n.translate('datacollectionkpis.deviceGroup', 'MDC', 'Device group'),

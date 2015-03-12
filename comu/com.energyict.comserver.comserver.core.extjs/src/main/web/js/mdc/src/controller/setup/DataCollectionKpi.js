@@ -98,7 +98,9 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
 
         if (btn.action === 'add') {
             successMessage = Uni.I18n.translate('datacollectionkpis.added', 'MDC', 'Data collection KPI added');
-            record.set('deviceGroup', { id: deviceGroupCombo.getValue() });
+            if (deviceGroupCombo.getValue()) {
+                record.set('deviceGroup', { id: deviceGroupCombo.getValue() });
+            }
             if (frequencyCombo.getValue() === '') {
                 record.set('frequency', {});
             } else {
@@ -147,7 +149,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
     showDataCollectionKpiEditView: function (id) {
         var me = this,
             widget = Ext.widget('dataCollectionKpiEdit'),
-            deviceGroupStore = widget.down('combobox[name=devicegroup]').getStore(),
+            deviceGroupStore = widget.down('combobox[name=deviceGroup]').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.model.DataCollectionKpi'),
             form = widget.down('#dataCollectionKpiEditForm'),
             deviceGroupCombo = widget.down('#deviceGroupCombo'),
@@ -172,6 +174,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                                 frequencyStore = frequencyCombo.getStore(),
                                 frequencyObject = kpiRecord.get('frequency').every;
 
+                            Ext.suspendLayouts();
+
                             form.loadRecord(kpiRecord);
 
                             widget.down('#dataCollectionKpiEditForm').setTitle(editTitle);
@@ -183,12 +187,16 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                                 connectionKpiField.setValue(kpiRecord.get('connectionTarget'));
                                 connectionKpiField.hide();
                                 connectionKpiDisplayField.show();
+                            } else {
+                                connectionKpiField.setValue(null);
                             }
 
                             if (!Ext.isEmpty(kpiRecord.get('communicationTarget'))) {
                                 communicationKpiField.setValue(kpiRecord.get('communicationTarget'));
                                 communicationKpiField.hide();
                                 communicationKpiDisplayField.show();
+                            } else {
+                                communicationKpiField.setValue(null);
                             }
 
                             deviceGroupDisplayField.setValue(kpiRecord.get('deviceGroup').name);
@@ -203,6 +211,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                                     frequencyDisplayField.setValue(record.get('name'));
                                 }
                             });
+
+                            Ext.resumeLayouts(true);
 
                             widget.setLoading(false);
                         }
