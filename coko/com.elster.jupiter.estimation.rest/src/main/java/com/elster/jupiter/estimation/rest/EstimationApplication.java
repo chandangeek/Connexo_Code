@@ -21,7 +21,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.estimation.rest" , service=Application.class , immediate = true , property = {"alias=/val", "app=SYS", "name=" + EstimationApplication.COMPONENT_NAME} )
+@Component(name = "com.elster.jupiter.estimation.rest" , service=Application.class , immediate = true , property = {"alias=/est", "app=SYS", "name=" + EstimationApplication.COMPONENT_NAME} )
 public class EstimationApplication extends Application implements ServiceLocator, BinderProvider {
     public static final String COMPONENT_NAME = "EST";
 

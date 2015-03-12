@@ -9,7 +9,7 @@ import javax.ws.rs.Path;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Path("/validation")
+@Path("/estimation")
 public class EstimationResource {
 
     private final RestQueryService queryService;

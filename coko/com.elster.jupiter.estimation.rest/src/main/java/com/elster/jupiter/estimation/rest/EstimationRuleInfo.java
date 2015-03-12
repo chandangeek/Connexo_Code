@@ -12,7 +12,7 @@ public class EstimationRuleInfo {
     public long id;
     public boolean active;
     public boolean deleted;
-    public String implementation; //validator classname
+    public String implementation; //estimator classname
     public String displayName; // readable name
     public String name;
     public int position;
@@ -36,8 +36,8 @@ public class EstimationRuleInfo {
 
     public static List<EstimationRuleInfo> from(List<EstimationRule> estimationRules) {
         List<EstimationRuleInfo> infos = new ArrayList<>(estimationRules.size());
-        for (EstimationRule validationRule : estimationRules) {
-            infos.add(new EstimationRuleInfo(validationRule));
+        for (EstimationRule estimationRule : estimationRules) {
+            infos.add(new EstimationRuleInfo(estimationRule));
         }
         return infos;
     }
