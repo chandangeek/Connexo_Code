@@ -174,6 +174,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                                 frequencyStore = frequencyCombo.getStore(),
                                 frequencyObject = kpiRecord.get('frequency').every;
 
+                            Ext.suspendLayouts();
+
                             form.loadRecord(kpiRecord);
 
                             widget.down('#dataCollectionKpiEditForm').setTitle(editTitle);
@@ -185,12 +187,16 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                                 connectionKpiField.setValue(kpiRecord.get('connectionTarget'));
                                 connectionKpiField.hide();
                                 connectionKpiDisplayField.show();
+                            } else {
+                                connectionKpiField.setValue(null);
                             }
 
                             if (!Ext.isEmpty(kpiRecord.get('communicationTarget'))) {
                                 communicationKpiField.setValue(kpiRecord.get('communicationTarget'));
                                 communicationKpiField.hide();
                                 communicationKpiDisplayField.show();
+                            } else {
+                                communicationKpiField.setValue(null);
                             }
 
                             deviceGroupDisplayField.setValue(kpiRecord.get('deviceGroup').name);
@@ -205,6 +211,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                                     frequencyDisplayField.setValue(record.get('name'));
                                 }
                             });
+
+                            Ext.resumeLayouts(true);
 
                             widget.setLoading(false);
                         }
