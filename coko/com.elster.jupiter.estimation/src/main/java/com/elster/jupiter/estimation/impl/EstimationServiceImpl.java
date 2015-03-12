@@ -140,6 +140,13 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
+    public Query<EstimationRuleSet> getEstimationRuleSetQuery() {
+        Query<EstimationRuleSet> ruleSetQuery = queryService.wrap(dataModel.query(EstimationRuleSet.class));
+        ruleSetQuery.setRestriction(where(EstimationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull());
+        return ruleSetQuery;
+    }
+
+    @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
     }
