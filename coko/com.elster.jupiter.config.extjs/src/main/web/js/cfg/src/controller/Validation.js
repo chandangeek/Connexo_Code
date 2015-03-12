@@ -144,9 +144,11 @@ Ext.define('Cfg.controller.Validation', {
             '#addReadingTypesToRuleSetup cfg-side-filter button[action=clearfilter]': {
                 click: this.clearAllCombos
             },
-
             '#addReadingTypesToRuleSetup #buttonsContainer button[name=add]': {
                 click: this.addReadingTypesToGrid
+            },
+            'addReadingTypesBulk': {
+                selectionchange: this.setAddReadingTypesAddBtnState
             }
         });
     },
@@ -289,7 +291,7 @@ Ext.define('Cfg.controller.Validation', {
         if (record && record.properties() && record.properties().count()) {
             propertyForm.loadRecord(record);
 
-            propertyForm.on('afterlayout', function(){
+            propertyForm.on('afterlayout', function () {
                 if (propertyForm.down('#minimumnumberfield')) {
                     propertyForm.down('#minimumnumberfield').hasNotValueSameAsDefaultMessage = true;
                     propertyForm.down('#maximumnumberfield').hasNotValueSameAsDefaultMessage = true;
@@ -501,7 +503,7 @@ Ext.define('Cfg.controller.Validation', {
                 });
                 properties.push({
                     property: 'selectedReadings',
-                    value:mRIDs
+                    value: mRIDs
                 });
             }
         }
@@ -535,18 +537,11 @@ Ext.define('Cfg.controller.Validation', {
 
         bulkGridContainer.add(previewContainer);
 
-        //<debug>
-        Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
-        //</debug>
-
-        readingTypeStore.on('load', function (store, records) {
-            if (!records || !records.length) {
-                widget.down('#buttonsContainer button[name=add]').setDisabled(true);
-            }
-        }, me, {
-            single: true
+        readingTypeStore.on('beforeload', function () {
+            widget.down('#buttonsContainer button[name=add]').setDisabled(true);
         });
 
+        Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
         readingTypeStore.load();
     },
 
@@ -815,7 +810,7 @@ Ext.define('Cfg.controller.Validation', {
                     returnLink: cancelLink
                 });
 
-               ;
+                ;
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 if (me.validationRuleRecord) {
@@ -879,7 +874,7 @@ Ext.define('Cfg.controller.Validation', {
                 callback: function () {
                     editRulePanel.setLoading(false);
                     rule = this.getById(me.ruleId);
-                    if(!rule){
+                    if (!rule) {
                         crossroads.parse("/error/notfound");
                         return;
                     }
@@ -1174,5 +1169,9 @@ Ext.define('Cfg.controller.Validation', {
                 rulesContainerWidget.setLoading(false);
             }
         });
+    },
+
+    setAddReadingTypesAddBtnState: function (cm, selection) {
+        this.getAddReadingTypesSetup().down('#buttonsContainer button[name=add]').setDisabled(Ext.isEmpty(selection));
     }
 });
