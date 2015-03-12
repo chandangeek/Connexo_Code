@@ -9,7 +9,7 @@
     "format": "1",
     "local": true,
     "requires": [
-        "com.elster.jupiter.unifyingjs",
-        "com.elster.jupiter.issue.extjs"
+      "com.elster.jupiter.unifyingjs@1.0.2",
+      "com.elster.jupiter.issue.extjs@1.0.2"
     ]
 }
