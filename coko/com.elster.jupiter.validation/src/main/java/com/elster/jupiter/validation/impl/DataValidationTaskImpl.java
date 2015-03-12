@@ -130,4 +130,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.scheduleExpression = scheduleExpression;
     }
+
+    public Instant getLastRun() {
+        return lastRun;
+    }
 }

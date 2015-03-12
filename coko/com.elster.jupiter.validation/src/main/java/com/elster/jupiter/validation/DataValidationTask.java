@@ -32,4 +32,6 @@ public interface DataValidationTask {
     void setScheduleImmediately(boolean scheduleImmediately);
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
+
+    public Instant getLastRun();
 }
