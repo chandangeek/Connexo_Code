@@ -337,6 +337,7 @@
                 <module>../com.energyict.mdc.protocol.pluggable</module>
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
+                <module>../com.energyict.mdc.device.lifecycle.config</module>
                 <module>../com.energyict.mdc.device.lifecycle</module>
                 <module>../com.energyict.mdc.device.config</module>
                 <module>../com.energyict.mdc.device.config.rest</module>
