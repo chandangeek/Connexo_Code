@@ -31,6 +31,7 @@ import javax.inject.Provider;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.*;
 import org.junit.After;
 import org.junit.Before;
@@ -102,6 +103,8 @@ public class ValidationServiceImplTest {
     private DataMapper<DataValidationTask> dataValidationTaskFactory2;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private TaskService taskService;
     @Mock
     private Meter meter;
     @Mock
@@ -176,7 +179,7 @@ public class ValidationServiceImplTest {
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
         Provider<ValidationRuleImpl> provider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, provider));
-        when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> new DataValidationTaskImpl(dataModel));
+        when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> new DataValidationTaskImpl(dataModel,taskService));
         when(dataModel.query(IMeterActivationValidation.class, IChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any())).thenReturn(nlsMessageFormat);

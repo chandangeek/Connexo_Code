@@ -35,4 +35,12 @@ public interface DataValidationTask {
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
     public Optional<Instant> getLastRun();
+
+    public ScheduleExpression getScheduleExpression();
+
+    public Optional<ScheduleExpression> getScheduleExpression(Instant at);
+
+    public void setNextExecution(Instant instant);
+
+    public void triggerNow();
 }

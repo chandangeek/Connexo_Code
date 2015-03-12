@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.ValidationAction;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
@@ -24,12 +25,13 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
     @Mock
     private DataModel dataModel;
-
+    @Mock
+    private TaskService taskService;
     @Mock
     private EndDeviceGroup endDeviceGroup;
 
     private DataValidationTaskImpl newTask() {
-        return new DataValidationTaskImpl(dataModel);
+        return new DataValidationTaskImpl(dataModel,taskService);
     }
 
     private DataValidationTaskImpl setId(DataValidationTaskImpl entity, long id) {

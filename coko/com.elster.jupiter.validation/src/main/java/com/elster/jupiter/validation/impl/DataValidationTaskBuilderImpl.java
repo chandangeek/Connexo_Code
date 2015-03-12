@@ -59,7 +59,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
 
     @Override
     public DataValidationTask build() {
-        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name);
+        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution);
         task.setScheduleImmediately(scheduleImmediately);
         task.setScheduleExpression(scheduleExpression);
         task.setEndDeviceGroup(endDeviceGroup);

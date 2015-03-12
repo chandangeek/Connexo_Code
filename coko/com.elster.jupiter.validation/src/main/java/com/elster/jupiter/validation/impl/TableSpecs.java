@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.*;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
@@ -128,13 +129,22 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-
-            //reccurent task column;
-
+            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.addAuditColumns();
-            table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP").on(endDeviceGroupId).references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP").map("endDeviceGroup").add();
-            table.primaryKey("VAL_PK_DATAVALIDATIONTASK").on(idColumn).add();
+            table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP")
+                    .on(endDeviceGroupId)
+                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
+                    .map("endDeviceGroup")
+                    .add();
+            table.primaryKey("VAL_PK_DATAVALIDATIONTASK")
+                    .on(idColumn)
+                    .add();
+            table.foreignKey("VAL_FK_RECURRENTTASK")
+                    .on(recurrentTaskId)
+                    .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
+                    .map("recurrentTask")
+                    .add();
         }
 //    },
 //    VAL_OCCURENCE{
