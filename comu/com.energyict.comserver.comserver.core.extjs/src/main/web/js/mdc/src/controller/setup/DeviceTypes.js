@@ -307,7 +307,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             var found = false;
             var oldValue = this.getEditDeviceTypeNameField().getValue();
             if (oldValue == '') {
-                this.getEditDeviceTypeNameField().setValue(newValue);
+                var k = 0;
+                while ((k < numberOfProtocols)) {
+                    if (newValue == this.getDeviceCommunicationProtocolsStore().data.items[k].data.name) {
+                        this.getEditDeviceTypeNameField().setValue(newValue);
+                    }
+                    k++;
+                }
             } else {
                 var i = 0;
                 while ((i < numberOfProtocols) && (!found)) {
