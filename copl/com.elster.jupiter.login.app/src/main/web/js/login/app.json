@@ -2,7 +2,7 @@
     "name": "com.elster.jupiter.login.app",
 
     "requires": [
-        "com.elster.jupiter.unifyingjs"
+      "com.elster.jupiter.unifyingjs@1.0.2"
     ],
 
     "id": "ebff8bda-3bef-45bc-a959-5840bdd788a9"
