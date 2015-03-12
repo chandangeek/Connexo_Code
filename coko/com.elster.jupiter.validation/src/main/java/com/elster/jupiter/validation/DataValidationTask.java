@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
+import java.util.Optional;
 
 public interface DataValidationTask {
 
@@ -33,5 +34,5 @@ public interface DataValidationTask {
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
-    public Instant getLastRun();
+    public Optional<Instant> getLastRun();
 }

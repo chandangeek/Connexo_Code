@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Optional;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class})
 public final class DataValidationTaskImpl implements DataValidationTask {
@@ -131,7 +132,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         this.scheduleExpression = scheduleExpression;
     }
 
-    public Instant getLastRun() {
-        return lastRun;
+    public Optional<Instant> getLastRun() {
+        return Optional.ofNullable(lastRun);
     }
 }
