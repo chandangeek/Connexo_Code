@@ -113,19 +113,12 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
         if (rendered && Ext.isIE6 && Ext.isStrict) {
             me.listEl.repaint();
         }
-        if (me.pickerField.multiSelect.getValue()) {
-            me.selectToolbar.getElementById('clear-all-button').disabled(false);
-        } else {
-            me.selectToolbar.getElementById('clear-all-button').disabled(true);
-        }
-
     },
 
     initComponent: function () {
         var me = this;
         if(me.pickerField && me.pickerField.multiSelect)
             me.selectToolbar = me.createSelectToolbar();
-        me.refresh();
         me.callParent();
     }
 });
