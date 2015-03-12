@@ -248,16 +248,20 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             var me = this,
                 searchItems = me.getSearchItems(),
                 sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer();
-            searchItems.down('#mrid').setValue(me.state.mrid);
-            searchItems.down('#sn').setValue(me.state.sn);
-            searchItems.down('#type').setValue(me.state.type);
-            searchItems.down('#configuration').setValue(me.state.conf);
-            me.state.sort.forEach(function(sort){
-                var button = sortContainer.down('button[name=' + sort.name + ']');
-                me.createSortButton(button, sortContainer, sort.name, sort.property, sort.text, sort.direction);
+            searchItems.setLoading();
+            searchItems.down('#type').getStore().load(function () {
+                searchItems.down('#mrid').setValue(me.state.mrid);
+                searchItems.down('#sn').setValue(me.state.sn);
+                searchItems.down('#type').setValue(me.state.type);
+                searchItems.down('#configuration').setValue(me.state.conf);
+                me.state.sort.forEach(function(sort){
+                    var button = sortContainer.down('button[name=' + sort.name + ']');
+                    me.createSortButton(button, sortContainer, sort.name, sort.property, sort.text, sort.direction);
+                });
+                delete me.state;
+                me.searchClick(me.getSearchButton());
+                searchItems.setLoading(false);
             });
-            delete me.state;
-            me.searchClick(me.getSearchButton());
         }
     },
 
