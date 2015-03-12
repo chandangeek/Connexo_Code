@@ -127,18 +127,12 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map("endDeviceGroup").add();
+            Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
 
             //reccurent task column;
 
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
-
             table.addAuditColumns();
-            //table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
-            //table.addCreateTimeColumn("CREATETIME", "createTime");
-            //table.addModTimeColumn("MODTIME", "modTime");
-            //table.addUserNameColumn("USERNAME", "userName");
-
             table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP").on(endDeviceGroupId).references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP").map("endDeviceGroup").add();
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK").on(idColumn).add();
         }
