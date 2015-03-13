@@ -22,11 +22,11 @@ public class SecurityPropertySetMustBeFromSameConfigurationValidator implements 
     @Override
     public boolean isValid(ComTaskEnablementImpl comTaskEnablement, ConstraintValidatorContext context) {
         SecurityPropertySet securityPropertySet = comTaskEnablement.getSecurityPropertySet();
-        if (this.notSameConfiguration(securityPropertySet, comTaskEnablement)) {
+        if (securityPropertySet != null && this.notSameConfiguration(securityPropertySet, comTaskEnablement)) {
             context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                .addPropertyNode(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).addConstraintViolation();
+                .addPropertyNode(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).addConstraintViolation();
             return false;
         }
         return true;
