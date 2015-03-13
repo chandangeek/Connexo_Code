@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
 import com.energyict.mdc.device.data.kpi.rest.LongIdWithNameInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.jayway.jsonpath.JsonModel;
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -146,12 +145,21 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";
         info.frequency.every.count=15;
-        Response response = target("/kpis/").request().post(Entity.json(info));
+        Optional<EndDeviceGroup> endDeviceGroupOptional = Optional.of(mock(EndDeviceGroup.class));
+        when(meteringGroupService.findEndDeviceGroup(102L)).thenReturn(endDeviceGroupOptional);
+        DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = mock(DataCollectionKpiService.DataCollectionKpiBuilder.class);
+        DataCollectionKpiService.KpiTargetBuilder connectionKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
+        DataCollectionKpiService.KpiTargetBuilder communicationKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
+        when(kpiBuilder.calculateComTaskExecutionKpi(anyObject())).thenReturn(communicationKpiTargetBuilder);
+        when(kpiBuilder.calculateConnectionSetupKpi(anyObject())).thenReturn(connectionKpiTargetBuilder);
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2));
+        when(kpiBuilder.save()).thenReturn(kpiMock);
+        when(dataCollectionKpiService.newDataCollectionKpi(null)).thenReturn(kpiBuilder);
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<List>get("$.errors")).isNotEmpty();
-        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("deviceGroup");
+        Response response = target("/kpis/").request().post(Entity.json(info));
+        // We don't want a crash: domain will reject the call with a validation violation
+        verify(kpiBuilder).save();
     }
 
     @Test

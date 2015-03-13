@@ -113,10 +113,10 @@ public class KpiResource {
         if (kpiInfo.displayRange != null){
             dataCollectionKpiBuilder.displayPeriod(kpiInfo.displayRange.asTimeDuration());
         }
-        if (kpiInfo.communicationTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
+        if (kpiInfo.communicationTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null && kpiInfo.frequency.every.asTimeDuration()!=null) {
             dataCollectionKpiBuilder.calculateComTaskExecutionKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.communicationTarget);
         }
-        if (kpiInfo.connectionTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
+        if (kpiInfo.connectionTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null && kpiInfo.frequency.every.asTimeDuration()!=null) {
             dataCollectionKpiBuilder.calculateConnectionSetupKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.connectionTarget);
         }
 
