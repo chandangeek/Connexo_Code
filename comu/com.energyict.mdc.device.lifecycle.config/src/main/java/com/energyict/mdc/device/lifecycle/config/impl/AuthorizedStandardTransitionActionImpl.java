@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
@@ -17,13 +19,20 @@ import javax.validation.constraints.NotNull;
  */
 public class AuthorizedStandardTransitionActionImpl extends AuthorizedTransitionActionImpl implements AuthorizedStandardTransitionAction {
 
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    private TransitionType type;
+
     @Inject
     public AuthorizedStandardTransitionActionImpl(DataModel dataModel) {
         super(dataModel);
     }
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    private TransitionType type;
+    public AuthorizedTransitionActionImpl initialize(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition) {
+        this.setDeviceLifeCycle(deviceLifeCycle);
+        this.setStateTransition(stateTransition);
+        this.type = TransitionType.from(stateTransition).get();
+        return this;
+    }
 
     @Override
     public TransitionType getType() {

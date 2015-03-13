@@ -71,6 +71,10 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
         return this.stateTransition.get();
     }
 
+    protected void setStateTransition(StateTransition stateTransition) {
+        this.stateTransition.set(stateTransition);
+    }
+
     @Override
     public State getState() {
         return this.getStateTransition().getFrom();
@@ -81,9 +85,19 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
         return EnumSet.copyOf(this.checks);
     }
 
+    void add(MicroCheck check) {
+        this.checkBits |= (1L << check.ordinal());
+        this.checks.add(check);
+    }
+
     @Override
     public Set<MicroAction> getActions() {
         return EnumSet.copyOf(this.actions);
+    }
+
+    void add(MicroAction action) {
+        this.actionBits |= (1L << action.ordinal());
+        this.actions.add(action);
     }
 
 }

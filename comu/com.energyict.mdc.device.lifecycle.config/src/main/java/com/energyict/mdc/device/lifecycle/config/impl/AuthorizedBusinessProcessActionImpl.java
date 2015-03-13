@@ -45,10 +45,6 @@ public class AuthorizedBusinessProcessActionImpl extends AuthorizedActionImpl im
         return this;
     }
 
-    public boolean matches(String deploymentId, String processId) {
-        return Checks.is(this.deploymentId).equalTo(deploymentId)
-                && Checks.is(this.processId).equalTo(processId);
-    }
     @Override
     public String getDeploymentId() {
         return this.deploymentId;

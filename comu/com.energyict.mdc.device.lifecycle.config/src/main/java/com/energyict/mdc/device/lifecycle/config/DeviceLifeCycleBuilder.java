@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 
 import java.util.Set;
 
@@ -13,15 +14,25 @@ import java.util.Set;
 public interface DeviceLifeCycleBuilder {
 
     /**
-     * Authorizes the initiation of the external process definition
+     * Starts the building process to authorize the initiation of the external process definition
      * when the related device is in the specified {@link State}.
      *
      * @param state The State
      * @param deploymentId The deployment id of the external process
      * @param processId The process id of the external process
-     * @return The AuthorizedBusinessProcessAction
+     * @return The AuthorizedActionBuilder
      */
-    public AuthorizedActionBuilder newCustomAction(State state, String deploymentId, String processId);
+    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String deploymentId, String processId);
+
+    /**
+     * Starts the building process to authorize the initiation of the specified {@link StateTransition}
+     * when the related device is in the "from" {@link State} of the transition.
+     *
+     * @param stateTransition The StateTransition
+     * @return The AuthorizedTransitionActionBuilder
+     * @see StateTransition#getFrom()
+     */
+    public AuthorizedTransitionActionBuilder newTransitionAction(StateTransition stateTransition);
 
     /**
      * Gets the {@link DeviceLifeCycle} that was being constructed with this builder.
@@ -43,11 +54,23 @@ public interface DeviceLifeCycleBuilder {
      */
     public interface AuthorizedActionBuilder<T extends AuthorizedAction> {
 
-        public AuthorizedActionBuilder<T> add(AuthorizedAction.Level level, AuthorizedAction.Level... otherLevels);
+        public AuthorizedActionBuilder<T> addLevel(AuthorizedAction.Level level, AuthorizedAction.Level... otherLevels);
 
-        public AuthorizedActionBuilder<T> addAll(Set<AuthorizedAction.Level> levels);
+        public AuthorizedActionBuilder<T> addAllLevels(Set<AuthorizedAction.Level> levels);
 
         public T complete();
+
+    }
+
+    public interface AuthorizedTransitionActionBuilder extends AuthorizedActionBuilder<AuthorizedTransitionAction> {
+
+        public AuthorizedTransitionActionBuilder addCheck(MicroCheck check, MicroCheck... otherChecks);
+
+        public AuthorizedTransitionActionBuilder addAllChecks(Set<MicroCheck> checks);
+
+        public AuthorizedTransitionActionBuilder addAction(MicroAction action, MicroAction... otherActions);
+
+        public AuthorizedTransitionActionBuilder addAllActions(Set<MicroAction> actions);
 
     }
 
