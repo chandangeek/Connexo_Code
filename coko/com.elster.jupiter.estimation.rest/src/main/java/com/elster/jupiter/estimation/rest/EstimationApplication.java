@@ -1,7 +1,6 @@
 package com.elster.jupiter.estimation.rest;
 
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.rest.impl.ServiceLocator;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -14,15 +13,16 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.ws.rs.core.Application;
+import java.util.Set;
+
 @Component(name = "com.elster.jupiter.estimation.rest" , service=Application.class , immediate = true , property = {"alias=/est", "app=SYS", "name=" + EstimationApplication.COMPONENT_NAME} )
-public class EstimationApplication extends Application implements ServiceLocator, BinderProvider {
+public class EstimationApplication extends Application implements BinderProvider {
     public static final String COMPONENT_NAME = "EST";
 
 	private volatile EstimationService estimationService;
@@ -40,26 +40,6 @@ public class EstimationApplication extends Application implements ServiceLocator
                 LocalizedFieldValidationExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class);
 	}
-
-	@Override
-	public EstimationService getEstimationService() {
-		return estimationService;
-	}
-
-	@Override
-	public TransactionService getTransactionService() {
-		return transactionService;
-	}
-
-	@Override
-	public RestQueryService getRestQueryService() {
-		return restQueryService;
-	}
-
-    @Override
-    public MeteringService getMeteringService() {
-        return meteringService;
-    }
 
 	@Reference
 	public void setEstimationService(EstimationService estimationService) {
