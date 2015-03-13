@@ -208,6 +208,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
+    public EstimationRuleSet createEstimationRuleSet(String name, String descrption) {
+        return dataModel.getInstance(EstimationRuleSetImpl.class).init(name, descrption);
+    }
+
+    @Override
     public List<IEstimationRuleSet> getEstimationRuleSets() {
         return getRuleSetQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
     }

@@ -24,6 +24,8 @@ public interface EstimationService {
 
     EstimationRuleSet createEstimationRuleSet(String name);
 
+    EstimationRuleSet createEstimationRuleSet(String name, String description);
+
     List<? extends EstimationRuleSet> getEstimationRuleSets();
 
     Optional<? extends EstimationRuleSet> getEstimationRuleSet(long id);
