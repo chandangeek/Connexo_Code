@@ -76,8 +76,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
 
     protected ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
-        builder.setProtocolDialectConfigurationProperties(configDialect);
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet, configDialect);
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();
