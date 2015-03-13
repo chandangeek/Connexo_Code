@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A finate state machine sometimes also called finate state automaton or simply state machine,
+ * A finite state machine sometimes also called finite state automaton or simply state machine,
  * is a mathematical model of computation and is conceived as an abstract machine that
- * can be in a finate number of states (hence the name).
+ * can be in a finite number of states (hence the name).
  * The machine is in exactly one state at any time and that state is called the current state.
  * The state changes as events are {@link StateTransitionTriggerEvent triggered}.
  * The changing of state due to these events is referred to as a state transition.
@@ -21,21 +21,21 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (11:45)
  */
-public interface FinateStateMachine {
+public interface FiniteStateMachine {
 
     public long getId();
 
     public long getVersion();
 
     /**
-     * Gets the timestamp on which this FinateStateMachine was created.
+     * Gets the timestamp on which this FiniteStateMachine was created.
      *
      * @return The creation timestamp
      */
     public Instant getCreationTimestamp();
 
     /**
-     * Gets the timestamp on which this FinateStateMachine was last modified.
+     * Gets the timestamp on which this FiniteStateMachine was last modified.
      *
      * @return The timestamp of last modification
      */
@@ -49,7 +49,7 @@ public interface FinateStateMachine {
 
     public List<StateTransition> getTransitions();
 
-    public FinateStateMachineUpdater update();
+    public FiniteStateMachineUpdater update();
 
     public void save();
 

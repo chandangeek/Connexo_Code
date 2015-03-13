@@ -2,7 +2,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
@@ -29,7 +29,7 @@ public class CustomStateTransitionEventTypeImpl extends StateTransitionEventType
     private String symbol;
 
     @Inject
-    public CustomStateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFinateStateMachineService stateMachineService) {
+    public CustomStateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFiniteStateMachineService stateMachineService) {
         super(dataModel, thesaurus, stateMachineService);
     }
 
@@ -39,8 +39,8 @@ public class CustomStateTransitionEventTypeImpl extends StateTransitionEventType
     }
 
     @Override
-    public StateTransitionTriggerEvent newInstance(FinateStateMachine finateStateMachine, String sourceId, String sourceCurrentStateName, Map<String, Object> properties) {
-        return this.getDataModel().getInstance(StateTransitionTriggerEventImpl.class).initialize(this, finateStateMachine, sourceId, properties, sourceCurrentStateName);
+    public StateTransitionTriggerEvent newInstance(FiniteStateMachine finiteStateMachine, String sourceId, String sourceCurrentStateName, Map<String, Object> properties) {
+        return this.getDataModel().getInstance(StateTransitionTriggerEventImpl.class).initialize(this, finiteStateMachine, sourceId, properties, sourceCurrentStateName);
     }
 
     @Override

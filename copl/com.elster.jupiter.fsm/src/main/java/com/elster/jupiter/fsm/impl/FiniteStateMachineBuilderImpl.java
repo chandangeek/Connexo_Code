@@ -1,25 +1,24 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.FinateStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 /**
- * Provides an implementation for the {@link FinateStateMachineBuilder} interface.
+ * Provides an implementation for the {@link FiniteStateMachineBuilder} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (11:15)
  */
-public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder {
+public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder {
 
     private final DataModel dataModel;
-    private final FinateStateMachineImpl underConstruction;
+    private final FiniteStateMachineImpl underConstruction;
     private BuildState state;
 
-    public FinateStateMachineBuilderImpl(DataModel dataModel, FinateStateMachineImpl underConstruction) {
+    public FiniteStateMachineBuilderImpl(DataModel dataModel, FiniteStateMachineImpl underConstruction) {
         super();
         this.dataModel = dataModel;
         this.underConstruction = underConstruction;
@@ -30,7 +29,7 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         return dataModel;
     }
 
-    protected FinateStateMachineImpl getUnderConstruction() {
+    protected FiniteStateMachineImpl getUnderConstruction() {
         return underConstruction;
     }
 
@@ -54,7 +53,7 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
     }
 
     @Override
-    public FinateStateMachineImpl complete() {
+    public FiniteStateMachineImpl complete() {
         this.state.complete();
         this.state = new Complete();
         return this.underConstruction;
@@ -62,7 +61,7 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
 
     protected interface BuildState {
         StateBuilder newState(boolean custom, String name);
-        FinateStateMachine complete();
+        FiniteStateMachine complete();
     }
 
     private class UnderConstruction implements BuildState {
@@ -72,7 +71,7 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         }
 
         @Override
-        public FinateStateMachine complete() {
+        public FiniteStateMachine complete() {
             return underConstruction;
         }
 
@@ -86,13 +85,13 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
         }
 
         @Override
-        public FinateStateMachine complete() {
+        public FiniteStateMachine complete() {
             illegalStateException();
             return null;
         }
 
         private void illegalStateException() {
-            throw new IllegalStateException("The finate state machine building process is already complete");
+            throw new IllegalStateException("The finite state machine building process is already complete");
         }
 
     };
@@ -129,7 +128,7 @@ public class FinateStateMachineBuilderImpl implements FinateStateMachineBuilder 
 
         @Override
         public State complete() {
-            FinateStateMachineBuilderImpl.this.underConstruction.add(this.underConstruction);
+            FiniteStateMachineBuilderImpl.this.underConstruction.add(this.underConstruction);
             return this.underConstruction;
         }
     }

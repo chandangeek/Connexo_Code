@@ -3,7 +3,7 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.events.*;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.fsm.CurrentStateExtractor;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.pubsub.EventHandler;
@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class StandardEventHandler extends EventHandler<LocalEvent> {
     private volatile EventService eventService;
-    private volatile ServerFinateStateMachineService stateMachineService;
+    private volatile ServerFiniteStateMachineService stateMachineService;
     private volatile List<CurrentStateExtractor> currentStateExtractors = new CopyOnWriteArrayList<>();
 
     // For OSGi pruposes
@@ -47,7 +47,7 @@ public class StandardEventHandler extends EventHandler<LocalEvent> {
 
     // For testing purposes or friendly components
     @Inject
-    public StandardEventHandler(EventService eventService, ServerFinateStateMachineService stateMachineService) {
+    public StandardEventHandler(EventService eventService, ServerFiniteStateMachineService stateMachineService) {
         this();
         this.setEventService(eventService);
         this.setStateMachineService(stateMachineService);
@@ -69,7 +69,7 @@ public class StandardEventHandler extends EventHandler<LocalEvent> {
 
     private void handle(LocalEvent event, StandardStateTransitionEventType eventType) {
         List<StateTransitionTriggerEvent> triggerEvents = new ArrayList<>();
-        for (FinateStateMachine stateMachine : this.stateMachineService.findFinateStateMachinesUsing(eventType)) {
+        for (FiniteStateMachine stateMachine : this.stateMachineService.findFiniteStateMachinesUsing(eventType)) {
             triggerEvents.addAll(this.currentStateExtractors.stream()
                     .map(e -> e.extractFrom(event, stateMachine))
                     .flatMap(Functions.asStream())
@@ -79,7 +79,7 @@ public class StandardEventHandler extends EventHandler<LocalEvent> {
         triggerEvents.forEach(StateTransitionTriggerEvent::publish);
     }
 
-    private StateTransitionTriggerEventImpl newTriggerEvent(LocalEvent event, StandardStateTransitionEventType eventType, FinateStateMachine stateMachine, CurrentStateExtractor.CurrentState cs) {
+    private StateTransitionTriggerEventImpl newTriggerEvent(LocalEvent event, StandardStateTransitionEventType eventType, FiniteStateMachine stateMachine, CurrentStateExtractor.CurrentState cs) {
         return new StateTransitionTriggerEventImpl(this.eventService)
                 .initialize(
                         eventType,
@@ -106,7 +106,7 @@ public class StandardEventHandler extends EventHandler<LocalEvent> {
     }
 
     @Reference
-    public void setStateMachineService(ServerFinateStateMachineService stateMachineService) {
+    public void setStateMachineService(ServerFiniteStateMachineService stateMachineService) {
         this.stateMachineService = stateMachineService;
     }
 

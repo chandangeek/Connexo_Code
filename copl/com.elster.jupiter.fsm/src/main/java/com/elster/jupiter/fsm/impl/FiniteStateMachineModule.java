@@ -1,7 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -15,7 +15,7 @@ import com.google.inject.Scopes;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (12:04)
  */
-public class FinateStateMachineModule extends AbstractModule {
+public class FiniteStateMachineModule extends AbstractModule {
 
     @Override
     protected void configure() {
@@ -24,7 +24,7 @@ public class FinateStateMachineModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(EventService.class);
         requireBinding(TransactionService.class);
-        bind(FinateStateMachineService.class).to(FinateStateMachineServiceImpl.class).in(Scopes.SINGLETON);
+        bind(FiniteStateMachineService.class).to(FiniteStateMachineServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

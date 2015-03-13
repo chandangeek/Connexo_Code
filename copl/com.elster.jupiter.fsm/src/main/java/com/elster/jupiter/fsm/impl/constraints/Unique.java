@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { UniqueStateTransitionEventTypeSymbolValidator.class, UniqueStateTransitionEventTypeValidator.class, UniqueFinateStateMachineNameValidator.class, UniqueStateNameValidator.class })
+@Constraint(validatedBy = { UniqueStateTransitionEventTypeSymbolValidator.class, UniqueStateTransitionEventTypeValidator.class, UniqueFiniteStateMachineNameValidator.class, UniqueStateNameValidator.class })
 public @interface Unique {
 
     String message() default "";

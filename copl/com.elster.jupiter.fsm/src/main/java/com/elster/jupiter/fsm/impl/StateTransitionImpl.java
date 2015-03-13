@@ -1,6 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class StateTransitionImpl implements StateTransition {
 
     public enum Fields {
-        FINATE_STATE_MACHINE("finateStateMachine"),
+        FINITE_STATE_MACHINE("finiteStateMachine"),
         FROM("from"),
         TO("to"),
         EVENT_TYPE("eventType");
@@ -35,8 +35,8 @@ public class StateTransitionImpl implements StateTransition {
         }
     }
 
-    StateTransitionImpl initialize(FinateStateMachine stateMachine, State from, State to, StateTransitionEventType eventType) {
-        this.finateStateMachine.set(stateMachine);
+    StateTransitionImpl initialize(FiniteStateMachine stateMachine, State from, State to, StateTransitionEventType eventType) {
+        this.finiteStateMachine.set(stateMachine);
         this.from.set(from);
         this.to.set(to);
         this.eventType.set(eventType);
@@ -45,7 +45,7 @@ public class StateTransitionImpl implements StateTransition {
 
     private long id;
     @IsPresent
-    private Reference<FinateStateMachine> finateStateMachine = Reference.empty();
+    private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
     @IsPresent
     private Reference<State> from = Reference.empty();
     @IsPresent

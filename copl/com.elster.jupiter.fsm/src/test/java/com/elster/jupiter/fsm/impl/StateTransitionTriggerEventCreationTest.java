@@ -1,7 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -32,11 +32,11 @@ public class StateTransitionTriggerEventCreationTest {
     @Mock
     private EventService eventService;
     @Mock
-    private FinateStateMachine stateMachine;
+    private FiniteStateMachine stateMachine;
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private ServerFinateStateMachineService stateMachineService;
+    private ServerFiniteStateMachineService stateMachineService;
 
     @Before
     public void initializeMocks() {
@@ -58,7 +58,7 @@ public class StateTransitionTriggerEventCreationTest {
         // Asserts
         assertThat(triggerEvent).isNotNull();
         assertThat(triggerEvent.getType()).isEqualTo(eventType);
-        assertThat(triggerEvent.getFinateStateMachine()).isEqualTo(this.stateMachine);
+        assertThat(triggerEvent.getFiniteStateMachine()).isEqualTo(this.stateMachine);
         assertThat(triggerEvent.getSourceId()).isEqualTo(expectedSourceId);
         assertThat(triggerEvent.getSourceCurrentStateName()).isEqualTo(expectedSourceCurrentStateName);
         Map<String, Object> actualProperties = triggerEvent.getProperties();
@@ -79,7 +79,7 @@ public class StateTransitionTriggerEventCreationTest {
         // Asserts
         assertThat(triggerEvent).isNotNull();
         assertThat(triggerEvent.getType()).isEqualTo(eventType);
-        assertThat(triggerEvent.getFinateStateMachine()).isEqualTo(this.stateMachine);
+        assertThat(triggerEvent.getFiniteStateMachine()).isEqualTo(this.stateMachine);
         assertThat(triggerEvent.getSourceId()).isEqualTo(expectedSourceId);
         assertThat(triggerEvent.getSourceCurrentStateName()).isEqualTo(expectedSourceCurrentStateName);
         Map<String, Object> actualProperties = triggerEvent.getProperties();

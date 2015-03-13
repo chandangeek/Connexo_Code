@@ -1,7 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 public class StateTransitionTriggerEventImpl implements StateTransitionTriggerEvent {
     private final EventService eventService;
     private StateTransitionEventType eventType;
-    private FinateStateMachine finateStateMachine;
+    private FiniteStateMachine finiteStateMachine;
     private String sourceId;
     private String sourceCurrentStateName;
     private Map<String, Object> properties;
@@ -30,9 +30,9 @@ public class StateTransitionTriggerEventImpl implements StateTransitionTriggerEv
         this.eventService = eventService;
     }
 
-    StateTransitionTriggerEventImpl initialize(StateTransitionEventType eventType, FinateStateMachine finateStateMachine, String sourceId, Map<String, Object> properties, String sourceCurrentStateName) {
+    StateTransitionTriggerEventImpl initialize(StateTransitionEventType eventType, FiniteStateMachine finiteStateMachine, String sourceId, Map<String, Object> properties, String sourceCurrentStateName) {
         this.eventType = eventType;
-        this.finateStateMachine = finateStateMachine;
+        this.finiteStateMachine = finiteStateMachine;
         this.sourceId = sourceId;
         this.sourceCurrentStateName = sourceCurrentStateName;
         this.properties = new HashMap<>(properties);
@@ -45,8 +45,8 @@ public class StateTransitionTriggerEventImpl implements StateTransitionTriggerEv
     }
 
     @Override
-    public FinateStateMachine getFinateStateMachine() {
-        return this.finateStateMachine;
+    public FiniteStateMachine getFiniteStateMachine() {
+        return this.finiteStateMachine;
     }
 
     @Override

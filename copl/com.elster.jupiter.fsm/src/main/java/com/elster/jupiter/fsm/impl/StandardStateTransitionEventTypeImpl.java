@@ -26,7 +26,7 @@ public class StandardStateTransitionEventTypeImpl extends StateTransitionEventTy
     private Reference<com.elster.jupiter.events.EventType> eventType = ValueReference.absent();
 
     @Inject
-    public StandardStateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFinateStateMachineService stateMachineService) {
+    public StandardStateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFiniteStateMachineService stateMachineService) {
         super(dataModel, thesaurus, stateMachineService);
     }
 

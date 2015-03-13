@@ -3,7 +3,7 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 /**
  * Handles {@link StateTransitionTriggerEvent}s by building the computational
- * model for the related {@link FinateStateMachine}
+ * model for the related {@link FiniteStateMachine}
  * and triggering the actual event to calculate the new current state.
  * If there is a new current state, that change is then published
  * as a {@link StateTransitionChangeEvent}.
@@ -66,7 +66,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         StateTransitionTriggerEvent triggerEvent = (StateTransitionTriggerEvent) localEvent.getSource();
-        Optional<State> currentState = triggerEvent.getFinateStateMachine().getState(triggerEvent.getSourceCurrentStateName());
+        Optional<State> currentState = triggerEvent.getFiniteStateMachine().getState(triggerEvent.getSourceCurrentStateName());
         if (currentState.isPresent()) {
             this.handle(triggerEvent, currentState.get());
         }
@@ -76,7 +76,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     void handle(StateTransitionTriggerEvent triggerEvent) {
-        Optional<State> currentState = triggerEvent.getFinateStateMachine().getState(triggerEvent.getSourceCurrentStateName());
+        Optional<State> currentState = triggerEvent.getFiniteStateMachine().getState(triggerEvent.getSourceCurrentStateName());
         if (currentState.isPresent()) {
             this.handle(triggerEvent, currentState.get());
         }
@@ -86,7 +86,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     private Supplier<String> ignoreEventMessageSupplier(StateTransitionTriggerEvent triggerEvent) {
-        return () -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finate state machine '" + triggerEvent.getFinateStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because current state '" + triggerEvent.getSourceCurrentStateName() + "' does not exist in the finate state machine definition";
+        return () -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finite state machine '" + triggerEvent.getFiniteStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because current state '" + triggerEvent.getSourceCurrentStateName() + "' does not exist in the finite state machine definition";
     }
 
     private void handle(StateTransitionTriggerEvent triggerEvent, State currentState) {
@@ -94,8 +94,8 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     private void handle(StateTransitionTriggerEvent triggerEvent, ActualState currentState) {
-        FinateStateMachine finateStateMachine = triggerEvent.getFinateStateMachine();
-        ActualStatesAndTriggers actualStatesAndTriggers = new ActualStatesAndTriggers(finateStateMachine);
+        FiniteStateMachine finiteStateMachine = triggerEvent.getFiniteStateMachine();
+        ActualStatesAndTriggers actualStatesAndTriggers = new ActualStatesAndTriggers(finiteStateMachine);
         StateMachineConfig<ActualState, Trigger> stateMachineConfiguration = this.configureStateMachine(actualStatesAndTriggers);
         StateMachine<ActualState, Trigger> stateMachine = new StateMachine<>(currentState, stateMachineConfiguration);
         try {
@@ -109,7 +109,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
             }
         }
         catch (IllegalStateException e) {
-            this.logger.fine(() -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finate state machine '" + triggerEvent.getFinateStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because it is not allowed for current state '" + triggerEvent.getSourceCurrentStateName());
+            this.logger.fine(() -> "Ignoring event '" + triggerEvent.getType().getSymbol() + "' for finite state machine '" + triggerEvent.getFiniteStateMachine().getName() + "' relating to source object '" + triggerEvent.getSourceId() + "' because it is not allowed for current state '" + triggerEvent.getSourceCurrentStateName());
         }
     }
 
@@ -236,16 +236,16 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
      * Maps {@link State}s to {@link ActualState}s and
      * Maps {@link StateTransition}s to {@link Trigger}s.
      * This is to ensure that the same ActualState
-     * is used for every unique state in a {@link FinateStateMachine}
+     * is used for every unique state in a {@link FiniteStateMachine}
      * and that the same Trigger is used
-     * for every unique StateTransition in a FinateStateMachine.
+     * for every unique StateTransition in a FiniteStateMachine.
      */
     private static class ActualStatesAndTriggers {
-        private final FinateStateMachine stateMachine;
+        private final FiniteStateMachine stateMachine;
         private final Map<Long, ActualState> states;
         private final Map<Long, Trigger> triggers;
 
-        private ActualStatesAndTriggers(FinateStateMachine stateMachine) {
+        private ActualStatesAndTriggers(FiniteStateMachine stateMachine) {
             super();
             this.stateMachine = stateMachine;
             this.states = stateMachine.getStates().stream()

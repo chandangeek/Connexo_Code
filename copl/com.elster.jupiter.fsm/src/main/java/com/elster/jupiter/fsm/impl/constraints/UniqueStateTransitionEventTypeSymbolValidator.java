@@ -1,7 +1,7 @@
 package com.elster.jupiter.fsm.impl.constraints;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -15,10 +15,10 @@ import javax.validation.ConstraintValidatorContext;
  */
 public class UniqueStateTransitionEventTypeSymbolValidator implements ConstraintValidator<Unique, CustomStateTransitionEventType> {
 
-    private final FinateStateMachineService service;
+    private final FiniteStateMachineService service;
 
     @Inject
-    public UniqueStateTransitionEventTypeSymbolValidator(FinateStateMachineService service) {
+    public UniqueStateTransitionEventTypeSymbolValidator(FiniteStateMachineService service) {
         super();
         this.service = service;
     }

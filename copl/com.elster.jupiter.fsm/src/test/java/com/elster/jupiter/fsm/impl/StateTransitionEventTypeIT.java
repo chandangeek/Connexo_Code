@@ -6,7 +6,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -56,7 +56,7 @@ public class StateTransitionEventTypeIT {
         EventService eventService = inMemoryPersistence.getService(EventService.class);
         eventService.buildEventTypeWithTopic(topic)
                 .shouldNotPublish()
-                .component(FinateStateMachineService.COMPONENT_NAME)
+                .component(FiniteStateMachineService.COMPONENT_NAME)
                 .name(name)
                 .scope("TEST")
                 .category("TEST")
@@ -228,8 +228,8 @@ public class StateTransitionEventTypeIT {
         assertThat(eventType.isEnabledForUseInStateMachines()).isFalse();
     }
 
-    private FinateStateMachineServiceImpl getTestService() {
-        return inMemoryPersistence.getFinateStateMachineService();
+    private FiniteStateMachineServiceImpl getTestService() {
+        return inMemoryPersistence.getFiniteStateMachineService();
     }
 
 }

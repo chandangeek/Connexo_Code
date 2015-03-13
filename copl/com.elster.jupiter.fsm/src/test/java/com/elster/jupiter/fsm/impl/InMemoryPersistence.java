@@ -56,11 +56,11 @@ public class InMemoryPersistence {
     private BundleContext bundleContext;
     private EventAdmin eventAdmin;
     private DataModel dataModel;
-    private FinateStateMachineServiceImpl finateStateMachineService;
+    private FiniteStateMachineServiceImpl finiteStateMachineService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
-     * that are appropriate for the finate state machine bundle.
+     * that are appropriate for the finite state machine bundle.
      *
      * @return The default InMemoryPersistence
      */
@@ -97,8 +97,8 @@ public class InMemoryPersistence {
             this.injector.getInstance(UserService.class);
             this.injector.getInstance(NlsService.class);
             this.injector.getInstance(EventService.class);
-            this.finateStateMachineService = this.injector.getInstance(FinateStateMachineServiceImpl.class);
-            this.dataModel = this.finateStateMachineService.getDataModel();
+            this.finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
+            this.dataModel = this.finiteStateMachineService.getDataModel();
             ctx.commit();
         }
     }
@@ -126,8 +126,8 @@ public class InMemoryPersistence {
         return this.transactionService;
     }
 
-    public FinateStateMachineServiceImpl getFinateStateMachineService() {
-        return this.finateStateMachineService;
+    public FiniteStateMachineServiceImpl getFiniteStateMachineService() {
+        return this.finiteStateMachineService;
     }
 
     public <T> T getService(Class<T> serviceClass) {

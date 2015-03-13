@@ -1,6 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StateTransitionEventTypeStillInUseException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -14,7 +14,6 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,28 +32,28 @@ public class DeleteStateTransitionEventTypeImplTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private ServerFinateStateMachineService stateMachineService;
+    private ServerFiniteStateMachineService stateMachineService;
     @Mock
     private com.elster.jupiter.events.EventType eventType;
 
     @Test
     public void testCustomDeleteWhenNotInUse() {
         StateTransitionEventTypeImpl testInstance = new CustomStateTransitionEventTypeImpl(this.dataModel, this.thesaurus, this.stateMachineService);
-        when(this.stateMachineService.findFinateStateMachinesUsing(testInstance)).thenReturn(Collections.emptyList());
+        when(this.stateMachineService.findFiniteStateMachinesUsing(testInstance)).thenReturn(Collections.emptyList());
 
         // Business method
         testInstance.delete();
 
         // Asserts
-        verify(this.stateMachineService).findFinateStateMachinesUsing(testInstance);
+        verify(this.stateMachineService).findFiniteStateMachinesUsing(testInstance);
         verify(this.dataModel).remove(testInstance);
     }
 
     @Test(expected = StateTransitionEventTypeStillInUseException.class)
     public void testCustomDeleteWhenInUse() {
-        FinateStateMachine stateMachine = mock(FinateStateMachine.class);
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
         StateTransitionEventTypeImpl testInstance = new CustomStateTransitionEventTypeImpl(this.dataModel, this.thesaurus, this.stateMachineService);
-        when(this.stateMachineService.findFinateStateMachinesUsing(testInstance)).thenReturn(Arrays.asList(stateMachine));
+        when(this.stateMachineService.findFiniteStateMachinesUsing(testInstance)).thenReturn(Arrays.asList(stateMachine));
 
         // Business method
         testInstance.delete();
@@ -66,23 +65,23 @@ public class DeleteStateTransitionEventTypeImplTest {
     public void testStandardDeleteWhenNotInUse() {
         StandardStateTransitionEventTypeImpl testInstance = new StandardStateTransitionEventTypeImpl(this.dataModel, this.thesaurus, this.stateMachineService);
         testInstance.initialize(this.eventType);
-        when(this.stateMachineService.findFinateStateMachinesUsing(testInstance)).thenReturn(Collections.emptyList());
+        when(this.stateMachineService.findFiniteStateMachinesUsing(testInstance)).thenReturn(Collections.emptyList());
 
         // Business method
         testInstance.delete();
 
         // Asserts
-        verify(this.stateMachineService).findFinateStateMachinesUsing(testInstance);
+        verify(this.stateMachineService).findFiniteStateMachinesUsing(testInstance);
         verify(this.eventType).disableForUseInStateMachines();
         verify(this.dataModel).remove(testInstance);
     }
 
     @Test(expected = StateTransitionEventTypeStillInUseException.class)
     public void testStandardDeleteWhenInUse() {
-        FinateStateMachine stateMachine = mock(FinateStateMachine.class);
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
         StandardStateTransitionEventTypeImpl testInstance = new StandardStateTransitionEventTypeImpl(this.dataModel, this.thesaurus, this.stateMachineService);
         testInstance.initialize(this.eventType);
-        when(this.stateMachineService.findFinateStateMachinesUsing(testInstance)).thenReturn(Arrays.asList(stateMachine));
+        when(this.stateMachineService.findFiniteStateMachinesUsing(testInstance)).thenReturn(Arrays.asList(stateMachine));
 
         // Business method
         testInstance.delete();

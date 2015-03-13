@@ -5,12 +5,12 @@ import com.elster.jupiter.events.EventType;
 import java.util.Optional;
 
 /**
- * Provides services to manage {@link FinateStateMachine}s.
+ * Provides services to manage {@link FiniteStateMachine}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:25)
  */
-public interface FinateStateMachineService {
+public interface FiniteStateMachineService {
 
     String COMPONENT_NAME = "FSM";
 
@@ -60,23 +60,23 @@ public interface FinateStateMachineService {
     public Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType);
 
     /**
-     * Starts the building process for a new {@link FinateStateMachine}
+     * Starts the building process for a new {@link FiniteStateMachine}
      * with the specified name. The name must be unique across the system,
-     * i.e. no two FinateStateMachines can have the same name.
-     * Note that you are responsible for saving the FinateStateMachine.
+     * i.e. no two FiniteStateMachines can have the same name.
+     * Note that you are responsible for saving the FiniteStateMachine.
      *
      * @param name The name
-     * @return The FinateStateMachineBuilder
+     * @return The FiniteStateMachineBuilder
      */
-    public FinateStateMachineBuilder newFinateStateMachine(String name);
+    public FiniteStateMachineBuilder newFiniteStateMachine(String name);
 
     /**
-     * Finds the {@link FinateStateMachine} with the specified name
-     * if such a FinateStateMachine exists.
+     * Finds the {@link FiniteStateMachine} with the specified name
+     * if such a FiniteStateMachine exists.
      *
      * @param name The name
-     * @return The FinateStateMachine
+     * @return The FiniteStateMachine
      */
-    public Optional<FinateStateMachine> findFinateStateMachineByName(String name);
+    public Optional<FiniteStateMachine> findFiniteStateMachineByName(String name);
 
 }

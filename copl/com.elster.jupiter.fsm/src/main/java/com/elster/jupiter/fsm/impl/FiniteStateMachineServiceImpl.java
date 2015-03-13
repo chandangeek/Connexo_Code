@@ -33,14 +33,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 /**
- * Provides an implementation for the {@link FinateStateMachineService} interface.
+ * Provides an implementation for the {@link FiniteStateMachineService} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:50)
  */
-@Component(name = "com.elster.jupiter.fsm", service = {FinateStateMachineService.class, ServerFinateStateMachineService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + FinateStateMachineService.COMPONENT_NAME)
+@Component(name = "com.elster.jupiter.fsm", service = {FiniteStateMachineService.class, ServerFiniteStateMachineService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + FiniteStateMachineService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class FinateStateMachineServiceImpl implements ServerFinateStateMachineService, InstallService, TranslationKeyProvider {
+public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -51,13 +51,13 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
     private Thesaurus thesaurus;
 
     // For OSGi purposes
-    public FinateStateMachineServiceImpl() {
+    public FiniteStateMachineServiceImpl() {
         super();
     }
 
     // For unit testing purposes
     @Inject
-    public FinateStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService) {
+    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
@@ -80,7 +80,7 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
 
     @Override
     public String getComponentName() {
-        return FinateStateMachineService.COMPONENT_NAME;
+        return FiniteStateMachineService.COMPONENT_NAME;
     }
 
     @Override
@@ -113,15 +113,15 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
 
-                bind(FinateStateMachineService.class).toInstance(FinateStateMachineServiceImpl.this);
-                bind(ServerFinateStateMachineService.class).toInstance(FinateStateMachineServiceImpl.this);
+                bind(FiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
+                bind(ServerFiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
             }
         };
     }
 
     @Reference(name = "theOrmService")
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel(FinateStateMachineService.COMPONENT_NAME, "Finate State Machine");
+        this.dataModel = ormService.newDataModel(FiniteStateMachineService.COMPONENT_NAME, "Finite State Machine");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
@@ -130,7 +130,7 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
     @Reference(name = "theNlsService")
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(FinateStateMachineService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(FiniteStateMachineService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference(name = "theUserService")
@@ -205,23 +205,23 @@ public class FinateStateMachineServiceImpl implements ServerFinateStateMachineSe
     }
 
     @Override
-    public FinateStateMachineBuilder newFinateStateMachine(String name) {
-        FinateStateMachineImpl stateMachine = this.dataModel.getInstance(FinateStateMachineImpl.class).initialize(name);
-        return new FinateStateMachineBuilderImpl(dataModel, stateMachine);
+    public FiniteStateMachineBuilder newFiniteStateMachine(String name) {
+        FiniteStateMachineImpl stateMachine = this.dataModel.getInstance(FiniteStateMachineImpl.class).initialize(name);
+        return new FiniteStateMachineBuilderImpl(dataModel, stateMachine);
     }
 
     @Override
-    public Optional<FinateStateMachine> findFinateStateMachineByName(String name) {
+    public Optional<FiniteStateMachine> findFiniteStateMachineByName(String name) {
         return this.dataModel
-                .mapper(FinateStateMachine.class)
-                .getUnique(FinateStateMachineImpl.Fields.NAME.fieldName(), name);
+                .mapper(FiniteStateMachine.class)
+                .getUnique(FiniteStateMachineImpl.Fields.NAME.fieldName(), name);
     }
 
     @Override
-    public List<FinateStateMachine> findFinateStateMachinesUsing(StateTransitionEventType eventType) {
-        Condition eventTypeMatches = Where.where(FinateStateMachineImpl.Fields.TRANSITIONS.fieldName() + "." + StateTransitionImpl.Fields.EVENT_TYPE.fieldName()).isEqualTo(eventType);
+    public List<FiniteStateMachine> findFiniteStateMachinesUsing(StateTransitionEventType eventType) {
+        Condition eventTypeMatches = Where.where(FiniteStateMachineImpl.Fields.TRANSITIONS.fieldName() + "." + StateTransitionImpl.Fields.EVENT_TYPE.fieldName()).isEqualTo(eventType);
         return this.dataModel
-                .query(FinateStateMachine.class, StateTransition.class)
+                .query(FiniteStateMachine.class, StateTransition.class)
                 .select(eventTypeMatches);
     }
 

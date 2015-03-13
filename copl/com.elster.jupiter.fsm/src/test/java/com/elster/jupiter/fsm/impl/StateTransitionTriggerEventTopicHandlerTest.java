@@ -2,7 +2,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
@@ -48,7 +48,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
     @Mock
     private StateTransitionTriggerEvent triggerEvent;
     @Mock
-    private FinateStateMachine finateStateMachine;
+    private FiniteStateMachine finiteStateMachine;
     private Map<String, Object> eventProperties;
     private long eventTypeId;
     private long stateId;
@@ -64,17 +64,17 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Before
     public void initializeMocks() {
-        this.mockFinateStateMachine();
+        this.mockFiniteStateMachine();
         this.eventProperties = new HashMap<>();
         when(this.localEvent.getSource()).thenReturn(this.triggerEvent);
-        when(this.triggerEvent.getFinateStateMachine()).thenReturn(this.finateStateMachine);
+        when(this.triggerEvent.getFiniteStateMachine()).thenReturn(this.finiteStateMachine);
         when(this.triggerEvent.getProperties()).thenReturn(this.eventProperties);
         when(this.triggerEvent.getSourceId()).thenReturn(SOURCE_ID);
         when(this.triggerEvent.getProperties()).thenReturn(this.eventProperties);
     }
 
     /**
-     * Mocks the following finate state machine:
+     * Mocks the following finite state machine:
      * Instock --(#installed)--> Active
      * Active --(#deactivated)--> Inactive
      * Active --(#measured)--> Active
@@ -82,24 +82,24 @@ public class StateTransitionTriggerEventTopicHandlerTest {
      * Active --(#decommissioned)--> Decommissioned
      * Inactive --(#decommissioned)--> Decommissioned
      */
-    private void mockFinateStateMachine() {
-        when(this.finateStateMachine.getName()).thenReturn("StateTransitionTriggerEventTopicHandlerTest");
+    private void mockFiniteStateMachine() {
+        when(this.finiteStateMachine.getName()).thenReturn("StateTransitionTriggerEventTopicHandlerTest");
         this.mockEventTypes();
         this.mockStates();
         List<State> states = Arrays.asList(this.inStock, this.active, this.inactive, this.decommissioned);
-        when(this.finateStateMachine.getStates()).thenReturn(states);
-        when(this.finateStateMachine.getState(anyString())).thenReturn(Optional.empty());
-        when(this.finateStateMachine.getState(this.inStock.getName())).thenReturn(Optional.of(this.inStock));
-        when(this.finateStateMachine.getState(this.active.getName())).thenReturn(Optional.of(this.active));
-        when(this.finateStateMachine.getState(this.inactive.getName())).thenReturn(Optional.of(this.inactive));
-        when(this.finateStateMachine.getState(this.decommissioned.getName())).thenReturn(Optional.of(this.decommissioned));
+        when(this.finiteStateMachine.getStates()).thenReturn(states);
+        when(this.finiteStateMachine.getState(anyString())).thenReturn(Optional.empty());
+        when(this.finiteStateMachine.getState(this.inStock.getName())).thenReturn(Optional.of(this.inStock));
+        when(this.finiteStateMachine.getState(this.active.getName())).thenReturn(Optional.of(this.active));
+        when(this.finiteStateMachine.getState(this.inactive.getName())).thenReturn(Optional.of(this.inactive));
+        when(this.finiteStateMachine.getState(this.decommissioned.getName())).thenReturn(Optional.of(this.decommissioned));
         StateTransition install = this.mockStateTransition(this.inStock, this.active, this.installed);
         StateTransition deactivate = this.mockStateTransition(this.active, this.inactive, this.deactivated);
         StateTransition activate = this.mockStateTransition(this.inactive, this.active, this.activated);
         StateTransition decommissionActive = this.mockStateTransition(this.active, this.decommissioned, this.decommissionedEventType);
         StateTransition decommissionInactive = this.mockStateTransition(this.inactive, this.decommissioned, this.decommissionedEventType);
         StateTransition collectData = this.mockStateTransition(this.active, this.active, this.dataCollected);
-        when(this.finateStateMachine.getTransitions()).thenReturn(Arrays.asList(install, deactivate, activate, decommissionActive, decommissionInactive));
+        when(this.finiteStateMachine.getTransitions()).thenReturn(Arrays.asList(install, deactivate, activate, decommissionActive, decommissionInactive));
         when(this.inStock.getOutgoingStateTransitions()).thenReturn(Arrays.asList(install));
         when(this.active.getOutgoingStateTransitions()).thenReturn(Arrays.asList(deactivate, collectData, decommissionActive));
         when(this.inactive.getOutgoingStateTransitions()).thenReturn(Arrays.asList(activate, decommissionInactive));
@@ -116,10 +116,10 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     private void mockStates() {
         this.stateId = 0;
-        this.inStock = this.mockState(this.finateStateMachine, "Instock");
-        this.active = this.mockState(this.finateStateMachine, "Active");
-        this.inactive = this.mockState(this.finateStateMachine, "Inactive");
-        this.decommissioned = this.mockState(this.finateStateMachine, "Decommissioned");
+        this.inStock = this.mockState(this.finiteStateMachine, "Instock");
+        this.active = this.mockState(this.finiteStateMachine, "Active");
+        this.inactive = this.mockState(this.finiteStateMachine, "Inactive");
+        this.decommissioned = this.mockState(this.finiteStateMachine, "Decommissioned");
     }
 
     private StateTransitionEventType mockEventType(String symbol) {
@@ -129,11 +129,11 @@ public class StateTransitionTriggerEventTopicHandlerTest {
         return eventType;
     }
 
-    private State mockState(FinateStateMachine stateMachine, String name) {
+    private State mockState(FiniteStateMachine stateMachine, String name) {
         State state = mock(State.class);
         when(state.getName()).thenReturn(name);
         when(state.getId()).thenReturn(this.stateId++);
-        when(state.getFinateStateMachine()).thenReturn(stateMachine);
+        when(state.getFiniteStateMachine()).thenReturn(stateMachine);
         return state;
     }
 

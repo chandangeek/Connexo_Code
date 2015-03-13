@@ -4,7 +4,7 @@ import java.time.Instant;
 
 /**
  * A StateTransitionEventType models a {@link StateTransitionTriggerEvent}
- * that triggers the current {@link State} of a {@link FinateStateMachine}
+ * that triggers the current {@link State} of a {@link FiniteStateMachine}
  * to {@link StateTransition transition} to another State.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -25,14 +25,14 @@ public interface StateTransitionEventType {
     public long getVersion();
 
     /**
-     * Gets the timestamp on which this FinateStateMachine was created.
+     * Gets the timestamp on which this FiniteStateMachine was created.
      *
      * @return The creation timestamp
      */
     public Instant getCreationTimestamp();
 
     /**
-     * Gets the timestamp on which this FinateStateMachine was last modified.
+     * Gets the timestamp on which this FiniteStateMachine was last modified.
      *
      * @return The timestamp of last modification
      */

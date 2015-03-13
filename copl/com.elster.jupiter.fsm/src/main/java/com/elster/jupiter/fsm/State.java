@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * A State of a {@link FinateStateMachine}.
+ * A State of a {@link FiniteStateMachine}.
  * A State can be standard or custom.
  * The name of a "standard" state is actually a symbolic
  * name and will be translated according to the customer's
@@ -23,7 +23,7 @@ public interface State {
 
     public String getName();
 
-    public FinateStateMachine getFinateStateMachine();
+    public FiniteStateMachine getFiniteStateMachine();
 
     public List<StateTransition> getOutgoingStateTransitions();
 

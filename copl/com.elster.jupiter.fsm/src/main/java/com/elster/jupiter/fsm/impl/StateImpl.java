@@ -1,12 +1,11 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownProcessReferenceException;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.nls.Thesaurus;
@@ -37,7 +36,7 @@ public class StateImpl implements State {
     public enum Fields {
         NAME("name"),
         CUSTOM("custom"),
-        FINATE_STATE_MACHINE("finateStateMachine"),
+        FINITE_STATE_MACHINE("finiteStateMachine"),
         PROCESS_REFERENCES("processReferences");
 
         private final String javaFieldName;
@@ -61,7 +60,7 @@ public class StateImpl implements State {
     private String name;
     private boolean custom;
     @IsPresent
-    private Reference<FinateStateMachine> finateStateMachine = Reference.empty();
+    private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
     @Valid
     private List<ProcessReferenceImpl> processReferences = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -80,8 +79,8 @@ public class StateImpl implements State {
         this.thesaurus = thesaurus;
     }
 
-    public StateImpl initialize(FinateStateMachine finateStateMachine, boolean custom, String name) {
-        this.setFinateStateMachine(finateStateMachine);
+    public StateImpl initialize(FiniteStateMachine finiteStateMachine, boolean custom, String name) {
+        this.setFiniteStateMachine(finiteStateMachine);
         this.setName(name);
         this.custom = custom;
         return this;
@@ -122,17 +121,17 @@ public class StateImpl implements State {
     }
 
     @Override
-    public FinateStateMachine getFinateStateMachine() {
-        return finateStateMachine.get();
+    public FiniteStateMachine getFiniteStateMachine() {
+        return finiteStateMachine.get();
     }
 
-    void setFinateStateMachine(FinateStateMachine finateStateMachine) {
-        this.finateStateMachine.set(finateStateMachine);
+    void setFiniteStateMachine(FiniteStateMachine finiteStateMachine) {
+        this.finiteStateMachine.set(finiteStateMachine);
     }
 
     @Override
     public List<StateTransition> getOutgoingStateTransitions() {
-        return this.getFinateStateMachine()
+        return this.getFiniteStateMachine()
                 .getTransitions()
                 .stream()
                 .filter(t -> t.getFrom().getId() == this.getId())

@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.TransactionRequired;
 
 /**
  * Models the different event types that are produced
- * by this finate state machines bundle.
+ * by this finite state machines bundle.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-04 (10:12)
@@ -31,7 +31,7 @@ public enum EventType {
     void install(EventService eventService) {
         EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
-                .component(FinateStateMachineServiceImpl.COMPONENT_NAME)
+                .component(FiniteStateMachineServiceImpl.COMPONENT_NAME)
                 .category("Crud")
                 .scope("System");
         this.shouldPublish(builder).create().save();

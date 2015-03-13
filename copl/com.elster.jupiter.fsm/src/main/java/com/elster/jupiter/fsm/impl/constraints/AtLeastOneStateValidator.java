@@ -1,18 +1,18 @@
 package com.elster.jupiter.fsm.impl.constraints;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.impl.FinateStateMachineImpl;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineImpl;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Validates the {@link AtLeastOneState} constraint against a {@link FinateStateMachine}.
+ * Validates the {@link AtLeastOneState} constraint against a {@link FiniteStateMachine}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (11:08)
  */
-public class AtLeastOneStateValidator implements ConstraintValidator<AtLeastOneState, FinateStateMachine> {
+public class AtLeastOneStateValidator implements ConstraintValidator<AtLeastOneState, FiniteStateMachine> {
 
     @Override
     public void initialize(AtLeastOneState constraintAnnotation) {
@@ -20,11 +20,11 @@ public class AtLeastOneStateValidator implements ConstraintValidator<AtLeastOneS
     }
 
     @Override
-    public boolean isValid(FinateStateMachine stateMachine, ConstraintValidatorContext context) {
+    public boolean isValid(FiniteStateMachine stateMachine, ConstraintValidatorContext context) {
         if (stateMachine.getStates().isEmpty()) {
             context
                 .buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                .addPropertyNode(FinateStateMachineImpl.Fields.STATES.fieldName()).addConstraintViolation()
+                .addPropertyNode(FiniteStateMachineImpl.Fields.STATES.fieldName()).addConstraintViolation()
                 .disableDefaultConstraintViolation();
             return false;
         }

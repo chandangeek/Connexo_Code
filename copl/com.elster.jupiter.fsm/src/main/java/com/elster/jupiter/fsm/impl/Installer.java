@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Takes the necessary steps to install the technical components of the finate state machine bundle.
+ * Takes the necessary steps to install the technical components of the finite state machine bundle.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:57)
@@ -43,11 +43,11 @@ public class Installer {
     private void createPrivileges() {
         this.userService.createResourceWithPrivileges(
                 "FSM",
-                "finateStateMachineAdministration.finateStateMachineAdministrations",
-                "finateStateMachineAdministration.finateStateMachineAdministrations.description",
+                "finiteStateMachineAdministration.finiteStateMachineAdministrations",
+                "finiteStateMachineAdministration.finiteStateMachineAdministrations.description",
                 new String[]{
-                        Privileges.CONFIGURE_FINATE_STATE_MACHINES,
-                        Privileges.VIEW_FINATE_STATE_MACHINES});
+                        Privileges.CONFIGURE_FINITE_STATE_MACHINES,
+                        Privileges.VIEW_FINITE_STATE_MACHINES});
     }
 
     private void createEventTypes() {

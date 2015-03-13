@@ -1,15 +1,15 @@
 package com.elster.jupiter.fsm;
 
 /**
- * Assists in building {@link FinateStateMachine}s.
+ * Assists in building {@link FiniteStateMachine}s.
  * Most of the methods return the same builder to support method chaining.
- * The building process is completed by returning the FinateStateMachine
- * but it is your responsibility to save the FinateStateMachine.
+ * The building process is completed by returning the FiniteStateMachine
+ * but it is your responsibility to save the FiniteStateMachine.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (09:54)
  */
-public interface FinateStateMachineBuilder {
+public interface FiniteStateMachineBuilder {
 
     /**
      * Starts the building process of a new custom {@link State}.
@@ -30,12 +30,12 @@ public interface FinateStateMachineBuilder {
     public StateBuilder newStandardState(String symbolicName);
 
     /**
-     * Completes the building process, returning the {@link FinateStateMachine}
+     * Completes the building process, returning the {@link FiniteStateMachine}
      * that was built from the instructions.
      *
-     * @return The FinateStateMachine
+     * @return The FiniteStateMachine
      */
-    public FinateStateMachine complete();
+    public FiniteStateMachine complete();
 
     /**
      * Assists in building {@link State}s that will be added

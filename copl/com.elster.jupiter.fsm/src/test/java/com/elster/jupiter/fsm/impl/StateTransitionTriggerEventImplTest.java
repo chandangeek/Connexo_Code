@@ -1,7 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 public class StateTransitionTriggerEventImplTest {
 
     @Mock
-    private FinateStateMachine stateMachine;
+    private FiniteStateMachine stateMachine;
     @Mock
     private EventService eventService;
 

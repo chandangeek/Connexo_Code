@@ -1,14 +1,13 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionEventTypeStillInUseException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableMap;
 
-import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,7 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
-    private final ServerFinateStateMachineService stateMachineService;
+    private final ServerFiniteStateMachineService stateMachineService;
 
     @SuppressWarnings("unused")
     private long id;
@@ -59,7 +58,7 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    protected StateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFinateStateMachineService stateMachineService) {
+    protected StateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFiniteStateMachineService stateMachineService) {
         super();
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
@@ -102,7 +101,7 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
     }
 
     private void validateDelete() {
-        List<FinateStateMachine> stateMachines = this.stateMachineService.findFinateStateMachinesUsing(this);
+        List<FiniteStateMachine> stateMachines = this.stateMachineService.findFiniteStateMachinesUsing(this);
         if (!stateMachines.isEmpty()) {
             throw new StateTransitionEventTypeStillInUseException(this.thesaurus, this, stateMachines);
         }

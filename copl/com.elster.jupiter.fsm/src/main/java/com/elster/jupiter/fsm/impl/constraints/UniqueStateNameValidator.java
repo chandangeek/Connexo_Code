@@ -1,6 +1,6 @@
 package com.elster.jupiter.fsm.impl.constraints;
 
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.Checks;
 
@@ -16,10 +16,10 @@ import javax.validation.ConstraintValidatorContext;
  */
 public class UniqueStateNameValidator implements ConstraintValidator<Unique, State> {
 
-    private final FinateStateMachineService service;
+    private final FiniteStateMachineService service;
 
     @Inject
-    public UniqueStateNameValidator(FinateStateMachineService service) {
+    public UniqueStateNameValidator(FiniteStateMachineService service) {
         super();
         this.service = service;
     }
@@ -31,7 +31,7 @@ public class UniqueStateNameValidator implements ConstraintValidator<Unique, Sta
 
     @Override
     public boolean isValid(State state, ConstraintValidatorContext context) {
-        return state.getFinateStateMachine()
+        return state.getFiniteStateMachine()
                     .getStates()
                     .stream()
                     .map(State::getName)

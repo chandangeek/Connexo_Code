@@ -1,8 +1,8 @@
 <html><body><h1>com.elster.jupiter.fsm</h1>
-<p>This bundle provides support for finate state machines.
-The main interface is FinateStateMachine, a named wrapper for a set of States and StateTransitions.
+<p>This bundle provides support for finite state machines.
+The main interface is FiniteStateMachine, a named wrapper for a set of States and StateTransitions.
 Every State can be configured to trigger one or more external processes on entry and on exit.
-As events are produced, the finate state machine will respond to the event and change the state accordingly.
+As events are produced, the finite state machine will respond to the event and change the state accordingly.
 When state actually changes, a new event is produced that can be picked up by other components
 that could e.g. change the actual persisted state of a device.
 Events are globally defined and can therefore be reused across different state machines.
@@ -20,5 +20,5 @@ Currently, the external processes are defined in jBPM but are not started yet.
 <tr><td>com.elster.jupiter.fsm</td><td>1.1.0</td><td>Public Api</td></tr>
 </table>
 <h2>Provided Services</h2>
-<ul><li>com.elster.jupiter.fsm.FinateStateMachineService</li></ul>
+<ul><li>com.elster.jupiter.fsm.FiniteStateMachineService</li></ul>
 </body></html>

@@ -1,25 +1,25 @@
 package com.elster.jupiter.fsm;
 
 /**
- * Models the behavior of a component that allows to update an existing {@link FinateStateMachine}.
+ * Models the behavior of a component that allows to update an existing {@link FiniteStateMachine}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-09 (09:45)
  */
-public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
+public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
 
     /**
-     * Sets a new name for the {@link FinateStateMachine}
-     * that is the target of this FinateStateMachineUpdater.
+     * Sets a new name for the {@link FiniteStateMachine}
+     * that is the target of this FiniteStateMachineUpdater.
      * Note that the name uniqueness constraint is obviously
      * respected and than any attempt to set the name
-     * of the existing FinateStateMachine to one that already
+     * of the existing FiniteStateMachine to one that already
      * exists will result in a validation error.
      *
      * @param newName The new name
-     * @return This FinateStateMachineUpdater to support method chaining
+     * @return This FiniteStateMachineUpdater to support method chaining
      */
-    public FinateStateMachineUpdater setName(String newName);
+    public FiniteStateMachineUpdater setName(String newName);
 
     /**
      * Removes the {@link State} with the specified name as well
@@ -28,20 +28,20 @@ public interface FinateStateMachineUpdater extends FinateStateMachineBuilder {
      * if no such State exists.
      *
      * @param obsoleteStateName The name of the obsolete State
-     * @return This FinateStateMachineUpdater to support method chaining
+     * @return This FiniteStateMachineUpdater to support method chaining
      */
-    public FinateStateMachineUpdater removeState(String obsoleteStateName);
+    public FiniteStateMachineUpdater removeState(String obsoleteStateName);
 
     /**
      * Removes the specified {@link State} as well
      * as all incoming and outgoing transitions for that State.
      * Note that this may throw an {@link UnknownStateException}
-     * if the State is not actually part of the FinateStateMachine.
+     * if the State is not actually part of the FiniteStateMachine.
      *
      * @param obsoleteState The obsolete State
-     * @return This FinateStateMachineUpdater to support method chaining
+     * @return This FiniteStateMachineUpdater to support method chaining
      */
-    public FinateStateMachineUpdater removeState(State obsoleteState);
+    public FiniteStateMachineUpdater removeState(State obsoleteState);
 
     /**
      * Starts the update process for the {@link State} with the specified name.

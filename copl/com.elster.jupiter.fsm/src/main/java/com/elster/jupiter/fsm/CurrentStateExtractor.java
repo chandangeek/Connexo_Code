@@ -26,19 +26,19 @@ public interface CurrentStateExtractor {
 
     /**
      * Extracts information from the LocalEvent that may or may
-     * not relate to the specified {@link FinateStateMachine}.
+     * not relate to the specified {@link FiniteStateMachine}.
      * If the event does not relate to {@link State} then Optional.empty()
      * should be returned. Examples of why it does not relate to state could be:
      * <ul>
      * <li>The {@link LocalEvent#getSource() event's source} is not of the appropriate type</li>
-     * <li>The {@link LocalEvent#getSource() event's source} is not linked to the FinateStateMachine</li>
+     * <li>The {@link LocalEvent#getSource() event's source} is not linked to the FiniteStateMachine</li>
      * <li>The event's properties do not provide sufficient information</li>
      * </ul>
      *
      * @param event The LocalEvent from which the information should be extraced
-     * @param finateStateMachine The FinateStateMachine to which the event's source object should be related
+     * @param finiteStateMachine The FiniteStateMachine to which the event's source object should be related
      * @return The CurrentState
      */
-    public Optional<CurrentState> extractFrom(LocalEvent event, FinateStateMachine finateStateMachine);
+    public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine);
 
 }

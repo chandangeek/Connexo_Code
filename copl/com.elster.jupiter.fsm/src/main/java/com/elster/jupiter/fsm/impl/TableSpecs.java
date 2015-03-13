@@ -1,7 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
@@ -20,16 +20,16 @@ import com.elster.jupiter.orm.Table;
  */
 public enum TableSpecs {
 
-    FSM_FINATE_STATE_MACHINE {
+    FSM_FINITE_STATE_MACHINE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<FinateStateMachine> table = dataModel.addTable(this.name(), FinateStateMachine.class);
-            table.map(FinateStateMachineImpl.class);
+            Table<FiniteStateMachine> table = dataModel.addTable(this.name(), FiniteStateMachine.class);
+            table.map(FiniteStateMachineImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            Column name = table.column("NAME").varChar().notNull().map(FinateStateMachineImpl.Fields.NAME.fieldName()).add();
-            table.unique("UK_FSM_FINATESTATEMACHINE").on(name).add();
-            table.primaryKey("PK_FSM_FINATESTATEMACHINE").on(id).add();
+            Column name = table.column("NAME").varChar().notNull().map(FiniteStateMachineImpl.Fields.NAME.fieldName()).add();
+            table.unique("UK_FSM_FINITESTATEMACHINE").on(name).add();
+            table.primaryKey("PK_FSM_FINITESTATEMACHINE").on(id).add();
         }
     },
 
@@ -63,13 +63,13 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(StateImpl.Fields.NAME.fieldName()).add();
             table.column("CUSTOM").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.CUSTOM.fieldName()).add();
-            Column finateStateMachine = table.column("FSM").number().notNull().add();
+            Column finiteStateMachine = table.column("FSM").number().notNull().add();
             table.unique("UK_FSM_STATE").on(name).add();
             table.foreignKey("FK_FSM_STATE_FSM")
-                    .on(finateStateMachine)
-                    .references(FSM_FINATE_STATE_MACHINE.name())
-                    .map(StateImpl.Fields.FINATE_STATE_MACHINE.fieldName())
-                    .reverseMap(FinateStateMachineImpl.Fields.STATES.fieldName())
+                    .on(finiteStateMachine)
+                    .references(FSM_FINITE_STATE_MACHINE.name())
+                    .map(StateImpl.Fields.FINITE_STATE_MACHINE.fieldName())
+                    .reverseMap(FiniteStateMachineImpl.Fields.STATES.fieldName())
                     .composition()
                     .add();
             table.primaryKey("PK_FSM_STATE").on(id).add();
@@ -108,13 +108,13 @@ public enum TableSpecs {
             Column from = table.column("FROMSTATE").number().notNull().add();
             Column to = table.column("TOSTATE").number().notNull().add();
             Column eventType = table.column("EVENTTYPE").number().notNull().add();
-            Column finateStateMachine = table.column("FSM").number().notNull().add();
+            Column finiteStateMachine = table.column("FSM").number().notNull().add();
             table.primaryKey("PK_FSM_STATE_TRANSITION").on(id).add();
             table.foreignKey("FK_FSM_STATETRANS_FSM")
-                    .on(finateStateMachine)
-                    .references(FSM_FINATE_STATE_MACHINE.name())
-                    .map(StateTransitionImpl.Fields.FINATE_STATE_MACHINE.fieldName())
-                    .reverseMap(FinateStateMachineImpl.Fields.TRANSITIONS.fieldName())
+                    .on(finiteStateMachine)
+                    .references(FSM_FINITE_STATE_MACHINE.name())
+                    .map(StateTransitionImpl.Fields.FINITE_STATE_MACHINE.fieldName())
+                    .reverseMap(FiniteStateMachineImpl.Fields.TRANSITIONS.fieldName())
                     .composition()
                     .add();
             table.foreignKey("FK_FSM_STATETRANS_STATE_FROM")

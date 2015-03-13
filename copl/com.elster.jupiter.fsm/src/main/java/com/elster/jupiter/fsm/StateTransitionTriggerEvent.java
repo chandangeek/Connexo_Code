@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * A StateTransitionTriggerEvent triggers the current {@link State} of a
- * {@link FinateStateMachine} to {@link StateTransition transition} to another State.
+ * {@link FiniteStateMachine} to {@link StateTransition transition} to another State.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (14:49)
@@ -12,11 +12,11 @@ import java.util.Map;
 public interface StateTransitionTriggerEvent {
 
     /**
-     * Gets the {@link FinateStateMachine} to which this trigger applies.
+     * Gets the {@link FiniteStateMachine} to which this trigger applies.
      *
-     * @return The FinateStateMachine
+     * @return The FiniteStateMachine
      */
-    public FinateStateMachine getFinateStateMachine();
+    public FiniteStateMachine getFiniteStateMachine();
 
     public StateTransitionEventType getType();
 

@@ -1,6 +1,6 @@
 package com.elster.jupiter.fsm.impl.constraints;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Models the constraint that a {@link FinateStateMachine}
+ * Models the constraint that a {@link FiniteStateMachine}
  * should have at least one {@link com.elster.jupiter.fsm.State}.
  *
  * @author Rudi Vankeirsbilck (rudi)

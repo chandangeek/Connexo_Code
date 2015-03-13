@@ -1,8 +1,8 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.FinateStateMachineUpdater;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
@@ -26,14 +26,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link FinateStateMachine} interface.
+ * Provides an implementation for the {@link FiniteStateMachine} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (15:29)
  */
-@Unique(message = MessageSeeds.Keys.UNIQUE_FINATE_STATE_MACHINE_NAME, groups = { Save.Create.class, Save.Update.class })
+@Unique(message = MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME, groups = { Save.Create.class, Save.Update.class })
 @AtLeastOneState(message = MessageSeeds.Keys.AT_LEAST_ONE_STATE, groups = { Save.Create.class, Save.Update.class })
-public class FinateStateMachineImpl implements FinateStateMachine {
+public class FiniteStateMachineImpl implements FiniteStateMachine {
 
     public enum Fields {
         NAME("name"),
@@ -73,12 +73,12 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     private Instant modTime;
 
     @Inject
-    public FinateStateMachineImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public FiniteStateMachineImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
     }
 
-    public FinateStateMachineImpl initialize(String name) {
+    public FiniteStateMachineImpl initialize(String name) {
         this.name = name;
         return this;
     }
@@ -177,8 +177,8 @@ public class FinateStateMachineImpl implements FinateStateMachine {
     }
 
     @Override
-    public FinateStateMachineUpdater update() {
-        return new FinateStateMachineUpdaterImpl(this.dataModel, this.thesaurus, this);
+    public FiniteStateMachineUpdater update() {
+        return new FiniteStateMachineUpdaterImpl(this.dataModel, this.thesaurus, this);
     }
 
     @Override

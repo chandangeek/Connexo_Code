@@ -1,8 +1,8 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.FinateStateMachineBuilder;
-import com.elster.jupiter.fsm.FinateStateMachineUpdater;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateException;
@@ -13,32 +13,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link FinateStateMachineUpdater} interface.
+ * Provides an implementation for the {@link FiniteStateMachineUpdater} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-09 (09:50)
  */
-public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl implements FinateStateMachineUpdater {
+public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl implements FiniteStateMachineUpdater {
 
     private final Thesaurus thesaurus;
     private final List<StateUpdaterImpl> completedStateUpdaters = new ArrayList<>();
     private final List<AddState> completedNewStates = new ArrayList<>();
     private final List<StateTransitionImpl> completedNewTransitions = new ArrayList<>();
 
-    public FinateStateMachineUpdaterImpl(DataModel dataModel, Thesaurus thesaurus, FinateStateMachineImpl updateTarget) {
+    public FiniteStateMachineUpdaterImpl(DataModel dataModel, Thesaurus thesaurus, FiniteStateMachineImpl updateTarget) {
         super(dataModel, updateTarget);
         this.thesaurus = thesaurus;
     }
 
     @Override
-    public FinateStateMachineUpdater setName(String newName) {
+    public FiniteStateMachineUpdater setName(String newName) {
         this.getUnderConstruction().setName(newName);
         return this;
     }
 
     @Override
-    public FinateStateMachineUpdater removeState(String obsoleteStateName) {
-        FinateStateMachineImpl stateMachine = this.getUnderConstruction();
+    public FiniteStateMachineUpdater removeState(String obsoleteStateName) {
+        FiniteStateMachineImpl stateMachine = this.getUnderConstruction();
         StateImpl obsoleteState = this.findStateIfExists(obsoleteStateName, stateMachine);
         stateMachine.removeState(obsoleteState);
         return this;
@@ -49,19 +49,19 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
      * an {@link UnknownStateException} when the State does not exist.
      *
      * @param stateName The name of the State
-     * @param stateMachine The {@link FinateStateMachine}
+     * @param stateMachine The {@link FiniteStateMachine}
      * @return The State
      */
-    private StateImpl findStateIfExists(String stateName, FinateStateMachineImpl stateMachine) {
+    private StateImpl findStateIfExists(String stateName, FiniteStateMachineImpl stateMachine) {
         return stateMachine
                     .findInternalState(stateName)
                     .orElseThrow(() -> new UnknownStateException(this.thesaurus, stateMachine, stateName));
     }
 
     @Override
-    public FinateStateMachineUpdater removeState(State obsoleteState) {
-        FinateStateMachineImpl stateMachine = this.getUnderConstruction();
-        if (obsoleteState.getFinateStateMachine().getId() == stateMachine.getId()) {
+    public FiniteStateMachineUpdater removeState(State obsoleteState) {
+        FiniteStateMachineImpl stateMachine = this.getUnderConstruction();
+        if (obsoleteState.getFiniteStateMachine().getId() == stateMachine.getId()) {
             stateMachine.removeState((StateImpl) obsoleteState);
             return this;
         }
@@ -90,8 +90,8 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
     }
 
     @Override
-    public FinateStateMachineImpl complete() {
-        FinateStateMachineImpl updated = super.complete();
+    public FiniteStateMachineImpl complete() {
+        FiniteStateMachineImpl updated = super.complete();
         this.completedStateUpdaters.forEach(StateUpdaterImpl::save);
         this.completedNewStates.forEach(AddState::save);
         this.completedNewTransitions.forEach(updated::add);
@@ -138,13 +138,13 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
         }
 
         @Override
-        public FinateStateMachineUpdater.TransitionBuilder on(StateTransitionEventType eventType) {
+        public FiniteStateMachineUpdater.TransitionBuilder on(StateTransitionEventType eventType) {
             return new AddTransitionToExistingState(this, eventType, this.underConstruction);
         }
 
         @Override
         public StateUpdater prohibit(StateTransitionEventType eventType) {
-            FinateStateMachineUpdaterImpl.this.getUnderConstruction().removeTransition(this.underConstruction, eventType);
+            FiniteStateMachineUpdaterImpl.this.getUnderConstruction().removeTransition(this.underConstruction, eventType);
             return this;
         }
 
@@ -161,11 +161,11 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
     }
 
     private class AddState implements ServerStateBuilder {
-        private final FinateStateMachineImpl stateMachine;
+        private final FiniteStateMachineImpl stateMachine;
         private final StateImpl underConstruction;
         private final List<StateTransitionImpl> transitionsUnderConstruction = new ArrayList<>();
 
-        private AddState(FinateStateMachineImpl stateMachine, StateImpl underConstruction) {
+        private AddState(FiniteStateMachineImpl stateMachine, StateImpl underConstruction) {
             super();
             this.stateMachine = stateMachine;
             this.underConstruction = underConstruction;
@@ -189,7 +189,7 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
         }
 
         @Override
-        public FinateStateMachineBuilder.TransitionBuilder on(StateTransitionEventType eventType) {
+        public FiniteStateMachineBuilder.TransitionBuilder on(StateTransitionEventType eventType) {
             return new AddTransitionToNewState(this, eventType, this.underConstruction);
         }
 
@@ -200,8 +200,8 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
 
         @Override
         public State complete() {
-            FinateStateMachineUpdaterImpl.this.completedNewStates.add(this);
-            FinateStateMachineUpdaterImpl.this.completedNewTransitions.addAll(this.transitionsUnderConstruction);
+            FiniteStateMachineUpdaterImpl.this.completedNewStates.add(this);
+            FiniteStateMachineUpdaterImpl.this.completedNewTransitions.addAll(this.transitionsUnderConstruction);
             return this.underConstruction;
         }
 
@@ -211,7 +211,7 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
 
     }
 
-    private class AddTransitionToNewState implements FinateStateMachineBuilder.TransitionBuilder {
+    private class AddTransitionToNewState implements FiniteStateMachineBuilder.TransitionBuilder {
 
         private final AddState continuation;
         private final StateTransitionEventType eventType;
@@ -240,7 +240,7 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
 
     }
 
-    private class AddTransitionToExistingState implements FinateStateMachineUpdater.TransitionBuilder {
+    private class AddTransitionToExistingState implements FiniteStateMachineUpdater.TransitionBuilder {
         private final StateUpdater continuation;
         private final StateTransitionEventType eventType;
         private final State from;
@@ -259,13 +259,13 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
 
         @Override
         public StateUpdater transitionTo(State state) {
-            FinateStateMachineImpl stateMachine = getUnderConstruction();
+            FiniteStateMachineImpl stateMachine = getUnderConstruction();
             StateTransitionImpl stateTransition = this.newInitializedTransition(state, stateMachine);
             if (isPersistent(state)) {
                 stateMachine.add(stateTransition);
             }
             else {
-                FinateStateMachineUpdaterImpl.this.completedNewTransitions.add(stateTransition);
+                FiniteStateMachineUpdaterImpl.this.completedNewTransitions.add(stateTransition);
             }
             return this.continuation;
         }
@@ -274,7 +274,7 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
             return state.getId() != 0;
         }
 
-        private StateTransitionImpl newInitializedTransition(State state, FinateStateMachineImpl stateMachine) {
+        private StateTransitionImpl newInitializedTransition(State state, FiniteStateMachineImpl stateMachine) {
             return getDataModel().getInstance(StateTransitionImpl.class).initialize(stateMachine, this.from, state, this.eventType);
         }
 
@@ -284,9 +284,9 @@ public class FinateStateMachineUpdaterImpl extends FinateStateMachineBuilderImpl
         }
 
         private StateUpdater transitionTo(ServerStateBuilder stateBuilder) {
-            FinateStateMachineImpl stateMachine = getUnderConstruction();
+            FiniteStateMachineImpl stateMachine = getUnderConstruction();
             StateTransitionImpl stateTransition = this.newInitializedTransition(stateBuilder.getUnderConstruction(), stateMachine);
-            FinateStateMachineUpdaterImpl.this.completedNewTransitions.add(stateTransition);
+            FiniteStateMachineUpdaterImpl.this.completedNewTransitions.add(stateTransition);
             return this.continuation;
         }
     }

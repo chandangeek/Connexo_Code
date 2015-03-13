@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * A StateTransitionChangeEvent notifies interested parties
- * that the current {@link State} of a {@link FinateStateMachine}
+ * that the current {@link State} of a {@link FiniteStateMachine}
  * for a particular source object has changed.
  *
  * @author Rudi Vankeirsbilck (rudi)

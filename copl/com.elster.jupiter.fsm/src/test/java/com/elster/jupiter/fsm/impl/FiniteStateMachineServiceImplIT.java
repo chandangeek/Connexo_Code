@@ -18,19 +18,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Integration test for the {@link FinateStateMachineServiceImpl} component.
+ * Integration test for the {@link FiniteStateMachineServiceImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-06 (15:32)
  */
-public class FinateStateMachineServiceImplIT {
+public class FiniteStateMachineServiceImplIT {
 
     private static InMemoryPersistence inMemoryPersistence;
 
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = InMemoryPersistence.defaultPersistence();
-        inMemoryPersistence.initializeDatabase(FinateStateMachineServiceImplIT.class.getSimpleName());
+        inMemoryPersistence.initializeDatabase(FiniteStateMachineServiceImplIT.class.getSimpleName());
     }
 
     @AfterClass
@@ -53,7 +53,7 @@ public class FinateStateMachineServiceImplIT {
 
     @Test
     public void addStandardEventTypePredicateThatRejectsAllCandidates() {
-        FinateStateMachineServiceImpl service = this.getTestService();
+        FiniteStateMachineServiceImpl service = this.getTestService();
         StandardEventPredicate predicate = mock(StandardEventPredicate.class);
         when(predicate.isCandidate(any(EventType.class))).thenReturn(false);
 
@@ -72,7 +72,7 @@ public class FinateStateMachineServiceImplIT {
     @Test
     public void addStandardEventTypePredicateThatAcceptsAllCandidates() {
         try {
-            FinateStateMachineServiceImpl service = this.getTestService();
+            FiniteStateMachineServiceImpl service = this.getTestService();
             StandardEventPredicate predicate = mock(StandardEventPredicate.class);
             when(predicate.isCandidate(any(EventType.class))).thenReturn(true);
 
@@ -94,7 +94,7 @@ public class FinateStateMachineServiceImplIT {
 
     private void deleteAllStandardStateTransitionEventTypesIfAny() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            FinateStateMachineServiceImpl service = this.getTestService();
+            FiniteStateMachineServiceImpl service = this.getTestService();
             inMemoryPersistence.getService(EventService.class)
                     .getEventTypes()
                     .stream()
@@ -106,8 +106,8 @@ public class FinateStateMachineServiceImplIT {
         }
     }
 
-    private FinateStateMachineServiceImpl getTestService() {
-        return inMemoryPersistence.getFinateStateMachineService();
+    private FiniteStateMachineServiceImpl getTestService() {
+        return inMemoryPersistence.getFiniteStateMachineService();
     }
 
 }
