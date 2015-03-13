@@ -1,18 +1,23 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.History;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public class EstimationTaskImpl implements IEstimationTask {
@@ -26,7 +31,7 @@ public class EstimationTaskImpl implements IEstimationTask {
     private String name;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
-    private Reference<RelativePeriod> relativePeriod = ValueReference.absent();
+    private Reference<RelativePeriod> period = ValueReference.absent();
     private Instant lastRun;
 
     private transient boolean scheduleImmediately;
@@ -211,12 +216,33 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public Optional<RelativePeriod> getPeriod() {
-        return relativePeriod.getOptional();
+        return period.getOptional();
     }
 
     @Override
     public void setPeriod(RelativePeriod relativePeriod) {
-        this.relativePeriod.set(relativePeriod);
+        this.period.set(relativePeriod);
+    }
+
+    @Override
+    public Optional<ScheduleExpression> getScheduleExpression(Instant at) {
+        return recurrentTask.get().getHistory().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
+    }
+
+    @Override
+    public History<? extends EstimationTask> getHistory() {
+        List<JournalEntry<IEstimationTask>> journal = dataModel.mapper(IEstimationTask.class).getJournal(getId());
+        return new History<>(journal, this);
+    }
+
+    @Override
+    public Optional<? extends TaskOccurrence> getLastOccurrence() {
+        return recurrentTask.get().getLastOccurrence();
+    }
+
+    @Override
+    public boolean canBeDeleted() {
+        return true; // TODO
     }
 
     public RecurrentTask getRecurrentTask() {

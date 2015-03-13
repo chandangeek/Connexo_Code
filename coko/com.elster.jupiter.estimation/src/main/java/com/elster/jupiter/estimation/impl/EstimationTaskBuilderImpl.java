@@ -4,6 +4,7 @@ import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
@@ -13,6 +14,7 @@ public class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private final DataModel dataModel;
 
     private ScheduleExpression scheduleExpression;
+    private RelativePeriod period;
     private Instant nextExecution;
     private boolean scheduleImmediately;
     private String name;
@@ -44,6 +46,9 @@ public class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     public EstimationTask build() {
         IEstimationTask task = EstimationTaskImpl.from(dataModel, name, endDeviceGroup, scheduleExpression, nextExecution);
         task.setScheduleImmediately(scheduleImmediately);
+        if (period != null) {
+            task.setPeriod(period);
+        }
         return task;
     }
 
@@ -56,6 +61,12 @@ public class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     @Override
     public EstimationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup = endDeviceGroup;
+        return this;
+    }
+
+    @Override
+    public EstimationTaskBuilder setPeriod(RelativePeriod relativePeriod) {
+        this.period = relativePeriod;
         return this;
     }
 }

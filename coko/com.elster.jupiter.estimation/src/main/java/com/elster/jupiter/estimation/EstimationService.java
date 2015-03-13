@@ -1,7 +1,6 @@
 package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.estimation.impl.IEstimationRuleSet;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 
@@ -42,5 +41,5 @@ public interface EstimationService {
 
     Query<EstimationRuleSet> getEstimationRuleSetQuery();
 
-
+    Query<? extends EstimationTask> getEstimationTaskQuery();
 }

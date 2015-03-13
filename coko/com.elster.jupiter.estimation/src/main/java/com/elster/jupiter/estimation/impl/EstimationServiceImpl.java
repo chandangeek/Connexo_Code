@@ -94,19 +94,23 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Activate
     public void activate() {
-        dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(DataModel.class).toInstance(dataModel);
-                bind(MeteringService.class).toInstance(meteringService);
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(EventService.class).toInstance(eventService);
-                bind(EstimatorCreator.class).toInstance(new DefaultEstimatorCreator());
-                bind(TaskService.class).toInstance(taskService);
-                bind(IEstimationService.class).toInstance(EstimationServiceImpl.this);
-            }
-        });
+        try {
+            dataModel.register(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(DataModel.class).toInstance(dataModel);
+                    bind(MeteringService.class).toInstance(meteringService);
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                    bind(EventService.class).toInstance(eventService);
+                    bind(EstimatorCreator.class).toInstance(new DefaultEstimatorCreator());
+                    bind(TaskService.class).toInstance(taskService);
+                    bind(IEstimationService.class).toInstance(EstimationServiceImpl.this);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Deactivate
@@ -145,6 +149,12 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         Query<EstimationRuleSet> ruleSetQuery = queryService.wrap(dataModel.query(EstimationRuleSet.class));
         ruleSetQuery.setRestriction(where(EstimationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull());
         return ruleSetQuery;
+    }
+
+    @Override
+    public Query<? extends EstimationTask> getEstimationTaskQuery() {
+        Query<EstimationTask> estimationTaskQuery = queryService.wrap(dataModel.query(EstimationTask.class));
+        return estimationTaskQuery;
     }
 
     @Override
