@@ -172,7 +172,7 @@ public class ValidationServiceImplTest {
         when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
         when(queryService.wrap(eq(validationRuleQueryExecutor))).thenReturn(allValidationRuleQuery);
 
-        validationService = new ValidationServiceImpl(clock, eventService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
+        validationService = new ValidationServiceImpl(clock, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));

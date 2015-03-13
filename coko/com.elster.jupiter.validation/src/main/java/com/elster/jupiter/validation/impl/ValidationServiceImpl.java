@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -39,6 +40,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile Clock clock;
+    private volatile TaskService taskService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
@@ -51,11 +53,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
+    ValidationServiceImpl(Clock clock, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
         this.clock = clock;
         this.eventService = eventService;
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
+        this.taskService = taskService;
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -75,6 +78,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
             protected void configure() {
                 bind(Clock.class).toInstance(clock);
                 bind(EventService.class).toInstance(eventService);
+                bind(TaskService.class).toInstance(taskService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(DataModel.class).toInstance(dataModel);
@@ -98,7 +102,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR", "MTG");
+        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR", "MTG", TaskService.COMPONENTNAME);
 
     }
 
@@ -113,6 +117,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @Reference
