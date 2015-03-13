@@ -68,10 +68,11 @@
     display: block;
     float: left;
     height: $menu-navigation-number-size;
-    line-height: $menu-navigation-number-size;
+    line-height: 31px;
     margin: $menu-navigation-number-margin;
     text-align: center;
     width: $menu-navigation-number-size;
+    letter-spacing: 1px;
   }
 
   .step-completed .navigation-item-number {

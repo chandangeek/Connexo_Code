@@ -12180,43 +12180,44 @@ a.x-datepicker-date:hover {
   display: block;
   float: left;
   height: 32px;
-  line-height: 32px;
+  line-height: 31px;
   margin: 9px 16px 0 0;
   text-align: center;
   width: 32px;
+  letter-spacing: 1px;
 }
-/* line 77, ../../sass/src/menu/NavigationMenu.scss */
+/* line 78, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-completed .navigation-item-number {
   border-color: #a0a0a0;
   background-color: #ebebeb;
   color: #a0a0a0;
   font-weight: bold;
 }
-/* line 84, ../../sass/src/menu/NavigationMenu.scss */
+/* line 85, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-completed .x-menu-item-text {
   color: #a0a0a0 !important;
   font-weight: bold;
 }
-/* line 89, ../../sass/src/menu/NavigationMenu.scss */
+/* line 90, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-active .navigation-item-number {
   background-color: #70bb51;
   border-color: #70bb51;
   color: white;
   font-weight: bold;
 }
-/* line 96, ../../sass/src/menu/NavigationMenu.scss */
+/* line 97, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-active .x-menu-item-text {
   color: #70bb51 !important;
   font-weight: bold;
 }
-/* line 101, ../../sass/src/menu/NavigationMenu.scss */
+/* line 102, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-non-completed .navigation-item-number {
   background-color: #686868;
   border-color: #686868;
   color: white;
   font-weight: bold;
 }
-/* line 108, ../../sass/src/menu/NavigationMenu.scss */
+/* line 109, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-non-completed .x-menu-item-text {
   color: #686868 !important;
   font-weight: bold;
