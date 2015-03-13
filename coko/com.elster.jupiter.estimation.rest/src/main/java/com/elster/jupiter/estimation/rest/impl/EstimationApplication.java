@@ -1,4 +1,4 @@
-package com.elster.jupiter.estimation.rest;
+package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;

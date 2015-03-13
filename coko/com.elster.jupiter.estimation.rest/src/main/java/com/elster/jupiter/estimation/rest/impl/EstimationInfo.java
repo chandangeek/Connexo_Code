@@ -1,4 +1,4 @@
-package com.elster.jupiter.estimation.rest;
+package com.elster.jupiter.estimation.rest.impl;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.elster.jupiter.estimation.rest;
+package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;

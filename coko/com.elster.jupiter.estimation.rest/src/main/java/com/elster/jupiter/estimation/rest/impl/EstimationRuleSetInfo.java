@@ -1,4 +1,4 @@
-package com.elster.jupiter.estimation.rest;
+package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
