@@ -74,6 +74,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @Valid
     private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
     private boolean suspended;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
     private String userName;
     private long version;
@@ -85,10 +86,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         super(ComTaskEnablement.class, dataModel, eventService, thesaurus);
     }
 
-    ComTaskEnablementImpl initialize(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet) {
+    ComTaskEnablementImpl initialize(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties) {
         this.deviceConfiguration.set(deviceConfiguration);
         this.comTask.set(comTask);
         this.securityPropertySet.set(securityPropertySet);
+        this.protocolDialectConfigurationProperties.set(configurationProperties);
         return this;
     }
 
