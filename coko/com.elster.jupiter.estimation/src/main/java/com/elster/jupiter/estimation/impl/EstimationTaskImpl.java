@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
@@ -25,6 +26,7 @@ public class EstimationTaskImpl implements IEstimationTask {
     private String name;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+    private Reference<RelativePeriod> relativePeriod = ValueReference.absent();
     private Instant lastRun;
 
     private transient boolean scheduleImmediately;
@@ -205,6 +207,16 @@ public class EstimationTaskImpl implements IEstimationTask {
     @Override
     public void setScheduleImmediately(boolean scheduleImmediately) {
         this.scheduleImmediately = scheduleImmediately;
+    }
+
+    @Override
+    public Optional<RelativePeriod> getPeriod() {
+        return relativePeriod.getOptional();
+    }
+
+    @Override
+    public void setPeriod(RelativePeriod relativePeriod) {
+        this.relativePeriod.set(relativePeriod);
     }
 
     public RecurrentTask getRecurrentTask() {

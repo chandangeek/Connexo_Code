@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -16,7 +17,7 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     void deactivate(); // suspend
 
-//    RelativePeriod getExportPeriod();
+    Optional<RelativePeriod> getPeriod();
 
     Optional<Instant> getLastRun();
 
@@ -42,7 +43,7 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     void setName(String name);
 
-//    void setExportPeriod(RelativePeriod relativePeriod);
+    void setPeriod(RelativePeriod relativePeriod);
 
     void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 

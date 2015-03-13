@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.TimeService;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
@@ -92,6 +93,7 @@ public enum TableSpecs {
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column relativePeriod = table.column("PERIOD").number().notNull().add();
 
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.addAuditColumns();
@@ -105,6 +107,11 @@ public enum TableSpecs {
                     .on(endDeviceGroupId)
                     .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
                     .map("endDeviceGroup")
+                    .add();
+            table.foreignKey("DES_FK_RTET_EXPORTPERIOD")
+                    .on(relativePeriod)
+                    .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
+                    .map("period")
                     .add();
             table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
         }
