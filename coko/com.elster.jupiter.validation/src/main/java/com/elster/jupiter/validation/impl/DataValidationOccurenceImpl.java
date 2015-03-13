@@ -1,49 +1,90 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.logging.LogEntry;
+import com.elster.jupiter.util.logging.LogEntryFinder;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationOccurence;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.DataValidationTask;
 
+import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
-/**
- * Created by albertv on 3/9/2015.
- */
+
 public class DataValidationOccurenceImpl implements DataValidationOccurence {
 
-    private Instant starDate;
-    private Instant endDate;
+
+    private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
+    private Reference<DataValidationTask> dataValidationTask = ValueReference.absent();
     private DataValidationStatus status;
-    private String message;
+    private Interval dataValidationDataInterval;
+    private String failureReason;
 
-    public Instant getStarDate() {
-        return starDate;
+    private final DataModel dataModel;
+    private final Clock clock;
+
+    @Inject
+    DataValidationOccurenceImpl(DataModel dataModel, Clock clock) {
+        this.dataModel = dataModel;
+        this.clock = clock;
     }
 
-    public void setStarDate(Instant starDate) {
-        this.starDate = starDate;
+    @Override
+    public String getFailureReason() {
+        return this.failureReason;
     }
 
-    public Instant getEndDate() {
-        return endDate;
+    @Override
+    public Optional<Instant> getStartDate() {
+        return taskOccurrence.get().getStartDate();
     }
 
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
+    @Override
+    public Optional<Instant> getEndDate() {
+        return taskOccurrence.get().getEndDate();
     }
 
+    @Override
     public DataValidationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(DataValidationStatus status) {
-        this.status = status;
+
+    @Override
+    public DataValidationTask getTask() {
+        return dataValidationTask.orElseThrow(IllegalStateException::new);
     }
 
-    public String getMessage() {
-        return message;
+    @Override
+    public Instant getTriggerTime() {
+        return taskOccurrence.get().getTriggerTime();
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    @Override
+    public List<? extends LogEntry> getLogs() {
+        return taskOccurrence.get().getLogs();
+    }
+
+    @Override
+    public LogEntryFinder getLogsFinder() {
+        return taskOccurrence.get().getLogsFinder();
+    }
+
+    @Override
+    public Long getId() {
+        return taskOccurrence.get().getId();
+    }
+
+    @Override
+    public boolean wasScheduled() {
+        return taskOccurrence.get().wasScheduled();
     }
 }
+

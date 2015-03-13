@@ -81,22 +81,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
     @Test
     public void testPersist() {
-        RecurrentTask recurrentTask = mock(RecurrentTask.class);
-        RecurrentTaskBuilder taskBuilder = mock(RecurrentTaskBuilder.class);
-        when(taskService.newBuilder()).thenReturn(taskBuilder);
-        when(taskBuilder.setName(any(String.class))).thenReturn(taskBuilder);
-        when(taskBuilder.setScheduleExpression(any(ScheduleExpression.class))).thenReturn(taskBuilder);
-        when(taskBuilder.setPayLoad(any(String.class))).thenReturn(taskBuilder);
-        when(taskBuilder.build()).thenReturn(recurrentTask);
-
-        doNothing().when(recurrentTask).setNextExecution(any(Instant.class));
-        doNothing().when(recurrentTask).save();
-
-        ValidatorFactory validatorFactory = mock(ValidatorFactory.class);
-        Validator validator = mock(Validator.class);
-        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
-        when(validatorFactory.getValidator()).thenReturn(validator);
-        when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
+        setUpPersist();
         DataValidationTaskImpl testPersistDataValidationTask = newTask();
         testPersistDataValidationTask.setName("testname");
         testPersistDataValidationTask.setEndDeviceGroup(endDeviceGroup);
@@ -106,6 +91,17 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
     @Test
     public void testUpdate() {
+        setUpPersist();
+        DataValidationTaskImpl testUpdateDataValidationTask = newTask();
+        testUpdateDataValidationTask.setName("taskname");
+        testUpdateDataValidationTask.setEndDeviceGroup(endDeviceGroup);
+        testUpdateDataValidationTask.setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)));
+        field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
+        testUpdateDataValidationTask.save();
+        verify(dataModel).update(testUpdateDataValidationTask);
+    }
+
+    private void setUpPersist() {
         RecurrentTask recurrentTask = mock(RecurrentTask.class);
         RecurrentTaskBuilder taskBuilder = mock(RecurrentTaskBuilder.class);
         when(taskService.newBuilder()).thenReturn(taskBuilder);
@@ -122,14 +118,6 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
-
-        DataValidationTaskImpl testUpdateDataValidationTask = newTask();
-        testUpdateDataValidationTask.setName("taskname");
-        testUpdateDataValidationTask.setEndDeviceGroup(endDeviceGroup);
-        testUpdateDataValidationTask.setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)));
-        field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
-        testUpdateDataValidationTask.save();
-        verify(dataModel).update(testUpdateDataValidationTask);
     }
 
     @Test

@@ -197,6 +197,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private void persistRecurrentTask() {
         RecurrentTaskBuilder builder = taskService.newBuilder()
                 .setName(getName())
+                .setDestination()
                 .setScheduleExpression(scheduleExpression)
                 .setPayLoad(getName());
         if (scheduleImmediately) {

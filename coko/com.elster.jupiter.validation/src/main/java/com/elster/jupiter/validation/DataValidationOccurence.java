@@ -1,19 +1,33 @@
 package com.elster.jupiter.validation;
 
-import java.time.Instant;
+import com.elster.jupiter.util.logging.LogEntry;
+import com.elster.jupiter.util.logging.LogEntryFinder;
 
-/**
- * Created by albertv on 3/9/2015.
- */
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+
 public interface DataValidationOccurence {
 
-    public Instant getStarDate();
-    public void setStarDate(Instant starDate);
-    public Instant getEndDate();
-    public void setEndDate(Instant endDate);
-    public DataValidationStatus getStatus();
-    public void setStatus(DataValidationStatus status);
-    public String getMessage();
-    public void setMessage(String message);
+    public DataValidationTask getTask();
+
+    Optional<Instant> getStartDate();
+
+    String getFailureReason();
+
+    Optional<Instant> getEndDate();
+
+    DataValidationStatus getStatus();
+
+    Instant getTriggerTime();
+
+    boolean wasScheduled();
+
+    Long getId();
+
+    List<? extends LogEntry> getLogs();
+
+    LogEntryFinder getLogsFinder();
 
 }
