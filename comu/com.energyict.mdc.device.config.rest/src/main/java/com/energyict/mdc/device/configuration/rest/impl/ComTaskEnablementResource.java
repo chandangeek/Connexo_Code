@@ -78,12 +78,15 @@ public class ComTaskEnablementResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
 
         ComTask comTask = this.findComTaskOrThrowException(comTaskEnablementInfo.comTask.id);
-        SecurityPropertySet securityPropertySet = findSecurityPropertySetByIdOrThrowException(deviceConfiguration, comTaskEnablementInfo.securityPropertySet.id);
+        SecurityPropertySet securityPropertySet = comTaskEnablementInfo.securityPropertySet != null ?
+                findSecurityPropertySetByIdOrThrowException(deviceConfiguration, comTaskEnablementInfo.securityPropertySet.id) : null;
 
         ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = comTaskEnablementInfo.partialConnectionTask;
-        ComTaskEnablementInfo.ProtocolDialectConfigurationPropertiesInfo protocolDialectConfigurationPropertiesInfoParameter = comTaskEnablementInfo.protocolDialectConfigurationProperties;
 
-        ComTaskEnablementBuilder comTaskEnablementBuilder = deviceConfiguration.enableComTask(comTask, securityPropertySet)
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablementInfo.protocolDialectConfigurationProperties != null ?
+                findProtocolDialectOrThrowException(deviceConfiguration, comTaskEnablementInfo.protocolDialectConfigurationProperties.id) : null;
+
+        ComTaskEnablementBuilder comTaskEnablementBuilder = deviceConfiguration.enableComTask(comTask, securityPropertySet, protocolDialectConfigurationProperties)
                 .setPriority(comTaskEnablementInfo.priority)
                 .setIgnoreNextExecutionSpecsForInbound(comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound);
 
@@ -92,10 +95,6 @@ public class ComTaskEnablementResource {
             comTaskEnablementBuilder.setPartialConnectionTask(partialConnectionTask).useDefaultConnectionTask(Boolean.FALSE);
         }
 
-        if (protocolDialectConfigurationPropertiesInfoParameter != null && !comTaskEnablementInfo.protocolDialectConfigurationProperties.id.equals(ComTaskEnablementInfo.ProtocolDialectConfigurationPropertiesInfo.DEFAULT_PROTOCOL_DIALECT_ID)) {
-            ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = findProtocolDialectOrThrowException(deviceConfiguration, comTaskEnablementInfo.protocolDialectConfigurationProperties.id);
-            comTaskEnablementBuilder.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
-        }
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
         return Response.status(Response.Status.CREATED).entity(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
@@ -112,7 +111,8 @@ public class ComTaskEnablementResource {
         ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = comTaskEnablementInfo.partialConnectionTask;
 
         ComTaskEnablement comTaskEnablement = findComTaskEnablementOrThrowException(deviceConfiguration, comTaskEnablementId);
-        SecurityPropertySet securityPropertySet = findSecurityPropertySetByIdOrThrowException(deviceConfiguration, comTaskEnablementInfo.securityPropertySet.id);
+        SecurityPropertySet securityPropertySet = comTaskEnablementInfo.securityPropertySet != null ?
+                findSecurityPropertySetByIdOrThrowException(deviceConfiguration, comTaskEnablementInfo.securityPropertySet.id) : null;
         comTaskEnablementInfo.writeTo(comTaskEnablement);
         comTaskEnablement.setSecurityPropertySet(securityPropertySet);
         if (partialConnectionTaskInfoParameter != null && !comTaskEnablementInfo.partialConnectionTask.id.equals(ComTaskEnablementInfo.PartialConnectionTaskInfo.DEFAULT_PARTIAL_CONNECTION_TASK_ID)) {
