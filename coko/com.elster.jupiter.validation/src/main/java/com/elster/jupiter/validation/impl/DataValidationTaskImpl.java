@@ -87,7 +87,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public void save() {
         if (getId() == 0) {
-            dataModel.persist(this);
+            persist();
         } else {
             update();
         }
@@ -143,7 +143,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @Override
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
-        this.recurrentTask.get().setScheduleExpression(scheduleExpression);
+        this.scheduleExpression = scheduleExpression;
         recurrentTaskDirty = true;
     }
 
@@ -169,17 +169,32 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @Override
     public void triggerNow() {
-        recurrentTask.get().triggerNow();
+        if(recurrentTask.isPresent()) {
+            recurrentTask.get().triggerNow();
+        }
+        else{
+            persistRecurrentTask();
+        }
     }
 
     private void update() {
         if (recurrentTaskDirty) {
-            recurrentTask.get().save();
+            if(recurrentTask.isPresent()) {
+                recurrentTask.get().save();
+            }
+            else{
+                persistRecurrentTask();
+            }
         }
         Save.UPDATE.save(dataModel, this);
     }
 
     private void persist() {
+        persistRecurrentTask();
+        Save.CREATE.save(dataModel, this);
+    }
+
+    private void persistRecurrentTask() {
         RecurrentTaskBuilder builder = taskService.newBuilder()
                 .setName(getName())
                 .setScheduleExpression(scheduleExpression)
@@ -193,7 +208,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         }
         task.save();
         recurrentTask.set(task);
-        Save.CREATE.save(dataModel, this);
     }
 
 }
