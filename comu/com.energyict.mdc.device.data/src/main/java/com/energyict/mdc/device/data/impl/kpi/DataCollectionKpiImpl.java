@@ -148,7 +148,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
 
     @Override
     public void calculateComTaskExecutionKpi(BigDecimal staticTarget) {
-        KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
+        KpiBuilder kpiBuilder = newKpi(this.connectionKpi.get().getIntervalLength(), staticTarget);
         this.communicationKpiBuilder(kpiBuilder);
         this.save();
     }

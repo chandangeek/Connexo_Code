@@ -392,6 +392,26 @@ public class DataCollectionKpiImplTest {
 
     @Test
     @Transactional
+    public void testCreateWithConnectionKpiAndAddCommunicationKpi() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpi kpi = builder.save();
+
+        kpi = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
+        kpi.calculateComTaskExecutionKpi(BigDecimal.valueOf(99.9));
+
+        // Asserts
+        assertThat(kpi).isNotNull();
+        assertThat(kpi.getDeviceGroup()).isNotNull();
+        assertThat(kpi.getDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
+        assertThat(kpi.calculatesConnectionSetupKpi()).isTrue();
+        assertThat(kpi.calculatesComTaskExecutionKpi()).isTrue();
+    }
+
+    @Test
+    @Transactional
     public void testCreateWithComTaskExecutionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
