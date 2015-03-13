@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement
-public class EstimationInfos {
+public class EstimatorInfos {
 
     public int total;
     public List<EstimationInfo> estimators = new ArrayList<EstimationInfo>();
 
-    EstimationInfos() {
+    EstimatorInfos() {
     }
 
-    EstimationInfos(String implementation, String displayName, List<PropertyInfo> properties) {
+    EstimatorInfos(String implementation, String displayName, List<PropertyInfo> properties) {
         add(implementation, displayName, properties);
     }
 
