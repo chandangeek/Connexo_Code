@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.tasks.ComTask;
@@ -20,15 +21,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 2014-04-14 (09:47)
  */
 public class ComTaskDeletionEventHandlerIT extends DeviceTypeProvidingPersistenceTest {
+    private ProtocolDialectSharedData sharedData;
 
     @Before
     public void registerEventHandlers () {
         inMemoryPersistence.registerEventHandlers();
+        sharedData = new ProtocolDialectSharedData();
     }
 
     @After
     public void unregisterEventHandlers () {
         inMemoryPersistence.unregisterEventHandlers();
+        sharedData.invalidate();
     }
 
     @Test
@@ -59,6 +63,7 @@ public class ComTaskDeletionEventHandlerIT extends DeviceTypeProvidingPersistenc
 
         // Enable the ComTask in a newly created configuration
         DeviceConfiguration deviceConfiguration = this.deviceType.newConfiguration("testDeleteWhenInUse").add();
+        ProtocolDialectConfigurationProperties properties = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
         deviceType.save();
         SecurityPropertySet securityPropertySet =
                 deviceConfiguration
@@ -66,7 +71,7 @@ public class ComTaskDeletionEventHandlerIT extends DeviceTypeProvidingPersistenc
                         .authenticationLevel(0)
                         .encryptionLevel(0)
                         .build();
-        deviceConfiguration.enableComTask(comTask, securityPropertySet).add();
+        deviceConfiguration.enableComTask(comTask, securityPropertySet, properties).add();
         deviceConfiguration.save();
 
 
