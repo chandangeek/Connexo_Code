@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config;
 
+import com.energyict.mdc.device.lifecycle.config.impl.AuthorizedCustomTransitionActionImpl;
+
 import com.elster.jupiter.fsm.State;
 
 import java.time.Instant;
@@ -15,6 +17,11 @@ import java.util.Set;
  * <li>{@link Privileges#INITIATE_ACTION_2}</li>
  * <li>{@link Privileges#INITIATE_ACTION_3}</li>
  * <li>{@link Privileges#INITIATE_ACTION_4}</li>
+ * </ul>
+ * Two kinds of AuthorizedAction exist at this point in time:
+ * <ul>
+ * <li>{@link AuthorizedBusinessProcessAction}</li>
+ * <li>{@link AuthorizedTransitionAction}</li>
  * </ul>
  *
  * @author Rudi Vankeirsbilck (rudi)

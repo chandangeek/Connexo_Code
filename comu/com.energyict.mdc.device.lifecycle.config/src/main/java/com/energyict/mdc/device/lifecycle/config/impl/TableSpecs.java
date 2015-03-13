@@ -40,16 +40,17 @@ public enum TableSpecs {
             table.map(AuthorizedActionImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column deviceLifeCycle = table.column("DEVICELIFECYCLE").number().notNull().add();
             table.column("LEVELBITS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(AuthorizedActionImpl.Fields.LEVELS.fieldName()).add();
             // AuthorizedTransitionAction
-            table.column("CHECKBITS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.CHECKS.fieldName()).add();
-            table.column("ACTIONBITS").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
+            table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.CHECKS.fieldName()).add();
+            table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
             // AuthorizedStandardTransitionAction
-            table.column("TRANSITIONTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map(AuthorizedActionImpl.Fields.TYPE.fieldName()).add();
+            table.column("TRANSITIONTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(AuthorizedActionImpl.Fields.TYPE.fieldName()).add();
             // AuthorizedBusinessProcessAction
-            table.column("DEPLOYMENTID").varChar().notNull().map(AuthorizedActionImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
-            table.column("PROCESSID").varChar().notNull().map(AuthorizedActionImpl.Fields.PROCESS_ID.fieldName()).add();
+            table.column("DEPLOYMENTID").varChar().map(AuthorizedActionImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
+            table.column("PROCESSID").varChar().map(AuthorizedActionImpl.Fields.PROCESS_ID.fieldName()).add();
             table.primaryKey("PK_DLD_AUTHORIZED_ACTION").on(id).add();
             table.foreignKey("FK_DLD_AUTH_ACTION_DLC")
                     .on(deviceLifeCycle)

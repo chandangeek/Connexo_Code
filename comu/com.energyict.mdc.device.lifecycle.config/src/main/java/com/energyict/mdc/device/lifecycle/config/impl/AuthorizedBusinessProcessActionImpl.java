@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
@@ -36,7 +37,8 @@ public class AuthorizedBusinessProcessActionImpl extends AuthorizedActionImpl im
         super(dataModel);
     }
 
-    AuthorizedBusinessProcessActionImpl initialize(State state, String deploymentId, String processId) {
+    AuthorizedBusinessProcessActionImpl initialize(DeviceLifeCycle deviceLifeCycle, State state, String deploymentId, String processId) {
+        this.setDeviceLifeCycle(deviceLifeCycle);
         this.state.set(state);
         this.deploymentId = deploymentId;
         this.processId = processId;
