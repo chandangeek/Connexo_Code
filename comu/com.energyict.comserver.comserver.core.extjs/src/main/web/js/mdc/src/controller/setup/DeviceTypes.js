@@ -304,30 +304,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     proposeDeviceTypeName: function (t, newValue) {
         if (!this.getDeviceTypeEditView().isEdit()) {
             var numberOfProtocols = this.getDeviceCommunicationProtocolsStore().data.items.length;
-            var found = false;
-            var oldValue = this.getEditDeviceTypeNameField().getValue();
-            if (oldValue == '') {
-                var k = 0;
-                while ((k < numberOfProtocols)) {
-                    if (newValue == this.getDeviceCommunicationProtocolsStore().data.items[k].data.name) {
-                        this.getEditDeviceTypeNameField().setValue(newValue);
-                    }
-                    k++;
-                }
-            } else {
-                var i = 0;
-                while ((i < numberOfProtocols) && (!found)) {
-                    if (oldValue == this.getDeviceCommunicationProtocolsStore().data.items[i].data.name) {
-                        found = true;
-                    }
-                    i++;
-                }
-                if (found) {
+            var i = 0;
+            while ((i < numberOfProtocols)) {
+                if (newValue == this.getDeviceCommunicationProtocolsStore().data.items[i].data.name) {
                     this.getEditDeviceTypeNameField().setValue(newValue);
                 }
+                i++;
             }
         }
-
     },
 
     removeDeviceType: function (btn, text, opt) {
