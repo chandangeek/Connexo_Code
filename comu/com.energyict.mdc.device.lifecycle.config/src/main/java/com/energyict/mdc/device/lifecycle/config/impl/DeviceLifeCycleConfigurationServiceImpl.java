@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.elster.jupiter.fsm.FinateStateMachine;
@@ -26,6 +27,7 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -151,7 +153,12 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(FinateStateMachine finateStateMachine) {
-        return new DeviceLifeCycleBuilderImpl(dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finateStateMachine));
+        return new DeviceLifeCycleBuilderImpl(this.dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finateStateMachine));
+    }
+
+    @Override
+    public Optional<DeviceLifeCycle> findDeviceLifeCycle(long id) {
+        return this.dataModel.mapper(DeviceLifeCycle.class).getOptional(id);
     }
 
 }

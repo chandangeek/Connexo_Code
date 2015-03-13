@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -69,6 +70,32 @@ public class DeviceLifeCycleIT {
         assertThat(deviceLifeCycle.getName()).isNotNull();
         assertThat(deviceLifeCycle.getCreationTimestamp()).isNotNull();
         assertThat(deviceLifeCycle.getVersion()).isNotNull();
+    }
+
+    @Transactional
+    @Test
+    public void findNewEmptyDeviceLifeCycle() {
+        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(stateMachine).complete();
+        deviceLifeCycle.save();
+        long id = deviceLifeCycle.getId();
+
+        // Business method
+        Optional<DeviceLifeCycle> found = this.getTestService().findDeviceLifeCycle(id);
+
+        // Asserts
+        assertThat(found.isPresent()).isTrue();
+        assertThat(found.get().getId()).isEqualTo(id);
+    }
+
+    @Transactional
+    @Test
+    public void findDeviceLifeCycleThatDoesNotExist() {
+        // Business method
+        Optional<DeviceLifeCycle> found = this.getTestService().findDeviceLifeCycle(1);
+
+        // Asserts
+        assertThat(found.isPresent()).isFalse();
     }
 
     @Transactional

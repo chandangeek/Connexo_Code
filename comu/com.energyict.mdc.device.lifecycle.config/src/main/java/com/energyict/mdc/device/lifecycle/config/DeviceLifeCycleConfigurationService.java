@@ -2,6 +2,8 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.FinateStateMachine;
 
+import java.util.Optional;
+
 /**
  * Provides services to manage {@link DeviceLifeCycle}s.
  *
@@ -21,5 +23,13 @@ public interface DeviceLifeCycleConfigurationService {
      * @return The DeviceLifeCycleBuilder
      */
     public DeviceLifeCycleBuilder newDeviceLifeCycleUsing(FinateStateMachine finateStateMachine);
+
+    /**
+     * Finds the {@link DeviceLifeCycle} with the specified identifier.
+     *
+     * @param id The identifier
+     * @return The DeviceLifeCycle
+     */
+    public Optional<DeviceLifeCycle> findDeviceLifeCycle(long id);
 
 }
