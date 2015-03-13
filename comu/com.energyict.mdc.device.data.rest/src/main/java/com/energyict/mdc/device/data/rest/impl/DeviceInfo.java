@@ -29,7 +29,7 @@ public class DeviceInfo {
     public String deviceConfigurationName;
     public Long deviceConfigurationId;
     public Long deviceProtocolPluggeableClassId;
-    public String yearOfCertification;
+    public Integer yearOfCertification;
     public String batch;
     public String masterDevicemRID;
     public Long masterDeviceId;
@@ -58,7 +58,7 @@ public class DeviceInfo {
         deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
-        deviceInfo.yearOfCertification = device.getYearOfCertification() != null ? device.getYearOfCertification().toString() : null;
+        deviceInfo.yearOfCertification = device.getYearOfCertification();
 
         Optional<Batch> optionalBatch = deviceImportService.findBatch(device.getId());
         if (optionalBatch.isPresent()) {
