@@ -8,8 +8,18 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
+import static com.elster.jupiter.estimation.rest.impl.MessageSeeds.Labels.ON_REQUEST;
+import static com.elster.jupiter.estimation.rest.impl.MessageSeeds.Labels.SCHEDULED;
 
 public class EstimationTaskHistoryInfo {
 
@@ -18,11 +28,9 @@ public class EstimationTaskHistoryInfo {
     public Long startedOn;
     public Long finishedOn;
     public Long duration;
-    public String status;
-    public String reason;
     public Long lastRun;
-    public Long exportPeriodFrom;
-    public Long exportPeriodTo;
+    public Long periodFrom;
+    public Long periodTo;
     public Long statusDate;
     public String statusPrefix;
     public EstimationTaskInfo task;
@@ -35,61 +43,41 @@ public class EstimationTaskHistoryInfo {
     }
 
     private void populate(History<? extends EstimationTask> history, TaskOccurrence taskOccurrence, Thesaurus thesaurus, TimeService timeService) {
-//        this.id = taskOccurrence.getId();
-//
-//        this.trigger = (taskOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
-//        if (dataExportOccurrence.wasScheduled()) {
-//            String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataExportOccurrence, thesaurus, timeService);
-//            if (scheduledTriggerDescription != null) {
-//                this.trigger = this.trigger + " (" + scheduledTriggerDescription + ")";
-//            }
-//        }
-//        this.startedOn = dataExportOccurrence.getStartDate().map(this::toLong).orElse(null);
-//        this.finishedOn = dataExportOccurrence.getEndDate().map(this::toLong).orElse(null);
-//        this.duration = calculateDuration(startedOn, finishedOn);
-//        this.status = getName(dataExportOccurrence.getStatus(), thesaurus);
-//        this.reason = dataExportOccurrence.getFailureReason();
-//        this.lastRun = dataExportOccurrence.getTriggerTime().toEpochMilli();
-//        Range<Instant> interval = dataExportOccurrence.getExportedDataInterval();
-//        this.exportPeriodFrom = interval.lowerEndpoint().toEpochMilli();
-//        this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
-//        setStatusOnDate(dataExportOccurrence, thesaurus);
-//        ReadingTypeDataExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime()).get();
-//        task = new DataExportTaskInfo();
-//        task.populate(version, thesaurus, timeService);
-//
-//        for (ReadingType readingType : version.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
-//            task.readingTypes.add(new ReadingTypeInfo(readingType));
-//        }
-//        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
-//        if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
-//            task.schedule = null;
-//        } else if (foundSchedule.isPresent()) {
-//            ScheduleExpression scheduleExpression = foundSchedule.get();
-//            if (scheduleExpression instanceof TemporalExpression) {
-//                task.schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
-//            } else {
-//                task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
-//            }
-//        }
-//        task.properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
-//
-    }
+        EstimationTask estimationTask = history.getVersionAt(taskOccurrence.getTriggerTime()).orElseThrow(IllegalStateException::new);
+        this.id = taskOccurrence.getId();
 
-//    private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
-//        DataExportStatus dataExportStatus = dataExportOccurrence.getStatus();
-//        String statusTranslation =
-//                thesaurus.getStringBeyondComponent(dataExportStatus.toString(), dataExportStatus.toString());
-//        if (DataExportStatus.BUSY.equals(dataExportStatus)) {
-//            this.statusPrefix = statusTranslation + " " + thesaurus.getString("since", "since");
-//            this.statusDate = startedOn;
-//        } else if ((DataExportStatus.FAILED.equals(dataExportStatus)) || (DataExportStatus.SUCCESS.equals(dataExportStatus))) {
-//            this.statusPrefix = statusTranslation + " " + thesaurus.getString("on", "on");
-//            this.statusDate = finishedOn;
-//        } else {
-//            this.statusPrefix = statusTranslation;
-//        }
-//    }
+        this.trigger = (taskOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
+        if (taskOccurrence.wasScheduled()) {
+            String scheduledTriggerDescription = this.getScheduledTriggerDescription(taskOccurrence, thesaurus, timeService);
+            if (scheduledTriggerDescription != null) {
+                this.trigger = this.trigger + " (" + scheduledTriggerDescription + ")";
+            }
+        }
+        this.startedOn = taskOccurrence.getStartDate().map(this::toLong).orElse(null);
+        this.finishedOn = taskOccurrence.getEndDate().map(this::toLong).orElse(null);
+        this.duration = calculateDuration(startedOn, finishedOn);
+        this.lastRun = taskOccurrence.getTriggerTime().toEpochMilli();
+        estimationTask.getPeriod().ifPresent(relativePeriod -> {
+            Range<ZonedDateTime> interval = relativePeriod.getInterval(ZonedDateTime.ofInstant(taskOccurrence.getTriggerTime(), ZoneId.systemDefault()));
+            this.periodFrom = interval.lowerEndpoint().toInstant().toEpochMilli();
+            this.periodTo = interval.upperEndpoint().toInstant().toEpochMilli();
+        });
+        task = new EstimationTaskInfo();
+        task.doPopulate(estimationTask, thesaurus, timeService);
+
+        Optional<ScheduleExpression> foundSchedule = estimationTask.getScheduleExpression(taskOccurrence.getTriggerTime());
+        if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
+            task.schedule = null;
+        } else if (foundSchedule.isPresent()) {
+            ScheduleExpression scheduleExpression = foundSchedule.get();
+            if (scheduleExpression instanceof TemporalExpression) {
+                task.schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+            } else {
+                task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
+            }
+        }
+
+    }
 
     private static Long calculateDuration(Long startedOn, Long finishedOn) {
         if (startedOn == null || finishedOn == null) {
@@ -102,23 +90,19 @@ public class EstimationTaskHistoryInfo {
         return instant == null ? null : instant.toEpochMilli();
     }
 
-//    private static String getName(DataExportStatus status, Thesaurus thesaurus) {
-//        return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
-//    }
-//
-//    private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
-//        ScheduleExpression scheduleExpression = dataExportOccurrence.getTask().getScheduleExpression();
-//        if (Never.NEVER.equals(scheduleExpression)) {
-//            return null;
-//        }
-//        if (scheduleExpression instanceof PeriodicalScheduleExpression) {
-//            return fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
-//        }
-//        if (scheduleExpression instanceof TemporalExpression) {
-//            return fromTemporalExpression((TemporalExpression) scheduleExpression, thesaurus);
-//        }
-//        return scheduleExpression.toString();
-//    }
+    private String getScheduledTriggerDescription(TaskOccurrence taskOccurrence, Thesaurus thesaurus, TimeService timeService) {
+        ScheduleExpression scheduleExpression = taskOccurrence.getRecurrentTask().getScheduleExpression();
+        if (Never.NEVER.equals(scheduleExpression)) {
+            return null;
+        }
+        if (scheduleExpression instanceof PeriodicalScheduleExpression) {
+            return fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
+        }
+        if (scheduleExpression instanceof TemporalExpression) {
+            return fromTemporalExpression((TemporalExpression) scheduleExpression, thesaurus);
+        }
+        return scheduleExpression.toString();
+    }
 
     private String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
         return timeService.toLocalizedString(scheduleExpression);

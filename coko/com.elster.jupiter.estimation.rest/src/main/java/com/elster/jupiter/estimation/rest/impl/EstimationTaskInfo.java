@@ -29,7 +29,10 @@ public class EstimationTaskInfo {
         doPopulate(estimationTask, thesaurus, timeService);
     }
 
-    private void doPopulate(EstimationTask estimationTask, Thesaurus thesaurus, TimeService timeService) {
+    public EstimationTaskInfo() {
+    }
+
+    void doPopulate(EstimationTask estimationTask, Thesaurus thesaurus, TimeService timeService) {
         id = estimationTask.getId();
         name = estimationTask.getName();
 
