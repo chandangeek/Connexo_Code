@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 
 import java.time.Instant;
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Models the life cycle of a device.
  * The states and supported transitions are actually
- * defined by a {@link FinateStateMachine}.
+ * defined by a {@link FiniteStateMachine}.
  * A DeviceLifeCycle will add:
  * <ul>
  * <li>actions that can be executed while the device is in a certain state</li>
@@ -22,7 +22,7 @@ import java.util.List;
  */
 public interface DeviceLifeCycle {
 
-    public FinateStateMachine getFinateStateMachine();
+    public FiniteStateMachine getFiniteStateMachine();
 
     public long getId();
 

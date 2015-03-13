@@ -3,8 +3,8 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
@@ -47,12 +47,12 @@ public class DeviceLifeCycleConfigurationServiceIT {
 
     @Transactional
     @Test
-    public void installerCreatedTheDefaultFinateStateMachine() {
-        FinateStateMachineService finateStateMachineService = inMemoryPersistence.getService(FinateStateMachineService.class);
+    public void installerCreatedTheDefaultFiniteStateMachine() {
+        FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
 
         // Business method: actually the business method is the install method of the DeviceLifeCycleServiceImpl component
-        Optional<FinateStateMachine> stateMachine = finateStateMachineService
-                    .findFinateStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_FINATE_STATE_MACHINE_NAME.getDefaultFormat());
+        Optional<FiniteStateMachine> stateMachine = finiteStateMachineService
+                    .findFiniteStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_FINITE_STATE_MACHINE_NAME.getDefaultFormat());
 
         // Asserts
         assertThat(stateMachine.isPresent()).isTrue();

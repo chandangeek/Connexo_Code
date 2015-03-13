@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -60,7 +60,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     @Override
     public String getModule() {
-        return FinateStateMachineService.COMPONENT_NAME;
+        return FiniteStateMachineService.COMPONENT_NAME;
     }
 
     public static final class Keys {

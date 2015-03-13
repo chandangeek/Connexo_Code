@@ -63,15 +63,15 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void createNewEmptyDeviceLifeCycle() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
 
         // Business method
         DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(stateMachine).complete();
         deviceLifeCycle.save();
 
         // Asserts
-        assertThat(deviceLifeCycle.getFinateStateMachine()).isNotNull();
-        assertThat(deviceLifeCycle.getFinateStateMachine().getId()).isEqualTo(stateMachine.getId());
+        assertThat(deviceLifeCycle.getFiniteStateMachine()).isNotNull();
+        assertThat(deviceLifeCycle.getFiniteStateMachine().getId()).isEqualTo(stateMachine.getId());
         assertThat(deviceLifeCycle.getId()).isGreaterThan(0);
         assertThat(deviceLifeCycle.getName()).isNotNull();
         assertThat(deviceLifeCycle.getCreationTimestamp()).isNotNull();
@@ -81,7 +81,7 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void findNewEmptyDeviceLifeCycle() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         DeviceLifeCycle deviceLifeCycle = this.getTestService().newDeviceLifeCycleUsing(stateMachine).complete();
         deviceLifeCycle.save();
         long id = deviceLifeCycle.getId();
@@ -107,7 +107,7 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void addBusinessProcessAction() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
 
         // Business method
@@ -139,7 +139,7 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void findAuthorizedActionsForState() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing(stateMachine);
         String expectedDeploymentId = "deploymentId1";
@@ -171,7 +171,7 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void findAuthorizedActionsForStateWithoutAuthorizations() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State active = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         State inactive = stateMachine.getState(DefaultState.INACTIVE.getKey()).get();
         DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing(stateMachine);
@@ -195,7 +195,7 @@ public class DeviceLifeCycleIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.AT_LEAST_ONE_LEVEL + "}")
     @Test
     public void addBusinessProcessActionWithoutLevels() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
 
         // Business method
@@ -213,7 +213,7 @@ public class DeviceLifeCycleIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].deploymentId")
     @Test
     public void addBusinessProcessActionWithNullDeploymentId() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
 
         // Business method
@@ -232,7 +232,7 @@ public class DeviceLifeCycleIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].deploymentId")
     @Test
     public void addBusinessProcessActionWithEmptyDeploymentId() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
 
         // Business method
@@ -251,7 +251,7 @@ public class DeviceLifeCycleIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "actions[0].deploymentId")
     @Test
     public void addBusinessProcessActionWithTooLongDeploymentId() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
 
         // Business method
@@ -270,7 +270,7 @@ public class DeviceLifeCycleIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].processId")
     @Test
     public void addBusinessProcessActionWithNullProcessId() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
 
         // Business method
@@ -289,7 +289,7 @@ public class DeviceLifeCycleIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].processId")
     @Test
     public void addBusinessProcessActionWithEmptyProcessId() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
 
         // Business method
@@ -308,7 +308,7 @@ public class DeviceLifeCycleIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "actions[0].processId")
     @Test
     public void addBusinessProcessActionWithTooLongProcessId() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
 
         // Business method
@@ -326,7 +326,7 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void addStandardTransitionAction() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         StateTransition stateTransition = stateMachine.getTransitions().get(0);
 
         // Business method
@@ -359,7 +359,7 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void addStandardTransitionActionWithoutChecks() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         StateTransition stateTransition = stateMachine.getTransitions().get(0);
 
         // Business method
@@ -391,7 +391,7 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void addStandardTransitionActionWithoutActions() {
-        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         StateTransition stateTransition = stateMachine.getTransitions().get(0);
 
         // Business method
@@ -424,7 +424,7 @@ public class DeviceLifeCycleIT {
     @Transactional
     @Test
     public void addCustomTransitionActionWithoutActions() {
-        FinateStateMachine stateMachine = this.createFinateStateMachineWithCustomTransitions();
+        FiniteStateMachine stateMachine = this.createFiniteStateMachineWithCustomTransitions();
         StateTransition stateTransition = stateMachine.getTransitions().get(0);
 
         // Business method
@@ -454,21 +454,21 @@ public class DeviceLifeCycleIT {
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.EXAMPLE);
     }
 
-    private FinateStateMachine findDefaultFinateStateMachine() {
+    private FiniteStateMachine findDefaultFiniteStateMachine() {
         return inMemoryPersistence
-                .getService(FinateStateMachineService.class)
-                .findFinateStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_FINATE_STATE_MACHINE_NAME.getDefaultFormat())
-                .orElseThrow(() -> new IllegalStateException("Please rerun " + DeviceLifeCycleConfigurationServiceIT.class.getName() + " to find out why the installer has not created the default finate state machine"));
+                .getService(FiniteStateMachineService.class)
+                .findFiniteStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_FINITE_STATE_MACHINE_NAME.getDefaultFormat())
+                .orElseThrow(() -> new IllegalStateException("Please rerun " + DeviceLifeCycleConfigurationServiceIT.class.getName() + " to find out why the installer has not created the default finite state machine"));
     }
 
-    private FinateStateMachine createFinateStateMachineWithCustomTransitions() {
-        FinateStateMachineService finateStateMachineService = inMemoryPersistence.getService(FinateStateMachineService.class);
-        CustomStateTransitionEventType eventType = finateStateMachineService.newCustomStateTransitionEventType("forTestingPurposesOnly");
+    private FiniteStateMachine createFiniteStateMachineWithCustomTransitions() {
+        FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
+        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType("forTestingPurposesOnly");
         eventType.save();
-        FinateStateMachineBuilder stateMachineBuilder = finateStateMachineService.newFinateStateMachine("For Testing Purposes Only");
+        FiniteStateMachineBuilder stateMachineBuilder = finiteStateMachineService.newFiniteStateMachine("For Testing Purposes Only");
         State b = stateMachineBuilder.newCustomState("B").complete();
         stateMachineBuilder.newCustomState("A").on(eventType).transitionTo(b).complete();
-        FinateStateMachine stateMachine = stateMachineBuilder.complete();
+        FiniteStateMachine stateMachine = stateMachineBuilder.complete();
         stateMachine.save();
         return stateMachine;
     }

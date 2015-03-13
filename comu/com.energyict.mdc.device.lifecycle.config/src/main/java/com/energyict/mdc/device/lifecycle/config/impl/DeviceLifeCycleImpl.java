@@ -4,7 +4,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fsm.FinateStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -47,7 +47,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     @SuppressWarnings("unused")
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
-    private Reference<FinateStateMachine> stateMachine = ValueReference.absent();
+    private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     @Valid
     private List<AuthorizedAction> actions = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -64,7 +64,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         this.dataModel = dataModel;
     }
 
-    public DeviceLifeCycleImpl initialize(FinateStateMachine stateMachine) {
+    public DeviceLifeCycleImpl initialize(FiniteStateMachine stateMachine) {
         this.stateMachine.set(stateMachine);
         return this;
     }
@@ -76,11 +76,11 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public String getName() {
-        return this.getFinateStateMachine().getName();
+        return this.getFiniteStateMachine().getName();
     }
 
     @Override
-    public FinateStateMachine getFinateStateMachine() {
+    public FiniteStateMachine getFiniteStateMachine() {
         return this.stateMachine.get();
     }
 

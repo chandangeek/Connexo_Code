@@ -4,9 +4,9 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.FinateStateMachineBuilder;
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Takes the necessary steps to install the technical components of the finate state machine bundle.
+ * Takes the necessary steps to install the technical components of the finite state machine bundle.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:56)
@@ -29,9 +29,9 @@ public class Installer {
     private final DataModel dataModel;
     private final UserService userService;
     private final TransactionService transactionService;
-    private final FinateStateMachineService stateMachineService;
+    private final FiniteStateMachineService stateMachineService;
 
-    public Installer(DataModel dataModel, UserService userService, TransactionService transactionService, FinateStateMachineService stateMachineService) {
+    public Installer(DataModel dataModel, UserService userService, TransactionService transactionService, FiniteStateMachineService stateMachineService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
@@ -48,10 +48,10 @@ public class Installer {
         }
         this.createPrivileges();
         if (transactional) {
-            this.createDefaultFinateStateMachine();
+            this.createDefaultFiniteStateMachine();
         }
         else {
-            this.doCreateDefaultFinateStateMachine();
+            this.doCreateDefaultFiniteStateMachine();
         }
     }
 
@@ -66,33 +66,33 @@ public class Installer {
                         Privileges.VIEW_DEVICE_LIFE_CYCLES});
     }
 
-    private void createDefaultFinateStateMachine() {
+    private void createDefaultFiniteStateMachine() {
         try (TransactionContext context = this.transactionService.getContext()) {
-            this.doCreateDefaultFinateStateMachine();
+            this.doCreateDefaultFiniteStateMachine();
             context.commit();
         }
     }
 
-    private void doCreateDefaultFinateStateMachine() {
+    private void doCreateDefaultFiniteStateMachine() {
         // Create default StateTransitionEventTypes
-        this.logger.fine(() -> "Creating default finate state machine transitions...");
+        this.logger.fine(() -> "Creating default finite state machine transitions...");
         StateTransitionEventType deliveredToWarehouse = this.createNewStateTransitionEventType("#delivered");
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         StateTransitionEventType activated = this.createNewStateTransitionEventType("#activated");
         StateTransitionEventType deactivated = this.createNewStateTransitionEventType("#deactivated");
         StateTransitionEventType decommissionedEventType = this.createNewStateTransitionEventType("#decommissioned");
         StateTransitionEventType deletedEventType = this.createNewStateTransitionEventType("#deleted");
-        this.logger.fine(() -> "Created default finate state machine transitions");
+        this.logger.fine(() -> "Created default finite state machine transitions");
 
-        FinateStateMachineBuilder builder = this.stateMachineService.newFinateStateMachine(DefaultLifeCycleTranslationKey.DEFAULT_FINATE_STATE_MACHINE_NAME.getDefaultFormat());
+        FiniteStateMachineBuilder builder = this.stateMachineService.newFiniteStateMachine(DefaultLifeCycleTranslationKey.DEFAULT_FINITE_STATE_MACHINE_NAME.getDefaultFormat());
         // Create default States
         State deleted = builder.newStandardState(DefaultState.DELETED.getKey()).complete();
         State decommissioned = builder
                 .newStandardState(DefaultState.DECOMMISSIONED.getKey())
                 .on(deletedEventType).transitionTo(deleted)
                 .complete();
-        FinateStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState(DefaultState.ACTIVE.getKey());
-        FinateStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultState.INACTIVE.getKey());
+        FiniteStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState(DefaultState.ACTIVE.getKey());
+        FiniteStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState(DefaultState.INACTIVE.getKey());
         State active = activeBuilder
                 .on(decommissionedEventType).transitionTo(decommissioned)
                 .on(deactivated).transitionTo(inactiveBuilder)
@@ -116,10 +116,10 @@ public class Installer {
             .newStandardState(DefaultState.ORDERED.getKey())
             .on(deliveredToWarehouse).transitionTo(inStock)
             .complete();
-        FinateStateMachine stateMachine = builder.complete();
-        this.logger.fine(() -> "Creating default finate state machine...");
+        FiniteStateMachine stateMachine = builder.complete();
+        this.logger.fine(() -> "Creating default finite state machine...");
         stateMachine.save();
-        this.logger.fine(() -> "Created default finate state machine");
+        this.logger.fine(() -> "Created default finite state machine");
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {

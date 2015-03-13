@@ -4,7 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.impl.FinateStateMachineModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -61,7 +61,7 @@ public class InMemoryPersistence {
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
-     * that are appropriate for the finate state machine bundle.
+     * that are appropriate for the finite state machine bundle.
      *
      * @return The default InMemoryPersistence
      */
@@ -80,7 +80,7 @@ public class InMemoryPersistence {
                 new UtilModule(),
                 new DomainUtilModule(),
                 new NlsModule(),
-                new FinateStateMachineModule()
+                new FiniteStateMachineModule()
         );
     }
 

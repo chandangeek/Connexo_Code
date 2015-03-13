@@ -4,8 +4,8 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import com.elster.jupiter.fsm.FinateStateMachine;
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -44,7 +44,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile NlsService nlsService;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
-    private volatile FinateStateMachineService stateMachineService;
+    private volatile FiniteStateMachineService stateMachineService;
     private Thesaurus thesaurus;
 
     // For OSGi purposes
@@ -54,7 +54,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, TransactionService transactionService, FinateStateMachineService stateMachineService) {
+    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, TransactionService transactionService, FiniteStateMachineService stateMachineService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -147,13 +147,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Reference
-    public void setStateMachineService(FinateStateMachineService stateMachineService) {
+    public void setStateMachineService(FiniteStateMachineService stateMachineService) {
         this.stateMachineService = stateMachineService;
     }
 
     @Override
-    public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(FinateStateMachine finateStateMachine) {
-        return new DeviceLifeCycleBuilderImpl(this.dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finateStateMachine));
+    public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(FiniteStateMachine finiteStateMachine) {
+        return new DeviceLifeCycleBuilderImpl(this.dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finiteStateMachine));
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
-import com.elster.jupiter.fsm.FinateStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -28,7 +28,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DLD_DEVICELIFECYCLE").on(id).add();
             table.foreignKey("FK_DLD_FSM")
                     .on(stateMachine)
-                    .references(FinateStateMachineService.COMPONENT_NAME, "FSM_FINATE_STATE_MACHINE")
+                    .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_FINITE_STATE_MACHINE")
                     .map(DeviceLifeCycleImpl.Fields.STATE_MACHINE.fieldName())
                     .add();
         }
@@ -63,12 +63,12 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DLD_AUTH_ACTION_STATE")
                     .on(state)
-                    .references(FinateStateMachineService.COMPONENT_NAME, "FSM_STATE")
+                    .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_STATE")
                     .map(AuthorizedActionImpl.Fields.STATE.fieldName())
                     .add();
             table.foreignKey("FK_DLD_AUTH_ACTION_STATETRANS")
                     .on(stateTransition)
-                    .references(FinateStateMachineService.COMPONENT_NAME, "FSM_STATE_TRANSITION")
+                    .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_STATE_TRANSITION")
                     .map(AuthorizedActionImpl.Fields.STATE_TRANSITION.fieldName())
                     .add();
         }

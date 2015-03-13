@@ -12,7 +12,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum DefaultLifeCycleTranslationKey implements TranslationKey {
 
-    DEFAULT_FINATE_STATE_MACHINE_NAME("dlc.default.finate.state.machine", "Default life cycle");
+    DEFAULT_FINITE_STATE_MACHINE_NAME("dlc.default.finite.state.machine", "Default life cycle");
 
     private final String key;
     private final String defaultFormat;
