@@ -16,8 +16,11 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // Generic
-    FIELD_TOO_LONG(1000, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
-    CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field cannot be empty");
+    FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
+    CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field cannot be empty"),
+
+    // AuthorizedAction
+    AT_LEAST_ONE_LEVEL(102, Keys.AT_LEAST_ONE_LEVEL, "At least one privilege level must be specified");
 
     private final int number;
     private final String key;
@@ -63,6 +66,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     public static final class Keys {
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String AT_LEAST_ONE_LEVEL = "authorizedAction.atLeastOneLevel";
     }
 
 }

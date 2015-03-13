@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.google.common.collect.ImmutableMap;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -30,7 +31,7 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         LEVELS("levelBits"),
         // AuthorizedTransitionAction
-        STAE_TRANSITION("stateTransition"),
+        STATE_TRANSITION("stateTransition"),
         CHECKS("checkBits"),
         ACTIONS("actionBits"),
         // AuthorizedStandardTransitionAction
@@ -67,6 +68,7 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
     private Reference<DeviceLifeCycle> deviceLifeCycle = ValueReference.absent();
     private int levelBits;
+    @NotEmpty(message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_LEVEL + "}", groups = { Save.Create.class, Save.Update.class })
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
     @SuppressWarnings("unused")
     private String userName;

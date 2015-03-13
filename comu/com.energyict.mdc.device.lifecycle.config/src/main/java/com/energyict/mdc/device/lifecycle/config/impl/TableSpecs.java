@@ -47,8 +47,10 @@ public enum TableSpecs {
             table.column("CHECKBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.CHECKS.fieldName()).add();
             table.column("ACTIONBITS").number().conversion(ColumnConversion.NUMBER2LONG).map(AuthorizedActionImpl.Fields.ACTIONS.fieldName()).add();
             // AuthorizedStandardTransitionAction
+            Column stateTransition = table.column("STATETRANSITION").number().add();
             table.column("TRANSITIONTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(AuthorizedActionImpl.Fields.TYPE.fieldName()).add();
             // AuthorizedBusinessProcessAction
+            Column state = table.column("STATE").number().add();
             table.column("DEPLOYMENTID").varChar().map(AuthorizedActionImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
             table.column("PROCESSID").varChar().map(AuthorizedActionImpl.Fields.PROCESS_ID.fieldName()).add();
             table.primaryKey("PK_DLD_AUTHORIZED_ACTION").on(id).add();
@@ -58,6 +60,16 @@ public enum TableSpecs {
                     .map(AuthorizedActionImpl.Fields.DEVICE_LIFE_CYCLE.fieldName())
                     .reverseMap(DeviceLifeCycleImpl.Fields.ACTIONS.fieldName())
                     .composition()
+                    .add();
+            table.foreignKey("FK_DLD_AUTH_ACTION_STATE")
+                    .on(state)
+                    .references(FinateStateMachineService.COMPONENT_NAME, "FSM_STATE")
+                    .map(AuthorizedActionImpl.Fields.STATE.fieldName())
+                    .add();
+            table.foreignKey("FK_DLD_AUTH_ACTION_STATETRANS")
+                    .on(stateTransition)
+                    .references(FinateStateMachineService.COMPONENT_NAME, "FSM_STATE_TRANSITION")
+                    .map(AuthorizedActionImpl.Fields.STATE_TRANSITION.fieldName())
                     .add();
         }
     };

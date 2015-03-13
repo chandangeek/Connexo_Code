@@ -121,12 +121,31 @@ public class DeviceLifeCycleIT {
         AuthorizedAction authorizedAction = authorizedActions.get(0);
         assertThat(authorizedAction.getId()).isGreaterThan(0);
         assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
+        assertThat(authorizedAction.getState().getId()).isEqualTo(state.getId());
         assertThat(authorizedAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR);
         assertThat(authorizedAction.getVersion()).isNotNull();
         assertThat(authorizedAction).isInstanceOf(AuthorizedBusinessProcessAction.class);
         AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
         assertThat(businessProcessAction.getDeploymentId()).isEqualTo(expectedDeploymentId);
         assertThat(businessProcessAction.getProcessId()).isEqualTo(expectedProcessId);
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.AT_LEAST_ONE_LEVEL + "}")
+    @Test
+    public void addAuthorizedBusinessProcessActionWithoutLevels() {
+        FinateStateMachine stateMachine = this.findDefaultFinateStateMachine();
+        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
+
+        // Business method
+        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing(stateMachine);
+        builder
+            .newCustomAction(state, "deploymentId1", "processId")
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
