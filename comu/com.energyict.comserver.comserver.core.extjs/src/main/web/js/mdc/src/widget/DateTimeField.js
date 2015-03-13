@@ -62,10 +62,15 @@ Ext.define('Mdc.widget.DateTimeField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'hourField',
-//                valueToRaw: function (value)
-//                {
-//                    return (value < 10 ? '0' : '') + value;
-//                },
+                valueToRaw: function (value) {
+                    return (value < 10 ? '0' : '') + value;
+                },
+                rawToValue: function (raw) {
+                    if (raw.substring(0, 1) === '0') {
+                        return raw.substring(1, 2);
+                    }
+                    return raw;
+                },
                 maxValue: 23,
                 minValue: 0,
                 allowDecimals: false,
@@ -89,10 +94,15 @@ Ext.define('Mdc.widget.DateTimeField', {
             Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'minuteField',
-//                valueToRaw: function (value)
-//                {
-//                    return (value < 10 ? '0' : '') + value;
-//                },
+                valueToRaw: function (value) {
+                    return (value < 10 ? '0' : '') + value;
+                },
+                rawToValue: function (raw) {
+                    if (raw.substring(0, 1) === '0') {
+                        return raw.substring(1, 2);
+                    }
+                    return raw;
+                },
                 maxValue: 59,
                 minValue: 0,
                 allowDecimals: false,

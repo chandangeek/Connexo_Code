@@ -145,6 +145,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     communicationSchedule.comTaskUsages().each(function (record) {
                         me.alreadyAddedComTasks.push(record);
                     });
+                    widget.down('#startDate').setValue(new Date().setHours(0, 0, 0, 0));
                 }
             });
         }
