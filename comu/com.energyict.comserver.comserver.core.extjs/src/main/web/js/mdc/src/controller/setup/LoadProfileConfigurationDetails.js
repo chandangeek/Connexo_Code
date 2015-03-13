@@ -200,8 +200,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             preloader, jsonValues,
             router = this.getController('Uni.controller.history.Router');
 
-        formValue.measurementType = {id: this.getAssociatedMeasurementType(selectedReadingType).get('id') || null};
         if (form.isValid()) {
+            formValue.measurementType = {id: this.getAssociatedMeasurementType(selectedReadingType).get('id') || null};
             jsonValues = Ext.JSON.encode(formValue);
             formErrorsPanel.hide();
             switch (btn.action) {
