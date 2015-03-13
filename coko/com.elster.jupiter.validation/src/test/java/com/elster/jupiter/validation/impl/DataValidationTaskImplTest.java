@@ -9,6 +9,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
@@ -40,9 +41,11 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     private TaskService taskService;
     @Mock
     private EndDeviceGroup endDeviceGroup;
+    @Mock
+    private ValidationService dataValidationService;
 
     private DataValidationTaskImpl newTask() {
-        return new DataValidationTaskImpl(dataModel,taskService);
+        return new DataValidationTaskImpl(dataModel,taskService,dataValidationService);
     }
 
     private DataValidationTaskImpl setId(DataValidationTaskImpl entity, long id) {

@@ -490,7 +490,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public DataValidationTaskBuilder newTaskBuilder() {
-        return new DataValidationTaskBuilderImpl(dataModel);
+        return new DataValidationTaskBuilderImpl(dataModel, this);
     }
 
     @Override

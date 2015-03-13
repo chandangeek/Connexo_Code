@@ -38,7 +38,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private Instant modTime;
     private String userName;
     private transient Instant nextExecution;
-    private ValidationService dataValidationTask;
+    private ValidationService dataValidationService;
 
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
@@ -50,19 +50,21 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private ScheduleExpression scheduleExpression;
 
     @Inject
-    DataValidationTaskImpl(DataModel dataModel, TaskService taskService)
+    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService)
     {
         this.taskService = taskService;
         this.dataModel = dataModel;
+        this.dataValidationService = dataValidationService;
     }
 
-    static DataValidationTaskImpl from(DataModel model,String name, Instant nextExecution) {
-        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution);
+    static DataValidationTaskImpl from(DataModel model,String name, Instant nextExecution,ValidationService dataValidationService ) {
+        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution,dataValidationService);
     }
 
-    private DataValidationTaskImpl init(String name, Instant nextExecution) {
+    private DataValidationTaskImpl init(String name, Instant nextExecution,ValidationService dataValidationService) {
         this.nextExecution = nextExecution;
         this.name = name;
+        this.dataValidationService = dataValidationService;
         return this;
     }
 
@@ -199,7 +201,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private void persistRecurrentTask() {
         RecurrentTaskBuilder builder = taskService.newBuilder()
                 .setName(getName())
-                .setDestination(dataValidationTask.getDestination())
+                .setDestination(dataValidationService.getDestination())
                 .setScheduleExpression(scheduleExpression)
                 .setPayLoad(getName());
         if (scheduleImmediately) {
