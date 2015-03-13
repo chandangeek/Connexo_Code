@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 
 public enum MessageSeeds implements MessageSeed {
-    NO_SUCH_ESTIMATOR(1001, Constants.NO_SUCH_ESTIMATOR, "Validator {0} does not exist.", Level.SEVERE),
+    NO_SUCH_ESTIMATOR(1001, Constants.NO_SUCH_ESTIMATOR, "Estimator {0} does not exist.", Level.SEVERE),
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE);
 
     private final int number;
