@@ -13,6 +13,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -73,7 +74,9 @@ public class DataValidationTaskResource {
 
         DataValidationTaskBuilder builder = validationService.newTaskBuilder()
                 .setName(info.name)
-                .setEndDeviceGroup(endDeviceGroup(info.endDeviceGroup.id));
+                .setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id))
+                .setScheduleExpression(getScheduleExpression(info))
+                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
 
         DataValidationTask dataValidationTask = builder.build();
 
@@ -134,16 +137,17 @@ public class DataValidationTaskResource {
 
         try (TransactionContext context = transactionService.getContext()) {
             task.setName(info.name);
-            //task.setScheduleExpression(getScheduleExpression(info));
-            //if (Never.NEVER.equals(task.getScheduleExpression())) {
-            //    task.setNextExecution(null);
-            //} else {
-            //    task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
-            //}
-            //task.setExportPeriod(getRelativePeriod(info.exportperiod));
-            //task.setUpdatePeriod(getRelativePeriod(info.updatePeriod));
-
-            task.setEndDeviceGroup(endDeviceGroup(info.endDeviceGroup.id));
+            task.setScheduleExpression(getScheduleExpression(info));
+ /*
+            if (Never.NEVER.equals(task.getScheduleExpression(info))) {
+                task.setNextExecution(null);
+            } else {
+                task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+            }
+            task.set(getRelativePeriod(info.exportperiod));
+            task.setUpdatePeriod(getRelativePeriod(info.updatePeriod));
+*/
+            task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
 
             task.save();
             context.commit();
@@ -163,6 +167,10 @@ public class DataValidationTaskResource {
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private ScheduleExpression getScheduleExpression(DataValidationTaskInfo info) {
+        return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
     }
 
 }

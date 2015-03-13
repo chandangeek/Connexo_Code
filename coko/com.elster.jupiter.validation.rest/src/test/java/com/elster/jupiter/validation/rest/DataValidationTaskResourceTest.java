@@ -61,7 +61,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         info.name = "newName";
         //info.endDeviceGroup;
 
-        info.lastRun = Instant.MAX;
+        //info.lastRun = Instant.MAX;
 
         //info.endDeviceGroup = new EndDe
         //info.deviceGroup.id = 5;

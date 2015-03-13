@@ -28,19 +28,40 @@ public class DataValidationTaskInfo {
 
     public long id = 0;
     public String name = "blank_name";
-    public MeterGroupInfo endDeviceGroup;
-    public Instant lastRun;
+    public MeterGroupInfo deviceGroup;
+    public PeriodicalExpressionInfo schedule;
+    //public Instant lastRun;
+    public Long nextRun;
+    public Long lastRun;
     //public Instant nextRun;
-    //public PeriodicalExpressionInfo schedule;
+
 
     public DataValidationTaskInfo(DataValidationTask dataValidationTask) {//), Thesaurus thesaurus, TimeService timeService) {
 
         id = dataValidationTask.getId();
         name = dataValidationTask.getName();
+        deviceGroup = new MeterGroupInfo(dataValidationTask.getEndDeviceGroup());
 
-        endDeviceGroup = new MeterGroupInfo(dataValidationTask.getEndDeviceGroup());
+        if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {
+            schedule = null;
+        } else {
+            ScheduleExpression scheduleExpression = dataValidationTask.getScheduleExpression();
+            if (scheduleExpression instanceof TemporalExpression) {
+                schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+            } else {
+                schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
+            }
+        }
 
-        lastRun = Instant.now();
+        Instant nextExecution = dataValidationTask.getNextExecution();
+        if (nextExecution != null) {
+            nextRun = nextExecution.toEpochMilli();
+        }
+
+        Optional<Instant> lastRunOptional = dataValidationTask.getLastRun();
+        if (lastRunOptional.isPresent()) {
+            lastRun = lastRunOptional.get().toEpochMilli();
+        }
 
     }
 
