@@ -14,6 +14,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationOccurence;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -37,6 +38,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private Instant modTime;
     private String userName;
     private transient Instant nextExecution;
+    private ValidationService dataValidationTask;
 
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
@@ -197,7 +199,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private void persistRecurrentTask() {
         RecurrentTaskBuilder builder = taskService.newBuilder()
                 .setName(getName())
-                .setDestination()
+                .setDestination(dataValidationTask.getDestination())
                 .setScheduleExpression(scheduleExpression)
                 .setPayLoad(getName());
         if (scheduleImmediately) {

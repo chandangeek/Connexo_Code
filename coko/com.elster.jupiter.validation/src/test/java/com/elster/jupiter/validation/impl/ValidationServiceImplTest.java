@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.inject.Provider;
 
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.tasks.TaskService;
@@ -83,6 +84,8 @@ public class ValidationServiceImplTest {
     private static final long ID = 561651L;
     private ValidationServiceImpl validationService;
 
+    @Mock
+    private volatile MessageService messageService;
     @Mock
     private EventService eventService;
     @Mock
@@ -172,7 +175,7 @@ public class ValidationServiceImplTest {
         when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
         when(queryService.wrap(eq(validationRuleQueryExecutor))).thenReturn(allValidationRuleQuery);
 
-        validationService = new ValidationServiceImpl(clock, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
+        validationService = new ValidationServiceImpl(clock,messageService , eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));

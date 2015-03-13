@@ -3,6 +3,8 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -36,10 +38,13 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService {
 
+    public static final String DESTINATION_NAME = "DataExport";
+    public static final String SUBSCRIBER_NAME = "DataExport";
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile Clock clock;
+    private volatile MessageService messageService;
     private volatile TaskService taskService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -48,13 +53,15 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
+    private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
     public ValidationServiceImpl() {
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
+    ValidationServiceImpl(Clock clock,MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
         this.clock = clock;
+        this.messageService = messageService;
         this.eventService = eventService;
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -97,7 +104,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, eventService, thesaurus, userService).install(true, true);
+        new InstallerImpl(dataModel, eventService, thesaurus, userService,messageService).install(true, true);
     }
 
     @Override
@@ -164,6 +171,14 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description);
         set.save();
         return set;
+    }
+
+    @Override
+    public DestinationSpec getDestination() {
+        if (!destinationSpec.isPresent()) {
+            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
+        }
+        return destinationSpec.orElse(null);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -19,6 +20,8 @@ public interface ValidationService {
     /**
      * Mangagement of ruleSets and ules *
      */
+
+    DestinationSpec getDestination();
 
     ValidationRuleSet createValidationRuleSet(String name);
 
