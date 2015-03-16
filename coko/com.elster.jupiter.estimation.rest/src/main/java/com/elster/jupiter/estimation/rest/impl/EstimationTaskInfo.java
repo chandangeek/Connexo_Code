@@ -1,15 +1,12 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationTask;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class EstimationTaskInfo {
@@ -19,7 +16,6 @@ public class EstimationTaskInfo {
     public String name = "name";
     public PeriodicalExpressionInfo schedule;
     public RelativePeriodInfo period;
-    public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
     public MeterGroupInfo deviceGroup;
     public EstimationTaskHistoryInfo lastExportOccurrence;
     public Long nextRun;

@@ -13,7 +13,7 @@ import java.util.List;
 public class EstimationTaskInfos {
 
 	public int total;
-	public List<EstimationTaskInfo> dataExportTasks = new ArrayList<>();
+	public List<EstimationTaskInfo> estimationTasks = new ArrayList<>();
 	
 	public EstimationTaskInfos() {
     }
@@ -24,7 +24,7 @@ public class EstimationTaskInfos {
 
     public EstimationTaskInfo add(EstimationTask ruleSet, Thesaurus thesaurus, TimeService timService) {
         EstimationTaskInfo result = new EstimationTaskInfo(ruleSet, thesaurus, timService);
-        dataExportTasks.add(result);
+        estimationTasks.add(result);
 	    total++;
 	    return result;
 	}

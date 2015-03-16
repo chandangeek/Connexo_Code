@@ -217,6 +217,7 @@ public class EstimationResource {
     }
 
     @GET
+    @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
     public EstimationTaskInfos getEstimationTasks(@Context UriInfo uriInfo) {
@@ -236,7 +237,7 @@ public class EstimationResource {
     }
 
     @GET
-    @Path("/{id}/")
+    @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
     public EstimationTaskInfo getEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
@@ -244,7 +245,7 @@ public class EstimationResource {
     }
 
     @POST
-    @Path("/{id}/trigger")
+    @Path("/tasks/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
     public Response triggerEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
@@ -253,6 +254,7 @@ public class EstimationResource {
     }
 
     @POST
+    @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
@@ -272,7 +274,7 @@ public class EstimationResource {
     }
 
     @DELETE
-    @Path("/{id}/")
+    @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response removeEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
@@ -291,7 +293,7 @@ public class EstimationResource {
     }
 
     @PUT
-    @Path("/{id}/")
+    @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK})
     public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info) {
