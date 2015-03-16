@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
         {
             xtype: 'form',
             itemId: 'dataCollectionKpiEditForm',
+            title: '&nbsp;',
             ui: 'large',
             width: '100%',
             defaults: {
@@ -23,7 +24,8 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                     itemId: 'form-errors',
                     xtype: 'uni-form-error-message',
                     name: 'form-errors',
-                    hidden: true
+                    hidden: true,
+                    width: 600
                 },
                 {
                     xtype: 'combobox',
@@ -50,24 +52,34 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                 {
                     xtype: 'combobox',
                     name: 'frequency',
-                    emptyText: Uni.I18n.translate('datacollectionkpis.selectFrequency', 'MDC', 'Select a frequency'),
+                    emptyText: Uni.I18n.translate('datacollectionkpis.selectCalculationFrequency', 'MDC', 'Select a calculation frequency'),
                     itemId: 'cmb-frequency',
-                    fieldLabel: Uni.I18n.translate('datacollectionkpis.frequency', 'MDC', 'Frequency'),
+                    fieldLabel: Uni.I18n.translate('datacollectionkpis.calculationFrequency', 'MDC', 'Calculation frequency'),
                     store: 'Mdc.store.DataCollectionKpiFrequency',
                     queryMode: 'local',
                     editable: false,
                     displayField: 'name',
-                    valueField: 'every',
+                    valueField: 'id',
                     allowBlank: false,
                     required: true,
                     width: 600
                 },
                 {
-                    xtype: 'displayfield',
-                    itemId: 'frequencyDisplayField',
-                    fieldLabel: Uni.I18n.translate('datacollectionkpis.frequency', 'MDC', 'Frequency'),
+                    xtype: 'combobox',
+                    name: 'displayRange',
+                    emptyText: Uni.I18n.translate('datacollectionkpis.selectDisplayRange', 'MDC', 'Select a display range'),
+                    itemId: 'displayRangeCombo',
+                    fieldLabel: Uni.I18n.translate('datacollectionkpis.displayRange', 'MDC', 'Display range'),
+                    store: 'Mdc.store.DataCollectionKpiRange',
+                    queryMode: 'local',
+                    editable: false,
+                    displayField: 'name',
+                    valueField: 'id',
+                    allowBlank: false,
                     required: true,
-                    hidden: true
+                    disabled: true,
+                    lastQuery: '',
+                    width: 600
                 },
                 {
                     xtype: 'kpi-field-container',
@@ -76,32 +88,10 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                     fieldLabel: Uni.I18n.translate('datacollectionkpis.connectionKpi', 'MDC', 'Connection KPI')
                 },
                 {
-                    xtype: 'displayfield',
-                    name: 'connectionTarget',
-                    itemId: 'connectionKpiDisplayField',
-                    fieldLabel: Uni.I18n.translate('datacollectionkpis.connectionKpi', 'MDC', 'Connection KPI'),
-                    required: true,
-                    hidden: true,
-                    renderer: function(value) {
-                        return value + '%'
-                    }
-                },
-                {
                     xtype: 'kpi-field-container',
                     groupName: 'communicationKpiContainer',
                     itemId: 'communicationKpiField',
                     fieldLabel: Uni.I18n.translate('datacollectionkpis.communicationKpi', 'MDC', 'Communication KPI')
-                },
-                {
-                    xtype: 'displayfield',
-                    name: 'communicationTarget',
-                    itemId: 'communicationKpiDisplayField',
-                    fieldLabel: Uni.I18n.translate('datacollectionkpis.connectionKpi', 'MDC', 'Communication KPI'),
-                    required: true,
-                    hidden: true,
-                    renderer: function(value) {
-                        return value + '%'
-                    }
                 },
                 {
                     xtype: 'component',
@@ -131,7 +121,30 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                         }
                     ]
                 }
-            ]
+            ],
+
+            loadRecord: function (record) {
+                var me = this,
+                    deviceGroup = record.get('deviceGroup'),
+                    frequency = record.get('frequency'),
+                    displayRange = record.get('displayRange'),
+                    connectionTarget = record.get('connectionTarget'),
+                    communicationTarget = record.get('communicationTarget'),
+                    deviceGroupCombo = me.down('[name=devicegroup]');
+
+                me.getForm().loadRecord(record);
+                if (deviceGroup) {
+                    deviceGroupCombo.setRawValue(deviceGroup.name);
+                }
+                if (frequency) {
+                    me.down('[name=frequency]').setValue(frequency.every.count + frequency.every.timeUnit);
+                }
+                if (displayRange) {
+                    me.down('[name=displayRange]').setValue(displayRange.count + displayRange.timeUnit);
+                }
+                me.down('[groupName=connectionKpiContainer]').setValue(connectionTarget);
+                me.down('[groupName=communicationKpiContainer]').setValue(communicationTarget);
+            }
         }
     ]
 
