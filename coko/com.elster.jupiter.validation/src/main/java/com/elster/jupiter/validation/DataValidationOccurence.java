@@ -18,7 +18,7 @@ public interface DataValidationOccurence {
 
     Optional<Instant> getEndDate();
 
-    DataValidationStatus getStatus();
+    DataValidationTaskStatus getStatus();
 
     Instant getTriggerTime();
 

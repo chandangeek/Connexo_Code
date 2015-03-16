@@ -155,11 +155,15 @@ public enum TableSpecs {
             Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
             Column dataValidationTask = table.column("DATAVALIDATIONTASK").number().notNull().add();
             table.addIntervalColumns("dataValidationDataInterval");
-            //table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
-            Column test = table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
+            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
+            table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
 
-            table.primaryKey("VAL_PK_VALIDATIONOCC").on(taskOccurrence).add();
-            table.foreignKey("VAL_FK_VALOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
+            table.primaryKey("VAL_PK_VALIDATIONOCC")
+                    .on(taskOccurrence)
+                    .add();
+            table.foreignKey("VAL_FK_VALOCC_TSKOCC")
+                    .on(taskOccurrence)
+                    .references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
                     .map("taskOccurrence").refPartition().add();
             table.foreignKey("VAL_FK_OCC_VALIDATIONTASK").on(dataValidationTask).references(VAL_DATAVALIDATIONTASK.name())
                     .map("dataValidationTask").add();

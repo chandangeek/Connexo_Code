@@ -54,6 +54,7 @@ public class InstallerImpl {
         createPrivileges();
         setTranslations();
         createEventTypes();
+        createDestinationAndSubscriber();
     }
 
     private void createPrivileges() {

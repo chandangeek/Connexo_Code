@@ -10,6 +10,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationOccurence;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.DataValidationTaskStatus;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -23,9 +24,9 @@ public class DataValidationOccurenceImpl implements DataValidationOccurence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<DataValidationTask> dataValidationTask = ValueReference.absent();
-    private DataValidationStatus status;
     private Interval dataValidationDataInterval;
     private String failureReason;
+    private DataValidationTaskStatus status = DataValidationTaskStatus.BUSY;
 
     private final DataModel dataModel;
     private final Clock clock;
@@ -52,7 +53,7 @@ public class DataValidationOccurenceImpl implements DataValidationOccurence {
     }
 
     @Override
-    public DataValidationStatus getStatus() {
+    public DataValidationTaskStatus getStatus() {
         return status;
     }
 
