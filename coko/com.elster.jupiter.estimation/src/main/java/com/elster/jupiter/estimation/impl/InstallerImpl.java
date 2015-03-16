@@ -1,9 +1,11 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 class InstallerImpl {
@@ -14,18 +16,18 @@ class InstallerImpl {
 
     private final DataModel dataModel;
     private final MessageService messageService;
-//    private final TimeService timeService;
+    //    private final TimeService timeService;
 //    private final Thesaurus thesaurus;
-//    private final UserService userService;
+    private final UserService userService;
 
     private DestinationSpec destinationSpec;
 
-    InstallerImpl(DataModel dataModel, MessageService messageService/* ,TimeService timeService, Thesaurus thesaurus, UserService userService*/) {
+    InstallerImpl(DataModel dataModel, MessageService messageService, UserService userService/* ,TimeService timeService, Thesaurus thesaurus*/) {
         this.dataModel = dataModel;
         this.messageService = messageService;
 //        this.timeService = timeService;
 //        this.thesaurus = thesaurus;
-//        this.userService = userService;
+        this.userService = userService;
     }
 
     public DestinationSpec getDestinationSpec() {
@@ -35,10 +37,10 @@ class InstallerImpl {
     void install() {
         ExceptionCatcher.executing(
                 this::installDataModel,
-                this::createDestinationAndSubscriber
+                this::createDestinationAndSubscriber,
+                this::createPrivileges
 //                this::createRelativePeriodCategory,
 //                this::createTranslations,
-//                this::createPrivileges,
 //                this::createRelativePeriods
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
@@ -82,10 +84,19 @@ class InstallerImpl {
         dataModel.install(true, true);
     }
 
-//    private void createPrivileges() {
-//        userService.createResourceWithPrivileges("SYS", "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description", new String[]
-//                {Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.VIEW_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK});
-//    }
+    private void createPrivileges() {
+        this.userService.createResourceWithPrivileges("SYS", "estimation.estimations", "estimation.estimations.description", new String[]
+                {
+                        Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+                        Privileges.VIEW_ESTIMATION_CONFIGURATION,
+                        Privileges.UPDATE_ESTIMATION_CONFIGURATION,
+                        Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK,
+                        Privileges.RUN_ESTIMATION_TASK,
+                        Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+                        Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
+                });
+    }
+
 
 //    private List<RelativePeriodCategory> getCategories() {
 //        List<RelativePeriodCategory> categories = new ArrayList<>();

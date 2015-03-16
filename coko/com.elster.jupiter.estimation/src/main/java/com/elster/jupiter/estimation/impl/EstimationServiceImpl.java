@@ -28,6 +28,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -71,8 +72,9 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     private volatile EventService eventService;
     private volatile TaskService taskService;
     private volatile MessageService messageService;
-
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile UserService userService;
+
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
     public EstimationServiceImpl() {
@@ -153,7 +155,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public Query<? extends EstimationTask> getEstimationTaskQuery() {
-        Query<EstimationTask> estimationTaskQuery = queryService.wrap(dataModel.query(EstimationTask.class));
+        Query<IEstimationTask> estimationTaskQuery = queryService.wrap(dataModel.query(IEstimationTask.class));
         return estimationTaskQuery;
     }
 
@@ -265,7 +267,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, messageService).install();
+        new InstallerImpl(dataModel, messageService, userService).install();
     }
 
     @Override
@@ -350,6 +352,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     class DefaultEstimatorCreator implements EstimatorCreator {
