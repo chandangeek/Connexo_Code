@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { UniqueValidationRuleSetNameValidator.class,  UniqueValidationRuleNameValidator.class})
+@Constraint(validatedBy = { UniqueValidationRuleSetNameValidator.class,  UniqueValidationRuleNameValidator.class, UniqueValidationTaskNameValidator.class})
 public @interface UniqueName {
 
     String message() default "";

@@ -517,6 +517,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public Optional<DataValidationTask> findValidationTaskByName(String name) {
-        return dataModel.mapper(DataValidationTask.class).getOptional(name);
+        Condition condition = where("name").isEqualTo(name);
+        return findValidationTasksQuery().select(condition).stream().findFirst();
     }
 }

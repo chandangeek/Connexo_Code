@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -23,7 +24,7 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Optional;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class})
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_TASK + "}")
 public final class DataValidationTaskImpl implements DataValidationTask {
 
     private long id;
@@ -41,8 +42,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private transient Instant nextExecution;
     private ValidationService dataValidationService;
 
-    @Valid
-    @Size(groups = {Save.Create.class, Save.Update.class}, min=1, message = "{" + MessageSeeds.Constants.DEVICE_GROUP_REQUIRED_PROPERTY_MISSING_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_GROUP_REQUIRED_PROPERTY_MISSING_KEY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();

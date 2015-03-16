@@ -19,6 +19,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_VALIDATION_RULE(102, Constants.DUPLICATE_VALIDATION_RULE, "Name must be unique", Level.SEVERE),
 
     DEVICE_GROUP_REQUIRED(103, Constants.DEVICE_GROUP_REQUIRED_PROPERTY_MISSING_KEY, "At least one device group has to be selected.", Level.SEVERE),
+    DUPLICATE_VALIDATION_TASK(104, Constants.DUPLICATE_VALIDATION_TASK, "Name must be unique", Level.SEVERE),
 
     NO_SUCH_VALIDATOR(1001, Constants.NO_SUCH_VALIDATOR, "Validator {0} does not exist.", Level.SEVERE),
     NO_SUCH_READINGTYPE(1002, Constants.NO_SUCH_READINGTYPE, "Reading type {0} does not exist.", Level.SEVERE),
@@ -88,6 +89,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String VALIDATOR_PROPERTY_INVALID_VALUE_KEY = "ValidatorPropertyValueInvalid";
         public static final String VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY = "ValidatorPropertyRequired";
         public static final String DEVICE_GROUP_REQUIRED_PROPERTY_MISSING_KEY = "MustHaveDeviceGroups";
+        public static final String DUPLICATE_VALIDATION_TASK = "DuplicateValidationTask";
     }
 }
 
