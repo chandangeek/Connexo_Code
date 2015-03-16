@@ -3,6 +3,8 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -35,7 +37,6 @@ import static org.mockito.Mockito.mock;
 public class CachedTypesTest {
 
     private static Injector bootInjector;
-    private Injector injector;
     private static InMemoryBootstrapModule bootMemoryBootstrapModule = new InMemoryBootstrapModule();
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -65,27 +66,29 @@ public class CachedTypesTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(printSql),
+                new FiniteStateMachineModule(),
                 new NlsModule());
     }
 
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         bootInjector = getInjector(bootMemoryBootstrapModule);
         try (TransactionContext ctx = bootInjector.getInstance(TransactionService.class).getContext()) {
+            bootInjector.getInstance(FiniteStateMachineService.class);
             bootInjector.getInstance(MeteringService.class);
             ctx.commit();
         }
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
         bootMemoryBootstrapModule.deactivate();
     }
 
     @Before
     public void instanceSetup() throws SQLException {
-        injector = getInjector(inMemoryBootstrapModule);
+        getInjector(inMemoryBootstrapModule);
     }
 
     @After

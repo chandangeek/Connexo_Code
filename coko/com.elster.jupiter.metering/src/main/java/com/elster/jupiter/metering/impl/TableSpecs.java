@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
@@ -209,11 +210,41 @@ public enum TableSpecs {
             table.column("EARADIO").varChar(NAME_LENGTH).map("electronicAddress.radio").add();
             table.column("EAUSERID").varChar(NAME_LENGTH).map("electronicAddress.userID").add();
             table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
+            Column stateMachine = table.column("FSM").number().add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
             table.unique("MTR_U_METER").on(mRIDColumn).add();
             table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.foreignKey("MTR_FK_METERAMRSYSTEM").references(MTR_AMRSYSTEM.name()).onDelete(RESTRICT).map("amrSystem").on(amrSystemIdColumn).add();
+            table.foreignKey("MTR_FK_ENDDEVICE_FSM")
+                    .on(stateMachine)
+                    .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_FINITE_STATE_MACHINE")
+                    .map("stateMachine")
+                    .add();
+        }
+    },
+    MTR_ENDDEVICESTATUS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndDeviceLifeCycleStatus> table = dataModel.addTable(name(), EndDeviceLifeCycleStatus.class);
+            table.map(EndDeviceLifeCycleStatusImpl.class);
+            Column endDevice = table.column("ENDDEVICE").notNull().number().add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            Column state = table.column("STATE").notNull().number().add();
+            table.primaryKey("PK_MTR_ENDDEVICESTATUS").on(endDevice, intervalColumns.get(0)).add();
+            table.foreignKey("FK_MTR_STATUS_ENDDEVICE").
+                    on(endDevice).
+                    references(MTR_ENDDEVICE.name()).
+                    onDelete(CASCADE).
+                    map("endDevice").
+                    add();
+            table.foreignKey("FK_MTR_STATUS_STATE").
+                    on(state).
+                    references(FiniteStateMachineService.COMPONENT_NAME, "FSM_STATE").
+                    onDelete(RESTRICT).
+                    map("state").
+                    add();
         }
     },
     MTR_METERACTIVATION {

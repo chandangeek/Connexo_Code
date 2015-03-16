@@ -119,7 +119,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS");
+        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS", "FSM");
     }
 
     @Override

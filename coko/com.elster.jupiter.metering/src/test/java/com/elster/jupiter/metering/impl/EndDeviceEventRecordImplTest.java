@@ -11,6 +11,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.events.impl.LocalEventImpl;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -99,9 +101,6 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         protected void configure() {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
-//            bind(EndDeviceEventRecord.class).to(EndDeviceEventRecordImpl.class);
-//            bind(EndDevice.class).to(EndDeviceImpl.class);
-//            bind(EndDeviceEventType.class).to(EndDeviceEventTypeImpl.class);
             bind(EventAdmin.class).toInstance(eventAdmin);
         }
     }
@@ -122,14 +121,13 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
                 new TransactionModule(),
+                new FiniteStateMachineModule(),
                 new NlsModule());
         when(principal.getName()).thenReturn("Test");
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(MeteringService.class);
-                return null;
-            }
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringService.class);
+            return null;
         });
     }
 

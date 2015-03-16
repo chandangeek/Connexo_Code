@@ -3,6 +3,11 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
@@ -25,9 +30,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -85,14 +88,13 @@ public class EndDeviceImplIT {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(),
+                new FiniteStateMachineModule(),
                 new NlsModule()
         );
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(MeteringService.class);
-                return null;
-            }
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringService.class);
+            return null;
         });
     }
 
@@ -126,5 +128,31 @@ public class EndDeviceImplIT {
         assertThat(deviceEvents).isEmpty();
     }
 
+    @Test
+    public void createEndDeviceWithManagedState() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
+
+            // Business method
+            endDevice.save();
+
+            // Asserts
+            assertThat(endDevice.getFiniteStateMachine().isPresent()).isTrue();
+            assertThat(endDevice.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
+            assertThat(endDevice.getState().isPresent()).isTrue();
+            assertThat(endDevice.getState().get().getId()).isEqualTo(stateMachine.getInitialState().getId());
+        }
+    }
+
+    private FiniteStateMachine createTinyFiniteStateMachine() {
+        FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
+        FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
+        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
+        stateMachine.save();
+        return stateMachine;
+    }
 
 }

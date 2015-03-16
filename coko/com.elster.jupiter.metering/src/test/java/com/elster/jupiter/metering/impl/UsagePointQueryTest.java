@@ -14,6 +14,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -75,14 +78,14 @@ public class UsagePointQueryTest {
     private Principal principal;
     @Mock
     private EventAdmin eventAdmin;
-    
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
 
     private class MockModule extends AbstractModule {
 
         @Override
-        protected void configure() {       
+        protected void configure() {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
         }
@@ -91,30 +94,29 @@ public class UsagePointQueryTest {
     @Before
     public void setUp() throws SQLException {
         injector = Guice.createInjector(
-        			new MockModule(), 
-        			inMemoryBootstrapModule, 
-        			new IdsModule(), 
+        			new MockModule(),
+        			inMemoryBootstrapModule,
+        			new IdsModule(),
         			new MeteringModule(false),
-        			new PartyModule(), 
+        			new PartyModule(),
         			new EventsModule(),
         			new InMemoryMessagingModule(),
-        			new DomainUtilModule(), 
+        			new DomainUtilModule(),
         			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
+        			new UtilModule(),
+        			new ThreadSecurityModule(),
+        			new PubSubModule(),
         			new UserModule(),
         			new TransactionModule(false),
+                    new FiniteStateMachineModule(),
                     new NlsModule()
                 );
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-			@Override
-			public Void perform() {
-				injector.getInstance(EventService.class);
-				injector.getInstance(MeteringService.class);
-				return null;
-			}
-		});
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(EventService.class);
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringService.class);
+            return null;
+        });
     }
 
     @After
@@ -130,7 +132,7 @@ public class UsagePointQueryTest {
     	threadPrincipalService.set(user);
     	getTransactionService().execute(new VoidTransaction() {
             @Override
-            protected void doPerform() {                
+            protected void doPerform() {
                 doTest(injector.getInstance(MeteringService.class), user);
 
             }

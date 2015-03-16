@@ -8,10 +8,10 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 public class EndDeviceImpl extends AbstractEndDeviceImpl<EndDeviceImpl> implements EndDevice {
-	
+
     @Inject
 	EndDeviceImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {
 		super(dataModel, eventService, deviceEventFactory, EndDeviceImpl.class);
 	}
-	
+
 }

@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
@@ -10,8 +12,12 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.NotUniqueException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -21,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -42,9 +49,11 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-	
+
 	// associations
 	private AmrSystem amrSystem;
+    private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
+    private StateManager stateManager = new NoDeviceLifeCycle();
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -57,7 +66,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         this.deviceEventFactory = deviceEventFactory;
         self = selfType.cast(this);
 	}
-	
+
 	S init(AmrSystem system, String amrId, String mRID) {
 		this.amrSystemId = system.getId();
 		this.amrSystem = system;
@@ -90,7 +99,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 	public String getName() {
 		return name ==  null ? "" : name;
 	}
-	
+
 	@Override
 	public void save() {
 		if (id == 0) {
@@ -100,6 +109,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
             dataModel.mapper(EndDevice.class).update(this);
             eventService.postEvent(EventType.METER_UPDATED.topic(), this);
 		}
+        this.stateManager = this.stateManager.save();
 	}
 
     @Override
@@ -131,10 +141,65 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 		return amrSystem;
 	}
 
-	public String getAmrId() {
+    @Override
+    public Optional<FiniteStateMachine> getFiniteStateMachine() {
+        return this.stateMachine.getOptional();
+    }
+
+    void setFiniteStateMachine(FiniteStateMachine stateMachine) {
+        this.stateMachine.set(stateMachine);
+        // Assumed to be called a construction time only for now
+        this.stateManager = new CreateInitialState();
+    }
+
+    @Override
+    public Optional<State> getState() {
+        if (this.isDeviceLifeCycleManaged()) {
+            Condition condition = where("endDevice").isEqualTo(this).and(where("interval").isEffective());
+            List<EndDeviceLifeCycleStatus> candidates = this.getDataModel().mapper(EndDeviceLifeCycleStatus.class).select(condition);
+            if (candidates.size() > 1) {
+                throw new NotUniqueException("Expected only a single " + EndDeviceLifeCycleStatus.class.getSimpleName() + " to be effective now for end device " + this.getMRID());
+            }
+            if (candidates.isEmpty()) {
+                return Optional.empty();
+            }
+            else {
+                return Optional.of(candidates.get(0).getState());
+            }
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<State> getState(Instant instant) {
+        if (this.isDeviceLifeCycleManaged()) {
+            Condition condition = where("endDevice").isEqualTo(this).and(where("interval").isEffective(instant));
+            List<EndDeviceLifeCycleStatus> candidates = this.getDataModel().mapper(EndDeviceLifeCycleStatus.class).select(condition);
+            if (candidates.size() > 1) {
+                throw new NotUniqueException("Expected only a single " + EndDeviceLifeCycleStatus.class.getSimpleName() + " to be effective at " + instant + " for end device " + this.getMRID());
+            }
+            if (candidates.isEmpty()) {
+                return Optional.empty();
+            }
+            else {
+                return Optional.of(candidates.get(0).getState());
+            }
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    private boolean isDeviceLifeCycleManaged() {
+        return this.stateMachine.isPresent();
+    }
+
+    public String getAmrId() {
 		return amrId;
 	}
-	
+
     @Override
     public Instant getCreateTime() {
         return createTime;
@@ -165,7 +230,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     	Condition condition = inRange(range).and(where("eventType").in(eventTypes));
         return dataModel.query(EndDeviceEventRecord.class).select(condition,Order.ascending("createdDateTime"));
     }
-    
+
     @Override
     public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
 		if (filter == null){
@@ -197,7 +262,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     DataModel getDataModel() {
         return dataModel;
     }
-    
+
     @Override
     public boolean equals(Object o) {
     	if (this == o) {
@@ -208,7 +273,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         }
         return getId() == this.self.getClass().cast(o).getId();
     }
-    
+
     @Override
     public int hashCode() {
     	return Objects.hashCode(id);
@@ -217,4 +282,62 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     EventService getEventService() {
         return eventService;
     }
+
+    /**
+     * Defines the behavior of an internal component
+     * that will manage the State of this EndDevice
+     * and will be triggered from the save method.
+     */
+    private interface StateManager {
+        /**
+         * Save the State after the EndDevice was saved.
+         *
+         * @return The StateManager that will be responsible for managing the state from now on
+         */
+        StateManager save();
+    }
+
+    /**
+     * Provides an implementation for the StateManager interface
+     * when this EndDevice does not actually have a device life cycle
+     * and therefore has not state to manage.
+     */
+    private class NoDeviceLifeCycle implements StateManager {
+        @Override
+        public StateManager save() {
+            // Nothing to save and we keep the same manager
+            return this;
+        }
+    }
+
+    /**
+     * Provides an implementation for the StateManager interface
+     * that will set the initial {@link State} of the related
+     * {@link FiniteStateMachine} after the EndDevice was saved.
+     */
+    private class CreateInitialState implements StateManager {
+        @Override
+        public StateManager save() {
+            Interval stateEffectivityInterval = Interval.of(Range.atLeast(getCreateTime()));
+            EndDeviceLifeCycleStatusImpl deviceLifeCycleStatus = dataModel
+                    .getInstance(EndDeviceLifeCycleStatusImpl.class)
+                    .initialize(stateEffectivityInterval, AbstractEndDeviceImpl.this, getFiniteStateMachine().get().getInitialState());
+            dataModel.persist(deviceLifeCycleStatus);
+            return new UpdateStateNotSupportedYet();
+        }
+    }
+
+    /**
+     * Provides an implementation for the StateManager interface
+     * for EndDevices whose {@link State} is managed by a {@link FiniteStateMachine}
+     * but updates to the State are not supported yet.
+     */
+    private class UpdateStateNotSupportedYet implements StateManager {
+        @Override
+        public StateManager save() {
+            // Updates are not supported yet so there is nothing to save and we keep the same manager
+            return this;
+        }
+    }
+
 }

@@ -11,6 +11,8 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -91,13 +93,12 @@ public class CumulativeChannelTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(),
+                new FiniteStateMachineModule(),
                 new NlsModule());
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(MeteringService.class);
-                return null;
-            }
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringService.class);
+            return null;
         });
     }
 
@@ -125,7 +126,7 @@ public class CumulativeChannelTest {
             Channel channel = activation.createChannel(readingType);
             assertThat(channel.getBulkQuantityReadingType().isPresent()).isTrue();
             ReadingStorer storer = meteringService.createOverrulingStorer();
-            Instant instant = ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant();           
+            Instant instant = ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant();
             storer.addReading(channel, IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
             storer.addReading(channel, IntervalReadingImpl.of(instant.plusSeconds(15*60L), BigDecimal.valueOf(1100)));
             storer.execute();
