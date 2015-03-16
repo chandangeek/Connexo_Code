@@ -59,6 +59,12 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
         return this.underConstruction;
     }
 
+    @Override
+    public FiniteStateMachine complete(State initial) {
+        this.underConstruction.setInitialState((StateImpl) initial);
+        return this.complete();
+    }
+
     protected interface BuildState {
         StateBuilder newState(boolean custom, String name);
         FiniteStateMachine complete();

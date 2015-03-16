@@ -19,6 +19,14 @@ public interface State {
 
     public long getId();
 
+    /**
+     * Tests if this State is the initial state of the FiniteStateMachine it is part of.
+     *
+     * @return A flag that indicates if this is the FiniteStateMachine's initial State
+     * @see FiniteStateMachine#getInitialState()
+     */
+    public boolean isInitial();
+
     public boolean isCustom();
 
     public String getName();

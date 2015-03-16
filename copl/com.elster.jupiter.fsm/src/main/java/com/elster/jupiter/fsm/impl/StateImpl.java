@@ -35,6 +35,7 @@ public class StateImpl implements State {
 
     public enum Fields {
         NAME("name"),
+        INITIAL("initial"),
         CUSTOM("custom"),
         FINITE_STATE_MACHINE("finiteStateMachine"),
         PROCESS_REFERENCES("processReferences");
@@ -59,6 +60,7 @@ public class StateImpl implements State {
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String name;
     private boolean custom;
+    private boolean initial;
     @IsPresent
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
     @Valid
@@ -109,6 +111,15 @@ public class StateImpl implements State {
     @Override
     public boolean isCustom() {
         return this.custom;
+    }
+
+    @Override
+    public boolean isInitial() {
+        return initial;
+    }
+
+    void setInitial(boolean initial) {
+        this.initial = initial;
     }
 
     @Override

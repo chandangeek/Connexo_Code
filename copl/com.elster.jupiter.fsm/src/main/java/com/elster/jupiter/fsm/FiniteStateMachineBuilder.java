@@ -38,6 +38,15 @@ public interface FiniteStateMachineBuilder {
     public FiniteStateMachine complete();
 
     /**
+     * Completes the building process, marking the specified {@link State}
+     * as the initial State and returning the {@link FiniteStateMachine}
+     * that was built from the instructions.
+     *
+     * @return The FiniteStateMachine
+     */
+    public FiniteStateMachine complete(State initial);
+
+    /**
      * Assists in building {@link State}s that will be added
      * to the main builder when completed.
      */

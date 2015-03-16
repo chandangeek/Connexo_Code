@@ -30,8 +30,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // FiniteStateMachine
     UNIQUE_FINITE_STATE_MACHINE_NAME(400, Keys.UNIQUE_FINITE_STATE_MACHINE_NAME, "The name of a finite state machine must be unique"),
     AT_LEAST_ONE_STATE(401, Keys.AT_LEAST_ONE_STATE, "A finite state machine must have at least one state"),
-    UNKNOWN_STATE(402, Keys.UNKNOWN_STATE, "Unable to remove state {0} because it does not exist in the finite state machine {1}"),
-    UNKNOWN_STATE_TRANSITION(403, Keys.UNKNOWN_STATE_TRANSITION, "Unable to remove state transition from {0} and event type {1} because it does not exist in the finite state machine {2}");
+    EXACTLY_ONE_INITIAL_STATE(402, Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state"),
+    UNKNOWN_STATE(403, Keys.UNKNOWN_STATE, "Unable to remove state {0} because it does not exist in the finite state machine {1}"),
+    UNKNOWN_STATE_TRANSITION(404, Keys.UNKNOWN_STATE_TRANSITION, "Unable to remove state transition from {0} and event type {1} because it does not exist in the finite state machine {2}");
 
     private final int number;
     private final String key;
@@ -83,6 +84,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String UNIQUE_STATE_NAME = "state.unique.name";
         public static final String UNIQUE_FINITE_STATE_MACHINE_NAME = "finite.state.machine.unique.name";
         public static final String AT_LEAST_ONE_STATE = "finite.state.machine.min1state";
+        public static final String EXACTLY_ONE_INITIAL_STATE = "finite.state.machine.1initialState";
         public static final String UNKNOWN_STATE = "finite.state.machine.unknown.state";
         public static final String UNKNOWN_STATE_TRANSITION = "finite.state.machine.unknown.state.transition";
         public static final String NO_SUCH_PROCESS = "finite.state.machine.unknown.state.process";

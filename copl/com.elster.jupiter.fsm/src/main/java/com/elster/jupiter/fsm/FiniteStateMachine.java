@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A finite state machine sometimes also called finite state automaton or simply state machine,
+ * A finite state machine, sometimes also called finite state automaton or simply state machine,
  * is a mathematical model of computation and is conceived as an abstract machine that
  * can be in a finite number of states (hence the name).
  * The machine is in exactly one state at any time and that state is called the current state.
@@ -44,6 +44,14 @@ public interface FiniteStateMachine {
     public String getName();
 
     public List<State> getStates();
+
+    /**
+     * Gets the initial {@link State}.
+     *
+     * @return The initial State
+     * @see State#isInitial()
+     */
+    public State getInitialState();
 
     public Optional<State> getState(String name);
 

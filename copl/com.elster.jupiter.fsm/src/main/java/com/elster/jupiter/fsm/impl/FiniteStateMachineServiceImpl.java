@@ -65,7 +65,9 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         this.setEventService(eventService);
         this.setTransactionService(transactionService);
         this.activate();
-        this.install();
+        if (!this.dataModel.isInstalled()) {
+            install();
+        }
     }
 
     @Override

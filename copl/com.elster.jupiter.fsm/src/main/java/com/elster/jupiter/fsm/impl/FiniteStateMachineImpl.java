@@ -9,6 +9,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
 import com.elster.jupiter.fsm.impl.constraints.AtLeastOneState;
+import com.elster.jupiter.fsm.impl.constraints.ExactlyOneInitialState;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -31,8 +32,9 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (15:29)
  */
-@Unique(message = MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME, groups = { Save.Create.class, Save.Update.class })
-@AtLeastOneState(message = MessageSeeds.Keys.AT_LEAST_ONE_STATE, groups = { Save.Create.class, Save.Update.class })
+@Unique(message = "{" + MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
+@AtLeastOneState(groups = { Save.Create.class, Save.Update.class })
+@ExactlyOneInitialState(groups = { Save.Create.class, Save.Update.class })
 public class FiniteStateMachineImpl implements FiniteStateMachine {
 
     public enum Fields {
@@ -115,6 +117,24 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     @Override
     public List<State> getStates() {
         return Collections.unmodifiableList(this.states);
+    }
+
+    @Override
+    public State getInitialState() {
+        return this.findInitialState().orElseThrow(
+                () -> new IllegalStateException(this.thesaurus.getString(MessageSeeds.Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state")));
+    }
+
+    void setInitialState(StateImpl state) {
+        this.findInitialState().ifPresent(s -> s.setInitial(false));
+        state.setInitial(true);
+    }
+
+    private Optional<StateImpl> findInitialState() {
+        return this.states
+                .stream()
+                .filter(State::isInitial)
+                .findFirst();
     }
 
     @Override

@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Models the constraint that a {@link FiniteStateMachine}
- * should have at least one {@link com.elster.jupiter.fsm.State}.
+ * should have exactly one initial {@link com.elster.jupiter.fsm.State}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (10:33)
@@ -21,10 +21,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {AtLeastOneStateValidator.class})
-public @interface AtLeastOneState {
+@Constraint(validatedBy = {ExactlyOneInitialStateValidator.class})
+public @interface ExactlyOneInitialState {
 
-    String message() default "{" + MessageSeeds.Keys.AT_LEAST_ONE_STATE + "}";
+    String message() default "{" + MessageSeeds.Keys.EXACTLY_ONE_INITIAL_STATE + "}";
 
     Class<?>[] groups() default { };
 
