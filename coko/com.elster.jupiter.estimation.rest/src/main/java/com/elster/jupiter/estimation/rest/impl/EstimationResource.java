@@ -298,7 +298,7 @@ public class EstimationResource {
     @RolesAllowed({Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK})
     public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info) {
 
-        EstimationTask task = findTaskOrThrowException(info);
+        EstimationTask task = findTaskOrThrowException(id);
 
         try (TransactionContext context = transactionService.getContext()) {
             task.setName(info.name);
@@ -372,8 +372,8 @@ public class EstimationResource {
 //        return infos;
 //    }
 //
-    private EstimationTask findTaskOrThrowException(EstimationTaskInfo info) {
-        return estimationService.findEstimationTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    private EstimationTask findTaskOrThrowException(long id) {
+        return estimationService.findEstimationTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private ScheduleExpression getScheduleExpression(EstimationTaskInfo info) {
