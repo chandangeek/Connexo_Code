@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateURLAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateVersionNumberAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
@@ -34,7 +34,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateFileAttributeName, true, FactoryIds.FIRMWAREVERSION));
         }
 
         @Override
@@ -46,7 +46,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateFileAttributeName, true, FactoryIds.FIRMWAREVERSION));
         }
 
         @Override
@@ -58,7 +58,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateFileAttributeName, true, FactoryIds.FIRMWAREVERSION));
             propertySpecs.add(propertySpecService.basicPropertySpec(resumeFirmwareUpdateAttributeName, true, new BooleanFactory()));
         }
 
@@ -71,7 +71,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateFileAttributeName, true, FactoryIds.FIRMWAREVERSION));
             propertySpecs.add(propertySpecService.basicPropertySpec(resumeFirmwareUpdateAttributeName, true, new BooleanFactory()));
             propertySpecs.add(propertySpecService.basicPropertySpec(plcTypeFirmwareUpdateAttributeName, true, new BooleanFactory()));
         }
@@ -97,7 +97,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateFileAttributeName, true, FactoryIds.FIRMWAREVERSION));
             propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateFactory()));
         }
 
@@ -110,7 +110,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateFileAttributeName, true, FactoryIds.FIRMWAREVERSION));
             propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateFactory()));
             propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateVersionNumberAttributeName, true, new StringFactory()));
         }
