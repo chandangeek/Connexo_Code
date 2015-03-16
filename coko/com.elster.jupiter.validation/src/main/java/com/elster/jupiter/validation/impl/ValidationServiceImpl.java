@@ -61,7 +61,8 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Inject
     ValidationServiceImpl(Clock clock,MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
         this.clock = clock;
-        this.messageService = messageService;
+        //this.messageService = messageService;
+        setMessageService(messageService);
         this.eventService = eventService;
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -171,6 +172,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description);
         set.save();
         return set;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Override
@@ -508,5 +514,9 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     public Optional<DataValidationTask> findValidationTask(long id) {
         return dataModel.mapper(DataValidationTask.class).getOptional(id);
     }
-    
+
+    @Override
+    public Optional<DataValidationTask> findValidationTaskByName(String name) {
+        return dataModel.mapper(DataValidationTask.class).getOptional(name);
+    }
 }
