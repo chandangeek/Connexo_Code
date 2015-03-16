@@ -3,11 +3,10 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,36 +14,21 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.*;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -54,9 +38,14 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService {
 
+    public static final String DESTINATION_NAME = "DataValidation";
+    public static final String SUBSCRIBER_NAME = "DataValidation";
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile Clock clock;
+    private volatile MessageService messageService;
+    private volatile TaskService taskService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
@@ -64,15 +53,19 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
+    private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
     public ValidationServiceImpl() {
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
+    ValidationServiceImpl(Clock clock,MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
         this.clock = clock;
+        this.messageService = messageService;
         this.eventService = eventService;
         this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
+        this.taskService = taskService;
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -92,7 +85,9 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
             protected void configure() {
                 bind(Clock.class).toInstance(clock);
                 bind(EventService.class).toInstance(eventService);
+                bind(TaskService.class).toInstance(taskService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
                 bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
@@ -109,12 +104,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, eventService, thesaurus, userService).install(true, true);
+        new InstallerImpl(dataModel, eventService, thesaurus, userService,messageService).install(true, true);
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR");
+        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR", "MTG", TaskService.COMPONENTNAME);
 
     }
 
@@ -129,6 +124,16 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
@@ -166,6 +171,14 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description);
         set.save();
         return set;
+    }
+
+    @Override
+    public DestinationSpec getDestination() {
+        if (!destinationSpec.isPresent()) {
+            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
+        }
+        return destinationSpec.orElse(null);
     }
 
     @Override
@@ -475,5 +488,25 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 			.collect(Collectors.toList());				
 	}
 
+    @Override
+    public DataValidationTaskBuilder newTaskBuilder() {
+        return new DataValidationTaskBuilderImpl(dataModel, this);
+    }
+
+    @Override
+    public Query<DataValidationTask> findValidationTasksQuery(){
+        Query<DataValidationTask> ruleSetQuery = queryService.wrap(dataModel.query(DataValidationTask.class));
+        return ruleSetQuery;
+    }
+
+    @Override
+    public List<DataValidationTask> findValidationTasks() {
+        return findValidationTasksQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
+    }
+
+    @Override
+    public Optional<DataValidationTask> findValidationTask(long id) {
+        return dataModel.mapper(DataValidationTask.class).getOptional(id);
+    }
     
 }

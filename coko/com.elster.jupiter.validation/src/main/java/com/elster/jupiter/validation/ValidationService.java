@@ -1,10 +1,12 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -18,6 +20,8 @@ public interface ValidationService {
     /**
      * Mangagement of ruleSets and ules *
      */
+
+    DestinationSpec getDestination();
 
     ValidationRuleSet createValidationRuleSet(String name);
 
@@ -81,4 +85,12 @@ public interface ValidationService {
     
 	void addValidatorFactory(ValidatorFactory validatorfactory);
 	void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
+
+    DataValidationTaskBuilder newTaskBuilder();
+
+    List<DataValidationTask> findValidationTasks();
+
+    Query<DataValidationTask> findValidationTasksQuery();
+
+    Optional<DataValidationTask> findValidationTask(long id);
 }

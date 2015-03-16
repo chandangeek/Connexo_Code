@@ -29,6 +29,11 @@ import java.util.Set;
 
 import javax.inject.Provider;
 
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.validation.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -65,14 +70,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -88,11 +85,15 @@ public class ValidationServiceImplTest {
     private ValidationServiceImpl validationService;
 
     @Mock
+    private volatile MessageService messageService;
+    @Mock
     private EventService eventService;
     @Mock
     private ValidatorFactory factory;
     @Mock
     private Validator validator;
+    @Mock
+    private DataValidationTask iDataTask;
     @Mock
     private DataMapper<IValidationRuleSet> validationRuleSetFactory;
     @Mock
@@ -100,7 +101,13 @@ public class ValidationServiceImplTest {
     @Mock
     private DataMapper<MeterValidationImpl> meterValidationFactory;
     @Mock
+    private DataMapper<DataValidationTaskImpl> dataValidationTaskFactory;
+    @Mock
+    private DataMapper<DataValidationTask> dataValidationTaskFactory2;
+    @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private TaskService taskService;
     @Mock
     private Meter meter;
     @Mock
@@ -118,6 +125,8 @@ public class ValidationServiceImplTest {
     private Clock clock = Clock.systemDefaultZone();
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MeteringGroupsService meteringGroupsService;
     @Mock
     private NlsService nlsService;
     @Mock
@@ -148,15 +157,19 @@ public class ValidationServiceImplTest {
     private QueryExecutor<IChannelValidation> channelValidationQuery;
     @Mock
     private ValidatorCreator validatorCreator;
+    @Mock
+    private ValidationService dataValidationService;
 
     @Before
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
+        when(dataModel.<DataValidationTask>mapper(any())).thenReturn(dataValidationTaskFactory2);
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);        
         when(dataModel.mapper(IChannelValidation.class)).thenReturn(channelValidationFactory);
         when(dataModel.mapper(MeterValidationImpl.class)).thenReturn(meterValidationFactory);
+        when(dataModel.mapper(DataValidationTaskImpl.class)).thenReturn(dataValidationTaskFactory);
         when(dataModel.query(IChannelValidation.class, IMeterActivationValidation.class)).thenReturn(channelValidationQuery);
         when(channelValidationQuery.select(any())).thenReturn(Collections.emptyList());
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
@@ -164,13 +177,14 @@ public class ValidationServiceImplTest {
         when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
         when(queryService.wrap(eq(validationRuleQueryExecutor))).thenReturn(allValidationRuleQuery);
 
-        validationService = new ValidationServiceImpl(clock, eventService, meteringService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class)); 
+        validationService = new ValidationServiceImpl(clock,messageService , eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
         Provider<ValidationRuleImpl> provider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, provider));
+        when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> new DataValidationTaskImpl(dataModel,taskService,dataValidationService));
         when(dataModel.query(IMeterActivationValidation.class, IChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any())).thenReturn(nlsMessageFormat);
@@ -618,4 +632,34 @@ public class ValidationServiceImplTest {
         verify(dataModel, never()).getInstance(MeterValidationImpl.class);
 
     }
+    @Test
+    public void testCreateDataValidationTask() {
+        EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
+        DataValidationTask task = validationService.newTaskBuilder().setName(NAME).setEndDeviceGroup(endDeviceGroup).build();
+        verify(dataModel, never()).persist(task);
+        assertThat(task.getName()).isEqualTo(NAME);
+        assertThat(task.getEndDeviceGroup()).isEqualTo(endDeviceGroup);
+    }
+
+    @Test
+    public void testFindDataValidationTaskById() {
+        when(dataValidationTaskFactory2.getOptional(ID)).thenReturn(Optional.of(iDataTask));
+        assertThat(validationService.findValidationTask(ID).get()).isEqualTo(iDataTask);
+    }
+
+    @Test
+    public void testFindDataValidationTaskByIdNotFound() {
+        when(dataValidationTaskFactory2.getOptional(ID)).thenReturn(Optional.<DataValidationTask>empty());
+        assertThat(validationService.findValidationTask(ID).isPresent()).isFalse();
+    }
+
+//    @Test
+//    public void testFindDataValidationTasks(){
+//        when(dataValidationTaskFactory2.getOptional()).thenReturn(Optional.of(iDataTask));
+//        assertThat(validationService.findValidationTasks().
+//
+//    }
+
+
+
 }
