@@ -304,7 +304,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
      */
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROTOCOLDIALECT_REQUIRED + "}")
     public void testEnableWithoutProtocolDialect () {
         // Business method
         this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, null).add();
