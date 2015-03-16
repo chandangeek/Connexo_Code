@@ -38,8 +38,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService {
 
-    public static final String DESTINATION_NAME = "DataExport";
-    public static final String SUBSCRIBER_NAME = "DataExport";
+    public static final String DESTINATION_NAME = "DataValidation";
+    public static final String SUBSCRIBER_NAME = "DataValidation";
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
