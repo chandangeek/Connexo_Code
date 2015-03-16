@@ -2,6 +2,7 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -26,6 +27,8 @@ public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devto
     CodeFactory codeFactory;
     @Mock
     UserFileFactory userFileFactory;
+    @Mock
+    FirmwareService firmwareService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -42,6 +45,7 @@ public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devto
         application.setProtocolPluggableService(protocolPluggableService);
         application.setCodeFactory(codeFactory);
         application.setUserFileFactory(userFileFactory);
+        application.setFirmwareService(firmwareService);
         return application;
     }
 }

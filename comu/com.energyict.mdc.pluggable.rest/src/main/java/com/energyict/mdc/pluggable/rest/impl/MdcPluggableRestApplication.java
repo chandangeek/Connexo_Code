@@ -3,6 +3,7 @@ package com.energyict.mdc.pluggable.rest.impl;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
@@ -43,6 +44,7 @@ public class MdcPluggableRestApplication extends Application implements Translat
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile License license;
+    private volatile FirmwareService firmwareService;
     private NlsService nlsService;
     private Thesaurus thesaurus;
 
@@ -59,7 +61,8 @@ public class MdcPluggableRestApplication extends Application implements Translat
                 LoadProfileTypeResource.class,
                 CodeTableResource.class,
                 LocalizedFieldValidationExceptionMapper.class,
-                JsonMappingExceptionMapper.class);
+                JsonMappingExceptionMapper.class,
+                MdcPropertyUtils.class);
     }
 
     @Override
@@ -126,6 +129,11 @@ public class MdcPluggableRestApplication extends Application implements Translat
         this.license = license;
     }
 
+    @Reference
+    public void setFirmwareService(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -140,6 +148,7 @@ public class MdcPluggableRestApplication extends Application implements Translat
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(firmwareService).to(FirmwareService.class);
         }
     }
 
