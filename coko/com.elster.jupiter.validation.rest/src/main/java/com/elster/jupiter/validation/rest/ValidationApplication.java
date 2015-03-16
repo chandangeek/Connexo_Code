@@ -12,17 +12,17 @@ import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.impl.ServiceLocator;
 import com.google.common.collect.ImmutableSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.ws.rs.core.Application;
+import java.util.Set;
+
 @Component(name = "com.elster.jupiter.validation.rest" , service=Application.class , immediate = true , property = {"alias=/val", "app=SYS", "name=" + ValidationApplication.COMPONENT_NAME} )
-public class ValidationApplication extends Application implements ServiceLocator, BinderProvider {
+public class ValidationApplication extends Application implements BinderProvider {
     public static final String COMPONENT_NAME = "VAL";
 
 	private volatile ValidationService validationService;
@@ -30,7 +30,7 @@ public class ValidationApplication extends Application implements ServiceLocator
 	private volatile RestQueryService restQueryService;
     private volatile MeteringService meteringService;
 
-    private NlsService nlsService;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     
 	public Set<Class<?>> getClasses() {
@@ -40,26 +40,6 @@ public class ValidationApplication extends Application implements ServiceLocator
                 LocalizedFieldValidationExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class);
 	}
-
-	@Override
-	public ValidationService getValidationService() {
-		return validationService;
-	}
-
-	@Override
-	public TransactionService getTransactionService() {
-		return transactionService;
-	}
-
-	@Override
-	public RestQueryService getRestQueryService() {
-		return restQueryService;
-	}
-
-    @Override
-    public MeteringService getMeteringService() {
-        return meteringService;
-    }
 
 	@Reference
 	public void setValidationService(ValidationService validationService) {
