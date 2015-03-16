@@ -327,7 +327,7 @@ public class ComSessionCrudIT {
 
             SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet("sec").encryptionLevel(0).authenticationLevel(0).build();
 
-            ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(comTask, securityPropertySet, configDialectProps)
+            ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(comTask, securityPropertySet)
                     .useDefaultConnectionTask(true)
                     .add();
 
