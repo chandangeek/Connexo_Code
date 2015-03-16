@@ -44,8 +44,11 @@ public class EPM2200 extends Modbus {
         setRegisterFactory(new RegisterFactory(this));
     }
 
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
-        return "$Date: 2009-03-26 09:30:20 +0100 (do, 26 mrt 2009) $";
+        return "$Date$";
     }
 
     public String getFirmwareVersion() throws IOException {

@@ -2,7 +2,11 @@ package com.energyict.protocolimpl.modbus.multilin.epm2200;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -92,23 +96,23 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(3032, 2, ObisCode.fromString("1.1.14.3.0.255")).setParser("FLOAT"));     // Minimum frequency
 
         // + Primary maximum block
-        getRegisters().add(new HoldingRegister(3000, 2, ObisCode.fromString("1.1.132.6.0.255")).setParser("FLOAT"));    // Maximum RMS Phase-to-Neutral voltage V1N
-        getRegisters().add(new HoldingRegister(3002, 2, ObisCode.fromString("1.1.152.6.0.255")).setParser("FLOAT"));    // Maximum RMS Phase-to-Neutral voltage V2N
-        getRegisters().add(new HoldingRegister(3004, 2, ObisCode.fromString("1.1.172.6.0.255")).setParser("FLOAT"));    // Maximum RMS Phase-to-Neutral voltage V3N
-        getRegisters().add(new HoldingRegister(3006, 2, ObisCode.fromString("1.1.32.6.0.255")).setParser("FLOAT"));     // Maximum RMS Phase-to-Phase voltage V12
-        getRegisters().add(new HoldingRegister(3008, 2, ObisCode.fromString("1.1.52.6.0.255")).setParser("FLOAT"));     // Maximum RMS Phase-to-Phase voltage V23
-        getRegisters().add(new HoldingRegister(3010, 2, ObisCode.fromString("1.1.72.6.0.255")).setParser("FLOAT"));     // Maximum RMS Phase-to-Phase voltage V31
-        getRegisters().add(new HoldingRegister(3012, 2, ObisCode.fromString("1.1.31.6.0.255")).setParser("FLOAT"));     // Maximum RMS current on phase 1:L1
-        getRegisters().add(new HoldingRegister(3014, 2, ObisCode.fromString("1.1.51.6.0.255")).setParser("FLOAT"));     // Maximum RMS current on phase 2:L2
-        getRegisters().add(new HoldingRegister(3016, 2, ObisCode.fromString("1.1.51.6.0.255")).setParser("FLOAT"));     // Maximum RMS current on phase 3:L3
-        getRegisters().add(new HoldingRegister(3018, 2, ObisCode.fromString("1.1.1.6.0.255")).setParser("FLOAT"));      // Maximum Active power + Total
-        getRegisters().add(new HoldingRegister(3022, 2, ObisCode.fromString("1.1.2.6.0.255")).setParser("FLOAT"));      // Maximum Active power - Total
-        getRegisters().add(new HoldingRegister(3020, 2, ObisCode.fromString("1.1.3.6.0.255")).setParser("FLOAT"));      // Maximum Reactive power + Total
-        getRegisters().add(new HoldingRegister(3024, 2, ObisCode.fromString("1.1.4.6.0.255")).setParser("FLOAT"));      // Maximum Reactive power - Total
-        getRegisters().add(new HoldingRegister(3026, 2, ObisCode.fromString("1.1.9.6.0.255")).setParser("FLOAT"));      // Maximum Apparent power Total
-        getRegisters().add(new HoldingRegister(3028, 2, ObisCode.fromString("1.1.13.6.0.255")).setParser("FLOAT"));     // Maximum Total power factor +
-        getRegisters().add(new HoldingRegister(3030, 2, ObisCode.fromString("1.1.84.6.0.255")).setParser("FLOAT"));     // Maximum Total power factor -
-        getRegisters().add(new HoldingRegister(3032, 2, ObisCode.fromString("1.1.14.6.0.255")).setParser("FLOAT"));     // Maximum frequency
+        getRegisters().add(new HoldingRegister(3100, 2, ObisCode.fromString("1.1.132.6.0.255")).setParser("FLOAT"));    // Maximum RMS Phase-to-Neutral voltage V1N
+        getRegisters().add(new HoldingRegister(3102, 2, ObisCode.fromString("1.1.152.6.0.255")).setParser("FLOAT"));    // Maximum RMS Phase-to-Neutral voltage V2N
+        getRegisters().add(new HoldingRegister(3104, 2, ObisCode.fromString("1.1.172.6.0.255")).setParser("FLOAT"));    // Maximum RMS Phase-to-Neutral voltage V3N
+        getRegisters().add(new HoldingRegister(3106, 2, ObisCode.fromString("1.1.32.6.0.255")).setParser("FLOAT"));     // Maximum RMS Phase-to-Phase voltage V12
+        getRegisters().add(new HoldingRegister(3108, 2, ObisCode.fromString("1.1.52.6.0.255")).setParser("FLOAT"));     // Maximum RMS Phase-to-Phase voltage V23
+        getRegisters().add(new HoldingRegister(3110, 2, ObisCode.fromString("1.1.72.6.0.255")).setParser("FLOAT"));     // Maximum RMS Phase-to-Phase voltage V31
+        getRegisters().add(new HoldingRegister(3112, 2, ObisCode.fromString("1.1.31.6.0.255")).setParser("FLOAT"));     // Maximum RMS current on phase 1:L1
+        getRegisters().add(new HoldingRegister(3114, 2, ObisCode.fromString("1.1.51.6.0.255")).setParser("FLOAT"));     // Maximum RMS current on phase 2:L2
+        getRegisters().add(new HoldingRegister(3116, 2, ObisCode.fromString("1.1.51.6.0.255")).setParser("FLOAT"));     // Maximum RMS current on phase 3:L3
+        getRegisters().add(new HoldingRegister(3118, 2, ObisCode.fromString("1.1.1.6.0.255")).setParser("FLOAT"));      // Maximum Active power + Total
+        getRegisters().add(new HoldingRegister(3122, 2, ObisCode.fromString("1.1.2.6.0.255")).setParser("FLOAT"));      // Maximum Active power - Total
+        getRegisters().add(new HoldingRegister(3120, 2, ObisCode.fromString("1.1.3.6.0.255")).setParser("FLOAT"));      // Maximum Reactive power + Total
+        getRegisters().add(new HoldingRegister(3124, 2, ObisCode.fromString("1.1.4.6.0.255")).setParser("FLOAT"));      // Maximum Reactive power - Total
+        getRegisters().add(new HoldingRegister(3126, 2, ObisCode.fromString("1.1.9.6.0.255")).setParser("FLOAT"));      // Maximum Apparent power Total
+        getRegisters().add(new HoldingRegister(3128, 2, ObisCode.fromString("1.1.13.6.0.255")).setParser("FLOAT"));     // Maximum Total power factor +
+        getRegisters().add(new HoldingRegister(3130, 2, ObisCode.fromString("1.1.84.6.0.255")).setParser("FLOAT"));     // Maximum Total power factor -
+        getRegisters().add(new HoldingRegister(3132, 2, ObisCode.fromString("1.1.14.6.0.255")).setParser("FLOAT"));     // Maximum frequency
 
         // + Phase Angle Block
         getRegisters().add(new HoldingRegister(4100, 1, ObisCode.fromString("1.0.81.7.44.255")).setParser("SINT16"));   // RMS current, Phase angel L1
