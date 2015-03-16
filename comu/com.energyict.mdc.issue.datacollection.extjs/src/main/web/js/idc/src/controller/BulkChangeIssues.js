@@ -94,10 +94,6 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             issuesStoreProxy = issuesStore.getProxy(),
             widget;
 
-        issuesStoreProxy.extraParams = {};
-        issuesStoreProxy.setExtraParam('status', 'status.open');
-        issuesStoreProxy.setExtraParam('sort', 'dueDate');
-
         widget = Ext.widget('bulk-browse');
         me.getApplication().fireEvent('changecontentevent', widget);
         issuesStore.data.clear();
@@ -416,7 +412,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             selection = grid.getSelectionModel().getSelection();
 
         if (grid.isAllSelected()) {
-            selection = grid.store.data.items;
+            selection = grid.store.data.first.value;
         }
 
         record.set('issues', selection);
