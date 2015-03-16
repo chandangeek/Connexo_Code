@@ -54,8 +54,8 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
      */
     protected enum EncryptionAccessLevelIds {
         NO_MESSAGE_ENCRYPTION(0),
-        MESSAGE_ENCRYPTION(1),
-        MESSAGE_AUTHENTICATION(2),
+        MESSAGE_AUTHENTICATION(1),
+        MESSAGE_ENCRYPTION(2),
         MESSAGE_ENCRYPTION_AUTHENTICATION(3);
 
         private final int accessLevel;
