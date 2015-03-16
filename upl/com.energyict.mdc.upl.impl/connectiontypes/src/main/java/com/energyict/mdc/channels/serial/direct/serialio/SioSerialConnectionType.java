@@ -118,6 +118,11 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
     }
 
     @Override
+    protected BaudrateValue getBaudRateValue() {
+        return BaudrateValue.valueFor((BigDecimal) getProperty(SerialPortConfiguration.BAUDRATE_NAME));
+    }
+
+    @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> propertySpecs = new ArrayList<>(1);
         propertySpecs.add(this.flowControlPropertySpec());

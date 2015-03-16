@@ -39,7 +39,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         return this.propertySpecs.get(name);
     }
 
-    private void ensurePropertySpecsInitialized () {
+    private void ensurePropertySpecsInitialized() {
         if (this.propertySpecs == null) {
             Map<String, PropertySpec> temp = new HashMap<String, PropertySpec>();
             this.initializePropertySpecs(temp);
@@ -47,7 +47,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         }
     }
 
-    private void initializePropertySpecs (Map<String, PropertySpec> propertySpecs) {
+    private void initializePropertySpecs(Map<String, PropertySpec> propertySpecs) {
         propertySpecs.put(SerialPortConfiguration.BAUDRATE_NAME, this.baudRatePropertySpec());
         propertySpecs.put(SerialPortConfiguration.PARITY_NAME, this.parityPropertySpec());
         propertySpecs.put(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, this.nrOfStopBitsPropertySpec());
@@ -105,23 +105,28 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected Parities getParityValue() {
-        return Parities.valueFor((String) getProperty(SerialPortConfiguration.PARITY_NAME));
+        Parities value = Parities.valueFor((String) getProperty(SerialPortConfiguration.PARITY_NAME));
+        return value != null ? value : Parities.NONE;
     }
 
     protected FlowControl getFlowControlValue() {
-        return FlowControl.valueFor((String) getProperty(SerialPortConfiguration.FLOW_CONTROL_NAME));
+        FlowControl value = FlowControl.valueFor((String) getProperty(SerialPortConfiguration.FLOW_CONTROL_NAME));
+        return value != null ? value : FlowControl.NONE;
     }
 
     protected NrOfStopBits getNrOfStopBitsValue() {
-        return NrOfStopBits.valueFor((BigDecimal) getProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME));
+        NrOfStopBits value = NrOfStopBits.valueFor((BigDecimal) getProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME));
+        return value != null ? value : NrOfStopBits.ONE;
     }
 
     protected NrOfDataBits getNrOfDataBitsValue() {
-        return NrOfDataBits.valueFor((BigDecimal) getProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
+        NrOfDataBits value = NrOfDataBits.valueFor((BigDecimal) getProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
+        return value != null ? value : NrOfDataBits.EIGHT;
     }
 
     protected BaudrateValue getBaudRateValue() {
-        return BaudrateValue.valueFor((BigDecimal)getProperty(SerialPortConfiguration.BAUDRATE_NAME));
+        BaudrateValue value = BaudrateValue.valueFor((BigDecimal) getProperty(SerialPortConfiguration.BAUDRATE_NAME));
+        return value != null ? value : BaudrateValue.BAUDRATE_57600;
     }
 
     protected BigDecimal getPortOpenTimeOutValue() {

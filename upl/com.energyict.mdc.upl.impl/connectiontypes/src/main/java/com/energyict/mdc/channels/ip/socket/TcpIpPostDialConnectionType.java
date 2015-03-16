@@ -5,7 +5,9 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -118,11 +120,11 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(POST_DIAL_DELAY);
+        return PropertySpecFactory.bigDecimalPropertySpec(POST_DIAL_DELAY, BigDecimal.valueOf(DEFAULT_POST_DIAL_DELAY));
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(POST_DIAL_TRIES);
+        return PropertySpecFactory.bigDecimalPropertySpec(POST_DIAL_TRIES, BigDecimal.valueOf(DEFAULT_POST_DIAL_TRIES));
     }
 
     private PropertySpec postDialCommandPropertySpec() {
