@@ -77,13 +77,15 @@ public class ComTaskEnablementResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
 
-        ComTask comTask = comTaskEnablementInfo.comTask != null ? this.findComTaskOrThrowException(comTaskEnablementInfo.comTask.id) : null;
-        SecurityPropertySet securityPropertySet = comTaskEnablementInfo.securityPropertySet != null ?
+        ComTask comTask = comTaskEnablementInfo.comTask != null && comTaskEnablementInfo.comTask.id != null ?
+                this.findComTaskOrThrowException(comTaskEnablementInfo.comTask.id) : null;
+        SecurityPropertySet securityPropertySet = comTaskEnablementInfo.securityPropertySet != null && comTaskEnablementInfo.securityPropertySet.id != null  ?
                 resourceHelper.findAnySecurityPropertySetByIdOrThrowException(comTaskEnablementInfo.securityPropertySet.id) : null;
 
         ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = comTaskEnablementInfo.partialConnectionTask;
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablementInfo.protocolDialectConfigurationProperties != null ?
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablementInfo.protocolDialectConfigurationProperties != null
+                && comTaskEnablementInfo.protocolDialectConfigurationProperties.id != null ?
                 resourceHelper.findAnyProtocolDialectConfigurationPropertiesByIdOrThrowException(comTaskEnablementInfo.protocolDialectConfigurationProperties.id) : null;
 
         ComTaskEnablementBuilder comTaskEnablementBuilder = deviceConfiguration.enableComTask(comTask, securityPropertySet, protocolDialectConfigurationProperties)
