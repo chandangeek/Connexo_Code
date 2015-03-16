@@ -119,15 +119,12 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         }
 
         this.applySort();
-        Ext.suspendLayouts();
-        searchItems.down('#resultsPanel').removeAll();
-        searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults', {store: store}));
-        Ext.resumeLayouts();
+        store.load();
         var isFilterSet = this.isFilterFilled(searchItems);
         this.showSearchContentContainer(isFilterSet);
 
         if (isFilterSet) {
-            searchItems.down('#searchResults').store.on('load', function showResults() {
+            store.on('load', function showResults() {
                 searchItems.down('#contentLayout').getLayout().setActiveItem(1);
                 this.removeListener('load', showResults);
             });
