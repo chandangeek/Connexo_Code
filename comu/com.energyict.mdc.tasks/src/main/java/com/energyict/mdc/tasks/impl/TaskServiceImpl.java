@@ -55,12 +55,13 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
     }
 
     @Inject
-    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setEventService(eventService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        this.setMasterDataService(masterDataService);
         this.activate();
         this.install();
     }
