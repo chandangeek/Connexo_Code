@@ -40,6 +40,7 @@ import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -95,6 +96,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile FavoritesService favoritesService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile License license;
+    private volatile FirmwareService firmwareService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -310,6 +312,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.dataCollectionKpiService = dataCollectionKpiService;
     }
 
+    @Reference
+    public void setFirmwareService(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -359,6 +366,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);
             bind(DeviceGroupInfoFactory.class).to(DeviceGroupInfoFactory.class);
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
+            bind(firmwareService).to(FirmwareService.class);
         }
     }
 
