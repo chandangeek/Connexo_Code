@@ -199,9 +199,10 @@ public class CreateA3DeviceCommand {
     private void addComTasksToDeviceConfiguration(DeviceConfiguration configuration, ComTaskTpl... names){
         if (names != null) {
             for (ComTaskTpl comTaskTpl : names) {
-                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0), configuration.getProtocolDialectConfigurationPropertiesList().get(0))
+                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0))
                         .setIgnoreNextExecutionSpecsForInbound(true)
-                        .setPriority(100).add().save();
+                        .setPriority(100)
+                        .setProtocolDialectConfigurationProperties(configuration.getProtocolDialectConfigurationPropertiesList().get(0)).add().save();
             }
         }
     }

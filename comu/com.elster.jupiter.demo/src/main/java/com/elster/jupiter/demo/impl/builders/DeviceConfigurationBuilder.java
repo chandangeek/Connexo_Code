@@ -151,9 +151,10 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
                 throw new UnableToCreate("Please specify at least one security set");
             }
             for (ComTask comTask : comTasks) {
-                configuration.enableComTask(comTask, configuration.getSecurityPropertySets().get(0), configuration.getProtocolDialectConfigurationPropertiesList().get(0))
+                configuration.enableComTask(comTask, configuration.getSecurityPropertySets().get(0))
                         .setIgnoreNextExecutionSpecsForInbound(true)
-                        .setPriority(100).add().save();
+                        .setPriority(100)
+                        .setProtocolDialectConfigurationProperties(configuration.getProtocolDialectConfigurationPropertiesList().get(0)).add().save();
             }
         }
     }
