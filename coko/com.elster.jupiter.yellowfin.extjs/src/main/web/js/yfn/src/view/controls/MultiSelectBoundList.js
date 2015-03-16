@@ -13,6 +13,16 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
     componentLayout: 'multiselectboundlist',
 
 
+    listeners: {
+        'selectionchange': function() {
+            if (this.selModel.selected.length > 0) {
+                Ext.getCmp('clear-all-button').enable();
+            } else {
+                Ext.getCmp('clear-all-button').setDisabled(true);
+            }
+        }
+    },
+
     getRefItems: function() {
         var results = [];
         result.push(me.selectToolbar);
@@ -68,6 +78,7 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                             text: 'Select All',
                             handler: function(btn, e) {
                                 combo.select(combo.getStore().getRange());
+                                Ext.getCmp('clear-all-button').enable();
                                 //combo.setSelectedCount(combo.getStore().getRange().length);
                                 e.stopEvent();
                             }
@@ -79,7 +90,7 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                     items: [
                         {
                             xtype: 'button',
-                            itemId: 'clear-all-button',
+                            id: 'clear-all-button',
                             text: 'Clear All',
                             cls:'x-btn-default-small',
                             disabled: true,
