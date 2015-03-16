@@ -161,4 +161,9 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
         typedProperties.setProperty(ComChannelType.TYPE, comChannelType.getType());
         return typedProperties;
     }
+
+    @Override
+    public void injectConnectionTaskId(int connectionTaskId) {
+        // Not interested in this kind of info, sub-classes who need this can override
+    }
 }

@@ -1,6 +1,8 @@
 package com.energyict.mdc.channels.inbound;
 
-import com.energyict.cpo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -10,7 +12,11 @@ import com.energyict.mdc.tasks.ConnectionType;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Specific ConnectionType used for the EIWeb plus Protocol
@@ -115,5 +121,10 @@ public class EIWebPlusConnectionType implements ConnectionType {
     @Override
     public ConnectionTypeDirection getDirection() {
         return ConnectionTypeDirection.OUTBOUND;
+    }
+
+    @Override
+    public void injectConnectionTaskId(int connectionTaskId) {
+        // Not interested in this
     }
 }
