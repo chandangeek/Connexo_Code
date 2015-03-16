@@ -16,9 +16,9 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
     listeners: {
         'selectionchange': function() {
             if (this.selModel.selected.length > 0) {
-                Ext.getCmp('clear-all-button').enable();
+                Ext.getCmp(this.id + '-clear-all-button').enable();
             } else {
-                Ext.getCmp('clear-all-button').setDisabled(true);
+                Ext.getCmp(this.id + '-clear-all-button').setDisabled(true);
             }
         }
     },
@@ -78,7 +78,9 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                             text: 'Select All',
                             handler: function(btn, e) {
                                 combo.select(combo.getStore().getRange());
-                                Ext.getCmp('clear-all-button').enable();
+
+                                var dynIdClearButton = btn.up('container').up('toolbar').items.items[2].items.items[0].id;
+                                Ext.getCmp(dynIdClearButton).enable();
                                 //combo.setSelectedCount(combo.getStore().getRange().length);
                                 e.stopEvent();
                             }
@@ -90,7 +92,7 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                     items: [
                         {
                             xtype: 'button',
-                            id: 'clear-all-button',
+                            id: this.id + '-clear-all-button',
                             text: 'Clear All',
                             cls:'x-btn-default-small',
                             disabled: true,
