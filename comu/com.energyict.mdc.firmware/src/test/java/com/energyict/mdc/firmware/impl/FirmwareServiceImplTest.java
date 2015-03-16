@@ -6,6 +6,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -15,23 +17,14 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FirmwareServiceImplTest {
-
-    private DeviceType getMockedDeviceTypeWithMessageIds(DeviceMessageId... deviceMessageIds) {
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(new HashSet<>(Arrays.asList(deviceMessageIds)));
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
-        return deviceType;
-    }
+@RunWith(MockitoJUnitRunner.class)
+public class FirmwareServiceImplTest extends PersistenceTest {
 
     @Test
     public void getProtocolSupportedFirmwareOptionsWhenNoneAreApplicableTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
 
-        FirmwareServiceImpl firmwareService = new FirmwareServiceImpl();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
 
         assertThat(options).isEmpty();
@@ -41,7 +34,7 @@ public class FirmwareServiceImplTest {
     public void getProtocolSupportedFirmwareOptionsWithOnlyActivateImmediateTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
 
-        FirmwareServiceImpl firmwareService = new FirmwareServiceImpl();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
@@ -53,7 +46,7 @@ public class FirmwareServiceImplTest {
     public void getProtocolSupportedFirmwareOptionsWithOnlyActivateLaterTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER);
 
-        FirmwareServiceImpl firmwareService = new FirmwareServiceImpl();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
@@ -65,7 +58,7 @@ public class FirmwareServiceImplTest {
     public void getProtocolSupportedFirmwareOptionsWithOnlyActivateDateTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE);
 
-        FirmwareServiceImpl firmwareService = new FirmwareServiceImpl();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
@@ -80,7 +73,7 @@ public class FirmwareServiceImplTest {
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE
         );
 
-        FirmwareServiceImpl firmwareService = new FirmwareServiceImpl();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
@@ -98,7 +91,7 @@ public class FirmwareServiceImplTest {
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE
         );
 
-        FirmwareServiceImpl firmwareService = new FirmwareServiceImpl();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
@@ -122,7 +115,7 @@ public class FirmwareServiceImplTest {
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE
         );
 
-        FirmwareServiceImpl firmwareService = new FirmwareServiceImpl();
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
@@ -131,5 +124,15 @@ public class FirmwareServiceImplTest {
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER,
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE,
                 ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE))).isTrue();
+    }
+
+    private DeviceType getMockedDeviceTypeWithMessageIds(DeviceMessageId... deviceMessageIds) {
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(new HashSet<>(Arrays.asList(deviceMessageIds)));
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        return deviceType;
     }
 }

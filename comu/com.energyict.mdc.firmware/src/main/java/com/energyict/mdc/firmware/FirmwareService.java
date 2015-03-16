@@ -4,15 +4,18 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 /**
  * Provides Firmware related services
  */
-public interface FirmwareService {
+    public interface FirmwareService extends ReferencePropertySpecFinderProvider {
 
     public static String COMPONENTNAME = "FWC";
     
@@ -35,4 +38,13 @@ public interface FirmwareService {
 
     Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
 
+    /**
+     * Provides a list of all <i>upgradable</i> FirmwareVersions for the given Device.
+     * Depending on the FirmwareStatus of the FirmwareVersion and the DeviceLifeCycleStatus of the Device a filtered list will be provided.
+     * If no FirmwareVersions are available, an empty list will be returned.
+     *
+     * @param device the device which requests the FirmwareVersions
+     * @return a list of FirmwareVersions
+     */
+    List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device);
 }

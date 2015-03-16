@@ -20,6 +20,25 @@ import java.time.Instant;
 
 @UniqueFirmwareVersion(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class FirmwareVersionImpl implements FirmwareVersion {
+
+    enum Fields {
+        FIRMWAREVERSION("firmwareVersion"),
+        DEVICETYPE("deviceType"),
+        FIRMWARETYPE("firmwareType"),
+        FIRMWARESTATUS("firmwareStatus"),
+        FIRMWAREFILE("firmwareFile");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")

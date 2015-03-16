@@ -11,11 +11,18 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -41,7 +48,7 @@ import java.util.stream.Collectors;
  * Date: 3/5/15
  * Time: 10:33 AM
  */
-@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class, ReferencePropertySpecFinderProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
 public class FirmwareServiceImpl implements FirmwareService, InstallService, TranslationKeyProvider {
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -109,6 +116,13 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     @Override
     public Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType) {
         return dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
+    }
+
+    @Override
+    public List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device) {
+        Condition where = Where.where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.FINAL)
+                .and(Where.where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(device.getDeviceType()));
+        return findAllFirmwareVersions(where).find();
     }
 
     @Activate
@@ -187,5 +201,35 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
             keys.add(messageSeed);
         }
         return keys;
+    }
+
+    @Override
+    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+        ArrayList<CanFindByLongPrimaryKey<? extends HasId>> canFindByLongPrimaryKeys = new ArrayList<>();
+        canFindByLongPrimaryKeys.add(new FirmwareVersionFinder());
+        return canFindByLongPrimaryKeys;
+    }
+
+    public DataModel getDataModel() {
+        return this.dataModel;
+    }
+
+    private class FirmwareVersionFinder implements CanFindByLongPrimaryKey<FirmwareVersion> {
+
+        @Override
+        public FactoryIds factoryId() {
+            return FactoryIds.FIRMWAREVERSION;
+        }
+
+        @Override
+        public Class<FirmwareVersion> valueDomain() {
+            return FirmwareVersion.class;
+        }
+
+        @Override
+        public Optional<FirmwareVersion> findByPrimaryKey(long id) {
+            return getFirmwareVersionById(id);
+        }
+
     }
 }
