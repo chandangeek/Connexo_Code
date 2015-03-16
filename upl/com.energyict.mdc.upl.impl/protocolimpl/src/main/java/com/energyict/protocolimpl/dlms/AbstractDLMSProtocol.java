@@ -23,7 +23,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -33,6 +32,7 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -80,7 +80,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected int retries;
     protected int addressingMode;
     protected int informationFieldSize;
-    protected int wakeup;
     protected int cipheringType;
     protected String manufacturer;
     protected int opticalBaudrate;
