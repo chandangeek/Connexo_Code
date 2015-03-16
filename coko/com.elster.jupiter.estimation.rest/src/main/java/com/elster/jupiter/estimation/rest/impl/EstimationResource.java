@@ -7,14 +7,17 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -47,9 +50,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -199,6 +205,135 @@ public class EstimationResource {
         infos.total = toAdd.size();
         return infos;
     }
+
+    class RuleSetUsageInfo {
+        public boolean isInUse;
+    }
+
+    @GET
+    @Path("/{ruleSetId}/usage")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
+    public Response getValidationRuleSetUsage(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
+        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
+        RuleSetUsageInfo info = new RuleSetUsageInfo();
+        info.isInUse = estimationService.isEstimationRuleSetInUse(estimationRuleSet);
+        return Response.status(Response.Status.OK).entity(info).build();
+    }
+
+    @DELETE
+    @Path("/{ruleSetId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    public Response deleteEstimationRuleSet(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
+        transactionService.execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                estimationService.getEstimationRuleSet(ruleSetId).
+                        orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)).
+                        delete();
+            }
+        });
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @POST
+    @Path("/{ruleSetId}/rules")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    public Response addRule(@PathParam("ruleSetId") final long ruleSetId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
+        EstimationRuleInfo result =
+                transactionService.execute(() -> {
+                    EstimationRuleSet set = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                    EstimationRule rule = set.addRule(info.implementation, info.name);
+                    for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
+                        rule.addReadingType(readingTypeInfo.mRID);
+                    }
+                    PropertyUtils propertyUtils = new PropertyUtils();
+                    try {
+                        for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                            Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                            rule.addProperty(propertySpec.getName(), value);
+                        }
+                    } catch (EstimatorNotFoundException ex) {
+                    } finally {
+                        set.save();
+                    }
+                    return new EstimationRuleInfo(rule);
+                });
+        return Response.status(Response.Status.CREATED).entity(result).build();
+    }
+
+    @PUT
+    @Path("/{ruleSetId}/rules/{ruleId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    public EstimationRuleInfos editRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
+        EstimationRuleInfos result = new EstimationRuleInfos();
+        result.add(transactionService.execute(new Transaction<EstimationRule>() {
+            @Override
+            public EstimationRule perform() {
+                EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+                EstimationRule rule = getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
+
+                List<String> mRIDs = new ArrayList<>();
+                for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
+                    mRIDs.add(readingTypeInfo.mRID);
+                }
+                Map<String, Object> propertyMap = new HashMap<>();
+                PropertyUtils propertyUtils = new PropertyUtils();
+                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                    if (value != null) {
+                        propertyMap.put(propertySpec.getName(), value);
+                    }
+                }
+                rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
+                ruleSet.save();
+                return rule;
+            }
+        }));
+        return result;
+    }
+
+    @GET
+    @Path("/{ruleSetId}/rules/{ruleId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
+        EstimationRule rule = transactionService.execute((Transaction<EstimationRule>) () -> {
+            EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+            return getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
+        });
+        return Response.ok(new EstimationRuleInfo(rule)).build();
+    }
+
+    @DELETE
+    @Path("/{ruleSetId}/rules/{ruleId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    public Response removeRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
+        transactionService.execute(new Transaction<EstimationRule>() {
+            @Override
+            public EstimationRule perform() {
+                Optional<? extends EstimationRuleSet> ruleSetRef = estimationService.getEstimationRuleSet(ruleSetId);
+                if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                }
+                Optional<? extends EstimationRule> ruleRef = estimationService.getEstimationRule(ruleId);
+                if (!ruleRef.isPresent() || ruleRef.get().getObsoleteDate() != null) {
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
+                }
+
+                ruleSetRef.get().deleteRule(ruleRef.get());
+                return null;
+            }
+        });
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
 
     private enum Compare implements Comparator<Estimator> {
         BY_DISPLAY_NAME;
