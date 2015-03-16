@@ -68,6 +68,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     showBulkAction: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
+        me.getSearchItems().up().setLoading(true);
         me.saveState();
         router.getRoute('search/bulkAction').forward();
     },

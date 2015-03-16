@@ -134,6 +134,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.getStore('Mdc.store.DevicesBuffered').load({
                 callback: function () {
                     me.getApplication().fireEvent('changecontentevent', widget);
+                    widget.up().setLoading(false)
                 }
             });
             me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load();
