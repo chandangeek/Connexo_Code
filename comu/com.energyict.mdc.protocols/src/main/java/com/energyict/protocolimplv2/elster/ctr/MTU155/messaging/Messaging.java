@@ -133,7 +133,7 @@ public class Messaging implements DeviceMessageSupport {
                 return CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 UserFile userFile = (UserFile) messageAttribute;
                 return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
             default:

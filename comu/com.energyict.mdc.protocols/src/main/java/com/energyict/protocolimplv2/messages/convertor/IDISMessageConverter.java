@@ -38,7 +38,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.monitoredValueAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.normalThresholdAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
@@ -92,7 +92,7 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(configUserFileAttributeName)
-                || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+                || propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             UserFile userFile = (UserFile) messageAttribute;
             return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(monitoredValueAttributeName)) {
@@ -139,7 +139,7 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.MBUS_SETUP_COMMISSION, new SimpleTagMessageEntry("SlaveCommission"));
         registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_TIMEOUT_NOT_ADDRESSED, new MultipleAttributeMessageEntry("SetTimeOutNotAddressed", "timeout_not_addressed"));
 
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName, resumeFirmwareUpdateAttributeName));
         return registry;
     }
 

@@ -56,7 +56,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 return Integer.toString(((UserFile) messageAttribute).getId());
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
@@ -89,9 +89,9 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
 
         // Firmware
         registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
-                new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
+                new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName));
         registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE,
-                new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
+                new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
 
         // Pricing Information
         registry.put(DeviceMessageId.PRICING_GET_INFORMATION, new SimpleTagMessageEntry("ReadPricePerUnit"));

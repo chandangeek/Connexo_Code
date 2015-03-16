@@ -20,7 +20,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activationDatedAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 
 /**
  * Represents a MessageConverter for the Prime meter protocols
@@ -59,7 +59,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_MULTICAST_ADDRESSES, new MultipleAttributeMessageEntry("SetMulticastAddresses", "Address 1", "Address 2", "Address 3"));
         registry.put(DeviceMessageId.SECURITY_CHANGE_CLIENT_PASSWORDS, new MultipleAttributeMessageEntry("ChangePasswords", "reading", "management", "firmware"));
 
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName));
         return registry;
     }
 
@@ -73,7 +73,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(MulticastAddress2AttributeName)
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
             return ((HexString) messageAttribute).getContent();
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             return new String(((UserFile) messageAttribute).loadFileInByteArray());
         }
         return messageAttribute.toString();

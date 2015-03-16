@@ -32,7 +32,7 @@ public class IHDMessageConverter extends AbstractMessageConverter {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
                 return Integer.toString(((UserFile) messageAttribute).getId());
             default:
                 return messageAttribute.toString();
@@ -41,8 +41,8 @@ public class IHDMessageConverter extends AbstractMessageConverter {
 
     protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName));
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateUserFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, new WebRTUFirmwareUpgradeWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE, new WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName, DeviceMessageConstants.firmwareUpdateActivationDateAttributeName));
         return registry;
     }
 

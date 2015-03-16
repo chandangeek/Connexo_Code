@@ -39,7 +39,7 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
+        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
             return new String(((UserFile) messageAttribute).loadFileInByteArray(), Charset.forName(CHARSET)); // Content should be a valid XML
         } else {
             return messageAttribute.toString();

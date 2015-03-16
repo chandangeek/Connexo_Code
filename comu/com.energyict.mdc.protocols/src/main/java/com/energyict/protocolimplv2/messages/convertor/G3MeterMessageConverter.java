@@ -33,7 +33,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.consumerProducerModeAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.discoveryAttemptsSpeedAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.maxAgeTimeAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newHexPasswordAttributeName;
@@ -87,7 +87,7 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
             return convertCodeTableToXML((Code) messageAttribute);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             UserFile userFile = (UserFile) messageAttribute;
             return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
@@ -147,7 +147,7 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, new ActivityCalendarMessageEntry(activityCalendarTypeAttributeName, activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
         registry.put(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE, new SpecialDaysMessageEntry(activityCalendarTypeAttributeName, specialDaysCodeTableAttributeName));
 
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName, resumeFirmwareUpdateAttributeName, plcTypeFirmwareUpdateAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName, resumeFirmwareUpdateAttributeName, plcTypeFirmwareUpdateAttributeName));
         return registry;
     }
 

@@ -124,7 +124,7 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
             return convertCodeTableToXML((Code) messageAttribute);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             UserFile userFile = (UserFile) messageAttribute;
             return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)

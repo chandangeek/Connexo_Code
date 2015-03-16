@@ -90,7 +90,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
             case specialDaysCodeTableAttributeName:
                 return parseSpecialDays((Code) messageAttribute);
             case configUserFileAttributeName:
-            case firmwareUpdateUserFileAttributeName:
+            case firmwareUpdateFileAttributeName:
                 return new String(((UserFile) messageAttribute).loadFileInByteArray());
             case activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());     //Epoch

@@ -34,7 +34,7 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
             userFileAttributeName = DeviceMessageConstants.MeterScheme;
         }
         else {
-            userFileAttributeName = DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+            userFileAttributeName = DeviceMessageConstants.firmwareUpdateFileAttributeName;
         }
 
         OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileAttributeName);

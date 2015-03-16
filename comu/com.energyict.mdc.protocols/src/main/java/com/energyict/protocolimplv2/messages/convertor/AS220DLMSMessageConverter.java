@@ -123,7 +123,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(RawDataAttributeName)) {
             return ((HexString) messageAttribute).getContent();
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             UserFile userFile = (UserFile) messageAttribute;
             return new String(userFile.loadFileInByteArray());
         }
@@ -150,7 +150,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_REPEATER, new MultipleAttributeMessageEntry("SetSFSKRepeater", "REPEATER"));
 
         registry.put(DeviceMessageId.MBUS_SETUP_DECOMMISSION_ALL, new SimpleTagMessageEntry("DecommissionAll"));
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName));
         return registry;
     }
 

@@ -690,7 +690,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
@@ -701,7 +701,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-        String attributeValue = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateUserFileAttributeName);
+        String attributeValue = getDeviceMessageAttributeValue(pendingMessage, firmwareUpdateFileAttributeName);
         byte[] image = ProtocolTools.getBytesFromHexString(attributeValue, "");
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
