@@ -76,7 +76,8 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                 itemId: 'searchItemsToolbarBottom',
                 store: this.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page')
+                itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
+                deferLoading: true
             }
         ];
 
