@@ -160,7 +160,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new TaskModule(),
                 new TasksModule(),
                 new PluggableModule(),
-                new ValidationModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
                 new ValidationModule(),
