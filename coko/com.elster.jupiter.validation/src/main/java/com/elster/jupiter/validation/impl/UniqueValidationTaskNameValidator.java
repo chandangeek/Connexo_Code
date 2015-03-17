@@ -9,9 +9,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
 
-/**
- * Created by mandr on 3/16/2015.
- */
 public class UniqueValidationTaskNameValidator implements ConstraintValidator<UniqueName, DataValidationTask> {
 
     private String message;
@@ -34,11 +31,16 @@ public class UniqueValidationTaskNameValidator implements ConstraintValidator<Un
 
     private boolean checkExisting(DataValidationTask task, ConstraintValidatorContext context) {
         Optional<DataValidationTask> found = validationService.findValidationTaskByName(task.getName());
-        if (!found.isPresent()) {
+        if (!found.isPresent() || !areDifferentWithSameName(task, found.get())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
             return true;
         }
         return false;
     }
+
+    private boolean areDifferentWithSameName(DataValidationTask task, DataValidationTask existingTask) {
+        return existingTask.getName().equals(task.getName()) && (existingTask.getId() != task.getId());
+    }
+
 }
