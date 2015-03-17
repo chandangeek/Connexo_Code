@@ -86,6 +86,7 @@ public class BaseValidationRestTest extends JerseyTest {
 
         ResourceConfig resourceConfig = new ResourceConfig(
                 ValidationResource.class,
+                DataValidationTaskResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
         resourceConfig.register(JacksonFeature.class);
