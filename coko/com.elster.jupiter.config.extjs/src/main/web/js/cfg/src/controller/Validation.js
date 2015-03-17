@@ -174,6 +174,7 @@ Ext.define('Cfg.controller.Validation', {
         record.beginEdit();
         record.set('implementation', form.down('#validatorCombo').getValue());
         record.set('name', form.down('#addRuleName').getValue());
+        record.set('action', form.down('#dataQualityLevel').getValue().action);
 
         grid.getStore().each(function (rec) {
             readingTypes.push(rec.get('readingType'));

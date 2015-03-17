@@ -149,6 +149,29 @@ Ext.define('Cfg.view.validation.AddRule', {
                             margin: '0 0 0 275'
                         },
                         {
+                            xtype: 'radiogroup',
+                            itemId: 'dataQualityLevel',
+                            required: true,
+                            labelWidth: 260,
+                            width: 600,
+                            fieldLabel: Uni.I18n.translate('validation.dataQualityLevel', 'CFG', 'Data quality level'),
+                            columns: 1,
+                            vertical: true,
+                            items: [
+                                {
+                                    boxLabel: Uni.I18n.translate('validation.dataQualityLevelFail', 'CFG', 'Suspect'),
+                                    name: 'action',
+                                    inputValue: 'FAIL',
+                                    checked:true
+                                },
+                                {
+                                    boxLabel: Uni.I18n.translate('validation.dataQualityLevelWarnOnly', 'CFG', 'Informative'),
+                                    name: 'action',
+                                    inputValue: 'WARN_ONLY'
+                                },
+                            ]
+                        },
+                        {
                             xtype: 'property-form',
                             padding: '5 10 0 10',
                             width: '100%'
