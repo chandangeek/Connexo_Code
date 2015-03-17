@@ -153,9 +153,10 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.scheduleExpression = scheduleExpression;
         recurrentTaskDirty = true;
-        this.recurrentTask.get().setScheduleExpression(scheduleExpression);
+        if (recurrentTask.isPresent()) {
+            this.recurrentTask.get().setScheduleExpression(scheduleExpression);
+        }
     }
-
     public Optional<Instant> getLastRun() {
         return Optional.ofNullable(lastRun);
     }
