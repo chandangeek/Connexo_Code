@@ -262,6 +262,7 @@ public class EstimationResourceTest extends BaseEstimationRestTest {
 
         EstimationRuleSet ruleSet = mockEstimationRuleSet(13, false);
         EstimationRule rule = mockEstimationRuleInRuleSet(1L, ruleSet);
+        when(ruleSet.addRule(Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
 
         Response response = target("/estimation/13/rules").request().post(entity);
 
