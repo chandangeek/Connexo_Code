@@ -4,6 +4,8 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.associations.Effectivity;
 
+import java.time.Instant;
+
 /**
  * Models the {@link State} of an {@link EndDevice} over time.
  *
@@ -26,5 +28,13 @@ public interface EndDeviceLifeCycleStatus extends Effectivity {
      * @return The EndDevice
      */
     public State getState();
+
+    /**
+     * Closes this EndDeviceLifeCycleStatus so that it is
+     * only effective until the specified closing Date.
+     *
+     * @param closingDate The closing Date
+     */
+    public void close(Instant closingDate);
 
 }

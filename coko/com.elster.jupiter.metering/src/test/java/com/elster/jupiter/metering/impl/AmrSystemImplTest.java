@@ -45,17 +45,8 @@ public class AmrSystemImplTest {
 
     @Before
     public void setUp() {
-    	Provider<MeterImpl> meterFactory = new Provider<MeterImpl>() {
-			@Override
-			public MeterImpl get() {
-				return new MeterImpl(dataModel, eventService, deviceEventFactory, meteringService, thesaurus,meterActivationFactory);
-			}
-    	};
+    	Provider<MeterImpl> meterFactory = () -> new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus,meterActivationFactory);
         amrSystem = new AmrSystemImpl(dataModel, meteringService, meterFactory,endDeviceFactory).init(ID, NAME);
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test

@@ -53,4 +53,12 @@ public class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
         return this.interval;
     }
 
+    @Override
+    public void close(Instant closingDate) {
+        if (!isEffectiveAt(closingDate)) {
+            throw new IllegalArgumentException();
+        }
+        this.interval = this.interval.withEnd(closingDate);
+    }
+
 }

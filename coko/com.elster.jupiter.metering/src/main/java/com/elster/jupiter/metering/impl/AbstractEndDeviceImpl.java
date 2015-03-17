@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> implements EndDevice {
+public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> implements ServerEndDevice {
 	static final Map<String, Class<? extends EndDevice>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDevice>>of(EndDevice.TYPE_IDENTIFIER, EndDeviceImpl.class, Meter.TYPE_IDENTIFIER, MeterImpl.class);
 	// persistent fields
 	private long id;
@@ -55,15 +56,17 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     private StateManager stateManager = new NoDeviceLifeCycle();
 
+    private final Clock clock;
     private final DataModel dataModel;
     private final EventService eventService;
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
     private final S self;
 
-    AbstractEndDeviceImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory, Class<? extends S> selfType) {
+    AbstractEndDeviceImpl(Clock clock, DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory, Class<? extends S> selfType) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.deviceEventFactory = deviceEventFactory;
+        this.clock = clock;
         self = selfType.cast(this);
 	}
 
@@ -153,22 +156,62 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     }
 
     @Override
-    public Optional<State> getState() {
+    public void changeState(State newState) {
+        this.validateState(newState);
+        Instant now = this.clock.instant();
+        this.closeCurrentState(now);
+        this.createNewState(now, newState);
+        this.dataModel.touch(this);
+    }
+
+    private void validateState(State state) {
         if (this.isDeviceLifeCycleManaged()) {
-            Condition condition = where("endDevice").isEqualTo(this).and(where("interval").isEffective());
-            List<EndDeviceLifeCycleStatus> candidates = this.getDataModel().mapper(EndDeviceLifeCycleStatus.class).select(condition);
-            if (candidates.size() > 1) {
-                throw new NotUniqueException("Expected only a single " + EndDeviceLifeCycleStatus.class.getSimpleName() + " to be effective now for end device " + this.getMRID());
-            }
-            if (candidates.isEmpty()) {
-                return Optional.empty();
-            }
-            else {
-                return Optional.of(candidates.get(0).getState());
+            if (state.getFiniteStateMachine().getId() != this.getFiniteStateMachine().get().getId()) {
+                throw new IllegalArgumentException("Changing the state of an EndDevice to a state that is not part of its state machine is not allowed");
             }
         }
         else {
+            throw new UnsupportedOperationException("Changing the state of an EndDevice whose state is not managed is not possible");
+        }
+    }
+
+    private void closeCurrentState(Instant now) {
+        this.findCurrentDeviceLifeCycleStatus().ifPresent(s -> this.closeCurrentState(s, now));
+    }
+
+    private void closeCurrentState(EndDeviceLifeCycleStatus status, Instant now) {
+        status.close(now);
+        this.dataModel.update(status);
+    }
+    private void createNewState(Instant effective, State state) {
+        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
+        EndDeviceLifeCycleStatusImpl deviceLifeCycleStatus = this.dataModel
+                .getInstance(EndDeviceLifeCycleStatusImpl.class)
+                .initialize(stateEffectivityInterval, this, state);
+        this.dataModel.persist(deviceLifeCycleStatus);
+    }
+
+    @Override
+    public Optional<State> getState() {
+        if (this.isDeviceLifeCycleManaged()) {
+            return this.findCurrentDeviceLifeCycleStatus().map(EndDeviceLifeCycleStatus::getState);
+        }
+        else {
             return Optional.empty();
+        }
+    }
+
+    private Optional<EndDeviceLifeCycleStatus> findCurrentDeviceLifeCycleStatus() {
+        Condition condition = where("endDevice").isEqualTo(this).and(where("interval").isEffective());
+        List<EndDeviceLifeCycleStatus> candidates = this.getDataModel().mapper(EndDeviceLifeCycleStatus.class).select(condition);
+        if (candidates.size() > 1) {
+            throw new NotUniqueException("Expected only a single " + EndDeviceLifeCycleStatus.class.getSimpleName() + " to be effective now for end device " + this.getMRID());
+        }
+        if (candidates.isEmpty()) {
+            return Optional.empty();
+        }
+        else {
+            return Optional.of(candidates.get(0));
         }
     }
 
@@ -318,11 +361,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     private class CreateInitialState implements StateManager {
         @Override
         public StateManager save() {
-            Interval stateEffectivityInterval = Interval.of(Range.atLeast(getCreateTime()));
-            EndDeviceLifeCycleStatusImpl deviceLifeCycleStatus = dataModel
-                    .getInstance(EndDeviceLifeCycleStatusImpl.class)
-                    .initialize(stateEffectivityInterval, AbstractEndDeviceImpl.this, getFiniteStateMachine().get().getInitialState());
-            dataModel.persist(deviceLifeCycleStatus);
+            createNewState(getCreateTime(), getFiniteStateMachine().get().getInitialState());
             return new UpdateStateNotSupportedYet();
         }
     }

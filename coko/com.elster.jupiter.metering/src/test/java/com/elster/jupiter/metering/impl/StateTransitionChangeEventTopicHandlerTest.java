@@ -1,0 +1,80 @@
+package com.elster.jupiter.metering.impl;
+
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransitionChangeEvent;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
+
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+/**
+ * Tests the {@link StateTransitionChangeEventTopicHandler} component.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2015-03-17 (08:55)
+ */
+@RunWith(MockitoJUnitRunner.class)
+public class StateTransitionChangeEventTopicHandlerTest {
+
+    private static final long END_DEVICE_ID = 121;
+    private static final long MISSING_END_DEVICE_ID = 1;
+
+    @Mock
+    private FiniteStateMachineService stateMachineService;
+    @Mock
+    private MeteringService meteringService;
+    @Mock
+    private LocalEvent localEvent;
+    @Mock
+    private StateTransitionChangeEvent event;
+    @Mock
+    private State state;
+    @Mock
+    private ServerEndDevice endDevice;
+
+    @Before
+    public void initializeMocks() {
+        when(this.localEvent.getSource()).thenReturn(this.event);
+        when(this.event.getSourceId()).thenReturn(String.valueOf(MISSING_END_DEVICE_ID));
+        when(this.event.getNewState()).thenReturn(this.state);
+        when(this.meteringService.findEndDevice(MISSING_END_DEVICE_ID)).thenReturn(Optional.<EndDevice>empty());
+        when(this.meteringService.findEndDevice(END_DEVICE_ID)).thenReturn(Optional.of(this.endDevice));
+        when(this.endDevice.getId()).thenReturn(END_DEVICE_ID);
+    }
+
+    @Test
+    public void handlerAttemptsToFindTheEndDevice() {
+        // Business method
+        this.getTestInstance().handle(this.localEvent);
+
+        // Asserts
+        verify(this.meteringService).findEndDevice(anyLong());
+    }
+
+    @Test
+    public void handlerDelegatesToTheEndDevice() {
+        when(this.event.getSourceId()).thenReturn(String.valueOf(END_DEVICE_ID));
+
+        // Business method
+        this.getTestInstance().handle(this.localEvent);
+
+        // Asserts
+        verify(this.endDevice).changeState(this.state);
+    }
+
+    private StateTransitionChangeEventTopicHandler getTestInstance() {
+        return new StateTransitionChangeEventTopicHandler(this.stateMachineService, this.meteringService);
+    }
+
+}
