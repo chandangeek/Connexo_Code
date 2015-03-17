@@ -56,7 +56,9 @@ public class BaseEstimationRestTest extends JerseyTest {
     protected RestQueryService restQueryService;
     protected PropertyUtils propertyUtils;
     protected EstimationApplication estimationApplication;
-    
+    @Mock
+    private com.elster.jupiter.transaction.TransactionContext transactionContext;
+
     @Before
     public void setUp() throws Exception {
         when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
@@ -78,6 +80,7 @@ public class BaseEstimationRestTest extends JerseyTest {
                 return ((Transaction<?>)invocation.getArguments()[0]).perform();
             }
         });
+        when(transactionService.getContext()).thenReturn(transactionContext);
     }
     
     @After
