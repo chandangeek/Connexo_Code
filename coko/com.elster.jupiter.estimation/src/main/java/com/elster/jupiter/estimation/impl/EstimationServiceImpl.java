@@ -28,6 +28,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
@@ -74,6 +75,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     private volatile MessageService messageService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile UserService userService;
+    private volatile TimeService timeService;
 
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
@@ -81,7 +83,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Inject
-    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService) {
+    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService) {
         setMeteringService(meteringService);
         setOrmService(ormService);
         setQueryService(queryService);
@@ -90,6 +92,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         setTaskService(taskService);
         setMeteringGroupsService(meteringGroupsService);
         setMessageService(messageService);
+        setTimeService(timeService);
         activate();
         install();
     }
@@ -144,6 +147,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(EstimationService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Override
