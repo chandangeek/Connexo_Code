@@ -3,9 +3,7 @@ package com.elster.jupiter.validation.rest;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -23,6 +21,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/datavalidationtasks")
 public class DataValidationTaskResource {
@@ -69,14 +68,12 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
             Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public DataValidationTaskInfos getDataValidationTasks(@Context UriInfo uriInfo) {
+    public PagedInfoList getDataValidationTasks(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
-
-        DataValidationTaskInfos infos = new DataValidationTaskInfos(list);
-
-        return infos;
-
+        return PagedInfoList.asJson("dataValidationTasks", list.stream().map(dataValidationTask ->
+                new DataValidationTaskInfo(dataValidationTask)).collect(Collectors.toList())
+                , queryParameters);
     }
 
     @DELETE
