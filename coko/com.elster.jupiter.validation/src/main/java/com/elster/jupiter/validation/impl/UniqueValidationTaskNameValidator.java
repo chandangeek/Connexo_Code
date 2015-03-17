@@ -34,7 +34,7 @@ public class UniqueValidationTaskNameValidator implements ConstraintValidator<Un
 
     private boolean checkExisting(DataValidationTask task, ConstraintValidatorContext context) {
         Optional<DataValidationTask> found = validationService.findValidationTaskByName(task.getName());
-        if (found.isPresent()) {
+        if (!found.isPresent()) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
             return true;
