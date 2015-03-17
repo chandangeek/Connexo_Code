@@ -30,13 +30,11 @@ public class DataValidationTaskInfo {
     public String name = "blank_name";
     public MeterGroupInfo deviceGroup;
     public PeriodicalExpressionInfo schedule;
-    //public Instant lastRun;
     public Long nextRun;
     public Long lastRun;
-    //public Instant nextRun;
+    
 
-
-    public DataValidationTaskInfo(DataValidationTask dataValidationTask) {//), Thesaurus thesaurus, TimeService timeService) {
+    public DataValidationTaskInfo(DataValidationTask dataValidationTask) {
 
         id = dataValidationTask.getId();
         name = dataValidationTask.getName();
@@ -70,6 +68,12 @@ public class DataValidationTaskInfo {
     {
         return this.id;
     }
+
+    public String getName()
+    {
+        return this.name;
+    }
+
     public DataValidationTaskInfo() {
 
     }
