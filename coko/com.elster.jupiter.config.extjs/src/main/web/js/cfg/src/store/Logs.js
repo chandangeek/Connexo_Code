@@ -4,7 +4,7 @@ Ext.define('Cfg.store.Logs', {
     pageSize: 50,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/export/dataexporttask/{taskId}/history/{occurrenceId}',
+        urlTpl: '/api/val/datavalidationtasks/{taskId}/history/{occurrenceId}',
         reader: {
             type: 'json',
             root: 'data'

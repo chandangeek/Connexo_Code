@@ -107,7 +107,7 @@ Ext.define('Cfg.view.validationtask.HistoryFilterForm', {
                 },
                 {
                     xtype: 'datefield',
-                    name: 'exportPeriodContains',
+                    name: 'validationPeriodContains',
                     labelAlign: 'top',
                     fieldLabel: Uni.I18n.translate('dataValidationTasks.validationPeriod', 'CFG', 'Validation period contains'),
                     rawToValue: function (rawValue) {

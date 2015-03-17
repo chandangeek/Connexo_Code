@@ -10,6 +10,6 @@ Ext.define('Cfg.model.HistoryFilter', {
         { name: 'startedOnTo', type: 'number', useNull: true },
         { name: 'finishedOnFrom', type: 'number', useNull: true },
         { name: 'finishedOnTo', type: 'number', useNull: true },
-        { name: 'exportPeriodContains', type: 'number', useNull: true }
+        { name: 'validationPeriodContains', type: 'number', useNull: true }
     ]
 });

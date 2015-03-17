@@ -5,11 +5,11 @@ Ext.define('Cfg.store.DataValidationTasks', {
 
     proxy: {
         type: 'rest',
-        url: '/api/export/dataexporttask',
+        url: '/api/val/datavalidationtasks',
         timeout: 240000,
         reader: {
             type: 'json',
-            root: 'dataExportTasks'
+            root: 'dataValidationTasks'
         }
     }
 });

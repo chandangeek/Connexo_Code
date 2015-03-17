@@ -1,10 +1,19 @@
 Ext.define('Cfg.model.DataValidationTask', {
     extend: 'Ext.data.Model',
-    requires: [
+   /* requires: [
         'Uni.property.model.Property'
-    ],
+    ],*/
     fields: [
-        'id', 'name', 'deviceGroup', 'dataProcessor', 'schedule', 'exportperiod', 'properties', 'readingTypes', 'nextRun', 'lastRun',
+	'id', 'name', 'deviceGroup', 'schedule'
+	],
+	  proxy: {
+        type: 'rest',
+        url: '/api/val/datavalidationtasks',
+        reader: {
+            type: 'json'
+        }
+    }
+  /*      'id', 'name', 'deviceGroup', 'dataProcessor', 'schedule', 'exportperiod', 'properties', 'readingTypes', 'nextRun', 'lastRun',
         {
             name: 'lastExportOccurence',
             persist: false
@@ -122,5 +131,5 @@ Ext.define('Cfg.model.DataValidationTask', {
         reader: {
             type: 'json'
         }
-    }
+    }*/
 });

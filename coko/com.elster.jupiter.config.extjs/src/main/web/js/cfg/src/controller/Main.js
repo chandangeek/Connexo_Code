@@ -8,9 +8,12 @@ Ext.define('Cfg.controller.Main', {
     controllers: [
         'Cfg.controller.history.Validation',
         'Cfg.controller.history.EventType',
+        'Cfg.controller.history.ValidationTask',
         'Cfg.controller.Administration',
         'Cfg.controller.Validation',
-        'Cfg.controller.EventType'
+        'Cfg.controller.EventType',
+        'Cfg.controller.Tasks',
+        'Cfg.controller.Log'
     ],
 
     refs: [
@@ -21,6 +24,20 @@ Ext.define('Cfg.controller.Main', {
     ],
 
     init: function () {
+        this.initHistorians();
+        this.initMenu();
+    },
+
+    /**
+     * Forces history registration.
+     */
+    initHistorians: function () {
+        this.getController('Cfg.controller.history.Validation');
+        this.getController('Cfg.controller.history.ValidationTask');
+    },
+
+    initMenu: function () {
+
         var me = this;
         if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
                                     'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'])) {
@@ -42,9 +59,15 @@ Ext.define('Cfg.controller.Main', {
                         text: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
                         href: '#/administration/validation/rulesets',
                         itemId: 'lnk-validation-rule-sets'
+                    },
+                    {
+                        text: Uni.I18n.translate('dataValidationTasks.general.dataValidationTasks', 'CFG', 'Data validation tasks'),
+                        href: '#/administration/datavalidationtasks',
+                        itemId: 'lnk-data-validation-tasks'
                     }
                 ]
             });
+
 
             Uni.store.PortalItems.add(
                 portalItem1

@@ -5,7 +5,7 @@ Ext.define('Cfg.store.DataValidationTasksHistory', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/export/dataexporttask/{taskId}/history',
+        urlTpl: '/api/val/datavalidationtasks/{taskId}/history',
         reader: {
             type: 'json',
             root: 'data'

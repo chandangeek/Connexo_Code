@@ -55,8 +55,7 @@ Ext.define('Cfg.controller.Tasks', {
     fromDetails: false,
     fromEdit: false,
     taskModel: null,
-    taskId: null,
-    readingTypeIndex: 2,
+    taskId: null,    
 
     init: function () {
         this.control({
@@ -139,7 +138,6 @@ Ext.define('Cfg.controller.Tasks', {
             taskModel = me.getModel('Cfg.model.DataValidationTask'),
             view;
 
-
         store.getProxy().setUrl(router.arguments);
         view = Ext.widget('data-validation-tasks-history', {
             router: router,
@@ -175,9 +173,6 @@ Ext.define('Cfg.controller.Tasks', {
             }
 
             previewForm.loadRecord(record);
-            /*if (record.data.properties && record.data.properties.length) {
-                previewForm.down('property-form').loadRecord(record.getTask());
-            }*/
             Ext.resumeLayouts(true);
         }
     },
@@ -190,7 +185,6 @@ Ext.define('Cfg.controller.Tasks', {
 
         me.getApplication().fireEvent('changecontentevent', view);
 
-        //Ext.util.History.on('change', this.checkRoute, this);
         me.taskModel = null;
         me.taskId = null;
         me.fromEdit = false;		
@@ -231,7 +225,6 @@ Ext.define('Cfg.controller.Tasks', {
         }
         me.fromEdit = true;
         me.taskId = taskId;
-        //Ext.util.History.on('change', this.checkRoute, this);
     		
 		 taskModel.load(taskId, {
                     success: function (record) {
@@ -251,7 +244,8 @@ Ext.define('Cfg.controller.Tasks', {
                                     deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
                                 }
                             });      
-							if (record.data.nextRun && (record.data.nextRun !== 0)) {
+							//if (record.data.nextRun && (record.data.nextRun !== 0)) {
+							if (schedule) {
                                 view.down('#recurrence-trigger').setValue({recurrence: true});
                                 view.down('#recurrence-number').setValue(schedule.count);
                                 recurrenceTypeCombo.setValue(schedule.timeUnit);
@@ -269,29 +263,7 @@ Ext.define('Cfg.controller.Tasks', {
         view.setLoading();
     },
 
-    showDataSources: function (currentTaskId) {
-	debugger;
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            taskModel = me.getModel('Cfg.model.DataValidationTask'),
-            store = me.getStore('Cfg.store.DataSources'),
-            view;
-
-        store.getProxy().setUrl(router.arguments);
-        view = Ext.widget('data-sources-setup', {
-            router: router,
-            taskId: currentTaskId
-        });
-        me.getApplication().fireEvent('changecontentevent', view);
-        taskModel.load(currentTaskId, {
-            success: function (record) {
-                me.getApplication().fireEvent('datavalidationtaskload', record);
-                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
-            }
-        });
-    },
-
-    showPreview: function (selectionModel, record) {
+    showPreview: function (selectionModel, record) {	
         var me = this,
             page = me.getPage(),
             preview = page.down('tasks-preview'),
@@ -359,32 +331,32 @@ Ext.define('Cfg.controller.Tasks', {
 
         me.getSideFilterForm().loadRecord(filter);
         for (var f in filter.getData()) {
-            var name = '', exportPeriod;
+            var name = '', validationPeriod;
             switch (f) {
                 case 'startedOnFrom':
-                    name = Uni.I18n.translate('general.startedFrom', 'DES', 'Started from');
+                    name = Uni.I18n.translate('dataValidationTasks.general.startedFrom', 'CFG', 'Started from');
                     break;
                 case 'startedOnTo':
-                    name = Uni.I18n.translate('general.startedTo', 'DES', 'Started to');
+                    name = Uni.I18n.translate('dataValidationTasks.general.startedTo', 'CFG', 'Started to');
                     break;
                 case 'finishedOnFrom':
-                    name = Uni.I18n.translate('general.finishedFrom', 'DES', 'Finished from');
+                    name = Uni.I18n.translate('dataValidationTasks.general.finishedFrom', 'CFG', 'Finished from');
                     name = 'Finished from';
                     break;
                 case 'finishedOnTo':
-                    name = Uni.I18n.translate('general.finishedTo', 'DES', 'Finished to');
+                    name = Uni.I18n.translate('dataValidationTasks.general.finishedTo', 'CFG', 'Finished to');
                     break;
-                case 'exportPeriodContains':
-                    name = Uni.I18n.translate('general.exportPeriodContains', 'DES', 'Export period contains');
-                    exportPeriod = true;
+                case 'validationPeriodContains':
+                    name = Uni.I18n.translate('dataValidationTasks.general.validationPeriod', 'CFG', 'Validation period contains');
+                    validationPeriod = true;
                     break;
             }
             if (!Ext.isEmpty(filter.get(f))) {
                 date = new Date(filter.get(f));
-                me.getFilterTopPanel().setFilter(f, name, exportPeriod
+                me.getFilterTopPanel().setFilter(f, name, validationPeriod
                     ? Uni.DateTime.formatDateLong(date)
                     : Uni.DateTime.formatDateLong(date)
-                + ' ' + Uni.I18n.translate('general.at', 'DES', 'At').toLowerCase() + ' '
+                + ' ' + Uni.I18n.translate('dataValidationTasks.general.at', 'CFG', 'At').toLowerCase() + ' '
                 + Uni.DateTime.formatTimeShort(date));
             }
         }
@@ -428,8 +400,8 @@ Ext.define('Cfg.controller.Tasks', {
                 if (json && json.errors) {
                     errorText = json.errors[0].msg;
                 }
-                //me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('dataValidationTasks.general.remove.error.msg', 'CFG', 'Remove operation failed'), errorText);
-                if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
+               
+			   if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
                     Ext.widget('messagebox', {
                         itemId: 'remove-error-messagebox',
                         buttons: [
@@ -573,11 +545,6 @@ Ext.define('Cfg.controller.Tasks', {
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
-                        Ext.Array.each(json.errors, function (item) {
-                            if (item.id.indexOf("readingTypes") !== -1) {
-                                form.down('#readingTypesFieldContainer').setActiveError(item.msg);
-                            }
-                        });
                         form.getForm().markInvalid(json.errors);
                         formErrorsPanel.show();
                     }
