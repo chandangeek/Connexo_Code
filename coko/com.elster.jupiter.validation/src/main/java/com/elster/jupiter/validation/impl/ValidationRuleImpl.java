@@ -1,15 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import java.time.Instant;
-import java.util.*;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
@@ -34,7 +24,20 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.collect.ImmutableMap;
 
-@XmlRootElement
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public final class ValidationRuleImpl implements IValidationRule {
@@ -223,12 +226,7 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public List<ValidationRuleProperties> getProperties() {
-        List<ValidationRuleProperties> propertyList = new ArrayList<>();
-        for (ValidationRuleProperties validationRuleProperties : properties) {
-            propertyList.add(validationRuleProperties);
-        }
-        return propertyList;
-        //return Collections.unmodifiableList(properties);
+        return Collections.unmodifiableList(properties);
     }
 
     @Override
