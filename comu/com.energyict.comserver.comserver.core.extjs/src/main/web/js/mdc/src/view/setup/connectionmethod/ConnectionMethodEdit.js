@@ -155,11 +155,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 },
                                 items: [
                                     {
-                                        xtype: 'displayfield',
-                                        value: Uni.I18n.translate('connectionmethod.every', 'MDC', 'Every'),
-                                        margin: '0 10 0 0'
-                                    },
-                                    {
                                         xtype: 'timeInfoField',
                                         name: 'rescheduleRetryDelay',
                                         itemId: 'rescheduleRetryDelay',
