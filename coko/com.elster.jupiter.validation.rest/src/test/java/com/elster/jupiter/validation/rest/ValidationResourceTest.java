@@ -282,6 +282,35 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     }
 
     @Test
+    public void testAddValidationRuleWarnOnly() {
+        final ValidationRuleInfo info = new ValidationRuleInfo();
+        info.name = "MyRule";
+        info.implementation = "com.blablabla.Validator";
+        info.properties = createPropertyInfos();
+        info.action = ValidationAction.WARN_ONLY;
+
+        Entity<ValidationRuleInfo> entity = Entity.json(info);
+
+        ValidationRuleSet ruleSet = mockValidationRuleSet(13, false);
+        ValidationRule rule = mockValidationRuleInRuleSet(1L, ruleSet);
+        when(rule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
+        when(ruleSet.addRule(Matchers.eq(ValidationAction.WARN_ONLY), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
+
+        Response response = target("/validation/13/rules").request().post(entity);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        ValidationRuleInfo resultInfo = response.readEntity(ValidationRuleInfo.class);
+        assertThat(resultInfo.name).isEqualTo("MyRule");
+        assertThat(resultInfo.action).isEqualTo(ValidationAction.WARN_ONLY);
+
+        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
+        verify(rule).addProperty("nullableboolean", false);
+        verify(rule).addProperty("boolean", true);
+        verify(rule).addProperty("text", "string");
+        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+    }
+
+    @Test
     public void testAddValidationRuleToNonExistingRuleSet() {
         final ValidationRuleInfo info = new ValidationRuleInfo();
         info.name = "MyRule";
@@ -363,6 +392,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.name = "MyRuleUpdated";
         info.implementation = "com.blablabla.Validator";
         info.properties = new ArrayList<>();
+        info.action = ValidationAction.FAIL;
 
         ValidationRuleSet ruleSet = mockValidationRuleSet(13, true);
         ValidationRule rule = ruleSet.getRules().get(0);
@@ -371,6 +401,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
                 Matchers.eq(1L),
                 Matchers.eq("MyRuleUpdated"),
                 Matchers.eq(false),
+                Matchers.eq(ValidationAction.FAIL),
                 Matchers.eq(new ArrayList<>()),
                 Matchers.eq(new HashMap<>()))).
                 thenReturn(rule);
@@ -384,6 +415,40 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         assertThat(resultInfos.total).isEqualTo(1);
         assertThat(resultInfos.rules).hasSize(1);
         assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRuleUpdated");
+        assertThat(resultInfos.rules.get(0).action).isEqualTo(ValidationAction.FAIL);
+    }
+
+    @Test
+    public void testEditValidationRuleWarnOnly() {
+        final ValidationRuleInfo info = new ValidationRuleInfo();
+        info.name = "MyRuleUpdated";
+        info.implementation = "com.blablabla.Validator";
+        info.properties = new ArrayList<>();
+        info.action = ValidationAction.WARN_ONLY;
+
+        ValidationRuleSet ruleSet = mockValidationRuleSet(13, true);
+        ValidationRule rule = ruleSet.getRules().get(0);
+        when(rule.getName()).thenReturn("MyRuleUpdated");
+        when(rule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
+        when(ruleSet.updateRule(
+                Matchers.eq(1L),
+                Matchers.eq("MyRuleUpdated"),
+                Matchers.eq(false),
+                Matchers.eq(ValidationAction.WARN_ONLY),
+                Matchers.eq(new ArrayList<>()),
+                Matchers.eq(new HashMap<>()))).
+                thenReturn(rule);
+
+        Entity<ValidationRuleInfo> entity = Entity.json(info);
+        Response response = target("/validation/13/rules/1").request().put(entity);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
+        assertThat(resultInfos.total).isEqualTo(1);
+        assertThat(resultInfos.rules).hasSize(1);
+        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRuleUpdated");
+        assertThat(resultInfos.rules.get(0).action).isEqualTo(ValidationAction.WARN_ONLY);
     }
 
     @Test
@@ -454,6 +519,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         ValidationRule rule = mock(ValidationRule.class);
         when(rule.getName()).thenReturn("MyRule");
         when(rule.getId()).thenReturn(id);
+        when(rule.getAction()).thenReturn(ValidationAction.FAIL);
         when(rule.getImplementation()).thenReturn("com.blablabla.Validator");
         when(rule.getDisplayName()).thenReturn("My rule");
         when(rule.isActive()).thenReturn(true);

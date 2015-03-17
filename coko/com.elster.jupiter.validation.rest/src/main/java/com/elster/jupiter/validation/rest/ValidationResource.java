@@ -179,7 +179,7 @@ public class ValidationResource {
         ValidationRuleInfo result =
         transactionService.execute(() -> {
             ValidationRuleSet set = validationService.getValidationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-            ValidationRule rule = set.addRule(ValidationAction.FAIL, info.implementation, info.name);
+            ValidationRule rule = set.addRule(info.action, info.implementation, info.name);
             for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
                 rule.addReadingType(readingTypeInfo.mRID);
             }
@@ -223,7 +223,7 @@ public class ValidationResource {
                         propertyMap.put(propertySpec.getName(), value);
                     }
                 }
-                rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
+                rule = ruleSet.updateRule(ruleId, info.name, info.active, info.action, mRIDs, propertyMap);
                 ruleSet.save();
                 return rule;
             }

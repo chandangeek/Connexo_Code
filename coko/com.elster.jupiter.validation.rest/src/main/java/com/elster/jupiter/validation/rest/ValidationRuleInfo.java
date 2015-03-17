@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 
 import java.util.*;
@@ -17,6 +18,7 @@ public class ValidationRuleInfo {
     public String displayName; // readable name
     public String name;
     public int position;
+    public ValidationAction action = ValidationAction.FAIL;
     public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
     public ValidationRuleSetInfo ruleSet;
@@ -26,6 +28,7 @@ public class ValidationRuleInfo {
         active = validationRule.isActive();
         implementation = validationRule.getImplementation();
         displayName = validationRule.getDisplayName();
+        action = validationRule.getAction();
         name = validationRule.getName();
         deleted = validationRule.isObsolete();
         ruleSet = new ValidationRuleSetInfo(validationRule.getRuleSet());
