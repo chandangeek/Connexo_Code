@@ -168,7 +168,7 @@ public class DeviceDataGoGoCommands {
                 ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
                 List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
                 for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
-                    comTaskExecutions.add(device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties).add());
+                    comTaskExecutions.add(device.newAdHocComTaskExecution(comTaskEnablement).add());
                 }
                 return comTaskExecutions;
             }

@@ -329,9 +329,10 @@ public class ComSessionCrudIT {
 
             ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(comTask, securityPropertySet)
                     .useDefaultConnectionTask(true)
+                    .setProtocolDialectConfigurationProperties(configDialectProps)
                     .add();
 
-            comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement, configDialectProps)
+            comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement)
                     .useDefaultConnectionTask(true)
                     .connectionTask(connectionTask)
                     .add();

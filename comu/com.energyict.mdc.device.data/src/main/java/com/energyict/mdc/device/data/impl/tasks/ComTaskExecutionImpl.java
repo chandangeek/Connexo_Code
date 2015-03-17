@@ -65,11 +65,13 @@ import java.util.TimeZone;
 public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution {
     protected static final String SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR = "0";
     protected static final String MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR = "1";
+    protected static final String FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR = "2";
 
     public static final Map<String, Class<? extends ComTaskExecution>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ComTaskExecution>>of(
                     SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR, ScheduledComTaskExecutionImpl.class,
-                    MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR, ManuallyScheduledComTaskExecutionImpl.class);
+                    MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR, ManuallyScheduledComTaskExecutionImpl.class,
+                    FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR, FirmwareComTaskExecutionImpl.class);
 
     private final Clock clock;
     private final CommunicationTaskService communicationTaskService;
