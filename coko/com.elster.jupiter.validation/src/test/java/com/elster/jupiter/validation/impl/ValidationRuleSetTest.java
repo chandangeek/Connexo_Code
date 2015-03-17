@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
@@ -149,6 +151,16 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     }
 
     @Test
+    public void testPersistWithRulesWarnOnly() {
+        validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
+        validationRuleSet.addRule(ValidationAction.WARN_ONLY, "B", "rulename2");
+
+        validationRuleSet.save();
+
+        verify(dataModel).persist(validationRuleSet);
+    }
+
+    @Test
     public void testDeleteWithRules() {
         ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
         validationRuleSet.save();
@@ -180,6 +192,25 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
         verify(dataModel).update(validationRuleSet);
         assertThat(validationRuleSet.getRules()).hasSize(2).contains(rule2, rule3);
+
+    }
+
+    @Test
+    public void testUpdateRuleAction() {
+        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
+        validationRuleSet.save();
+        setId(validationRuleSet, ID);
+        setId(rule1, 1001L);
+        when(ruleFactory.find()).thenReturn(Arrays.asList(rule1));
+        validationRuleSet.save();
+        assertThat(rule1.getAction()).isEqualTo(ValidationAction.FAIL);
+
+        rule1 = validationRuleSet.updateRule(1001L, "rulename2", true, ValidationAction.WARN_ONLY, Collections.emptyList(), rule1.getProps());
+        validationRuleSet.save();
+
+        assertThat(validationRuleSet.getRules()).hasSize(1).contains(rule1);
+        assertThat(rule1.getName()).isEqualTo("rulename2");
+        assertThat(rule1.getAction()).isEqualTo(ValidationAction.WARN_ONLY);
 
     }
 

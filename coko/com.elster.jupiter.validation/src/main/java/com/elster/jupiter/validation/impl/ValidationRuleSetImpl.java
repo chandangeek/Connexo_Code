@@ -240,13 +240,14 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public IValidationRule updateRule(long id, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
+    public IValidationRule updateRule(long id, String name, boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
         IValidationRule rule = getExistingRule(id);
-        return doUpdateRule(rule, name, activeStatus, mRIDs, properties);
+        return doUpdateRule(rule, name, activeStatus, action,  mRIDs, properties);
     }
 
-    private IValidationRule doUpdateRule(IValidationRule rule, String name,  boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
+    private IValidationRule doUpdateRule(IValidationRule rule, String name,  boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
         rule.rename(name);
+        rule.setAction(action);
 
         if (activeStatus != rule.isActive()) {
             rule.toggleActivation();

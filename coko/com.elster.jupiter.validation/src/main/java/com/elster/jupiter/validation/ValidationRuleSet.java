@@ -31,7 +31,7 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     ValidationRule addRule(ValidationAction action, String implementation, String name);
 
-    ValidationRule updateRule(long id, String name, boolean active, List<String> mRIDs, Map<String, Object> properties);
+    ValidationRule updateRule(long id, String name, boolean active, ValidationAction action,  List<String> mRIDs, Map<String, Object> properties);
 
     void deleteRule(ValidationRule rule);
 
