@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationService;
 import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -47,7 +48,9 @@ public class BaseValidationRestTest extends JerseyTest {
     protected RestQueryService restQueryService;
     protected PropertyUtils propertyUtils;
     protected ValidationApplication serviceLocator;
-    
+    @Mock
+    protected DataValidationTask dataValidationTask;
+
     @Before
     public void setUp() throws Exception {
         super.setUp();

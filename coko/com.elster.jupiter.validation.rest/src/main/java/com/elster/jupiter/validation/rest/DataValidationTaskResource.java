@@ -1,58 +1,35 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.security.Privileges;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.time.Instant;
+import java.util.List;
 
 @Path("/datavalidationtasks")
 public class DataValidationTaskResource {
 
     private final RestQueryService queryService;
     private final ValidationService validationService;
-    //private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
-    //private final Thesaurus thesaurus;
     private final TransactionService transactionService;
 
 
@@ -93,10 +70,10 @@ public class DataValidationTaskResource {
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
             Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public DataValidationTaskInfos getDataValidationTasks(@Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
 
-        List<DataValidationTask> list = validationService.findValidationTasks();
-
-        DataValidationTaskInfos infos = new DataValidationTaskInfos(list);//, this.thesaurus, this.timeService);
+        DataValidationTaskInfos infos = new DataValidationTaskInfos(list);
 
         return infos;
 
@@ -138,17 +115,7 @@ public class DataValidationTaskResource {
         try (TransactionContext context = transactionService.getContext()) {
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
- /*
-            if (Never.NEVER.equals(task.getScheduleExpression(info))) {
-                task.setNextExecution(null);
-            } else {
-                task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
-            }
-            task.set(getRelativePeriod(info.exportperiod));
-            task.setUpdatePeriod(getRelativePeriod(info.updatePeriod));
-*/
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
-
             task.save();
             context.commit();
         }
@@ -173,4 +140,8 @@ public class DataValidationTaskResource {
         return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
     }
 
+    private RestQuery<DataValidationTask> getValidationTaskRestQuery() {
+        Query<DataValidationTask> query = validationService.findValidationTasksQuery();
+        return queryService.wrap(query);
+    }
 }
