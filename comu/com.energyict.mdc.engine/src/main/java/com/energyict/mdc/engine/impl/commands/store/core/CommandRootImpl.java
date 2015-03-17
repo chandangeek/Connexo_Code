@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.FirmwareUpgradeCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -33,6 +34,7 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.BasicCheckComm
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateComTaskExecutionSessionCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateMeterEventsFromStatusFlagsCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.FirmwareUpgradeCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ForceClockCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LegacyLoadProfileLogBooksCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
@@ -62,6 +64,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.FirmwareUpgradeTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -485,6 +488,20 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
         TopologyCommand topologyCommand = new TopologyCommandImpl(this, topologyTask.getTopologyAction(), this.offlineDevice, comTaskExecution);
         possibleCommandOwner.addUniqueCommand(topologyCommand, comTaskExecution);
         return topologyCommand;
+    }
+
+    @Override
+    public FirmwareUpgradeCommand getFirmwareCommand(FirmwareUpgradeTask firmwareUpgradeTask, CommandRoot possibleCommandOwner, ComTaskExecution comTaskExecution) {
+        if(checkCommandTypeExistence(ComCommandTypes.FIRMWARE_COMMAND, getCommands())){
+            return ((FirmwareUpgradeCommand) getComCommand(ComCommandTypes.FIRMWARE_COMMAND));
+        }
+        return createFirmwareUpgradeCommand(firmwareUpgradeTask, possibleCommandOwner, comTaskExecution);
+    }
+
+    private FirmwareUpgradeCommand createFirmwareUpgradeCommand(FirmwareUpgradeTask firmwareUpgradeTask, CommandRoot possibleCommandOwner, ComTaskExecution comTaskExecution) {
+        FirmwareUpgradeCommandImpl firmwareUpgradeCommand = new FirmwareUpgradeCommandImpl(this, firmwareUpgradeTask, comTaskExecution, this.offlineDevice);
+        possibleCommandOwner.addUniqueCommand(firmwareUpgradeCommand, comTaskExecution);
+        return firmwareUpgradeCommand;
     }
 
     @Override
