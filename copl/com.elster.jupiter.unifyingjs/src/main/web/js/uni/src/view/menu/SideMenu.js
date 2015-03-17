@@ -55,6 +55,7 @@ Ext.define('Uni.view.menu.SideMenu', {
     ui: 'menu-side',
     plain: true,
     width: 256,
+    router: null,
 
     defaults: {
         xtype: 'menuitem',
@@ -107,81 +108,53 @@ Ext.define('Uni.view.menu.SideMenu', {
         Ext.resumeLayouts();
     },
 
-    addMenuItems: function (menuItems) {
+    addMenuItems: function (menuItems, parent) {
         var me = this;
-        Ext.suspendLayouts();
-        for (var i = 0; i < menuItems.length; i++) {
-            var item = menuItems[i],
-                subItems = item.items,
+        parent = parent || me;
+
+        Ext.each(menuItems, function (item) {
+            var subItems = item.items,
                 condition = item[me.showCondition];
 
-            item.tooltip = item.text;
+            if (typeof condition === 'undefined'
+                || (Ext.isFunction(condition) && condition() || condition)) {
 
-            if ((typeof item.xtype === 'undefined' || item.xtype === 'menu')
-                && Ext.isDefined(subItems) && Ext.isArray(subItems)) {
-                me.applyMenuDefaults(item);
-                me.addSubMenuItems(item);
-
-                // Do not bother adding the menu if there are no items in it.
-                if (item.items.length === 0) {
-                    continue;
-                }
-            }
-
-            if (typeof condition !== 'undefined') {
-                if (Ext.isFunction(condition) && condition() || condition) {
-                    me.add(item);
+                if (me.router && item.route) {
+                    var route = me.router.getRoute(item.route);
+                    item.href = route.buildUrl();
+                    item.text = item.text || route.getTitle();
                 }
 
-                // Do not add the item if the condition is not valid.
-                continue;
-            }
+                item.tooltip = item.text;
 
-            me.add(item);
-        }
-        Ext.resumeLayouts();
-    },
+                if (Ext.isDefined(subItems) && Ext.isArray(subItems)) {
+                    item = me.applyMenuDefaults(item);
+                    subItems ? me.addMenuItems(subItems, item) : null;
+                }
 
-    applyMenuDefaults: function (config) {
-        Ext.applyIf(config, {
-            xtype: 'menu',
-            floating: false,
-            plain: true,
-            ui: 'menu-side-sub',
-
-            // TODO Make the menus collapsible.
-
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
+                parent.add(item);
             }
         });
     },
 
-    addSubMenuItems: function (menu) {
-        var me = this,
-            subItems = menu.items;
+    applyMenuDefaults: function (config) {
+        return Ext.widget('menu',
+            Ext.applyIf(config, {
+                floating: false,
+                plain: true,
+                ui: 'menu-side-sub',
 
-        // Reset menu items.
-        menu.items = [];
-
-        for (var i = 0; i < subItems.length; i++) {
-            var item = subItems[i],
-                condition = item[me.showCondition];
-
-            item.tooltip = item.text;
-
-            if (typeof condition !== 'undefined') {
-                if (Ext.isFunction(condition) && condition() || condition) {
-                    menu.items.push(item);
+                // TODO Make the menus collapsible.
+                defaults: {
+                    xtype: 'menuitem',
+                    hrefTarget: '_self'
+                },
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
                 }
-
-                // Do not add the item if the condition is not valid.
-                continue;
-            }
-
-            menu.items.push(item);
-        }
+            })
+        );
     },
 
     clearSelection: function (items) {
