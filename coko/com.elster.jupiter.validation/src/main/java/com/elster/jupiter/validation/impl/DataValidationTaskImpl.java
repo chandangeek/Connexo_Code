@@ -4,12 +4,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.users.MessageSeeds;
+import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationOccurence;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -17,18 +18,19 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Optional;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class})
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_TASK + "}")
 public final class DataValidationTaskImpl implements DataValidationTask {
 
     private long id;
 
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.validation.MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.validation.MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
 
     private final TaskService taskService;
@@ -40,7 +42,9 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private transient Instant nextExecution;
     private ValidationService dataValidationService;
 
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_GROUP_REQUIRED_PROPERTY_MISSING_KEY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
 
     private final DataModel dataModel;

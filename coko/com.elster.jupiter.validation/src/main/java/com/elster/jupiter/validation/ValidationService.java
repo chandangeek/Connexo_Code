@@ -93,4 +93,6 @@ public interface ValidationService {
     Query<DataValidationTask> findValidationTasksQuery();
 
     Optional<DataValidationTask> findValidationTask(long id);
+
+    Optional<DataValidationTask> findValidationTaskByName(String name);
 }
