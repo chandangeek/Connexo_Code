@@ -55,17 +55,11 @@ Ext.define('Dsh.util.FilterHydrator', {
         delete data.startedBetween;
         delete data.finishedBetween;
         record.set(data);
-        record.startedBetween = Ext.create('Dsh.model.DateRange', { from: startedBetweenFromDate, to: startedBetweenToDate });
-        record.finishedBetween = Ext.create('Dsh.model.DateRange', { from: finishedBetweenFromDate, to: finishedBetweenToDate });
+        record.setStartedBetween(Ext.create('Dsh.model.DateRange', { from: startedBetweenFromDate, to: startedBetweenToDate }));
+        record.setFinishedBetween(Ext.create('Dsh.model.DateRange', { from: finishedBetweenFromDate, to: finishedBetweenToDate }));
     },
 
     parseDate: function (date, hours, minutes) {
-        if (!date) return null;
-        var parsedDate = Ext.Date.parseDate(date, Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)),
-            parsedDateInMills = moment(parsedDate).valueOf(),
-            hoursInMills = hours * 3600000,
-            minutesInMills = minutes * 60000,
-            resultDateInMills = parsedDateInMills + hoursInMills + minutesInMills;
-        return moment(resultDateInMills).toDate();
+        return new Date(new Date(date).getTime() + hours * 3600000 + minutes * 60000) || null;
     }
 });
