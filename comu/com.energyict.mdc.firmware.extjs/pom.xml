@@ -66,7 +66,7 @@
         <profile>
             <id>sencha-build</id>
             <properties>
-                <js.dir>js/mdc</js.dir>
+                <js.dir>js/firmware</js.dir>
             </properties>
         </profile>
     </profiles>
@@ -80,8 +80,8 @@
                 </includes>
             </resource>
             <resource>
-                <directory>src/main/web/js/mdc/build</directory>
-                <targetPath>js/mdc/build</targetPath>
+                <directory>src/main/web/js/firmware/build</directory>
+                <targetPath>js/firmware/build</targetPath>
                 <includes>
                     <include>resources/**/*</include>
                     <include>*.js</include>
