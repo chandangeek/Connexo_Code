@@ -2,6 +2,7 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 
@@ -36,6 +37,7 @@ public class DynamicKpiBuilder implements Builder<DataCollectionKpi> {
         DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = dataCollectionKpiService.newDataCollectionKpi(group);
         kpiBuilder.calculateComTaskExecutionKpi(Duration.ofMinutes(5)).expectingAsMinimum(new BigDecimal(95));
         kpiBuilder.calculateConnectionSetupKpi(Duration.ofMinutes(5)).expectingAsMinimum(new BigDecimal(95));
+        kpiBuilder.displayPeriod(TimeDuration.hours(1));
         DataCollectionKpi kpi = kpiBuilder.save();
         return kpi;
     }
