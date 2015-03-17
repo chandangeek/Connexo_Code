@@ -54,4 +54,5 @@ public interface DeviceMessageSpecificationService {
 
     public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId);
 
+    public DeviceMessageCategory getFirmwareCategory();
 }

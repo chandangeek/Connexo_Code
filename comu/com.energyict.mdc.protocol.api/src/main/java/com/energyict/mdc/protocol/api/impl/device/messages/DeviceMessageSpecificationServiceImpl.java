@@ -116,6 +116,11 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
                 .findAny().orElse(Optional.empty());
     }
 
+    @Override
+    public DeviceMessageCategory getFirmwareCategory() {
+        return new DeviceMessageCategoryImpl(DeviceMessageCategories.FIRMWARE);
+    }
+
     private List<DeviceMessageSpec> allMessageSpecs() {
         return Stream.of(DeviceMessageCategories.values())
                 .map(deviceMessageCategories -> ((DeviceMessageCategory) new DeviceMessageCategoryImpl(deviceMessageCategories)))
