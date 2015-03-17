@@ -91,7 +91,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, {filter: unassignedFilter})
             }
         ]);
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     },
 
     tbar: {

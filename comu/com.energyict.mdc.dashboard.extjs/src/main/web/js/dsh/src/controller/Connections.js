@@ -152,7 +152,7 @@ Ext.define('Dsh.controller.Connections', {
         gridActionMenu.add(menuItems);
         previewActionMenu.add(menuItems);
 
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     },
 
     onSelectionChange: function (grid, selected) {

@@ -1,1 +1,1 @@
-require '../sass/config.rb'
+require '..\sass\config.rb'
