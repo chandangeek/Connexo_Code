@@ -57,7 +57,7 @@ import java.util.stream.Stream;
                 "osgi.command.function=createRuleSet",
                 "osgi.command.function=addRule",
                 "osgi.command.function=estimate",
-                "osgi.command.function=estimateWithoutLambdas",
+                //"osgi.command.function=estimateWithoutLambdas",
                 "osgi.command.function=removeRuleSet",
                 "osgi.command.function=removeRule",
                 "osgi.command.function=updateRule",
@@ -214,7 +214,7 @@ public class ConsoleCommands {
         return rule -> rule.getId() == ruleId;
     }
 
-    public void estimateWithoutLambdas(long meterId, String estimatorName) {
+    public void estimate(long meterId, String estimatorName) {
         try {
             EstimatorFactory estimatorFactory = new EstimatorFactoryImpl();
             Estimator estimator = estimatorFactory.createTemplate(estimatorName);
@@ -286,7 +286,7 @@ public class ConsoleCommands {
         }
     }*/
 
-    public void estimate(long meterId) {
+    /*public void estimate(long meterId) {
         Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
         meter.getCurrentMeterActivation()
                 .map(estimationService::estimate)
@@ -306,7 +306,7 @@ public class ConsoleCommands {
                                         .forEach(System.out::println);
                             });
                 });
-    }
+    }*/
 
     public void createEstimationTask(String name, long nextExecution, String scheduleExpression, long groupId) {
         threadPrincipalService.set(() -> "console");
