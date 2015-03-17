@@ -1,6 +1,8 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.FirmwareUpgradeTask;
 
 import javax.inject.Inject;
@@ -10,9 +12,12 @@ import javax.inject.Inject;
  */
 public class FirmwareUpgradeTaskImpl extends ProtocolTaskImpl implements FirmwareUpgradeTask {
 
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+
     @Inject
-    FirmwareUpgradeTaskImpl(DataModel dataModel) {
+    FirmwareUpgradeTaskImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(dataModel);
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Override
@@ -23,5 +28,10 @@ public class FirmwareUpgradeTaskImpl extends ProtocolTaskImpl implements Firmwar
     @Override
     void deleteDependents() {
         // currently no dependents to delete
+    }
+
+    @Override
+    public boolean isValidFirmwareCommand(DeviceMessageSpec deviceMessageSpec) {
+        return this.deviceMessageSpecificationService.getFirmwareCategory().getId() == deviceMessageSpec.getCategory().getId();
     }
 }
