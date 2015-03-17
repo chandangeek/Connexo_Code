@@ -143,7 +143,7 @@ Ext.define('Uni.controller.Navigation', {
 
     initSearch: function () {
         var me = this;
-        me.getSearchButton().setVisible(me.searchEnabled);
+        me.getSearchButton().setVisible(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']));
     },
 
     initOnlineHelp: function () {

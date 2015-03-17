@@ -18,29 +18,9 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
      */
     beforeRenderer: null,
 
-    requires: [
-        'Ext.button.Button'
-    ],
-
-    deferredRenderer: function (value, field, tooltip) {
-        if (!field.isDestroyed) {
-            new Ext.button.Button({
-                renderTo: field.getEl().down('.x-form-display-field'),
-                tooltip: tooltip,
-                iconCls: 'uni-icon-info-small',
-                cls: 'uni-btn-transparent',
-                style: {
-                    display: 'inline-block',
-                    "text-decoration": 'none !important'
-                }
-            });
-
-            field.updateLayout();
-        }
-    },
-
     renderer: function (value, field) {
-        var me = this;
+        var me = this,
+            icon = '';
 
         if (Ext.isEmpty(value)) {
             return me.emptyText;
@@ -50,7 +30,9 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
             value = me.beforeRenderer(value, field);
         }
 
-        me.infoTooltip && Ext.defer(this.deferredRenderer, 1, this, [value, field, me.infoTooltip]);
-        return '<span style="display: inline-block; float: left; margin-right: 10px;">' + value + '</span>';
+        if (me.infoTooltip) {
+            icon  = '<span class="uni-icon-info-small" style="width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
+        }
+        return value + icon;
     }
 });
