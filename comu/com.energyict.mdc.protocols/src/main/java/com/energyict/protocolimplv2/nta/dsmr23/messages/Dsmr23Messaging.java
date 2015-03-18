@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -123,7 +123,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         switch (propertySpec.getName()) {
             case UserFileConfigAttributeName:
             case firmwareUpdateFileAttributeName:
-                return ProtocolTools.getHexStringFromBytes(((UserFile) messageAttribute).loadFileInByteArray(), "");
+                return ProtocolTools.getHexStringFromBytes(((FirmwareVersion) messageAttribute).getFirmwareFile(), "");
             case activityCalendarCodeTableAttributeName:
                 return convertCodeTableToXML((Code) messageAttribute);
             case authenticationLevelAttributeName:

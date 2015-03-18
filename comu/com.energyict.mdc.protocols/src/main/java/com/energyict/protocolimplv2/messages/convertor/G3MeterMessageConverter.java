@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.common.HexString;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.LoadProfileMode;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDaysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
@@ -21,28 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MaxOrphanTimerAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activeScanDurationAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarTypeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.capturePeriodAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.consumerProducerModeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.discoveryAttemptsSpeedAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.maxAgeTimeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.meterTimeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newHexPasswordAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.panConflictWaitTimeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.plcG3TimeoutAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.pskAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Represents a MessageConverter that maps the new G3 meter (AS330D / Sagemcom) messages to legacy XML
@@ -88,8 +66,8 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            UserFile userFile = (UserFile) messageAttribute;
-            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+            return new String(firmwareVersion.getFirmwareFile());  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
                 || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();

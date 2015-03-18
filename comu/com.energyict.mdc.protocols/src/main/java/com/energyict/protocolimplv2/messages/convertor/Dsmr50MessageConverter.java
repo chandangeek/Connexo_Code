@@ -5,7 +5,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.LoadProfileMode;
@@ -125,8 +125,8 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            UserFile userFile = (UserFile) messageAttribute;
-            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+            return new String(firmwareVersion.getFirmwareFile());  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
                 || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return ((Boolean) messageAttribute).toString();
