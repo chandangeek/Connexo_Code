@@ -104,23 +104,6 @@ Ext.define('Cfg.view.validationtask.HistoryFilterForm', {
                             fieldLabel: Uni.I18n.translate('dataValidationTasks.to', 'CFG', 'To')
                         }
                     ]
-                },
-                {
-                    xtype: 'datefield',
-                    name: 'validationPeriodContains',
-                    labelAlign: 'top',
-                    fieldLabel: Uni.I18n.translate('dataValidationTasks.validationPeriod', 'CFG', 'Validation period contains'),
-                    rawToValue: function (rawValue) {
-                        if (rawValue) {
-                            var date = Ext.Date.parse(rawValue, Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault));
-                            if (date && Ext.isDate(date)) return date.getTime();
-                        }
-                        return null;
-                    },
-                    valueToRaw: function (value) {
-                        if (value) return Uni.DateTime.formatDateShort(new Date(value));
-                        return null;
-                    }
                 }
             ],
             dockedItems: [

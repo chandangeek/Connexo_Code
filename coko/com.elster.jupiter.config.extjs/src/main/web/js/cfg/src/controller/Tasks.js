@@ -345,11 +345,7 @@ Ext.define('Cfg.controller.Tasks', {
                     break;
                 case 'finishedOnTo':
                     name = Uni.I18n.translate('dataValidationTasks.general.finishedTo', 'CFG', 'Finished to');
-                    break;
-                case 'validationPeriodContains':
-                    name = Uni.I18n.translate('dataValidationTasks.general.validationPeriod', 'CFG', 'Validation period contains');
-                    validationPeriod = true;
-                    break;
+                    break;                
             }
             if (!Ext.isEmpty(filter.get(f))) {
                 date = new Date(filter.get(f));
