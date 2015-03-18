@@ -2,6 +2,8 @@ package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -82,6 +84,7 @@ public class PersistenceTest {
                 new PartyModule(),
                 new IdsModule(),
                 new DomainUtilModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new MasterDataModule(),
                 new PluggableModule(),
@@ -91,6 +94,7 @@ public class PersistenceTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(EventService.class); // fake call to make sure component is initialized
+            injector.getInstance(FiniteStateMachineService.class); // fake call to make sure component is initialized
             injector.getInstance(MasterDataService.class); // fake call to make sure component is initialized
             injector.getInstance(TaskService.class); // fake call to make sure component is initialized
             deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
