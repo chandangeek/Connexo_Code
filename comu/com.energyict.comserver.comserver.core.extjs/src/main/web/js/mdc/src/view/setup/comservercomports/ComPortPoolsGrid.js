@@ -1,13 +1,22 @@
 Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
     extend: 'Ext.grid.Panel',
-    hideHeaders: true,
     store: 'Mdc.store.AddComPortPools',
     alias: 'widget.outboundportcomportpools',
     itemId: 'outboundportcomportpools',
     margin: '0 0 -30 0',
-    width: 538,
-    overflowY: 'hidden',
+    hideHeaders: true,
     autoHeight: true,
+    overflowY: 'hidden',
+    width: 538,
+    listeners: {
+        afterrender: function (grid) {
+            grid.view.on('refresh', function () {
+                if (grid.store.getCount() < 1) {
+                    grid.setHeight(200);
+                }
+            })
+        }
+    },
     columns: [
         {
             dataIndex: 'name',
