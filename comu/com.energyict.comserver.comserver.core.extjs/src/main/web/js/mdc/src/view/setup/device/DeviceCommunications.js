@@ -33,15 +33,15 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.plannedDate', 'MDC', 'Planned date') + '</td>',
-        '<td>{[Uni.DateTime.formatDateTimeLong(values.plannedDate)]}</td>',
+        '<td>{[values.plannedDate? Uni.DateTime.formatDateTimeLong(values.plannedDate) : ""]}</td>',
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.startedOn', 'MDC', 'Started on') + '</td>',
-        '<td>{[Uni.DateTime.formatDateTimeLong(values.startTime)]}</td>',
+        '<td>{[values.lastCommunicationStart ? Uni.DateTime.formatDateTimeLong(values.lastCommunicationStart) : ""]}</td>',
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.finishedOn', 'MDC', 'Finished on') + '</td>',
-        '<td>{[Uni.DateTime.formatDateTimeLong(values.successfulFinishTime)]}</td>',
+        '<td>{[values.successfulFinishTime ? Uni.DateTime.formatDateTimeLong(values.successfulFinishTime) : ""]}</td>',
         '</tr>',
         '</tpl>',
         '</table>'
@@ -69,9 +69,9 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                 {
                     itemId: 'currentState',
                     text: Uni.I18n.translate('device.communications.currentState', 'MDC', 'Current state'),
-                    dataIndex: 'currentState',
+                    dataIndex: 'status',
                     renderer: function (val) {
-                        return val ? val.displayValue : ''
+                        return val ? val : ''
                     },
                     flex: 3
                 },
@@ -98,7 +98,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                 {
                     itemId: 'startTime',
                     text: Uni.I18n.translate('device.communications.startedOn', 'MDC', 'Started on'),
-                    dataIndex: 'startTime',
+                    dataIndex: 'lastCommunicationStart',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                     },

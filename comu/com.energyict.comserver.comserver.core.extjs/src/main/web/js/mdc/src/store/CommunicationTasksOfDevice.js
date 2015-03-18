@@ -9,7 +9,10 @@ Ext.define('Mdc.store.CommunicationTasksOfDevice', {
         reader: {
             type: 'json',
             root: 'comTasks'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
 
