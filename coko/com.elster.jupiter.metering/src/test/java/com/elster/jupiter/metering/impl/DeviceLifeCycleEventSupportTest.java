@@ -80,6 +80,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.meter.getState()).thenReturn(Optional.of(this.state));
         when(this.meteringService.findMeter(METER_ID)).thenReturn(Optional.of(this.meter));
     }
+
     @Test
     public void isCandidateForAnUnknownEventType() {
         EventType eventType = mock(EventType.class);
