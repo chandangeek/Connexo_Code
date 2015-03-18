@@ -7,10 +7,10 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationOccurence;
-import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class DataValidationOccurenceImpl implements DataValidationOccurence {
+public class DataValidationOccurrenceImpl implements DataValidationOccurrence {
 
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
@@ -32,7 +32,7 @@ public class DataValidationOccurenceImpl implements DataValidationOccurence {
     private final Clock clock;
 
     @Inject
-    DataValidationOccurenceImpl(DataModel dataModel, Clock clock) {
+    DataValidationOccurrenceImpl(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
         this.clock = clock;
     }
@@ -56,7 +56,6 @@ public class DataValidationOccurenceImpl implements DataValidationOccurence {
     public DataValidationTaskStatus getStatus() {
         return status;
     }
-
 
     @Override
     public DataValidationTask getTask() {

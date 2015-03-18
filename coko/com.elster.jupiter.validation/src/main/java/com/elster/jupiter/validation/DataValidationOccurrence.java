@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public interface DataValidationOccurence {
+public interface DataValidationOccurrence {
 
     public DataValidationTask getTask();
 

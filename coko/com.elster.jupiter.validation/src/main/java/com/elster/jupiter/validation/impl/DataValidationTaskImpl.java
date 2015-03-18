@@ -3,6 +3,8 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.History;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -10,19 +12,20 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.validation.MessageSeeds;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import com.elster.jupiter.validation.DataValidationOccurence;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.DataValidationOccurrence;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_TASK + "}")
 public final class DataValidationTaskImpl implements DataValidationTask {
@@ -78,7 +81,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public DataValidationStatus execute(DataValidationOccurence taskOccurence) {
+    public DataValidationStatus execute(DataValidationOccurrence taskOccurence) {
         return null;
     }
 
@@ -221,4 +224,36 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         recurrentTask.set(task);
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    @Override
+    public Optional<? extends DataValidationOccurrence> getOccurrence(Long id) {
+        return dataModel.mapper(DataValidationOccurrenceImpl.class).getOptional(id).filter(occ -> this.getId() == occ.getTask().getId());
+    }
+
+    @Override
+    public DataValidationOccurrenceFinder getOccurrencesFinder() {
+        Condition condition = where("dataValidationTask").isEqualTo(this);
+        Order order = Order.descending("taskocc");
+        return new DataValidationOccurrenceFinderImpl(dataModel, condition, order);
+    }
+
+    public History<? extends DataValidationTask> getHistory() {
+        List<JournalEntry<DataValidationTask>> journal = dataModel.mapper(DataValidationTask.class).getJournal(getId());
+        return new History<>(journal, this);
+    }
 }
