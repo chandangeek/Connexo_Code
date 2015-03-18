@@ -90,7 +90,7 @@ public interface ReadingTypeDataExportTask extends HasName, HasAuditInfo {
     /**
      * @since v1.1
      */
-    History<? extends ReadingTypeDataExportTask> getHistory();
+    History<ReadingTypeDataExportTask> getHistory();
 
     Map<String, Object> getProperties(Instant at);
 

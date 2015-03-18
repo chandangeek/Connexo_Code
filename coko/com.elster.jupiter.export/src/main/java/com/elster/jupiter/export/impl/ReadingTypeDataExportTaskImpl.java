@@ -502,7 +502,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         return userName;
     }
 
-    public History<? extends ReadingTypeDataExportTask> getHistory() {
+    public History<ReadingTypeDataExportTask> getHistory() {
         List<JournalEntry<IReadingTypeDataExportTask>> journal = dataModel.mapper(IReadingTypeDataExportTask.class).getJournal(getId());
         return new History<>(journal, this);
     }
