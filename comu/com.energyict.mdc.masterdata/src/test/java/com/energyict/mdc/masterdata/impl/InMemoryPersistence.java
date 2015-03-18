@@ -7,6 +7,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -55,7 +57,6 @@ public class InMemoryPersistence {
     private EventService eventService;
     private MeteringService meteringService;
     private NlsService nlsService;
-    private UserService userService;
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private MasterDataServiceImpl masterDataService;
     private DataModel dataModel;
@@ -80,6 +81,7 @@ public class InMemoryPersistence {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule());
@@ -88,7 +90,8 @@ public class InMemoryPersistence {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
-            this.userService = injector.getInstance(UserService.class);
+            injector.getInstance(UserService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.dataModel = this.createNewMasterDataService(createDefaults);
