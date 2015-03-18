@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -68,11 +69,13 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
             if (this.comTaskExecution instanceof ScheduledComTaskExecution) {
                 ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) this.comTaskExecution;
                 descriptionBuilder.addProperty("comSchedule").append(scheduledComTaskExecution.getComSchedule().getName());
-            }
-            else {
+            } else if (this.comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
                 // Must be ManuallyScheduledComTaskExecution
-                ManuallyScheduledComTaskExecution scheduledComTaskExecution = (ManuallyScheduledComTaskExecution) this.comTaskExecution;
-                descriptionBuilder.addProperty("comTask").append(scheduledComTaskExecution.getComTask().getName());
+                ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = (ManuallyScheduledComTaskExecution) this.comTaskExecution;
+                descriptionBuilder.addProperty("comTask").append(manuallyScheduledComTaskExecution.getComTask().getName());
+            } else if (this.comTaskExecution instanceof FirmwareComTaskExecution) {
+                FirmwareComTaskExecution firmwareComTaskExecution = (FirmwareComTaskExecution) this.comTaskExecution;
+                descriptionBuilder.addProperty("comTask").append(firmwareComTaskExecution.getComTask().getName());
             }
         }
 
