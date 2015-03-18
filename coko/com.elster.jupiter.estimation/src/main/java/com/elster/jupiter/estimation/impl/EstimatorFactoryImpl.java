@@ -30,6 +30,8 @@ public class EstimatorFactoryImpl implements EstimatorFactory {
     public Estimator create(String implementation, Map<String, Object> props) {
         if (implementation.equals(ZERO_FILL)) {
             return new ZeroFillEstimator(thesaurus, propertySpecService, props);
+        } else if (implementation.equals(LINEAR_INTERPOLATION)) {
+            return new LinearInterpolation(thesaurus, propertySpecService, props);
         }
         throw new IllegalArgumentException();
     }

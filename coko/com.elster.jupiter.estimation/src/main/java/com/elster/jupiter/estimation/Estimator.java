@@ -10,7 +10,9 @@ import java.util.List;
 
 public interface Estimator extends HasDynamicProperties {
 
-    void init(Channel channel, ReadingType readingType, Range<Instant> interval);
+    default void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
+        // empty by default
+    }
 
     EstimationResult estimate(List<EstimationBlock> estimationBlock);
 
