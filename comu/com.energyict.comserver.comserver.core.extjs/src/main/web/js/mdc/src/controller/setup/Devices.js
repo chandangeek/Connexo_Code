@@ -274,8 +274,18 @@ Ext.define('Mdc.controller.setup.Devices', {
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    var errorsToShow = [];
+                    Ext.each(json.errors, function(item) {
+                        if(item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
+                            errorsToShow.push(item)
+                        } else {
+                            if (Ext.ComponentQuery.query('combobox')[0].lastSelection.length === 0) {
+                                errorsToShow.push(item)
+                            }
+                        }
+                    })
                     me.showErrorPanel(form);
-                    form.getForm().markInvalid(json.errors);
+                    form.getForm().markInvalid(errorsToShow);
                 }
             }
         });
