@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -36,6 +37,7 @@ import com.elster.jupiter.util.HasName;
 import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 /**
@@ -278,6 +280,24 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     GatewayType getConfigurationGatewayType();
 
     DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
+
+    /**
+     * Gets the current {@link State} of this Device.
+     *
+     * @return The current State
+     */
+    public State getState();
+
+    /**
+     * Gets the {@link State} of this Device as it was
+     * known at the specified point in time.
+     * May return an empty optional when the point in time
+     * is before the creation time of this Device.
+     *
+     * @param instant The point in time
+     * @return The State
+     */
+    public Optional<State> getState(Instant instant);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask

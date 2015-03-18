@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
@@ -1541,6 +1542,37 @@ public class DeviceImpl implements Device, CanLock {
         if (amrSystem.isPresent()) {
             enumeratedEndDeviceGroup.add(this.findOrCreateKoreMeter(amrSystem.get()), range);
         }
+    }
+
+    @Override
+    public State getState() {
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            if (this.id > 1) {
+                Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+                if (meter.isPresent()) {
+                    return meter.get().getState().get();
+                }
+                else {
+                    // Kore meter was not created yet
+                    throw new IllegalStateException("Kore meter was not created when this Device was created");
+                }
+            }
+            else {
+                /* Todo: implement this as follows once FiniteStateMachine is integrated in DeviceType
+                         return this.getDeviceType().getFinateStateMachine().getInitialState();
+                 */
+                return null;
+            }
+        }
+        else {
+            throw new IllegalStateException("MDC AMR system does not exist");
+        }
+    }
+
+    @Override
+    public Optional<State> getState(Instant instant) {
+        return null;
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{
