@@ -1,6 +1,10 @@
 package com.elster.jupiter.validation.rest;
 
+
+//import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
@@ -8,7 +12,9 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -21,11 +27,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,16 +54,40 @@ public class BaseValidationRestTest extends JerseyTest {
     protected Thesaurus thesaurus;
     @Mock
     protected TransactionService transactionService;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     protected ValidationService validationService;
     @Mock
     protected MeteringService meteringService;
-    
+    @Mock
+    private MeteringGroupsService meteringGroupsService;
+    @Mock
+    protected EndDeviceGroup endDeviceGroup;
+
+    protected DataValidationTaskBuilder builder = initBuilderStub();
+
+    @Mock
+    protected DataValidationTask dataValidationTask;
+
     protected RestQueryService restQueryService;
     protected PropertyUtils propertyUtils;
     protected ValidationApplication serviceLocator;
-    @Mock
-    protected DataValidationTask dataValidationTask;
+
+    private DataValidationTaskBuilder initBuilderStub() {
+        final Object proxyInstance = Proxy.newProxyInstance(DataValidationTaskBuilder.class.getClassLoader(), new Class<?>[]{DataValidationTaskBuilder.class}, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                if (DataValidationTaskBuilder.class.isAssignableFrom(method.getReturnType())) {
+                    return builderGetter.get();
+                }
+
+                return taskGetter.get();
+            }
+
+            private Supplier<DataValidationTask> taskGetter = () -> dataValidationTask;
+            private Supplier<DataValidationTaskBuilder> builderGetter = () -> builder;
+        });
+        return (DataValidationTaskBuilder) proxyInstance;
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -60,7 +98,13 @@ public class BaseValidationRestTest extends JerseyTest {
         serviceLocator.setRestQueryService(restQueryService);
         serviceLocator.setTransactionService(transactionService);
         serviceLocator.setNlsService(nlsService);
-        
+
+        when(validationService.newTaskBuilder()).thenReturn(builder);
+
+        when(meteringGroupsService.findEndDeviceGroup(1)).thenReturn(Optional.of(endDeviceGroup));
+
+
+
         when(transactionService.execute(Matchers.any())).thenAnswer(new Answer() {
             
             @Override
@@ -100,6 +144,7 @@ public class BaseValidationRestTest extends JerseyTest {
                 bind(propertyUtils).to(PropertyUtils.class);
                 bind(validationService).to(ValidationService.class);
                 bind(transactionService).to(TransactionService.class);
+                bind(meteringGroupsService).to(MeteringGroupsService.class);
 //              bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             }
         });
