@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>com.energyict</groupId>
 			<artifactId>mdc.device.data</artifactId>
-			<version>${project.version}</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
