@@ -83,13 +83,13 @@ public class RegisterReadings {
 
     @SuppressWarnings("unused")
     public void addReading(String deviceMRID, String readingTypeMRID, String... formattedDates) {
-        Device device = this.deviceService.findByUniqueMrid(deviceMRID);
-        if (device != null) {
-            Optional<Register<Reading>> register = this.findRegister(device, readingTypeMRID);
+        Optional<Device> device = this.deviceService.findByUniqueMrid(deviceMRID);
+        if (device.isPresent()) {
+            Optional<Register<Reading>> register = this.findRegister(device.get(), readingTypeMRID);
             if (register.isPresent()) {
                 List<Instant> readingTimestamps = this.toTimestamps(formattedDates);
                 try {
-                    this.addReadings(device, readingTypeMRID, readingTimestamps);
+                    this.addReadings(device.get(), readingTypeMRID, readingTimestamps);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -155,13 +155,13 @@ public class RegisterReadings {
 
     @SuppressWarnings("unused")
     public void printReadings(String deviceMRID) {
-        Device device = this.deviceService.findByUniqueMrid(deviceMRID);
-        if (device != null) {
+        Optional<Device> device = this.deviceService.findByUniqueMrid(deviceMRID);
+        if (device.isPresent()) {
             Interval sinceEpoch = Interval.sinceEpoch();
             System.out.print("Readings of registers for device with mRID ");
             System.out.print(deviceMRID);
             this.printInterval(sinceEpoch);
-            for (Register register : device.getRegisters()) {
+            for (Register register : device.get().getRegisters()) {
                 this.printReadings(register, sinceEpoch);
             }
         } else {
