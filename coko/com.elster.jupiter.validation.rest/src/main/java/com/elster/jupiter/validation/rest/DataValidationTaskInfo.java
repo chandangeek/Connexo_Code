@@ -4,6 +4,7 @@ package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 
@@ -35,6 +36,15 @@ public class DataValidationTaskInfo {
     
 
     public DataValidationTaskInfo(DataValidationTask dataValidationTask) {
+        populate(dataValidationTask);
+    }
+
+
+    public void populate(DataValidationTask dataValidationTask) {
+        doPopulate(dataValidationTask);
+    }
+
+    private void doPopulate(DataValidationTask dataValidationTask) {
 
         id = dataValidationTask.getId();
         name = dataValidationTask.getName();
@@ -60,9 +70,7 @@ public class DataValidationTaskInfo {
         if (lastRunOptional.isPresent()) {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
-
     }
-
 
     public long getId()
     {

@@ -3,17 +3,20 @@ package com.elster.jupiter.validation.rest;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.logging.LogEntry;
+import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.security.Privileges;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -30,16 +33,18 @@ public class DataValidationTaskResource {
     private final ValidationService validationService;
     private final MeteringGroupsService meteringGroupsService;
     private final TransactionService transactionService;
-
+    private final Thesaurus thesaurus;
+    private final TimeService timeService;
 
     @Inject
-    public DataValidationTaskResource(RestQueryService queryService, ValidationService validationService, TransactionService transactionService, MeteringGroupsService meteringGroupsService) {
+    public DataValidationTaskResource(RestQueryService queryService, ValidationService validationService, TransactionService transactionService,
+                                      MeteringGroupsService meteringGroupsService, TimeService timeService, Thesaurus thesaurus) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.meteringGroupsService = meteringGroupsService;
-        //this.thesaurus = thesaurus;
-        //this.timeService = timeService;
+        this.thesaurus = thesaurus;
+        this.timeService = timeService;
     }
 
     @POST
@@ -127,6 +132,65 @@ public class DataValidationTaskResource {
     public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         //transactionService.execute(VoidTransaction.of(() -> fetchDataValidationtTask(id).triggerNow()));
         return Response.status(Response.Status.OK).build();
+    }
+
+    @GET
+    @Path("/{id}/history")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public DataValidationTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
+                                                                   @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        DataValidationTask task = fetchDataValidationTask(id);
+        DataValidationOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
+                .setStart(queryParameters.getStart())
+                .setLimit(queryParameters.getLimit() + 1);
+
+        if (filter.hasProperty("startedOnFrom")) {
+            occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
+                    filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
+        } else if (filter.hasProperty("startedOnTo")) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
+        }
+        if (filter.hasProperty("finishedOnFrom")) {
+            occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"),
+                    filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
+        } else if (filter.hasProperty("finishedOnTo")) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
+        }
+
+        List<? extends DataValidationOccurrence> occurrences = occurrencesFinder.find();
+
+        DataValidationTaskHistoryInfos infos = new DataValidationTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService);
+        infos.total = queryParameters.determineTotal(occurrences.size());
+        return infos;
+    }
+
+    @GET
+    @Path("/{id}/history/{occurrenceId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public DataValidationOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
+                                                                     @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        DataValidationTask task = fetchDataValidationTask(id);
+        DataValidationOccurrence occurrence = fetchDataValidationOccurrence(occurrenceId, task);
+        LogEntryFinder finder = occurrence.getLogsFinder()
+                .setStart(queryParameters.getStart())
+                .setLimit(queryParameters.getLimit());
+
+        List<? extends LogEntry> occurrences = finder.find();
+
+        DataValidationOccurrenceLogInfos infos = new DataValidationOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
+        infos.total = queryParameters.determineTotal(occurrences.size());
+        return infos;
+    }
+
+    private DataValidationTask fetchDataValidationTask(long id) {
+        return validationService.findValidationTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private DataValidationOccurrence fetchDataValidationOccurrence(long id, DataValidationTask task) {
+        return task.getOccurrence(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {

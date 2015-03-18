@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableSet;
@@ -34,7 +35,8 @@ public class ValidationApplication extends Application implements BinderProvider
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-    
+    private volatile TimeService timeService;
+
 	public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 ValidationResource.class,
@@ -70,6 +72,11 @@ public class ValidationApplication extends Application implements BinderProvider
     }
 
     @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(validationService.COMPONENTNAME, Layer.REST);
@@ -87,6 +94,7 @@ public class ValidationApplication extends Application implements BinderProvider
                 bind(transactionService).to(TransactionService.class);
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
                 bind(thesaurus).to(Thesaurus.class);
+                bind(timeService).to(TimeService.class);
             }
         };
     }
