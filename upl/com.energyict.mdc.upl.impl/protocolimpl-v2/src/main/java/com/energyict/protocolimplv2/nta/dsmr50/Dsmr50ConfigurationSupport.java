@@ -59,7 +59,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(MeterProtocol.NODEID);    //TODO: temporary fix: should be a StringPropertySpec for compatibility with AM540 V1 protocol - should be reworked later on
+        return PropertySpecFactory.bigDecimalPropertySpec(MeterProtocol.NODEID);
     }
 
     protected PropertySpec callHomeIdPropertySpec() {

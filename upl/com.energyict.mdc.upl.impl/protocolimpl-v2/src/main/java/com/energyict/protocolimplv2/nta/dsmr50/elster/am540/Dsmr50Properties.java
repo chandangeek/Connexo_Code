@@ -58,12 +58,18 @@ public class Dsmr50Properties extends DlmsProperties {
         return oldMacAddress;
     }
 
-    public int getNodeAddress() {  //TODO: temporary fix: should be a StringPropertySpec for compatibility with AM540 V1 protocol - should be reworked later on
-        String nodeAddressString = getProperties().getTypedProperty(MeterProtocol.NODEID, Integer.toString(DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue()));
-        try {
-            return Integer.parseInt(nodeAddressString);
-        } catch (NumberFormatException e) {
+    public int getNodeAddress() {
+        Object nodeAddressObject = getProperties().getTypedProperty(MeterProtocol.NODEID);
+        if (nodeAddressObject == null) {
             return DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue();
+        } else if (nodeAddressObject instanceof BigDecimal) {
+            return ((BigDecimal) nodeAddressObject).intValue();
+        } else {
+            try {
+                return Integer.parseInt((String) nodeAddressObject);
+            } catch (NumberFormatException e) {
+                return DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue();
+            }
         }
     }
 
