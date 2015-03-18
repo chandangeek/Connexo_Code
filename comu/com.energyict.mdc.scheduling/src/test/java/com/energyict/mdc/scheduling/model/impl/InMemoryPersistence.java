@@ -17,6 +17,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -93,6 +95,7 @@ public class InMemoryPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
                 new MdcReadingTypeUtilServiceModule(),
                 new InMemoryMessagingModule(),
@@ -113,6 +116,7 @@ public class InMemoryPersistence {
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(Publisher.class);
             injector.getInstance(NlsService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
