@@ -206,7 +206,7 @@ public class JobExecutionTest {
         when(device.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(this.device);
+        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(this.device));
         ConnectionTask ct = connectionTask;
         when(comTaskExecution.getConnectionTask()).thenReturn(ct);
         when(comTaskExecution.getDevice()).thenReturn(device);

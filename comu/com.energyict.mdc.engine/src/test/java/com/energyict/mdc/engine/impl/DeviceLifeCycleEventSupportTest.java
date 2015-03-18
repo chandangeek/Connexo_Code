@@ -91,7 +91,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.otherFiniteStateMachine.getState(STATE_NAME)).thenReturn(Optional.of(this.otherState));
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.device.getState()).thenReturn(this.state);
-        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(this.device);
+        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(this.device));
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.comServer.getName()).thenReturn("ComServer");
@@ -168,7 +168,7 @@ public class DeviceLifeCycleEventSupportTest {
 
     @Test
     public void extractFromDeviceConnectionFailureEventWithDeletedDevice() {
-        when(this.deviceService.findDeviceById(anyLong())).thenReturn(null);
+        when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(EventType.DEVICE_CONNECTION_FAILURE.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
@@ -240,7 +240,7 @@ public class DeviceLifeCycleEventSupportTest {
 
     @Test
     public void extractFromDeviceConnectionCompletionEventWithDeletedDevice() {
-        when(this.deviceService.findDeviceById(anyLong())).thenReturn(null);
+        when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(EventType.DEVICE_CONNECTION_COMPLETION.topic());
         LocalEvent localEvent = mock(LocalEvent.class);

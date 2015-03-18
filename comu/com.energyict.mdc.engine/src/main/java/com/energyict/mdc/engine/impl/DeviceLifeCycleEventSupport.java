@@ -98,7 +98,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
         }
 
         protected Optional<CurrentState> currentStateFor(ConnectionTaskCompletionEventInfo eventSource, FiniteStateMachine finiteStateMachine, DeviceService deviceService) {
-            return this.currentStateFor(Optional.ofNullable(deviceService.findDeviceById(eventSource.getDeviceIdentifier())), finiteStateMachine, deviceService);
+            return this.currentStateFor(deviceService.findDeviceById(eventSource.getDeviceIdentifier()), finiteStateMachine, deviceService);
         }
 
         protected Optional<CurrentState> currentStateFor(DeviceTopologyChangedEvent eventSource, FiniteStateMachine finiteStateMachine, DeviceService deviceService) {

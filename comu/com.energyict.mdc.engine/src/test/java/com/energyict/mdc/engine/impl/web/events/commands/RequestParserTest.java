@@ -636,7 +636,7 @@ public class RequestParserTest {
     private void mockDevice(long deviceId) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(deviceId);
-        when(this.deviceService.findDeviceById(deviceId)).thenReturn(device);
+        when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);

@@ -6,6 +6,8 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
+import java.util.Optional;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -31,7 +33,7 @@ public class DeviceIdentifierByIdTest {
 
     @Test(expected = CanNotFindForIdentifier.class)
     public void testDeviceDoesNotExist() {
-        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(null);
+        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.<Device>empty());
 
         // Business method
         new DeviceIdentifierById(DEVICE_ID, this.deviceService).findDevice();
@@ -42,7 +44,7 @@ public class DeviceIdentifierByIdTest {
     @Test
     public void testOnlyOneDevice() {
         Device device = mock(Device.class);
-        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(device);
+        when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
 
         // Business method
         BaseDevice foundDevice = new DeviceIdentifierById(DEVICE_ID, this.deviceService).findDevice();

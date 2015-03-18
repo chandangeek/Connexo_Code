@@ -154,7 +154,7 @@ public class RequestApplyToTest {
     private Device mockDevice() {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE1_ID);
-        when(this.deviceService.findDeviceById(DEVICE1_ID)).thenReturn(device);
+        when(this.deviceService.findDeviceById(DEVICE1_ID)).thenReturn(Optional.of(device));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);

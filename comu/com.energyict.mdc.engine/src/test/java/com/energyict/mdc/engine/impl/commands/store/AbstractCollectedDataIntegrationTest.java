@@ -28,6 +28,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -121,6 +123,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new UserModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
                 new OrmModule(),
@@ -157,6 +160,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                injector.getInstance(FiniteStateMachineService.class);
                 injector.getInstance(MeteringService.class);
                 injector.getInstance(MasterDataService.class);
                 injector.getInstance(MeteringGroupsService.class);

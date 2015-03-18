@@ -251,7 +251,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice offlineDevice, InboundComPort comPort) {
-        Device device = getDeviceDataService().findDeviceById(offlineDevice.getId());
+        Device device = getDeviceDataService().findDeviceById(offlineDevice.getId()).get();
         return getCommunicationTaskService().getPlannedComTaskExecutionsFor(comPort, device);
     }
 
@@ -318,7 +318,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
         final BaseDevice device = deviceIdentifier.findDevice();
-        Device deviceById = getDeviceDataService().findDeviceById(device.getId());
+        Device deviceById = getDeviceDataService().findDeviceById(device.getId()).get();
         deviceById.setProtocolProperty(propertyName, propertyValue);
         deviceById.save();
     }
