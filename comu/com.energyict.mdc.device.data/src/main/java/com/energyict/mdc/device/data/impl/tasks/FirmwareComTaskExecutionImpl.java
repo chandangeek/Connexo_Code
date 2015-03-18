@@ -22,6 +22,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -114,6 +115,18 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
     @Override
     public boolean isConfiguredToUpdateTopology() {
         return false;
+    }
+
+    @Override
+    protected Instant calculateNextExecutionTimestamp(Instant now) {
+        if (this.getLastExecutionStartTimestamp() != null
+                && this.getNextExecutionTimestamp() != null
+                && this.getLastExecutionStartTimestamp().isAfter(this.getNextExecutionTimestamp())) {
+            return null;
+        } else {
+            return this.getNextExecutionTimestamp();
+        }
+
     }
 
     @Override
