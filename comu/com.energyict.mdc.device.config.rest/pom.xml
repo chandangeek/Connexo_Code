@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>mdc.device.config.rest</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.config.rest [init DCR]</name>
     <description>
@@ -22,6 +22,11 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.data</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -66,7 +71,7 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

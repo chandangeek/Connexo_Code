@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -81,10 +82,7 @@ public class ConnectionMethodResource {
         List<ConnectionMethodInfo<?>> connectionMethodInfos = new ArrayList<>();
         List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
         if (available != null) {
-            Device device = deviceService.findByUniqueMrid(mrId);
-            if (device == null) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE);
-            }
+            Device device = deviceService.findByUniqueMrid(mrId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE));
             if (device.getDeviceConfiguration().getId() != deviceConfigurationId) {
                 throw exceptionFactory.newException(MessageSeeds.DEVICE_DOES_NOT_MATCH_CONFIG);
             }

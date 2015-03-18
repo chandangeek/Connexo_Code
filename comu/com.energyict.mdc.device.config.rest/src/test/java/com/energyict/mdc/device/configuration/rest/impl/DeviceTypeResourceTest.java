@@ -1287,7 +1287,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceService.findByUniqueMrid("Z666")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("Z666")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask1 = mockConnectionTask(101L);
         ConnectionTask<?, ?> connectionTask2 = mockConnectionTask(102L);
         ConnectionTask<?, ?> connectionTask3 = mockConnectionTask(103L);
