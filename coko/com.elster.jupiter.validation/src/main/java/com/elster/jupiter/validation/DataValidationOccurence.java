@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation;
 
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 
@@ -29,5 +30,11 @@ public interface DataValidationOccurence {
     List<? extends LogEntry> getLogs();
 
     LogEntryFinder getLogsFinder();
+
+    void persist();
+
+    void update();
+
+    TaskOccurrence getTaskOccurrence();
 
 }

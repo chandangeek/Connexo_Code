@@ -14,6 +14,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
@@ -33,6 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
@@ -519,5 +522,25 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     public Optional<DataValidationTask> findValidationTaskByName(String name) {
         Condition condition = where("name").isEqualTo(name);
         return findValidationTasksQuery().select(condition).stream().findFirst();
+    }
+
+    @Override
+    public Thesaurus getThesaurus(){
+        return thesaurus;
+    }
+
+    @Override
+    public DataValidationOccurence createValidationOccurrence(TaskOccurrence taskOccurrence){
+        DataValidationTask task = getDataValidationTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
+        return DataValidationOccurenceImpl.from(dataModel, taskOccurrence, task);
+    }
+
+    @Override
+    public Optional<DataValidationOccurence> findDataValidationOccurrence(TaskOccurrence occurrence) {
+        return dataModel.query(DataValidationOccurence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+    }
+
+    private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
+        return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
     }
 }

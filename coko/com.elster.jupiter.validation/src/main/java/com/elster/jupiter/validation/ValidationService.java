@@ -7,6 +7,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -95,4 +97,10 @@ public interface ValidationService {
     Optional<DataValidationTask> findValidationTask(long id);
 
     Optional<DataValidationTask> findValidationTaskByName(String name);
+
+    Thesaurus getThesaurus();
+
+    DataValidationOccurence createValidationOccurrence(TaskOccurrence taskOccurrence);
+
+    Optional<DataValidationOccurence> findDataValidationOccurrence(TaskOccurrence occurrence);
 }

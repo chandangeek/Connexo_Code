@@ -36,7 +36,14 @@ public class DataValidationOccurenceImpl implements DataValidationOccurence {
         this.dataModel = dataModel;
         this.clock = clock;
     }
+    static DataValidationOccurenceImpl from(DataModel model, TaskOccurrence occurrence, DataValidationTask task) {
+        return model.getInstance(DataValidationOccurenceImpl.class).init(occurrence, task);
+    }
 
+    private DataValidationOccurenceImpl init(TaskOccurrence occurrence, DataValidationTask task){
+        return null;
+
+    }
     @Override
     public String getFailureReason() {
         return this.failureReason;
@@ -86,6 +93,21 @@ public class DataValidationOccurenceImpl implements DataValidationOccurence {
     @Override
     public boolean wasScheduled() {
         return taskOccurrence.get().wasScheduled();
+    }
+
+    @Override
+    public void persist() {
+        dataModel.persist(this);
+    }
+
+    @Override
+    public void update() {
+        dataModel.update(this);
+    }
+
+    @Override
+    public TaskOccurrence getTaskOccurrence() {
+        return taskOccurrence.get();
     }
 }
 

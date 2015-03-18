@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface DataValidationTask {
@@ -43,4 +44,10 @@ public interface DataValidationTask {
     public void setNextExecution(Instant instant);
 
     public void triggerNow();
+
+    public boolean canBeDeleted();
+
+    public Optional<DataValidationOccurence> getLastOccurrence();
+
+    public List<? extends DataValidationOccurence> getOccurrences();
 }

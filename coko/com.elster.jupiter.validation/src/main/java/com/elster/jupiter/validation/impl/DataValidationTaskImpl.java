@@ -9,19 +9,19 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.validation.MessageSeeds;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import com.elster.jupiter.validation.DataValidationOccurence;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_TASK + "}")
@@ -88,6 +88,11 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
+    public boolean canBeDeleted() {
+        return !hasUnfinishedOccurrences();
+    }
+
+    @Override
     public Instant getNextExecution() {
         return recurrentTask.get().getNextExecution();
     }
@@ -104,27 +109,68 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @Override
     public void delete() {
+        if (id == 0) {
+            return;
+        }
+        if (!canBeDeleted()) {
+//            throw new CannotDeleteWhileBusy();
+        }
+
         dataModel.remove(this);
-        if(recurrentTask.isPresent()){
+        dataModel.mapper(DataValidationOccurence.class).remove(getOccurrences());
+        if (recurrentTask.isPresent()) {
             recurrentTask.get().delete();
         }
     }
 
+
+
+    private boolean hasUnfinishedOccurrences() {
+        return hasBusyOccurrence() || hasQueuedMessages();
+    }
+
+    private boolean hasBusyOccurrence() {
+        return getLastOccurrence()
+                .map(DataValidationOccurence::getStatus)
+                .orElse(DataValidationTaskStatus.SUCCESS)
+                .equals(DataValidationTaskStatus.BUSY);
+    }
+
+    private boolean hasQueuedMessages() {
+        Optional<? extends TaskOccurrence> lastOccurrence = recurrentTask.get().getLastOccurrence();
+        Optional<DataValidationOccurence> lastDataValidationOccurrence = getLastOccurrence();
+        return lastOccurrence.isPresent() &&
+                lastDataValidationOccurrence.map(DataValidationOccurence::getTaskOccurrence)
+                        .map(TaskOccurrence::getId)
+                        .map(i -> !i.equals(lastOccurrence.get().getId()))
+                        .orElse(true);
+    }
+
+
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-
+    @Override
     public EndDeviceGroup getEndDeviceGroup() {
         return endDeviceGroup.get();
     }
 
+    @Override
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup.set(endDeviceGroup);
+    }
+
+    @Override
+    public Optional<DataValidationOccurence> getLastOccurrence() {
+        return dataModel.query(DataValidationOccurence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("dataValidationTask", this), new Order[]{Order.descending("taskocc")},
+                false, new String[]{}, 1, 1).stream().findAny();
     }
 
     @Override
@@ -139,10 +185,15 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         return getId() == ((DataValidationTaskImpl) o).getId();
     }
 
+    @Override
     public long getId() {
         return id;
     }
 
+    @Override
+    public List<? extends DataValidationOccurence> getOccurrences() {
+        return dataModel.mapper(DataValidationOccurenceImpl.class).find("dataValidationTask", this);
+    }
 
     @Override
     public void setScheduleImmediately(boolean scheduleImmediately) {
@@ -157,6 +208,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
             this.recurrentTask.get().setScheduleExpression(scheduleExpression);
         }
     }
+
+    @Override
     public Optional<Instant> getLastRun() {
         return Optional.ofNullable(lastRun);
     }
