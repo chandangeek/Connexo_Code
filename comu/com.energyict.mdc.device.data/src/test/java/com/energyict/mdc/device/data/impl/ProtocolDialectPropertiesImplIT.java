@@ -196,7 +196,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createAndReloadWithoutViolationsTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         device.save();
-        Device deviceReloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
+        Device deviceReloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
 
         // Business method
         ProtocolDialectProperties dialectProperties = deviceReloaded.getProtocolDialectProperties(DIALECT_1_NAME);

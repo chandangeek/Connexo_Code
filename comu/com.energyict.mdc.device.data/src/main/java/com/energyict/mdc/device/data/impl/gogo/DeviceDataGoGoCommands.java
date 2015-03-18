@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -100,9 +101,9 @@ public class DeviceDataGoGoCommands {
     }
 
     private void addDeviceIfExists(String deviceMRID, List<Device> devices) {
-        Device device = this.deviceService.findByUniqueMrid(deviceMRID);
-        if (device != null) {
-            devices.add(device);
+        Optional<Device> device = this.deviceService.findByUniqueMrid(deviceMRID);
+        if (device.isPresent()) {
+            devices.add(device.get());
         } else {
             System.out.println("Device with MRID " + deviceMRID + " does not exist and has been ignored");
         }

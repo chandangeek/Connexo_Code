@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides services that relate to {@link Device}s.
@@ -35,7 +36,7 @@ public interface DeviceService {
      * @param id the unique ID of the device
      * @return the requested Device or null if none was found
      */
-    public Device findDeviceById(long id);
+    public Optional<Device> findDeviceById(long id);
 
     /**
      * Finds the Device based on his unique External name.
@@ -43,7 +44,7 @@ public interface DeviceService {
      * @param mrId the unique Identifier of the device
      * @return the requested Device or null if none was found
      */
-    public Device findByUniqueMrid(String mrId);
+    public Optional<Device> findByUniqueMrid(String mrId);
 
     /**
      * Finds the Devices (multiple are possible) based on the given serialNumber.

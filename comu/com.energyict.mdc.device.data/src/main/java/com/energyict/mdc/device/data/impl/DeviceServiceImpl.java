@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -154,13 +155,13 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Device findDeviceById(long id) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id).orElse(null);
+    public Optional<Device> findDeviceById(long id) {
+        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id);
     }
 
     @Override
-    public Device findByUniqueMrid(String mrId) {
-        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId).orElse(null);
+    public Optional<Device> findByUniqueMrid(String mrId) {
+        return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrId);
     }
 
     @Override

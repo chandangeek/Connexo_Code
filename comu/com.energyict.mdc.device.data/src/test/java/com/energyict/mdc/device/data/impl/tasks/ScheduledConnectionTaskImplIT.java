@@ -1611,7 +1611,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         String myNotDefaultConnectionTaskName = "ThisShouldNotBeDefault";
         ScheduledConnectionTaskImpl thisShouldNotBeDefault = this.createAsapWithNoPropertiesWithoutViolations(myNotDefaultConnectionTaskName, this.partialScheduledConnectionTask);
-        Device device = inMemoryPersistence.getDeviceService().findDeviceById(myDefaultConnectionTask.getDevice().getId());
+        Device device = inMemoryPersistence.getDeviceService().findDeviceById(myDefaultConnectionTask.getDevice().getId()).get();
 
         assertThat(device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(myDefaultConnectionTaskName)).findFirst().get().isDefault()).isTrue();
         assertThat(device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(myNotDefaultConnectionTaskName)).findFirst().get().isDefault()).isFalse();

@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
 
         when(meter.getAmrId()).thenReturn(Long.toString(DEVICE_ID));
-        when(deviceService.findDeviceById(eq(DEVICE_ID))).thenReturn(device);
+        when(deviceService.findDeviceById(eq(DEVICE_ID))).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getValidationRuleSets()).thenReturn(Arrays.asList(ruleSet));
 
@@ -69,7 +70,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
 
     @Test
     public void testDeviceNotFound() {
-        when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(null);
+        when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.<Device>empty());
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 

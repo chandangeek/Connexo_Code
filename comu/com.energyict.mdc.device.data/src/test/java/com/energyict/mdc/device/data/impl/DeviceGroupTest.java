@@ -5,6 +5,8 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -198,6 +200,7 @@ public class DeviceGroupTest {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
                 new InMemoryMessagingModule(),
                 new ValidationModule(),
@@ -217,6 +220,7 @@ public class DeviceGroupTest {
                 new MockModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(ValidationService.class);

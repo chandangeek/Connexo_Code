@@ -8,6 +8,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiService;
@@ -194,6 +196,7 @@ public class DataCollectionKpiImplTest {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
                 new EventsModule(),
                 new ValidationModule(),
@@ -218,6 +221,7 @@ public class DataCollectionKpiImplTest {
             injector.getInstance(MessageService.class);
             taskService = injector.getInstance(TaskService.class);
             kpiService = injector.getInstance(KpiService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             meteringService = injector.getInstance(MeteringService.class);
             injector.getInstance(MasterDataService.class);

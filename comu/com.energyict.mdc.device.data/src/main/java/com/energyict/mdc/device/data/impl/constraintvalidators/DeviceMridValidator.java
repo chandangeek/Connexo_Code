@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 /**
  * Validates that each device has a unique external name.
@@ -30,8 +31,8 @@ public class DeviceMridValidator implements ConstraintValidator<UniqueMrid, Devi
 
     @Override
     public boolean isValid(Device device, ConstraintValidatorContext constraintValidatorContext) {
-        Device other = this.deviceService.findByUniqueMrid(device.getmRID());
-        if (other != null && other.getId() != device.getId()) {
+        Optional<Device> other = this.deviceService.findByUniqueMrid(device.getmRID());
+        if (other.isPresent() && other.get().getId() != device.getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate(constraintValidatorContext.getDefaultConstraintMessageTemplate()).addPropertyNode(DeviceFields.MRID.fieldName()).addConstraintViolation();
             return false;

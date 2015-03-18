@@ -83,6 +83,6 @@ public abstract class PersistenceTestWithMockedDeviceProtocol {
     }
 
     protected Device getReloadedDevice(Device device) {
-        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
+        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
     }
 }

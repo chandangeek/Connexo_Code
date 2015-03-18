@@ -37,12 +37,14 @@ public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetR
     @Override
     public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
         if (hasMdcMeter(meterActivation)) {
-            Device device = deviceService.findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()));
-            if (device != null) {
-                return device.getDeviceConfiguration().getValidationRuleSets();
-            }
+            return deviceService
+                    .findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()))
+                    .map(device -> device.getDeviceConfiguration().getValidationRuleSets())
+                    .orElse(Collections.emptyList());
         }
-        return Collections.emptyList();
+        else {
+            return Collections.emptyList();
+        }
     }
 
     @Override

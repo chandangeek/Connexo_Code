@@ -39,12 +39,9 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
     public Device findDevice() {
         // lazyload the device
         if (this.device == null) {
-            this.device = this.deviceService.findByUniqueMrid(this.mrid);
-            if (device == null) {
-                throw CanNotFindForIdentifier.device(this);
-            }
+            this.device = this.deviceService.findByUniqueMrid(this.mrid).orElseThrow(() -> CanNotFindForIdentifier.device(this));
         }
-        return device;
+        return this.device;
     }
 
     @Override

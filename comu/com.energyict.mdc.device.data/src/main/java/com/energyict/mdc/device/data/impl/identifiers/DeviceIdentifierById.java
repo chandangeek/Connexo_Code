@@ -46,12 +46,9 @@ public final class DeviceIdentifierById implements DeviceIdentifier<Device> {
     public Device findDevice() {
         // lazyload the device
         if (this.device == null) {
-            this.device = this.deviceService.findDeviceById(this.id);
-            if (device == null) {
-                throw CanNotFindForIdentifier.device(this);
-            }
+            this.device = this.deviceService.findDeviceById(this.id).orElseThrow(() -> CanNotFindForIdentifier.device(this));
         }
-        return device;
+        return this.device;
     }
 
     @Override

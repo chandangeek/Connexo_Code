@@ -47,6 +47,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -184,7 +186,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     }
 
     private Device getReloadedDevice(Device device) {
-        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
+        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
     }
 
     @Test
@@ -261,6 +263,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
+                    new FiniteStateMachineModule(),
                     new MeteringModule(false),
                     new InMemoryMessagingModule(),
                     new OrmModule(),
@@ -288,6 +291,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.transactionService = injector.getInstance(TransactionService.class);
                 this.eventService = new SpyEventService(injector.getInstance(EventService.class));
                 this.nlsService = injector.getInstance(NlsService.class);
+                injector.getInstance(FiniteStateMachineService.class);
                 this.meteringService = injector.getInstance(MeteringService.class);
                 injector.getInstance(MeteringGroupsService.class);
                 this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);

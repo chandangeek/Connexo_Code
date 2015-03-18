@@ -361,13 +361,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         }
     }
 
-    protected Device findDevice(long deviceId) {
-        if (deviceId != 0) {
-            return this.deviceService.findDeviceById(deviceId);
-        }
-        return null;
-    }
-
     protected abstract Class<PCTT> getPartialConnectionTaskType();
 
     @Override
