@@ -1,12 +1,11 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.elster.jupiter.util.Holder;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
-
-import static com.elster.jupiter.util.HolderBuilder.first;
+import java.util.stream.Collectors;
 
 public class DeviceTopologyChangedEvent {
 
@@ -24,12 +23,10 @@ public class DeviceTopologyChangedEvent {
     }
 
     private String asString(List<DeviceIdentifier> slaveIdentifiers) {
-        Holder<String> separator = first("").andThen(",");
-        StringBuilder builder = new StringBuilder();
-        for (DeviceIdentifier slaveIdentifier : slaveIdentifiers) {
-            builder.append(separator.get()).append(slaveIdentifier.getIdentifier());
-        }
-        return builder.toString();
+        return slaveIdentifiers
+                .stream()
+                .map(DeviceIdentifier::getIdentifier)
+                .collect(Collectors.joining(","));
     }
 
     public String getMasterDeviceId() {
@@ -47,4 +44,5 @@ public class DeviceTopologyChangedEvent {
     public List<DeviceIdentifier> getSlaveDevices() {
         return slaveDevices;
     }
+
 }
