@@ -4,6 +4,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -80,7 +82,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
 
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
 
-
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -90,7 +91,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     @Mock
     private Thesaurus thesaurus;
 
-    static final String DEVICE_TYPE_NAME = PersistenceTest.class.getName() + "Type";
+    static final String DEVICE_TYPE_NAME = DeviceConfigValidationRuleSetUsageTest.class.getSimpleName();
 
     @Mock
     DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -98,10 +99,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     @Mock
     DeviceProtocol deviceProtocol;
 
-
     private InMemoryBootstrapModule bootstrapModule;
-    private TransactionService transactionService;
-    private DeviceConfigurationService deviceConfigurationService;
     private Injector injector;
     @Mock
     private LicenseService licenseService;
@@ -127,9 +125,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private LicensedProtocolService licensedProtocolService;
     @Mock
     private UserService userService;
-    //@Mock
-    //private ValidationService validationService;
-
 
     @Before
     public void setup () {
@@ -150,6 +145,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new MasterDataModule(),
                 new PartyModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
@@ -163,18 +159,17 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TasksModule());
-        this.transactionService = injector.getInstance(TransactionService.class);
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
 
-
-        try (TransactionContext ctx = this.transactionService.getContext()) {
+        try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
     }
-
 
     @After
     public void cleanupDatabase () {

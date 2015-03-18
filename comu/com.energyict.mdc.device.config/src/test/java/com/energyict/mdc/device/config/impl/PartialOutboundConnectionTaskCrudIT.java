@@ -52,6 +52,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -175,6 +177,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
@@ -202,6 +205,7 @@ public class PartialOutboundConnectionTaskCrudIT {
             NlsService nlsService = injector.getInstance(NlsService.class);
             PropertySpecServiceImpl propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             initializeConnectionTypes(propertySpecService);
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);

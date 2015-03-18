@@ -32,6 +32,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -141,6 +143,7 @@ public class SecurityPropertySetImplCrudIT {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
@@ -163,6 +166,7 @@ public class SecurityPropertySetImplCrudIT {
                 new SchedulingModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);

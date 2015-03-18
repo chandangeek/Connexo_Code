@@ -57,6 +57,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -169,6 +171,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
@@ -190,6 +193,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new PluggableModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(EngineConfigurationService.class);
             protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
