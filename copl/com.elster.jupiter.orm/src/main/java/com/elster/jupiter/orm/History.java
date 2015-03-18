@@ -14,7 +14,7 @@ public class History<T extends HasAuditInfo> {
 
     private final Map<Range<Instant>, T> historyMap;
 
-    public History(List<JournalEntry<T>> entries, T current) {
+    public History(List<? extends JournalEntry<? extends T>> entries, T current) {
         if (entries.isEmpty()) {
             if (current == null) {
                 historyMap = ImmutableMap.of();
