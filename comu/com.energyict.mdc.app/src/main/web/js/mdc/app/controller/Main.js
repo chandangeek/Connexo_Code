@@ -23,7 +23,8 @@ Ext.define('MdcApp.controller.Main', {
         'Idc.controller.Main',
         'Dvi.controller.Main',
         'Dsh.controller.Main',
-        'Yfn.controller.Main'
+        'Yfn.controller.Main',
+        'Fwc.controller.Main'
     ],
 
     init: function () {
