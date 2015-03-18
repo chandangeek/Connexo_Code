@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,4 +41,10 @@ public class DeviceComTaskInfo {
     public String scheduleTypeKey;
     @JsonProperty("connectionDefinedOnDevice")
     public boolean connectionDefinedOnDevice;
+    @JsonProperty("latestResult")
+    public CompletionCodeInfo latestResult;
+    @JsonProperty("successfulFinishTime")
+    public Instant successfulFinishTime;
+    @JsonProperty("isOnHold")
+    public boolean isOnHold;
 }

@@ -8,12 +8,17 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.internal.verification.VerificationModeFactory;
 
@@ -35,6 +40,7 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
 
+
 public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     Instant startTime = Instant.now();
@@ -43,196 +49,67 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     Instant plannedDate = Instant.now();
 
     @Test
-    public void testGetDeviceCommunications() {
+    public void testAdditionalComTaskFields(){
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getName()).thenReturn("No security");
+        when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+
         ComTaskExecution comTaskExecution = mockComTaskExecution();
+        when(comTaskExecution.isScheduledManually()).thenReturn(true);
+
+        ComTask comTask = mockComTask(1L, "Read");
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
-        String response = target("/devices/ZABF0000000/communications").request().get(String.class);
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getName()).thenReturn("connectionMethod");
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
-        JsonModel jsonModel = JsonModel.model(response);
-
+        JsonModel jsonModel = JsonModel.model(target("/devices/mrid/comtasks/").request().get(String.class));
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List<?>>get("$.communications")).hasSize(1);
-        assertThat(jsonModel.<Integer>get("$.communications[0].id")).isEqualTo(13);
-        assertThat(jsonModel.<String>get("$.communications[0].name")).isEqualTo("Read all");
-        assertThat(jsonModel.<Integer>get("$.communications[0].comTask.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.communications[0].comTask.name")).isEqualTo("Read all");
-        assertThat(jsonModel.<String>get("$.communications[0].comScheduleName")).isEqualTo("Individual");
-        assertThat(jsonModel.<Integer>get("$.communications[0].comScheduleFrequency.every.count")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.communications[0].comScheduleFrequency.every.timeUnit")).isEqualTo("hours");
-        assertThat(jsonModel.<Integer>get("$.communications[0].urgency")).isEqualTo(100);
-        assertThat(jsonModel.<String>get("$.communications[0].currentState.id")).isEqualTo("Busy");
-        assertThat(jsonModel.<String>get("$.communications[0].currentState.displayValue")).isEqualTo("Busy");
-        assertThat(jsonModel.<String>get("$.communications[0].latestResult.id")).isEqualTo("IoError");
-        assertThat(jsonModel.<String>get("$.communications[0].latestResult.displayValue")).isEqualTo("I/O error");
-        assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(startTime.toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.communications[0].successfulFinishTime")).isEqualTo(endTime.toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(nextCommunicationTime.toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.communications[0].plannedDate")).isEqualTo(plannedDate.toEpochMilli());
-        assertThat(jsonModel.<String>get("$.communications[0].connectionMethod")).isEqualTo("connection task (Default)");
-        assertThat(jsonModel.<String>get("$.communications[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
-        assertThat(jsonModel.<String>get("$.communications[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
-        assertThat(jsonModel.<Boolean>get("$.communications[0].isOnHold")).isTrue();
+        assertThat(jsonModel.<Boolean>get("$.comTasks[0].isOnHold")).isTrue();
+        assertThat(jsonModel.<Instant>get("$.comTasks[0].successfulFinishTime")).isNotNull();
+        assertThat(jsonModel.<String>get("$.comTasks[0].latestResult.id")).isEqualTo("IoError");
     }
-
     @Test
-    public void testGetDeviceCommunicationsSeveralComTasksPerComTaskExec() {
+    public void testActivateComTask(){
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getName()).thenReturn("No security");
+        when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+
         ComTaskExecution comTaskExecution = mockComTaskExecution();
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-        List<ComTask> comTasks = Arrays.asList(mockComTask(1, "Read 1"), mockComTask(2, "Read 2"));
-        when(comTaskExecution.getComTasks()).thenReturn(comTasks);
-        when(comTaskExecution.getDevice()).thenReturn(device);
-        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
-        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(mockComTask(2L, "Read 2"));
-        when(deviceConfig.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(comTaskExecution.isScheduledManually()).thenReturn(true);
 
-        String response = target("/devices/ZABF0000000/communications").request().get(String.class);
+        ComTask comTask = mockComTask(1L, "Read");
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
 
-        JsonModel jsonModel = JsonModel.model(response);
-
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List<?>>get("$.communications")).hasSize(1);
-        assertThat(jsonModel.<Integer>get("$.communications[0].comTask.id")).isEqualTo(2);
-        assertThat(jsonModel.<String>get("$.communications[0].comTask.name")).isEqualTo("Read 2");
-    }
-
-    @Test
-    public void testRunCommunication() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-        ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
-        Response response = target("/devices/ZABF0000000/communications/13/run").request().put(Entity.json(""));
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getName()).thenReturn("connectionMethod");
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
+        Response response = target("/devices/mrid/comtasks/1/activate").request().put(Entity.json(""));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution).scheduleNow();
-    }
-
-    @Test
-    public void testRunNowCommunication() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-        ComTaskExecution comTaskExecution = mockComTaskExecution();
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-
-        Response response = target("/devices/ZABF0000000/communications/13/runnow").request().put(Entity.json(""));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution).runNow();
-    }
-
-    @Test
-    public void testActivateCommunication() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-        ComTaskExecution comTaskExecution = mockComTaskExecution();
-        when(comTaskExecution.isOnHold()).thenReturn(true);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-        DeviceComTaskExecutionInfo info = new DeviceComTaskExecutionInfo();
-        info.isOnHold = false;
-
-        Response response = target("/devices/ZABF0000000/communications/13").request().put(Entity.json(info));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution).updateNextExecutionTimestamp();
-    }
-
-    @Test
-    public void testActivateCommunicationButAlreadyActive() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-        ComTaskExecution comTaskExecution = mockComTaskExecution();
-        when(comTaskExecution.isOnHold()).thenReturn(false);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-        DeviceComTaskExecutionInfo info = new DeviceComTaskExecutionInfo();
-        info.isOnHold = false;
-
-        Response response = target("/devices/ZABF0000000/communications/13").request().put(Entity.json(info));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution, VerificationModeFactory.times(0)).updateNextExecutionTimestamp();
-    }
-
-    @Test
-    public void testDeactivateCommunication() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-        ComTaskExecution comTaskExecution = mockComTaskExecution();
-        when(comTaskExecution.isOnHold()).thenReturn(false);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-        DeviceComTaskExecutionInfo info = new DeviceComTaskExecutionInfo();
-        info.isOnHold = true;
-
-        Response response = target("/devices/ZABF0000000/communications/13").request().put(Entity.json(info));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution).putOnHold();
-    }
-
-    @Test
-    public void testDeactivateCommunicationButAlreadyInactive() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-        ComTaskExecution comTaskExecution = mockComTaskExecution();
-        when(comTaskExecution.isOnHold()).thenReturn(true);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-        DeviceComTaskExecutionInfo info = new DeviceComTaskExecutionInfo();
-        info.isOnHold = true;
-
-        Response response = target("/devices/ZABF0000000/communications/13").request().put(Entity.json(info));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution, VerificationModeFactory.times(0)).putOnHold();
-    }
-
-    @Test
-    public void testActivateAllCommunications() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-        ComTaskExecution comTaskExecution = mockComTaskExecution();
-        when(comTaskExecution.isOnHold()).thenReturn(true);
-        ComTaskExecution comTaskExecution1 = mockComTaskExecution();
-        when(comTaskExecution1.isOnHold()).thenReturn(true);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution, comTaskExecution1));
-
-        Response response = target("/devices/ZABF0000000/communications/activate").request().put(Entity.json(""));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution).updateNextExecutionTimestamp();
-        verify(comTaskExecution1).updateNextExecutionTimestamp();
-    }
-
-    @Test
-    public void testDeactivateAllCommunications() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-        ComTaskExecution comTaskExecution = mockComTaskExecution();
-        when(comTaskExecution.isOnHold()).thenReturn(false);
-        ComTaskExecution comTaskExecution1 = mockComTaskExecution();
-        when(comTaskExecution1.isOnHold()).thenReturn(false);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution, comTaskExecution1));
-
-        Response response = target("/devices/ZABF0000000/communications/deactivate").request().put(Entity.json(""));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(comTaskExecution).putOnHold();
-        verify(comTaskExecution1).putOnHold();
-    }
-
-    @Test
-    public void testComTaskExecNotFound() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
-
-        Response response = target("/devices/ZABF0000000/communications/145").request().put(Entity.json(""));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     private ComTaskExecution mockComTaskExecution() {
@@ -255,6 +132,11 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getLastExecutionStartTimestamp()).thenReturn(startTime);
         when(comTaskExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(endTime);
         when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(nextCommunicationTime);
+        DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
+        when(deviceProtocolDialect.getDisplayName()).thenReturn("WebRTU KP");
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
+        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         return comTaskExecution;
     }
 
