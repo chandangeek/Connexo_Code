@@ -172,9 +172,9 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         CancellableTaskExecutorService executorService = executors.get(factory);
         if (executorService != null) {
             shutDownServiceWithCancelling(executorService);
+            futures.remove(executorService);
         }
         executors.remove(factory);
-        futures.remove(executorService);
     }
 
     Map<SubscriberKey, Integer> futureReport() {
