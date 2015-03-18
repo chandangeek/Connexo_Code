@@ -244,8 +244,8 @@ Ext.define('Cfg.controller.Tasks', {
                                     deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
                                 }
                             });      
-							//if (record.data.nextRun && (record.data.nextRun !== 0)) {
-							if (schedule) {
+							if (record.data.nextRun && (record.data.nextRun !== 0)) {
+							//if (schedule) {
                                 view.down('#recurrence-trigger').setValue({recurrence: true});
                                 view.down('#recurrence-number').setValue(schedule.count);
                                 recurrenceTypeCombo.setValue(schedule.timeUnit);

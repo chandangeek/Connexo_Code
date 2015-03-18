@@ -4,7 +4,7 @@ Ext.define('Cfg.model.DataValidationTask', {
         'Uni.property.model.Property'
     ],*/
     fields: [
-	'id', 'name', 'deviceGroup', 'schedule'
+	'id', 'name', 'deviceGroup', 'schedule', 'nextRun'
 	],
 	  proxy: {
         type: 'rest',
