@@ -87,16 +87,19 @@ public class SchedulingResource {
     }
 
     private void filterAvailableSchedulesOnly(String mrid, List<ComSchedule> comSchedules) {
-        Device device = deviceService.findByUniqueMrid(mrid);
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-        List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-        Iterator<ComSchedule> iterator = comSchedules.iterator();
-        while(iterator.hasNext()) {
-            ComSchedule comSchedule = iterator.next();
-            if (!isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)) {
-                iterator.remove();
-            }
-        }
+        deviceService
+            .findByUniqueMrid(mrid)
+            .ifPresent(device -> {
+                List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+                List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
+                Iterator<ComSchedule> iterator = comSchedules.iterator();
+                while(iterator.hasNext()) {
+                    ComSchedule comSchedule = iterator.next();
+                    if (!isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)) {
+                        iterator.remove();
+                    }
+                }
+        });
     }
 
     private static class CompareBySchedulingStatus implements Comparator<ComSchedule> {
