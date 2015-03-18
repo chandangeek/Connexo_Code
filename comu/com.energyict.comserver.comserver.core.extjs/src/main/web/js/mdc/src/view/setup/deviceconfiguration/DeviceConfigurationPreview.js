@@ -138,7 +138,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                     defaults: {
                                         xtype: 'button',
                                         ui: 'link',
-                                        href: ''
+                                        href: 'javascript:void(0)'
                                     },
                                     items: [
 

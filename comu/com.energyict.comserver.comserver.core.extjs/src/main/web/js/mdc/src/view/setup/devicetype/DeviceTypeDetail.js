@@ -143,7 +143,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             defaults: {
                                                 xtype: 'button',
                                                 ui: 'link',
-                                                href: ''
+                                                href: 'javascript:void(0)'
                                             },
                                             items: [
                                                 {
@@ -175,7 +175,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             defaults: {
                                                 xtype: 'button',
                                                 ui: 'link',
-                                                href: ''
+                                                href: 'javascript:void(0)'
                                             },
                                             items: [
                                                 {
