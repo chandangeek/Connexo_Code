@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         'ComTasks',
         'SecuritySettingsOfDeviceConfiguration',
         'ConnectionMethodsOfDeviceConfiguration',
-        'ProtocolDialectsOfDeviceConfiguration'
+        'ProtocolDialectsOfDeviceConfiguration',
+        'ConnectionMethodsOfDeviceConfigurationCombo'
     ],
 
     refs: [
@@ -184,7 +185,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
-            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationStore(),
+            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
             protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore();
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
@@ -266,7 +267,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
-            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationStore(),
+            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
             protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore(),
             model = Ext.ModelManager.getModel('Mdc.model.CommunicationTaskConfig');
         me.deviceTypeId = deviceTypeId;
