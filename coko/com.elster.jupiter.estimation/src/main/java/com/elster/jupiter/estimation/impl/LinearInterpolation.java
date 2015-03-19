@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by igh on 6/03/2015.
@@ -108,6 +110,7 @@ public class LinearInterpolation extends AbstractEstimator {
         for (Estimatable estimatable : estimatables) {
             currentValue = currentValue.add(step);
             estimatable.setEstimation(currentValue);
+            Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
         }
     }
 

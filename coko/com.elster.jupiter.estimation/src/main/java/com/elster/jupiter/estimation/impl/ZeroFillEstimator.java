@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.metering.Channel;
@@ -14,6 +15,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by igh on 3/03/2015.
@@ -50,8 +53,15 @@ public class ZeroFillEstimator extends AbstractEstimator {
     }
 
     public void estimate(EstimationBlock estimationBlock) {
-        estimationBlock.estimatables().forEach(estimatable -> estimatable.setEstimation(BigDecimal.ZERO));
+        estimationBlock.estimatables().forEach(estimatable -> estimate(estimatable));
     }
+
+    private void estimate(Estimatable estimatable) {
+        estimatable.setEstimation(BigDecimal.ZERO);
+        Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+    }
+
+
 
     @Override
     public String getDefaultFormat() {
