@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -52,10 +54,23 @@ public class DeviceLifeCycleConfigurationServiceIT {
 
         // Business method: actually the business method is the install method of the DeviceLifeCycleServiceImpl component
         Optional<FiniteStateMachine> stateMachine = finiteStateMachineService
-                    .findFiniteStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_FINITE_STATE_MACHINE_NAME.getDefaultFormat());
+                    .findFiniteStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey());
 
         // Asserts
         assertThat(stateMachine.isPresent()).isTrue();
+    }
+
+    @Transactional
+    @Test
+    public void installerCreatedTheDefaultLifeCycle() {
+        DeviceLifeCycleConfigurationServiceImpl service = inMemoryPersistence.getDeviceLifeCycleConfigurationService();
+
+        // Business method: actually the business method is the install method of the DeviceLifeCycleServiceImpl component
+        Optional<DeviceLifeCycle> defaultDeviceLifeCycle = service.findDefaultDeviceLifeCycle();
+
+        // Asserts
+        assertThat(defaultDeviceLifeCycle.isPresent()).isTrue();
+        assertThat(defaultDeviceLifeCycle.get().getName()).isEqualTo(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey());
     }
 
 }

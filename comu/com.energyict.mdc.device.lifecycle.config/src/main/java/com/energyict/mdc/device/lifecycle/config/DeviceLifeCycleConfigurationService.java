@@ -17,14 +17,23 @@ public interface DeviceLifeCycleConfigurationService {
     /**
      * Starts the building process of a new {@link DeviceLifeCycle}.
      *
-     *
-     * @param name
+     * @param name The unique name of the new DeviceLifeCycle
      * @param finiteStateMachine The FiniteStateMachine that is providing all the
      * {@link com.elster.jupiter.fsm.State}s and {@link com.elster.jupiter.fsm.StateTransition}s.
      *
      * @return The DeviceLifeCycleBuilder
      */
     public DeviceLifeCycleBuilder newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine);
+
+    /**
+     * Finds the {@link DeviceLifeCycle} that was created by default
+     * when this bundle was first installed.
+     * Note that somebody may have deleted that DeviceLifeCycle
+     * in the meantime, which is why it is not guaranteed to be there.
+     *
+     * @return The DeviceLifeCycle
+     */
+    public Optional<DeviceLifeCycle> findDefaultDeviceLifeCycle();
 
     /**
      * Finds the {@link DeviceLifeCycle} with the specified identifier.

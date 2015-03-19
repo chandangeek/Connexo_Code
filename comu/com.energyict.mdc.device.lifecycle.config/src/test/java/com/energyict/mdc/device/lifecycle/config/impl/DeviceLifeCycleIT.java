@@ -155,7 +155,7 @@ public class DeviceLifeCycleIT {
     @Test
     public void findDeviceLifeCycleThatDoesNotExist() {
         // Business method
-        Optional<DeviceLifeCycle> found = this.getTestService().findDeviceLifeCycle(1);
+        Optional<DeviceLifeCycle> found = this.getTestService().findDeviceLifeCycle(Long.MAX_VALUE);
 
         // Asserts
         assertThat(found.isPresent()).isFalse();
@@ -514,7 +514,7 @@ public class DeviceLifeCycleIT {
     private FiniteStateMachine findDefaultFiniteStateMachine() {
         return inMemoryPersistence
                 .getService(FiniteStateMachineService.class)
-                .findFiniteStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_FINITE_STATE_MACHINE_NAME.getDefaultFormat())
+                .findFiniteStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey())
                 .orElseThrow(() -> new IllegalStateException("Please rerun " + DeviceLifeCycleConfigurationServiceIT.class.getName() + " to find out why the installer has not created the default finite state machine"));
     }
 
