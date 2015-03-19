@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 import com.energyict.cbo.HexString;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
 
 import java.math.BigDecimal;
 
@@ -24,7 +25,6 @@ public class Dsmr50Properties extends DlmsProperties {
     public static final String READCACHE_PROPERTY = "ReadCache";
     public static final String CumulativeCaptureTimeChannel = "CumulativeCaptureTimeChannel";
     public static final String PSK_PROPERTY = "PSK";
-    public static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
 
     /**
      * Property indicating to read the cache out (useful because there's no config change state)
@@ -74,6 +74,10 @@ public class Dsmr50Properties extends DlmsProperties {
     }
 
     public boolean getCheckNumberOfBlocksDuringFirmwareResume() {
-        return getProperties().getTypedProperty(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, true);
+        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, Dsmr50ConfigurationSupport.DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
+    }
+
+    public boolean useEquipmentIdentifierAsSerialNumber() {
+        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, Dsmr50ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
 }

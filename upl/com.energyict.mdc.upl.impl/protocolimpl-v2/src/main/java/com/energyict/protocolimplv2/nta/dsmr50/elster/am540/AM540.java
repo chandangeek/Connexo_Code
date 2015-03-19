@@ -309,7 +309,11 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getSerialNumber() {
-        return getMeterInfo().getEquipmentIdentifier();
+        if (getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
+            return getMeterInfo().getEquipmentIdentifier();
+        } else {
+            return getMeterInfo().getSerialNr();
+        }
     }
 
     @Override

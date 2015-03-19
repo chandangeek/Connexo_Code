@@ -27,10 +27,12 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
-    private static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
+    public static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
+    public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
-    private static final boolean DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = true;
+    public static final boolean DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = true;
+    public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = true;
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
@@ -54,7 +56,8 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.cumulativeCaptureTimeChannelPropertySpec(),
                 this.nodeAddressPropertySpec(),
                 this.callHomeIdPropertySpec(),
-                this.checkNumberOfBlocksDuringFirmwareResumePropertySpec()
+                this.checkNumberOfBlocksDuringFirmwareResumePropertySpec(),
+                this.useEquipmentIdentifierAsSerialNumberPropertySpec()
         );
     }
 
@@ -118,5 +121,9 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec ntaSimulationToolPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(NTA_SIMULATION_TOOL);
+    }
+
+    private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
 }
