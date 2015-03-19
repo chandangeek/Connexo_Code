@@ -214,6 +214,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                     result.update(estimator.estimate(estimationResult.remainingToBeEstimated()));
                 });
         result.get().estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
+        result.get().remainingToBeEstimated().stream().forEach(block -> report.reportUnableToEstimate(readingType, block));
         return report;
     }
 

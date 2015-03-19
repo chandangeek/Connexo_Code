@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.google.common.collect.ImmutableList;
 
@@ -13,6 +14,7 @@ class SimpleEstimationBlock implements EstimationBlock {
     private final List<Estimatable> estimatables;
     private final Channel channel;
     private final ReadingType readingType;
+    private ReadingQualityType readingQualityType;
 
     private SimpleEstimationBlock(Channel channel, ReadingType readingType, List<? extends Estimatable> estimatables) {
         this.channel = channel;
@@ -40,8 +42,12 @@ class SimpleEstimationBlock implements EstimationBlock {
     }
 
     @Override
-    public void applyEstimations() {
-        //TODO automatically generated method body, provide implementation.
+    public void setReadingQuailtyType(ReadingQualityType readingQualityType) {
+        this.readingQualityType = readingQualityType;
+    }
 
+    @Override
+    public ReadingQualityType getReadingQualityType() {
+        return readingQualityType;
     }
 }

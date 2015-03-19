@@ -1,14 +1,16 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -62,16 +64,16 @@ class EstimationRuleImpl implements IEstimationRule {
     private List<EstimationRuleProperties> properties = new ArrayList<>();
 
     private final DataModel dataModel;
-    private final EstimatorCreator validatorCreator;
+    private final EstimatorCreator estimatorCreator;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
     private final EventService eventService;
     private final Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider;
 
     @Inject
-    EstimationRuleImpl(DataModel dataModel, EstimatorCreator validatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService, Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider) {
+    EstimationRuleImpl(DataModel dataModel, EstimatorCreator estimatorCreator, Thesaurus thesaurus, MeteringService meteringService, EventService eventService, Provider<ReadingTypeInEstimationRuleImpl> readingTypeInRuleProvider) {
         this.dataModel = dataModel;
-        this.validatorCreator = validatorCreator;
+        this.estimatorCreator = estimatorCreator;
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.eventService = eventService;
@@ -173,7 +175,7 @@ class EstimationRuleImpl implements IEstimationRule {
 
     private Estimator getEstimator() {
         if (templateEstimator == null) {
-            templateEstimator = validatorCreator.getTemplateEstimator(this.implementation);
+            templateEstimator = estimatorCreator.getTemplateEstimator(this.implementation);
         }
         return templateEstimator;
     }
@@ -331,11 +333,15 @@ class EstimationRuleImpl implements IEstimationRule {
 
     @Override
     public Estimator createNewEstimator() {
-        Estimator createdEstimator = validatorCreator.getEstimator(this.implementation, getProps());
-        if (createdEstimator == null) {
-            throw new EstimatorNotFoundException(thesaurus, implementation);
-        }
-        return createdEstimator;
+        return new ReadingQualityTypedEstimator(createBaseEstimator(), getReadingQualityType());
+    }
+
+    private Estimator createBaseEstimator() {
+        return estimatorCreator.getEstimator(this.implementation, getProps());
+    }
+
+    private ReadingQualityType getReadingQualityType() {
+        return ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) getId());
     }
 
     private void doPersist() {
@@ -365,7 +371,7 @@ class EstimationRuleImpl implements IEstimationRule {
 
     @Override
     public boolean appliesTo(Channel channel) {
-        return isActive() && getReadingTypes().stream().anyMatch(readingType -> channel.hasReadingType(readingType));
+        return isActive() && getReadingTypes().stream().anyMatch(channel::hasReadingType);
     }
 
 }
