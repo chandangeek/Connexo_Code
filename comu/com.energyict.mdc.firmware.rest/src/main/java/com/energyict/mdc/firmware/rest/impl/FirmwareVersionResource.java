@@ -1,9 +1,9 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -29,13 +29,16 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/devicetypes/{id}/firmwares")
 public class FirmwareVersionResource {
     private final FirmwareService firmwareService;
-    private final QueryService queryService;
+    private final RestQueryService restQueryService;
     private final DeviceConfigurationService deviceConfigurationService;
 
+    private static final String FILTER_STATUS_PARAMETER = "status";
+    private static final String FILTER_TYPE_PARAMETER = "type";
+
     @Inject
-    public FirmwareVersionResource(FirmwareService firmwareService, QueryService queryService, DeviceConfigurationService deviceConfigurationService) {
+    public FirmwareVersionResource(FirmwareService firmwareService, RestQueryService restQueryService, DeviceConfigurationService deviceConfigurationService) {
         this.firmwareService = firmwareService;
-        this.queryService = queryService;
+        this.restQueryService = restQueryService;
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
@@ -45,28 +48,11 @@ public class FirmwareVersionResource {
     public PagedInfoList getFirmwareVersions(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(id);
 
-/*
-        List<? extends FirmwareVersion> firmwareVersions = ListPager
-                .of(firmwareService.getFirmwareVersionQuery().select(getFirmwareVersionConditions(filter), Order.descending("firmwareVersion")))
-                .from(queryParameters).find();
-
-                //firmwareService.getFirmwareVersionQuery().select(getFirmwareVersionConditions(filter), Order.descending("firmwareVersion"));
-
-        List<? extends FirmwareVersion> versions =  (firmwareService.getFirmwareVersionQuery().select(getFirmwareVersionConditions(filter), Order.descending("firmwareVersion")))
-*/
-
-
         Finder<FirmwareVersion> allFirmwaresFinder = firmwareService.findAllFirmwareVersions(getFirmwareVersionConditions(filter, deviceType));
         List<FirmwareVersion> allFirmwares = allFirmwaresFinder.from(queryParameters).find();
         List<FirmwareVersionInfo> firmwareInfos = FirmwareVersionInfo.from(allFirmwares);
-        return PagedInfoList.asJson("data", firmwareInfos, queryParameters);
+        return PagedInfoList.fromPagedList("data", firmwareInfos, queryParameters);
     }
-
-/*    private List<? extends FirmwareVersion> queryFirmwareVersions(QueryParameters queryParameters, JsonQueryFilter filter) {
-        Query<? extends FirmwareVersion> query = firmwareService.getFirmwareVersionQuery();
-        RestQuery<? extends FirmwareVersion> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, getFirmwareVersionConditions(filter), Order.descending("lastRun").nullsLast());
-    }*/
 
     private Condition getFirmwareVersionConditions(JsonQueryFilter filter, DeviceType deviceType) {
         Condition condition = where("deviceType").isEqualTo(deviceType);

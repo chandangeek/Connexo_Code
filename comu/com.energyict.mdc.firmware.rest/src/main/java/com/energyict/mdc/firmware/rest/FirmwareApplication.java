@@ -1,31 +1,33 @@
 package com.energyict.mdc.firmware.rest;
 
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.*;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.omg.IOP.TransactionService;
+import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.util.*;
 
-@Component(name = "com.energyict.mdc.firmware.rest", service = Application.class, immediate = true, property = {"alias=/frw", "app=MDC", "name=" + FirmwareApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.firmware.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/fwc", "app=MDC", "name=" + FirmwareApplication.COMPONENT_NAME})
 public class FirmwareApplication extends Application implements BinderProvider, TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "FWC";
+    public static final String COMPONENT_NAME = "FWR";
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-    private volatile QueryService queryService;
+    private volatile RestQueryService restQueryService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile FirmwareService firmwareService;
 
 
     @Override
@@ -49,8 +51,9 @@ public class FirmwareApplication extends Application implements BinderProvider, 
                 bind(transactionService).to(TransactionService.class);
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
-                bind(queryService).to(QueryService.class);
+                bind(restQueryService).to(RestQueryService.class);
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+                bind(firmwareService).to(FirmwareService.class);
             }
         };
     }
@@ -72,5 +75,31 @@ public class FirmwareApplication extends Application implements BinderProvider, 
                 keys.add(messageSeed);
         }
         return keys;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setRestQueryService(RestQueryService restQueryService) {
+        this.restQueryService = restQueryService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setFirmwareService(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
     }
 }
