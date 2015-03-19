@@ -6,12 +6,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Field;
 import java.time.Clock;
@@ -29,9 +24,15 @@ import java.util.Set;
 
 import javax.inject.Provider;
 
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.*;
 import org.junit.After;
@@ -158,7 +159,13 @@ public class ValidationServiceImplTest {
     @Mock
     private ValidatorCreator validatorCreator;
     @Mock
-    private ValidationService dataValidationService;
+    private QueueTableSpec queueTableSpec;
+    @Mock
+    private DestinationSpec destinationSpec;
+    @Mock
+    private SubscriberSpec subscriberSpec;
+    @Mock
+    private RecurrentTask recurrentTask;
 
     @Before
     public void setUp() {
@@ -176,6 +183,11 @@ public class ValidationServiceImplTest {
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
         when(dataModel.query(IValidationRule.class)).thenReturn(validationRuleQueryExecutor);
         when(queryService.wrap(eq(validationRuleQueryExecutor))).thenReturn(allValidationRuleQuery);
+        when(messageService.getQueueTableSpec(any(String.class))).thenReturn(Optional.of(queueTableSpec));
+        when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
+        doNothing().when(destinationSpec).save();
+        doNothing().when(destinationSpec).activate();
+        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpec);
 
         validationService = new ValidationServiceImpl(clock,messageService , eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
@@ -184,7 +196,7 @@ public class ValidationServiceImplTest {
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
         Provider<ValidationRuleImpl> provider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, provider));
-        when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> new DataValidationTaskImpl(dataModel,taskService,dataValidationService, thesaurus));
+        when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> new DataValidationTaskImpl(dataModel,taskService,validationService, thesaurus, recurrentTask));
         when(dataModel.query(IMeterActivationValidation.class, IChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any())).thenReturn(nlsMessageFormat);

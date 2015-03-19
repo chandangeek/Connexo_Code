@@ -64,7 +64,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Inject
     ValidationServiceImpl(Clock clock,MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
         this.clock = clock;
-        //this.messageService = messageService;
+        this.messageService = messageService;
         setMessageService(messageService);
         this.eventService = eventService;
         this.meteringService = meteringService;
@@ -530,14 +530,14 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Override
-    public DataValidationOccurence createValidationOccurrence(TaskOccurrence taskOccurrence){
+    public DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence){
         DataValidationTask task = getDataValidationTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
-        return DataValidationOccurenceImpl.from(dataModel, taskOccurrence, task);
+        return DataValidationOccurrenceImpl.from(dataModel, taskOccurrence, task);
     }
 
     @Override
-    public Optional<DataValidationOccurence> findDataValidationOccurrence(TaskOccurrence occurrence) {
-        return dataModel.query(DataValidationOccurence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+    public Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence) {
+        return dataModel.query(DataValidationOccurrence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {

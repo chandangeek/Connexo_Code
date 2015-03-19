@@ -4,6 +4,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.History;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -16,13 +18,20 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.*;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.validation.DataValidationOccurrence;
+import com.elster.jupiter.util.conditions.Condition;
+
+
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_TASK + "}")
 public final class DataValidationTaskImpl implements DataValidationTask {
@@ -55,19 +64,20 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private ScheduleExpression scheduleExpression;
 
     @Inject
-    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService,Thesaurus thesaurus)
+    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService,Thesaurus thesaurus, RecurrentTask recurrentTask)
     {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.dataValidationService = dataValidationService;
         this.thesaurus = thesaurus;
+        this.recurrentTask.set(recurrentTask);
     }
 
     static DataValidationTaskImpl from(DataModel model,String name, Instant nextExecution,ValidationService dataValidationService ) {
         return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution,dataValidationService);
     }
 
-    private DataValidationTaskImpl init(String name, Instant nextExecution,ValidationService dataValidationService) {
+    DataValidationTaskImpl init(String name, Instant nextExecution,ValidationService dataValidationService) {
         this.nextExecution = nextExecution;
         this.name = name;
         this.dataValidationService = dataValidationService;
@@ -80,7 +90,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public DataValidationStatus execute(DataValidationOccurence taskOccurence) {
+    public DataValidationStatus execute(DataValidationOccurrence taskOccurence) {
         return null;
     }
 
@@ -92,6 +102,11 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public boolean canBeDeleted() {
         return !hasUnfinishedOccurrences();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override
@@ -119,7 +134,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         }
 
         dataModel.remove(this);
-        dataModel.mapper(DataValidationOccurence.class).remove(getOccurrences());
+        dataModel.mapper(DataValidationOccurrence.class).remove(getOccurrences());
         if (recurrentTask.isPresent()) {
             recurrentTask.get().delete();
         }
@@ -133,16 +148,16 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private boolean hasBusyOccurrence() {
         return getLastOccurrence()
-                .map(DataValidationOccurence::getStatus)
+                .map(DataValidationOccurrence::getStatus)
                 .orElse(DataValidationTaskStatus.SUCCESS)
                 .equals(DataValidationTaskStatus.BUSY);
     }
 
     private boolean hasQueuedMessages() {
         Optional<? extends TaskOccurrence> lastOccurrence = recurrentTask.get().getLastOccurrence();
-        Optional<DataValidationOccurence> lastDataValidationOccurrence = getLastOccurrence();
+        Optional<DataValidationOccurrence> lastDataValidationOccurrence = getLastOccurrence();
         return lastOccurrence.isPresent() &&
-                lastDataValidationOccurrence.map(DataValidationOccurence::getTaskOccurrence)
+                lastDataValidationOccurrence.map(DataValidationOccurrence::getTaskOccurrence)
                         .map(TaskOccurrence::getId)
                         .map(i -> !i.equals(lastOccurrence.get().getId()))
                         .orElse(true);
@@ -170,8 +185,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public Optional<DataValidationOccurence> getLastOccurrence() {
-        return dataModel.query(DataValidationOccurence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("dataValidationTask", this), new Order[]{Order.descending("taskocc")},
+    public Optional<DataValidationOccurrence> getLastOccurrence() {
+        return dataModel.query(DataValidationOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("dataValidationTask", this), new Order[]{Order.descending("taskocc")},
                 false, new String[]{}, 1, 1).stream().findAny();
     }
 
@@ -193,8 +208,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public List<? extends DataValidationOccurence> getOccurrences() {
-        return dataModel.mapper(DataValidationOccurenceImpl.class).find("dataValidationTask", this);
+    public List<? extends DataValidationOccurrence> getOccurrences() {
+        return dataModel.mapper(DataValidationOccurrence.class).find("dataValidationTask", this);
     }
 
     @Override
@@ -282,4 +297,36 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         }
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    @Override
+    public Optional<? extends DataValidationOccurrence> getOccurrence(Long id) {
+        return dataModel.mapper(DataValidationOccurrenceImpl.class).getOptional(id).filter(occ -> this.getId() == occ.getTask().getId());
+    }
+
+    @Override
+    public DataValidationOccurrenceFinder getOccurrencesFinder() {
+        Condition condition = where("dataValidationTask").isEqualTo(this);
+        Order order = Order.descending("taskocc");
+        return new DataValidationOccurrenceFinderImpl(dataModel, condition, order);
+    }
+
+    public History<? extends DataValidationTask> getHistory() {
+        List<JournalEntry<DataValidationTask>> journal = dataModel.mapper(DataValidationTask.class).getJournal(getId());
+        return new History<>(journal, this);
+    }
 }

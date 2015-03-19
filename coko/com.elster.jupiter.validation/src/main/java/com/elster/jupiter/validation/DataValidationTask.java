@@ -1,17 +1,18 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.HasAuditInfo;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.ScheduleExpression;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public interface DataValidationTask {
+public interface DataValidationTask extends HasAuditInfo {
 
     public void activate();
 
-    public DataValidationStatus execute(DataValidationOccurence taskOccurence);
+    public DataValidationStatus execute(DataValidationOccurrence taskOccurence);
 
     public void deactivate();
 
@@ -45,9 +46,17 @@ public interface DataValidationTask {
 
     public void triggerNow();
 
+
     public boolean canBeDeleted();
 
-    public Optional<DataValidationOccurence> getLastOccurrence();
+    public Optional<DataValidationOccurrence> getLastOccurrence();
 
-    public List<? extends DataValidationOccurence> getOccurrences();
+    public List<? extends DataValidationOccurrence> getOccurrences();
+
+    Optional<? extends DataValidationOccurrence> getOccurrence(Long id);
+
+    DataValidationOccurrenceFinder getOccurrencesFinder();
+
+    History<? extends DataValidationTask> getHistory();
+
 }

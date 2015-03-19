@@ -100,7 +100,7 @@ public interface ValidationService {
 
     Thesaurus getThesaurus();
 
-    DataValidationOccurence createValidationOccurrence(TaskOccurrence taskOccurrence);
+    DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence);
 
-    Optional<DataValidationOccurence> findDataValidationOccurrence(TaskOccurrence occurrence);
+    Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence);
 }

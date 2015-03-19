@@ -150,8 +150,8 @@ public enum TableSpecs {
     VAL_OCCURRENCE{
         @Override
         void addTo(DataModel dataModel){
-            Table<DataValidationOccurence> table = dataModel.addTable(name(),DataValidationOccurence.class);
-            table.map(DataValidationOccurenceImpl.class);
+            Table<DataValidationOccurrence> table = dataModel.addTable(name(),DataValidationOccurrence.class);
+            table.map(DataValidationOccurrenceImpl.class);
             Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
             Column dataValidationTask = table.column("DATAVALIDATIONTASK").number().notNull().add();
             table.addIntervalColumns("dataValidationDataInterval");

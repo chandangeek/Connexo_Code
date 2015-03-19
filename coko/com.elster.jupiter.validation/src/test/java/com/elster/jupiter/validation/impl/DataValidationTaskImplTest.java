@@ -1,27 +1,38 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.swing.text.html.Option;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -46,9 +57,21 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     private Thesaurus thesaurus;
     @Mock
     private ValidationService dataValidationService;
+    @Mock
+    private DestinationSpec destinationSpec;
+    @Mock
+    private QueryExecutor queryExecutor;
+    @Mock
+    private RecurrentTask recurrentTask;
+    @Mock
+    private RecurrentTaskBuilder taskBuilder;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
 
     private DataValidationTaskImpl newTask() {
-        return new DataValidationTaskImpl(dataModel,taskService,dataValidationService,thesaurus);
+        return new DataValidationTaskImpl(dataModel,taskService,dataValidationService,thesaurus, recurrentTask);
     }
 
     private DataValidationTaskImpl setId(DataValidationTaskImpl entity, long id) {
@@ -59,14 +82,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationTask == null) {
-            validationTask = setId(newTask(), ID);
+            validationTask = setId(newTask().init("taskname", Instant.now() ,dataValidationService), ID);
         }
         return validationTask;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(newTask(), ID);
+        return setId(newTask().init("taskname", Instant.now(), dataValidationService), ID);
     }
 
     @Override
@@ -84,10 +107,28 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         return null;
     }
 
+    @Before
+    public void setUp() {
+        when(taskService.newBuilder()).thenReturn(taskBuilder);
+        when(taskBuilder.setName(any(String.class))).thenReturn(taskBuilder);
+        when(taskBuilder.setDestination(any(DestinationSpec.class))).thenReturn(taskBuilder);
+        when(taskBuilder.setScheduleExpression(any(ScheduleExpression.class))).thenReturn(taskBuilder);
+        when(taskBuilder.setPayLoad(any(String.class))).thenReturn(taskBuilder);
+        when(taskBuilder.build()).thenReturn(recurrentTask);
+        when(recurrentTask.getLastOccurrence()).thenReturn(Optional.empty());
+
+        doNothing().when(recurrentTask).setNextExecution(any(Instant.class));
+        doNothing().when(recurrentTask).save();
+
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
+
+        when(dataValidationService.getDestination()).thenReturn(destinationSpec);
+    }
 
     @Test
     public void testPersist() {
-        setUpPersist();
         DataValidationTaskImpl testPersistDataValidationTask = newTask();
         testPersistDataValidationTask.setName("testname");
         testPersistDataValidationTask.setEndDeviceGroup(endDeviceGroup);
@@ -97,7 +138,6 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
     @Test
     public void testUpdate() {
-        setUpPersist();
         DataValidationTaskImpl testUpdateDataValidationTask = newTask();
         testUpdateDataValidationTask.setName("taskname");
         testUpdateDataValidationTask.setEndDeviceGroup(endDeviceGroup);
@@ -105,25 +145,6 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
         testUpdateDataValidationTask.save();
         verify(dataModel).update(testUpdateDataValidationTask);
-    }
-
-    private void setUpPersist() {
-        RecurrentTask recurrentTask = mock(RecurrentTask.class);
-        RecurrentTaskBuilder taskBuilder = mock(RecurrentTaskBuilder.class);
-        when(taskService.newBuilder()).thenReturn(taskBuilder);
-        when(taskBuilder.setName(any(String.class))).thenReturn(taskBuilder);
-        when(taskBuilder.setScheduleExpression(any(ScheduleExpression.class))).thenReturn(taskBuilder);
-        when(taskBuilder.setPayLoad(any(String.class))).thenReturn(taskBuilder);
-        when(taskBuilder.build()).thenReturn(recurrentTask);
-
-        doNothing().when(recurrentTask).setNextExecution(any(Instant.class));
-        doNothing().when(recurrentTask).save();
-
-        ValidatorFactory validatorFactory = mock(ValidatorFactory.class);
-        Validator validator = mock(Validator.class);
-        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
-        when(validatorFactory.getValidator()).thenReturn(validator);
-        when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
     }
 
     @Test
@@ -134,7 +155,18 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         field("id").ofType(Long.TYPE).in(task).set(ID);
         task.save();
         verify(dataModel).update(task);
+
+        when(dataModel.query(any(), any())).thenReturn(queryExecutor);
+        when(queryExecutor.select(any(), any(), any(), any(), any())).thenReturn(new ArrayList<DataValidationOccurrence>());
+
+        DataMapper<DataValidationOccurrence> mapper = mock(DataMapper.class);
+        when(dataModel.mapper(DataValidationOccurrence.class)).thenReturn(mapper);
+        when(mapper.find(any(String.class), any(DataValidationTaskImpl.class))).thenReturn(new ArrayList<DataValidationOccurrence>());
+        doNothing().when(mapper).remove(anyList());
+        doNothing().when(recurrentTask).delete();
+
         task.delete();
+        verify(recurrentTask).delete();
         verify(dataModel).remove(task);
     }
 

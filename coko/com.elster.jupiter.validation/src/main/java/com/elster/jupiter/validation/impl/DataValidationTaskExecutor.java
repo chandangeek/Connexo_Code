@@ -5,7 +5,7 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.validation.DataValidationOccurence;
+import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -27,7 +27,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        DataValidationOccurence dataValidationOccurence = createOccurence(taskOccurrence);
+        DataValidationOccurrence dataValidationOccurence = createOccurence(taskOccurrence);
 
     }
 
@@ -37,17 +37,17 @@ public class DataValidationTaskExecutor implements TaskExecutor {
         return logger;
     }
 
-    public DataValidationOccurence createOccurence(TaskOccurrence taskOccurrence){
-        DataValidationOccurence dataValidationOccurence= validationService.createValidationOccurrence(taskOccurrence);
+    public DataValidationOccurrence createOccurence(TaskOccurrence taskOccurrence){
+        DataValidationOccurrence dataValidationOccurence= validationService.createValidationOccurrence(taskOccurrence);
         dataValidationOccurence.persist();
         return dataValidationOccurence;
     }
 
-    private DataValidationOccurence findOccurrence(TaskOccurrence occurrence) {
+    private DataValidationOccurrence findOccurrence(TaskOccurrence occurrence) {
         return validationService.findDataValidationOccurrence(occurrence).orElseThrow(IllegalArgumentException::new);
     }
 
-    private void doExecute(DataValidationOccurence occurrence, Logger logger) {
+    private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
 
 //        implement DataValidationTaskItem
