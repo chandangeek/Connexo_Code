@@ -31,6 +31,7 @@ public interface Channel {
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, Instant timestamp);
     Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
     List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval);
+    List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval);
     List<ReadingQualityRecord> findReadingQuality(Instant timestamp);
     List<ReadingQualityRecord> findReadingQuality(Range<Instant> interval);
     List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> interval);

@@ -383,6 +383,12 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
+    public List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval) {
+        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval)).and(ofType(type)).and(isActual());
+        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
+    }
+
+    @Override
     public List<ReadingQualityRecord> findReadingQuality(Instant timestamp) {
         Condition atTimestamp = ofThisChannel().and(withTimestamp(timestamp));
         return dataModel.mapper(ReadingQualityRecord.class).select(atTimestamp, Order.ascending("readingTimestamp"));
