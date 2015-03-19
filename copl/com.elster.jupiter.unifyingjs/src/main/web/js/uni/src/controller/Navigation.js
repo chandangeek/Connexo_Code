@@ -143,11 +143,7 @@ Ext.define('Uni.controller.Navigation', {
 
     initSearch: function () {
         var me = this;
-        if (me.applicationTitle === 'Connexo Admin') {
-            me.getSearchButton().setVisible(false);
-        } else {
-            me.getSearchButton().setVisible(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']));
-        }
+            me.getSearchButton().setVisible(me.searchEnabled);
     },
 
     initOnlineHelp: function () {
