@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -41,6 +42,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -186,6 +188,8 @@ public class InMemoryIntegrationPersistence {
                 new EngineModelModule(),
                 new MasterDataModule(),
                 new ValidationModule(),
+                new FiniteStateMachineModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
