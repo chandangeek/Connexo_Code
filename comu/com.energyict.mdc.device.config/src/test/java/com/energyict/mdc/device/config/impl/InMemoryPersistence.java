@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -193,6 +195,8 @@ public class InMemoryPersistence {
                 new ProtocolApiModule(),
                 new TasksModule(),
                 new ValidationModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),

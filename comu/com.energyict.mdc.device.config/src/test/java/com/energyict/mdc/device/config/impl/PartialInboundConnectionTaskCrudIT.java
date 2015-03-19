@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -165,6 +167,8 @@ public class PartialInboundConnectionTaskCrudIT {
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
                 new IssuesModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),

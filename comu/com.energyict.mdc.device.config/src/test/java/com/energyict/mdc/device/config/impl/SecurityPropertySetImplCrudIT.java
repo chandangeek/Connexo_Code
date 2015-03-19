@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -153,6 +155,8 @@ public class SecurityPropertySetImplCrudIT {
                 new ProtocolApiModule(),
                 new TasksModule(),
                 new ValidationModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
