@@ -73,22 +73,19 @@ public class DataExportTaskHistoryInfo {
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
                         .orElseGet(dataExportOccurrence::getTask));
         task = new DataExportTaskInfo();
-        if (history.getVersionAt(dataExportOccurrence.getTriggerTime()).isPresent()) {
-            ReadingTypeDataExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime()).get();
-            task.populate(version, thesaurus, timeService);
-            for (ReadingType readingType : version.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
-                task.readingTypes.add(new ReadingTypeInfo(readingType));
-            }
-            Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
-            if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
-                task.schedule = null;
-            } else if (foundSchedule.isPresent()) {
-                ScheduleExpression scheduleExpression = foundSchedule.get();
-                if (scheduleExpression instanceof TemporalExpression) {
-                    task.schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
-                } else {
-                    task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
-                }
+        task.populate(version, thesaurus, timeService);
+        for (ReadingType readingType : version.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
+            task.readingTypes.add(new ReadingTypeInfo(readingType));
+        }
+        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
+        if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
+            task.schedule = null;
+        } else if (foundSchedule.isPresent()) {
+            ScheduleExpression scheduleExpression = foundSchedule.get();
+            if (scheduleExpression instanceof TemporalExpression) {
+                task.schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+            } else {
+                task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
             task.properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
