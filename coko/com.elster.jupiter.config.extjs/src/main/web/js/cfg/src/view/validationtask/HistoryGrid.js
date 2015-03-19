@@ -39,16 +39,10 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.validationPeriod', 'CFG', 'Validation period'),
-                dataIndex: 'exportPeriod_range',
-                width: 400
-            },
-            {
                 xtype: 'uni-actioncolumn',
                 width: 100,
                 menu: {
-                    xtype: 'tasks-history-action-menu'//,
-                    //itemId: 'tasks-action-menu'
+                    xtype: 'tasks-history-action-menu'              
                 }
             }
         ];
