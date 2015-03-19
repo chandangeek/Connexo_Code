@@ -13,6 +13,7 @@ public class DataValidationTaskInfos {
     public int total;
     public List<DataValidationTaskInfo> dataValidationTasks = new ArrayList<>();
 
+    public DataValidationTaskInfos(){}
     public DataValidationTaskInfos(Iterable<? extends DataValidationTask> sets){
         addAll(sets);
     }

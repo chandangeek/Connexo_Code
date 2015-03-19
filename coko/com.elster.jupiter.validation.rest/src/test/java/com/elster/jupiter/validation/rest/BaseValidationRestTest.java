@@ -10,7 +10,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -41,6 +43,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -62,6 +65,9 @@ public class BaseValidationRestTest extends JerseyTest {
     private MeteringGroupsService meteringGroupsService;
     @Mock
     protected EndDeviceGroup endDeviceGroup;
+    @Mock
+    protected TimeService timeService;
+
 
     protected DataValidationTaskBuilder builder = initBuilderStub();
 
@@ -98,12 +104,13 @@ public class BaseValidationRestTest extends JerseyTest {
         serviceLocator.setRestQueryService(restQueryService);
         serviceLocator.setTransactionService(transactionService);
         serviceLocator.setNlsService(nlsService);
+        serviceLocator.setTimeService(timeService);
 
         when(validationService.newTaskBuilder()).thenReturn(builder);
 
         when(meteringGroupsService.findEndDeviceGroup(1)).thenReturn(Optional.of(endDeviceGroup));
 
-
+        when(transactionService.getContext()).thenReturn(mock(TransactionContext.class));
 
         when(transactionService.execute(Matchers.any())).thenAnswer(new Answer() {
             
@@ -122,6 +129,7 @@ public class BaseValidationRestTest extends JerseyTest {
     private void init() {
         restQueryService = mock(RestQueryService.class);
         propertyUtils = new PropertyUtils();
+        thesaurus = mock(Thesaurus.class);
     }
 
     @Override
@@ -145,6 +153,8 @@ public class BaseValidationRestTest extends JerseyTest {
                 bind(validationService).to(ValidationService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
+                bind(timeService).to(TimeService.class);
+                bind(thesaurus).to(Thesaurus.class);
 //              bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             }
         });

@@ -10,9 +10,12 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationTask;
 
+import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -40,12 +43,30 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     @Mock
     protected EndDeviceGroup endDeviceGroup;
 
+    @Mock
+    DataValidationTaskBuilder taskBuilder;
+
+    @Mock
+    DataValidationTask dataValidationTask1;
+
+    @Before
+
+    public void setUp() throws Exception {
+
+        super.setUp();
+        dataValidationTask1 = mockDataValidationTask(TASK_ID);
+        when(taskBuilder.setName(Matchers.any())).thenReturn(taskBuilder);
+        when(taskBuilder.setEndDeviceGroup(Matchers.any())).thenReturn(taskBuilder);
+        when(taskBuilder.setScheduleExpression(Matchers.any())).thenReturn(taskBuilder);
+        when(taskBuilder.setNextExecution(Matchers.any())).thenReturn(taskBuilder);
+        when(taskBuilder.build()).thenReturn(dataValidationTask1);
+        when(validationService.newTaskBuilder()).thenReturn(taskBuilder);
+        when(validationService.findValidationTask(anyLong())).thenReturn(Optional.of(dataValidationTask1));
+    }
+
     @Test
     public void getTasksTest() {
-
         mockDataValidationTasks(mockDataValidationTask(13));
-
-        DataValidationTaskInfo info = new DataValidationTaskInfo();
 
         Response response1 = target("/datavalidationtasks").request().get();
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -54,25 +75,13 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         assertThat(infos.total).isEqualTo(1);
         assertThat(infos.dataValidationTasks).hasSize(1);
     }
-    @Test
-    public void triggerTaskTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo();
-
-        Response response1 = target("/datavalidationtasks/"+TASK_ID+"/trigger").request().post(Entity.json(null));
-        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        verify(dataValidationTask).triggerNow();
-    }
 
     @Test
     public void getCreateTasksTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo();
-        info.name = "newName";
-        info.nextRun = 250L;
+
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1);
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 1;
-        info.deviceGroup.name = "Group1";
-
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
         Response response = target("/datavalidationtasks").request().post(json);
@@ -80,40 +89,25 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
+
     @Test
     public void deleteTaskTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo();
         info.name = "newName";
         info.lastRun = 250L;
-
-        //DataValidationTaskInfo validationRuleSet = mockDataValidationTaskInfo(99, false);
-        //Response response = target("/datavalidationtasks/99").request().delete();
-        //assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        //verify(validationRuleSet).delete();
-
-        //info.deviceGroup = new MeterGroupInfo();
-        //info.deviceGroup.id = 5;
-        //info.dataProcessor = new ProcessorInfo();
-        //info.dataProcessor.name = "dataProcessor";
-
-        //Entity<DataValidationTaskInfo> json = Entity.json(info);
-
-        //Response response = target("/datavalidationtasks").request().delete(json);
-
-        //assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
     @Test
     public void updateTasksTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo();
+
+
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1);
         info.id = TASK_ID;
         info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 5;
+        info.deviceGroup.id = 1;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-
         Response response = target("/datavalidationtasks/" + TASK_ID).request().put(json);
-
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
@@ -136,5 +130,5 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
         return validationTask;
 
-        }
+    }
 }
