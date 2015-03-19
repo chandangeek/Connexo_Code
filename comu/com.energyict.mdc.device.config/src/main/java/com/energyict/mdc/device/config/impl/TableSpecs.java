@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -50,8 +51,14 @@ public enum TableSpecs {
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
+            Column deviceLifeCycle = table.column("DEVICELIFECYCLE").number().notNull().add();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
+            table.foreignKey("FK_DTC_DECTYPE_DEVLIFECYCLE")
+                    .on(deviceLifeCycle)
+                    .references(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "DLD_DEVICE_LIFE_CYCLE")
+                    .map("deviceLifeCycle")
+                    .add();
         }
     },
 

@@ -32,6 +32,8 @@ import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -155,6 +157,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new EngineModelModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
@@ -166,6 +169,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(MasterDataService.class);
+            injector.getInstance(DeviceLifeCycleConfigurationService.class);
             injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }

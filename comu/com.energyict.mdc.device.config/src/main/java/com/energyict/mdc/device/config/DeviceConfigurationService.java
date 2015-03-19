@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -29,7 +30,35 @@ public interface DeviceConfigurationService {
 
     public Finder<DeviceType> findAllDeviceTypes();
 
+    /**
+     * Creates a new {@link DeviceType} with the specified name
+     * that uses the specified {@link DeviceProtocolPluggableClass device protocol}
+     * to communicate with the actual device.
+     * The {@link com.elster.jupiter.fsm.State} of the devices
+     * of this type are managed by the default {@link DeviceLifeCycle}
+     * that was installed by this bundle.
+     * Note however that if a user deleted that default DeviceLifeCycle
+     * the creation will fail because the DeviceLifeCycle is required.
+     *
+     * @param name The name of the new DeviceType
+     * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
+     * @return The newly created DeviceType
+     */
     public DeviceType newDeviceType (String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+
+    /**
+     * Creates a new {@link DeviceType} with the specified name
+     * that uses the specified {@link DeviceProtocolPluggableClass device protocol}
+     * to communicate with the actual device.
+     * The {@link com.elster.jupiter.fsm.State} of the devices
+     * of this type are managed by the default {@link DeviceLifeCycle}.
+     *
+     * @param name The name of the new DeviceType
+     * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
+     * @param deviceLifeCycle The DeviceLifeCycle
+     * @return The newly created DeviceType
+     */
+    public DeviceType newDeviceType (String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
 
     /**
      * Find the {@link DeviceType} which is uniquely identified by the provided ID.

@@ -6,6 +6,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -182,6 +184,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new SchedulingModule(),
                 new ProtocolApiModule(),
                 new TasksModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
@@ -204,6 +207,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(SchedulingService.class);
+            injector.getInstance(DeviceLifeCycleConfigurationService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }

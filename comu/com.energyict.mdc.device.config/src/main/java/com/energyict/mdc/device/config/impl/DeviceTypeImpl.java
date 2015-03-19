@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDevice
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -21,6 +22,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableList;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -42,6 +46,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private String name;
     @Size(max = 4000, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
+    @IsPresent(message = "{" + MessageSeeds.Keys.DEVICE_LIFE_CYCLE_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
+    private Reference<DeviceLifeCycle> deviceLifeCycle = ValueReference.absent();
     private boolean useChannelJournal;
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
@@ -74,14 +80,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    DeviceTypeImpl initialize(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    DeviceTypeImpl initialize(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
         this.setName(name);
         this.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
+        this.deviceLifeCycle.set(deviceLifeCycle);
         return this;
     }
 
-    static DeviceTypeImpl from(DataModel dataModel, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        return dataModel.getInstance(DeviceTypeImpl.class).initialize(name, deviceProtocolPluggableClass);
+    static DeviceTypeImpl from(DataModel dataModel, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
+        return dataModel.getInstance(DeviceTypeImpl.class).initialize(name, deviceProtocolPluggableClass, deviceLifeCycle);
     }
 
     DeviceConfigurationService getDeviceConfigurationService() {
@@ -163,6 +170,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void setDescription(String newDescription) {
         this.description = newDescription;
+    }
+
+    @Override
+    public DeviceLifeCycle getDeviceLifeCycle() {
+        return this.deviceLifeCycle.get();
     }
 
     @Override

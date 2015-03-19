@@ -55,6 +55,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE(7006, "deviceType.logBookType.duplicate", "The log book type {0} was already added to the device type {1}", SEVERE),
     DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS(7007, Keys.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS, "The protocol of a device type cannot change when the device type has configurations", SEVERE),
     DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE(7008, "deviceType.registerType.duplicate", "The register type {0} was already added to the device type {1}", SEVERE),
+    DEVICE_LIFE_CYCLE_REQUIRED(7009, Keys.DEVICE_LIFE_CYCLE_REQUIRED, "Device life cycle is required", SEVERE),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE(8002, "loadProfileSpec.cannotAddLoadProfileSpecOfTypeXBecauseDeviceTypeYDoesNotContainIt", "The load profile configuration contains a load profile type {0} which is not configured on the device type", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile configuration to an active device configuration", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(8004, "loadProfileSpec.change.configuration", "You can not change the device configuration of an existing load profile configuration", SEVERE),
@@ -234,6 +235,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE = "deviceConfig.active.field.immutable";
         public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "incorrect.direction.connection.method";
         public static final String INCORRECT_GATEWAY_TYPE = "incorrect.gateway.type";
+        public static final String DEVICE_LIFE_CYCLE_REQUIRED = "deviceType.device.life.cycle.required";
     }
 
 }

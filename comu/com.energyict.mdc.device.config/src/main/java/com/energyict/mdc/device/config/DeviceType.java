@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * DeviceType defines the basic common attributes of a
  * physical (or virtual) device type.
- * Each physical device (Device) is an instance referrring to
+ * Each physical device (Device) is an instance referring to
  * a specific DeviceType.
  *
  * @author Karel
@@ -45,6 +46,8 @@ public interface DeviceType extends HasId, HasName {
     public String getDescription();
 
     public void setDescription(String newDescription);
+
+    public DeviceLifeCycle getDeviceLifeCycle();
 
     /**
      * Returns true if this device type's protocol supports messaging.

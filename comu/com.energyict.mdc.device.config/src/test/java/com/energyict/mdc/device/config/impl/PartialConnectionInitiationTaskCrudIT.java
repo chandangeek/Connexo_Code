@@ -7,6 +7,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
@@ -154,6 +156,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 new ProtocolApiModule(),
                 new TasksModule(),
                 new MasterDataModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
@@ -180,6 +183,7 @@ public class PartialConnectionInitiationTaskCrudIT {
             injector.getInstance(TaskService.class);
             injector.getInstance(PluggableService.class);
             injector.getInstance(ValidationService.class);
+            injector.getInstance(DeviceLifeCycleConfigurationService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }

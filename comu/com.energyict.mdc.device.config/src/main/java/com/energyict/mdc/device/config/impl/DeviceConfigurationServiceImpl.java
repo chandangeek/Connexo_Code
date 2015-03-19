@@ -18,6 +18,8 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -101,6 +103,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile MasterDataService masterDataService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile UserService userService;
     private volatile TaskService taskService;
@@ -114,7 +117,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -127,6 +130,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setMasterDataService(this.masterDataService);
         this.setSchedulingService(schedulingService);
         this.setValidationService(validationService);
+        this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.activate();
         this.install();
     }
@@ -138,7 +142,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        return DeviceTypeImpl.from(this.getDataModel(), name, deviceProtocolPluggableClass);
+        return this.newDeviceType(name, deviceProtocolPluggableClass, this.deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle().get());
+    }
+
+    @Override
+    public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
+        return DeviceTypeImpl.from(this.getDataModel(), name, deviceProtocolPluggableClass, deviceLifeCycle);
     }
 
     @Override
@@ -465,6 +474,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public void setMasterDataService(MasterDataService masterDataService) {
         // Not actively used but required for foreign keys in TableSpecs
         this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Reference

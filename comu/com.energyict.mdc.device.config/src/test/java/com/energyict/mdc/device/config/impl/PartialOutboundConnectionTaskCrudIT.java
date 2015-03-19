@@ -12,6 +12,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
@@ -188,6 +190,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                 new MdcDynamicModule(),
                 new ProtocolApiModule(),
                 new TasksModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
@@ -227,7 +230,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                     protocolPluggableService,
                     engineConfigurationService,
                     schedulingService,
-                    injector.getInstance(ValidationService.class));
+                    injector.getInstance(ValidationService.class),
+                    injector.getInstance(DeviceLifeCycleConfigurationService.class));
             DataModel dataModel = deviceConfigurationService.getDataModel();
             createOracleAliases(dataModel.getConnection(true));
             ctx.commit();

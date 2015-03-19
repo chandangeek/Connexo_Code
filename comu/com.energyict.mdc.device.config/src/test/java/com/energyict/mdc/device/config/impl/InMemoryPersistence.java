@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -150,6 +152,7 @@ public class InMemoryPersistence {
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             injector.getInstance(EngineConfigurationService.class);
@@ -196,6 +199,7 @@ public class InMemoryPersistence {
                 new ProtocolApiModule(),
                 new TasksModule(),
                 new ValidationModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new EngineModelModule(),
