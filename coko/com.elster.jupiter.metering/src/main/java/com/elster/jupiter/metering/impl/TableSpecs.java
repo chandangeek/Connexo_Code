@@ -238,6 +238,8 @@ public enum TableSpecs {
                     references(MTR_ENDDEVICE.name()).
                     onDelete(CASCADE).
                     map("endDevice").
+                    reverseMap("status").
+                    composition().
                     add();
             table.foreignKey("FK_MTR_STATUS_STATE").
                     on(state).

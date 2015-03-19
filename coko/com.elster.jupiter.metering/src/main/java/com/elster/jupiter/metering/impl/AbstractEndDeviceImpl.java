@@ -14,6 +14,8 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -54,6 +56,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 	// associations
 	private AmrSystem amrSystem;
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
+    private TemporalReference<EndDeviceLifeCycleStatus> status = Temporals.absent();
     private StateManager stateManager = new NoDeviceLifeCycle();
 
     private final Clock clock;
@@ -161,7 +164,13 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         Instant now = this.clock.instant();
         this.closeCurrentState(now);
         this.createNewState(now, newState);
-        this.dataModel.touch(this);
+        this.touch();
+    }
+
+    public void touch() {
+        if (this.id != 0) {
+            this.dataModel.touch(this);
+        }
     }
 
     private void validateState(State state) {
@@ -176,59 +185,33 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     }
 
     private void closeCurrentState(Instant now) {
-        this.findCurrentDeviceLifeCycleStatus().ifPresent(s -> this.closeCurrentState(s, now));
-    }
-
-    private void closeCurrentState(EndDeviceLifeCycleStatus status, Instant now) {
+        EndDeviceLifeCycleStatus status = this.status.effective(now).get();
         status.close(now);
         this.dataModel.update(status);
     }
+
     private void createNewState(Instant effective, State state) {
         Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
         EndDeviceLifeCycleStatusImpl deviceLifeCycleStatus = this.dataModel
                 .getInstance(EndDeviceLifeCycleStatusImpl.class)
                 .initialize(stateEffectivityInterval, this, state);
-        this.dataModel.persist(deviceLifeCycleStatus);
+        this.status.add(deviceLifeCycleStatus);
     }
 
     @Override
     public Optional<State> getState() {
         if (this.isDeviceLifeCycleManaged()) {
-            return this.findCurrentDeviceLifeCycleStatus().map(EndDeviceLifeCycleStatus::getState);
+            return this.status.effective(this.clock.instant()).map(EndDeviceLifeCycleStatus::getState);
         }
         else {
             return Optional.empty();
-        }
-    }
-
-    private Optional<EndDeviceLifeCycleStatus> findCurrentDeviceLifeCycleStatus() {
-        Condition condition = where("endDevice").isEqualTo(this).and(where("interval").isEffective());
-        List<EndDeviceLifeCycleStatus> candidates = this.getDataModel().mapper(EndDeviceLifeCycleStatus.class).select(condition);
-        if (candidates.size() > 1) {
-            throw new NotUniqueException("Expected only a single " + EndDeviceLifeCycleStatus.class.getSimpleName() + " to be effective now for end device " + this.getMRID());
-        }
-        if (candidates.isEmpty()) {
-            return Optional.empty();
-        }
-        else {
-            return Optional.of(candidates.get(0));
         }
     }
 
     @Override
     public Optional<State> getState(Instant instant) {
         if (this.isDeviceLifeCycleManaged()) {
-            Condition condition = where("endDevice").isEqualTo(this).and(where("interval").isEffective(instant));
-            List<EndDeviceLifeCycleStatus> candidates = this.getDataModel().mapper(EndDeviceLifeCycleStatus.class).select(condition);
-            if (candidates.size() > 1) {
-                throw new NotUniqueException("Expected only a single " + EndDeviceLifeCycleStatus.class.getSimpleName() + " to be effective at " + instant + " for end device " + this.getMRID());
-            }
-            if (candidates.isEmpty()) {
-                return Optional.empty();
-            }
-            else {
-                return Optional.of(candidates.get(0).getState());
-            }
+            return this.status.effective(instant).map(EndDeviceLifeCycleStatus::getState);
         }
         else {
             return Optional.empty();
