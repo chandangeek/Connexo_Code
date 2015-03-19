@@ -61,8 +61,7 @@ public class MdcPluggableRestApplication extends Application implements Translat
                 LoadProfileTypeResource.class,
                 CodeTableResource.class,
                 LocalizedFieldValidationExceptionMapper.class,
-                JsonMappingExceptionMapper.class,
-                MdcPropertyUtils.class);
+                JsonMappingExceptionMapper.class);
     }
 
     @Override
