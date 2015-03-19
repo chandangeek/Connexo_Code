@@ -10,7 +10,7 @@ import java.util.List;
  * Implementation of Finder that allows paging over a list of objects
  * Merely intended as temporary functionality while we wait for back end sorting to be completed
  */
-public class ListPager<T> {
+public class ListPager<T> implements Finder<T> {
 
     private final List<T> elements = new ArrayList<>();
     private Integer start;
@@ -34,6 +34,16 @@ public class ListPager<T> {
         this.start=start;
         this.pageSize=pageSize;
         return this;
+    }
+
+    @Override
+    public Finder<T> sorted(String sortColumn, boolean ascending) {
+        throw new RuntimeException("Sorting not supported yet. Use DefaultFinder instead");
+    }
+
+    @Override
+    public Finder<T> defaultSortColumn(String sortColumn) {
+        throw new RuntimeException("Sorting not supported yet. Use DefaultFinder instead");
     }
 
     public List<T> find() {
