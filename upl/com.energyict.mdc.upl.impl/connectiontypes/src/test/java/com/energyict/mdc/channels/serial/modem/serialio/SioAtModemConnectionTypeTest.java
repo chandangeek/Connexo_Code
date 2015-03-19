@@ -1,10 +1,22 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.mdc.*;
-import com.energyict.mdc.channels.serial.*;
+import com.energyict.mdc.DefaultSerialComponentFactory;
+import com.energyict.mdc.ManagerFactory;
+import com.energyict.mdc.SerialComponentFactory;
+import com.energyict.mdc.ServerManager;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
-import com.energyict.mdc.channels.serial.modem.*;
+import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
+import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
+import com.energyict.mdc.channels.serial.modem.AtModemComponent;
+import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
 import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
@@ -20,7 +32,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -75,7 +89,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
-        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_INIT_STRINGS);
+        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_GLOBAL_INIT_STRINGS);
         atModemInitStrings.setValue("ATS0=0E0V1");
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_AFTER_CONNECT);
         delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
@@ -272,7 +286,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
     @Test(timeout = TEST_TIMEOUT_MILLIS)
     public void writeMultipleInitStringsTest() throws Exception {
         TestableSerialComChannel comChannel = getTestableComChannel();
-        comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "OK", "OK", "CONNECT 9600", "OK", "OK"));
+        comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "OK", "OK", "OK", "CONNECT 9600", "OK", "OK"));
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
@@ -316,7 +330,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         atModemConnectionType.connect(comPort, properProperties);
 
         verify(atModemComponent, times(1)).sendInitStrings(comChannel);
-        verify(atModemComponent, times(3)).writeSingleInitString(any(ComChannel.class), any(String.class));
+        verify(atModemComponent, times(4)).writeSingleInitString(any(ComChannel.class), any(String.class)); // 1 global and 3 user defined init strings have been send out
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)

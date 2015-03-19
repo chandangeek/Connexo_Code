@@ -83,7 +83,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
-        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_INIT_STRINGS);
+        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_GLOBAL_INIT_STRINGS);
         atModemInitStrings.setValue("ATS0=0E0V1");
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_AFTER_CONNECT);
         delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
@@ -282,7 +282,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
     @Test(timeout = TEST_TIMEOUT_MILLIS)
     public void writeMultipleInitStringsTest() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
-        comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "OK", "OK", "CONNECT 9600", "OK", "OK"));
+        comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "OK", "OK", "OK", "CONNECT 9600", "OK", "OK"));
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
@@ -326,7 +326,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         atModemConnectionType.connect(comPort, properProperties);
 
         verify(atModemComponent, times(1)).sendInitStrings(comChannel);
-        verify(atModemComponent, times(3)).writeSingleInitString(any(ComChannel.class), any(String.class));
+        verify(atModemComponent, times(4)).writeSingleInitString(any(ComChannel.class), any(String.class)); // 1 global init string and 3 user defined init strings have been send out
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
