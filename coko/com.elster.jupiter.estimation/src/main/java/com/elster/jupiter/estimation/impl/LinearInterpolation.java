@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -24,6 +25,11 @@ import java.util.Map;
  */
 public class LinearInterpolation extends AbstractEstimator {
 
+    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
+    static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = new BigDecimal(10);
+
+    private BigDecimal numberOfConsecutiveSuspects;
+
     LinearInterpolation(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
@@ -34,7 +40,12 @@ public class LinearInterpolation extends AbstractEstimator {
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-
+        BigDecimal value = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+        if (value == null) {
+            this.numberOfConsecutiveSuspects = MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE;
+        } else {
+            this.numberOfConsecutiveSuspects = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+        }
     }
 
     @Override
@@ -52,8 +63,11 @@ public class LinearInterpolation extends AbstractEstimator {
         List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
         List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
         for (EstimationBlock block : estimationBlocks) {
-            if (block.getReadingType().isCumulative())
-            estimate(block, remain, estimated);
+            if (isEstimatable(block)) {
+                estimate(block, remain, estimated);
+            } else {
+                remain.add(block);
+            }
         }
         return SimpleEstimationResult.of(remain, estimated);
     }
@@ -89,12 +103,17 @@ public class LinearInterpolation extends AbstractEstimator {
         List<? extends Estimatable> estimatables = block.estimatables();
         int numberOfIntervals = estimatables.size();
         BigDecimal consumption = qtyAfter.getValue().subtract(qtyBefore.getValue());
-        BigDecimal step = consumption.divide(new BigDecimal(numberOfIntervals + 1), BigDecimal.ROUND_HALF_UP);
+        BigDecimal step = consumption.divide(new BigDecimal(numberOfIntervals + 1), 10, BigDecimal.ROUND_HALF_UP);
         BigDecimal currentValue = qtyBefore.getValue();
         for (Estimatable estimatable : estimatables) {
             currentValue = currentValue.add(step);
             estimatable.setEstimation(currentValue);
         }
+    }
+
+    private boolean isEstimatable(EstimationBlock block) {
+        return ((!block.getReadingType().isCumulative()) &&
+                (block.estimatables().size() <= numberOfConsecutiveSuspects.intValue()));
     }
 
     @Override
@@ -104,6 +123,9 @@ public class LinearInterpolation extends AbstractEstimator {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(
+                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+        return builder.build();
     }
 }

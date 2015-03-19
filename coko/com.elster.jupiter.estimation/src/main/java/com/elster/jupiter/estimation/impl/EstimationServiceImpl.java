@@ -188,6 +188,14 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
+    public Optional<Estimator> getEstimator(String implementation, Map<String, Object> props) {
+        return estimatorFactories.stream()
+                .filter(factory -> factory.available().contains(implementation))
+                .map(factory -> factory.create(implementation, props))
+                .findFirst();
+    }
+
+    @Override
     public EstimationReport estimate(MeterActivation meterActivation) {
         EstimationReportImpl report = new EstimationReportImpl();
 

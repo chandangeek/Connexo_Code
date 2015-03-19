@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
@@ -30,15 +31,18 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -214,11 +218,30 @@ public class ConsoleCommands {
         return rule -> rule.getId() == ruleId;
     }
 
-    public void estimate(long meterId, String estimatorName) {
+
+    private Map<String, Object> getProperties(List<PropertySpec> propertySpecs, String... properties) {
+        Map<String, Object> props = Stream.of(properties)
+                .map(string -> string.split(":"))
+                .collect(Collectors.toMap(
+                        split -> split[0],
+                        split -> propertySpecs.stream()
+                                .filter(spec -> spec.getName().equals(split[0]))
+                                .map(spec -> spec.getValueFactory().fromStringValue(split[1]))
+                                .findFirst()
+                                .orElse(null)
+                ));
+        return props;
+    }
+
+    public void estimate(long meterId, String estimatorName, String... properties) {
         try {
-            EstimatorFactory estimatorFactory = new EstimatorFactoryImpl();
-            Estimator estimator = estimatorFactory.createTemplate(estimatorName);
-            EstimationEngine estimationEngine = new EstimationEngine();
+            Optional<Estimator> optionalEstimatorTemplate = estimationService.getEstimator(estimatorName);
+            if (!optionalEstimatorTemplate.isPresent()) {
+                System.out.println("Estimator class '" + estimatorName + "' not found");
+                return;
+            }
+            Map<String, Object> props = getProperties(optionalEstimatorTemplate.get().getPropertySpecs(), properties);
+            Estimator estimator = estimationService.getEstimator(estimatorName, props).get();
             Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
             Optional<? extends MeterActivation> meterActivationOptional = meter.getCurrentMeterActivation();
             if (!meterActivationOptional.isPresent()) {
@@ -226,36 +249,40 @@ public class ConsoleCommands {
             } else {
                 MeterActivation meterActivation = meterActivationOptional.get();
                 for (Channel channel : meterActivation.getChannels()) {
-                    System.out.println("Handling channel id " + channel.getId());
-                    for (ReadingType readingType : channel.getReadingTypes()) {
-                        System.out.println("Handling reading type " + readingType.getAliasName());
-                        List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, readingType);
-                        EstimationResult result = estimator.estimate(blocks);
-                        List<EstimationBlock> estimated = result.estimated();
-                        List<EstimationBlock> remaining = result.remainingToBeEstimated();
-                        for (EstimationBlock block : estimated) {
-                            System.out.println("Start estimated block");
-                            for (Estimatable estimatable : block.estimatables()) {
-                                System.out.println("Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
-                            }
-                            System.out.println("End estimated block");
-                            System.out.println("");
-                        }
-                        for (EstimationBlock block : remaining) {
-                            System.out.println("Start remaining block");
-                            for (Estimatable estimatable : block.estimatables()) {
-                                System.out.println("No estimated value for " + estimatable.getTimestamp());
-                            }
-                            System.out.println("End remaining block");
-                            System.out.println("");
-                        }
-                    }
+                    estimate(channel, estimator, meterActivation);
                 }
             }
-        } catch (IllegalArgumentException e) {
-            System.out.println("Estimator class '" + estimatorName + "' not found");
         } catch (RuntimeException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void estimate(Channel channel, Estimator estimator, MeterActivation meterActivation) {
+        EstimationEngine estimationEngine = new EstimationEngine();
+        System.out.println("Handling channel id " + channel.getId());
+        for (ReadingType readingType : channel.getReadingTypes()) {
+            System.out.println("Handling reading type " + readingType.getAliasName());
+            List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, readingType);
+            estimator.init(channel, readingType, Range.all());
+            EstimationResult result = estimator.estimate(blocks);
+            List<EstimationBlock> estimated = result.estimated();
+            List<EstimationBlock> remaining = result.remainingToBeEstimated();
+            for (EstimationBlock block : estimated) {
+                System.out.println("Start estimated block");
+                for (Estimatable estimatable : block.estimatables()) {
+                    System.out.println("Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+                }
+                System.out.println("End estimated block");
+                System.out.println("");
+            }
+            for (EstimationBlock block : remaining) {
+                System.out.println("Start remaining block");
+                for (Estimatable estimatable : block.estimatables()) {
+                    System.out.println("No estimated value for " + estimatable.getTimestamp());
+                }
+                System.out.println("End remaining block");
+                System.out.println("");
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface EstimationService {
@@ -14,6 +15,8 @@ public interface EstimationService {
     List<Estimator> getAvailableEstimators();
 
     Optional<Estimator> getEstimator(String implementation);
+
+    Optional<Estimator> getEstimator(String implementation, Map<String, Object> props);
 
     EstimationReport estimate(MeterActivation meterActivation);
 
