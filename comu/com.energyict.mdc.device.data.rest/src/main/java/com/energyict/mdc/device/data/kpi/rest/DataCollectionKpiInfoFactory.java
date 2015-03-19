@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.kpi.rest;
 
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.util.stream.Stream;
@@ -14,6 +15,7 @@ public class DataCollectionKpiInfoFactory {
         DataCollectionKpiInfo kpiInfo = new DataCollectionKpiInfo();
         kpiInfo.id = kpi.getId();
         kpiInfo.deviceGroup = new LongIdWithNameInfo(kpi.getDeviceGroup().getId(), kpi.getDeviceGroup().getName());
+        kpiInfo.displayRange = new TimeDurationInfo(kpi.getDisplayRange());
         Stream.of(kpi.comTaskExecutionKpiCalculationIntervalLength(),kpi.connectionSetupKpiCalculationIntervalLength()).
                 flatMap(Functions.asStream()).
                 findFirst().
