@@ -246,7 +246,7 @@ public class CreateA3DeviceCommand {
     private void addComTaskToDevice(Device device, ComTaskTpl comTask, TimeDuration every) {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         ComTaskEnablement taskEnablement = configuration.getComTaskEnablementFor(comTasks.get(comTask)).get();
-        device.newManuallyScheduledComTaskExecution(taskEnablement, configuration.getProtocolDialectConfigurationPropertiesList().get(0), new TemporalExpression(every)).add();
+        device.newManuallyScheduledComTaskExecution(taskEnablement, new TemporalExpression(every)).add();
     }
 
     private void addSecurityPropertiesToDevice(Device device) {
