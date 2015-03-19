@@ -124,6 +124,7 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(list);
+        when(finder.stream()).thenReturn(list.stream());
         return finder;
     }
 
