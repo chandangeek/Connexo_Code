@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -17,7 +18,6 @@ import com.elster.jupiter.validation.*;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -39,6 +39,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private Instant createTime;
     private Instant modTime;
     private String userName;
+    private final Thesaurus thesaurus;
     private transient Instant nextExecution;
     private ValidationService dataValidationService;
 
@@ -54,11 +55,12 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private ScheduleExpression scheduleExpression;
 
     @Inject
-    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService)
+    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService,Thesaurus thesaurus)
     {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.dataValidationService = dataValidationService;
+        this.thesaurus = thesaurus;
     }
 
     static DataValidationTaskImpl from(DataModel model,String name, Instant nextExecution,ValidationService dataValidationService ) {
@@ -113,7 +115,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
             return;
         }
         if (!canBeDeleted()) {
-//            throw new CannotDeleteWhileBusy();
+            throw new CannotDeleteWhileBusy();
         }
 
         dataModel.remove(this);
@@ -272,6 +274,12 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         }
         task.save();
         recurrentTask.set(task);
+    }
+
+    private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {
+        CannotDeleteWhileBusy() {
+            super(DataValidationTaskImpl.this.thesaurus, MessageSeeds.CANNOT_DELETE_WHILE_RUNNING, DataValidationTaskImpl.this);
+        }
     }
 
 }

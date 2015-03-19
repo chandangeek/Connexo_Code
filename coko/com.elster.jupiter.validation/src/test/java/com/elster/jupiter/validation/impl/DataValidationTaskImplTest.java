@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
@@ -42,10 +43,12 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
+    private Thesaurus thesaurus;
+    @Mock
     private ValidationService dataValidationService;
 
     private DataValidationTaskImpl newTask() {
-        return new DataValidationTaskImpl(dataModel,taskService,dataValidationService);
+        return new DataValidationTaskImpl(dataModel,taskService,dataValidationService,thesaurus);
     }
 
     private DataValidationTaskImpl setId(DataValidationTaskImpl entity, long id) {

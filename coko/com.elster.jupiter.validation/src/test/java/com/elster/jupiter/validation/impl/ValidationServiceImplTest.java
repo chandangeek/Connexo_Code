@@ -184,7 +184,7 @@ public class ValidationServiceImplTest {
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
         Provider<ValidationRuleImpl> provider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, provider));
-        when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> new DataValidationTaskImpl(dataModel,taskService,dataValidationService));
+        when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> new DataValidationTaskImpl(dataModel,taskService,dataValidationService, thesaurus));
         when(dataModel.query(IMeterActivationValidation.class, IChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any())).thenReturn(nlsMessageFormat);
