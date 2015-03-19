@@ -9,35 +9,29 @@ Ext.define('Isu.controller.IssuesOverview', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             grouping = router.filter.get('grouping'),
-            filterProxy = router.filter.getProxy();
+            filter = router.filter;
 
         if (router.queryParams.myopenissues) {
             me.getStore('Isu.store.IssueAssignees').load({params: {me: true}, callback: function (records) {
-                window.location.replace(router.getRoute(router.currentRoute).buildUrl(null, {
-                    filter: Ext.encode({
-                        assignee: records[0].getId(),
-                        status: 'status.open',
-                        sorting: [
-                            {
-                                type: 'dueDate',
-                                value: Uni.component.sort.model.Sort.ASC
-                            }
-                        ]
-                    })
-                }));
+                filter.set('assignee', records[0].getId());
+                filter.set('status', 'status.open');
+                filter.set('sorting', [
+                    {
+                        type: 'dueDate',
+                        value: Uni.component.sort.model.Sort.ASC
+                    }
+                ]);
+                filter.save();
             }});
         } else if (!router.queryParams.filter) {
-            window.location.replace(router.getRoute(router.currentRoute).buildUrl(null, {
-                filter: Ext.encode({
-                    status: ['status.open', 'status.in.progress'],
-                    sorting: [
-                        {
-                            type: 'dueDate',
-                            value: Uni.component.sort.model.Sort.ASC
-                        }
-                    ]
-                })
-            }));
+            filter.set('status', ['status.open', 'status.in.progress']);
+            filter.set('sorting', [
+                {
+                    type: 'dueDate',
+                    value: Uni.component.sort.model.Sort.ASC
+                }
+            ]);
+            filter.save();
         } else {
             me.getStore('Isu.store.Clipboard').set(issueType + '-latest-issues-filter', router.queryParams.filter);
             me.getStore('Isu.store.IssueStatuses').getProxy().setExtraParam('issueType', issueType);
@@ -213,7 +207,7 @@ Ext.define('Isu.controller.IssuesOverview', {
     },
 
     resetFilter: function () {
-        this.getController('Uni.controller.history.Router').filter.getProxy().destroy();
+        this.getController('Uni.controller.history.Router').filter.destroy();
     },
 
     setFilterItem: function (button) {

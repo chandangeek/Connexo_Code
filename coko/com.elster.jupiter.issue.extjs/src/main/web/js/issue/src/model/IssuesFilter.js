@@ -16,16 +16,11 @@ Ext.define('Isu.model.IssuesFilter', {
         type: 'querystring',
         root: 'filter',
         destroy: function () {
-            var filter = Ext.decode(this.router.queryParams[this.root]);
-
-            Ext.iterate(filter, function (key, value) {
-                if (key !== 'grouping' && key !== 'sorting') {
-                    filter[key] = '';
-                }
+            var filter = new this.router.filter.self({
+                grouping: this.router.filter.get('grouping'),
+                sorting: this.router.filter.get('sorting')
             });
-
-            this.router.queryParams[this.root] = Ext.encode(filter);
-            this.router.getRoute().forward(this.router.arguments, this.router.queryParams);
+            filter.save();
         }
     }
 });
