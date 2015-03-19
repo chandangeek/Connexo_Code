@@ -152,12 +152,13 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         CloseIssueRequest request = new CloseIssueRequest();
         EntityReference issueRef = new EntityReference();
         issueRef.setId(1L);
-        request.setIssues(Arrays.asList(issueRef));
-        request.setStatus("resolved");
+        request.issues = Arrays.asList(issueRef);
+        request.status = "resolved";
         IssueStatus status = mockStatus("resolved", "Resolved", true);
         when(issueService.findStatus("resolved")).thenReturn(Optional.of(status));
         OpenIssueDataCollection issueDataCollection = mock(OpenIssueDataCollection.class);
         when(issueDataCollectionService.findOpenIssue(1L)).thenReturn(Optional.of(issueDataCollection));
+        when(issueDataCollection.getStatus()).thenReturn(status);
         
         Entity<CloseIssueRequest> json = Entity.json(request);
         Response response = target("issue/close").request().put(json);

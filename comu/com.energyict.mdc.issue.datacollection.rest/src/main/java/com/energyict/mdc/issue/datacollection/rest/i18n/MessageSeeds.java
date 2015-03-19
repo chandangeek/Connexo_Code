@@ -11,6 +11,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
+    ISSUE_DOES_NOT_EXIST (1, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
+    ISSUE_ALREADY_CLOSED (2, "IssueAlreadyClosed", "Issue already closed", Level.SEVERE),
     ;
 
     private final int number;

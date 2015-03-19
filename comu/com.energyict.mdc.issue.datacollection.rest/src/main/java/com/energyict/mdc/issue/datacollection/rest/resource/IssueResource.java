@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
@@ -38,6 +39,7 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
@@ -55,13 +57,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_DOES_NOT_EXIST;
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.FIELD;
@@ -75,12 +77,13 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getString;
 
 @Path("/issue")
 public class IssueResource extends BaseResource {
     
     private DataCollectionIssueInfoFactory issuesInfoFactory;
-    
+
     @Inject
     public IssueResource(DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory) {
         this.issuesInfoFactory = dataCollectionIssuesInfoFactory;
@@ -91,13 +94,17 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam QueryParameters queryParams) {
         validateMandatory(params, START, LIMIT);
+        List<? extends IssueDataCollection> list = getFilteredIssues(params);
+        return PagedInfoList.fromPagedList("data", issuesInfoFactory.asInfos(list), queryParams);
+    }
+
+    private List<? extends IssueDataCollection> getFilteredIssues(StandardParametersBean params) {
         Class<? extends IssueDataCollection> apiClass = getQueryApiClass(params);
         Class<? extends Issue> eagerClass = getEagerApiClass(apiClass);
         Query<? extends IssueDataCollection> query = getIssueDataCollectionService().query(apiClass, eagerClass, EndDevice.class, User.class, IssueReason.class,
                 IssueStatus.class, IssueType.class);
         Condition condition = getQueryCondition(params);
-        List<? extends IssueDataCollection> list = query.select(condition, params.getFrom(), params.getTo(), params.getOrder("baseIssue."));
-        return PagedInfoList.fromPagedList("data", issuesInfoFactory.asInfos(list), queryParams);
+        return query.select(condition, params.getFrom(), params.getTo(), params.getOrder("baseIssue."));
     }
 
     @GET
@@ -195,11 +202,33 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ASSIGN_ISSUE)
     @Deprecated
-    public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext) {
-        /* TODO this method should be removed when FE implements dynamic actions */
-        User author = (User) securityContext.getUserPrincipal();
-        ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, getIssueService(), author, getThesaurus()));
+    public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
+        /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, List<? extends Issue>> issueProvider = null;
+        if (request.allIssues){
+            issueProvider = bulkResults -> getFilteredIssues(params);
+        } else {
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+        ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, performer, issueProvider));
         return entity(info).build();
+    }
+
+    private List<? extends Issue> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult) {
+        List<Issue> issuesForBulk = new ArrayList<>(request.issues.size());
+        for (EntityReference issueRef : request.issues) {
+            Issue issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId()).orElse(null);
+            if (issue == null){
+                issue = getIssueDataCollectionService().findHistoricalIssue(issueRef.getId()).orElse(null);
+            }
+            if (issue == null) {
+                bulkResult.addFail(getString(MessageSeeds.ISSUE_DOES_NOT_EXIST, getThesaurus()), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+            } else {
+                issuesForBulk.add(issue);
+            }
+        }
+        return issuesForBulk;
     }
 
     @PUT
@@ -208,20 +237,37 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.CLOSE_ISSUE)
     @Deprecated
-    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext) {
-        /* TODO this method should be removed when FE implements dynamic actions */
+    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
+        /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, List<? extends Issue>> issueProvider = null;
+        if (request.allIssues){
+            issueProvider = bulkResults -> getFilteredIssues(params);
+        } else {
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+        }
+        return entity(doBulkClose(request, performer, issueProvider)).build();
+    }
+
+    private ActionInfo doBulkClose(CloseIssueRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
         try (TransactionContext context = getTransactionService().getContext()) {
-            Optional<IssueStatus> status = getIssueService().findStatus(request.getStatus());
-            if (request.getIssues() != null && status.isPresent() && status.get().isHistorical()) {
-                for (EntityReference issueRef : request.getIssues()) {
-                    Optional<OpenIssueDataCollection> issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId());
-                    if (!issue.isPresent()) {
-                        response.addFail(getString(ISSUE_DOES_NOT_EXIST, getThesaurus()), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+            Optional<IssueStatus> status = getIssueService().findStatus(request.status);
+            if (status.isPresent() && status.get().isHistorical()) {
+                for (Issue issue : issueProvider.apply(response)) {
+                    if (issue.getStatus().isHistorical()) {
+                        response.addFail(getString(MessageSeeds.ISSUE_ALREADY_CLOSED, getThesaurus()), issue.getId(), issue.getTitle());
                     } else {
-                        issue.get().addComment(request.getComment(), (User) securityContext.getUserPrincipal());
-                        issue.get().close(status.get());
-                        response.addSuccess(issueRef.getId());
+                        issue.addComment(request.comment, performer);
+                        if (issue instanceof OpenIssue){
+                            ((OpenIssue) issue).close(status.get());
+                        } else {
+                            // user set both open and close statuses in filter
+                            getIssueDataCollectionService().findOpenIssue(issue.getId()).ifPresent(
+                                 openIssue -> openIssue.close(status.get())
+                            );
+                        }
+                        response.addSuccess(issue.getId());
                     }
                 }
             } else {
@@ -229,7 +275,7 @@ public class IssueResource extends BaseResource {
             }
             context.commit();
         }
-        return entity(response).build();
+        return response;
     }
 
     @GET
