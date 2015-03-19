@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.comserver.time.Clocks;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
@@ -31,6 +32,7 @@ import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -46,6 +48,7 @@ import java.util.List;
  */
 public class EIWeb implements DeviceProtocol {
 
+    private static final String PHONE_NUMBER = "PhoneNumber";
     private OfflineDevice offlineDevice;
     private SimplePasswordSecuritySupport securitySupport = new SimplePasswordSecuritySupport();
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
@@ -74,7 +77,13 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
+        List<PropertySpec> optionalProperties = new ArrayList<>();
+        optionalProperties.add(getPhoneNumberPropertySpec());
+        return optionalProperties;
+    }
+
+    private PropertySpec getPhoneNumberPropertySpec() {
+        return PropertySpecFactory.stringPropertySpec(PHONE_NUMBER);
     }
 
     @Override
