@@ -2,17 +2,21 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,9 +29,11 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:30)
  */
+@Unique(message = "{" + MessageSeeds.Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
 public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     public enum Fields {
+        NAME("name"),
         STATE_MACHINE("stateMachine"),
         ACTIONS("actions");
 
@@ -46,6 +52,9 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @SuppressWarnings("unused")
     private long id;
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    private String name;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     @Valid
@@ -64,7 +73,8 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         this.dataModel = dataModel;
     }
 
-    public DeviceLifeCycleImpl initialize(FiniteStateMachine stateMachine) {
+    public DeviceLifeCycleImpl initialize(String name, FiniteStateMachine stateMachine) {
+        this.name = name;
         this.stateMachine.set(stateMachine);
         return this;
     }
@@ -76,7 +86,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public String getName() {
-        return this.getFiniteStateMachine().getName();
+        return this.name;
     }
 
     @Override

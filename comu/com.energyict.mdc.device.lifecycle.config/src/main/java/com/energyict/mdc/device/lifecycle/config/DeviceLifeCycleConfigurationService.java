@@ -17,12 +17,14 @@ public interface DeviceLifeCycleConfigurationService {
     /**
      * Starts the building process of a new {@link DeviceLifeCycle}.
      *
+     *
+     * @param name
      * @param finiteStateMachine The FiniteStateMachine that is providing all the
      * {@link com.elster.jupiter.fsm.State}s and {@link com.elster.jupiter.fsm.StateTransition}s.
      *
      * @return The DeviceLifeCycleBuilder
      */
-    public DeviceLifeCycleBuilder newDeviceLifeCycleUsing(FiniteStateMachine finiteStateMachine);
+    public DeviceLifeCycleBuilder newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine);
 
     /**
      * Finds the {@link DeviceLifeCycle} with the specified identifier.
@@ -31,5 +33,13 @@ public interface DeviceLifeCycleConfigurationService {
      * @return The DeviceLifeCycle
      */
     public Optional<DeviceLifeCycle> findDeviceLifeCycle(long id);
+
+    /**
+     * Finds the {@link DeviceLifeCycle} with the specified name.
+     *
+     * @param name The name
+     * @return The DeviceLifeCycle
+     */
+    public Optional<DeviceLifeCycle> findDeviceLifeCycleByName(String name);
 
 }

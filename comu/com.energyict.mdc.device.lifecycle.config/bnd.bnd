@@ -1,4 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.energyict.mdc.device.lifecycle.config.impl.*
+Private-Package: com.energyict.mdc.device.lifecycle.config.impl.* \
+                 com.energyict.mdc.device.lifecycle.config.impl.constraints.*
 Export-Package: com.energyict.mdc.device.lifecycle.config

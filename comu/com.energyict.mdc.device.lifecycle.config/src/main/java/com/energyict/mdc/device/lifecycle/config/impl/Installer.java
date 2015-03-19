@@ -76,7 +76,6 @@ public class Installer {
     private void doCreateDefaultFiniteStateMachine() {
         // Create default StateTransitionEventTypes
         this.logger.fine(() -> "Creating default finite state machine transitions...");
-        StateTransitionEventType deliveredToWarehouse = this.createNewStateTransitionEventType("#delivered");
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         StateTransitionEventType activated = this.createNewStateTransitionEventType("#activated");
         StateTransitionEventType deactivated = this.createNewStateTransitionEventType("#deactivated");
@@ -112,11 +111,7 @@ public class Installer {
                 .on(deactivated).transitionTo(inactive)
                 .on(commissionedEventType).transitionTo(commissioned)
                 .complete();
-        builder
-            .newStandardState(DefaultState.ORDERED.getKey())
-            .on(deliveredToWarehouse).transitionTo(inStock)
-            .complete();
-        FiniteStateMachine stateMachine = builder.complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
         this.logger.fine(() -> "Creating default finite state machine...");
         stateMachine.save();
         this.logger.fine(() -> "Created default finite state machine");

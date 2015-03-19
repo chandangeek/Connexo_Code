@@ -152,13 +152,18 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(FiniteStateMachine finiteStateMachine) {
-        return new DeviceLifeCycleBuilderImpl(this.dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(finiteStateMachine));
+    public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine) {
+        return new DeviceLifeCycleBuilderImpl(this.dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(name, finiteStateMachine));
     }
 
     @Override
     public Optional<DeviceLifeCycle> findDeviceLifeCycle(long id) {
         return this.dataModel.mapper(DeviceLifeCycle.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<DeviceLifeCycle> findDeviceLifeCycleByName(String name) {
+        return this.dataModel.mapper(DeviceLifeCycle.class).getUnique(DeviceLifeCycleImpl.Fields.NAME.fieldName(), name);
     }
 
 }

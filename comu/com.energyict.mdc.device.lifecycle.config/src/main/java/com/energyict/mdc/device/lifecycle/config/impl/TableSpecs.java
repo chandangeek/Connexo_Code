@@ -24,7 +24,9 @@ public enum TableSpecs {
             table.map(DeviceLifeCycleImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
+            Column name = table.column("NAME").varChar().notNull().map(DeviceLifeCycleImpl.Fields.NAME.fieldName()).add();
             Column stateMachine = table.column("FSM").number().notNull().add();
+            table.unique("UK_DLD_DEVICELIFECYCLENAME").on(name).add();
             table.primaryKey("PK_DLD_DEVICELIFECYCLE").on(id).add();
             table.foreignKey("FK_DLD_FSM")
                     .on(stateMachine)
