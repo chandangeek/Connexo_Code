@@ -115,7 +115,7 @@ public class LinearInterpolation extends AbstractEstimator {
     }
 
     private boolean isEstimatable(EstimationBlock block) {
-        return ((!block.getReadingType().isCumulative()) &&
+        return ((block.getReadingType().isCumulative()) &&
                 (block.estimatables().size() <= numberOfConsecutiveSuspects.intValue()));
     }
 
