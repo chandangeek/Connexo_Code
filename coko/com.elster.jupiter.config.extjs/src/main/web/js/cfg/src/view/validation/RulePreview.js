@@ -57,11 +57,25 @@ Ext.define('Cfg.view.validation.RulePreview', {
             xtype: 'fieldcontainer',
             fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
             itemId: 'readingTypesArea',
-            margin: '0 0 -8 0'
+            margin: '0 0 0 0'
+        },
+        {
+            name: 'action',
+            margin: '0 0 -8 0',
+            fieldLabel: Uni.I18n.translate('validation.dataQualityLevel', 'CFG', 'Data quality level'),
+            renderer: function (value) {
+                if (value == "FAIL") {
+                    return Uni.I18n.translate('validation.dataQualityLevelFail', 'CFG', 'Suspect')
+                } if (value == "WARN_ONLY") {
+                    return Uni.I18n.translate('validation.dataQualityLevelWarnOnly', 'CFG', 'Informative')
+                }else {
+                    return Uni.I18n.translate('validation.none', 'CFG', 'None')
+                }
+            }
         },
         {
             xtype: 'property-form',
-            padding: '5 10 0 10',
+            padding: '10 10 0 10',
             width: '100%',
             isEdit: false
         }

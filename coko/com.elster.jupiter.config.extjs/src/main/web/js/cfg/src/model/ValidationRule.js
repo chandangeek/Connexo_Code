@@ -8,6 +8,7 @@ Ext.define('Cfg.model.ValidationRule', {
     fields: [
         'id',
         'active',
+        'action',
         'implementation',
         'displayName',
         'readingTypes',
