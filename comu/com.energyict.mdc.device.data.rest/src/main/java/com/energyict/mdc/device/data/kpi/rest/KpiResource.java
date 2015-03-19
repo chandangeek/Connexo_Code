@@ -104,7 +104,10 @@ public class KpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response createKpi(DataCollectionKpiInfo kpiInfo) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
+        EndDeviceGroup endDeviceGroup=null;
+        if (kpiInfo.deviceGroup != null && kpiInfo.deviceGroup.id!=null) {
+            endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
+        }
         DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = dataCollectionKpiService.newDataCollectionKpi(endDeviceGroup);
         if (kpiInfo.frequency == null || kpiInfo.frequency.every == null){
             /* Send the correct validation error because if frequency is null we can't create connection or communication kpi -> FE receive unclear message */
