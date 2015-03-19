@@ -45,11 +45,11 @@ public class DataExportTaskHistoryInfo {
         populate(dataExportOccurrence.getTask().getHistory(), dataExportOccurrence, thesaurus, timeService);
     }
 
-    public DataExportTaskHistoryInfo(History<? extends ReadingTypeDataExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
+    public DataExportTaskHistoryInfo(History<ReadingTypeDataExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
         populate(history, dataExportOccurrence, thesaurus, timeService);
     }
 
-    private void populate(History<? extends ReadingTypeDataExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
+    private void populate(History<ReadingTypeDataExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
         this.id = dataExportOccurrence.getId();
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
@@ -69,6 +69,9 @@ public class DataExportTaskHistoryInfo {
         this.exportPeriodFrom = interval.lowerEndpoint().toEpochMilli();
         this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
         setStatusOnDate(dataExportOccurrence, thesaurus);
+        ReadingTypeDataExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime())
+                .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
+                        .orElseGet(dataExportOccurrence::getTask));
         task = new DataExportTaskInfo();
         if (history.getVersionAt(dataExportOccurrence.getTriggerTime()).isPresent()) {
             ReadingTypeDataExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime()).get();
