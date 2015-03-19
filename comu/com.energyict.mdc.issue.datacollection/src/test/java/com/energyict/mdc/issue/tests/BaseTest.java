@@ -10,6 +10,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
+
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -61,6 +63,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -141,6 +144,8 @@ public abstract class BaseTest {
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
+                new FiniteStateMachineModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new DeviceDataModule(),
                 new MasterDataModule(),
@@ -177,7 +182,7 @@ public abstract class BaseTest {
     protected IssueService getIssueService() {
         return injector.getInstance(IssueService.class);
     }
-    
+
     protected JsonService getJsonService() {
         return injector.getInstance(JsonService.class);
     }
@@ -243,7 +248,7 @@ public abstract class BaseTest {
     protected DataModel getDataModel() {
         return ((IssueDataCollectionServiceImpl) getIssueDataCollectionService()).getDataModel();
     }
-    
+
     protected DataModel getIssueDataModel() {
         return ((IssueServiceImpl)getIssueService()).getDataModel();
     }
