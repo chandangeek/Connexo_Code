@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.modbus.generic;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.modbus.generic.common.DataType;
 import com.energyict.protocolimpl.modbus.generic.common.DataTypeSelector;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -27,40 +28,35 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
 
     public Parser get(String key) throws IOException {
         DataTypeSelector dataTypeSelector = DataTypeSelector.getDataTypeSelector(Integer.parseInt(key));
-        DataTypeSelector.DataType dataType = dataTypeSelector.getDataType();
-        switch (dataType) {
-            case BYTE:
-            case REGISTER:
-            case INTEGER:
-            case LONG:
-                return dataTypeSelector.isBigEndianEncoded()
-                        ? getUnsignedValueParser(true)
-                        : getUnsignedValueParser(false);
-
-            case SIGNED_REGISTER:
-            case SIGNED_INTEGER:
-            case SIGNED_LONG:
-                return dataTypeSelector.isBigEndianEncoded()
-                        ? getSignedValueParser(true)
-                        : getSignedValueParser(false);
-
-            case FLOAT_32BIT:
-            case FLOAT_64BIT:
-                return dataTypeSelector.isBigEndianEncoded()
-                        ? getFloatingPointParser(true)
-                        : getFloatingPointParser(false);
-            case BCD_32BIT:
-            case BCD_64BIT:
-                return dataTypeSelector.isBigEndianEncoded()
-                        ? getBCDParser(true)
-                        : getBCDParser(false);
-            case ASCII:
-                return dataTypeSelector.isBigEndianEncoded()
-                        ? getAsciiParser(true)
-                        : getAsciiParser(false);
-
-            case UNKNOWN:
-            default:
+        DataType dataType = dataTypeSelector.getDataType();
+        if (dataType.equals(DataTypeSelector.BYTE_DATA_TYPE)
+                || dataType.equals(DataTypeSelector.REGISTER_DATA_TYPE)
+                || dataType.equals(DataTypeSelector.INTEGER_DATA_TYPE)
+                || dataType.equals(DataTypeSelector.LONG_DATA_TYPE)) {
+            return dataTypeSelector.isBigEndianEncoded()
+                    ? getUnsignedValueParser(true)
+                    : getUnsignedValueParser(false);
+        } else if (dataType.equals(DataTypeSelector.SIGNED_REGISTER_DATA_TYPE) ||
+                dataType.equals(DataTypeSelector.SIGNED_INTEGER_DATA_TYPE)
+                || dataType.equals(DataTypeSelector.SIGNED_LONG_DATA_TYPE)) {
+            return dataTypeSelector.isBigEndianEncoded()
+                    ? getSignedValueParser(true)
+                    : getSignedValueParser(false);
+        } else if (dataType.equals(DataTypeSelector.FLOAT_32_BIT_DATA_TYPE) ||
+                dataType.equals(DataTypeSelector.FLOAT_64_BIT_DATA_TYPE)) {
+            return dataTypeSelector.isBigEndianEncoded()
+                    ? getFloatingPointParser(true)
+                    : getFloatingPointParser(false);
+        } else if (dataType.equals(DataTypeSelector.BCD_32_BIT_DATA_TYPE)
+            || dataType.equals(DataTypeSelector.BCD_64_BIT_DATA_TYPE)) {
+            return dataTypeSelector.isBigEndianEncoded()
+                    ? getBCDParser(true)
+                    : getBCDParser(false);
+        } else if (dataType.equals(DataTypeSelector.ASCII_DATA_TYPE)) {
+            return dataTypeSelector.isBigEndianEncoded()
+                    ? getAsciiParser(true)
+                    : getAsciiParser(false);
+        } else {
                 throw new ModbusException("ParserFactory, no parser found for key " + key + ".");
         }
     }
@@ -129,7 +125,7 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
                 try {
                     if (values.length == 2 || values.length == 4) {
                         byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
-                        return new BigDecimal(ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(intBitsArray, 0), ""));
+                        return new BigDecimal(ProtocolTools.getHexStringFromBytes(intBitsArray, ""));
                     } else {
                         throw new ModbusException("ParserFactory, BCDParser, received data has invalid length (" + values.length + ")");
                     }
@@ -160,7 +156,7 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
         };
     }
 
-    private byte[] getByteArrayFromValue(int[] values, boolean bigEndianEncoding) {
+    protected byte[] getByteArrayFromValue(int[] values, boolean bigEndianEncoding) {
         byte[] byteArray = new byte[values.length * 2];
 
         if (bigEndianEncoding) {
@@ -180,5 +176,13 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
         }
 
         return byteArray;
+    }
+
+    protected int[] convertLittleToBigEndian(int[] values) {
+        int[] result = new int[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = values[values.length - 1 - i];
+        }
+        return result;
     }
 }

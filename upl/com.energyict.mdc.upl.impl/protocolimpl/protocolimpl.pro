@@ -671,3 +671,5 @@
 -keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540StandardEventLog { public *; }
 -keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540MBusLog { public *; }
 -keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540MbusControlLog { public *; }
+
+-keepnames class com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5560

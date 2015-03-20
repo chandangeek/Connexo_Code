@@ -31,7 +31,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x000A};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.BYTE.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.BYTE_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("10");
@@ -43,7 +43,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x8020};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.REGISTER.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.REGISTER_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("32800");
@@ -55,7 +55,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x8020};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.SIGNED_REGISTER.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.SIGNED_REGISTER_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("-32736");
@@ -67,7 +67,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x8020, 0x9040};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.INTEGER.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.INTEGER_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("2149617728");
@@ -79,7 +79,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x8020, 0x9040};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.SIGNED_INTEGER.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.SIGNED_INTEGER_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("-2145349568");
@@ -91,7 +91,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x8020, 0x9040, 0x8121, 0x9141};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.LONG.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.LONG_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("9232537842828284225");
@@ -104,7 +104,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x8020, 0x9040, 0x8121, 0x9141};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.SIGNED_LONG.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.SIGNED_LONG_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("-9214206230881267391");
@@ -116,7 +116,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x3f8f, 0xcd68};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.FLOAT_32BIT.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.FLOAT_32_BIT_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("1.123456");
@@ -128,7 +128,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x3ff1, 0xf9ac, 0xffa7, 0xeb6c};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.FLOAT_64BIT.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.FLOAT_64_BIT_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("1.123456");
@@ -140,7 +140,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x0177, 0x0858};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.BCD_32BIT.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.BCD_32_BIT_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("1770858");
@@ -152,7 +152,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x123, 0x4567, 0x0177, 0x0858};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.BCD_32BIT.getDataTypeCode()).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.BCD_64_BIT_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("123456701770858");
@@ -164,7 +164,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x4153, 0x4349, 0x4920};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.ASCII.getDataTypeCode() + values.length).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.ASCII_DATA_TYPE.getDataTypeCode() + values.length).val(values, getDummyRegister());
 
         // Asserts
         String expected = "ASCII";
@@ -176,7 +176,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x000A};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.BYTE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.BYTE_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("10");
@@ -188,7 +188,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x8020};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.REGISTER.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.REGISTER_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("32800");
@@ -200,7 +200,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x8020};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.SIGNED_REGISTER.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.SIGNED_REGISTER_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("-32736");
@@ -212,7 +212,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x9040, 0x8020};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.INTEGER.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.INTEGER_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("2149617728");
@@ -224,7 +224,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x9040, 0x8020};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.SIGNED_INTEGER.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.SIGNED_INTEGER_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("-2145349568");
@@ -236,7 +236,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x9141, 0x8121, 0x9040, 0x8020};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.LONG.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.LONG_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("9232537842828284225");
@@ -249,7 +249,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x9141, 0x8121, 0x9040, 0x8020};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.SIGNED_LONG.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.SIGNED_LONG_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("-9214206230881267391");
@@ -261,7 +261,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0xcd68, 0x3f8f};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.FLOAT_32BIT.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.FLOAT_32_BIT_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("1.123456");
@@ -273,7 +273,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0xeb6c, 0xffa7, 0xf9ac, 0x3ff1};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.FLOAT_64BIT.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.FLOAT_64_BIT_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
 
         // Asserts
         BigDecimal expected = new BigDecimal("1.123456");
@@ -285,7 +285,7 @@ public class ParserFactoryTest {
         int[] values = new int[]{0x4920, 0x4349, 0x4153};
 
         // Business method
-        Object val = getParser(DataTypeSelector.DataType.ASCII.getDataTypeCode() + LITTLE_ENDIAN_OFFSET + values.length).val(values, getDummyRegister());
+        Object val = getParser(DataTypeSelector.ASCII_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET + values.length).val(values, getDummyRegister());
 
         // Asserts
         String expected = "ASCII";

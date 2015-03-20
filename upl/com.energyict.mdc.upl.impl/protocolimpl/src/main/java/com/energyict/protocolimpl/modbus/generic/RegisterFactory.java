@@ -35,7 +35,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     @Override
     public AbstractRegister findRegister(ObisCode obc) throws IOException {
         ObisCode obisCode = new ObisCode(obc.getA(), obc.getB(), obc.getC(), obc.getD(), obc.getE(), Math.abs(obc.getF()));
-        RegisterDefinition registerDefinition = new RegisterDefinition(obisCode);
+        RegisterDefinition registerDefinition = createRegisterDefinition(obisCode);
 
         Integer overruleRegister = getCustomStartRegisterMap().get(registerDefinition.getRegister());
         if (overruleRegister != null) { // Overrule the obis startRegister with the one from the custom property
@@ -96,6 +96,10 @@ public class RegisterFactory extends AbstractRegisterFactory {
         }
         register.setRegisterFactory(this);
         return register;
+    }
+
+    protected RegisterDefinition createRegisterDefinition(ObisCode obisCode) {
+        return new RegisterDefinition(obisCode);
     }
 
     @Override
