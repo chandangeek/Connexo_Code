@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,7 +72,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceProtocolProperties()).thenReturn(typedProperties);
         when(device.getDeviceType()).thenReturn(deviceType);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
     }
 
@@ -87,6 +88,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
 
     @Test
     public void testGetDeviceProtocolPropertiesNonExistingDevice() {
+        when(this.deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.<Device>empty());
         Response response = target("/devices/FAKE/protocols/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }

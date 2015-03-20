@@ -98,7 +98,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testGetRegisterData() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
@@ -118,7 +118,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     @Test
     public void testPutRegisterData() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));

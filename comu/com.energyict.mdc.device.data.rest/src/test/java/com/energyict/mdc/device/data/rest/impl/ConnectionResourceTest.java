@@ -52,7 +52,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testGetAllConnections() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
@@ -98,7 +98,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testActivateConnection() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
@@ -115,7 +115,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testDeactivateConnection() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
@@ -132,7 +132,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testActivateDeactivateWrongStatus() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
@@ -150,7 +150,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testRunConnection() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ScheduledConnectionTask connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
@@ -162,7 +162,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Test
     public void testRunConnectionWrongConnectionType() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(12L);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));

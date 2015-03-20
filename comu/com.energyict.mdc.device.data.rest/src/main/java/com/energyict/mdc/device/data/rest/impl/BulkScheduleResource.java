@@ -142,7 +142,6 @@ public class BulkScheduleResource {
         private Device device;
         private boolean obsolete;
 
-
         private DeviceHolder(Device device) {
             this.device = device;
         }
@@ -157,7 +156,7 @@ public class BulkScheduleResource {
         }
 
         private void reload() {
-            device = deviceService.findByUniqueMrid(device.getmRID());
+            device = deviceService.findByUniqueMrid(device.getmRID()).get();
             obsolete = false;
         }
 

@@ -45,7 +45,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testGetDeviceCommunications() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -80,7 +80,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testGetDeviceCommunicationsSeveralComTasksPerComTaskExec() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
         List<ComTask> comTasks = Arrays.asList(mockComTask(1, "Read 1"), mockComTask(2, "Read 2"));
@@ -104,7 +104,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunCommunication() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -117,7 +117,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunNowCommunication() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -130,7 +130,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testActivateCommunication() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(comTaskExecution.isOnHold()).thenReturn(true);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
@@ -146,7 +146,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testActivateCommunicationButAlreadyActive() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(comTaskExecution.isOnHold()).thenReturn(false);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
@@ -162,7 +162,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testDeactivateCommunication() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(comTaskExecution.isOnHold()).thenReturn(false);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
@@ -178,7 +178,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testDeactivateCommunicationButAlreadyInactive() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(comTaskExecution.isOnHold()).thenReturn(true);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
@@ -194,7 +194,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testActivateAllCommunications() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(comTaskExecution.isOnHold()).thenReturn(true);
         ComTaskExecution comTaskExecution1 = mockComTaskExecution();
@@ -211,7 +211,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testDeactivateAllCommunications() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mockComTaskExecution();
         when(comTaskExecution.isOnHold()).thenReturn(false);
         ComTaskExecution comTaskExecution1 = mockComTaskExecution();
@@ -228,7 +228,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testComTaskExecNotFound() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
 
         Response response = target("/devices/ZABF0000000/communications/145").request().put(Entity.json(""));
 

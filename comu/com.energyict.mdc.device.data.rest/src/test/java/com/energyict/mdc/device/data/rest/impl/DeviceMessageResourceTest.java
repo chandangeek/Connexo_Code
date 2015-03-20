@@ -92,7 +92,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
         DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
         when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -140,7 +140,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage<Device> command3 = mockCommand(device, 3L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.minusSeconds(10), null);
         DeviceMessage<Device> command4 = mockCommand(device, 4L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.minusSeconds(20), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command1,command2, command3, command4));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -173,7 +173,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
         DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), null, sent);
         when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -209,7 +209,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessageAttribute attribute3 = mockAttribute("Time", now, new DateAndTimeFactory(), Required);
         when(command1.getAttributes()).thenReturn(Arrays.asList(attribute1, attribute2, attribute3));
         when(device.getMessages()).thenReturn(Arrays.<DeviceMessage<Device>>asList(command1));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -261,7 +261,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         int categoryId = 101;
         DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
 
@@ -294,7 +294,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testGetAvailableCategoriesForUserOnDevice() throws Exception {
         int categoryId = 1011;
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
         // there is a total of 34 device messages supported by the protocol
         when(deviceMessageSpecificationService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
@@ -349,7 +349,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testGetAvailableCategoriesWithMessageSpecsForUserOnDevice() throws Exception {
         int categoryId = 1011;
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
         // there is a total of 34 device messages supported by the protocol
         when(deviceMessageSpecificationService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
@@ -409,7 +409,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mockDevice();
         DeviceMessage<Device> deviceMessage = mockDeviceMessage(1L, device);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
         when(deviceMessageBuilder.addProperty(anyString(), anyObject())).thenReturn(deviceMessageBuilder);
         when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
@@ -444,7 +444,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testDeleteDeviceMessage() throws Exception {
         Device device = mockDevice();
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceMessageSpec deviceMessageSpecification = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecification.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
@@ -473,7 +473,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testUpdateDeviceMessage() throws Exception {
         Device device = mockDevice();
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceMessage msg1 = mock(DeviceMessage.class);
         when(msg1.getId()).thenReturn(1L);
         DeviceMessage msg2 = mock(DeviceMessage.class);

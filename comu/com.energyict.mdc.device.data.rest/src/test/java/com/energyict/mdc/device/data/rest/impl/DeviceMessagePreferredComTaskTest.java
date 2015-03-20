@@ -57,7 +57,7 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         super.setUp();
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
         device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
         when(deviceMessageSpecificationService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
         DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", categoryId, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);

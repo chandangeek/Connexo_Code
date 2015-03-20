@@ -51,7 +51,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     @Before
     public void setupStubs(){
-        when(deviceService.findByUniqueMrid(DEIVICE_MRID)).thenReturn(device);
+        when(deviceService.findByUniqueMrid(DEIVICE_MRID)).thenReturn(Optional.of(device));
         when(clock.instant()).thenReturn(NOW);
         LoadProfile loadProfile1 = mock(LoadProfile.class);
         LoadProfile loadProfile2 = mock(LoadProfile.class);
@@ -141,7 +141,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Number>get("$.channels[0].id")).isEqualTo(4);
     }
-    
+
     public ReadingType mockReadingType(String alias, String mrid) {
         ReadingType readingType = mock(ReadingType.class);
         OfInt iterator = Arrays.asList(mrid.split("\\.")).stream().mapToInt(Integer::parseInt).iterator();

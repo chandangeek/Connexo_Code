@@ -20,6 +20,7 @@ import com.jayway.jsonpath.JsonModel;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 
@@ -50,7 +51,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(deviceType.getName()).thenReturn("type AX1");
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        when(deviceService.findByUniqueMrid("0c53c750-4d5a-11e4-916c-0800200c9a66")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("0c53c750-4d5a-11e4-916c-0800200c9a66")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
