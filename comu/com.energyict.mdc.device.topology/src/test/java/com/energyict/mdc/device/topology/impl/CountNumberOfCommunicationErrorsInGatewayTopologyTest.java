@@ -41,6 +41,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.KpiService;
@@ -190,6 +191,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(EventService.class);
             this.injector.getInstance(OrmService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MasterDataService.class);
             this.deviceConfigurationService = this.injector.getInstance(DeviceConfigurationService.class);
             this.protocolPluggableService = this.injector.getInstance(ProtocolPluggableService.class);

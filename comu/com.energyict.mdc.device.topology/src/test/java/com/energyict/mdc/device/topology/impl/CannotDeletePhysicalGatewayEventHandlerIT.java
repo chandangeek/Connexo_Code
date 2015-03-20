@@ -68,7 +68,7 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
         long masterId = reloadedMaster.getId();
         reloadedMaster.delete();
 
-        assertThat(getDeviceService().findDeviceById(masterId)).isNull();
+        assertThat(getDeviceService().findDeviceById(masterId).isPresent()).isFalse();
     }
 
     private ServerDeviceService getDeviceService() {
