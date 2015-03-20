@@ -113,8 +113,7 @@ Ext.define('Uni.view.menu.SideMenu', {
         parent = parent || me;
 
         Ext.each(menuItems, function (item) {
-            var subItems = item.items,
-                condition = item[me.showCondition];
+            var condition = item[me.showCondition];
 
             if (typeof condition === 'undefined'
                 || (Ext.isFunction(condition) && condition() || condition)) {
@@ -127,9 +126,13 @@ Ext.define('Uni.view.menu.SideMenu', {
 
                 item.tooltip = item.text;
 
-                if (Ext.isDefined(subItems) && Ext.isArray(subItems)) {
+                if (Ext.isDefined(item.items) && Ext.isArray(item.items)) {
+                    var items = item.items;
+                    delete item.items;
                     item = me.applyMenuDefaults(item);
-                    subItems ? me.addMenuItems(subItems, item) : null;
+                    if (items) {
+                        me.addMenuItems(items, item);
+                    }
                 }
 
                 parent.add(item);
