@@ -63,14 +63,23 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private boolean scheduleImmediately;
     private ScheduleExpression scheduleExpression;
 
-    @Inject
-    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService,Thesaurus thesaurus, RecurrentTask recurrentTask)
-    {
+
+    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService,Thesaurus thesaurus, RecurrentTask recurrentTask) {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.dataValidationService = dataValidationService;
         this.thesaurus = thesaurus;
         this.recurrentTask.set(recurrentTask);
+    }
+    
+    @Inject
+    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService,Thesaurus thesaurus/*, RecurrentTask recurrentTask*/)
+    {
+        this.taskService = taskService;
+        this.dataModel = dataModel;
+        this.dataValidationService = dataValidationService;
+        this.thesaurus = thesaurus;
+        //this.recurrentTask.set(recurrentTask);
     }
 
     static DataValidationTaskImpl from(DataModel model,String name, Instant nextExecution,ValidationService dataValidationService ) {
