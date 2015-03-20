@@ -36,6 +36,10 @@
       <artifactId>domain.util</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.common</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
       <scope>provided</scope>

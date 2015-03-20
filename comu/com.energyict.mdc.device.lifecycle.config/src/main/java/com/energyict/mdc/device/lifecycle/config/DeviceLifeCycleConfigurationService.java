@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config;
 
+import com.energyict.mdc.common.services.Finder;
+
 import com.elster.jupiter.fsm.FiniteStateMachine;
 
 import java.util.Optional;
@@ -50,5 +52,13 @@ public interface DeviceLifeCycleConfigurationService {
      * @return The DeviceLifeCycle
      */
     public Optional<DeviceLifeCycle> findDeviceLifeCycleByName(String name);
+
+    /**
+     * Finds all the {@link DeviceLifeCycle}s with options
+     * to add external paging and sorting options.
+     *
+     * @return The Finder that supports paging and sorting
+     */
+    public Finder<DeviceLifeCycle> findAllDeviceLifeCycles();
 
 }

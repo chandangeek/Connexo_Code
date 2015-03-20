@@ -1,11 +1,18 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -169,6 +176,16 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Override
     public Optional<DeviceLifeCycle> findDefaultDeviceLifeCycle() {
         return this.findDeviceLifeCycleByName(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey());
+    }
+
+    @Override
+    public Finder<DeviceLifeCycle> findAllDeviceLifeCycles() {
+        return DefaultFinder.of(
+                DeviceLifeCycle.class,
+                this.dataModel,
+                AuthorizedAction.class, // join actions and finite state machine details
+                FiniteStateMachine.class, State.class, StateTransition.class,
+                StateTransitionEventType.class, ProcessReference.class);
     }
 
 }
