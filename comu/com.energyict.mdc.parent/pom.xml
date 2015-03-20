@@ -59,6 +59,11 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.issues</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.common</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
             </dependency>
@@ -69,8 +74,38 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.metering</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.protocols.api</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.io</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.pluggable</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.protocol.pluggable</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.lifecycle.config</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.lifecycle</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
@@ -80,6 +115,16 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.data</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.favorites</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.data.imp</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -125,6 +170,21 @@
                 <version>1.1.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+              <groupId>com.elster.jupiter</groupId>
+              <artifactId>events</artifactId>
+              <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+              <groupId>com.elster.jupiter</groupId>
+              <artifactId>http.whiteboard</artifactId>
+              <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+              <groupId>com.elster.jupiter</groupId>
+              <artifactId>appserver</artifactId>
+              <version>1.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -324,8 +384,9 @@
                 <module>../com.energyict.mdc.device.config</module>
                 <module>../com.energyict.mdc.device.config.rest</module>
                 <module>../com.energyict.mdc.device.data</module>
+                <module>../com.energyict.mdc.device.lifecycle</module>
+                <module>../com.energyict.mdc.device.lifecycle.config</module>
                 <module>../com.energyict.mdc.device.topology</module>
-                <module>../com.energyict.mdc.favorites</module>
                 <module>../com.energyict.mdc.device.data.rest</module>
                 <module>../com.energyict.mdc.device.data.imp</module>
                 <module>../com.energyict.mdc.device.data.imp.messagehandlers</module>
@@ -333,6 +394,7 @@
                 <module>../com.energyict.mdc.device.data.imp.extjs</module>
                 <module>../com.energyict.mdc.engine</module>
                 <module>../com.energyict.mdc.engine.config</module>
+                <module>../com.energyict.mdc.favorites</module>
                 <module>../com.energyict.mdc.issue.datacollection</module>
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
