@@ -6,7 +6,7 @@
  * Based on: http://stackoverflow.com/questions/10992180/extjs-4-drag-and-drop-in-the-same-grid
  */
 Ext.define('Uni.view.grid.ReorderableGrid', {
-    extends: 'Ext.grid.Panel',
+    extend: 'Ext.grid.Panel',
     xtype: 'uni-grid-reorderablegrid',
 
     viewConfig: {
