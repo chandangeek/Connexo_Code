@@ -257,6 +257,10 @@ Ext.define('Mdc.controller.setup.Devices', {
         var widget = Ext.widget('deviceAdd');
         widget.down('form').loadRecord(Ext.create('Mdc.model.Device'));
         this.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading();
+        widget.down('#deviceAddType').getStore().load(function () {
+            widget.setLoading(false);
+        });
     },
 
     saveDevice: function (button) {
@@ -265,6 +269,12 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         form.getForm().isValid();
         form.updateRecord();
+        if (!form.down('#deviceAddType').getValue()) {
+            form.getRecord().set('deviceTypeId', null);
+        }
+        if (!form.down('#deviceAddConfig').getValue()) {
+            form.getRecord().set('deviceConfigurationId', null);
+        }
         form.getRecord().save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge',
@@ -279,11 +289,11 @@ Ext.define('Mdc.controller.setup.Devices', {
                         if(item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
                             errorsToShow.push(item)
                         } else {
-                            if (Ext.ComponentQuery.query('combobox')[0].lastSelection.length === 0) {
+                            if (!form.down('#deviceAddType').getValue()) {
                                 errorsToShow.push(item)
                             }
                         }
-                    })
+                    });
                     me.showErrorPanel(form);
                     form.getForm().markInvalid(errorsToShow);
                 }
