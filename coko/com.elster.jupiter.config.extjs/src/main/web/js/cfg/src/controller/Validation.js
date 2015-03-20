@@ -468,12 +468,20 @@ Ext.define('Cfg.controller.Validation', {
             filter.setFilter('unitOfMeasure', 'Unit of measure', unitOfMeasureRecord.get('name'), false);
         }
 
-        if (!Ext.isEmpty(intervalsCombo.getValue())) {
-            intervalsRecord = intervalsCombo.findRecord(intervalsCombo.valueField, intervalsCombo.getValue());
-            properties.push({
-                property: 'time',
-                value: intervalsCombo.getValue()
-            });
+        if (!Ext.isEmpty(intervalsCombo.getRawValue())) {
+            intervalsRecord = intervalsCombo.findRecordByDisplay(intervalsCombo.getRawValue());
+            if (intervalsRecord.get('time') !== null) {
+                properties.push({
+                    property: 'time',
+                    value: intervalsCombo.getValue()
+                });
+            }
+            if (intervalsRecord.get('macro') !== null) {
+                properties.push({
+                    property: 'macro',
+                    value: intervalsRecord.get('macro')
+                });
+            }
             filter.setFilter('time', 'Interval', intervalsRecord.get('name'), false);
         }
 
