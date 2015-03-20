@@ -35,7 +35,7 @@ public class ChannelTypeHasUniqueIntervalAndRegisterValidator implements Constra
         if (xChannelType.isPresent() && xChannelType.get().getId() != channelType.getId()) {
             context.
                     buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CHANNEL_TYPE_WITH_REGISTER_TYPE_AND_INTERVAL_DUPLICATE + "}").
-                    addPropertyNode(MeasurementTypeImpl.Fields.INTERVAl.fieldName()).
+                    addPropertyNode(MeasurementTypeImpl.Fields.INTERVAL.fieldName()).
                     addPropertyNode(MeasurementTypeImpl.Fields.TEMPLATE_REGISTER_ID.fieldName()).
                     addConstraintViolation().disableDefaultConstraintViolation();
             return false;
