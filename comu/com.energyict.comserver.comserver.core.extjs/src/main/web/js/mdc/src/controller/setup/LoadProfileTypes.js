@@ -270,6 +270,18 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         form.down('combobox[name=timeDuration]').bindStore(intervalsStore);
         intervalsStore.load();
 
+        if (me.getRegisterTypesGrid().getStore().getCount() < 1) {
+            me.getRegisterTypesGrid().setHeight(200);
+        }
+
+        me.getRegisterTypesGrid().getStore().on('datachanged', function (store) {
+            if (store.getCount() < 1) {
+                me.getRegisterTypesGrid().setHeight(200);
+            } else {
+                delete me.getRegisterTypesGrid().height;
+            }
+        });
+
         if (id) {
             widget.setLoading(true);
             me.getModel('Mdc.model.LoadProfileType').load(id, {
@@ -385,7 +397,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         } else {
             registerTypesStore.add(selection);
         }
-        
+
         registerTypesGrid.setVisible(!all);
         page.down('#all-register-types').setVisible(all);
         page.down('#all-register-types-field').setValue(all);
