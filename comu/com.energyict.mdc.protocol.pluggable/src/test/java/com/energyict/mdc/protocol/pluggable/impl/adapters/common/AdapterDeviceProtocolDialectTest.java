@@ -15,6 +15,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -102,6 +104,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new IdsModule(),
                 new UserModule(),
                 new PartyModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
@@ -115,6 +118,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new ProtocolPluggableModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(OrmService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.dataModel = ((ProtocolPluggableServiceImpl) protocolPluggableService).getDataModel();
