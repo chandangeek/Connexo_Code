@@ -44,9 +44,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             },
             'load-profile-type-edit #load-profile-type-add-register-types-grid': {
                 allitemsadd: this.onAllRegisterTypesAdd,
-                selecteditemsadd: this.onSelectedRegisterTypesAdd,
-                beforedeselect: this.unassignRegisterType,
-                select: this.assignRegisterType
+                selecteditemsadd: this.onSelectedRegisterTypesAdd
             },
             'load-profile-type-edit #load-profile-type-edit-form #save-load-profile-type-button': {
                 click: this.saveLoadProfileType
@@ -316,9 +314,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     showRegisterTypesAddView: function (id) {
         var me = this,
             store = Ext.getStore('Mdc.store.RegisterTypesToAdd'),
-            editPage = me.getEditPage(),
-            registerTypesStore;
-
+            editPage = me.getEditPage();
 
         if (!editPage) {
             me.showEdit(id);
@@ -330,8 +326,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         editPage.setTitle(Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesView.title', 'MDC', 'Add register types'));
         Ext.resumeLayouts(true);
 
+        var registerTypesStore = editPage.down('#register-types-grid').getStore();
         if (id) {
-            registerTypesStore = editPage.down('#register-types-grid').getStore();
             if (editPage.down('#load-profile-type-edit-form').getRecord()) {
                 me.loadRegisterTypesToAddStore(registerTypesStore.getRange());
             } else {
@@ -340,80 +336,31 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 }, me, {single: true});
             }
         } else {
-            me.loadRegisterTypesToAddStore([]);
+            me.loadRegisterTypesToAddStore(registerTypesStore.getRange());
         }
     },
 
     loadRegisterTypesToAddStore: function (assignedRegisterTypes) {
         var me = this,
-            store = Ext.getStore('Mdc.store.RegisterTypesToAdd'),
-            grid = me.getAddRegisterTypesGrid();
+            assignedRegisterTypesIds = [],
+            grid = me.getAddRegisterTypesGrid(),
+            store = Ext.getStore('Mdc.store.RegisterTypesToAdd');
 
-        store.un('prefetch', me.selectExistingRecords, me);
-        grid.existingRecords = assignedRegisterTypes;
-        grid.onSelectionChange();
-        if (assignedRegisterTypes.length) {
-            store.on('load', function () {
-                var editPage = me.getEditPage();
-
-                if (editPage) {
-                    editPage.down('radiogroup').items.items[1].setValue(true);
-                    grid.setGridVisible(true);
-                }
-            }, me, {single: true});
-            store.on('prefetch', me.selectExistingRecords, me);
-        }
-        grid.getSelectionModel().deselectAll(true);
         store.data.clear();
-        store.loadPage(1);
-    },
-
-    selectExistingRecords: function (store, records) {
-        var me = this,
-            grid = me.getAddRegisterTypesGrid();
-
-        if (grid) {
-            grid.selectSuspended = true;
-            grid.getSelectionModel().select(Ext.Array.filter(grid.existingRecords, function (existingItem) {
-                return !!Ext.Array.findBy(records, function (item) {
-                    return existingItem.getId() === item.getId();
-                });
-            }), true);
-            grid.selectSuspended = undefined;
-        } else {
-            store.un('prefetch', me.selectExistingRecords, me);
-        }
-    },
-
-    assignRegisterType: function (selectionModel, record) {
-        var me = this,
-            grid = me.getAddRegisterTypesGrid();
-
-        if (!grid.selectSuspended) {
-            grid.existingRecords.push(record);
-        }
-    },
-
-    unassignRegisterType: function (selectionModel, record) {
-        var me = this,
-            grid = me.getAddRegisterTypesGrid();
-
-        for (var i = 0; i < grid.existingRecords.length; i++) {
-            if (grid.existingRecords[i].getId() === record.getId()) {
-                grid.existingRecords.splice(i, 1);
-                break;
-            }
-        }
-    },
-
-    selectAssignedRegisterTypes: function (assignedRegisterTypes, store) {
-        var assignedRegisterTypesModels = [];
-        Ext.each(_.map(assignedRegisterTypes, function (rt) {
-            return rt.id
-        }), function (id) {
-            assignedRegisterTypesModels.push(store.getById(id));
+        store.clearFilter(true);
+        grid.getSelectionModel().deselectAll(true);
+        Ext.each(assignedRegisterTypes, function (item) {
+            assignedRegisterTypesIds.push(item.getId());
         });
-        return assignedRegisterTypesModels;
+
+        store.on('load', function () {
+            if (assignedRegisterTypes && assignedRegisterTypes.length && me.getEditPage()) {
+                me.getEditPage().down('radiogroup').items.items[1].setValue(true);
+                grid.setGridVisible(true);
+            }
+        }, me, {single: true});
+
+        (assignedRegisterTypes && assignedRegisterTypes.length) ? store.filter('ids', assignedRegisterTypesIds) : store.loadPage(1);
     },
 
     onAllRegisterTypesAdd: function () {
@@ -421,9 +368,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
     },
 
     onSelectedRegisterTypesAdd: function () {
-        var me = this;
-
-        this.addRegisterTypes(me.getAddRegisterTypesGrid().existingRecords, false);
+        var me = this, selection = me.getAddRegisterTypesGrid().getSelectionModel().getSelection();
+        me.addRegisterTypes(selection, false);
     },
 
     addRegisterTypes: function (selection, all) {
@@ -434,8 +380,12 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
         router.getRoute(router.currentRoute.replace('/addregistertypes', '')).forward();
 
-        registerTypesStore.removeAll();
-        registerTypesStore.add(selection);
+        if (all) {
+            registerTypesStore.removeAll();
+        } else {
+            registerTypesStore.add(selection);
+        }
+        
         registerTypesGrid.setVisible(!all);
         page.down('#all-register-types').setVisible(all);
         page.down('#all-register-types-field').setValue(all);

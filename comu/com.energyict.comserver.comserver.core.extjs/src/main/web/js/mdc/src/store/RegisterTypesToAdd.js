@@ -7,6 +7,7 @@ Ext.define('Mdc.store.RegisterTypesToAdd', {
     model: 'Mdc.model.RegisterType',
 
     buffered: true,
+    remoteFilter: true,
     pageSize: 200,
 
     proxy: {
