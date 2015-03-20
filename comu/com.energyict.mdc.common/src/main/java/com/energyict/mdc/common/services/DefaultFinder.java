@@ -54,7 +54,7 @@ public class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public Finder<T> defaultSortColumn(String sortColumn) {
-        this.defaultSort = Order.ascending(sortColumn);
+        this.defaultSort = Order.ascending(sortColumn).toLowerCase();
         return this;
     }
 
