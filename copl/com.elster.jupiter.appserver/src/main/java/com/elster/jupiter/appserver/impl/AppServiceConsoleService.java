@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class},
         property = {"name=" + "APS" + ".console",
@@ -48,7 +50,8 @@ import java.util.TimeZone;
                 "osgi.command.function=getLocales",
                 "osgi.command.function=getTimeZone",
                 "osgi.command.function=getTimeZones",
-                "osgi.command.function=report"}, immediate = true)
+                "osgi.command.function=report",
+                "osgi.command.function=setLogLevel"}, immediate = true)
 public class AppServiceConsoleService {
 
     private volatile IAppService appService;
@@ -189,6 +192,14 @@ public class AppServiceConsoleService {
         }
     }
 
+    public void setLogLevel(String level) {
+        try {
+            Level parsed = Level.parse(level);
+            Logger.getLogger("").setLevel(parsed);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void appServers() {
         appService.findAppServers().stream()
