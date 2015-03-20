@@ -90,6 +90,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             kpiMessageContainer = me.getKpiErrorContainer();
 
         kpiMessageContainer.hide();
+        deviceGroupCombo.clearInvalid();
         me.showErrorPanel(false);
         editForm.setLoading();
         record.beginEdit();
@@ -98,7 +99,9 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
 
         if (btn.action === 'add') {
             successMessage = Uni.I18n.translate('datacollectionkpis.added', 'MDC', 'Data collection KPI added');
-            if (deviceGroupCombo.getValue()) {
+            if (deviceGroupCombo.getValue() === '') {
+                record.set('deviceGroup', null);
+            } else {
                 record.set('deviceGroup', { id: deviceGroupCombo.getValue() });
             }
             if (frequencyCombo.getValue() === '') {
@@ -114,16 +117,19 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
             failure: function (record, operation) {
-                if(operation.response.status == 400) {
+                if (operation.response.status == 400) {
                     me.showErrorPanel(true);
-                    if(!Ext.isEmpty(operation.response.responseText)) {
+                    if (!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
-                            Ext.each(json.errors, function(error) {
-                               if (error.id === 'communicationKpi') {
-                                   kpiMessageContainer.update(error.msg);
-                                   kpiMessageContainer.show();
-                               }
+                            Ext.each(json.errors, function (error) {
+                                if (error.id === 'communicationKpi') {
+                                    kpiMessageContainer.update(error.msg);
+                                    kpiMessageContainer.show();
+                                }
+                                if (error.id === 'endDeviceGroup') {
+                                    deviceGroupCombo.markInvalid(error.msg);
+                                }
                             });
                             editForm.getForm().markInvalid(json.errors);
                         }
