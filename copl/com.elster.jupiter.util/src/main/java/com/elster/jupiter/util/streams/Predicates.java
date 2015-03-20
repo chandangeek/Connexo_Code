@@ -12,4 +12,8 @@ public enum Predicates {
         return predicate.negate();
     }
 
+    public static <T> Predicate<T> either(Predicate<T> predicate) {
+        return predicate;
+    }
+
 }
