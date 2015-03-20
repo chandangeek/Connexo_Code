@@ -109,7 +109,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private DataCollectionKpiService dataCollectionKpiService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
-    
+
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {super();}
@@ -142,7 +142,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setUserService(userService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.activate(bundleContext);
-        this.install(true);
+        if (!this.dataModel.isInstalled()) {
+            this.install(true);
+        }
     }
 
     @Override
@@ -184,7 +186,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     public void setQueryService(QueryService queryService) {
 		this.queryService = queryService;
 	}
-    
+
     @Override
     public DataModel dataModel() {
         return dataModel;

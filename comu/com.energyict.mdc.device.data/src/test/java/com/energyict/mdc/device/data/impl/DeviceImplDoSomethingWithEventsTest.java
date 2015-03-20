@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -277,6 +278,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new EngineModelModule(),
                     new MasterDataModule(),
                     new ValidationModule(),
+                    new DeviceLifeCycleConfigurationModule(),
                     new DeviceConfigurationModule(),
                     new MdcIOModule(),
                     new ProtocolApiModule(),

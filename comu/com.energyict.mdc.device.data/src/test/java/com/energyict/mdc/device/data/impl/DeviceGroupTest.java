@@ -52,6 +52,7 @@ import com.energyict.mdc.device.data.impl.events.EndDeviceGroupDeletionVetoEvent
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -209,6 +210,7 @@ public class DeviceGroupTest {
                 new EngineModelModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new PluggableModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),

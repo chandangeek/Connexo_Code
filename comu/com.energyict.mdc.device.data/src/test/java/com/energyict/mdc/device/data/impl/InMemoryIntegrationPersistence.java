@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeIm
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -207,6 +208,7 @@ public class InMemoryIntegrationPersistence {
                 new EngineModelModule(),
                 new MasterDataModule(),
                 new ValidationModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
