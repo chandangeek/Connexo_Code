@@ -1,5 +1,11 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
@@ -30,13 +36,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
@@ -47,8 +46,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**
  * Models the database tables that hold the data of the
@@ -510,6 +507,8 @@ public enum TableSpecs {
             table.map(DataCollectionKpiImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
+            table.column("DISPLAYRANGEVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName()+".count").notNull().add();
+            table.column("DISPLAYRANGEUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName()+".timeUnitCode").notNull().add();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
             Column connectionKpi = table.column("CONNECTIONKPI").number().add();
             Column comTaskExecKpi = table.column("COMMUNICATIONKPI").number().add();

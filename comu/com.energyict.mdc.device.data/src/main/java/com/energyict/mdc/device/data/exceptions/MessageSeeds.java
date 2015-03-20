@@ -30,6 +30,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIELD_TOO_LONG(1011, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device", SEVERE),
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by at data collection KPI", SEVERE),
+    FIELD_IS_REQUIRED(1014, Keys.FIELD_REQUIRED, "This field is required", Level.SEVERE),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Keys.CONNECTION_TASK_DEVICE_REQUIRED, "A connection type should be linked to a device", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED, "A connection type should be linked to a partial connection task from the device configuration", Level.SEVERE),
     DUPLICATE_CONNECTION_TASK(2002, Keys.DUPLICATE_CONNECTION_TASK, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be added", Level.SEVERE),
@@ -81,7 +82,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     COMTASK_CONFIGURATION_INCONSISTENT(2048, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The communication tasks in the communication schedule doesn't have the same connection method, security set, protocol dialect and/or urgency", SEVERE),
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2049, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2050, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),
-    DEVICE_GROUP_IS_REQUIRED(2051, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
+    DEVICE_GROUP_IS_REQUIRED(2051, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection KPI", Level.SEVERE),
     EMPTY_DATA_COLLECTION_KPI(2052, Keys.EMPTY_DATA_COLLECTION_KPI, "At least one KPI has to be selected", Level.SEVERE),
     UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE(2053, Keys.UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE, "The deviceMessageId {1} is not known for a device like {0}", Level.SEVERE),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(2054, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device", Level.SEVERE),
@@ -102,6 +103,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER(2069, Keys.CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER, "Could not find a message for identifier '{0}'", Level.SEVERE),
     CAN_NOT_REPLACE_EXISTING_KPI(2070, Keys.CAN_NOT_REPLACE_EXISTING_KPI, "An existing KPI can not be replaced", Level.SEVERE ),
     DUPLICATE_DEVICE_MRID(2071, Keys.DUPLICATE_DEVICE_MRID, "MRID must be unique", Level.SEVERE),
+    DEVICE_GROUP_MUST_BE_UNIQUE(2072, Keys.DEVICE_GROUP_MUST_BE_UNIQUE, "There is already a KPI for this device group", Level.SEVERE),
     ;
 
     private final int number;
@@ -143,6 +145,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     public static class Keys {
         public static final String NAME_REQUIRED = "X.name.required";
+        public static final String FIELD_REQUIRED = "X.field.required";
         public static final String FIELD_TOO_LONG = "invalidFieldLength";
         public static final String MRID_REQUIRED = "mRIDRequired";
         public static final String DEVICE_TYPE_REQUIRED = "deviceTypeRequired";
@@ -231,5 +234,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER = "logbookIdentifier.not.found";
         public static final String CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER = "messageIdentifier.not.found";
         public static final String CAN_NOT_REPLACE_EXISTING_KPI = "dataCollectionKpi.canNotReplaceExistingKpi";
+        public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "kpi.deviceGroup.unique";
     }
 }

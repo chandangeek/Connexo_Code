@@ -121,7 +121,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
     	this.setActualBuilder(WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME));
     	SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
-        getActualBuilder().append(sqlBuilder);
+        this.getActualBuilder().append(sqlBuilder);
         this.appendJoinedTables();
         String sqlStartClause = sqlBuilder.getText();
         if (this.taskStatuses.isEmpty()) {
@@ -138,7 +138,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
             }
         }
         this.append(" order by lastcommunicationstart desc");
-        return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize);
+        return this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize);
     }
 
     private boolean isNull(Interval interval) {
