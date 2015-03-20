@@ -65,7 +65,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.datacollection</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -88,7 +87,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -131,7 +129,6 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <version>0.9.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
