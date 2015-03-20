@@ -5,7 +5,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -40,8 +39,8 @@ public class ComTaskEnablementInfo {
         comTaskEnablementInfo.partialConnectionTask =
                 comTaskEnablement
                         .getPartialConnectionTask()
-                        .map(pct -> PartialConnectionTaskInfo.from(pct, thesaurus))
-                        .orElse(null);
+                        .map(pct -> PartialConnectionTaskInfo.from(pct, comTaskEnablement.usesDefaultConnectionTask(), thesaurus))
+                        .orElse(PartialConnectionTaskInfo.defaultPartialConnectionTaskInfo(thesaurus));
         comTaskEnablementInfo.protocolDialectConfigurationProperties =
                 comTaskEnablement
                         .getProtocolDialectConfigurationProperties()
@@ -103,21 +102,28 @@ public class ComTaskEnablementInfo {
     }
 
     public static class PartialConnectionTaskInfo {
-        public static final Long DEFAULT_PARTIAL_CONNECTION_TASK_ID = -1L;
+        public static final Long DEFAULT_PARTIAL_CONNECTION_TASK_ID = -1L; 
         public Long id;
         public String name;
 
         public PartialConnectionTaskInfo() {}
 
-        public static PartialConnectionTaskInfo from(PartialConnectionTask partialConnectionTask, Thesaurus thesaurus) {
+        public static PartialConnectionTaskInfo from(PartialConnectionTask partialConnectionTask, boolean useDefaultConnectionTask, Thesaurus thesaurus) {
             PartialConnectionTaskInfo partialConnectionTaskInfo = new PartialConnectionTaskInfo();
             if(partialConnectionTask.isDefault()) {
-                partialConnectionTaskInfo.id = partialConnectionTask.getId();
+                partialConnectionTaskInfo.id = useDefaultConnectionTask ? DEFAULT_PARTIAL_CONNECTION_TASK_ID : partialConnectionTask.getId();
                 partialConnectionTaskInfo.name = thesaurus.getString(MessageSeeds.DEFAULT.getKey(), MessageSeeds.DEFAULT.getKey()) + " (" + partialConnectionTask.getName() + ")";
             } else {
                 partialConnectionTaskInfo.id = partialConnectionTask.getId();
                 partialConnectionTaskInfo.name = partialConnectionTask.getName();
             }
+            return partialConnectionTaskInfo;
+        }
+        
+        public static PartialConnectionTaskInfo defaultPartialConnectionTaskInfo(Thesaurus thesaurus) {
+            PartialConnectionTaskInfo partialConnectionTaskInfo = new PartialConnectionTaskInfo();
+            partialConnectionTaskInfo.id = DEFAULT_PARTIAL_CONNECTION_TASK_ID;
+            partialConnectionTaskInfo.name = thesaurus.getString(MessageSeeds.DEFAULT.getKey(), MessageSeeds.DEFAULT.getKey());
             return partialConnectionTaskInfo;
         }
     }
