@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -56,9 +57,11 @@ public class ReadingTypeFieldResource {
         Set<TimeAttribute> timeAttributes = meteringService.getAvailableReadingTypes().stream()
                 .map(ReadingType::getMeasuringPeriod)
                 .collect(Collectors.<TimeAttribute>toSet());
-        timeAttributes.stream()
-                .sorted((ta1, ta2) -> Integer.compare(ta1.getMinutes(), ta2.getMinutes()))
-                .forEach(ta -> intervalFieldInfos.add(ta.getId(), thesaurus.getString(MessageSeeds.Keys.TIME_ATTRIBUTE_KEY_PREFIX + ta.getId(), ta.getDescription())));
+        Set<MacroPeriod> macroPeriods = meteringService.getAvailableReadingTypes().stream()
+                .map(ReadingType::getMacroPeriod)
+                .collect(Collectors.<MacroPeriod>toSet());
+        intervalFieldInfos.from(timeAttributes, macroPeriods, thesaurus);
+
         return intervalFieldInfos;
     }
 
@@ -97,6 +100,9 @@ public class ReadingTypeFieldResource {
             }
             if (queryFilter.hasProperty("time")) {
                 filter=filter.and(rt->rt.getMeasuringPeriod().getId() == queryFilter.getInteger("time"));
+            }
+            if (queryFilter.hasProperty("macro")) {
+                filter=filter.and(rt->rt.getMacroPeriod().getId() == queryFilter.getInteger("macro"));
             }
             if (queryFilter.hasProperty("multiplier")) {
                 filter=filter.and(rt->rt.getMultiplier().getMultiplier()==queryFilter.getInteger("multiplier"));
