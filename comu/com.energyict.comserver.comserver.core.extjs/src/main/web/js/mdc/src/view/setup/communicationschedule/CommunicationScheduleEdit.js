@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     requires: [
         'Mdc.widget.ScheduleField',
         'Mdc.widget.DateTimeField',
-        'Uni.grid.column.Action',
         'Uni.util.FormInfoMessage'
     ],
     isEdit: function () {

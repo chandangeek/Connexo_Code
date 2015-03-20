@@ -67,10 +67,10 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             '#communicationSchedulePreview menuitem[action=editCommunicationSchedule]': {
                 click: this.editCommunicationScheduleHistory
             },
-            '#addCommunicationTaskButtonForm button[action=addAction]': {
+            'addCommunicationTaskWindow #addCommunicationTasksToSchedule': {
                 click: this.addCommunicationTasksToSchedule
             },
-            '#addCommunicationTaskButtonForm button[action=cancelAction]': {
+            'addCommunicationTaskWindow #cancelAddCommunicationTasksToSchedule': {
                 click: this.cancelAddCommunicationTasksToSchedule
             },
             '#communicationTaskGridFromSchedule': {

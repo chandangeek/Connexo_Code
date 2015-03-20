@@ -1,15 +1,8 @@
 Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     alias: 'widget.communicationTaskSelectionGrid',
-    maxHeight: 300,
     itemId: 'communicationTaskGridFromSchedule',
     store: 'CommunicationTasksForCommunicationSchedule',
-    requires: [
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.CommunicationSchedules',
-        'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
-    ],
     radioHidden: true,
     bottomToolbarHidden: true,
 
@@ -35,6 +28,16 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
             '{0} communication tasks selected'
         );
     },
+    extraTopToolbarComponent: [
+        '->',
+        {
+            xtype: 'button',
+            action: 'cancelAction',
+            ui: 'link',
+            text: Uni.I18n.translate('communicationschedule.manageCommunicationTasks', 'MDC', 'Manage communication tasks'),
+            href: '#/administration/communicationtasks'
+        }
+    ],
     columns: [
         {
             header: Uni.I18n.translate('communicationtask.name', 'MDC', 'Name'),
@@ -45,9 +48,20 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
             flex: 1
         }
     ],
-
-    initComponent: function () {
+    onChangeSelectionGroupType: function (radiogroup, value) {
         var me = this;
-        me.callParent(arguments);
+        if (me.view) {
+            var selection = me.view.getSelectionModel().getSelection();
+
+            me.up('#addCommunicationTaskWindow').down('#addCommunicationTasksToSchedule').setDisabled(!me.isAllSelected() && selection.length === 0);
+            me.setGridVisible(!me.isAllSelected());
+        }
+    },
+    onSelectionChange: function () {
+        var me = this,
+            selection = me.view.getSelectionModel().getSelection();
+
+        me.getSelectionCounter().setText(me.counterTextFn(selection.length));
+        me.up('#addCommunicationTaskWindow').down('#addCommunicationTasksToSchedule').setDisabled(!me.isAllSelected() && selection.length === 0);
     }
 });
