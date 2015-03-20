@@ -81,6 +81,13 @@ public class EstimationResource {
         this.meteringGroupsService = meteringGroupsService;
     }
 
+
+    /**
+     * Get all estimation rulesets
+     *
+     * @param  uriInfo  UriInfo containing queryparameters
+     * @return all estimation rulesets
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION,
