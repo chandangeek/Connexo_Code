@@ -2,6 +2,8 @@
  * @class Uni.view.grid.ReorderableGrid
  *
  * Grid that allows dragging and dropping of rows in the same grid, used to reorder rows in a grid.
+ *
+ * Based on: http://stackoverflow.com/questions/10992180/extjs-4-drag-and-drop-in-the-same-grid
  */
 Ext.define('Uni.view.grid.ReorderableGrid', {
     extends: 'Ext.grid.Panel',
