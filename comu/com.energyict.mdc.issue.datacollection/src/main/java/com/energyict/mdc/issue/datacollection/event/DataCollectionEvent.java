@@ -108,10 +108,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
 
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
-        device = getDeviceService().findDeviceById(amrId.orElse(0L));
-        if (device == null) {
-            throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId);
-        }
+        device = getDeviceService().findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
     }
 
     private EndDevice findEndDeviceByMdcDevice() {

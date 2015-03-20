@@ -1,17 +1,17 @@
 package com.energyict.mdc.issue.datacollection.event;
 
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
+
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
@@ -46,10 +46,7 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     protected void getEventDevice(Map<?, ?> rawEvent) {
         String masterDeviceMrid = (String) rawEvent.get(ModuleConstants.MASTER_DEVICE_IDENTIFIER);
         if (masterDeviceMrid != null) {
-            Device masterDevice = getDeviceService().findByUniqueMrid(masterDeviceMrid);
-            if (masterDevice != null) {
-                setDevice(masterDevice);
-            }
+            getDeviceService().findByUniqueMrid(masterDeviceMrid).ifPresent(this::setDevice);
         }
     }
 
@@ -61,4 +58,5 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     protected Condition getConditionForExistingIssue() {
         return where("deviceMRID").isEqualTo(deviceMRID);
     }
+
 }

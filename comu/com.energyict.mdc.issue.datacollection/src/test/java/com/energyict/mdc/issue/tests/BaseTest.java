@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
@@ -159,6 +160,7 @@ public abstract class BaseTest {
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             // initialize Issue tables
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(IssueDataCollectionService.class);

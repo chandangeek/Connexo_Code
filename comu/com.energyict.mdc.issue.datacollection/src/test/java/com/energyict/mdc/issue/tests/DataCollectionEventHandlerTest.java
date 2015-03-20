@@ -188,7 +188,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         handlerFactory.setMeteringService(meteringService);
         return handlerFactory.newMessageHandler();
     }
-    
+
     private IssueService mockIssueService(IssueCreationService issueCreationService) {
         IssueService issueService = mock(IssueService.class);
         when(issueService.getIssueCreationService()).thenReturn(issueCreationService);
@@ -212,7 +212,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         DeviceService deviceDataService = mock(DeviceService.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(deviceDataService.findDeviceById(1)).thenReturn(device);
+        when(deviceDataService.findDeviceById(1)).thenReturn(Optional.of(device));
         return deviceDataService;
     }
 

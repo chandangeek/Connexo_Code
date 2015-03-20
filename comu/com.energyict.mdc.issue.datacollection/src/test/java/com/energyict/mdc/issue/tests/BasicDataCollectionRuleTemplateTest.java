@@ -177,7 +177,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         TopologyService mockTopologyService = mock(TopologyService.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(amrId);
-        when(mockDeviceDataService.findDeviceById(Matchers.anyLong())).thenReturn(device);
+        when(mockDeviceDataService.findDeviceById(Matchers.anyLong())).thenReturn(Optional.of(device));
         UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(getIssueDataCollectionService(), getMeteringService(), mockDeviceDataService, mockTopologyService, getCommunicationTaskService(), getThesaurus(), mock(Injector.class));
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");

@@ -39,8 +39,7 @@ public class UnknownDeviceResolvedEvent extends UnknownSlaveDeviceEvent {
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> deviceId = getLong(rawEvent, "id");
         if (deviceId.isPresent()) {
-            Device device = getDeviceService().findDeviceById(deviceId.get());
-            setDevice(device);
+            getDeviceService().findDeviceById(deviceId.get()).ifPresent(this::setDevice);
         }
     }
 
