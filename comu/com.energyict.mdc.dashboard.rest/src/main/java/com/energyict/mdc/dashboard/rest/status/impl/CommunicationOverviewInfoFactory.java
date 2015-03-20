@@ -2,7 +2,6 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
@@ -110,7 +109,7 @@ public class CommunicationOverviewInfoFactory {
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(queryEndDeviceGroup);
         if (dataCollectionKpiOptional.isPresent() &&  dataCollectionKpiOptional.get().calculatesComTaskExecutionKpi()) {
             TemporalAmount frequency = dataCollectionKpiOptional.get().comTaskExecutionKpiCalculationIntervalLength().get();
-            Range<Instant> intervalByPeriod = kpiScoreFactory.getIntervalByPeriod(frequency);
+            Range<Instant> intervalByPeriod = kpiScoreFactory.getActualRangeByDisplayRange(dataCollectionKpiOptional.get().getDisplayRange().asTemporalAmount());
             List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getComTaskExecutionKpiScores(intervalByPeriod);
             if (!kpiScores.isEmpty()) {
                 BigDecimal currentTarget = kpiScores.get(kpiScores.size() - 1).getTarget();

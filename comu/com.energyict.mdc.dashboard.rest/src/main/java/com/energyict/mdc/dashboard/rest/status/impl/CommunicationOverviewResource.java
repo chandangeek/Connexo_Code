@@ -38,11 +38,9 @@ public class CommunicationOverviewResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public CommunicationOverviewInfo getCommunicationOverview(@BeanParam JsonQueryFilter filter) throws Exception {
         if (filter.hasProperty("deviceGroup")) {
-            Optional<EndDeviceGroup> optional = meteringGroupService.findEndDeviceGroup(filter.getLong("deviceGroup"));
-            if (!optional.isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
-            }
-            return communicationOverviewInfoFactory.asInfo(optional.get());
+            EndDeviceGroup endDeviceGroup = meteringGroupService.findEndDeviceGroup(filter.getLong("deviceGroup"))
+                    .orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));
+            return communicationOverviewInfoFactory.asInfo(endDeviceGroup);
         } else {
             return communicationOverviewInfoFactory.asInfo();
         }
