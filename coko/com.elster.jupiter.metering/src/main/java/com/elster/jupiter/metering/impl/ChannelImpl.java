@@ -436,7 +436,7 @@ public final class ChannelImpl implements ChannelContract {
 
     @Override
     public boolean hasMacroPeriod() {
-        return !mainReadingType.get().equals(MacroPeriod.NOTAPPLICABLE);
+        return !MacroPeriod.NOTAPPLICABLE.equals(mainReadingType.get().getMacroPeriod());
     }
 
     @Override
