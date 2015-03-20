@@ -15,8 +15,8 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
         me.items = [
 
             {
-                itemId: 'KpiRadioGroup',
                 xtype: 'radiogroup',
+                itemId: me.groupName === 'connectionKpiContainer' ? 'rg-connection-kpi' : 'rg-communication-kpi',
                 columns: 1,
                 required: true,
                 vertical: true,
@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
                 ],
                 listeners: {
                     change: function (field, newValue) {
-                        var numberField = me.down('numberfield[name=' + me.groupName + ']');
+                        var numberField = me.down('numberfield');
                         if (newValue[me.groupName]) {
                             numberField.enable();
                         } else {
@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
             },
             {
                 xtype: 'numberfield',
-                name: me.groupName,
+                itemId: me.groupName === 'connectionKpiContainer' ? 'nf-connection-kpi' : 'nf-communication-kpi',
                 margin: '0 5 0 10',
                 width: 70,
                 value: 0,
@@ -63,8 +63,8 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
         ];
 
         me.getValue = function () {
-            var radiogroup = me.down('#KpiRadioGroup'),
-                numberField = me.down('numberfield[name=' + me.groupName + ']');
+            var radiogroup = me.down('radiogroup'),
+                numberField = me.down('numberfield');
 
             if (radiogroup.getValue()[me.groupName]) {
                 return numberField.getValue();
@@ -74,8 +74,8 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
         };
 
         me.setValue = function (value) {
-            var radiogroup = me.down('#KpiRadioGroup'),
-                numberField = me.down('numberfield[name=' + me.groupName + ']'),
+            var radiogroup = me.down('radiogroup'),
+                numberField = me.down('numberfield'),
                 radioGroupValue = {};
 
             if (!Ext.isEmpty(value)) {
@@ -90,5 +90,4 @@ Ext.define('Mdc.view.setup.datacollectionkpis.KpiFieldContainer', {
 
         me.callParent(arguments);
     }
-
 });
