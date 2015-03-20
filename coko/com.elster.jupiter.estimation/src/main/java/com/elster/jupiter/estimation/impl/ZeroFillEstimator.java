@@ -58,7 +58,7 @@ public class ZeroFillEstimator extends AbstractEstimator {
 
     private void estimate(Estimatable estimatable) {
         estimatable.setEstimation(BigDecimal.ZERO);
-        Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+        Logger.getAnonymousLogger().log(Level.INFO, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
     }
 
 

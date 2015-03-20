@@ -110,7 +110,7 @@ public class LinearInterpolation extends AbstractEstimator {
         for (Estimatable estimatable : estimatables) {
             currentValue = currentValue.add(step);
             estimatable.setEstimation(currentValue);
-            Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+            Logger.getAnonymousLogger().log(Level.INFO, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
         }
     }
 
