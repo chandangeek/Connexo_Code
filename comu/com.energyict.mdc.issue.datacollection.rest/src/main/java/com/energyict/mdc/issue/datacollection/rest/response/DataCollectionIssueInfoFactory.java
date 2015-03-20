@@ -25,19 +25,19 @@ public class DataCollectionIssueInfoFactory {
     public DataCollectionIssueInfoFactory(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
-    
+
     public DataCollectionIssueInfo<?> asInfo(IssueDataCollection issue, Class<? extends DeviceInfo> deviceInfoClass) {
         DataCollectionIssueInfo<?> info = new DataCollectionIssueInfo<>(issue, deviceInfoClass);
-        
+
         if (issue.getDevice() == null || !issue.getDevice().getAmrSystem().is(KnownAmrSystem.MDC)) {
             return info;
         }
-        Device device = deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId()));
+        Optional<Device> device = deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId()));
         Optional<ComSession> comSession = issue.getComSession();
         Optional<ConnectionTask> connectionTask = issue.getConnectionTask();
-        
-        if (device != null && comSession.isPresent() && connectionTask.isPresent()) {
-            info.deviceMRID = device.getmRID();
+
+        if (device.isPresent() && comSession.isPresent() && connectionTask.isPresent()) {
+            info.deviceMRID = device.get().getmRID();
             Optional<ComTaskExecution> comTaskExecution = issue.getCommunicationTask();
             if (comTaskExecution.isPresent()) {
                 //communication issue
@@ -49,21 +49,21 @@ public class DataCollectionIssueInfoFactory {
                 info.comSessionId = comSession.get().getId();
             }
         }
-        
+
         return info;
     }
-    
+
     public List<DataCollectionIssueInfo<?>> asInfos(List<? extends IssueDataCollection> issues) {
         return issues.stream().map(issue -> this.asInfo(issue, DeviceShortInfo.class)).collect(Collectors.toList());
     }
-    
+
     private Long getComTask(ComTaskExecution comTaskExecution) {
         if (!comTaskExecution.getComTasks().isEmpty()) {
             return comTaskExecution.getComTasks().get(0).getId();//Get first com task: works ok for manually scheduled comtask execution, but scheduled comtask execution?
         }
         return null;
     }
-    
+
     private Long getComTaskExecutionSession(ComSession comSession, ComTaskExecution comTaskExecution) {
         return comSession.getComTaskExecutionSessions().stream()
                 .filter(es -> es.getComTaskExecution().getId() == comTaskExecution.getId() &&
