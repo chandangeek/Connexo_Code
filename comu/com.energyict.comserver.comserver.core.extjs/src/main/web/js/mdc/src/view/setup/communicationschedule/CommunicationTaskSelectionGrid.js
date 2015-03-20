@@ -63,5 +63,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
 
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.up('#addCommunicationTaskWindow').down('#addCommunicationTasksToSchedule').setDisabled(!me.isAllSelected() && selection.length === 0);
+        me.getUncheckAllButton().setDisabled(selection.length === 0);
     }
 });
