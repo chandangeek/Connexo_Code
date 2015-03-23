@@ -15,6 +15,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.annotation.security.RolesAllowed;
@@ -57,6 +59,14 @@ public class FirmwareVersionResource {
     private Condition getFirmwareVersionConditions(JsonQueryFilter filter, DeviceType deviceType) {
         Condition condition = where("deviceType").isEqualTo(deviceType);
 
+        if (filter.hasFilters()) {
+            if (filter.hasProperty(FILTER_STATUS_PARAMETER)) {
+                condition = condition.and(where("firmwareStatus").isEqualTo(FirmwareStatus.from(filter.getString(FILTER_STATUS_PARAMETER))));
+            }
+            if (filter.hasProperty(FILTER_TYPE_PARAMETER)) {
+                condition = condition.and(where("firmwareType").isEqualTo(FirmwareType.from(filter.getString(FILTER_TYPE_PARAMETER))));
+            }
+        }
         return condition;
     }
 

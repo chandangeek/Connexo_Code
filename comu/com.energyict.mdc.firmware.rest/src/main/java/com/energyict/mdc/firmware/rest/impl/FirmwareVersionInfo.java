@@ -10,12 +10,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class FirmwareVersionInfo {
-    public long id;
+    public Long id;
     public String firmwareVersion;
     @XmlJavaTypeAdapter(FirmwareTypeAdapter.class)
     public FirmwareType firmwareType;
     @XmlJavaTypeAdapter(FirmwareStatusAdapter.class)
     public FirmwareStatus firmwareStatus;
+    public Long fileSize;
+
 
 
     public static FirmwareVersionInfo from(FirmwareVersion firmware) {
