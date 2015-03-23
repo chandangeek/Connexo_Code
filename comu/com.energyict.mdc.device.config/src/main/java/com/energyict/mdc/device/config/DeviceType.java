@@ -54,13 +54,6 @@ public interface DeviceType extends HasId, HasName {
     public boolean supportsMessaging();
 
     /**
-     * Returns true if the channel journal needs to be used.
-     *
-     * @return true if the channel journal needs to be used
-     */
-    public boolean isChannelJournalUsed();
-
-    /**
      * Returns true if devices of this type are 'dumb' and cannot capture their own load profiles
      * but need a proxy device to capture them, False otherwise.
      * The DeviceType is a logicalSlave is his DeviceProtocol has the single capability

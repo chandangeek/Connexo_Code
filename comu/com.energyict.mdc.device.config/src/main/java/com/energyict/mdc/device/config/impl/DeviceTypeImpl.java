@@ -42,7 +42,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private String name;
     @Size(max = 4000, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    private boolean useChannelJournal;
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     @Valid
@@ -463,10 +462,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     public boolean supportsMessaging() {
         return this.getDeviceProtocolPluggableClass() != null;
-    }
-
-    public boolean isChannelJournalUsed() {
-        return this.useChannelJournal;
     }
 
     public boolean isLogicalSlave() {
