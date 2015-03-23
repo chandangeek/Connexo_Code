@@ -63,12 +63,22 @@ public interface FiniteStateMachineService {
      * Starts the building process for a new {@link FiniteStateMachine}
      * with the specified name. The name must be unique across the system,
      * i.e. no two FiniteStateMachines can have the same name.
-     * Note that you are responsible for saving the FiniteStateMachine.
      *
      * @param name The name
      * @return The FiniteStateMachineBuilder
      */
     public FiniteStateMachineBuilder newFiniteStateMachine(String name);
+
+    /**
+     * Clones the specified {@link FiniteStateMachine} with the specified name.
+     * The name must be unique across the system,
+     * i.e. no two FiniteStateMachines can have the same name.
+     * Note that the cloned FiniteStateMachine has already been saved.
+     *
+     * @param name The name
+     * @return The cloned FiniteStateMachine
+     */
+    public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name);
 
     /**
      * Finds the {@link FiniteStateMachine} with the specified name

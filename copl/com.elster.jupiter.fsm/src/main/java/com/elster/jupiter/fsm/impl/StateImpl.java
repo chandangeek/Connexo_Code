@@ -204,4 +204,9 @@ public class StateImpl implements State {
         Save.UPDATE.save(this.dataModel, this);
     }
 
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "(" + this.getName() + ")";
+    }
+
 }

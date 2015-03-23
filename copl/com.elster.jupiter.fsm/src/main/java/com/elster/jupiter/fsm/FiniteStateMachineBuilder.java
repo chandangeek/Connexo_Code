@@ -32,6 +32,7 @@ public interface FiniteStateMachineBuilder {
     /**
      * Completes the building process, returning the {@link FiniteStateMachine}
      * that was built from the instructions.
+     * Note that you are responsible for saving the FiniteStateMachine.
      *
      * @return The FiniteStateMachine
      */

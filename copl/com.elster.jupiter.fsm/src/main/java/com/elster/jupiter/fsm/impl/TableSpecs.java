@@ -65,7 +65,7 @@ public enum TableSpecs {
             table.column("INITIAL").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.INITIAL.fieldName()).add();
             table.column("CUSTOM").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.CUSTOM.fieldName()).add();
             Column finiteStateMachine = table.column("FSM").number().notNull().add();
-            table.unique("UK_FSM_STATE").on(name).add();
+            table.unique("UK_FSM_STATE").on(finiteStateMachine, name).add();
             table.foreignKey("FK_FSM_STATE_FSM")
                     .on(finiteStateMachine)
                     .references(FSM_FINITE_STATE_MACHINE.name())

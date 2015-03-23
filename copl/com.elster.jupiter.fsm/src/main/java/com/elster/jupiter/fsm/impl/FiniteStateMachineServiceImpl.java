@@ -1,7 +1,16 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.events.*;
-import com.elster.jupiter.fsm.*;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.StandardEventPredicate;
+import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,6 +24,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.streams.Functions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -27,10 +37,12 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Provides an implementation for the {@link FiniteStateMachineService} interface.
@@ -210,6 +222,91 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     public FiniteStateMachineBuilder newFiniteStateMachine(String name) {
         FiniteStateMachineImpl stateMachine = this.dataModel.getInstance(FiniteStateMachineImpl.class).initialize(name);
         return new FiniteStateMachineBuilderImpl(dataModel, stateMachine);
+    }
+
+    @Override
+    public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name) {
+        FiniteStateMachineBuilder builder = this.newFiniteStateMachine(name);
+        Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap = this.cloneStateAndTransitions(source, builder);
+        FiniteStateMachine cloned = source
+            .getStates()
+            .stream()
+            .map(sourceState -> this.completeCloning(sourceState, stateBuilderMap, builder))
+            .flatMap(Functions.asStream())
+            .findFirst().get(); // Every FiniteStateMachine has an initial state so this will never fail
+        cloned.save();
+        return cloned;
+    }
+
+    private Optional<FiniteStateMachine> completeCloning(State sourceState, Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap, FiniteStateMachineBuilder builder) {
+        FiniteStateMachineBuilder.StateBuilder stateBuilder = stateBuilderMap.get(sourceState.getId());
+        State state = stateBuilder.complete();
+        if (sourceState.isInitial()) {
+            return Optional.of(builder.complete(state));
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    private Map<Long, FiniteStateMachineBuilder.StateBuilder> cloneStateAndTransitions(FiniteStateMachine source, FiniteStateMachineBuilder builder) {
+        Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap = source.getStates()
+                .stream()
+                .collect(toMap(
+                        State::getId,
+                        state -> this.cloneState(state, builder)));
+        stateBuilderMap.forEach(
+                (sourceStateId, clonedStateBuilder) -> this.cloneTransitions(source, sourceStateId, clonedStateBuilder, stateBuilderMap));
+        return stateBuilderMap;
+    }
+
+    private FiniteStateMachineBuilder.StateBuilder cloneState(State source, FiniteStateMachineBuilder builder) {
+        FiniteStateMachineBuilder.StateBuilder stateBuilder = this.startCloning(source, builder);
+        this.cloneProcesses(source, stateBuilder);
+        return stateBuilder;
+    }
+
+    private FiniteStateMachineBuilder.StateBuilder startCloning(State source, FiniteStateMachineBuilder builder) {
+        if (source.isCustom()) {
+            return builder.newCustomState(source.getName());
+        }
+        else {
+            return builder.newStandardState(source.getName());
+        }
+    }
+
+    private void cloneProcesses(State source, FiniteStateMachineBuilder.StateBuilder builder) {
+        source.getOnEntryProcesses().stream().forEach(p -> this.cloneOnEntryProcess(p, builder));
+        source.getOnExitProcesses().stream().forEach(p -> this.cloneOnExitProcess(p, builder));
+    }
+
+    private void cloneOnEntryProcess(ProcessReference processReference, FiniteStateMachineBuilder.StateBuilder builder) {
+        builder.onEntry(processReference.getDeploymentId(), processReference.getProcessId());
+    }
+
+    private void cloneOnExitProcess(ProcessReference processReference, FiniteStateMachineBuilder.StateBuilder builder) {
+        builder.onExit(processReference.getDeploymentId(), processReference.getProcessId());
+    }
+
+    private void cloneTransitions(FiniteStateMachine source, long sourceStateId, FiniteStateMachineBuilder.StateBuilder builder, Map<Long, FiniteStateMachineBuilder.StateBuilder> otherBuilders) {
+        this.cloneTransitions(
+                source.getStates().stream().filter(s -> s.getId() == sourceStateId).findFirst().get(),
+                builder,
+                otherBuilders);
+    }
+
+    private void cloneTransitions(State source, FiniteStateMachineBuilder.StateBuilder builder, Map<Long, FiniteStateMachineBuilder.StateBuilder> otherBuilders) {
+        source.getFiniteStateMachine()
+                .getTransitions()
+                .stream()
+                .filter(t -> t.getFrom().getId() == source.getId())
+                .forEach(t -> this.cloneTransition(t, builder, otherBuilders));
+    }
+
+    private void cloneTransition(StateTransition source, FiniteStateMachineBuilder.StateBuilder builder, Map<Long, FiniteStateMachineBuilder.StateBuilder> otherBuilders) {
+        builder
+            .on(source.getEventType())
+            .transitionTo(otherBuilders.get(source.getTo().getId()));
     }
 
     @Override

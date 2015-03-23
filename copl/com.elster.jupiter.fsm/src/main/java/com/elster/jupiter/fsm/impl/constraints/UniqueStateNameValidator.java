@@ -1,10 +1,8 @@
 package com.elster.jupiter.fsm.impl.constraints;
 
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.Checks;
 
-import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -15,14 +13,6 @@ import javax.validation.ConstraintValidatorContext;
  * @since 2015-03-03 (10:38)
  */
 public class UniqueStateNameValidator implements ConstraintValidator<Unique, State> {
-
-    private final FiniteStateMachineService service;
-
-    @Inject
-    public UniqueStateNameValidator(FiniteStateMachineService service) {
-        super();
-        this.service = service;
-    }
 
     @Override
     public void initialize(Unique constraintAnnotation) {

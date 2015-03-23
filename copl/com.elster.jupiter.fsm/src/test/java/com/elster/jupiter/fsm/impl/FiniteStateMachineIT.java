@@ -165,6 +165,25 @@ public class FiniteStateMachineIT {
 
     @Transactional
     @Test
+    public void createTwoStateMachinesWithTheSameStateName() {
+        FiniteStateMachineServiceImpl service = this.getTestService();
+        String sameStateName = "Initial";
+        FiniteStateMachineBuilder builder1 = service.newFiniteStateMachine("First");
+        FiniteStateMachineBuilder builder2 = service.newFiniteStateMachine("Second");
+        FiniteStateMachine first  = builder1.complete(builder1.newCustomState(sameStateName).complete());
+        FiniteStateMachine second = builder2.complete(builder2.newCustomState(sameStateName).complete());
+        first.save();
+
+        // Business method
+        second.save();
+
+        // Asserts
+        assertThat(first.getState(sameStateName).isPresent()).isTrue();
+        assertThat(second.getState(sameStateName).isPresent()).isTrue();
+    }
+
+    @Transactional
+    @Test
     public void findStateThatExists() {
         String expectedName = "findStateThatExists";
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
@@ -1302,6 +1321,71 @@ public class FiniteStateMachineIT {
 
         // Asserts
         assertThat(this.getTestService().findFiniteStateMachineByName(expectedName).isPresent()).isFalse();
+    }
+
+    @Transactional
+    @Test
+    public void cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses() {
+        FiniteStateMachineServiceImpl service = this.getTestService();
+        FiniteStateMachineBuilder builder = service.newFiniteStateMachine("cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses");
+        String expectedStateName = "Initial";
+        State initial = builder
+                .newCustomState(expectedStateName)
+                .onEntry("onEntryDepId", "onEntry1")
+                .onEntry("onEntryDepId", "onEntry2")
+                .onExit("onExitDepId", "onExit1")
+                .onExit("onExitDepId", "onExit2")
+                .complete();
+        FiniteStateMachine stateMachine = builder.complete(initial);
+        stateMachine.save();
+
+        // Business method
+        String expectedName = "Cloned";
+        FiniteStateMachine cloned = service.cloneFiniteStateMachine(stateMachine, expectedName);
+
+        // Asserts
+        assertThat(cloned.getName()).isEqualTo(expectedName);
+        assertThat(cloned.getStates()).hasSize(1);
+        State state = cloned.getStates().get(0);
+        assertThat(state.getName()).isEqualTo(expectedStateName);
+        List<ProcessReference> onEntryProcesses = state.getOnEntryProcesses();
+        assertThat(onEntryProcesses).hasSize(2);
+        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
+        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry1");
+        assertThat(onEntryProcesses.get(1).getDeploymentId()).isEqualTo("onEntryDepId");
+        assertThat(onEntryProcesses.get(1).getProcessId()).isEqualTo("onEntry2");
+        List<ProcessReference> onExitProcesses = state.getOnExitProcesses();
+        assertThat(onExitProcesses).hasSize(2);
+        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
+        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit1");
+        assertThat(onExitProcesses.get(1).getDeploymentId()).isEqualTo("onExitDepId");
+        assertThat(onExitProcesses.get(1).getProcessId()).isEqualTo("onExit2");
+    }
+
+    @Transactional
+    @Test
+    public void cloneStateMachineWithTwoStates() {
+        FiniteStateMachineServiceImpl service = this.getTestService();
+        StateTransitionEventType activatedEventType = this.createNewStateTransitionEventType("#activated");
+        StateTransitionEventType deactivatedEventType = this.createNewStateTransitionEventType("#deactivated");
+        FiniteStateMachineBuilder builder = service.newFiniteStateMachine("cloneStateMachineWithTwoStates");
+        FiniteStateMachineBuilder.StateBuilder inactive = builder.newCustomState("Inactive");
+        FiniteStateMachineBuilder.StateBuilder active = builder.newCustomState("Active");
+        inactive.on(activatedEventType).transitionTo(active);
+        active.on(deactivatedEventType).transitionTo(inactive);
+        inactive.complete();
+        FiniteStateMachine stateMachine = builder.complete(active.complete());
+        stateMachine.save();
+
+        String expectedName = "Cloned";
+        // Business method
+        FiniteStateMachine cloned = service.cloneFiniteStateMachine(stateMachine, expectedName);
+
+        // Asserts
+        assertThat(cloned.getName()).isEqualTo(expectedName);
+        assertThat(cloned.getStates()).hasSize(2);
+        List<StateTransition> transitions = cloned.getTransitions();
+        assertThat(transitions).hasSize(2);
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {
