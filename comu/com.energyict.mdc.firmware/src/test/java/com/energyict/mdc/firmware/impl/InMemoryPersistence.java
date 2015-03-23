@@ -106,6 +106,8 @@ public class InMemoryPersistence {
                 new InMemoryMessagingModule(),
                 new MeteringModule(false),
                 new ValidationModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
                 new DeviceConfigurationModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
