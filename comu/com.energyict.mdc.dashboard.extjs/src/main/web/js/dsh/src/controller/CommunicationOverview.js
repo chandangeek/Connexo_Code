@@ -54,6 +54,8 @@ Ext.define('Dsh.controller.CommunicationOverview', {
                     me.getBreakdown().bindStore(record.breakdowns());
                     if (record.raw.kpi) {
                         me.getKpi().setRecord(record.getKpi());
+                    } else {
+                        me.getKpi().setRecord(null); // when it is group without kpi defined
                     }
                     me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
 

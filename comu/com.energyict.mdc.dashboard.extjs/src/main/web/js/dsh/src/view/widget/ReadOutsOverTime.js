@@ -29,7 +29,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 hidden: true,
                 xtype: 'container',
                 itemId: 'empty',
-                html: 'Connections over time are not measured for the selected group'
+                html: me.emptyMsg
             },
             {
                 xtype: 'container',
@@ -64,30 +64,34 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
         var me = this;
         var filter = me.router.filter;
 
-        if (!filter.get('deviceGroup') || !record) {
+        if (!filter.get('deviceGroup')) {
             me.hide();
         } else {
             me.show();
             var container = me.down('#chart');
             var empty = me.down('#empty');
-
-            if (record.get('time')) {
-                container.show();
-                empty.hide();
-                me.renderChart(container);
-                // clean up
-                me.chart.series.map(function (obj) {
-                    obj.remove()
-                });
-                record.series().each(function (kpi, idx) {
-                    var series = kpi.getData();
-                    series.color = me.colorMap[idx];
-                    series.data = _.zip(record.get('time'), series.data);
-                    me.chart.addSeries(series);
-                });
-            } else {
-                container.hide();
+            if (record == null) {
                 empty.show();
+            } else {
+
+                if (record.get('time')) {
+                    container.show();
+                    empty.hide();
+                    me.renderChart(container);
+                    // clean up
+                    me.chart.series.map(function (obj) {
+                        obj.remove()
+                    });
+                    record.series().each(function (kpi, idx) {
+                        var series = kpi.getData();
+                        series.color = me.colorMap[idx];
+                        series.data = _.zip(record.get('time'), series.data);
+                        me.chart.addSeries(series);
+                    });
+                } else {
+                    container.hide();
+                    empty.show();
+                }
             }
         }
     },

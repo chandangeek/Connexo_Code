@@ -90,6 +90,7 @@ Ext.define('Dsh.view.CommunicationOverview', {
                 xtype: 'read-outs-over-time',
                 wTitle: Uni.I18n.translate('communications.widget.readOutsOverTime.title', 'DSH', 'Communications over time'),
                 yLabel: Uni.I18n.translate('communications.widget.readOutsOverTime.yLabel', 'DSH', 'Number of communications'),
+                emptyMsg: Uni.I18n.translate('communications.widget.readOutsOverTime.emptyMsg', 'DSH', 'Communications over time are not measured for the selected group.'),
                 router: me.router,
                 parent: 'communications'
             },
