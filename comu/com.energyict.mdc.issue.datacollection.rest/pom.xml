@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>mdc.issue.datacollection.rest</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.issue.datacollection.rest [init IDR]</name>
 
