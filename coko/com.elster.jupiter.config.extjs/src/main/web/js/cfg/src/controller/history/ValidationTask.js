@@ -5,26 +5,26 @@ Ext.define('Cfg.controller.history.ValidationTask', {
 
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('dataValidationTasks.general.administration', 'UNI', 'Administration'),
+            title: Uni.I18n.translate('validationTasks.general.administration', 'UNI', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
-                datavalidationtasks: {
-                    title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTasks', 'CFG', 'Data validation tasks'),
-                    route: 'datavalidationtasks',
+                validationtasks: {
+                    title: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
+                    route: 'validationtasks',
                     controller: 'Cfg.controller.Tasks',
                     privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
                     action: 'showDataValidationTasks',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('dataValidationTasks.general.addDataValidationTask', 'CFG', 'Add data validation task'),
+                            title: Uni.I18n.translate('validationTasks.general.addDataValidationTask', 'CFG', 'Add validation task'),
                             route: 'add',
                             controller: 'Cfg.controller.Tasks',
                             privileges: ['privilege.administrate.validationConfiguration'],
                             action: 'showAddValidationTask'
                         },
                         datavalidationtask: {
-                            title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTask', 'CFG', 'Data validation task'),
+                            title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
                             route: '{taskId}',
                             controller: 'Cfg.controller.Tasks',
                             action: 'showTaskDetailsView',
@@ -37,21 +37,21 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                             },
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('dataValidationTasks.general.edit', 'CFG', 'Edit'),
+                                    title: Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit'),
                                     route: 'edit',
                                     controller: 'Cfg.controller.Tasks',
                                     privileges: ['privilege.administrate.validationConfiguration'],
                                     action: 'showEditValidationTask'
                                 },
                                 history: {
-                                    title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTaskHistory', 'CFG', 'Data validation task history'),
+                                    title: Uni.I18n.translate('validationTasks.general.validationTaskHistory', 'CFG', 'Validation task history'),
                                     route: 'history',
                                     controller: 'Cfg.controller.Tasks',
                                     action: 'showDataValidationTaskHistory',
                                     filter: 'Cfg.model.HistoryFilter',
                                     items: {
                                         occurrence: {
-                                            title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTaskLog', 'CFG', 'Data validation task log'),
+                                            title: Uni.I18n.translate('validationTasks.general.validationTaskLog', 'CFG', 'Validation task log'),
                                             route: '{occurrenceId}',
                                             controller: 'Cfg.controller.Log',
                                             action: 'showLog'

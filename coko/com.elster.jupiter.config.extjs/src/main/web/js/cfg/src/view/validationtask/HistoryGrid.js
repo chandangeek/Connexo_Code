@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.validationtask.HistoryGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.tasks-history-grid',
-    store: 'Cfg.store.DataValidationTasksHistory',
+    store: 'Cfg.store.ValidationTasksHistory',
     router: null,
 
     requires: [
@@ -16,11 +16,11 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.startedOn', 'CFG', 'Started On'),
+                header: Uni.I18n.translate('validationTasks.general.startedOn', 'CFG', 'Started On'),
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/datavalidationtasks/datavalidationtask/history/occurrence').buildUrl({occurrenceId: record.get('id')}),
+                    var url = me.router.getRoute('administration/validationtasks/datavalidationtask/history/occurrence').buildUrl({occurrenceId: record.get('id')}),
                         date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                     return '<a href="' + url + '">' + date + '</a>';
                 }
@@ -33,7 +33,7 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.status', 'CFG', 'Status'),
+                header: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
                 dataIndex: 'status',
                 textAlign: 'center',
                 flex: 1
@@ -52,14 +52,14 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('dataValidationTasks.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} data validation tasks'),
-                displayMoreMsg: Uni.I18n.translate('dataValidationTasks.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} data validation tasks'),
-                emptyMsg: Uni.I18n.translate('dataValidationTasks.pagingtoolbartop.emptyMsg', 'CFG', 'There are no data validation tasks to display')
+                displayMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} validation tasks'),
+                displayMoreMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} validation tasks'),
+                emptyMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.emptyMsg', 'CFG', 'There are no validation tasks to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('dataValidationTasks.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Data validation tasks per page'),
+                itemsPerPageMsg: Uni.I18n.translate('validationTasks.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Validation tasks per page'),
                 dock: 'bottom'
             }
         ];

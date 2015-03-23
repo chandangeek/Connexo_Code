@@ -1,11 +1,11 @@
-Ext.define('Cfg.store.DataValidationTasksHistory', {
+Ext.define('Cfg.store.ValidationTasksHistory', {
     extend: 'Uni.data.store.Filterable',
-    model: 'Cfg.model.DataValidationTaskHistory',
+    model: 'Cfg.model.ValidationTaskHistory',
     autoLoad: false,
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/val/datavalidationtasks/{taskId}/history',
+        urlTpl: '/api/val/validationtasks/{taskId}/history',
         reader: {
             type: 'json',
             root: 'data'

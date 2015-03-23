@@ -15,19 +15,19 @@ Ext.define('Cfg.view.log.Preview', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('dataValidationTasks.general.name', 'CFG', 'Name'),
+                    fieldLabel: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
                     name: 'name',
                     renderer: function (value) {
-                        var url = me.router.getRoute('administration/datavalidationtasks/datavalidationtask').buildUrl();
+                        var url = me.router.getRoute('administration/validationtasks/datavalidationtask').buildUrl();
                         return '<a href="' + url + '">' + value + '</a>';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('dataValidationTasks.log.runStartedOn', 'CFG', 'Run started on'),
+                    fieldLabel: Uni.I18n.translate('validationTasks.log.runStartedOn', 'CFG', 'Run started on'),
                     itemId: 'run-started-on'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('dataValidationTasks.general.status', 'CFG', 'Status'),
+                    fieldLabel: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
                     name: 'status'
                 }
             ]

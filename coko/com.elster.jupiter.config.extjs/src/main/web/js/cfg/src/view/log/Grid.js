@@ -10,7 +10,7 @@ Ext.define('Cfg.view.log.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.timestamp', 'CFG', 'Timestamp'),
+                header: Uni.I18n.translate('validationTasks.general.timestamp', 'CFG', 'Timestamp'),
                 dataIndex: 'timestamp',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
@@ -18,12 +18,12 @@ Ext.define('Cfg.view.log.Grid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.logLevel', 'CFG', 'Log level'),
+                header: Uni.I18n.translate('validationTasks.general.logLevel', 'CFG', 'Log level'),
                 dataIndex: 'loglevel',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.message', 'CFG', 'Message'),
+                header: Uni.I18n.translate('validationTasks.general.message', 'CFG', 'Message'),
                 dataIndex: 'message',
                 flex: 5
             }
@@ -34,14 +34,14 @@ Ext.define('Cfg.view.log.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('dataValidationTasks.log.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} log lines per page'),
-                displayMoreMsg: Uni.I18n.translate('dataValidationTasks.log.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} log lines'),
-                emptyMsg: Uni.I18n.translate('dataValidationTasks.log.pagingtoolbartop.emptyMsg', 'CFG', 'There are no log lines to display')
+                displayMsg: Uni.I18n.translate('validationTasks.log.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} log lines per page'),
+                displayMoreMsg: Uni.I18n.translate('validationTasks.log.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} log lines'),
+                emptyMsg: Uni.I18n.translate('validationTasks.log.pagingtoolbartop.emptyMsg', 'CFG', 'There are no log lines to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('dataValidationTasks.log.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Log lines per page'),
+                itemsPerPageMsg: Uni.I18n.translate('validationTasks.log.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Log lines per page'),
                 dock: 'bottom'
             }
         ];

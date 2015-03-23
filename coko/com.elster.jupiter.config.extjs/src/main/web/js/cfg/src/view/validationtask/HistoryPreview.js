@@ -11,7 +11,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreview', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('dataValidationTasks.general.actions', 'CFG', 'Actions'),
+            text: Uni.I18n.translate('validationTasks.general.actions', 'CFG', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'tasks-history-action-menu'

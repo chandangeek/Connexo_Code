@@ -16,7 +16,7 @@ Ext.define('Cfg.view.log.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTask', 'CFG', 'Data validation task'),
+                title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
                 ui: 'medium',
                 items: [
                     {
@@ -30,7 +30,7 @@ Ext.define('Cfg.view.log.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('dataValidationTasks.general.log', 'CFG', 'Log'),
+            title: Uni.I18n.translate('validationTasks.general.log', 'CFG', 'Log'),
             items: [
                 {
                     xtype: 'log-preview',
@@ -44,9 +44,9 @@ Ext.define('Cfg.view.log.Setup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('dataValidationTasks.log.empty.title', 'CFG', 'No logs found'),
+                        title: Uni.I18n.translate('validationTasks.log.empty.title', 'CFG', 'No logs found'),
                         reasons: [
-                            me.task.get('name') + ' ' + Uni.I18n.translate('dataValidationTasks.general.startedon', 'CFG', 'started on') + ' ' + me.runStartedOn + ' ' + Uni.I18n.translate('dataValidationTasks.log.empty.list.item1', 'CFG', 'did not create any logs.')
+                            me.task.get('name') + ' ' + Uni.I18n.translate('validationTasks.general.startedon', 'CFG', 'started on') + ' ' + me.runStartedOn + ' ' + Uni.I18n.translate('validationTasks.log.empty.list.item1', 'CFG', 'did not create any logs.')
                         ]
                     }
                 }

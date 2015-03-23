@@ -11,7 +11,7 @@ Ext.define('Cfg.view.validationtask.HistoryFilterForm', {
     cls: 'filter-form',
     width: 250,
     style: 'padding: 0',
-    title: Uni.I18n.translate('dataValidationTasks.filter', 'CFG', 'Filter'),
+    title: Uni.I18n.translate('validationTasks.filter', 'CFG', 'Filter'),
     ui: 'medium',
 
     items: [
@@ -47,12 +47,12 @@ Ext.define('Cfg.view.validationtask.HistoryFilterForm', {
                         {
                             xtype: 'panel',
                             baseCls: 'x-form-item-label',
-                            title: Uni.I18n.translate('dataValidationTasks.started', 'CFG', 'Started between')
+                            title: Uni.I18n.translate('validationTasks.started', 'CFG', 'Started between')
                         },
                         {
                             xtype: 'date-time',
                             name: 'startedOnFrom',
-                            fieldLabel: Uni.I18n.translate('dataValidationTasks.from', 'CFG', 'From'),
+                            fieldLabel: Uni.I18n.translate('validationTasks.from', 'CFG', 'From'),
                             dateConfig: {
                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                             }
@@ -60,7 +60,7 @@ Ext.define('Cfg.view.validationtask.HistoryFilterForm', {
                         {
                             xtype: 'date-time',
                             name: 'startedOnTo',
-                            fieldLabel: Uni.I18n.translate('dataValidationTasks.to', 'CFG', 'To'),
+                            fieldLabel: Uni.I18n.translate('validationTasks.to', 'CFG', 'To'),
                             dateConfig: {
                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                             }
@@ -93,15 +93,15 @@ Ext.define('Cfg.view.validationtask.HistoryFilterForm', {
                         {
                             xtype: 'panel',
                             baseCls: 'x-form-item-label',
-                            title: Uni.I18n.translate('dataValidationTasks.finished', 'CFG', 'Finished between')
+                            title: Uni.I18n.translate('validationTasks.finished', 'CFG', 'Finished between')
                         },
                         {
                             name: 'finishedOnFrom',
-                            fieldLabel: Uni.I18n.translate('dataValidationTasks.from', 'CFG', 'From')
+                            fieldLabel: Uni.I18n.translate('validationTasks.from', 'CFG', 'From')
                         },
                         {
                             name: 'finishedOnTo',
-                            fieldLabel: Uni.I18n.translate('dataValidationTasks.to', 'CFG', 'To')
+                            fieldLabel: Uni.I18n.translate('validationTasks.to', 'CFG', 'To')
                         }
                     ]
                 }
@@ -112,12 +112,12 @@ Ext.define('Cfg.view.validationtask.HistoryFilterForm', {
                     dock: 'bottom',
                     items: [
                         {
-                            text: Uni.I18n.translate('dataValidationTasks.connection.widget.sideFilter.apply', 'CFG', 'Apply'),
+                            text: Uni.I18n.translate('validationTasks.connection.widget.sideFilter.apply', 'CFG', 'Apply'),
                             ui: 'action',
                             action: 'applyfilter'
                         },
                         {
-                            text: Uni.I18n.translate('dataValidationTasks.connection.widget.sideFilter.clearAll', 'CFG', 'Clear all'),
+                            text: Uni.I18n.translate('validationTasks.connection.widget.sideFilter.clearAll', 'CFG', 'Clear all'),
                             action: 'clearfilter'
                         }
                     ]

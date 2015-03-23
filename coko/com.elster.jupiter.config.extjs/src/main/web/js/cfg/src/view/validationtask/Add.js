@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.Add', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.data-validation-tasks-add',
+    alias: 'widget.validation-tasks-add',
     requires: [
         'Uni.form.field.DateTime',        
         'Uni.util.FormErrorMessage'
@@ -11,11 +11,11 @@ Ext.define('Cfg.view.validationtask.Add', {
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('dataValidationTasks.general.save', 'CFG', 'Save'));
+            this.down('#add-button').setText(Uni.I18n.translate('validationTasks.general.save', 'CFG', 'Save'));
             this.down('#add-button').action = 'editTask';
         } else {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('dataValidationTasks.general.add', 'CFG', 'Add'));
+            this.down('#add-button').setText(Uni.I18n.translate('validationTasks.general.add', 'CFG', 'Add'));
             this.down('#add-button').action = 'addTask';
         }
         if (this.returnLink) {
@@ -27,8 +27,8 @@ Ext.define('Cfg.view.validationtask.Add', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('dataValidationTasks.general.addDataValidationTask', 'CFG', 'Add data validation task'),
-                itemId: 'add-data-validation-task-form',
+                title: Uni.I18n.translate('validationTasks.general.addDataValidationTask', 'CFG', 'Add validation task'),
+                itemId: 'add-validation-task-form',
                 ui: 'large',
                 width: '100%',
                 defaults: {
@@ -50,18 +50,18 @@ Ext.define('Cfg.view.validationtask.Add', {
                         width: 500,
                         required: true,
                         //maskRe: /[^:\\/*?"<>|]/,
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.name', 'CFG', 'Name'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
                     },
                     {
-                        title: Uni.I18n.translate('dataValidationTasks.general.dataSources', 'CFG', 'Data sources'),
+                        title: Uni.I18n.translate('validationTasks.general.dataSources', 'CFG', 'Data sources'),
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.deviceGroup', 'CFG', 'Device group'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -73,7 +73,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 store: 'Cfg.store.DeviceGroups',
                                 editable: false,
                                 disabled: false,
-                                emptyText: Uni.I18n.translate('dataValidationTasks.addDataValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
+                                emptyText: Uni.I18n.translate('validationTasks.addDataValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
                                 allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'name',
@@ -83,18 +83,18 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 xtype: 'displayfield',
                                 itemId: 'no-device',
                                 hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('dataValidationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
+                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
                                 width: 235
                             }
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('dataValidationTasks.general.schedule', 'CFG', 'Schedule'),
+                        title: Uni.I18n.translate('validationTasks.general.schedule', 'CFG', 'Schedule'),
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.recurrence', 'CFG', 'Recurrence'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.recurrence', 'CFG', 'Recurrence'),
                         itemId: 'recurrence-container',
                         layout: 'hbox',
                         items: [
@@ -111,13 +111,13 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 items: [
                                     {
                                         itemId: 'none-recurrence',
-                                        boxLabel: Uni.I18n.translate('dataValidationTasks.general.none', 'CFG', 'None'),
+                                        boxLabel: Uni.I18n.translate('validationTasks.general.none', 'CFG', 'None'),
                                         inputValue: false,
                                         checked: true
                                     },
                                     {
                                         itemId: 'every',
-                                        boxLabel: Uni.I18n.translate('dataValidationTasks.general.every', 'CFG', 'Every'),
+                                        boxLabel: Uni.I18n.translate('validationTasks.general.every', 'CFG', 'Every'),
                                         inputValue: true
                                     }
                                 ]
@@ -141,7 +141,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         listeners: {
                                             focus: {
                                                 fn: function () {
-                                                    var radioButton = Ext.ComponentQuery.query('data-validation-tasks-add #every')[0];
+                                                    var radioButton = Ext.ComponentQuery.query('validation-tasks-add #every')[0];
                                                     radioButton.setValue(true);
                                                 }
                                             },
@@ -161,7 +161,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         listeners: {
                                             focus: {
                                                 fn: function () {
-                                                    var radioButton = Ext.ComponentQuery.query('data-validation-tasks-add #every')[0];
+                                                    var radioButton = Ext.ComponentQuery.query('validation-tasks-add #every')[0];
                                                     radioButton.setValue(true);
                                                 }
                                             }
@@ -173,7 +173,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.startOn', 'CFG', 'Start on'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.startOn', 'CFG', 'Start on'),
                         layout: 'hbox',
                         items: [
                             {
@@ -188,7 +188,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
                                 hoursConfig: {
-                                    fieldLabel: Uni.I18n.translate('dataValidationTasks.general.at', 'CFG', 'at'),
+                                    fieldLabel: Uni.I18n.translate('validationTasks.general.at', 'CFG', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
                                     value: new Date().getHours()
@@ -209,15 +209,15 @@ Ext.define('Cfg.view.validationtask.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-button',
-                                text: Uni.I18n.translate('dataValidationTasks.general.add', 'CFG', 'Add'),
+                                text: Uni.I18n.translate('validationTasks.general.add', 'CFG', 'Add'),
                                 ui: 'action'
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'cancel-link',
-                                text: Uni.I18n.translate('dataValidationTasks.general.cancel', 'CFG', 'Cancel'),
+                                text: Uni.I18n.translate('validationTasks.general.cancel', 'CFG', 'Cancel'),
                                 ui: 'link',
-                                href: '#/administration/datavalidationtasks/'
+                                href: '#/administration/validationtasks/'
                             }
                         ]
                     }

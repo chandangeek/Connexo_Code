@@ -12,28 +12,28 @@ Ext.define('Cfg.controller.Tasks', {
     stores: [
         'Cfg.store.DeviceGroups',
         'Cfg.store.DaysWeeksMonths',		
-        'Cfg.store.DataValidationTasks',
-		'Cfg.store.DataValidationTasksHistory'
+        'Cfg.store.ValidationTasks',
+		'Cfg.store.ValidationTasksHistory'
     ],
     models: [
         'Cfg.model.DeviceGroup',
         'Cfg.model.DayWeekMonth',        
-        'Cfg.model.DataValidationTask',
-		'Cfg.model.DataValidationTaskHistory',
+        'Cfg.model.ValidationTask',
+		'Cfg.model.ValidationTaskHistory',
 		'Cfg.model.HistoryFilter'
     ],
     refs: [
         {
             ref: 'page',
-            selector: 'data-validation-tasks-setup'
+            selector: 'validation-tasks-setup'
         },
         {
             ref: 'addPage',
-            selector: 'data-validation-tasks-add'
+            selector: 'validation-tasks-add'
         },
         {
             ref: 'detailsPage',
-            selector: 'data-validation-tasks-details'
+            selector: 'validation-tasks-details'
         },
         {
             ref: 'actionMenu',
@@ -41,7 +41,7 @@ Ext.define('Cfg.controller.Tasks', {
         },
 		{
             ref: 'history',
-            selector: 'data-validation-tasks-history'
+            selector: 'validation-tasks-history'
         },
 		   {
             ref: 'filterTopPanel',
@@ -59,13 +59,13 @@ Ext.define('Cfg.controller.Tasks', {
 
     init: function () {
         this.control({
-            'data-validation-tasks-add #recurrence-trigger': {
+            'validation-tasks-add #recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
             },
-            'data-validation-tasks-add #add-button': {
+            'validation-tasks-add #add-button': {
                 click: this.addTask
             },
-			'data-validation-tasks-setup tasks-grid': {
+			'validation-tasks-setup tasks-grid': {
                 select: this.showPreview
             },
             'tasks-action-menu': {
@@ -74,7 +74,7 @@ Ext.define('Cfg.controller.Tasks', {
             'tasks-history-action-menu': {
                 click: this.chooseAction
             },
-            'data-validation-tasks-history tasks-history-grid': {
+            'validation-tasks-history tasks-history-grid': {
                 select: this.showHistoryPreview
             },
 			 'history-filter-form  button[action=applyfilter]': {
@@ -92,7 +92,7 @@ Ext.define('Cfg.controller.Tasks', {
 
     showDataValidationTasks: function () {
         var me = this,
-            view = Ext.widget('data-validation-tasks-setup', {
+            view = Ext.widget('validation-tasks-setup', {
                 router: me.getController('Uni.controller.history.Router')
             });
 
@@ -103,8 +103,8 @@ Ext.define('Cfg.controller.Tasks', {
     showTaskDetailsView: function (currentTaskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            taskModel = me.getModel('Cfg.model.DataValidationTask'),
-            view = Ext.widget('data-validation-tasks-details', {
+            taskModel = me.getModel('Cfg.model.ValidationTask'),
+            view = Ext.widget('validation-tasks-details', {
                 router: router,
                 taskId: currentTaskId
             }),
@@ -134,12 +134,12 @@ Ext.define('Cfg.controller.Tasks', {
 	showDataValidationTaskHistory: function (currentTaskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            store = me.getStore('Cfg.store.DataValidationTasksHistory'),
-            taskModel = me.getModel('Cfg.model.DataValidationTask'),
+            store = me.getStore('Cfg.store.ValidationTasksHistory'),
+            taskModel = me.getModel('Cfg.model.ValidationTask'),
             view;
 
         store.getProxy().setUrl(router.arguments);
-        view = Ext.widget('data-validation-tasks-history', {
+        view = Ext.widget('validation-tasks-history', {
             router: router,
             taskId: currentTaskId
         });
@@ -207,16 +207,16 @@ Ext.define('Cfg.controller.Tasks', {
         if (me.fromDetails) {
             view = Ext.create('Cfg.view.validationtask.Add', {
                 edit: true,
-                returnLink: router.getRoute('administration/datavalidationtasks/datavalidationtask').buildUrl({taskId: taskId})
+                returnLink: router.getRoute('administration/validationtasks/datavalidationtask').buildUrl({taskId: taskId})
             })
         } else {
             view = Ext.create('Cfg.view.validationtask.Add', {
                 edit: true,
-                returnLink: router.getRoute('administration/datavalidationtasks').buildUrl()
+                returnLink: router.getRoute('administration/validationtasks').buildUrl()
             })
         }
-        var taskModel = me.getModel('Cfg.model.DataValidationTask'),
-            taskForm = view.down('#add-data-validation-task-form'),            
+        var taskModel = me.getModel('Cfg.model.ValidationTask'),
+            taskForm = view.down('#add-validation-task-form'),            
             deviceGroupCombo = view.down('#device-group-combo'),            
             recurrenceTypeCombo = view.down('#recurrence-type');
 			
@@ -231,7 +231,7 @@ Ext.define('Cfg.controller.Tasks', {
                         var schedule = record.get('schedule');
                         me.taskModel = record;
                         me.getApplication().fireEvent('datavalidationtaskload', record);
-                        taskForm.setTitle(Uni.I18n.translate('dataValidationTasks.general.edit', 'CFG', 'Edit') + " '" + record.get('name') + "'");
+                        taskForm.setTitle(Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit') + " '" + record.get('name') + "'");
                         	taskForm.loadRecord(record);
                         
 							deviceGroupCombo.store.load({
@@ -303,19 +303,19 @@ Ext.define('Cfg.controller.Tasks', {
 
         switch (item.action) {
             case 'viewDetails':
-                route = 'administration/datavalidationtasks/datavalidationtask';
+                route = 'administration/validationtasks/datavalidationtask';
                 break;
             case 'editValidationTask':
-                route = 'administration/datavalidationtasks/datavalidationtask/edit';
+                route = 'administration/validationtasks/datavalidationtask/edit';
                 break;
             case 'removeTask':
                 me.removeTask(menu.record);
                 break;         
 			case 'viewLog':
-                route = 'administration/datavalidationtasks/datavalidationtask/history/occurrence';
+                route = 'administration/validationtasks/datavalidationtask/history/occurrence';
                 break;
             case 'viewHistory':
-                route = 'administration/datavalidationtasks/datavalidationtask/history';
+                route = 'administration/validationtasks/datavalidationtask/history';
                 break;
         }
 
@@ -334,17 +334,17 @@ Ext.define('Cfg.controller.Tasks', {
             var name = '', validationPeriod;
             switch (f) {
                 case 'startedOnFrom':
-                    name = Uni.I18n.translate('dataValidationTasks.general.startedFrom', 'CFG', 'Started from');
+                    name = Uni.I18n.translate('validationTasks.general.startedFrom', 'CFG', 'Started from');
                     break;
                 case 'startedOnTo':
-                    name = Uni.I18n.translate('dataValidationTasks.general.startedTo', 'CFG', 'Started to');
+                    name = Uni.I18n.translate('validationTasks.general.startedTo', 'CFG', 'Started to');
                     break;
                 case 'finishedOnFrom':
-                    name = Uni.I18n.translate('dataValidationTasks.general.finishedFrom', 'CFG', 'Finished from');
+                    name = Uni.I18n.translate('validationTasks.general.finishedFrom', 'CFG', 'Finished from');
                     name = 'Finished from';
                     break;
                 case 'finishedOnTo':
-                    name = Uni.I18n.translate('dataValidationTasks.general.finishedTo', 'CFG', 'Finished to');
+                    name = Uni.I18n.translate('validationTasks.general.finishedTo', 'CFG', 'Finished to');
                     break;                
             }
             if (!Ext.isEmpty(filter.get(f))) {
@@ -352,7 +352,7 @@ Ext.define('Cfg.controller.Tasks', {
                 me.getFilterTopPanel().setFilter(f, name, validationPeriod
                     ? Uni.DateTime.formatDateLong(date)
                     : Uni.DateTime.formatDateLong(date)
-                + ' ' + Uni.I18n.translate('dataValidationTasks.general.at', 'CFG', 'At').toLowerCase() + ' '
+                + ' ' + Uni.I18n.translate('validationTasks.general.at', 'CFG', 'At').toLowerCase() + ' '
                 + Uni.DateTime.formatTimeShort(date));
             }
         }
@@ -363,8 +363,8 @@ Ext.define('Cfg.controller.Tasks', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
-            msg: Uni.I18n.translate('dataValidationTasks.general.remove.msg', 'CFG', 'This data validation task will no longer be available.'),
-            title: Uni.I18n.translate('dataValidationTasks.general.remove', 'CFG', 'Remove') + '&nbsp' + record.data.name + '?',
+            msg: Uni.I18n.translate('validationTasks.general.remove.msg', 'CFG', 'This validation task will no longer be available.'),
+            title: Uni.I18n.translate('validationTasks.general.remove', 'CFG', 'Remove') + '&nbsp' + record.data.name + '?',
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
@@ -386,9 +386,9 @@ Ext.define('Cfg.controller.Tasks', {
                     grid.down('pagingtoolbarbottom').resetPaging();
                     grid.getStore().load();
                 } else {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationtasks').forward();
+                    me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataValidationTasks.general.remove.confirm.msg', 'CFG', 'Data validation task removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Validation task removed'));
             },
             failure: function (object, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -412,7 +412,7 @@ Ext.define('Cfg.controller.Tasks', {
                                 text: 'Cancel',
                                 action: 'cancel',
                                 ui: 'link',
-                                href: '#/administration/datavalidationtasks/',
+                                href: '#/administration/validationtasks/',
                                 handler: function (button, event) {
                                     this.up('messagebox').destroy();
                                 }
@@ -420,7 +420,7 @@ Ext.define('Cfg.controller.Tasks', {
                         ]
                     }).show({
                         ui: 'notification-error',
-                        title: Uni.I18n.translate('dataValidationTasks.general.remove.error.msg', 'CFG', 'Remove operation failed'),
+                        title: Uni.I18n.translate('validationTasks.general.remove.error.msg', 'CFG', 'Remove operation failed'),
                         msg: errorText,
                         modal: false,
                         icon: Ext.MessageBox.ERROR
@@ -434,7 +434,7 @@ Ext.define('Cfg.controller.Tasks', {
     addTask: function (button) {
         var me = this,
             page = me.getAddPage(),
-            form = page.down('#add-data-validation-task-form'),
+            form = page.down('#add-validation-task-form'),
             formErrorsPanel = form.down('#form-errors'),           
             lastDayOfMonth = false,
             startOnDate,
@@ -444,7 +444,7 @@ Ext.define('Cfg.controller.Tasks', {
             minutes;
         
         if (form.isValid()) {
-            var record = me.taskModel || Ext.create('Cfg.model.DataValidationTask');
+            var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
 
             record.beginEdit();
             if (!formErrorsPanel.isHidden()) {
@@ -528,14 +528,14 @@ Ext.define('Cfg.controller.Tasks', {
             record.save({
                 success: function () {
                     if (button.action === 'editTask' && me.fromDetails) {
-                        me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationtasks/datavalidationtask').forward({taskId: record.getId()});
+                        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/datavalidationtask').forward({taskId: record.getId()});
                     } else {
-                        me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationtasks').forward();
+                        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
                     }
                     if (button.action === 'editTask') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataValidationTasks.editDataValidationTask.successMsg.saved', 'CFG', 'Data validation task saved'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.editDataValidationTask.successMsg.saved', 'CFG', 'Validation task saved'));
                     } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataValidationTasks.addDataValidationTask.successMsg', 'CFG', 'Data validation task added'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addDataValidationTask.successMsg', 'CFG', 'Validation task added'));
                     }
                 },
                 failure: function (record, operation) {

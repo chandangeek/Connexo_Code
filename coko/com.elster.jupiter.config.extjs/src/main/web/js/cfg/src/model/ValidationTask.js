@@ -1,24 +1,17 @@
-Ext.define('Cfg.model.DataValidationTask', {
+Ext.define('Cfg.model.ValidationTask', {
     extend: 'Ext.data.Model',
    /* requires: [
         'Uni.property.model.Property'
     ],*/
     fields: [
-	'id', 'name', 'deviceGroup', 'schedule', 'nextRun'
-	],
-	  proxy: {
-        type: 'rest',
-        url: '/api/val/datavalidationtasks',
-        reader: {
-            type: 'json'
-        }
-    }
-  /*      'id', 'name', 'deviceGroup', 'dataProcessor', 'schedule', 'exportperiod', 'properties', 'readingTypes', 'nextRun', 'lastRun',
-        {
+			'id', 'name', 'deviceGroup', 'schedule', 'nextRun', 'lastRun',
+	
+  //      'id', 'name', 'deviceGroup', 'dataProcessor', 'schedule', 'exportperiod', 'properties', 'readingTypes', 'nextRun', 'lastRun',
+  /*      {
             name: 'lastExportOccurence',
             persist: false
         },
-        {
+    */    {
             name: 'lastRun_formatted',
             persist: false,
             mapping: function (data) {
@@ -40,7 +33,7 @@ Ext.define('Cfg.model.DataValidationTask', {
                     result = moment(data.nextRun).format('ddd, DD MMM YYYY HH:mm:ss');
                     result = Uni.DateTime.formatDateTimeLong(new Date(data.nextRun));
                 } else {
-                    result = Uni.I18n.translate('dataValidationTasks.general.notScheduled', 'CFG', 'Not scheduled')
+                    result = Uni.I18n.translate('validationTasks.general.notScheduled', 'CFG', 'Not scheduled')
                 }
                 return result;
             }
@@ -52,7 +45,7 @@ Ext.define('Cfg.model.DataValidationTask', {
                 if (data.lastExportOccurence && data.lastExportOccurence.status) {
                     return data.lastExportOccurence.status;
                 } else {
-                    return Uni.I18n.translate('dataValidationTasks.general.notPerformed', 'CFG', 'Not performed yet');
+                    return Uni.I18n.translate('validationTasks.general.notPerformed', 'CFG', 'Not performed yet');
                 }
             }
         },
@@ -65,7 +58,7 @@ Ext.define('Cfg.model.DataValidationTask', {
                 } else if (data.lastExportOccurence) {
                     return data.lastExportOccurence.statusPrefix
                 } else {
-                    return Uni.I18n.translate('dataValidationTasks.general.notPerformed', 'CFG', 'Not performed yet');
+                    return Uni.I18n.translate('validationTasks.general.notPerformed', 'CFG', 'Not performed yet');
                 }
             }
         },
@@ -80,7 +73,7 @@ Ext.define('Cfg.model.DataValidationTask', {
                 }
             }
         },
-        {
+ /*       {
             name: 'trigger',
             persist: false,
             mapping: function (data) {
@@ -91,7 +84,7 @@ Ext.define('Cfg.model.DataValidationTask', {
                 }
             }
         },
-        {
+   */     {
             name: 'startedOn',
             persist: false,
             mapping: function (data) {
@@ -127,9 +120,9 @@ Ext.define('Cfg.model.DataValidationTask', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/export/dataexporttask',
+         url: '/api/val/validationtasks',
         reader: {
             type: 'json'
         }
-    }*/
+    }
 });

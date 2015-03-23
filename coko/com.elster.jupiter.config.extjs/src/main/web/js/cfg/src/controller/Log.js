@@ -5,12 +5,12 @@ Ext.define('Cfg.controller.Log', {
     ],
     stores: [
         'Cfg.store.Logs',
-        'Cfg.store.DataValidationTasksHistory'
+        'Cfg.store.ValidationTasksHistory'
     ],
     models: [
         'Cfg.model.Log',
-        'Cfg.model.DataValidationTask',
-        'Cfg.model.DataValidationTaskHistory'
+        'Cfg.model.ValidationTask',
+        'Cfg.model.ValidationTaskHistory'
     ],
     refs: [
         {
@@ -21,9 +21,9 @@ Ext.define('Cfg.controller.Log', {
 
     showLog: function (taskId, occurrenceId) {
         var me = this,
-            taskModel = me.getModel('Cfg.model.DataValidationTask'),
+            taskModel = me.getModel('Cfg.model.ValidationTask'),
             logsStore = me.getStore('Cfg.store.Logs'),
-            historyStore = me.getStore('Cfg.store.DataValidationTasksHistory'),
+            historyStore = me.getStore('Cfg.store.ValidationTasksHistory'),
             router = me.getController('Uni.controller.history.Router'),
             view,
             runStartedOn,

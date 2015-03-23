@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.Details', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.data-validation-tasks-details',
+    alias: 'widget.validation-tasks-details',
     requires: [
         'Cfg.view.validationtask.Menu',
         'Cfg.view.validationtask.PreviewForm',
@@ -16,7 +16,7 @@ Ext.define('Cfg.view.validationtask.Details', {
         items: [
             {
                 ui: 'large',
-                title: Uni.I18n.translate('dataValidationTasks.general.overview', 'CFG', 'Overview'),
+                title: Uni.I18n.translate('validationTasks.general.overview', 'CFG', 'Overview'),
                 flex: 1,
                 items: {
                     xtype: 'tasks-preview-form',
@@ -25,7 +25,7 @@ Ext.define('Cfg.view.validationtask.Details', {
             },
             {
                 xtype: 'button',
-                text: Uni.I18n.translate('dataValidationTasks.general.actions', 'CFG', 'Actions'),
+                text: Uni.I18n.translate('validationTasks.general.actions', 'CFG', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
                 menu: {

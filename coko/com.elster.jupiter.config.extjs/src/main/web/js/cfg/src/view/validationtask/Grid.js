@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.validationtask.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.tasks-grid',
-    store: 'Cfg.store.DataValidationTasks',
+    store: 'Cfg.store.ValidationTasks',
     router: null,	
     requires: [
         'Uni.grid.column.Action',
@@ -12,16 +12,16 @@ Ext.define('Cfg.view.validationtask.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.name', 'CFG', 'Name'),
+                header: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {				
-                    var url = me.router.getRoute('administration/datavalidationtasks/datavalidationtask').buildUrl({taskId: record.get('id')});
+                    var url = me.router.getRoute('administration/validationtasks/datavalidationtask').buildUrl({taskId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.status', 'CFG', 'Status'),
+                header: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
                 dataIndex: 'lastExportOccurence',
                 renderer: function (value) {
                     var result;
@@ -30,17 +30,17 @@ Ext.define('Cfg.view.validationtask.Grid', {
                     } else if (value) {
                         result = value.statusPrefix
                     } else {
-                        result = Uni.I18n.translate('dataValidationTasks.general.notPerformed', 'CFG', 'Not performed yet');
+                        result = Uni.I18n.translate('validationTasks.general.notPerformed', 'CFG', 'Not performed yet');
                     }
                     return result;
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('dataValidationTasks.general.nextRun', 'CFG', 'Next run'),
+                header: Uni.I18n.translate('validationTasks.general.nextRun', 'CFG', 'Next run'),
                 dataIndex: 'nextRun',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : Uni.I18n.translate('dataValidationTasks.general.notScheduled', 'CFG', 'Not scheduled');
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : Uni.I18n.translate('validationTasks.general.notScheduled', 'CFG', 'Not scheduled');
                 },
                 flex: 1
             },
@@ -58,23 +58,23 @@ Ext.define('Cfg.view.validationtask.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('dataValidationTasks.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} data validation tasks'),
-                displayMoreMsg: Uni.I18n.translate('dataValidationTasks.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} data validation tasks'),
-                emptyMsg: Uni.I18n.translate('dataValidationTasks.pagingtoolbartop.emptyMsg', 'CFG', 'There are no data validation tasks to display'),
+                displayMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} validation tasks'),
+                displayMoreMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} validation tasks'),
+                emptyMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.emptyMsg', 'CFG', 'There are no validation tasks to display'),
                 items: [
                     '->',
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('dataValidationTasks.general.addDataValidationTask', 'CFG', 'Add data validation task'),
+                        text: Uni.I18n.translate('validationTasks.general.addDataValidationTask', 'CFG', 'Add validation task'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
-                        href: '#/administration/datavalidationtasks/add'
+                        href: '#/administration/validationtasks/add'
                     }
                 ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('dataValidationTasks.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Data validation tasks per page'),
+                itemsPerPageMsg: Uni.I18n.translate('validationTasks.pagingtoolbarbottom.itemsPerPage', 'CFG', 'Validation tasks per page'),
                 dock: 'bottom'
             }
         ];

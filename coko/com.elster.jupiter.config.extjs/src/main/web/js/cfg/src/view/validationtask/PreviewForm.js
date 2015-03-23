@@ -15,13 +15,13 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('dataValidationTasks.general.name', 'CFG', 'Name'),
+                fieldLabel: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
                 name: 'name',
                 labelWidth: 250
             },
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('dataValidationTasks.general.dataSources', 'CFG', 'Data sources'),
+                fieldLabel: Uni.I18n.translate('validationTasks.general.dataSources', 'CFG', 'Data sources'),
                 labelAlign: 'top',
                 layout: 'vbox',
                 defaults: {
@@ -30,7 +30,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.deviceGroup', 'CFG', 'Device group'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
                         name: 'deviceGroup',
                         renderer: function (value) {
                             if (value) {
@@ -42,50 +42,46 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
             },
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('dataValidationTasks.general.schedule', 'CFG', 'Schedule'),
+                fieldLabel: Uni.I18n.translate('validationTasks.general.schedule', 'CFG', 'Schedule'),
                 labelAlign: 'top',
                 layout: 'vbox',
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 250
                 },
-                items: [
+                items: [                  
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.trigger', 'CFG', 'Trigger'),
-                        name: 'trigger'
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.lastRun', 'CFG', 'Last run'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.lastRun', 'CFG', 'Last run'),
                         name: 'lastRun',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.status', 'CFG', 'Status'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
                         name: 'status'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.reason', 'CFG', 'Reason'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.reason', 'CFG', 'Reason'),
                         itemId: 'reason-field',
                         name: 'reason',
                         hidden: true
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.startedOn', 'CFG', 'Started on'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.startedOn', 'CFG', 'Started on'),
                         name: 'startedOn'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.finishedOn', 'CFG', 'Finished on'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.finishedOn', 'CFG', 'Finished on'),
                         name: 'finishedOn'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.startedOn', 'CFG', 'Started on'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.startedOn', 'CFG', 'Started on'),
                         name: 'startedOn_formatted',
                         hidden: true
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.finishedOn', 'CFG', 'Finished on'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.finishedOn', 'CFG', 'Finished on'),
                         name: 'finishedOn_formatted',
                         hidden: true
                     },
@@ -94,7 +90,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                         name: 'duration'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('dataValidationTasks.general.nextRun', 'CFG', 'Next run'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.nextRun', 'CFG', 'Next run'),
                         name: 'nextRun_formatted'
                     }
                 ]

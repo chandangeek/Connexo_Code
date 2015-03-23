@@ -7,7 +7,7 @@ Ext.define('Cfg.view.validationtask.HistoryActionMenu', {
     items: [
         {
             itemId: 'view-log',
-            text: Uni.I18n.translate('dataValidationTasks.general.viewLog', 'CFG', 'View log'),
+            text: Uni.I18n.translate('validationTasks.general.viewLog', 'CFG', 'View log'),
             action: 'viewLog'
         }
     ]

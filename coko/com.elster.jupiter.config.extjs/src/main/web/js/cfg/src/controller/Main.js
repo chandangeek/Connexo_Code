@@ -61,9 +61,9 @@ Ext.define('Cfg.controller.Main', {
                         itemId: 'lnk-validation-rule-sets'
                     },
                     {
-                        text: Uni.I18n.translate('dataValidationTasks.general.dataValidationTasks', 'CFG', 'Data validation tasks'),
-                        href: '#/administration/datavalidationtasks',
-                        itemId: 'lnk-data-validation-tasks'
+                        text: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
+                        href: '#/administration/validationtasks',
+                        itemId: 'lnk-validation-tasks'
                     }
                 ]
             });

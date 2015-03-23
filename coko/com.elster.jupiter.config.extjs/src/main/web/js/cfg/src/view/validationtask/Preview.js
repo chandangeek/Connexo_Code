@@ -10,7 +10,7 @@ Ext.define('Cfg.view.validationtask.Preview', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('dataValidationTasks.general.actions', 'CFG', 'Actions'),
+            text: Uni.I18n.translate('validationTasks.general.actions', 'CFG', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'tasks-action-menu'
@@ -20,6 +20,6 @@ Ext.define('Cfg.view.validationtask.Preview', {
 
     items: {
         xtype: 'tasks-preview-form',
-        itemId: 'pnl-data-validation-task-preview-form'
+        itemId: 'pnl-validation-task-preview-form'
     }
 });

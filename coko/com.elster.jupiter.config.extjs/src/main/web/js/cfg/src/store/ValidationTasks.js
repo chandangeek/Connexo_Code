@@ -1,11 +1,11 @@
-Ext.define('Cfg.store.DataValidationTasks', {
+Ext.define('Cfg.store.ValidationTasks', {
     extend: 'Ext.data.Store',
-    model: 'Cfg.model.DataValidationTask',
+    model: 'Cfg.model.ValidationTask',
     autoLoad: false,
 
     proxy: {
         type: 'rest',
-        url: '/api/val/datavalidationtasks',
+        url: '/api/val/validationtasks',
         timeout: 240000,
         reader: {
             type: 'json',

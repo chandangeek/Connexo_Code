@@ -10,7 +10,7 @@ Ext.define('Cfg.view.log.Menu', {
 
         me.add(
             {
-                text: Uni.I18n.translate('dataValidationTasks.general.log', 'CFG', 'Log'),
+                text: Uni.I18n.translate('validationTasks.general.log', 'CFG', 'Log'),
                 itemId: 'tasks-log-link'
             }
         );

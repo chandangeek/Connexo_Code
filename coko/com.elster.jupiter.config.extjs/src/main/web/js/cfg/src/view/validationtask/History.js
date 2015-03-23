@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.History', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.data-validation-tasks-history',
+    alias: 'widget.validation-tasks-history',
     requires: [
         'Cfg.view.validationtask.Menu',
         'Cfg.view.validationtask.HistoryPreview',
@@ -40,7 +40,7 @@ Ext.define('Cfg.view.validationtask.History', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('dataValidationTasks.general.history', 'CFG', 'History'),
+            title: Uni.I18n.translate('validationTasks.general.history', 'CFG', 'History'),
             items: [
                 {
                     xtype: 'filter-top-panel',
@@ -54,9 +54,9 @@ Ext.define('Cfg.view.validationtask.History', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('dataValidationTasks.dataValidationTasksHistory.empty.title', 'CFG', 'No data validation history found'),
+                        title: Uni.I18n.translate('validationTasks.validationTasksHistory.empty.title', 'CFG', 'No validation history found'),
                         reasons: [
-                            Uni.I18n.translate('dataValidationTasks.dataValidationTasksHistory.empty.list.item1', 'CFG', 'There is no history available for this data validation task.')
+                            Uni.I18n.translate('validationTasks.validationTasksHistory.empty.list.item1', 'CFG', 'There is no history available for this validation task.')
                         ]
                     },
                     previewComponent: {

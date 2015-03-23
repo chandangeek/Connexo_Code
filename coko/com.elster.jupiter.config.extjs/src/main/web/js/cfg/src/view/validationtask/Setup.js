@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.Setup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.data-validation-tasks-setup',    
+    alias: 'widget.validation-tasks-setup',    
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Cfg.view.validationtask.Menu',
@@ -16,37 +16,36 @@ Ext.define('Cfg.view.validationtask.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('dataValidationTasks.general.dataValidationTasks', 'CFG', 'Data validation tasks'),
+            title: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
             items: [					
                 {					
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'tasks-grid',
-                        itemId: 'grd-data-validation-tasks',
+                        itemId: 'grd-validation-tasks',
                         router: me.router
                     },
 					
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-validation-task',
-                        title: Uni.I18n.translate('dataValidationTasks.empty.title', 'CFG', 'No data validation tasks found'),
+                        title: Uni.I18n.translate('validationTasks.empty.title', 'CFG', 'No validation tasks found'),
                         reasons: [
-                            Uni.I18n.translate('dataValidationTasks.empty.list.item1', 'CFG', 'No data validation tasks have been defined yet.'),
-                            Uni.I18n.translate('dataValidationTasks.empty.list.item2', 'CFG', 'Data validation tasks exist, but you do not have permission to view them.'),
-                            Uni.I18n.translate('dataValidationTasks.empty.list.item3', 'CFG', 'The filter is too narrow.')
+                            Uni.I18n.translate('validationTasks.empty.list.item1', 'CFG', 'No validation tasks have been defined yet.'),
+                            Uni.I18n.translate('validationTasks.empty.list.item2', 'CFG', 'Validation tasks exist, but you do not have permission to view them.')
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('dataValidationTasks.general.addDataValidationTask', 'CFG', 'Add data validation task'),
+                                text: Uni.I18n.translate('validationTasks.general.addDataValidationTask', 'CFG', 'Add validation task'),
                                 privileges:['privilege.administrate.validationConfiguration'],
                                 ui: 'action',
-                                href: '#/administration/datavalidationtasks/add'
+                                href: '#/administration/validationtasks/add'
                             }
                         ]
                     },
                     previewComponent: {
                         xtype: 'tasks-preview',
-                        itemId: 'pnl-data-validation-task-preview'
+                        itemId: 'pnl-validation-task-preview'
                     }
                 }
             ]
