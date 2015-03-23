@@ -619,7 +619,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 }
             }
 
-            String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
+            String edis = convertToEdis(obis.getC()) + "." + convertToEdis(obis.getD()) + "." + convertToEdis(obis.getE()) + fs;
             data = read(edis);
 
 
@@ -679,7 +679,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 q = new Quantity(bd, readUnit == null ? obisUnit : readUnit);
             }
 
-            return new RegisterValue(obis, q, eventTime, toTime);
+            return postProcessRegisterValue(obis, eventTime, toTime, q);
 
         } catch (NoSuchRegisterException e) {
             String m = "getMeterReading() error, " + e.getMessage();
@@ -697,6 +697,40 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             String m = "getMeterReading() error, " + e.getMessage();
             throw new NoSuchRegisterException(m);
         }
+    }
+
+    private String convertToEdis(int obisCodeField) {
+        switch (obisCodeField) {
+            case 96:
+                return "C";
+            case 97:
+                return "F";
+            case 98:
+                return "L";
+            case 99:
+                return "9";
+            default:
+                return Integer.toString(obisCodeField);
+        }
+    }
+
+    private RegisterValue postProcessRegisterValue(ObisCode obis, Date eventTime, Date toTime, Quantity q) {
+        if ("1.1.96.3.0.255".equals(obis.toString())) {
+            int breakerStatusCode = q.getAmount().intValue();
+            switch (breakerStatusCode) {
+                case 0:
+                    return new RegisterValue(obis, new Quantity(0, Unit.getUndefined()), null, eventTime, toTime, new Date(), -1, "Disconnected");
+                case 10000:
+                    return new RegisterValue(obis, new Quantity(1, Unit.getUndefined()), null, eventTime, toTime, new Date(), -1, "Connected");
+                case 20000:
+                    return new RegisterValue(obis, new Quantity(2, Unit.getUndefined()), null, eventTime, toTime, new Date(), -1, "Armed");
+                default:
+                    return new RegisterValue(obis, q, null, eventTime, toTime, new Date(), -1, "Unknown breaker status");
+            }
+        }
+
+        // in case no post processing is required
+        return new RegisterValue(obis, q, eventTime, toTime);
     }
 
     private byte[] read(String edisNotation) throws IOException {
