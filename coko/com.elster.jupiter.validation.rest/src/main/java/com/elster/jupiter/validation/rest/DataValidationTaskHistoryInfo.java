@@ -22,7 +22,6 @@ import java.util.Optional;
 public class DataValidationTaskHistoryInfo {
 
     public Long id;
-    public String trigger;
     public Long startedOn;
     public Long finishedOn;
     public Long duration;
@@ -47,13 +46,6 @@ public class DataValidationTaskHistoryInfo {
     private void populate(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
         this.id = dataValidationOccurrence.getId();
 
-        this.trigger =  "Scheduled"; // translate it
-        if (dataValidationOccurrence.wasScheduled()) {
-            String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataValidationOccurrence, thesaurus, timeService);
-            if (scheduledTriggerDescription != null) {
-                this.trigger = this.trigger + " (" + scheduledTriggerDescription + ")";
-            }
-        }
         this.startedOn = dataValidationOccurrence.getStartDate().map(this::toLong).orElse(null);
         this.finishedOn = dataValidationOccurrence.getEndDate().map(this::toLong).orElse(null);
         this.duration = calculateDuration(startedOn, finishedOn);

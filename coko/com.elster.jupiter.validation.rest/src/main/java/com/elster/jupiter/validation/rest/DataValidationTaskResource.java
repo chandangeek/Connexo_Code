@@ -26,7 +26,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/datavalidationtasks")
+@Path("/validationtasks")
 public class DataValidationTaskResource {
 
     private final RestQueryService queryService;
@@ -118,6 +118,7 @@ public class DataValidationTaskResource {
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
+            task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
             task.save();
             context.commit();
         }
