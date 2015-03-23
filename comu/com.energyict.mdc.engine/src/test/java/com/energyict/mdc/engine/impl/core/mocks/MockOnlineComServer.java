@@ -65,11 +65,6 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public String getType() {
-        return OnlineComServer.class.getName();
-    }
-
-    @Override
     public String getName() {
         return name;
     }
