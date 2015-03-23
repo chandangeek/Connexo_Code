@@ -107,6 +107,18 @@ public class IssueResource extends BaseResource {
         return query.select(condition, params.getFrom(), params.getTo(), params.getOrder("baseIssue."));
     }
 
+    private List<? extends IssueDataCollection> getIssuesForBulk(StandardParametersBean params) {
+        Condition condition = getQueryCondition(params);
+        Query<OpenIssueDataCollection> openQuery = getIssueDataCollectionService().query(OpenIssueDataCollection.class, OpenIssue.class, EndDevice.class, User.class, IssueReason.class,
+                IssueStatus.class, IssueType.class);
+        Query<HistoricalIssueDataCollection> closeQuery = getIssueDataCollectionService().query(HistoricalIssueDataCollection.class, HistoricalIssue.class, EndDevice.class, User.class, IssueReason.class,
+                IssueStatus.class, IssueType.class);
+        List<IssueDataCollection> issues = new ArrayList<>();
+        issues.addAll(openQuery.select(condition));
+        issues.addAll(closeQuery.select(condition));
+        return issues;
+    }
+
     @GET
     @Path("/groupedlist")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -207,7 +219,7 @@ public class IssueResource extends BaseResource {
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider = null;
         if (request.allIssues){
-            issueProvider = bulkResults -> getFilteredIssues(params);
+            issueProvider = bulkResults -> getIssuesForBulk(params);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
@@ -242,7 +254,7 @@ public class IssueResource extends BaseResource {
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider = null;
         if (request.allIssues){
-            issueProvider = bulkResults -> getFilteredIssues(params);
+            issueProvider = bulkResults -> getIssuesForBulk(params);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
