@@ -85,7 +85,7 @@ public class EstimationResource {
     /**
      * Get all estimation rulesets
      *
-     * @param  uriInfo  UriInfo containing queryparameters
+     * @param UriInfo uriInfo containing queryparameters
      * @return all estimation rulesets
      */
     @GET
