@@ -14,7 +14,7 @@ public class DataCollectionKpiInfoFactory {
     public DataCollectionKpiInfo from(DataCollectionKpi kpi) {
         DataCollectionKpiInfo kpiInfo = new DataCollectionKpiInfo();
         kpiInfo.id = kpi.getId();
-        kpiInfo.deviceGroup = new LongIdWithNameInfo(kpi.getDeviceGroup().getId(), kpi.getDeviceGroup().getName());
+        kpiInfo.endDeviceGroup = new LongIdWithNameInfo(kpi.getDeviceGroup().getId(), kpi.getDeviceGroup().getName());
         kpiInfo.displayRange = new TimeDurationInfo(kpi.getDisplayRange());
         Stream.of(kpi.comTaskExecutionKpiCalculationIntervalLength(),kpi.connectionSetupKpiCalculationIntervalLength()).
                 flatMap(Functions.asStream()).

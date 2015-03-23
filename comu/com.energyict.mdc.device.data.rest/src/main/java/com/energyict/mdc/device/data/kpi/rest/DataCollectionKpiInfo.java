@@ -11,7 +11,7 @@ import java.time.Instant;
 public class DataCollectionKpiInfo {
 
     public Long id;
-    public LongIdWithNameInfo deviceGroup;
+    public LongIdWithNameInfo endDeviceGroup;
     public TemporalExpressionInfo frequency;
     public TimeDurationInfo displayRange;
     public BigDecimal connectionTarget;

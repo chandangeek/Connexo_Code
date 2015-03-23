@@ -58,8 +58,8 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         String response = target("/kpis/71").request().get(String.class);
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Integer>get("id")).isEqualTo(71);
-        assertThat(model.<Integer>get("deviceGroup.id")).isEqualTo(2);
-        assertThat(model.<String>get("deviceGroup.name")).isEqualTo("end device group bis");
+        assertThat(model.<Integer>get("endDeviceGroup.id")).isEqualTo(2);
+        assertThat(model.<String>get("endDeviceGroup.name")).isEqualTo("end device group bis");
         assertThat(model.<Integer>get("frequency.every.count")).isEqualTo(15);
         assertThat(model.<String>get("frequency.every.timeUnit")).isEqualTo("minutes");
         assertThat(model.<Double>get("communicationTarget")).isEqualTo(15.8);
@@ -88,8 +88,8 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         String response = target("/kpis/71").request().get(String.class);
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Integer>get("id")).isEqualTo(71);
-        assertThat(model.<Integer>get("deviceGroup.id")).isEqualTo(2);
-        assertThat(model.<String>get("deviceGroup.name")).isEqualTo("end device group bis");
+        assertThat(model.<Integer>get("endDeviceGroup.id")).isEqualTo(2);
+        assertThat(model.<String>get("endDeviceGroup.name")).isEqualTo("end device group bis");
         assertThat(model.<BigDecimal>get("communicationTarget")).isNull();
         assertThat(model.<BigDecimal>get("connectionTarget")).isNull();
     }
@@ -108,7 +108,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testCreateKpiForDataCommunication() throws Exception {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.communicationTarget=BigDecimal.valueOf(99.9);
-        info.deviceGroup =new LongIdWithNameInfo(101L, "some group");
+        info.endDeviceGroup =new LongIdWithNameInfo(101L, "some group");
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";
@@ -140,7 +140,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testCreateKpiWithoutDeviceGroup() throws Exception {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.communicationTarget=BigDecimal.valueOf(99.9);
-        info.deviceGroup =new LongIdWithNameInfo(null, null);
+        info.endDeviceGroup =new LongIdWithNameInfo(null, null);
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";
@@ -166,7 +166,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testCreateKpiForDataConnection() throws Exception {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.connectionTarget=BigDecimal.valueOf(99.1);
-        info.deviceGroup =new LongIdWithNameInfo(102L, "some group");
+        info.endDeviceGroup =new LongIdWithNameInfo(102L, "some group");
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="hours";
@@ -198,7 +198,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testUpdateKpiWithConnectionKpi() throws Exception {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.connectionTarget=BigDecimal.valueOf(99.1);
-        info.deviceGroup =new LongIdWithNameInfo(102L, "some group");
+        info.endDeviceGroup =new LongIdWithNameInfo(102L, "some group");
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";
@@ -219,7 +219,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.communicationTarget=BigDecimal.valueOf(99.1);
         info.connectionTarget=BigDecimal.valueOf(50.0);
-        info.deviceGroup =new LongIdWithNameInfo(102L, "some group");
+        info.endDeviceGroup =new LongIdWithNameInfo(102L, "some group");
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";
@@ -239,7 +239,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testUpdateKpiWithCommunicationKpi() throws Exception {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.communicationTarget=BigDecimal.valueOf(99.1);
-        info.deviceGroup =new LongIdWithNameInfo(102L, "some group");
+        info.endDeviceGroup =new LongIdWithNameInfo(102L, "some group");
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";
@@ -260,7 +260,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.connectionTarget=BigDecimal.valueOf(60.0);
         info.communicationTarget=null;
-        info.deviceGroup =new LongIdWithNameInfo(102L, "some group");
+        info.endDeviceGroup =new LongIdWithNameInfo(102L, "some group");
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";
@@ -282,7 +282,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         DataCollectionKpiInfo info = new DataCollectionKpiInfo();
         info.connectionTarget=null;
         info.communicationTarget=BigDecimal.valueOf(50.0);
-        info.deviceGroup =new LongIdWithNameInfo(102L, "some group");
+        info.endDeviceGroup =new LongIdWithNameInfo(102L, "some group");
         info.frequency = new TemporalExpressionInfo();
         info.frequency.every = new TimeDurationInfo();
         info.frequency.every.timeUnit="minutes";
