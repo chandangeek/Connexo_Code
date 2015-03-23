@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use strict;
-use warnings;
+#use warnings;
 use Cwd;
 use Cwd 'abs_path';
 use File::Basename;
@@ -22,6 +22,7 @@ my $install=1;
 
 my $config_file="$CONNEXO_DIR/conf/config.properties";
 my $config_cmd="config.cmd";
+my $SERVICE_VERSION="";
 my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
 my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD;
@@ -98,6 +99,7 @@ sub read_config {
 				my @val=split('=',$row);
 				if ( "$val[0]" eq "CONNEXO_HTTP_PORT" ) {$CONNEXO_HTTP_PORT=$val[1];}
 				if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
+				if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
 				if ( "$val[0]" eq "jdbcUrl" )           {$jdbcUrl=$val[1];}
 				if ( "$val[0]" eq "dbUserName" )        {$dbUserName=$val[1];}
 				if ( "$val[0]" eq "dbPassword" )        {$dbPassword=$val[1];}
@@ -134,9 +136,23 @@ sub read_config {
 	$CONNEXO_URL="http://localhost:$CONNEXO_HTTP_PORT";
 }
 
+sub read_uninstall_config {
+	open(my $FH,"< $config_cmd") or die "Could not open $config_cmd: $!";
+	while (my $row = <$FH>) {
+		$row=~s/set (.*)/$1/;
+		chomp($row);
+		if ( "$row" ne "") {
+			my @val=split('=',$row);
+			if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
+		}
+	}
+	close($FH);
+}
+
 sub install_connexo {
 	copy("$CONNEXO_DIR/conf/config.properties.temp","$config_file") or die "File cannot be copied: $!";
 	open(my $FH,">> $config_file") or die "Could not open $config_file: $!";
+	print $FH "org.osgi.service.http.port=$CONNEXO_HTTP_PORT\n";
 	print $FH "com.elster.jupiter.datasource.jdbcurl=$jdbcUrl\n";
 	print $FH "com.elster.jupiter.datasource.jdbcuser=$dbUserName\n";
 	print $FH "com.elster.jupiter.datasource.jdbcpassword=$dbPassword\n";
@@ -147,7 +163,7 @@ sub install_connexo {
 	if ("$OS" eq "MSWin32") {
 		system("$SCRIPT_DIR/Connexo.exe --install");
 		if ("$CONNEXO_SERVICE" eq "yes") {
-			system("$SCRIPT_DIR/ConnexoService.exe /install");
+			system("$SCRIPT_DIR/ConnexoService.exe /install Connexo$SERVICE_VERSION");
 		}
 	} else {
 		my $VM_OPTIONS="-Djava.util.logging.config.file=$CONNEXO_DIR/conf/logging.properties";
@@ -157,6 +173,10 @@ sub install_connexo {
 			copy("$CONNEXO_DIR/bin/connexo","/etc/init.d/connexo") or die "File cannot be copied: $!";
 			chmod 0755,"/etc/init.d/connexo";
 			replace_in_file("/etc/init.d/connexo",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+			copy("$CONNEXO_DIR/bin/start-connexo.temp","$CONNEXO_DIR/bin/start-connexo.sh") or die "File cannot be copied: $!";
+			chmod 0755,"$CONNEXO_DIR/bin/start-connexo.sh";
+			replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+			replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${JAVA_HOME}',"$JAVA_HOME");
 		}
 	}
 }
@@ -184,10 +204,10 @@ sub install_tomcat {
 		open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
 		print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry\n";
 		close($FH);
-		system("service.bat install ConnexoTomcat");
+		system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 	} else {
 		open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
-		print $FH "export CATALINA_OPTS=\"$ENV{CATALINA_OPTS} -Xmx512M -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry\"\n";
+		print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$CATALINA_HOME -Dorg.uberfire.metadata.index.dir=$CATALINA_HOME -Dorg.uberfire.nio.git.ssh.cert.dir=$CATALINA_HOME -Dorg.guvnor.m2repo.dir=$CATALINA_HOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry\"\n";
 		close($FH);
 	}
 	chdir "$CONNEXO_DIR";
@@ -205,6 +225,10 @@ sub install_wso2 {
 	chdir "$CONNEXO_DIR";
 	$ENV{CARBON_HOME}="$WSO2_DIR/wso2is-4.5.0";
 	copy("$WSO2_DIR/wso2is-4.5.0/bin/yajsw/wrapper.conf","$WSO2_DIR/yajsw-stable-11.11/conf") or die "File cannot be copied: $!";
+	replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.console.title=WSO2 Identity Server","wrapper.console.title=WSO2 Identity Server$SERVICE_VERSION");
+	replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.name=WSO2IS","wrapper.ntservice.name=ConnexoWSO2IS$SERVICE_VERSION");
+	replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.displayname=WSO2 Identity Server","wrapper.ntservice.displayname=WSO2 Identity Server$SERVICE_VERSION");
+	replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.description=WSO2 Identity Server","wrapper.ntservice.description=WSO2 Identity Server$SERVICE_VERSION");
 	if ("$OS" eq "MSWin32") {
 		system("\"$WSO2_DIR/yajsw-stable-11.11/bat/installService.bat\" < NUL");
 	} else {
@@ -373,15 +397,14 @@ sub change_owner {
 
 sub start_connexo {
 	if ("$CONNEXO_SERVICE" eq "yes") {
-		print "\n\nStarting Connexo\n";
+		print "\n\nStarting Connexo ...\n";
 		print "==========================================================================\n";
 		open(my $FH,">> $config_file") or die "Could not open $config_file: $!";
-		print $FH "org.osgi.service.http.port=$CONNEXO_HTTP_PORT\n";
 		print $FH "com.elster.jupiter.bpm.url=http://localhost:$TOMCAT_HTTP_PORT/flow\n";
 		print $FH "com.elster.jupiter.yellowfin.url=http://localhost:$TOMCAT_HTTP_PORT/facts\n";
 		close($FH);
 		if ("$OS" eq "MSWin32") {
-			system("sc start Connexo");
+			system("sc start Connexo$SERVICE_VERSION");
 		} else {
 			system("/sbin/service connexo start");
 		}
@@ -392,9 +415,9 @@ sub start_tomcat {
 	print "\n\nStarting Apache Tomcat 7 ...\n";
 	print "==========================================================================\n";
 	if ("$OS" eq "MSWin32") {
-		system("sc start ConnexoTomcat");
+		system("sc start ConnexoTomcat$SERVICE_VERSION");
 		sleep 10;
-		while (`sc query ConnexoTomcat | find "STATE" | find "RUNNING"` eq "") {
+		while (`sc query ConnexoTomcat$SERVICE_VERSION | find "STATE" | find "RUNNING"` eq "") {
 			sleep 3;
 		}
 	} else {
@@ -412,7 +435,7 @@ sub start_tomcat {
 		system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" start");
 	}
 
-	print "Installing Connexo Facts content...";
+	print "\nInstalling Connexo Facts content...\n";
 	my $ENCRYPTED_PASSWORD=`"$JAVA_HOME/bin/java" -jar $CONNEXO_DIR/partners/facts/EncryptPassword.jar $dbPassword`;
 
 	copy("$CONNEXO_DIR/partners/facts/open-reports.xml","$CONNEXO_DIR/datasource.xml");
@@ -427,7 +450,7 @@ sub start_tomcat {
 	system("\"$JAVA_HOME/bin/java\" -cp $CONNEXO_DIR/partners/facts/yellowfin.installer.jar com.elster.jupiter.install.reports.OpenReports datasource.xml http://localhost:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
 	unlink("$CONNEXO_DIR/datasource.xml");
 
-	print "Installing Connexo Flow content...";
+	print "\nInstalling Connexo Flow content...\n";
 	opendir(DIR,"$CONNEXO_DIR/bundles");
 	my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
 	closedir(DIR);
@@ -436,32 +459,42 @@ sub start_tomcat {
 	foreach my $file (@files) {
 		$BPM_BUNDLE="$file";
 	}
-	system("\"$JAVA_HOME/bin/java\" -cp bundles/$BPM_BUNDLE com.elster.jupiter.bpm.impl.ProcessDeployer http://localhost:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
+	system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://localhost:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
 }
 
 sub uninstall_all {
 	if ("$OS" eq "MSWin32") {
-		system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall");
-		system("\"$CONNEXO_DIR/partners/tomcat/bin/service.bat\" remove ConnexoTomcat");
+		print "Stop and remove connexo service";
+		system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall Connexo$SERVICE_VERSION");
+		print "Stop and remove tomcat service";
+		system("\"$CONNEXO_DIR/partners/tomcat/bin/service.bat\" remove ConnexoTomcat$SERVICE_VERSION");
+		print "Stop and remove wso service";
 		system("$CONNEXO_DIR/partners/yajsw-stable-11.11/bat/uninstallService.bat");
-
-		if (-d "$CONNEXO_DIR/partners/tomcat") { rmtree("$CONNEXO_DIR/partners/tomcat"); }
-		if (-d "$CONNEXO_DIR/partners/wso2is-4.5.0") { rmtree("$CONNEXO_DIR/partners/wso2is-4.5.0"); }
-		if (-d "$CONNEXO_DIR/partners/yajsw-stable-11.11") { rmtree("$CONNEXO_DIR/partners/yajsw-stable-11.11"); }
-		if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 	} else {
+		print "Stop and remove connexo service";
 		system("/sbin/service connexo stop");
 		sleep 3;
 		system("userdel -r connexo");
 		unlink("/etc/init.d/connexo");
+		print "Stop and remove tomcat service";
+		system("\"$TOMCAT_BASE/$TOMCAT_DIR/bin/daemon.sh\" stop");
+		sleep 3;
+		system("userdel -r tomcat");
+		print "Stop and remove wso service";
+		#uninstall wso
 	}
+	print "Remove folders (tomcat, wso2is, yajsw)\n";
+	if (-d "$CONNEXO_DIR/partners/tomcat") { rmtree("$CONNEXO_DIR/partners/tomcat"); }
+	if (-d "$CONNEXO_DIR/partners/wso2is-4.5.0") { rmtree("$CONNEXO_DIR/partners/wso2is-4.5.0"); }
+	if (-d "$CONNEXO_DIR/partners/yajsw-stable-11.11") { rmtree("$CONNEXO_DIR/partners/yajsw-stable-11.11"); }
+	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 }
 
 
 # Main
 print ",---------------------------------------------------------,\n";
 print "| Installation script started at ".localtime(time)." |\n";
-print "'---------------------------------------------------------'\n\n";
+print "'---------------------------------------------------------'\n";
 check_root();
 check_java8();
 check_create_users();
@@ -477,6 +510,7 @@ if ($install) {
 	start_connexo();
 	start_tomcat();
 } else {
+	read_uninstall_config();
 	uninstall_all();
 }
 chdir "$CURRENT_DIR";
