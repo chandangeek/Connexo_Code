@@ -75,6 +75,7 @@ public interface FiniteStateMachineService {
      * i.e. no two FiniteStateMachines can have the same name.
      * Note that the cloned FiniteStateMachine has already been saved.
      *
+     * @param source The FiniteStateMachine that is being cloned
      * @param name The name
      * @return The cloned FiniteStateMachine
      */
