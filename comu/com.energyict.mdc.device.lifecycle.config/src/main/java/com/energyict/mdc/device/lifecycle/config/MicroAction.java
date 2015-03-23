@@ -12,7 +12,21 @@ import java.util.Set;
  */
 public enum MicroAction {
 
-    EXAMPLE;
+    /**
+     * Enables data validation on the device.
+     */
+    ENABLE_VALIDATION,
+
+    /**
+     * Disables data validation on the device.
+     */
+    DISABLE_VALIDATION,
+
+    /**
+     * Removes the device from all enumerated device groups
+     * it is contained in.
+     */
+    REMOVE_DEVICE_FROM_STATIC_GROUPS;
 
     /**
      * Gets the Set of {@link MicroCheck}s that are implied

@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:44)
  */
-@Component(name = "com.energyict.device.lifecycle", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
+@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
 public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider {
 

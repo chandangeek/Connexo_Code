@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config;
 
-import com.energyict.mdc.device.lifecycle.config.impl.AuthorizedCustomTransitionActionImpl;
-
 import com.elster.jupiter.fsm.State;
 
 import java.time.Instant;
@@ -37,6 +35,8 @@ public interface AuthorizedAction {
     public long getId();
 
     public long getVersion();
+
+    public DeviceLifeCycle getDeviceLifeCycle();
 
     /**
      * Gets the timestamp on which this AuthorizedAction was created.

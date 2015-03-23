@@ -147,7 +147,7 @@ public class Installer {
     }
 
     private Set<MicroCheck> applicableChecksFor(StateTransition transition) {
-        return TransitionType.from(transition).get().supportedChecks();
+        return TransitionType.from(transition).get().requiredChecks();
     }
 
     private Set<MicroAction> applicableActionsFor(StateTransition transition) {

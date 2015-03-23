@@ -15,7 +15,6 @@ import java.util.stream.Stream;
  */
 public enum DefaultState implements TranslationKey {
 
-    ORDERED("dlc.default.ordered", "Ordered"),
     IN_STOCK("dlc.default.inStock", "In Stock"),
     COMMISSIONED("dlc.default.commissioned", "Commissioned"),
     ACTIVE("dlc.default.active", "Active"),

@@ -79,7 +79,8 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    protected DeviceLifeCycle getDeviceLifeCycle() {
+    @Override
+    public DeviceLifeCycle getDeviceLifeCycle() {
         return deviceLifeCycle.get();
     }
 

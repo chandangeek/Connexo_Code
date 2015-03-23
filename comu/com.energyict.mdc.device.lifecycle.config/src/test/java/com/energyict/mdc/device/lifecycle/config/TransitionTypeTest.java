@@ -89,7 +89,6 @@ public class TransitionTypeTest {
 
     @Test
     public void testWithStandardTransition() {
-        this.testStandardTransition(DefaultState.ORDERED, DefaultState.IN_STOCK, TransitionType.SHIPMENT);
         this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.COMMISSIONED, TransitionType.COMMISSION);
         this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.ACTIVE, TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING);
         this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.INACTIVE, TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING);
