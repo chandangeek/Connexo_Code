@@ -72,6 +72,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private final static int DEBUG = 0;
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
+    private static final String PROPERTY_DATE_FORMAT = "DateFormat";
+    private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
@@ -112,6 +114,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private String firmwareVersion = null;
     private Date meterDate = null;
     private String meterSerial = null;
+    private String dateFormat = null;
 
     private boolean software7E1;
 
@@ -235,6 +238,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.iForceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "0").trim());
             this.profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             this.channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
+            this.dateFormat = properties.getProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
             this.requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
             this.protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
             this.scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
@@ -318,6 +322,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         result.add("Scaler");
         result.add("DataReadout");
         result.add("ExtendedLogging");
+        result.add(PROPERTY_DATE_FORMAT);
         result.add("VDEWCompatible");
         result.add("ForceDelay");
         result.add("Software7E1");
@@ -349,7 +354,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         try {
             this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
                     this.iForceDelay, this.iEchoCancelling, 1, null, this.halfDuplex != 0 ? this.halfDuplexController : null, this.software7E1, logger);
-            this.a1440Registry = new A1440Registry(this, this);
+            this.a1440Registry = new A1440Registry(this, this, dateFormat);
             this.a1440Profile = new A1440Profile(this, this, this.a1440Registry);
 
         } catch (ConnectionException e) {

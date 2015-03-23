@@ -77,6 +77,8 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
+    private static final String PROPERTY_DATE_FORMAT = "DateFormat";
+    private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
 
     private String strID;
     private String strPassword;
@@ -124,6 +126,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private int limitMaxNrOfDays = 0;
 
     private DataDumpParser dataDumpParser;
+    private String dateFormat = null;
 
     /** Creates a new instance of AS220, empty constructor */
     public AS220() {
@@ -240,6 +243,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
             this.protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
             this.scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
+            this.dateFormat = properties.getProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
             this.dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
             if (this.dataReadoutRequest != 0 && this.dataReadoutRequest != 1 && dataReadoutRequest != 2) {
                 throw new InvalidPropertyException("AS220, validateProperties, Property dataReadOutRequest only supports values 0, 1 and 2");
@@ -325,6 +329,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         result.add("ExtendedLogging");
         result.add("VDEWCompatible");
         result.add("ForceDelay");
+		result.add(PROPERTY_DATE_FORMAT);
         result.add("Software7E1");
         result.add("HalfDuplex");
         result.add("FailOnUnitMismatch");
@@ -365,7 +370,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         try {
             this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
                     this.iForceDelay, this.iEchoCancelling, 1, null, this.halfDuplex != 0 ? this.halfDuplexController : null, this.software7E1, logger);
-            this.aS220Registry = new AS220Registry(this, this);
+			this.aS220Registry = new AS220Registry(this, this, dateFormat);
             this.aS220Profile = new AS220Profile(this, this, this.aS220Registry);
 
         } catch (ConnectionException e) {
