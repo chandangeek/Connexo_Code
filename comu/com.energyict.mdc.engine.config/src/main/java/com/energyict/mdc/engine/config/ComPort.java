@@ -100,8 +100,6 @@ public interface ComPort extends HasId, HasName  {
     public void setComPortType(ComPortType type);
 
 
-    public String getType();
-
     public String getName();
     public void setName(String name);
 

@@ -124,9 +124,4 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
         this.usesDefaultStatusUri = usesDefaultStatusUri;
     }
 
-    @Override
-    public String getType () {
-        return RemoteComServer.class.getName();
-    }
-
 }

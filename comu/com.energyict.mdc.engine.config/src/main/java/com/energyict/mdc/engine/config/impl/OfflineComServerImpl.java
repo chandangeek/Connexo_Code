@@ -24,11 +24,6 @@ public class OfflineComServerImpl extends ComServerImpl implements OfflineComSer
     }
 
     @Override
-    public String getType () {
-        return OfflineComServer.class.getName();
-    }
-
-    @Override
     public boolean isOffline () {
         return true;
     }

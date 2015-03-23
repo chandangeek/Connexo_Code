@@ -45,16 +45,6 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Mock
     Provider<OutboundComPortImpl> outboundComPortProvider;
 
-    @Test
-    public void testGetTypeDoesNotReturnServerBasedClassName () {
-        OfflineComServer onlineComServer = new OfflineComServerImpl(dataModel, outboundComPortProvider, null, null, null, null, null);
-
-        // Business method
-        String type = onlineComServer.getType();
-
-        // Asserts
-        assertThat(type).doesNotContain(".Server");
-    }
 
     @Test
     @Transactional

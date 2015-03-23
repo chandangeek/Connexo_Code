@@ -47,18 +47,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testGetTypeDoesNotReturnServerBasedClassName () {
-        OnlineComServer onlineComServer = new OnlineComServerImpl(dataModel, getEngineModelService(), outboundComPortProvider, null, null, null, null, null);
-
-        // Business method
-        String type = onlineComServer.getType();
-
-        // Asserts
-        assertThat(type).doesNotContain(".Server");
-    }
-
-    @Test
-    @Transactional
     public void testCreateWithoutComPortsWithoutViolations () throws BusinessException, SQLException {
         String name = NO_VIOLATIONS_NAME+1;
         OnlineComServer comServer = this.createWithoutComPortsWithoutViolations(name);

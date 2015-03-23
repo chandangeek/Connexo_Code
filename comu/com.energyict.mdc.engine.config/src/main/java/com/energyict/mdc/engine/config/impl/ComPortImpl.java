@@ -120,10 +120,6 @@ public abstract class ComPortImpl implements ComPort {
         // For xml unmarshalling purposes only
     }
 
-    public String getType() {
-        return ComPort.class.getName();
-    }
-
     @Override
     public Instant getModificationDate() {
         return this.modTime;
