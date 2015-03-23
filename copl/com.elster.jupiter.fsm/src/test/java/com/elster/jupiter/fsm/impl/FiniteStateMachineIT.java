@@ -1388,6 +1388,74 @@ public class FiniteStateMachineIT {
         assertThat(transitions).hasSize(2);
     }
 
+    @Transactional
+    @Test
+    public void cloneDefaultLifeCycle() {
+        FiniteStateMachineServiceImpl service = this.getTestService();
+        // Create default StateTransitionEventTypes
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        StateTransitionEventType activated = this.createNewStateTransitionEventType("#activated");
+        StateTransitionEventType deactivated = this.createNewStateTransitionEventType("#deactivated");
+        StateTransitionEventType decommissionedEventType = this.createNewStateTransitionEventType("#decommissioned");
+        StateTransitionEventType deletedEventType = this.createNewStateTransitionEventType("#deleted");
+        FiniteStateMachineBuilder builder = service.newFiniteStateMachine("Default life cycle");
+        // Create default States
+        FiniteStateMachineBuilder.StateBuilder activeBuilder = builder.newStandardState("Active");
+        FiniteStateMachineBuilder.StateBuilder inactiveBuilder = builder.newStandardState("Inactive");
+        State deleted = builder.newStandardState("Deleted").complete();
+        State decommissioned = builder
+                .newStandardState("Decommissioned")
+                .on(deletedEventType).transitionTo(deleted)
+                .complete();
+        State commissioned = builder
+                .newStandardState("Commissioned")
+                .on(activated).transitionTo(activeBuilder)
+                .on(deactivated).transitionTo(inactiveBuilder)
+                .complete();
+        State inStock = builder
+                .newStandardState("InStock")
+                .on(activated).transitionTo(activeBuilder)
+                .on(deactivated).transitionTo(inactiveBuilder)
+                .on(commissionedEventType).transitionTo(commissioned)
+                .complete();
+        State active = activeBuilder
+                .on(decommissionedEventType).transitionTo(decommissioned)
+                .on(deactivated).transitionTo(inactiveBuilder)
+                .onEntry("onEntryDepId", "onEntry")
+                .onExit("onExitDepId", "onExit")
+                .complete();
+        inactiveBuilder
+                .on(activated).transitionTo(active)
+                .on(decommissionedEventType).transitionTo(decommissioned)
+                .complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+        stateMachine.save();
+
+        // Business method
+        String expectedName = "Clone of Default life cycle";
+        FiniteStateMachine cloned = service.cloneFiniteStateMachine(stateMachine, expectedName);
+
+        // Asserts
+        assertThat(cloned.getName()).isEqualTo(expectedName);
+        assertThat(cloned.getStates()).hasSize(6);
+        for (State state : cloned.getStates()) {
+            assertThat(state.isCustom())
+                    .as("Expecting all states to be standard but found that " + state.getName() + " is not")
+                    .isFalse();
+        }
+        List<StateTransition> transitions = cloned.getTransitions();
+        assertThat(transitions).hasSize(10);
+        assertThat(cloned.getState(active.getName()).isPresent()).isTrue();
+        List<ProcessReference> onEntryProcesses = cloned.getState(active.getName()).get().getOnEntryProcesses();
+        assertThat(onEntryProcesses).hasSize(1);
+        assertThat(onEntryProcesses.get(0).getDeploymentId()).isEqualTo("onEntryDepId");
+        assertThat(onEntryProcesses.get(0).getProcessId()).isEqualTo("onEntry");
+        List<ProcessReference> onExitProcesses = cloned.getState(active.getName()).get().getOnExitProcesses();
+        assertThat(onExitProcesses).hasSize(1);
+        assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
+        assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+    }
+
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {
         StateTransitionEventType commissionedEventType = this.getTestService().newCustomStateTransitionEventType(symbol);
         commissionedEventType.save();

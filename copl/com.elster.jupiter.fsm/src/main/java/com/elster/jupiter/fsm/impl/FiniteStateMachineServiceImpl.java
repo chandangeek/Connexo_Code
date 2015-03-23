@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toMap;
@@ -228,12 +229,14 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name) {
         FiniteStateMachineBuilder builder = this.newFiniteStateMachine(name);
         Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap = this.cloneStateAndTransitions(source, builder);
-        FiniteStateMachine cloned = source
+        List<Optional<FiniteStateMachine>> allStates = source
             .getStates()
             .stream()
             .map(sourceState -> this.completeCloning(sourceState, stateBuilderMap, builder))
-            .flatMap(Functions.asStream())
-            .findFirst().get(); // Every FiniteStateMachine has an initial state so this will never fail
+            .filter(Optional::isPresent)
+            .collect(Collectors.toList());
+        // Exactly one source initial State so allStates will have size 1
+        FiniteStateMachine cloned = allStates.get(0).get();
         cloned.save();
         return cloned;
     }
