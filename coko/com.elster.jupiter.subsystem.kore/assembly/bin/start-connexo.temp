@@ -1,0 +1,11 @@
+#!/bin/sh
+JAVA_HOME=${JAVA_HOME}
+export VM_OPTIONS="-Djava.util.logging.config.file=${CONNEXO_DIR}/conf/logging.properties"
+CLASSPATH=.
+for i in `ls ${CONNEXO_DIR}/lib/*.jar`
+do
+	CLASSPATH=$CLASSPATH:$i
+done
+cd ${CONNEXO_DIR}
+"$JAVA_HOME/bin/java" $VM_OPTIONS -cp "$CLASSPATH" com.elster.jupiter.launcher.ConnexoLauncher
+
