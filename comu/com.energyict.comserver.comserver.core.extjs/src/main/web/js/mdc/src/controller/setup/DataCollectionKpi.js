@@ -84,8 +84,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             record = editForm.getRecord(),
             connectionKpiField = editForm.down('#connectionKpiField'),
             communicationKpiField = editForm.down('#communicationKpiField'),
-            deviceGroupCombo = editForm.down('#deviceGroupCombo'),
-            frequencyCombo = editForm.down('#frequencyCombo'),
+            deviceGroupCombo = editForm.down('#cmb-device-group'),
+            frequencyCombo = editForm.down('#cmb-frequency'),
             successMessage = Uni.I18n.translate('datacollectionkpis.saved', 'MDC', 'Data collection KPI saved'),
             kpiMessageContainer = me.getKpiErrorContainer();
 
@@ -158,7 +158,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             deviceGroupStore = widget.down('combobox[name=deviceGroup]').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.model.DataCollectionKpi'),
             form = widget.down('#dataCollectionKpiEditForm'),
-            deviceGroupCombo = widget.down('#deviceGroupCombo'),
+            deviceGroupCombo = widget.down('#cmb-device-group'),
             deviceGroupDisplayField = widget.down('#devicegroupDisplayField'),
             createBtn = widget.down('#createEditButton');
 
@@ -174,7 +174,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                                 connectionKpiDisplayField = widget.down('#connectionKpiDisplayField'),
                                 communicationKpiField = widget.down('#communicationKpiField'),
                                 communicationKpiDisplayField = widget.down('#communicationKpiDisplayField'),
-                                frequencyCombo = widget.down('#frequencyCombo'),
+                                frequencyCombo = widget.down('#cmb-frequency'),
                                 frequencyDisplayField = widget.down('#frequencyDisplayField'),
                                 editTitle = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + kpiRecord.get('deviceGroup').name + "'",
                                 frequencyStore = frequencyCombo.getStore(),
