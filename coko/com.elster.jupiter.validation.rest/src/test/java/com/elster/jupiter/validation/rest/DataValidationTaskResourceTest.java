@@ -68,7 +68,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void getTasksTest() {
         mockDataValidationTasks(mockDataValidationTask(13));
 
-        Response response1 = target("/datavalidationtasks").request().get();
+        Response response1 = target("/validationtasks").request().get();
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         DataValidationTaskInfos infos = response1.readEntity(DataValidationTaskInfos.class);
@@ -84,7 +84,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         info.deviceGroup.id = 1;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
-        Response response = target("/datavalidationtasks").request().post(json);
+        Response response = target("/validationtasks").request().post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
@@ -107,7 +107,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         info.deviceGroup.id = 1;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/datavalidationtasks/" + TASK_ID).request().put(json);
+        Response response = target("/validationtasks/" + TASK_ID).request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
