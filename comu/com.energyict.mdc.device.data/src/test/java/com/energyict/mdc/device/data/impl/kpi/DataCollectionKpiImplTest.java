@@ -683,6 +683,22 @@ public class DataCollectionKpiImplTest {
     }
 
     @Test
+    @Transactional // COMU-305
+    public void testAddCommunicationTargetToKpiWithConnectionTarget() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
+
+        // must reload to trigger postLoad and init strategies
+        kpi = (DataCollectionKpiImpl) deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
+
+
+        // Business method
+        kpi.calculateComTaskExecutionKpi(BigDecimal.TEN);
+
+    }
+
+    @Test
     @Transactional
     public void testUpdateExistingComTaskExecutionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
