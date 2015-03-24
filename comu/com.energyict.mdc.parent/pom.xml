@@ -104,6 +104,16 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.lifecycle.config.rest</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.lifecycle.config.extjs</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.lifecycle</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
@@ -386,6 +396,8 @@
                 <module>../com.energyict.mdc.device.data</module>
                 <module>../com.energyict.mdc.device.lifecycle</module>
                 <module>../com.energyict.mdc.device.lifecycle.config</module>
+                <module>../com.energyict.mdc.device.lifecycle.config.rest</module>
+                <module>../com.energyict.mdc.device.lifecycle.config.extjs</module>
                 <module>../com.energyict.mdc.device.topology</module>
                 <module>../com.energyict.mdc.device.data.rest</module>
                 <module>../com.energyict.mdc.device.data.imp</module>
