@@ -77,11 +77,15 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.userService, this.transactionService, this.stateMachineService, this).install(true, true);
+        this.getInstaller().install(true, true);
     }
 
     private void install(boolean transactional) {
-        new Installer(this.dataModel, this.userService, this.transactionService, this.stateMachineService, this).install(transactional, true);
+        this.getInstaller().install(transactional, true);
+    }
+
+    private Installer getInstaller() {
+        return new Installer(this.dataModel, this.userService, this.transactionService, this.stateMachineService, this);
     }
 
     @Override
@@ -164,6 +168,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Override
     public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine) {
         return new DeviceLifeCycleBuilderImpl(this.dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(name, finiteStateMachine));
+    }
+
+    @Override
+    public DeviceLifeCycle newDefaultDeviceLifeCycle(String name) {
+        return this.getInstaller().createDefaultLifeCycle(name);
     }
 
     @Override

@@ -24,7 +24,9 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.rules.*;
 
@@ -638,6 +640,32 @@ public class DeviceLifeCycleIT {
         assertThat(transitionAction.isStandard()).isFalse();
         assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
+    }
+
+    @Transactional
+    @Test
+    public void newFromDefaultTemplate() {
+        DeviceLifeCycleConfigurationService service = this.getTestService();
+
+        // Business method
+        DeviceLifeCycle anotherDefault = service.newDefaultDeviceLifeCycle("Second default");
+
+        // Asserts
+        List<AuthorizedAction> authorizedActions = anotherDefault.getAuthorizedActions();
+        assertThat(authorizedActions).hasSize(12);
+        assertThat(authorizedActions).are(new Condition<AuthorizedAction>() {
+            @Override
+            public boolean matches(AuthorizedAction action) {
+                return action instanceof AuthorizedStandardTransitionAction;
+            }
+        });
+        Set<TransitionType> transitionTypes = EnumSet.noneOf(TransitionType.class);
+        authorizedActions
+                .stream()
+                .map(AuthorizedStandardTransitionAction.class::cast)
+                .map(AuthorizedStandardTransitionAction::getType)
+                .forEach(transitionTypes::add);
+        assertThat(transitionTypes).containsOnly(TransitionType.values());
     }
 
     private FiniteStateMachine findDefaultFiniteStateMachine() {

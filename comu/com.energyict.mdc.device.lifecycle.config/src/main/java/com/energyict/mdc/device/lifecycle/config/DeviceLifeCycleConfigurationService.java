@@ -28,6 +28,14 @@ public interface DeviceLifeCycleConfigurationService {
     public DeviceLifeCycleBuilder newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine);
 
     /**
+     * Creates a new {@link DeviceLifeCycle} from the default template with the specified name.
+     *
+     * @param name The unique name of the new DeviceLifeCycle
+     * @return The DeviceLifeCycle that was created from the template
+     */
+    public DeviceLifeCycle newDefaultDeviceLifeCycle(String name);
+
+    /**
      * Clones the specified {@link DeviceLifeCycle} with the specified name.
      *
      * @param source The DeviceLifeCycle that is being cloned
