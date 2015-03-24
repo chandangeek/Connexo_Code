@@ -95,6 +95,8 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                     case SUCCESS:
                         this.responseWriter.success();
                         break;
+                    case FAILURE:
+                        this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The inbound discovery failed. No data was processed nor stored!");
                     case DEVICE_DOES_NOT_EXPECT_INBOUND:
                         this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device is not configured for inbound communication, request refused!");
                         break;
