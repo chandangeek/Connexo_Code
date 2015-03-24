@@ -15,7 +15,6 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 
 @UniqueFirmwareVersion(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
@@ -80,17 +79,16 @@ public class FirmwareVersionImpl implements FirmwareVersion {
         save();
     }
 
-    private FirmwareVersion init(DeviceType deviceType, ByteArrayOutputStream byteInputStream, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
+    private FirmwareVersion init(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
         this.deviceType.set(deviceType);
         this.firmwareVersion = firmwareVersion;
         this.firmwareStatus = firmwareStatus;
         this.firmwareType = firmwareType;
-        this.firmwareFile = byteInputStream.toByteArray();
         return this;
     }
 
-    public static FirmwareVersion from(DataModel dataModel, DeviceType deviceType, ByteArrayOutputStream fileBytes, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
-        return dataModel.getInstance(FirmwareVersionImpl.class).init(deviceType, fileBytes, firmwareVersion, firmwareStatus, firmwareType);
+    public static FirmwareVersion from(DataModel dataModel, DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
+        return dataModel.getInstance(FirmwareVersionImpl.class).init(deviceType, firmwareVersion, firmwareStatus, firmwareType);
     }
 
     @Override
@@ -146,6 +144,7 @@ public class FirmwareVersionImpl implements FirmwareVersion {
         return firmwareFile;
     }
 
+    @Override
     public void setFirmwareFile(byte[] firmwareFile) {
         this.firmwareFile = firmwareFile;
     }

@@ -21,10 +21,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.google.inject.AbstractModule;
@@ -101,6 +98,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     @Override
     public Optional<FirmwareVersion> getFirmwareVersionById(long id) {
         return dataModel.mapper(FirmwareVersion.class).getUnique("id", id);
+    }
+
+    @Override
+    public FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type) {
+        return FirmwareVersionImpl.from(dataModel, deviceType, firmwareVersion, status, type);
     }
 
     @Override

@@ -32,6 +32,8 @@ import java.util.Set;
 
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
 
+    FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
+
     void saveFirmwareVersion(FirmwareVersion firmwareVersion);
 
     void deprecateFirmwareVersion(FirmwareVersion firmwareVersion);

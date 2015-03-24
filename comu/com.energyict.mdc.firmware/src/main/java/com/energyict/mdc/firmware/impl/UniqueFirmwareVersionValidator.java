@@ -32,14 +32,15 @@ public class UniqueFirmwareVersionValidator  implements ConstraintValidator<Uniq
 
     @Override
     public boolean isValid(FirmwareVersion in, ConstraintValidatorContext context) {
-        List<? extends FirmwareVersion> existing = firmwareService.getFirmwareVersionQuery().select(Where.where("deviceType").isEqualTo(in.getDeviceType()));
+        List<? extends FirmwareVersion> existing = firmwareService.getFirmwareVersionQuery().select(Where.where("deviceType").isEqualTo(in.getDeviceType())
+                .and(Where.where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName()).isEqualTo(in.getFirmwareVersion())));
         if (existing.isEmpty()) {
             return true;
         } else if (existing.size() == 1 && in.getId() == existing.get(0).getId()) {
             return true;
         }
         context.disableDefaultConstraintViolation();
-        context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("deviceType").addConstraintViolation();
+        context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("firmwareVersion").addConstraintViolation();
         return false;
     }
 }

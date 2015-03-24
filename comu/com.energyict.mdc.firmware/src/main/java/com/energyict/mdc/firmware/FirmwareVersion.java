@@ -17,6 +17,8 @@ public interface FirmwareVersion extends HasId{
 
     DeviceType getDeviceType();
 
+    void setFirmwareFile(byte[] firmwareFile);
+
     void validate();
 
 }
