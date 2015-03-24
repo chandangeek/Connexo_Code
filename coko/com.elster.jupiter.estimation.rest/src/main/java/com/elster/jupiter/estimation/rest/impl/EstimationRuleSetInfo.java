@@ -5,7 +5,6 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
-import java.util.List;
 
 @XmlRootElement
 public class EstimationRuleSetInfo {
@@ -15,19 +14,28 @@ public class EstimationRuleSetInfo {
 	public String description;
     public int numberOfInactiveRules;
     public int numberOfRules;
+    public EstimationRuleInfos rules;
 
 	public EstimationRuleSetInfo(EstimationRuleSet estimationRuleSet) {
         id = estimationRuleSet.getId();
         name = estimationRuleSet.getName();
         description = estimationRuleSet.getDescription();
-        List<? extends EstimationRule> rules = estimationRuleSet.getRules();
-        numberOfRules = rules.size();
+        numberOfRules = estimationRuleSet.getRules().size();
         numberOfInactiveRules = 0;
         for (EstimationRule rule : estimationRuleSet.getRules()) {
             if (!rule.isActive()) {
                 numberOfInactiveRules++;
             }
         }
+    }
+
+    public static EstimationRuleSetInfo withRules(EstimationRuleSet estimationRuleSet) {
+        EstimationRuleSetInfo estimationRuleSetInfo = new EstimationRuleSetInfo(estimationRuleSet);
+        estimationRuleSetInfo.rules = new EstimationRuleInfos();
+        estimationRuleSet.getRules().stream()
+                .map(rule -> new EstimationRuleInfo(estimationRuleSetInfo, rule))
+                .forEach(estimationRuleSetInfo.rules::add);
+        return estimationRuleSetInfo;
     }
 
     public EstimationRuleSetInfo() {

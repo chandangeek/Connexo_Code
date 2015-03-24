@@ -31,4 +31,11 @@ public class EstimationRuleInfos {
             add(each);
         }
     }
+
+    public void add(EstimationRuleInfo ruleInfo) {
+        rules.add(ruleInfo);
+        total++;
+        return;
+
+    }
 }

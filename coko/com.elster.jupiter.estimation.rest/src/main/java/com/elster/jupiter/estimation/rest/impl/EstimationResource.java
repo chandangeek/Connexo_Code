@@ -29,6 +29,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -85,7 +86,7 @@ public class EstimationResource {
     /**
      * Get all estimation rulesets
      *
-     * @param UriInfo uriInfo containing queryparameters
+     * @param uriInfo uriInfo containing queryparameters
      * @return all estimation rulesets
      */
     @GET
@@ -161,6 +162,13 @@ public class EstimationResource {
                     set.setName(info.name);
                     set.setDescription(info.description);
                     set.save();
+                    long[] current = set.getRules().stream()
+                            .mapToLong(EstimationRule::getId)
+                            .toArray();
+                    long[] target = info.rules.rules.stream()
+                            .mapToLong(ruleInfo -> ruleInfo.id)
+                            .toArray();
+                    set.reorderRules(KPermutation.of(current, target));
                 });
             }
         });
@@ -173,7 +181,7 @@ public class EstimationResource {
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
     public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, @Context SecurityContext securityContext) {
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
-        return new EstimationRuleSetInfo(estimationRuleSet);
+        return EstimationRuleSetInfo.withRules(estimationRuleSet);
     }
 
     private EstimationRuleSet fetchEstimationRuleSet(long id, SecurityContext securityContext) {

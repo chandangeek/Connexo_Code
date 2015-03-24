@@ -34,6 +34,19 @@ public class EstimationRuleInfo {
         }
     }
 
+    public EstimationRuleInfo(EstimationRuleSetInfo estimationRuleSetInfo, EstimationRule estimationRule) {
+        id = estimationRule.getId();
+        active = estimationRule.isActive();
+        implementation = estimationRule.getImplementation();
+        displayName = estimationRule.getDisplayName();
+        name = estimationRule.getName();
+        deleted = estimationRule.isObsolete();
+        properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        for (ReadingType readingType : estimationRule.getReadingTypes()) {
+            readingTypes.add(new ReadingTypeInfo(readingType));
+        }
+    }
+
     public static List<EstimationRuleInfo> from(List<EstimationRule> estimationRules) {
         List<EstimationRuleInfo> infos = new ArrayList<>(estimationRules.size());
         for (EstimationRule estimationRule : estimationRules) {
