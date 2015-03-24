@@ -102,8 +102,8 @@ public class KpiResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response createKpi(DataCollectionKpiInfo kpiInfo) {
         EndDeviceGroup endDeviceGroup=null;
-        if (kpiInfo.endDeviceGroup != null && kpiInfo.endDeviceGroup.id!=null) {
-            endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.endDeviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.endDeviceGroup.id));
+        if (kpiInfo.deviceGroup != null && kpiInfo.deviceGroup.id!=null) {
+            endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
         }
         DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = dataCollectionKpiService.newDataCollectionKpi(endDeviceGroup);
         if (kpiInfo.frequency == null || kpiInfo.frequency.every == null){
