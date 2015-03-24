@@ -120,7 +120,7 @@ public class DashboardFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComPortPools() {
-        return Response.ok(asInfoMap("comPortPools", engineConfigurationService.findAllComPortPools().stream().filter(pool -> pool.isActive()).collect(Collectors.toList()))).build();
+        return Response.ok(asInfoMap("comPortPools", engineConfigurationService.findAllComPortPools().stream().collect(Collectors.toList()))).build();
     }
 
     @GET
