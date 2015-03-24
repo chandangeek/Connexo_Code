@@ -1,17 +1,9 @@
 Ext.define('Cfg.model.ValidationTask', {
     extend: 'Ext.data.Model',
-   /* requires: [
-        'Uni.property.model.Property'
-    ],*/
     fields: [
 			'id', 'name', 'deviceGroup', 'schedule', 'nextRun', 'lastRun',
 	
-  //      'id', 'name', 'deviceGroup', 'dataProcessor', 'schedule', 'exportperiod', 'properties', 'readingTypes', 'nextRun', 'lastRun',
-  /*      {
-            name: 'lastExportOccurence',
-            persist: false
-        },
-    */    {
+      {
             name: 'lastRun_formatted',
             persist: false,
             mapping: function (data) {
@@ -42,8 +34,8 @@ Ext.define('Cfg.model.ValidationTask', {
             name: 'status',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.status) {
-                    return data.lastExportOccurence.status;
+                if (data.lastValidationOccurence && data.lastValidationOccurence.status) {
+                    return data.lastValidationOccurence.status;
                 } else {
                     return Uni.I18n.translate('validationTasks.general.notPerformed', 'CFG', 'Not performed yet');
                 }
@@ -53,10 +45,10 @@ Ext.define('Cfg.model.ValidationTask', {
             name: 'statusOnDate',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.statusDate && data.lastExportOccurence.statusDate != 0) {
-                    return data.lastExportOccurence.statusPrefix + ' ' + moment(data.lastExportOccurence.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
-                } else if (data.lastExportOccurence) {
-                    return data.lastExportOccurence.statusPrefix
+                if (data.lastValidationOccurence && data.lastValidationOccurence.statusDate && data.lastValidationOccurence.statusDate != 0) {
+                    return data.lastValidationOccurence.statusPrefix + ' ' + moment(data.lastValidationOccurence.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                } else if (data.lastValidationOccurence) {
+                    return data.lastValidationOccurence.statusPrefix
                 } else {
                     return Uni.I18n.translate('validationTasks.general.notPerformed', 'CFG', 'Not performed yet');
                 }
@@ -66,30 +58,19 @@ Ext.define('Cfg.model.ValidationTask', {
             name: 'reason',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.reason) {
-                    return data.lastExportOccurence.reason;
+                if (data.lastValidationOccurence && data.lastValidationOccurence.reason) {
+                    return data.lastValidationOccurence.reason;
                 } else {
                     return '';
                 }
             }
         },
- /*       {
-            name: 'trigger',
-            persist: false,
-            mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.trigger) {
-                    return data.lastExportOccurence.trigger;
-                } else {
-                    return '-'
-                }
-            }
-        },
-   */     {
+		{
             name: 'startedOn',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.startedOn) {
-                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurence.startedOn));
+                if (data.lastValidationOccurence && data.lastValidationOccurence.startedOn) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastValidationOccurence.startedOn));
                 } else {
                     return '-';
                 }
@@ -99,8 +80,8 @@ Ext.define('Cfg.model.ValidationTask', {
             name: 'finishedOn',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.finishedOn) {
-                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurence.finishedOn));
+                if (data.lastValidationOccurence && data.lastValidationOccurence.finishedOn) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastValidationOccurence.finishedOn));
                 } else {
                     return '-';
                 }
@@ -110,8 +91,8 @@ Ext.define('Cfg.model.ValidationTask', {
             name: 'duration',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.duration) {
-                    return data.lastExportOccurence.duration;
+                if (data.lastValidationOccurence && data.lastValidationOccurence.duration) {
+                    return data.lastValidationOccurence.duration;
                 } else {
                     return '-';
                 }

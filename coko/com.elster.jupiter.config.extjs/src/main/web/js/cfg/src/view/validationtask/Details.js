@@ -20,6 +20,7 @@ Ext.define('Cfg.view.validationtask.Details', {
                 flex: 1,
                 items: {
                     xtype: 'tasks-preview-form',
+                    itemId: 'detail-tasks-preview-form',
                     margin: '0 0 0 100'
                 }
             },

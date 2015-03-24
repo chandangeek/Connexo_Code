@@ -20,8 +20,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreview', {
     ],
 
     items: {
-        xtype: 'tasks-history-preview-form'//,
-        //itemId: 'pnl-data-export-task-preview'
+        xtype: 'tasks-history-preview-form'
     }
 });
 

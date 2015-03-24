@@ -22,7 +22,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
             },
             {
                 header: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
-                dataIndex: 'lastExportOccurence',
+                dataIndex: 'lastValidationOccurence',
                 renderer: function (value) {
                     var result;
                     if (value && value.statusDate && value.statusDate != 0) {
