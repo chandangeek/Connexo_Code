@@ -11,14 +11,18 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifecycleResource;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.ResourceHelper;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +50,7 @@ public class DeviceLifecycleConfigApplication extends Application implements Tra
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 LifecycleResource.class,
+                LifeCycleStateResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
     }
@@ -107,8 +112,11 @@ public class DeviceLifecycleConfigApplication extends Application implements Tra
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(nlsService).to(NlsService.class);
-            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(thesaurus).to(MessageInterpolator.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
         }

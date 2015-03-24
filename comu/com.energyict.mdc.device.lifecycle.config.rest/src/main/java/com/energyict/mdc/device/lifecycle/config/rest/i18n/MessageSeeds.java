@@ -10,6 +10,9 @@ import java.util.logging.Level;
 
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
+
+    DEVICE_LIFECYCLE_NOT_FOUND(1, "device.lifecycle.not.found", "Device lifecycle with id '{0}' doesn't exist", Level.SEVERE),
+    DEVICE_LIFECYCLE_STATE_NOT_FOUND(2, "device.lifecycle.state.not.found", "Device lifecycle state with id '{0}' doesn't exist", Level.SEVERE),
     ;
 
     private final int number;
