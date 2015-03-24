@@ -1,4 +1,4 @@
-Ext.define('Dlc.controller.Main', {
+Ext.define('Dlc.main.controller.Main', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -7,8 +7,8 @@ Ext.define('Dlc.controller.Main', {
     ],
 
     controllers: [
-        'Dlc.controller.history.DeviceLifeCycle',
-        'Dlc.controller.DeviceLifeCycles'
+        'Dlc.main.controller.history.DeviceLifeCycle',
+        'Dlc.devicelifecycles.controller.DeviceLifeCycles'
     ],
 
     init: function () {
@@ -18,7 +18,7 @@ Ext.define('Dlc.controller.Main', {
     },
 
     initHistorians: function () {
-        var historian = this.getController('Dlc.controller.history.DeviceLifeCycle');
+        var historian = this.getController('Dlc.main.controller.history.DeviceLifeCycle');
     },
 
     initMenu: function () {

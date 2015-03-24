@@ -1,11 +1,11 @@
-Ext.define('Dlc.view.devicelifecycles.Setup', {
+Ext.define('Dlc.devicelifecycles.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-life-cycles-setup',
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Dlc.view.devicelifecycles.Grid',
-        'Dlc.view.devicelifecycles.Preview'
+        'Dlc.devicelifecycles.view.Grid',
+        'Dlc.devicelifecycles.view.Preview'
     ],
 
     router: null,

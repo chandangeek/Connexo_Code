@@ -1,10 +1,10 @@
-Ext.define('Dlc.view.devicelifecycles.Preview', {
+Ext.define('Dlc.devicelifecycles.view.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.device-life-cycles-preview',
 
     requires: [
-        'Dlc.view.devicelifecycles.PreviewForm'
+        'Dlc.devicelifecycles.view.PreviewForm'
     ],
 
     items: {

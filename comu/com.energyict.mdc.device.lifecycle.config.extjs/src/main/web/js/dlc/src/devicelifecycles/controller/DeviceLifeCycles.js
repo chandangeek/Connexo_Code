@@ -1,16 +1,16 @@
-Ext.define('Dlc.controller.DeviceLifeCycles', {
+Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Dlc.view.devicelifecycles.Setup'
+        'Dlc.devicelifecycles.view.Setup'
     ],
 
     stores: [
-        'Dlc.store.DeviceLifeCycles'
+        'Dlc.devicelifecycles.store.DeviceLifeCycles'
     ],
 
     models: [
-        'Dlc.model.DeviceLifeCycle'
+        'Dlc.devicelifecycles.model.DeviceLifeCycle'
     ],
 
     refs: [

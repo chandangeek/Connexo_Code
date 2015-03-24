@@ -1,4 +1,4 @@
-Ext.define('Dlc.controller.history.DeviceLifeCycle', {
+Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
     extend: 'Uni.controller.history.Converter',
     rootToken: 'administration',
     routeConfig: {
@@ -10,7 +10,7 @@ Ext.define('Dlc.controller.history.DeviceLifeCycle', {
                 devicelifecycles: {
                     title: Uni.I18n.translate('general.deviceLifeCycles', 'DLC', 'Device life cycles'),
                     route: 'devicelifecycles',
-                    controller: 'Dlc.controller.DeviceLifeCycles',
+                    controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
                     action: 'showDeviceLifeCycles',
                     items: {
                         devicelifecycle: {

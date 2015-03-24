@@ -1,4 +1,4 @@
-Ext.define('Dlc.view.SideMenu', {
+Ext.define('Dlc.main.view.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.device-life-cycles-side-menu',
     router: null,

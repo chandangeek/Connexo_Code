@@ -1,4 +1,4 @@
-Ext.define('Dlc.view.devicelifecycles.PreviewForm', {
+Ext.define('Dlc.devicelifecycles.view.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-life-cycles-preview-form',
 

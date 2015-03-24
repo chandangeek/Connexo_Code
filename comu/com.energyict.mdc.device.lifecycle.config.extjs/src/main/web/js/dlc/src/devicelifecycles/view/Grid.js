@@ -1,7 +1,7 @@
-Ext.define('Dlc.view.devicelifecycles.Grid', {
+Ext.define('Dlc.devicelifecycles.view.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.device-life-cycles-grid',
-    store: 'Dlc.store.DeviceLifeCycles',
+    store: 'Dlc.devicelifecycles.store.DeviceLifeCycles',
 
     initComponent: function () {
         var me = this;

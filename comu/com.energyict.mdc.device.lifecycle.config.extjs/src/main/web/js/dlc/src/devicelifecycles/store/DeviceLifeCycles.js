@@ -1,6 +1,6 @@
-Ext.define('Dlc.store.DeviceLifeCycles', {
+Ext.define('Dlc.devicelifecycles.store.DeviceLifeCycles', {
     extend: 'Ext.data.Store',
-    model: 'Dlc.model.DeviceLifeCycle',
+    model: 'Dlc.devicelifecycles.model.DeviceLifeCycle',
     data: [
         {name: 'Standard device life cycle'},
         {name: 'Short device life cycle'},
