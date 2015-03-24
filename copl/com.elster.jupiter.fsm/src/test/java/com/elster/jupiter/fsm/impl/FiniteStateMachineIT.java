@@ -481,6 +481,50 @@ public class FiniteStateMachineIT {
 
     @Transactional
     @Test
+    public void createStateMachineWithOneNamedStateTransition() {
+        String expectedName = "createStateMachineWithOneNamedStateTransition";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        String expectedTransitionName = "Commission";
+        State inStock = builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned, expectedTransitionName).complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+
+        // Business method
+        stateMachine.save();
+
+        // Asserts
+        assertThat(stateMachine.getName()).isEqualTo(expectedName);
+        assertThat(stateMachine.getStates()).hasSize(2);
+        List<StateTransition> transitions = stateMachine.getTransitions();
+        assertThat(transitions).hasSize(1);
+        StateTransition stateTransition = transitions.get(0);
+        assertThat(stateTransition.getEventType().getId()).isEqualTo(commissionedEventType.getId());
+        assertThat(stateTransition.getName().isPresent()).isTrue();
+        assertThat(stateTransition.getName().get()).isEqualTo(expectedTransitionName);
+        assertThat(stateTransition.getFrom().getId()).isEqualTo(inStock.getId());
+        assertThat(stateTransition.getTo().getId()).isEqualTo(commissioned.getId());
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "transitions[0].name")
+    @Test
+    public void createStateMachineWithTooLongStateTransitionName() {
+        String expectedName = "createStateMachineWithTooLongStateTransitionName";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        State inStock = builder.newCustomState("InStock").on(commissionedEventType).transitionTo(commissioned, Strings.repeat("Too long", 100)).complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+
+        // Business method
+        stateMachine.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @Test
     public void findFiniteStateMachinesUsing() {
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         StateTransitionEventType otherEventType = this.createNewStateTransitionEventType("#other");

@@ -1,12 +1,19 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.Size;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +26,7 @@ import java.util.stream.Stream;
 public class StateTransitionImpl implements StateTransition {
 
     public enum Fields {
+        NAME("name"),
         FINITE_STATE_MACHINE("finiteStateMachine"),
         FROM("from"),
         TO("to"),
@@ -44,6 +52,8 @@ public class StateTransitionImpl implements StateTransition {
     }
 
     private long id;
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    private String name;
     @IsPresent
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
     @IsPresent
@@ -56,6 +66,26 @@ public class StateTransitionImpl implements StateTransition {
     @Override
     public long getId() {
         return this.id;
+    }
+
+    @Override
+    public Optional<String> getName() {
+        return Optional.ofNullable(this.name);
+    }
+
+    void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName(Thesaurus thesaurus) {
+        return this.getName()
+                .orElseGet(() -> this.getNameUsingThesaurus(thesaurus));
+    }
+
+    private String getNameUsingThesaurus(Thesaurus thesaurus) {
+        String symbol = this.getEventType().getSymbol();
+        return thesaurus.getString(symbol, symbol);
     }
 
     @Override
@@ -78,6 +108,7 @@ public class StateTransitionImpl implements StateTransition {
         this.to.set(null);
     }
 
+    // Mostly here for debugging purposes
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "(" + this.toStringAttributes().collect(Collectors.joining(", ")) +")";

@@ -91,7 +91,9 @@ public interface FiniteStateMachineBuilder {
 
     public interface TransitionBuilder {
         public StateBuilder transitionTo(State state);
+        public StateBuilder transitionTo(State state, String name);
         public StateBuilder transitionTo(StateBuilder state);
+        public StateBuilder transitionTo(StateBuilder stateBuilder, String name);
     }
 
 }

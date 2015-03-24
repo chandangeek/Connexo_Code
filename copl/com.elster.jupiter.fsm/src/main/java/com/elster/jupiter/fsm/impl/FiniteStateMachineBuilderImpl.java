@@ -6,6 +6,8 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
 
+import java.util.Optional;
+
 /**
  * Provides an implementation for the {@link FiniteStateMachineBuilder} interface.
  *
@@ -153,18 +155,34 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
 
         @Override
         public StateBuilder transitionTo(State state) {
+            return this.transitionTo(state, Optional.<String>empty());
+        }
+
+        @Override
+        public StateBuilder transitionTo(State state, String name) {
+            return this.transitionTo(state, Optional.of(name));
+        }
+
+        private StateBuilder transitionTo(State state, Optional<String> name) {
             StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, state, this.eventType);
+            name.ifPresent(stateTransition::setName);
             underConstruction.add(stateTransition);
             return this.continuation;
         }
 
         @Override
         public StateBuilder transitionTo(StateBuilder stateBuilder) {
-            return this.transitionTo((ServerStateBuilder) stateBuilder);
+            return this.transitionTo((ServerStateBuilder) stateBuilder, Optional.<String>empty());
         }
 
-        private StateBuilder transitionTo(ServerStateBuilder stateBuilder) {
+        @Override
+        public StateBuilder transitionTo(StateBuilder stateBuilder, String name) {
+            return this.transitionTo((ServerStateBuilder) stateBuilder, Optional.of(name));
+        }
+
+        private StateBuilder transitionTo(ServerStateBuilder stateBuilder, Optional<String> name) {
             StateTransitionImpl stateTransition = dataModel.getInstance(StateTransitionImpl.class).initialize(underConstruction, this.from, stateBuilder.getUnderConstruction(), this.eventType);
+            name.ifPresent(stateTransition::setName);
             underConstruction.add(stateTransition);
             return this.continuation;
         }

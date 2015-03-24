@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link FiniteStateMachineUpdater} interface.
@@ -193,8 +194,10 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
             return new AddTransitionToNewState(this, eventType, this.underConstruction);
         }
 
-        public StateBuilder addTransition(State from, State to, StateTransitionEventType eventType) {
-            this.transitionsUnderConstruction.add(getDataModel().getInstance(StateTransitionImpl.class).initialize(this.stateMachine, from, to, eventType));
+        public StateBuilder addTransition(State from, State to, StateTransitionEventType eventType, Optional<String> name) {
+            StateTransitionImpl stateTransition = getDataModel().getInstance(StateTransitionImpl.class).initialize(this.stateMachine, from, to, eventType);
+            name.ifPresent(stateTransition::setName);
+            this.transitionsUnderConstruction.add(stateTransition);
             return this;
         }
 
@@ -226,16 +229,26 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
 
         @Override
         public StateBuilder transitionTo(State state) {
-            return this.continuation.addTransition(this.from, state, this.eventType);
+            return this.continuation.addTransition(this.from, state, this.eventType, Optional.empty());
+        }
+
+        @Override
+        public StateBuilder transitionTo(State state, String name) {
+            return this.continuation.addTransition(this.from, state, this.eventType, Optional.of(name));
         }
 
         @Override
         public StateBuilder transitionTo(StateBuilder stateBuilder) {
-            return this.transitionTo((ServerStateBuilder) stateBuilder);
+            return this.transitionTo((ServerStateBuilder) stateBuilder, Optional.<String>empty());
         }
 
-        private StateBuilder transitionTo(ServerStateBuilder stateBuilder) {
-            return this.continuation.addTransition(this.from, stateBuilder.getUnderConstruction(), this.eventType);
+        @Override
+        public StateBuilder transitionTo(StateBuilder stateBuilder, String name) {
+            return this.transitionTo((ServerStateBuilder) stateBuilder, Optional.of(name));
+        }
+
+        private StateBuilder transitionTo(ServerStateBuilder stateBuilder, Optional<String> name) {
+            return this.continuation.addTransition(this.from, stateBuilder.getUnderConstruction(), this.eventType, name);
         }
 
     }
