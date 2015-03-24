@@ -514,6 +514,132 @@ public class DeviceLifeCycleIT {
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
     }
 
+    @Transactional
+    @Test
+    public void cloningDeviceLifeCycleAlsoClonesFiniteStateMachine() {
+        DeviceLifeCycleConfigurationService service = this.getTestService();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        DeviceLifeCycle deviceLifeCycle = service.newDeviceLifeCycleUsing("createNewEmptyDeviceLifeCycle", stateMachine).complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        String expectedName = "Cloned";
+        DeviceLifeCycle cloned = service.cloneDeviceLifeCycle(deviceLifeCycle, expectedName);
+
+        // Asserts
+        assertThat(cloned.getId()).isGreaterThan(0);
+        assertThat(cloned.getFiniteStateMachine().getId()).isNotEqualTo(deviceLifeCycle.getFiniteStateMachine().getId());
+        assertThat(cloned.getName()).isEqualTo(expectedName);
+        assertThat(cloned.getCreationTimestamp()).isNotNull();
+        assertThat(cloned.getVersion()).isNotNull();
+    }
+
+    @Transactional
+    @Test
+    public void cloneWithBusinessProcessAction() {
+        DeviceLifeCycleConfigurationService service = this.getTestService();
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
+        DeviceLifeCycleBuilder builder = service.newDeviceLifeCycleUsing("Test", stateMachine);
+        String expectedDeploymentId = "deploymentId1";
+        String expectedProcessId = "processId";
+        builder
+            .newCustomAction(state, expectedDeploymentId, expectedProcessId)
+            .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR)
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        DeviceLifeCycle cloned = service.cloneDeviceLifeCycle(deviceLifeCycle, "Cloned");
+
+        // Asserts
+        FiniteStateMachine clonedFiniteStateMachine = cloned.getFiniteStateMachine();
+        List<AuthorizedAction> authorizedActions = cloned.getAuthorizedActions();
+        assertThat(authorizedActions).hasSize(1);
+        AuthorizedAction authorizedAction = authorizedActions.get(0);
+        assertThat(authorizedAction.getId()).isGreaterThan(0);
+        assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(cloned.getId());
+        assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
+        assertThat(authorizedAction.getState().getId()).isEqualTo(clonedFiniteStateMachine.getState(state.getName()).get().getId());
+        assertThat(authorizedAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.FOUR);
+        assertThat(authorizedAction.getVersion()).isNotNull();
+        assertThat(authorizedAction).isInstanceOf(AuthorizedBusinessProcessAction.class);
+        AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
+        assertThat(businessProcessAction.getDeploymentId()).isEqualTo(expectedDeploymentId);
+        assertThat(businessProcessAction.getProcessId()).isEqualTo(expectedProcessId);
+    }
+
+    @Transactional
+    @Test
+    public void cloneWithStandardTransitionAction() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        DeviceLifeCycleConfigurationService service = this.getTestService();
+        DeviceLifeCycleBuilder builder = service.newDeviceLifeCycleUsing("Test", stateMachine);
+        builder
+            .newTransitionAction(stateTransition)
+            .addAllActions(EnumSet.of(MicroAction.ENABLE_VALIDATION, MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS))
+            .addAllChecks(EnumSet.of(MicroCheck.DEFAULT_CONNECTION_AVAILABLE, MicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED))
+            .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        DeviceLifeCycle cloned = service.cloneDeviceLifeCycle(deviceLifeCycle, "Cloned");
+
+        // Asserts
+        List<AuthorizedAction> authorizedActions = cloned.getAuthorizedActions();
+        assertThat(authorizedActions).hasSize(1);
+        AuthorizedAction authorizedAction = authorizedActions.get(0);
+        assertThat(authorizedAction.getId()).isGreaterThan(0);
+        assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(cloned.getId());
+        assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
+        assertThat(authorizedAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO);
+        assertThat(authorizedAction.getVersion()).isNotNull();
+        assertThat(authorizedAction).isInstanceOf(AuthorizedStandardTransitionAction.class);
+        AuthorizedStandardTransitionAction transitionAction = (AuthorizedStandardTransitionAction) authorizedAction;
+        assertThat(transitionAction.getType()).isEqualTo(TransitionType.from(stateTransition).get());
+        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE, MicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED);
+        assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION, MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS);
+    }
+
+    @Transactional
+    @Test
+    public void cloneWithCustomTransitionActionWithoutActions() {
+        DeviceLifeCycleConfigurationService service = this.getTestService();
+        FiniteStateMachine stateMachine = this.createFiniteStateMachineWithCustomTransitions();
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        DeviceLifeCycleBuilder builder = service.newDeviceLifeCycleUsing("Test", stateMachine);
+        builder
+            .newTransitionAction(stateTransition)
+            .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+            .addAction(MicroAction.ENABLE_VALIDATION)
+            .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        DeviceLifeCycle cloned = service.cloneDeviceLifeCycle(deviceLifeCycle, "Cloned");
+
+        // Asserts
+        List<AuthorizedAction> authorizedActions = cloned.getAuthorizedActions();
+        assertThat(authorizedActions).hasSize(1);
+        AuthorizedAction authorizedAction = authorizedActions.get(0);
+        assertThat(authorizedAction.getId()).isGreaterThan(0);
+        assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(cloned.getId());
+        assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
+        assertThat(authorizedAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO);
+        assertThat(authorizedAction.getVersion()).isNotNull();
+        assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
+        AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
+        assertThat(transitionAction.isStandard()).isFalse();
+        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
+    }
+
     private FiniteStateMachine findDefaultFiniteStateMachine() {
         return inMemoryPersistence
                 .getService(FiniteStateMachineService.class)

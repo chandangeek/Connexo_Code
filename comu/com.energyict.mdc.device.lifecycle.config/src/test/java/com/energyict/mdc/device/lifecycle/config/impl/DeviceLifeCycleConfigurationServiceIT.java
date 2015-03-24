@@ -8,6 +8,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
@@ -49,6 +51,50 @@ public class DeviceLifeCycleConfigurationServiceIT {
         return inMemoryPersistence.getTransactionService();
     }
 
+    @Test
+    public void componentNameIsNotEmpty() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        String componentName = service.getComponentName();
+
+        // Asserts
+        assertThat(componentName).isNotEmpty();
+    }
+
+    @Test
+    public void layerIsNotNull() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        Layer layer = service.getLayer();
+
+        // Asserts
+        assertThat(layer).isNotNull();
+    }
+
+    @Test
+    public void prerequisiteModulesNotNull() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        List<String> prerequisiteModules = service.getPrerequisiteModules();
+
+        // Asserts
+        assertThat(prerequisiteModules).isNotNull();
+    }
+
+    @Test
+    public void keysNotNull() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        List<TranslationKey> keys = service.getKeys();
+
+        // Asserts
+        assertThat(keys).isNotNull();
+    }
+
     @Transactional
     @Test
     public void installerCreatedTheDefaultFiniteStateMachine() {
@@ -65,7 +111,7 @@ public class DeviceLifeCycleConfigurationServiceIT {
     @Transactional
     @Test
     public void installerCreatedTheDefaultLifeCycle() {
-        DeviceLifeCycleConfigurationServiceImpl service = inMemoryPersistence.getDeviceLifeCycleConfigurationService();
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
 
         // Business method: actually the business method is the install method of the DeviceLifeCycleServiceImpl component
         Optional<DeviceLifeCycle> defaultDeviceLifeCycle = service.findDefaultDeviceLifeCycle();
@@ -78,7 +124,7 @@ public class DeviceLifeCycleConfigurationServiceIT {
     @Transactional
     @Test
     public void findAllWithOnlyDefault() {
-        DeviceLifeCycleConfigurationServiceImpl service = inMemoryPersistence.getDeviceLifeCycleConfigurationService();
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
 
         // Business method
         Finder<DeviceLifeCycle> finder = service.findAllDeviceLifeCycles();
@@ -91,7 +137,7 @@ public class DeviceLifeCycleConfigurationServiceIT {
     @Transactional
     @Test
     public void findAllWithDefaultAndThreeOthers() {
-        DeviceLifeCycleConfigurationServiceImpl service = inMemoryPersistence.getDeviceLifeCycleConfigurationService();
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         DeviceLifeCycle one = service.newDeviceLifeCycleUsing("One", stateMachine).complete();
         one.save();
@@ -114,6 +160,10 @@ public class DeviceLifeCycleConfigurationServiceIT {
                 .getService(FiniteStateMachineService.class)
                 .findFiniteStateMachineByName(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey())
                 .orElseThrow(() -> new IllegalStateException("Please rerun " + DeviceLifeCycleConfigurationServiceIT.class.getName() + " to find out why the installer has not created the default finite state machine"));
+    }
+
+    private DeviceLifeCycleConfigurationServiceImpl getTestInstance() {
+        return inMemoryPersistence.getDeviceLifeCycleConfigurationService();
     }
 
 }

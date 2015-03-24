@@ -28,6 +28,15 @@ public interface DeviceLifeCycleConfigurationService {
     public DeviceLifeCycleBuilder newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine);
 
     /**
+     * Clones the specified {@link DeviceLifeCycle} with the specified name.
+     *
+     * @param source The DeviceLifeCycle that is being cloned
+     * @param name The unique name of the new DeviceLifeCycle
+     * @return The cloned DeviceLifeCycle
+     */
+    public DeviceLifeCycle cloneDeviceLifeCycle(DeviceLifeCycle source, String name);
+
+    /**
      * Finds the {@link DeviceLifeCycle} that was created by default
      * when this bundle was first installed.
      * Note that somebody may have deleted that DeviceLifeCycle

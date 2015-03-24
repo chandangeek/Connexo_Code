@@ -3,8 +3,11 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -102,7 +105,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM");
+        return Arrays.asList("ORM", FiniteStateMachineService.COMPONENT_NAME);
     }
 
     @Activate
@@ -161,6 +164,48 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Override
     public DeviceLifeCycleBuilderImpl newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine) {
         return new DeviceLifeCycleBuilderImpl(this.dataModel, this.dataModel.getInstance(DeviceLifeCycleImpl.class).initialize(name, finiteStateMachine));
+    }
+
+    @Override
+    public DeviceLifeCycle cloneDeviceLifeCycle(DeviceLifeCycle source, String name) {
+        FiniteStateMachine clonedStateMachine = this.stateMachineService.cloneFiniteStateMachine(source.getFiniteStateMachine(), name);
+        DeviceLifeCycleBuilderImpl builder = this.newDeviceLifeCycleUsing(name, clonedStateMachine);
+        source.getAuthorizedActions().forEach(a -> this.cloneAction(a, builder, clonedStateMachine));
+        DeviceLifeCycle cloned = builder.complete();
+        cloned.save();
+        return cloned;
+    }
+
+    private void cloneAction(AuthorizedAction sourceAction, DeviceLifeCycleBuilder builder, FiniteStateMachine clonedFiniteStateMachine) {
+        if (sourceAction instanceof AuthorizedBusinessProcessAction) {
+            AuthorizedBusinessProcessAction sourceBusinessProcessAction = (AuthorizedBusinessProcessAction) sourceAction;
+            builder
+                .newCustomAction(
+                    clonedFiniteStateMachine.getState(sourceBusinessProcessAction.getState().getName()).get(),
+                    sourceBusinessProcessAction.getDeploymentId(),
+                    sourceBusinessProcessAction.getProcessId())
+                .addAllLevels(sourceBusinessProcessAction.getLevels())
+                .complete();
+        }
+        else {
+            AuthorizedTransitionAction sourceAuthorizedTransitionAction = (AuthorizedTransitionAction) sourceAction;
+            builder
+                .newTransitionAction(this.findClonedTransition(sourceAuthorizedTransitionAction.getStateTransition(), clonedFiniteStateMachine))
+                .addAllChecks(sourceAuthorizedTransitionAction.getChecks())
+                .addAllActions(sourceAuthorizedTransitionAction.getActions())
+                .addAllLevels(sourceAuthorizedTransitionAction.getLevels())
+                .complete();
+        }
+    }
+
+    private StateTransition findClonedTransition(StateTransition sourceTransition, FiniteStateMachine clonedFiniteStateMachine) {
+        return clonedFiniteStateMachine
+                .getTransitions()
+                .stream()
+                .filter(t -> t.getFrom().getName().equals(sourceTransition.getFrom().getName()))
+                .filter(t -> t.getTo().getName().equals(sourceTransition.getTo().getName()))
+                .findFirst()
+                .get(); // Cloning of the FiniteStateMachine was done milliseconds ago so both states should have been cloned as well as the transition
     }
 
     @Override
