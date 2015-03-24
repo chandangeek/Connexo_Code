@@ -31,12 +31,14 @@ public class DataValidationTaskInfo {
     public String name = "blank_name";
     public MeterGroupInfo deviceGroup;
     public PeriodicalExpressionInfo schedule;
+    public DataValidationTaskHistoryInfo lastValidationOccurence;
     public Long nextRun;
     public Long lastRun;
     
 
-    public DataValidationTaskInfo(DataValidationTask dataValidationTask) {
+    public DataValidationTaskInfo(DataValidationTask dataValidationTask, Thesaurus thesaurus) {
         populate(dataValidationTask);
+        lastValidationOccurence = dataValidationTask.getLastOccurrence().map(oc -> new DataValidationTaskHistoryInfo(oc, thesaurus)).orElse(null);
     }
 
 
@@ -70,6 +72,8 @@ public class DataValidationTaskInfo {
         if (lastRunOptional.isPresent()) {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
+
+
     }
 
     public long getId()

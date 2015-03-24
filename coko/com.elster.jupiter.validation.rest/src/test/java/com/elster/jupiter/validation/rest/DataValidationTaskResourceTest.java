@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
@@ -79,7 +80,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     @Test
     public void getCreateTasksTest() {
 
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1);
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus);
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 1;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
@@ -101,7 +102,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void updateTasksTest() {
 
 
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1);
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus);
         info.id = TASK_ID;
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 1;
@@ -126,6 +127,8 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
         when(validationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+
+        when(validationTask.getLastOccurrence()).thenReturn(Optional.<DataValidationOccurrence>empty());
         doReturn(Optional.of(validationTask)).when(validationService).findValidationTask(id);
 
         return validationTask;

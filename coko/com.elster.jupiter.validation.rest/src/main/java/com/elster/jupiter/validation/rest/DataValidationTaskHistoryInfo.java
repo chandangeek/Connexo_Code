@@ -35,15 +35,15 @@ public class DataValidationTaskHistoryInfo {
     public DataValidationTaskHistoryInfo() {
     }
 
-    public DataValidationTaskHistoryInfo(DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
-        populate(dataValidationOccurrence.getTask().getHistory(), dataValidationOccurrence, thesaurus, timeService);
+    public DataValidationTaskHistoryInfo(DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
+        populate(dataValidationOccurrence.getTask().getHistory(), dataValidationOccurrence, thesaurus);
     }
 
-    public DataValidationTaskHistoryInfo(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
-        populate(history, dataValidationOccurrence, thesaurus, timeService);
+    public DataValidationTaskHistoryInfo(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
+        populate(history, dataValidationOccurrence, thesaurus);
     }
 
-    private void populate(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
+    private void populate(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
         this.id = dataValidationOccurrence.getId();
 
         this.startedOn = dataValidationOccurrence.getStartDate().map(this::toLong).orElse(null);

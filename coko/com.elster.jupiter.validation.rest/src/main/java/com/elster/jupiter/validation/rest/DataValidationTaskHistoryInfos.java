@@ -20,15 +20,15 @@ public class DataValidationTaskHistoryInfos {
         addAll(task, occurrences, thesaurus, timeService);
     }
 
-    public DataValidationTaskHistoryInfo add(DataValidationOccurrence occurrence, Thesaurus thesaurus, TimeService timeService) {
-        DataValidationTaskHistoryInfo result = new DataValidationTaskHistoryInfo(occurrence, thesaurus, timeService);
+    public DataValidationTaskHistoryInfo add(DataValidationOccurrence occurrence, Thesaurus thesaurus) {
+        DataValidationTaskHistoryInfo result = new DataValidationTaskHistoryInfo(occurrence, thesaurus);
         data.add(result);
         total++;
         return result;
     }
 
-    public DataValidationTaskHistoryInfo add(History<? extends DataValidationTask> history, DataValidationOccurrence occurrence, Thesaurus thesaurus, TimeService timeService) {
-        DataValidationTaskHistoryInfo result = new DataValidationTaskHistoryInfo(history, occurrence, thesaurus, timeService);
+    public DataValidationTaskHistoryInfo add(History<? extends DataValidationTask> history, DataValidationOccurrence occurrence, Thesaurus thesaurus) {
+        DataValidationTaskHistoryInfo result = new DataValidationTaskHistoryInfo(history, occurrence, thesaurus);
         data.add(result);
         total++;
         return result;
@@ -37,7 +37,7 @@ public class DataValidationTaskHistoryInfos {
     private void addAll(DataValidationTask task, Iterable<? extends DataValidationOccurrence> occurrences, Thesaurus thesaurus, TimeService timeService) {
         History<? extends DataValidationTask> history = task.getHistory();
         for (DataValidationOccurrence each : occurrences) {
-            add(history, each, thesaurus, timeService);
+            add(history, each, thesaurus);
         }
     }
 }
