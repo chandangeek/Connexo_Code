@@ -21,7 +21,7 @@ Ext.define('Cfg.view.validationtask.Menu', {
                 {
                     text: Uni.I18n.translate('validationTasks.general.history', 'CFG', 'History'),
                     itemId: 'tasks-history-link',
-                    href: me.router.getRoute('administration/validationtasks/datavalidationtask/history').buildUrl()
+                    href: me.router.getRoute('administration/validationtasks/validationtask/history').buildUrl()
                 }
             );
         }

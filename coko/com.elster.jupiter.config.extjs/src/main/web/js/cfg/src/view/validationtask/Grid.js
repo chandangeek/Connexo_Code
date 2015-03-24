@@ -15,7 +15,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
                 header: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {				
-                    var url = me.router.getRoute('administration/validationtasks/datavalidationtask').buildUrl({taskId: record.get('id')});
+                    var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
                 },
                 flex: 1
@@ -65,7 +65,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
                     '->',
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('validationTasks.general.addDataValidationTask', 'CFG', 'Add validation task'),
+                        text: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
                         href: '#/administration/validationtasks/add'
                     }

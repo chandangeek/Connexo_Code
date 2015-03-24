@@ -90,7 +90,7 @@ Ext.define('Cfg.controller.Tasks', {
         });
     },
 
-    showDataValidationTasks: function () {
+    showValidationTasks: function () {
         var me = this,
             view = Ext.widget('validation-tasks-setup', {
                 router: me.getController('Uni.controller.history.Router')
@@ -120,7 +120,7 @@ Ext.define('Cfg.controller.Tasks', {
                 actionsMenu.record = record;
                 actionsMenu.down('#view-details').hide();
                 view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
-                me.getApplication().fireEvent('datavalidationtaskload', record);
+                me.getApplication().fireEvent('validationtaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
                     if (record.get('status') === 'Failed') {
@@ -131,7 +131,7 @@ Ext.define('Cfg.controller.Tasks', {
         });
     },
 
-	showDataValidationTaskHistory: function (currentTaskId) {
+	showValidationTaskHistory: function (currentTaskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Cfg.store.ValidationTasksHistory'),
@@ -207,7 +207,7 @@ Ext.define('Cfg.controller.Tasks', {
         if (me.fromDetails) {
             view = Ext.create('Cfg.view.validationtask.Add', {
                 edit: true,
-                returnLink: router.getRoute('administration/validationtasks/datavalidationtask').buildUrl({taskId: taskId})
+                returnLink: router.getRoute('administration/validationtasks/validationtask').buildUrl({taskId: taskId})
             })
         } else {
             view = Ext.create('Cfg.view.validationtask.Add', {
@@ -230,7 +230,7 @@ Ext.define('Cfg.controller.Tasks', {
                     success: function (record) {
                         var schedule = record.get('schedule');
                         me.taskModel = record;
-                        me.getApplication().fireEvent('datavalidationtaskload', record);
+                        me.getApplication().fireEvent('validationtaskload', record);
                         taskForm.setTitle(Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit') + " '" + record.get('name') + "'");
                         	taskForm.loadRecord(record);
                         
@@ -303,19 +303,19 @@ Ext.define('Cfg.controller.Tasks', {
 
         switch (item.action) {
             case 'viewDetails':
-                route = 'administration/validationtasks/datavalidationtask';
+                route = 'administration/validationtasks/validationtask';
                 break;
             case 'editValidationTask':
-                route = 'administration/validationtasks/datavalidationtask/edit';
+                route = 'administration/validationtasks/validationtask/edit';
                 break;
             case 'removeTask':
                 me.removeTask(menu.record);
                 break;         
 			case 'viewLog':
-                route = 'administration/validationtasks/datavalidationtask/history/occurrence';
+                route = 'administration/validationtasks/validationtask/history/occurrence';
                 break;
             case 'viewHistory':
-                route = 'administration/validationtasks/datavalidationtask/history';
+                route = 'administration/validationtasks/validationtask/history';
                 break;
         }
 
@@ -528,14 +528,14 @@ Ext.define('Cfg.controller.Tasks', {
             record.save({
                 success: function () {
                     if (button.action === 'editTask' && me.fromDetails) {
-                        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/datavalidationtask').forward({taskId: record.getId()});
+                        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').forward({taskId: record.getId()});
                     } else {
                         me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
                     }
                     if (button.action === 'editTask') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.editDataValidationTask.successMsg.saved', 'CFG', 'Validation task saved'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.editValidationTask.successMsg.saved', 'CFG', 'Validation task saved'));
                     } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addDataValidationTask.successMsg', 'CFG', 'Validation task added'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
                     }
                 },
                 failure: function (record, operation) {

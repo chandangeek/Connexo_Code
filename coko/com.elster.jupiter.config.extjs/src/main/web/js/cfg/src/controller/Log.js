@@ -48,7 +48,7 @@ Ext.define('Cfg.controller.Log', {
                         runStartedOn: runStartedOnFormatted
                     });
                     sideMenu = view.down('#log-view-menu');
-                    me.getApplication().fireEvent('datavalidationtaskload', record);
+                    me.getApplication().fireEvent('validationtaskload', record);
                     sideMenu.setTitle(record.get('name'));
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
                     view.down('#run-started-on').setValue(runStartedOnFormatted);

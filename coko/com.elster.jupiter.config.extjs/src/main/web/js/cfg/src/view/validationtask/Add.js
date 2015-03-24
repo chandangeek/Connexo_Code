@@ -27,7 +27,7 @@ Ext.define('Cfg.view.validationtask.Add', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('validationTasks.general.addDataValidationTask', 'CFG', 'Add validation task'),
+                title: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),
                 itemId: 'add-validation-task-form',
                 ui: 'large',
                 width: '100%',
@@ -73,7 +73,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 store: 'Cfg.store.DeviceGroups',
                                 editable: false,
                                 disabled: false,
-                                emptyText: Uni.I18n.translate('validationTasks.addDataValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
+                                emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
                                 allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'name',

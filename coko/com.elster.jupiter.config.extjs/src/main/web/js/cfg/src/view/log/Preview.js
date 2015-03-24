@@ -18,7 +18,7 @@ Ext.define('Cfg.view.log.Preview', {
                     fieldLabel: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
                     name: 'name',
                     renderer: function (value) {
-                        var url = me.router.getRoute('administration/validationtasks/datavalidationtask').buildUrl();
+                        var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl();
                         return '<a href="' + url + '">' + value + '</a>';
                     }
                 },

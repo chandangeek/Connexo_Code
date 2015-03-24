@@ -14,22 +14,22 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                     route: 'validationtasks',
                     controller: 'Cfg.controller.Tasks',
                     privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
-                    action: 'showDataValidationTasks',
+                    action: 'showValidationTasks',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('validationTasks.general.addDataValidationTask', 'CFG', 'Add validation task'),
+                            title: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),
                             route: 'add',
                             controller: 'Cfg.controller.Tasks',
                             privileges: ['privilege.administrate.validationConfiguration'],
                             action: 'showAddValidationTask'
                         },
-                        datavalidationtask: {
+                        validationtask: {
                             title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
                             route: '{taskId}',
                             controller: 'Cfg.controller.Tasks',
                             action: 'showTaskDetailsView',
                             callback: function (route) {
-                                this.getApplication().on('datavalidationtaskload', function (record) {
+                                this.getApplication().on('validationtaskload', function (record) {
                                     route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
@@ -47,7 +47,7 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                                     title: Uni.I18n.translate('validationTasks.general.validationTaskHistory', 'CFG', 'Validation task history'),
                                     route: 'history',
                                     controller: 'Cfg.controller.Tasks',
-                                    action: 'showDataValidationTaskHistory',
+                                    action: 'showValidationTaskHistory',
                                     filter: 'Cfg.model.HistoryFilter',
                                     items: {
                                         occurrence: {
