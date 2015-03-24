@@ -23,7 +23,6 @@ public class DataValidationOccurrenceImpl implements DataValidationOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<DataValidationTask> dataValidationTask = ValueReference.absent();
-    private Interval dataValidationDataInterval;
     private String failureReason;
     private DataValidationTaskStatus status = DataValidationTaskStatus.BUSY;
 
@@ -40,7 +39,9 @@ public class DataValidationOccurrenceImpl implements DataValidationOccurrence {
     }
 
     private DataValidationOccurrenceImpl init(TaskOccurrence occurrence, DataValidationTask task){
-        return null;
+        taskOccurrence.set(occurrence);
+        dataValidationTask.set(task);
+        return this;
 
     }
     @Override
@@ -106,6 +107,17 @@ public class DataValidationOccurrenceImpl implements DataValidationOccurrence {
     @Override
     public TaskOccurrence getTaskOccurrence() {
         return taskOccurrence.get();
+    }
+
+    public void end(DataValidationTaskStatus status, String message) {
+        this.status = status;
+        this.failureReason = message;
+        getTask().updateLastRun(getTriggerTime());
+    }
+
+    @Override
+    public void end(DataValidationTaskStatus status) {
+        end(status, null);
     }
 }
 

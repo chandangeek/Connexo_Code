@@ -154,7 +154,6 @@ public enum TableSpecs {
             table.map(DataValidationOccurrenceImpl.class);
             Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
             Column dataValidationTask = table.column("DATAVALIDATIONTASK").number().notNull().add();
-            table.addIntervalColumns("dataValidationDataInterval");
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
             table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
 

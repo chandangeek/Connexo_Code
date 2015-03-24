@@ -8,6 +8,8 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UniqueValidationTaskNameValidator implements ConstraintValidator<UniqueName, DataValidationTask> {
 

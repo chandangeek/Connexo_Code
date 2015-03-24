@@ -37,4 +37,8 @@ public interface DataValidationOccurrence {
 
     TaskOccurrence getTaskOccurrence();
 
+    public void end(DataValidationTaskStatus status, String message);
+
+    public void end(DataValidationTaskStatus status);
+
 }

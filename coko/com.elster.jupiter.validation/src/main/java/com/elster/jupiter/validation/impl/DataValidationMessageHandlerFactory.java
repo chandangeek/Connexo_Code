@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
@@ -21,11 +22,12 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
     private volatile ValidationService validationService;
+    private volatile MeteringService meteringService;
 
     @Override
     public MessageHandler newMessageHandler() {
 
-        return taskService.createMessageHandler(new DataValidationTaskExecutor(validationService,transactionService,validationService.getThesaurus()));
+        return taskService.createMessageHandler(new DataValidationTaskExecutor(validationService, meteringService, transactionService,validationService.getThesaurus()));
 
     }
 
@@ -42,6 +44,11 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Activate

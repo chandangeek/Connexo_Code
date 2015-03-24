@@ -1,5 +1,9 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -7,8 +11,12 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,16 +26,39 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final ValidationService validationService;
+    private final MeteringService meteringService;
 
-    public DataValidationTaskExecutor(ValidationService validationService,TransactionService transactionService, Thesaurus thesaurus){
+    public DataValidationTaskExecutor(ValidationService validationService, MeteringService meteringService, TransactionService transactionService, Thesaurus thesaurus){
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.transactionService = transactionService;
+        this.meteringService = meteringService;
     }
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
         DataValidationOccurrence dataValidationOccurence = createOccurence(taskOccurrence);
+
+    }
+
+    @Override
+    public void postExecute(TaskOccurrence occurrence) {
+        DataValidationOccurrence dataValidationOccurrence = findOccurrence(occurrence);
+        boolean success = false;
+        String errorMessage = null;
+        try {
+            doExecute(dataValidationOccurrence, getLogger(occurrence));
+            success = true;
+        } catch (Exception ex) {
+            errorMessage = ex.getMessage();
+            throw ex;
+        } finally {
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                dataValidationOccurrence.end(success ? DataValidationTaskStatus.SUCCESS : DataValidationTaskStatus.FAILED, errorMessage);
+                dataValidationOccurrence.update();
+                transactionContext.commit();
+            }
+        }
 
     }
 
@@ -50,7 +81,23 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
 
-//        implement DataValidationTaskItem
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            //task.getEndDeviceGroup().getMembers(Instant.now()).stream().map();
+
+            List<EndDevice> devices = task.getEndDeviceGroup().getMembers(Instant.now());
+            for(EndDevice device : devices){
+                Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
+                if(found.isPresent()){
+                    List<? extends MeterActivation> activations = found.get().getMeterActivations();
+                    for(MeterActivation activation : activations){
+                        validationService.validate(activation);
+                    }
+
+                }
+            }
+
+            transactionContext.commit();
+        }
 
     }
 

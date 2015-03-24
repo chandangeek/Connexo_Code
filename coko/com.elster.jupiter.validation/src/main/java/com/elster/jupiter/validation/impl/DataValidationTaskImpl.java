@@ -25,6 +25,7 @@ import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
@@ -40,6 +41,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.validation.MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.validation.MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Pattern(regexp="[a-zA-Z0-9\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.NAME_WITH_SYMBOLS +"}")
     private String name;
 
     private final TaskService taskService;
@@ -337,5 +339,11 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     public History<? extends DataValidationTask> getHistory() {
         List<JournalEntry<DataValidationTask>> journal = dataModel.mapper(DataValidationTask.class).getJournal(getId());
         return new History<>(journal, this);
+    }
+
+    @Override
+    public void updateLastRun(Instant triggerTime) {
+        lastRun = triggerTime;
+        save();
     }
 }

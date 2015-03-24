@@ -59,4 +59,5 @@ public interface DataValidationTask extends HasAuditInfo {
 
     History<? extends DataValidationTask> getHistory();
 
+    public void updateLastRun(Instant triggerTime);
 }
