@@ -82,6 +82,29 @@ public final class KPermutation {
         return new KPermutation(indices);
     }
 
+    public static <T> KPermutation of(long[] source, long[] result) {
+        Counter counter = Counters.newLenientCounter();
+        int[] indices = Arrays.stream(result)
+                .mapToInt(value -> indexOf(source, value))
+                .peek(cantBeNegative())
+                .collect(
+                        () -> new int[result.length],
+                        (array, index) -> {
+                            array[counter.getValue()] = index;
+                            counter.increment();
+                        },
+                        null
+                );
+        return new KPermutation(indices);
+    }
+
+    private static int indexOf(long[] array, long value) {
+        return IntStream.rangeClosed(0, array.length)
+                .filter(i -> value == array[i])
+                .findFirst()
+                .orElse(-1);
+    }
+
     private static IntConsumer cantBeNegative() {
         return i -> {
             if (i < 0) {

@@ -92,6 +92,15 @@ public class KPermutationTest extends EqualsContractTest {
 
     }
 
+    @Test
+    public void testKPermutationOfLongArray() {
+        long[] numbers = new long[] {0, 1, 2, 3, 4, 5};
+        long[] kpermutated = new long[] {4, 3, 0, 2};
+
+        assertThat(KPermutation.of(numbers, kpermutated)).isEqualTo(new KPermutation(4, 3, 0, 2));
+
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testKPermutationOfThatWontEverWork() {
         List<Character> characters = Arrays.asList('a', 'b', 'c', 'd', 'e', 'f');
