@@ -52,18 +52,6 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                         itemId: 'firmware-filter-top'
                     },
                     {
-                        title: 'Sort',
-                        xtype: 'filter-toolbar',
-                        itemId: 'firmware-sort-top',
-                        showClearButton: false,
-                        content: {
-                            xtype: 'button',
-                            ui: 'tag',
-                            iconCls: 'x-btn-sort-item-desc',
-                            text: 'Version'
-                        }
-                    },
-                    {
                         xtype: 'emptygridcontainer',
                         grid: {
                             xtype: 'firmware-grid',

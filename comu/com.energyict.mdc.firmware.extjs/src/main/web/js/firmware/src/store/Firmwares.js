@@ -5,6 +5,7 @@ Ext.define('Fwc.store.Firmwares', {
     ],
     model: 'Fwc.model.Firmware',
     storeId: 'Firmwares',
+    autoLoad: false,
     remoteSort: true,
     sorters: [{
         property: 'version',

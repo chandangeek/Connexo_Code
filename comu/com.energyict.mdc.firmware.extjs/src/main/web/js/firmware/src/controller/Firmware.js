@@ -235,32 +235,6 @@ Ext.define('Fwc.controller.Firmware', {
             firmwareStore.getProxy().setUrl(deviceType.getId());
             firmwareStore.load();
 
-            // todo: testing on fake data
-            firmwareStore.loadRawData({
-                "total": 10,
-                "firmwares": [
-                    {
-                        "id": 1,
-                        "version": "ASP03.01.03-12359",
-                        "type": "meter",
-                        "status": "ghost"
-                    },
-                    {
-                        "id": 2,
-                        "version": "ASP03.01.03-12359",
-                        "type": "meter",
-                        "status": "test"
-                    },
-                    {
-                        "id": 3,
-                        "version": "ASP03.01.03-12359",
-                        "type": "meter",
-                        "status": "deprecated"
-                    }
-                ]
-            });
-
-
             me.getApplication().fireEvent('changecontentevent', 'firmware-versions', {deviceType: deviceType, store: firmwareStore});
             me.initFilter();
         });

@@ -35,7 +35,7 @@ Ext.define('Fwc.model.Firmware', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/firmwares',
+        urlTpl: '/api/fwc/devicetypes/{deviceTypeId}/firmwares',
         reader: {
             type: 'json',
             root: 'firmwares',

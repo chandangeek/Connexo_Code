@@ -22,6 +22,19 @@ Ext.define('Fwc.view.firmware.Grid', {
     initComponent: function () {
         this.dockedItems = [
             {
+                dock: 'top',
+                title: 'Sort',
+                xtype: 'filter-toolbar',
+                itemId: 'firmware-sort-top',
+                showClearButton: false,
+                content: {
+                    xtype: 'button',
+                    ui: 'tag',
+                    iconCls: 'x-btn-sort-item-desc',
+                    text: 'Version'
+                }
+            },
+            {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
@@ -41,6 +54,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
+                deferLoading: true,
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('firmware.pagingtoolbarbottom.itemsPerPage', 'FWC', 'Firmwares per page')
             }
