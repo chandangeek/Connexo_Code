@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.device.lifecycle.config.extjs", service = {TranslationKeyProvider.class},
-        property = {"name=" + DataExportUIInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
+        property = {"name=" + DeviceLifeCycleUIInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
 public class DeviceLifeCycleUIInstaller implements TranslationKeyProvider {
 
     public static final String HTTP_RESOURCE_ALIAS = "/dlc";
