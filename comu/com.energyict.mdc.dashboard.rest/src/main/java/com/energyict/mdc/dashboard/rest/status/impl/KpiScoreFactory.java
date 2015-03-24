@@ -10,8 +10,8 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
@@ -77,7 +77,7 @@ public class KpiScoreFactory {
         LocalDate endDay=null;
         if (displayRange.getUnits().contains(ChronoUnit.SECONDS)) {
             if (displayRange.get(ChronoUnit.SECONDS) == Duration.ofHours(1).getSeconds()) {
-                Instant startTime = LocalDateTime.now(clock).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
+                Instant startTime = ZonedDateTime.now(clock).truncatedTo(ChronoUnit.HOURS).toInstant();
                 Instant endTime = startTime.plus(1, ChronoUnit.HOURS);
                 return Ranges.closed(startTime, endTime);
             } else if (displayRange.get(ChronoUnit.SECONDS) == Duration.ofDays(1).getSeconds()) {
@@ -116,8 +116,8 @@ public class KpiScoreFactory {
         }
 
         return Ranges.closed(
-                startDay.atStartOfDay().toInstant(ZoneOffset.UTC),
-                endDay.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC));
+                startDay.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
+                endDay.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**

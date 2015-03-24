@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -178,7 +178,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.deviceGroup.alias).isEqualTo("deviceGroups");
 
         // Assert the first KPI (alignment between different lists on index)
-        assertThat(connectionOverviewInfo.kpi.time.get(56)).isEqualTo(Date.from(LocalDateTime.of(2014,10,1,14, 0, 0).toInstant(ZoneOffset.UTC)).getTime());
+        assertThat(connectionOverviewInfo.kpi.time.get(56)).isEqualTo(Date.from(LocalDateTime.of(2014,10,1,14, 0, 0).atZone(ZoneId.systemDefault()).toInstant()).getTime());
         assertThat(connectionOverviewInfo.kpi.series.get(0).name).isEqualTo("Success");
         assertThat(connectionOverviewInfo.kpi.series.get(0).data.get(56)).isEqualTo(BigDecimal.valueOf(10L));
         assertThat(connectionOverviewInfo.kpi.series.get(1).name).isEqualTo("Ongoing");
@@ -197,15 +197,15 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(dataCollectionKpi.getDisplayRange()).thenReturn(TimeDuration.days(1));
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14, 0, 0).toInstant(ZoneOffset.UTC), 10, 80, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,15, 0).toInstant(ZoneOffset.UTC), 20, 70, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,30, 0).toInstant(ZoneOffset.UTC), 30, 60, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,45, 0).toInstant(ZoneOffset.UTC), 40, 50, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15, 0, 0).toInstant(ZoneOffset.UTC), 50, 40, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,15, 0).toInstant(ZoneOffset.UTC), 60, 30, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,30, 0).toInstant(ZoneOffset.UTC), 70, 20, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,45, 0).toInstant(ZoneOffset.UTC), 80, 10, 10, 100));
-        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC), 90,  0, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14, 0, 0).atZone(ZoneId.systemDefault()).toInstant(), 10, 80, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,15, 0).atZone(ZoneId.systemDefault()).toInstant(), 20, 70, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,30, 0).atZone(ZoneId.systemDefault()).toInstant(), 30, 60, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,45, 0).atZone(ZoneId.systemDefault()).toInstant(), 40, 50, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15, 0, 0).atZone(ZoneId.systemDefault()).toInstant(), 50, 40, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,15, 0).atZone(ZoneId.systemDefault()).toInstant(), 60, 30, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,30, 0).atZone(ZoneId.systemDefault()).toInstant(), 70, 20, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,15,45, 0).atZone(ZoneId.systemDefault()).toInstant(), 80, 10, 10, 100));
+        kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014, 10, 1, 16, 0, 0).atZone(ZoneId.systemDefault()).toInstant(), 90,  0, 10, 100));
         when(dataCollectionKpi.getConnectionSetupKpiScores(anyObject())).thenReturn(kpiScores);
         return dataCollectionKpi;
     }
