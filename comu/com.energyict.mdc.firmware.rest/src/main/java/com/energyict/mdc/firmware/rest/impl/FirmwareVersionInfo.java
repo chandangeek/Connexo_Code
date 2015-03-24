@@ -16,9 +16,8 @@ public class FirmwareVersionInfo {
     public FirmwareType firmwareType;
     @XmlJavaTypeAdapter(FirmwareStatusAdapter.class)
     public FirmwareStatus firmwareStatus;
-    public Long fileSize;
-
-
+    public Integer fileSize;
+    public String firmwareFile;
 
     public static FirmwareVersionInfo from(FirmwareVersion firmware) {
         FirmwareVersionInfo firmwareInfo = new FirmwareVersionInfo();
