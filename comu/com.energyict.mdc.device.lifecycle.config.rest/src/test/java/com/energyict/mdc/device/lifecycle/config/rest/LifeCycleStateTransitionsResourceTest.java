@@ -2,8 +2,10 @@ package com.energyict.mdc.device.lifecycle.config.rest;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -16,68 +18,68 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LifeCycleStateResourceTest extends DeviceLifecycleConfigApplicationJerseyTest {
+public class LifeCycleStateTransitionsResourceTest extends DeviceLifecycleConfigApplicationJerseyTest {
 
     @Test
-    public void testLifeCycleStateJsonModel(){
-        List<State> states = mockDefaultStates();
+    @Ignore //TODO remove ignore after adding StateTransition name
+    public void testLifeCycleTransitionJsonModel(){
+        List<StateTransition> transitions = mockDefaultTransitions();
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
-        when(stateMachine.getStates()).thenReturn(states);
+        when(stateMachine.getTransitions()).thenReturn(transitions);
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
-        String stringResponse = target("/devicelifecycles/1/states").request().get(String.class);
+        String stringResponse = target("/devicelifecycles/1/transitions").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
-        assertThat(model.<Number>get("$.total")).isEqualTo(3);
-        assertThat(model.<List<?>>get("$.deviceLifeCycleStates")).isNotNull();
-        assertThat(model.<List<?>>get("$.deviceLifeCycleStates")).hasSize(3);
-        assertThat(model.<Number>get("$.deviceLifeCycleStates[0].id")).isEqualTo(1);
-        assertThat(model.<String>get("$.deviceLifeCycleStates[0].name")).isEqualTo("Commisioned");
-        assertThat(model.<Number>get("$.deviceLifeCycleStates[2].id")).isEqualTo(3);
-        assertThat(model.<String>get("$.deviceLifeCycleStates[2].name")).isEqualTo("In stock");
+        assertThat(model.<Number>get("$.total")).isEqualTo(2);
+        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions")).isNotNull();
+        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions")).hasSize(2);
+        assertThat(model.<Number>get("$.deviceLifeCycleTransitions[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.deviceLifeCycleTransitions[0].name")).isEqualTo("To decommisioned");
     }
 
     @Test
-    public void testEmptyLifeCycleStateList(){
+    public void testEmptyLifeCycleTransitionsList(){
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
         when(stateMachine.getStates()).thenReturn(Collections.emptyList());
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
-        String stringResponse = target("/devicelifecycles/1/states").request().get(String.class);
+        String stringResponse = target("/devicelifecycles/1/transitions").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
 
         assertThat(model.<Number>get("$.total")).isEqualTo(0);
-        assertThat(model.<List<?>>get("$.deviceLifeCycleStates")).isNotNull();
-        assertThat(model.<List<?>>get("$.deviceLifeCycleStates")).isEmpty();
+        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions")).isNotNull();
+        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions")).isEmpty();
     }
 
     @Test
-    public void testGetLifeCycleStateById(){
-        List<State> states = mockDefaultStates();
+    @Ignore //TODO remove ignore after adding StateTransition name
+    public void testGetLifeCycleTransitionById(){
+        List<StateTransition> transitions = mockDefaultTransitions();
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
-        when(stateMachine.getStates()).thenReturn(states);
+        when(stateMachine.getTransitions()).thenReturn(transitions);
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
-        String stringResponse = target("/devicelifecycles/1/states/3").request().get(String.class);
+        String stringResponse = target("/devicelifecycles/1/transitions/1").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
-        assertThat(model.<Number>get("$.id")).isEqualTo(3);
-        assertThat(model.<String>get("$.name")).isEqualTo("In stock");
+        assertThat(model.<Number>get("$.id")).isEqualTo(1);
+        assertThat(model.<String>get("$.name")).isEqualTo("To decommisioned");
     }
 
     @Test
-    public void testGetUnexistedLifeCycleState(){
+    public void testGetUnexistedLifeCycleTransition(){
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
-        when(stateMachine.getStates()).thenReturn(Collections.<State>emptyList());
+        when(stateMachine.getTransitions()).thenReturn(Collections.<StateTransition>emptyList());
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
-        Response response = target("/devicelifecycles/1/states/3").request().get();
+        Response response = target("/devicelifecycles/1/transitions/7").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }

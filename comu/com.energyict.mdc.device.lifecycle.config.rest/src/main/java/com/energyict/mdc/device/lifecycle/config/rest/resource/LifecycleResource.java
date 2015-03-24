@@ -28,13 +28,15 @@ public class LifecycleResource {
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
     private final Provider<LifeCycleStateResource> lifeCycleStateResourceProvider;
+    private final Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider;
 
     @Inject
-    public LifecycleResource(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper, Provider<LifeCycleStateResource> lifeCycleStateResourceProvider) {
+    public LifecycleResource(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper, Provider<LifeCycleStateResource> lifeCycleStateResourceProvider, Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider) {
         this.thesaurus = thesaurus;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.lifeCycleStateResourceProvider = lifeCycleStateResourceProvider;
+        this.lifeCycleStateTransitionsResourceProvider = lifeCycleStateTransitionsResourceProvider;
     }
 
     @GET
@@ -55,8 +57,13 @@ public class LifecycleResource {
         return Response.ok(new LifecycleInfo(lifeCycle)).build();
     }
 
-    @Path("/{id}/states")
+    @Path("/{cycleId}/states")
     public LifeCycleStateResource getLifeCycleStateResource() {
         return this.lifeCycleStateResourceProvider.get();
+    }
+
+    @Path("/{cycleId}/transitions")
+    public LifeCycleStateTransitionsResource getLifeCycleTransitionsResource() {
+        return this.lifeCycleStateTransitionsResourceProvider.get();
     }
 }

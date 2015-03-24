@@ -36,8 +36,8 @@ public class LifeCycleStateResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
-    public PagedInfoList getStatesForDeviceLifecycle(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
-        List<LifeCycleStateInfo> states = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id).getFiniteStateMachine().getStates()
+    public PagedInfoList getStatesForDeviceLifecycle(@PathParam("cycleId") Long lifeCycleId, @BeanParam QueryParameters queryParams) {
+        List<LifeCycleStateInfo> states = resourceHelper.findDeviceLifeCycleByIdOrThrowException(lifeCycleId).getFiniteStateMachine().getStates()
                 .stream()
                 .map(LifeCycleStateInfo::new)
                 .sorted(Comparator.comparing(state -> state.name)) // alphabetical sort
@@ -49,7 +49,7 @@ public class LifeCycleStateResource {
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
-    public Response getStateById(@PathParam("id") Long lifeCycleId, @PathParam("stateId") Long stateId, @BeanParam QueryParameters queryParams) {
+    public Response getStateById(@PathParam("cycleId") Long lifeCycleId, @PathParam("stateId") Long stateId, @BeanParam QueryParameters queryParams) {
         State state = resourceHelper.findStateByIdOrThrowException(resourceHelper.findDeviceLifeCycleByIdOrThrowException(lifeCycleId), stateId);
         return Response.ok(new LifeCycleStateInfo(state)).build();
     }

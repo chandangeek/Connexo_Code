@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.UserService;
@@ -60,10 +61,27 @@ public class DeviceLifecycleConfigApplicationJerseyTest extends FelixRestApplica
     }
 
     public List<State> mockDefaultStates(){
-        List<State> states = new ArrayList<>(2);
+        List<State> states = new ArrayList<>(3);
         states.add(mockSimpleState(2, "Decommisioned"));
         states.add(mockSimpleState(1, "Commisioned"));
         states.add(mockSimpleState(3, "In stock"));
         return states;
+    }
+
+    public StateTransition mockSimpleTransition(long id, String name, State from, State to){
+        StateTransition transition = mock(StateTransition.class);
+        when(transition.getId()).thenReturn(id);
+        // TODO mock name
+        when(transition.getFrom()).thenReturn(from);
+        when(transition.getTo()).thenReturn(to);
+        return transition;
+    }
+
+    public List<StateTransition> mockDefaultTransitions(){
+        List<StateTransition> transitions = new ArrayList<>(2);
+        List<State> states = mockDefaultStates();
+        transitions.add(mockSimpleTransition(2, "To commisioned", states.get(2), states.get(1)));
+        transitions.add(mockSimpleTransition(1, "To decommisioned", states.get(1), states.get(0)));
+        return transitions;
     }
 }

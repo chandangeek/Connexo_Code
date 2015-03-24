@@ -13,7 +13,7 @@
 
     <artifactId>mdc.device.lifecycle.config.rest</artifactId>
     <packaging>bundle</packaging>
-    <name>[MDC] mdc.device.lifecycle.config.rest [init DLD]</name>
+    <name>[MDC] mdc.device.lifecycle.config.rest [init DLR]</name>
 
     <build>
         <plugins>

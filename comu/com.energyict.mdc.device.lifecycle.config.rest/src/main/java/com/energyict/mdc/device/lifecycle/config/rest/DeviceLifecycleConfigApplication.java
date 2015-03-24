@@ -15,8 +15,10 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateResource;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateTransitionsResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifecycleResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.ResourceHelper;
+import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateTransitionFactory;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -36,7 +38,7 @@ import java.util.Set;
         property = {"alias=/dld", "app=MDC", "name=" + DeviceLifecycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT},
         immediate = true)
 public class DeviceLifecycleConfigApplication extends Application implements TranslationKeyProvider {
-    public static final String DEVICE_CONFIG_LIFECYCLE_COMPONENT = "DLD";
+    public static final String DEVICE_CONFIG_LIFECYCLE_COMPONENT = "DLR";
 
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
@@ -51,6 +53,7 @@ public class DeviceLifecycleConfigApplication extends Application implements Tra
         return ImmutableSet.<Class<?>>of(
                 LifecycleResource.class,
                 LifeCycleStateResource.class,
+                LifeCycleStateTransitionsResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
     }
@@ -117,6 +120,7 @@ public class DeviceLifecycleConfigApplication extends Application implements Tra
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(LifeCycleStateTransitionFactory.class).to(LifeCycleStateTransitionFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
         }
