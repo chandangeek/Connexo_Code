@@ -11,7 +11,35 @@ Ext.define('Dlc.controller.history.DeviceLifeCycle', {
                     title: Uni.I18n.translate('general.deviceLifeCycles', 'DLC', 'Device life cycles'),
                     route: 'devicelifecycles',
                     controller: 'Dlc.controller.DeviceLifeCycles',
-                    action: 'showDeviceLifeCycles'
+                    action: 'showDeviceLifeCycles',
+                    items: {
+                        devicelifecycle: {
+                            route: '{devicelifecycleId}',
+                            controller: 'Dlc.controller.DeviceLifeCycles',
+                            action: 'showDeviceLifeCycleDetails',
+                            callback: function (route) {
+                                this.getApplication().on('devicelifecycleload', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                states: {
+                                    title: Uni.I18n.translate('general.states', 'DLC', 'States'),
+                                    route: 'states',
+                                    controller: 'Dlc.controller.DeviceLifeCycles',
+                                    action: 'showDeviceLifeCycleStates'
+                                },
+                                transitions: {
+                                    title: Uni.I18n.translate('general.transitions', 'DLC', 'Transitions'),
+                                    route: 'transitions',
+                                    controller: 'Dlc.controller.DeviceLifeCycles',
+                                    action: 'showDeviceLifeCycleTransitions'
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
