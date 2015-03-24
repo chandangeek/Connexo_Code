@@ -28,7 +28,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                 states: {
                                     title: Uni.I18n.translate('general.states', 'DLC', 'States'),
                                     route: 'states',
-                                    controller: 'Dlc.controller.DeviceLifeCycles',
+                                    controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                     action: 'showDeviceLifeCycleStates'
                                 },
                                 transitions: {

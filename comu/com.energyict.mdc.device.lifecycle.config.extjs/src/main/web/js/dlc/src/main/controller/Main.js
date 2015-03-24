@@ -8,7 +8,8 @@ Ext.define('Dlc.main.controller.Main', {
 
     controllers: [
         'Dlc.main.controller.history.DeviceLifeCycle',
-        'Dlc.devicelifecycles.controller.DeviceLifeCycles'
+        'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+        'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates'
     ],
 
     init: function () {
