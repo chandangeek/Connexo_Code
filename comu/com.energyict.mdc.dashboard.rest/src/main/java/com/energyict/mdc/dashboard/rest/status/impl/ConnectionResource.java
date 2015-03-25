@@ -230,31 +230,4 @@ public class ConnectionResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response queueConnectionTaskRunInBulk(@BeanParam JsonQueryFilter jsonQueryFilter, ActionInfo action) throws Exception {
-
-        // Verify appserver for TaskExecutor
-
-        ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
-        List<ConnectionTask> connectionTasksByFilter = connectionTaskService.findConnectionTasksByFilter(filter, 0, Integer.MAX_VALUE);
-        if (action.command==BulkCommand.run) {
-            boolean containsInvalidConnectionTasks = connectionTasksByFilter.stream().anyMatch(ct -> !(ct instanceof ScheduledConnectionTask));
-            if (containsInvalidConnectionTasks) {
-                throw exceptionFactory.newException(MessageSeeds.RUN_CONNECTIONTASK_IMPOSSIBLE);
-            }
-
-        }
-        return Response.status(Response.Status.OK).build();
-    }
-
-    class ActionInfo {
-        BulkCommand command;
-    }
-
-    enum BulkCommand  {
-        run;
-    }
 }
