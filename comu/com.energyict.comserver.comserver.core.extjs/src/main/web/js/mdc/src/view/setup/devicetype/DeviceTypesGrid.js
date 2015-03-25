@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.DeviceTypes',
-        'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
+        'Mdc.view.setup.devicetype.DeviceTypeActionMenu',
+        'Ext.ux.exporter.ExporterButton'
     ],
     store: 'Mdc.store.DeviceTypes',
     initComponent: function () {
@@ -32,7 +33,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 items: 'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
             }
         ];
-
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -42,7 +42,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 displayMoreMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} device types'),
                 emptyMsg: Uni.I18n.translate('devicetype.pagingtoolbartop.emptyMsg', 'MDC', 'There are no device types to display'),
                 items: [
-                    '->',
                     {
                         text: Uni.I18n.translate('devicetype.createDeviceType', 'MDC', 'Add device type'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
@@ -50,13 +49,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                         xtype: 'button',
                         action: 'createDeviceType'
                     }
-                ]
+                    ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('devicetype.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device types per page')
+                itemsPerPageMsg: Uni.I18n.translate('devicetype.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device types per page'),
             }
         ];
 

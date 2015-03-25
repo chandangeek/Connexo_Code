@@ -60,10 +60,6 @@ Ext.define('Mdc.view.setup.validation.RuleSetsGrid', {
                 emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRuleSet', 'MDC', 'There are no validation rule sets to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'),

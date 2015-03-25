@@ -62,10 +62,6 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                 displayMoreMsg: Uni.I18n.translate('comPortPool.displayMoreMsg', 'MDC', '{0} - {1} of more communication port pools'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         text: Uni.I18n.translate('comPortPool.addComPortPool', 'MDC', 'Add communication port pool'),
                         itemId: 'btn-add-comport-pool-menu',
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),

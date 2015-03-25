@@ -58,10 +58,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 emptyMsg: Uni.I18n.translate('registerMappings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
 
                         text: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),

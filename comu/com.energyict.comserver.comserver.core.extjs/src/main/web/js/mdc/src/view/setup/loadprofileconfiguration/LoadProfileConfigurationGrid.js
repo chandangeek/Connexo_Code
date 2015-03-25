@@ -52,7 +52,6 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             displayMoreMsg: Uni.I18n.translate('loadProfileConfigurations.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} load profile configurations'),
             emptyMsg: Uni.I18n.translate('loadProfileConfigurations.pagingtoolbartop.emptyMsg', 'MDC', 'There are no load profile configurations to display'),
             items: [
-                '->',
                 {
                     text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
                     hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),

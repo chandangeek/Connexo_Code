@@ -56,7 +56,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                 displayMoreMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} logbook types'),
                                 emptyMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.emptyMsg', 'MDC', 'There are no logbook types to display'),
                                 items: [
-                                    '->',
                                     {
                                         xtype: 'button',
                                         margin: '10 0 0 0',

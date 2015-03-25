@@ -58,10 +58,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 emptyMsg: Uni.I18n.translate('connectionmethod.pagingtoolbartop.emptyMsg', 'MDC', 'There are no connection methods to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         xtype: 'button',
                         text: Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),

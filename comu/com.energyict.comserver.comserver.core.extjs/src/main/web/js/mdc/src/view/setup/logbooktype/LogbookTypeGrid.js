@@ -43,7 +43,6 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeGrid', {
                 displayMoreMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} logbook types'),
                 emptyMsg: Uni.I18n.translate('logbooktype.pagingtoolbartop.emptyMsg', 'MDC', 'There are no logbook types to display'),
                 items: [
-                    '->',
                     {
                         text: Uni.I18n.translate('logbooktype.add', 'MDC', 'Add logbook type'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),

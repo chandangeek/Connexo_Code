@@ -56,10 +56,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 dock: 'top',
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         xtype: 'button',
                         text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
