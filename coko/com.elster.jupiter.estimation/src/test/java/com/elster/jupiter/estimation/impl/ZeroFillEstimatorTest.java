@@ -42,7 +42,7 @@ public class ZeroFillEstimatorTest {
         Estimatable estimatable2 = mock(Estimatable.class);
         doReturn(Arrays.asList(estimatable1, estimatable2)).when(estimationBlock).estimatables();
 
-        Estimator estimator = new ZeroFillEstimator(thesaurus, propertySpecService);
+        Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 

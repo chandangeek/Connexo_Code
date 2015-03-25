@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -21,19 +22,35 @@ import java.util.logging.Logger;
 /**
  * Created by igh on 3/03/2015.
  */
-public class ZeroFillEstimator extends AbstractEstimator {
+public class ValueFillEstimator extends AbstractEstimator {
 
-    ZeroFillEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
+    static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = new BigDecimal(10);
+
+    static final String FILL_VALUE = "fillValue";
+    static final BigDecimal DEFAULT_FILL_VALUE = new BigDecimal(0);
+
+    private BigDecimal numberOfConsecutiveSuspects;
+    private BigDecimal fillValue;
+
+    ValueFillEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 
-    ZeroFillEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    ValueFillEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
     }
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-
+        numberOfConsecutiveSuspects = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+        if (numberOfConsecutiveSuspects == null) {
+            this.numberOfConsecutiveSuspects = MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE;
+        }
+        fillValue = (BigDecimal) properties.get(FILL_VALUE);
+        if (fillValue == null) {
+            this.fillValue = DEFAULT_FILL_VALUE;
+        }
     }
 
     @Override
@@ -57,7 +74,7 @@ public class ZeroFillEstimator extends AbstractEstimator {
     }
 
     private void estimate(Estimatable estimatable) {
-        estimatable.setEstimation(BigDecimal.ZERO);
+        estimatable.setEstimation(fillValue);
         Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
     }
 
@@ -70,6 +87,11 @@ public class ZeroFillEstimator extends AbstractEstimator {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(
+                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(
+                FILL_VALUE, true, DEFAULT_FILL_VALUE));
+        return builder.build();
     }
 }
