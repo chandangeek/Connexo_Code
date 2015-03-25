@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.lifecycle.config.rest.resource;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
@@ -35,12 +35,12 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_NOT_FOUND, stateId));
     }
 
-    public StateTransition findStateTransitionByIdOrThrowException(DeviceLifeCycle cycle, long transitionId){
-        Objects.requireNonNull(cycle);
-        return cycle.getFiniteStateMachine().getTransitions()
+    public AuthorizedAction findTransitionByIdOrThrowException(DeviceLifeCycle lifeCycle, long actionId){
+        Objects.requireNonNull(lifeCycle);
+        return lifeCycle.getAuthorizedActions()
                 .stream()
-                .filter(transition -> transition.getId() == transitionId)
+                .filter(action -> action.getId() == actionId)
                 .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_TRANSITION_NOT_FOUND, transitionId));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_TRANSITION_NOT_FOUND, actionId));
     }
 }

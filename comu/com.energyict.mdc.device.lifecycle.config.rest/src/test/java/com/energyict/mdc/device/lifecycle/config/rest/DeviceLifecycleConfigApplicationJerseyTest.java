@@ -4,17 +4,23 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -62,26 +68,31 @@ public class DeviceLifecycleConfigApplicationJerseyTest extends FelixRestApplica
 
     public List<State> mockDefaultStates(){
         List<State> states = new ArrayList<>(3);
-        states.add(mockSimpleState(2, "Decommisioned"));
-        states.add(mockSimpleState(1, "Commisioned"));
+        states.add(mockSimpleState(2, "Decommissioned"));
+        states.add(mockSimpleState(1, "Commissioned"));
         states.add(mockSimpleState(3, "In stock"));
         return states;
     }
 
-    public StateTransition mockSimpleTransition(long id, String name, State from, State to){
+    public AuthorizedTransitionAction mockSimpleAction(long id, String name, State from, State to){
+        AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
+        when(action.getId()).thenReturn(id);
+        when(action.getLevels()).thenReturn(Collections.singleton(AuthorizedAction.Level.ONE));
         StateTransition transition = mock(StateTransition.class);
-        when(transition.getId()).thenReturn(id);
-        // TODO mock name
         when(transition.getFrom()).thenReturn(from);
         when(transition.getTo()).thenReturn(to);
-        return transition;
+        when(transition.getName()).thenReturn(Optional.of(name));
+        String translated = thesaurus.getString(name, name);
+        when(transition.getName(Matchers.any(Thesaurus.class))).thenReturn(translated);
+        when(action.getStateTransition()).thenReturn(transition);
+        return action;
     }
 
-    public List<StateTransition> mockDefaultTransitions(){
-        List<StateTransition> transitions = new ArrayList<>(2);
+    public List<AuthorizedAction> mockDefaultActions(){
         List<State> states = mockDefaultStates();
-        transitions.add(mockSimpleTransition(2, "To commisioned", states.get(2), states.get(1)));
-        transitions.add(mockSimpleTransition(1, "To decommisioned", states.get(1), states.get(0)));
-        return transitions;
+        List<AuthorizedAction> actions = new ArrayList<>(2);
+        actions.add(mockSimpleAction(1, "#decommissioned", states.get(1), states.get(0)));
+        actions.add(mockSimpleAction(2, "#commissioned", states.get(2), states.get(1)));
+        return actions;
     }
 }

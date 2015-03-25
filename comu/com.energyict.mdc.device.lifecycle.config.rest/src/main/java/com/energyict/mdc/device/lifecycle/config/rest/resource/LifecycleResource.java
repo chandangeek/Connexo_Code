@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.rest.resource;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -24,15 +23,13 @@ import java.util.stream.Collectors;
 
 @Path("/devicelifecycles")
 public class LifecycleResource {
-    private final Thesaurus thesaurus;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
     private final Provider<LifeCycleStateResource> lifeCycleStateResourceProvider;
     private final Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider;
 
     @Inject
-    public LifecycleResource(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper, Provider<LifeCycleStateResource> lifeCycleStateResourceProvider, Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider) {
-        this.thesaurus = thesaurus;
+    public LifecycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper, Provider<LifeCycleStateResource> lifeCycleStateResourceProvider, Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.lifeCycleStateResourceProvider = lifeCycleStateResourceProvider;

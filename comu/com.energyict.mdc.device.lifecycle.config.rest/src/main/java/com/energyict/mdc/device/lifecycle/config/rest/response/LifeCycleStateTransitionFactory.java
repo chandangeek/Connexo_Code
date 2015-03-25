@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest.response;
 
-import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 
 import javax.inject.Inject;
 import java.util.Objects;
@@ -15,8 +15,8 @@ public class LifeCycleStateTransitionFactory {
         this.thesaurus = thesaurus;
     }
 
-    public LifeCycleStateTransitionInfo from(StateTransition transition){
-        Objects.requireNonNull(transition);
-        return new LifeCycleStateTransitionInfo(thesaurus, transition);
+    public LifeCycleStateTransitionInfo from(AuthorizedAction action){
+        Objects.requireNonNull(action);
+        return new LifeCycleStateTransitionInfo(thesaurus, action);
     }
 }
