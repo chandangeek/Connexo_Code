@@ -182,8 +182,7 @@ Ext.define('Fwc.controller.Firmware', {
 
             reader.onload = function () {
                 record.set('fileSize', file.size);
-                record.set('file', reader.result);
-
+                record.set('file', window.btoa(reader.result));
 
                 record.doValidate(function (options, success, response) {
                     if (success) {

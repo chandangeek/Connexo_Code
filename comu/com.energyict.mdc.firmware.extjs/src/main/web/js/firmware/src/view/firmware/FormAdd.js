@@ -20,7 +20,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
         },
         {
             xtype: 'textfield',
-            name: 'version',
+            name: 'firmwareVersion',
             anchor: '60%',
             required: true,
             fieldLabel: 'Version',
@@ -28,6 +28,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
         },
         {
             xtype: 'firmware-type',
+            name: 'firmwareType',
             required: true
         },
         {
@@ -39,12 +40,12 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             items: [
                 {
                     boxLabel: 'Final',
-                    name: 'status',
+                    name: 'firmwareStatus',
                     inputValue: 'final',
                     id: 'final'
                 }, {
                     boxLabel: 'Test',
-                    name: 'status',
+                    name: 'firmwareStatus',
                     inputValue: 'test',
                     id: 'test'
                 }

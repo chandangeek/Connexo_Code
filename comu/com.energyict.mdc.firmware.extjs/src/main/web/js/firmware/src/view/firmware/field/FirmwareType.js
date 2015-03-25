@@ -6,12 +6,12 @@ Ext.define('Fwc.view.firmware.field.FirmwareType', {
     vertical: true,
     items: [
         {
-            name: 'type',
+            name: 'firmwareType',
             boxLabel: 'Communication firmware',
             inputValue: 'communication',
             id: 'communication'
         }, {
-            name: 'type',
+            name: 'firmwareType',
             boxLabel: 'Meter firmware',
             inputValue: 'meter',
             id: 'meter'
