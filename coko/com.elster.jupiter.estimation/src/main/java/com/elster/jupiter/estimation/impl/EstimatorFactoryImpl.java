@@ -15,7 +15,7 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.estimation.factory", service = {EstimatorFactory.class}, immediate = true)
 public class EstimatorFactoryImpl implements EstimatorFactory {
 
-    public static final String ZERO_FILL = "Zero fill";
+    public static final String VALUE_FILL = "Value fill";
     public static final String LINEAR_INTERPOLATION = "Linear interpolation";
     private volatile EstimationService estimationService;
     private volatile Thesaurus thesaurus;
@@ -23,13 +23,13 @@ public class EstimatorFactoryImpl implements EstimatorFactory {
 
     @Override
     public List<String> available() {
-        return Arrays.asList(ZERO_FILL, LINEAR_INTERPOLATION);
+        return Arrays.asList(VALUE_FILL, LINEAR_INTERPOLATION);
     }
 
     @Override
     public Estimator create(String implementation, Map<String, Object> props) {
-        if (implementation.equals(ZERO_FILL)) {
-            return new ZeroFillEstimator(thesaurus, propertySpecService, props);
+        if (implementation.equals(VALUE_FILL)) {
+            return new ValueFillEstimator(thesaurus, propertySpecService, props);
         } else if (implementation.equals(LINEAR_INTERPOLATION)) {
             return new LinearInterpolation(thesaurus, propertySpecService, props);
         }
@@ -38,8 +38,8 @@ public class EstimatorFactoryImpl implements EstimatorFactory {
 
     @Override
     public Estimator createTemplate(String implementation) {
-        if (implementation.equals(ZERO_FILL)) {
-            return new ZeroFillEstimator(thesaurus, propertySpecService);
+        if (implementation.equals(VALUE_FILL)) {
+            return new ValueFillEstimator(thesaurus, propertySpecService);
         } else if (implementation.equals(LINEAR_INTERPOLATION)) {
             return new LinearInterpolation(thesaurus, propertySpecService);
         }

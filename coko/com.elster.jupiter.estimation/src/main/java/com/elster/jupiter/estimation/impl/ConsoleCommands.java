@@ -222,6 +222,7 @@ public class ConsoleCommands {
     private Map<String, Object> getProperties(List<PropertySpec> propertySpecs, String... properties) {
         Map<String, Object> props = Stream.of(properties)
                 .map(string -> string.split(":"))
+
                 .collect(Collectors.toMap(
                         split -> split[0],
                         split -> propertySpecs.stream()
