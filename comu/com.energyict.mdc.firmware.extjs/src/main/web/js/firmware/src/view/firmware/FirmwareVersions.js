@@ -55,7 +55,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                         xtype: 'emptygridcontainer',
                         grid: {
                             xtype: 'firmware-grid',
-                            store: this.store
+                            store: 'Fwc.store.Firmwares'
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
