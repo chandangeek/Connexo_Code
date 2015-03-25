@@ -1,0 +1,31 @@
+@if $include-ext-toolbar-toolbar {
+  @if $include-button-default-toolbar-small-ui {
+    @include extjs-button-toolbar-small-ui(
+    $ui: 'icon',
+    $background-color: $button-icon-toolbar-background-color,
+    $background-color-over: $button-icon-toolbar-background-color-over,
+    $background-color-focus: $button-icon-toolbar-background-color-focus,
+    $background-color-pressed: $button-icon-toolbar-background-color-pressed,
+    $background-color-disabled: $button-icon-toolbar-background-color-disabled,
+    $color: $button-icon-toolbar-color,
+    $color-over: $button-icon-toolbar-color-over,
+    $color-focus: $button-icon-toolbar-color-focus,
+    $color-pressed: $button-icon-toolbar-color-pressed,
+    $color-disabled: $button-icon-toolbar-color-disabled,
+    $opacity-disabled: 1
+    );
+  }
+}
+
+.#{$prefix}btn-icon-small,
+.#{$prefix}btn-icon-medium,
+.#{$prefix}btn-icon-large,
+.#{$prefix}btn-icon-toolbar-small,
+.#{$prefix}btn-icon-toolbar-medium,
+.#{$prefix}btn-icon-toolbar-large {
+  .#{$prefix}btn-icon-el {
+    color: white !important;
+    font-size: 16px;
+    margin-left: 1px;
+  }
+}

@@ -1,3 +1,911 @@
+/* line 525, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-medium-collapsed-border-top {
+  border-bottom-width: 0 !important;
+}
+/* line 529, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-medium-collapsed-border-right {
+  border-left-width: 0 !important;
+}
+/* line 533, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-medium-collapsed-border-bottom {
+  border-top-width: 0 !important;
+}
+/* line 537, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-medium-collapsed-border-left {
+  border-right-width: 0 !important;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-medium-top:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-medium-bottom:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-medium-left:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-medium-right:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
+/*</if slicer>*/
+/* */
+/* line 553, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-panel-header-text-container {
+  -webkit-transform: rotate(90deg);
+  -webkit-transform-origin: 0 0;
+  -moz-transform: rotate(90deg);
+  -moz-transform-origin: 0 0;
+  -o-transform: rotate(90deg);
+  -o-transform-origin: 0 0;
+  transform: rotate(90deg);
+  transform-origin: 0 0;
+}
+/* line 36, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
+.x-ie9m .x-panel-header-medium-vertical .x-panel-header-text-container {
+  background-color: white;
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1), progid:DXImageTransform.Microsoft.Chroma(color=white);
+}
+
+/* line 558, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-rtl.x-panel-header-text-container {
+  -webkit-transform: rotate(270deg);
+  -webkit-transform-origin: 100% 0;
+  -moz-transform: rotate(270deg);
+  -moz-transform-origin: 100% 0;
+  -o-transform: rotate(270deg);
+  -o-transform-origin: 100% 0;
+  transform: rotate(270deg);
+  transform-origin: 100% 0;
+}
+/* line 36, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
+.x-ie9m .x-panel-header-medium-vertical .x-rtl.x-panel-header-text-container {
+  background-color: white;
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3), progid:DXImageTransform.Microsoft.Chroma(color=white);
+}
+
+/* line 582, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium .x-panel-header-icon {
+  width: 16px;
+  height: 16px;
+  background-position: center center;
+}
+/* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium .x-panel-header-glyph {
+  color: #1e7d9e;
+  font-size: 16px;
+  line-height: 16px;
+  opacity: 0.5;
+}
+/* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-ie8m .x-panel-header-medium .x-panel-header-glyph {
+  color: #8ebece;
+}
+
+/* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-horizontal .x-panel-header-icon-before-title {
+  margin: 0 6px 0 0;
+}
+/* line 618, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-horizontal .x-rtl.x-panel-header-icon-before-title {
+  margin: 0 0 0 6px;
+}
+/* line 623, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-horizontal .x-panel-header-icon-after-title {
+  margin: 0 0 0 6px;
+}
+/* line 628, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-horizontal .x-rtl.x-panel-header-icon-after-title {
+  margin: 0 6px 0 0;
+}
+
+/* line 635, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-panel-header-icon-before-title {
+  margin: 0 0 6px 0;
+}
+/* line 640, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-rtl.x-panel-header-icon-before-title {
+  margin: 0 0 6px 0;
+}
+/* line 645, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-panel-header-icon-after-title {
+  margin: 6px 0 0 0;
+}
+/* line 650, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-rtl.x-panel-header-icon-after-title {
+  margin: 6px 0 0 0;
+}
+
+/* line 658, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-horizontal .x-tool-after-title {
+  margin: 0 0 0 6px;
+}
+/* line 663, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-horizontal .x-rtl.x-tool-after-title {
+  margin: 0 6px 0 0;
+}
+/* line 668, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-horizontal .x-tool-before-title {
+  margin: 0 6px 0 0;
+}
+/* line 673, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-horizontal .x-rtl.x-tool-before-title {
+  margin: 0 0 0 6px;
+}
+
+/* line 680, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-tool-after-title {
+  margin: 6px 0 0 0;
+}
+/* line 685, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-rtl.x-tool-after-title {
+  margin: 6px 0 0 0;
+}
+/* line 690, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-tool-before-title {
+  margin: 0 0 6px 0;
+}
+/* line 695, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-medium-vertical .x-rtl.x-tool-before-title {
+  margin: 0 0 6px 0;
+}
+
+/* line 703, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-medium-collapsed-border-right {
+  border-right-width: 0 !important;
+}
+/* line 706, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-medium-collapsed-border-left {
+  border-left-width: 0 !important;
+}
+
+/* line 720, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-medium-resizable .x-panel-handle {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+}
+
+/* line 2, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-l {
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-b {
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+}
+
+/* line 10, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-bl {
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 16, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-r {
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+}
+
+/* line 20, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-rl {
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 26, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-rb {
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+}
+
+/* line 32, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-rbl {
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 40, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-t {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+}
+
+/* line 44, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-tl {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 50, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-tb {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+}
+
+/* line 56, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-tbl {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 64, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-tr {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+}
+
+/* line 70, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-trl {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-trb {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+}
+
+/* line 86, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-medium-outer-border-trbl {
+  border-color: #d2d2d2 !important;
+  border-width: 1px !important;
+}
+
+/* line 235, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-small {
+  border-color: #d2d2d2;
+  padding: 16px;
+}
+
+/* line 241, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small {
+  font-size: 21px;
+}
+/* line 248, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small .x-tool-img {
+  background-color: white;
+}
+
+/* line 261, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal {
+  padding: 0 0 16px 0;
+}
+
+/* line 265, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal-noborder {
+  padding: 0 0 16px 0;
+}
+
+/* line 269, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical {
+  padding: 0 0 0 16px;
+}
+
+/* line 273, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical-noborder {
+  padding: 0 0 0 16px;
+}
+
+/* line 278, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-small-vertical {
+  padding: 0 16px 0 0;
+}
+
+/* line 282, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-small-vertical-noborder {
+  padding: 0 16px 0 0;
+}
+
+/* line 289, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-text-container-small {
+  color: #1e7d9e;
+  font-size: 21px;
+  font-weight: normal;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
+  line-height: 21px;
+  padding: 1px 0 0;
+  text-transform: none;
+}
+
+/* line 301, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-body-small {
+  background: white;
+  border-color: #d2d2d2;
+  color: black;
+  font-size: 13px;
+  font-weight: normal;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  border-width: 0;
+}
+
+/* line 463, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small {
+  background-image: none;
+  background-color: white;
+}
+
+/* line 467, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical {
+  background-image: none;
+  background-color: white;
+}
+
+/* line 472, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-small-vertical {
+  background-image: none;
+  background-color: white;
+}
+
+/* line 525, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-small-collapsed-border-top {
+  border-bottom-width: 0 !important;
+}
+/* line 529, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-small-collapsed-border-right {
+  border-left-width: 0 !important;
+}
+/* line 533, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-small-collapsed-border-bottom {
+  border-top-width: 0 !important;
+}
+/* line 537, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-small-collapsed-border-left {
+  border-right-width: 0 !important;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-small-top:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-small-bottom:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-small-left:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-small-right:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
+/*</if slicer>*/
+/* */
+/* line 553, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-panel-header-text-container {
+  -webkit-transform: rotate(90deg);
+  -webkit-transform-origin: 0 0;
+  -moz-transform: rotate(90deg);
+  -moz-transform-origin: 0 0;
+  -o-transform: rotate(90deg);
+  -o-transform-origin: 0 0;
+  transform: rotate(90deg);
+  transform-origin: 0 0;
+}
+/* line 36, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
+.x-ie9m .x-panel-header-small-vertical .x-panel-header-text-container {
+  background-color: white;
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1), progid:DXImageTransform.Microsoft.Chroma(color=white);
+}
+
+/* line 558, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-rtl.x-panel-header-text-container {
+  -webkit-transform: rotate(270deg);
+  -webkit-transform-origin: 100% 0;
+  -moz-transform: rotate(270deg);
+  -moz-transform-origin: 100% 0;
+  -o-transform: rotate(270deg);
+  -o-transform-origin: 100% 0;
+  transform: rotate(270deg);
+  transform-origin: 100% 0;
+}
+/* line 36, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
+.x-ie9m .x-panel-header-small-vertical .x-rtl.x-panel-header-text-container {
+  background-color: white;
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3), progid:DXImageTransform.Microsoft.Chroma(color=white);
+}
+
+/* line 582, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small .x-panel-header-icon {
+  width: 16px;
+  height: 16px;
+  background-position: center center;
+}
+/* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small .x-panel-header-glyph {
+  color: #1e7d9e;
+  font-size: 16px;
+  line-height: 16px;
+  opacity: 0.5;
+}
+/* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-ie8m .x-panel-header-small .x-panel-header-glyph {
+  color: #8ebece;
+}
+
+/* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal .x-panel-header-icon-before-title {
+  margin: 0 6px 0 0;
+}
+/* line 618, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal .x-rtl.x-panel-header-icon-before-title {
+  margin: 0 0 0 6px;
+}
+/* line 623, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal .x-panel-header-icon-after-title {
+  margin: 0 0 0 6px;
+}
+/* line 628, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal .x-rtl.x-panel-header-icon-after-title {
+  margin: 0 6px 0 0;
+}
+
+/* line 635, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-panel-header-icon-before-title {
+  margin: 0 0 6px 0;
+}
+/* line 640, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-rtl.x-panel-header-icon-before-title {
+  margin: 0 0 6px 0;
+}
+/* line 645, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-panel-header-icon-after-title {
+  margin: 6px 0 0 0;
+}
+/* line 650, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-rtl.x-panel-header-icon-after-title {
+  margin: 6px 0 0 0;
+}
+
+/* line 658, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal .x-tool-after-title {
+  margin: 0 0 0 6px;
+}
+/* line 663, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal .x-rtl.x-tool-after-title {
+  margin: 0 6px 0 0;
+}
+/* line 668, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal .x-tool-before-title {
+  margin: 0 6px 0 0;
+}
+/* line 673, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-horizontal .x-rtl.x-tool-before-title {
+  margin: 0 0 0 6px;
+}
+
+/* line 680, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-tool-after-title {
+  margin: 6px 0 0 0;
+}
+/* line 685, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-rtl.x-tool-after-title {
+  margin: 6px 0 0 0;
+}
+/* line 690, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-tool-before-title {
+  margin: 0 0 6px 0;
+}
+/* line 695, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-small-vertical .x-rtl.x-tool-before-title {
+  margin: 0 0 6px 0;
+}
+
+/* line 703, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-small-collapsed-border-right {
+  border-right-width: 0 !important;
+}
+/* line 706, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-small-collapsed-border-left {
+  border-left-width: 0 !important;
+}
+
+/* line 720, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-small-resizable .x-panel-handle {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+}
+
+/* line 2, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-l {
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-b {
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+}
+
+/* line 10, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-bl {
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 16, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-r {
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+}
+
+/* line 20, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-rl {
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 26, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-rb {
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+}
+
+/* line 32, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-rbl {
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 40, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-t {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+}
+
+/* line 44, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-tl {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 50, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-tb {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+}
+
+/* line 56, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-tbl {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 64, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-tr {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+}
+
+/* line 70, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-trl {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-left-color: #d2d2d2 !important;
+  border-left-width: 1px !important;
+}
+
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-trb {
+  border-top-color: #d2d2d2 !important;
+  border-top-width: 1px !important;
+  border-right-color: #d2d2d2 !important;
+  border-right-width: 1px !important;
+  border-bottom-color: #d2d2d2 !important;
+  border-bottom-width: 1px !important;
+}
+
+/* line 86, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/border-management.scss */
+.x-panel-small-outer-border-trbl {
+  border-color: #d2d2d2 !important;
+  border-width: 1px !important;
+}
+
+/* line 235, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-filter {
+  padding: 16px;
+}
+
+/* line 241, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter {
+  font-size: 30px;
+}
+/* line 248, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter .x-tool-img {
+  background-color: #ebebeb;
+}
+
+/* line 261, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-horizontal {
+  padding: 0 0 16px 0;
+}
+
+/* line 265, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-horizontal-noborder {
+  padding: 0 0 16px 0;
+}
+
+/* line 269, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-vertical {
+  padding: 0 0 0 16px;
+}
+
+/* line 273, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-vertical-noborder {
+  padding: 0 0 0 16px;
+}
+
+/* line 278, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-filter-vertical {
+  padding: 0 16px 0 0;
+}
+
+/* line 282, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-filter-vertical-noborder {
+  padding: 0 16px 0 0;
+}
+
+/* line 289, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-text-container-filter {
+  color: #686868;
+  font-size: 30px;
+  font-weight: normal;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
+  line-height: 30px;
+  padding: 1px 0 0;
+  text-transform: none;
+}
+
+/* line 301, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-body-filter {
+  background: #ebebeb;
+  border-color: #d2d2d2;
+  color: #686868;
+  font-size: 13px;
+  font-weight: normal;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  border-width: 0;
+}
+
+/* line 463, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter {
+  background-image: none;
+  background-color: #ebebeb;
+}
+
+/* line 467, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-vertical {
+  background-image: none;
+  background-color: #ebebeb;
+}
+
+/* line 472, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-rtl.x-panel-header-filter-vertical {
+  background-image: none;
+  background-color: #ebebeb;
+}
+
+/* line 525, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-filter-collapsed-border-top {
+  border-bottom-width: 0 !important;
+}
+/* line 529, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-filter-collapsed-border-right {
+  border-left-width: 0 !important;
+}
+/* line 533, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-filter-collapsed-border-bottom {
+  border-top-width: 0 !important;
+}
+/* line 537, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel .x-panel-header-filter-collapsed-border-left {
+  border-right-width: 0 !important;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-filter-top:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-filter-bottom:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-filter-left:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-panel-header-filter-right:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
+/*</if slicer>*/
+/* */
+/* line 553, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-vertical .x-panel-header-text-container {
+  -webkit-transform: rotate(90deg);
+  -webkit-transform-origin: 0 0;
+  -moz-transform: rotate(90deg);
+  -moz-transform-origin: 0 0;
+  -o-transform: rotate(90deg);
+  -o-transform-origin: 0 0;
+  transform: rotate(90deg);
+  transform-origin: 0 0;
+}
+/* line 36, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
+.x-ie9m .x-panel-header-filter-vertical .x-panel-header-text-container {
+  background-color: #ebebeb;
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1), progid:DXImageTransform.Microsoft.Chroma(color=#ebebeb);
+}
+
+/* line 558, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-vertical .x-rtl.x-panel-header-text-container {
+  -webkit-transform: rotate(270deg);
+  -webkit-transform-origin: 100% 0;
+  -moz-transform: rotate(270deg);
+  -moz-transform-origin: 100% 0;
+  -o-transform: rotate(270deg);
+  -o-transform-origin: 100% 0;
+  transform: rotate(270deg);
+  transform-origin: 100% 0;
+}
+/* line 36, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/rotate-element.scss */
+.x-ie9m .x-panel-header-filter-vertical .x-rtl.x-panel-header-text-container {
+  background-color: #ebebeb;
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3), progid:DXImageTransform.Microsoft.Chroma(color=#ebebeb);
+}
+
+/* line 582, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter .x-panel-header-icon {
+  width: 16px;
+  height: 16px;
+  background-position: center center;
+}
+/* line 587, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter .x-panel-header-glyph {
+  color: #1e7d9e;
+  font-size: 16px;
+  line-height: 16px;
+  opacity: 0.5;
+}
+/* line 604, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-ie8m .x-panel-header-filter .x-panel-header-glyph {
+  color: #84b4c4;
+}
+
+/* line 613, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-horizontal .x-panel-header-icon-before-title {
+  margin: 0 6px 0 0;
+}
+/* line 618, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-horizontal .x-rtl.x-panel-header-icon-before-title {
+  margin: 0 0 0 6px;
+}
+/* line 623, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-horizontal .x-panel-header-icon-after-title {
+  margin: 0 0 0 6px;
+}
+/* line 628, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-horizontal .x-rtl.x-panel-header-icon-after-title {
+  margin: 0 6px 0 0;
+}
+
+/* line 635, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
+.x-panel-header-filter-vertical .x-panel-header-icon-before-title {
+  margin: 0 0 6px 0;
+}
+/* line 640, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Panel.scss */
 .x-panel-header-filter-vertical .x-rtl.x-panel-header-icon-before-title {
   margin: 0 0 6px 0;
 }
