@@ -759,7 +759,7 @@
                                         </artifactItem>
                                     </artifactItems>
                                     <prependGroupId>true</prependGroupId>
-                                    <outputDirectory>${felix.load.folder}</outputDirectory>
+                                    <outputDirectory>C:\felix-framework-4.2.1\autodeploy</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>
