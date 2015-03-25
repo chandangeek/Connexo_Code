@@ -65,7 +65,7 @@ public final class KPermutation {
         if (original.size() != indices.length) {
             return false;
         }
-        return IntStream.rangeClosed(0, indices.length)
+        return IntStream.range(0, indices.length)
                 .allMatch(i -> indices[i] == i);
     }
 
