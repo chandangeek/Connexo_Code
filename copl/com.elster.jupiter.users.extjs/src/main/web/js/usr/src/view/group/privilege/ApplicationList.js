@@ -59,7 +59,6 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('privilege.application.top', 'USR', 'Applications'),
                 items: [
-                    '->',
                     {
                         text: Uni.I18n.translate('privilege.no.access', 'USR', 'No access'),
                         icon: '../sky/build/resources/images/grid/drop-no.png',

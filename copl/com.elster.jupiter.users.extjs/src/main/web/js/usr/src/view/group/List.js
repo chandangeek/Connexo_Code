@@ -47,7 +47,6 @@ Ext.define('Usr.view.group.List', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('group.list.top', 'USR', '{0} - {1} of {2} roles'),
                 items: [
-                    '->',
                     {
                         text: Uni.I18n.translate('group.create', 'USR', 'Add role'),
                         action: 'createGroup',
