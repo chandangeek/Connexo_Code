@@ -8,9 +8,9 @@ Ext.define('Fwc.view.firmware.Grid', {
     ],
 
     columns: [
-        {text: 'Version', dataIndex: 'version'},
-        {text: 'Type', dataIndex: 'type', flex: 1},
-        {text: 'Status', dataIndex: 'status'},
+        {text: 'Version', dataIndex: 'firmwareVersion'},
+        {text: 'Type', dataIndex: 'firmwareType', flex: 1},
+        {text: 'Status', dataIndex: 'firmwareStatus'},
         {
             xtype: 'uni-actioncolumn',
             menu: {

@@ -18,8 +18,7 @@ Ext.define('Fwc.controller.Firmware', {
     ],
 
     refs: [
-        {ref: 'firmwareEditForm', selector: 'firmware-edit form'},
-        {ref: 'firmwareAddForm', selector: 'firmware-add form'},
+        {ref: 'firmwareForm', selector: '#firmwareForm'},
         {ref: 'container', selector: 'viewport > #contentPanel'},
         {ref: 'sideFilterForm', selector: 'firmware-versions firmware-side-filter'},
         {ref: 'filterPanel', selector: 'firmware-versions filter-top-panel'}
@@ -157,14 +156,12 @@ Ext.define('Fwc.controller.Firmware', {
             container.setLoading();
 
             firmwareStore.getProxy().setUrl(deviceType.getId());
+            firmwareStore.model.proxy.setReader('json');
             firmwareStore.model.load(firmwareId, {
                 success: function (firmware) {
                     me.getApplication().fireEvent('changecontentevent', 'firmware-edit', {deviceType: deviceType, record: firmware});
                 },
                 callback: function () {
-                    // todo: remove this!
-                    me.getApplication().fireEvent('changecontentevent', 'firmware-edit', {deviceType: deviceType, record: new firmwareStore.model});
-
                     container.setLoading(false);
                 }
             });
@@ -187,24 +184,32 @@ Ext.define('Fwc.controller.Firmware', {
                 record.set('fileSize', file.size);
                 record.set('file', reader.result);
 
-                record.doValidate({
-                    success: function () {
+
+                record.doValidate(function (options, success, response) {
+                    if (success) {
                         record.save({
                             success: function () {
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.save.success', 'FWC', 'The firmware have been updated'));
                                 form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
                             },
-                            callback: function () {
-                                //todo: add error handler here
+                            callback: function (record, operation) {
+                                me.setFormErrors(operation.response, form);
                             }
                         });
-                    },
-                    callback: function () {
-                        //todo: add error handler here
+                    } else {
+                        me.setFormErrors(response, form);
                     }
                 });
             };
 
             reader.readAsBinaryString(file);
+        }
+    },
+
+    setFormErrors: function (response, form) {
+        var json = Ext.decode(response.responseText);
+        if (json && json.errors) {
+            form.getForm().markInvalid(json.errors);
         }
     },
 

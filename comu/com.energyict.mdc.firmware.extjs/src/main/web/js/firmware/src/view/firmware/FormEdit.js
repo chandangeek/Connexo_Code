@@ -15,7 +15,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
     items: [
         {
             xtype: 'textfield',
-            name: 'version',
+            name: 'firmwareVersion',
             anchor: '60%',
             required: true,
             fieldLabel: 'Version',
@@ -28,12 +28,12 @@ Ext.define('Fwc.view.firmware.FormEdit', {
         {
             xtype: 'displayfield',
             fieldLabel: 'Firmware type',
-            name: 'type'
+            name: 'firmwareType'
         },
         {
             xtype: 'displayfield',
             fieldLabel: 'Stauts',
-            name: 'status'
+            name: 'firmwareStatus'
         }
     ],
 
