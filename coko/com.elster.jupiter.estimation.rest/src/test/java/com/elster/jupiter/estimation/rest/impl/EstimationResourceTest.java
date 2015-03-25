@@ -298,6 +298,10 @@ public class EstimationResourceTest extends BaseEstimationRestTest {
         final EstimationRuleSetInfo info = new EstimationRuleSetInfo();
         info.name = "MyRuleUpdated";
         info.description = "blablabla";
+        info.rules = new EstimationRuleInfos();
+        EstimationRuleInfo ruleInfo = new EstimationRuleInfo();
+        ruleInfo.id = 1L;
+        info.rules.add(ruleInfo);
 
         Response response = target("/estimation/15").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

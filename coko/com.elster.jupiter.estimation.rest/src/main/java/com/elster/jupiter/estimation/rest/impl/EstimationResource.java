@@ -168,7 +168,10 @@ public class EstimationResource {
                     long[] target = info.rules.rules.stream()
                             .mapToLong(ruleInfo -> ruleInfo.id)
                             .toArray();
-                    set.reorderRules(KPermutation.of(current, target));
+                    KPermutation kPermutation = KPermutation.of(current, target);
+                    if (!kPermutation.isNeutral(set.getRules())) {
+                        set.reorderRules(kPermutation);
+                    }
                 });
             }
         });
