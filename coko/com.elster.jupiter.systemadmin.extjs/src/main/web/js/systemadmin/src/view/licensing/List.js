@@ -43,7 +43,6 @@ Ext.define('Sam.view.licensing.List', {
                 displayMoreMsg: Uni.I18n.translate('licensing.grid.displayMoreMsg', 'SAM', '{0} - {1} of more than {2} licenses'),
                 emptyMsg: '',
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         itemId: 'uploadButton',
