@@ -11,6 +11,8 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+
 /**
  * Models the database tables that hold the data of the
  * entities that are managed by this bundle.
@@ -42,7 +44,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column symbol = table.column("SYMBOL").varChar().map(StateTransitionEventTypeImpl.Fields.SYMBOL.fieldName()).add();
-            Column eventType = table.column("EVENTTYPE").type("char(80)").add();
+            Column eventType = table.column("EVENTTYPE").varChar(NAME_LENGTH).add();
             table.unique("UK_FSM_EVENTTYPE_SYMBOL").on(symbol).add();
             table.unique("UK_FSM_EVENTTYPE").on(eventType).add();
             table.primaryKey("PK_FSM_EVENTTYPE").on(id).add();
