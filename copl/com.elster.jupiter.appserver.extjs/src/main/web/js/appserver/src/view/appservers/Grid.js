@@ -39,7 +39,6 @@ Ext.define('Apr.view.appservers.Grid', {
                 displayMoreMsg: Uni.I18n.translate('appServers.pagingtoolbartop.displayMoreMsg', 'APR', '{0} - {1} of more than {2} application servers'),
                 emptyMsg: Uni.I18n.translate('appServers.pagingtoolbartop.emptyMsg', 'APR', 'There are no application servers to display'),
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add application server'),
