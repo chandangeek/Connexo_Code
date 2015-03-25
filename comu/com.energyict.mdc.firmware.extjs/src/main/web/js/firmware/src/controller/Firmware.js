@@ -180,9 +180,10 @@ Ext.define('Fwc.controller.Firmware', {
             var file = input.files[0];
             var reader = new FileReader();
 
+            form.setLoading();
             reader.onload = function () {
                 record.set('fileSize', file.size);
-                record.set('file', window.btoa(reader.result));
+                record.set('firmwareFile', window.btoa(reader.result));
 
                 record.doValidate(function (options, success, response) {
                     if (success) {
@@ -191,12 +192,16 @@ Ext.define('Fwc.controller.Firmware', {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.save.success', 'FWC', 'The firmware have been updated'));
                                 form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
                             },
-                            callback: function (record, operation) {
+                            failure: function (record, operation) {
                                 me.setFormErrors(operation.response, form);
+                            },
+                            callback: function () {
+                                form.setLoading(false);
                             }
                         });
                     } else {
                         me.setFormErrors(response, form);
+                        form.setLoading(false);
                     }
                 });
             };

@@ -1,7 +1,7 @@
 Ext.define('Fwc.view.firmware.field.File', {
     extend: 'Ext.form.field.File',
     alias: 'widget.firmware-field-file',
-    name: 'file',
+    name: 'firmwareFile',
     required: true,
     fieldLabel: 'Firmware file',
     allowBlank: false,
