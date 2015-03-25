@@ -34,7 +34,7 @@ import java.util.Optional;
  * When the {@link ConnectionType} does not support {@link com.energyict.mdc.common.ComWindow}s
  * then the ConnectionTask is NOT required to have a ComWindow.
  * In case there is a ComWindow, the ConnectionTask will only
- * establish a connection when the time is within the ComWindow.
+ * establish a connection when the time isclient zijnde  within the ComWindow.
  * This ComWindow is computed against the device's time zone.
  * <p>
  * Each time a ConnectionTask is executed, a ComSession

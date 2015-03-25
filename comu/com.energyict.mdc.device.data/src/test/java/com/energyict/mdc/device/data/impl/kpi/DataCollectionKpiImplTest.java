@@ -789,6 +789,23 @@ public class DataCollectionKpiImplTest {
 
     @Test
     @Transactional
+    public void testSwitchKpis() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
+
+        // must reload to trigger postLoad and init strategies
+        kpi = (DataCollectionKpiImpl) deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
+        kpi.calculateConnectionKpi(BigDecimal.ONE);
+        kpi.dropComTaskExecutionKpi();
+
+        // must reload to trigger postLoad and init strategies
+        kpi = (DataCollectionKpiImpl) deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
+
+    }
+
+    @Test
+    @Transactional
     public void testDeleteAlsoDeletesRecurrentTasks() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         builder.calculateConnectionSetupKpi(Duration.ofMinutes(30)).expectingAsMaximum(BigDecimal.ONE);
