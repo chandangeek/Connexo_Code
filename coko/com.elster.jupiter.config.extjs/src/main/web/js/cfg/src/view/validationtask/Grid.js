@@ -62,7 +62,6 @@ Ext.define('Cfg.view.validationtask.Grid', {
                 displayMoreMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} validation tasks'),
                 emptyMsg: Uni.I18n.translate('validationTasks.pagingtoolbartop.emptyMsg', 'CFG', 'There are no validation tasks to display'),
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),

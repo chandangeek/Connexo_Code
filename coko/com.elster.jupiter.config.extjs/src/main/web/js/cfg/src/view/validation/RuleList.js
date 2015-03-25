@@ -51,10 +51,6 @@ Ext.define('Cfg.view.validation.RuleList', {
                 emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRule', 'CFG', 'There are no validation rule sets to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
