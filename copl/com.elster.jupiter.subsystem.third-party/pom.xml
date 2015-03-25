@@ -646,6 +646,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>jupiter-oracle</artifactId>
         </dependency>
+		<dependency>
+            <groupId>com.github.oxo42</groupId>
+            <artifactId>stateless4j</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>drools-integration</artifactId>
