@@ -191,6 +191,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
             builder
                 .newCustomAction(
                     clonedFiniteStateMachine.getState(sourceBusinessProcessAction.getState().getName()).get(),
+                    sourceBusinessProcessAction.getName(),
                     sourceBusinessProcessAction.getDeploymentId(),
                     sourceBusinessProcessAction.getProcessId())
                 .addAllLevels(sourceBusinessProcessAction.getLevels())

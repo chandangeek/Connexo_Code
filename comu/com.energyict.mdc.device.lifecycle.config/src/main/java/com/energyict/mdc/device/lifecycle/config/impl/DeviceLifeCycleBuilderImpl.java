@@ -33,10 +33,10 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
     }
 
     @Override
-    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String deploymentId, String processId) {
+    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, String deploymentId, String processId) {
         AuthorizedBusinessProcessActionImpl businessProcessAction = this.dataModel
                 .getInstance(AuthorizedBusinessProcessActionImpl.class)
-                .initialize(this.underConstruction, state, deploymentId, processId);
+                .initialize(this.underConstruction, state, name, deploymentId, processId);
         return new AuthorizedActionBuilderImpl<>(businessProcessAction);
     }
 

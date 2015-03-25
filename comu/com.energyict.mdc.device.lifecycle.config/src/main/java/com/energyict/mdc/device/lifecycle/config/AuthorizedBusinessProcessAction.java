@@ -9,6 +9,8 @@ package com.energyict.mdc.device.lifecycle.config;
  */
 public interface AuthorizedBusinessProcessAction extends AuthorizedAction {
 
+    public String getName();
+
     public String getDeploymentId();
 
     public String getProcessId();

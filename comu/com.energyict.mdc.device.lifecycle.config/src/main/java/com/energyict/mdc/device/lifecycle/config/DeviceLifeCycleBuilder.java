@@ -18,11 +18,12 @@ public interface DeviceLifeCycleBuilder {
      * when the related device is in the specified {@link State}.
      *
      * @param state The State
+     * @param name The name for the new custom action
      * @param deploymentId The deployment id of the external process
      * @param processId The process id of the external process
      * @return The AuthorizedActionBuilder
      */
-    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String deploymentId, String processId);
+    public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, String deploymentId, String processId);
 
     /**
      * Starts the building process to authorize the initiation of the specified {@link StateTransition}

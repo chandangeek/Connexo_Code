@@ -38,6 +38,7 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
         TYPE("type"),
         // AuthorizedBusinessProcessAction
         STATE("state"),
+        NAME("name"),
         DEPLOYMENT_ID("deploymentId"),
         PROCESS_ID("processId");
 

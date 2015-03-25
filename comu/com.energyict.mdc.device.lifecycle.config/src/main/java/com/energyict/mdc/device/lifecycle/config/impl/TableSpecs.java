@@ -53,6 +53,7 @@ public enum TableSpecs {
             table.column("TRANSITIONTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(AuthorizedActionImpl.Fields.TYPE.fieldName()).add();
             // AuthorizedBusinessProcessAction
             Column state = table.column("STATE").number().add();
+            table.column("NAME").varChar().map(AuthorizedActionImpl.Fields.NAME.fieldName()).add();
             table.column("DEPLOYMENTID").varChar().map(AuthorizedActionImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
             table.column("PROCESSID").varChar().map(AuthorizedActionImpl.Fields.PROCESS_ID.fieldName()).add();
             table.primaryKey("PK_DLD_AUTHORIZED_ACTION").on(id).add();
