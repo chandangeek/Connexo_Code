@@ -12,6 +12,8 @@ public interface EstimationService {
 
     String COMPONENTNAME = "EST";
 
+    List<String> getAvailableEstimatorImplementations();
+
     List<Estimator> getAvailableEstimators();
 
     Optional<Estimator> getEstimator(String implementation);
