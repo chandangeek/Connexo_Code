@@ -8,7 +8,6 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
@@ -56,7 +55,7 @@ public class ChannelImplTest extends EqualsContractTest {
     private static final String MRID1_IRR = "0.2.0.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID2_IRR = "0.2.0.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID4_IRR = "0.2.0.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
-    private static final String MRID5_BIL = "0.26.0.4.20.1.12.0.0.0.0.0.0.0.0.3.73.0";
+    private static final String MRID5_BIL = "8.26.0.4.20.1.12.0.0.0.0.0.0.0.0.3.73.0";
     private static final long METER_ACTIVATION_ID = 164;
     private static final long ID = 15L;
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Calcutta");
