@@ -46,7 +46,7 @@ public class EventPushNotificationParserTest extends TestCase {
     private static final byte[] ENCRYPTED_FRAME4 = ProtocolTools.getBytesFromHexString("0001000100010072DB084443303539463433672000000022B2BF8086C69DBE8831B0D183E0EA98CBF8F0EFC79C8D13C9078749A16DAB0924E53B384E624DABB4CAA9C35047762FC169C1F2250AD63EF247A5A5FA31A2E48BC39DB4A8E2776367E1FFD64ABC964923ACB913985CCE99EABF69D2D5D6F1626DF632", "");
     private static final byte[] ENCRYPTED_FRAME_WITH_AUTHENTICATION = ProtocolTools.getBytesFromHexString("000100010001007edb08444330353946343373300000004069b91c449c059a907f83cd7e2d296789598e09b84c5189042eadc17f2b3e6f09e52e3abc26f6eccdd24c787653c9dff71df92426f198bdf479f910e58c3f33a10766b10db7435e1df6b434b57684f7ee5157aca9f6658a5a7f2e2f133fdd87f3309d65cf1660bb26fef3749f40c3", "");
     private static final byte[] ENCRYPTED_FRAME_WITH_AUTHENTICATION2 = ProtocolTools.getBytesFromHexString("000100010001007EDB084443303539463433733000000003198C85F5D20BF3598D87E2913BAA1DB96B22A11D2EDCE20F5D96FA90C6B9F87504AA4922D58F93C4D954E097DE77725A3A6CA0392439CF475E905EBB58B134B894A103B0F8CFFC9A0115903A5C3DF2CABE523C67E1530976C68AA4C5F0EC5A5370CF12F02B388B5272964931339B", "");
-    //TODO an authenticated frame without encryption
+    private static final byte[] AUTHENTICATED_NOT_ENCRYPTED = ProtocolTools.getBytesFromHexString("0001000100010050DB084443303539463433451000000001C2004E2C000080000CFF030205090F3636302D3035394634332D31343235090C07DF0319030D3717390000001200021200000900FF6382B1E98C8563E5618A06", "");
 
     private static final String AK = "B6C52294F40A30B9BDF9FE4270B03685";
     private static final String EK = "EFD82FCB93E5826ED805E38A6B2EC9F1";
@@ -189,6 +189,22 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent2.getMessage(), "Joining request for node [0223:7EFF:FEFD:848C]");
         assertEquals(meterProtocolEvent2.getEiCode(), 0);
         assertEquals(meterProtocolEvent2.getProtocolCode(), 197);
+    }
+
+    @Test
+    public void testAuthenticatedFrameNotEncrypted() throws IOException, SQLException, BusinessException {
+        List<SecurityProperty> securityProperties = createSecurityProperties(1);
+        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+
+        EventPushNotificationParser parser = spyParser(AUTHENTICATED_NOT_ENCRYPTED);
+        parser.parseInboundFrame();
+        assertEquals(new DeviceIdentifierBySerialNumber("660-059F43-1425"), parser.getDeviceIdentifier());
+
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1427291723000L);
+        assertEquals(meterProtocolEvent.getMessage(), "");
+        assertEquals(meterProtocolEvent.getEiCode(), 2);    //Power down
+        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
     }
 
     private EventPushNotificationParser spyParser(byte[] frame) {
