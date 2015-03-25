@@ -139,7 +139,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             InboundComPort comPort = context.getComPort();         //Note that this is indeed the INBOUND comport, it is only used for logging purposes in the ComChannel
             tcpComChannel = new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
         } catch (ConnectionException e) {
-            throw new ConnectionSetupException(e);  //TODO who handles this exception??
+            throw new ConnectionSetupException(e);
         }
     }
 
