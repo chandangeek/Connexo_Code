@@ -61,6 +61,14 @@ public final class KPermutation {
                 .sum() == expectedSum;
     }
 
+    public <T> boolean isNeutral(List<T> original) {
+        if (original.size() != indices.length) {
+            return false;
+        }
+        return IntStream.rangeClosed(0, indices.length)
+                .allMatch(i -> indices[i] == i);
+    }
+
     public KPermutation andThen(KPermutation second) {
         int[] result = second.perform(indices);
         return new KPermutation(result);
