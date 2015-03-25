@@ -104,9 +104,6 @@
     public *;
 }
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.Dsmr50Properties
--keepnames class com.energyict.protocolimpl.dlms.g3.G3Properties {
-    static final String PSK;
-}
 -keepnames class com.energyict.protocolimpl.dlms.g3.G3SecurityProvider
 -keepnames class com.energyict.protocol.MessageProtocol
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging
@@ -118,6 +115,10 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MbusMessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler
 -keep public class com.energyict.protocolimpl.dlms.common.NTASecurityProvider {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.protocolimpl.dlms.g3.G3Properties {
 	public *;
 	protected *;
 }

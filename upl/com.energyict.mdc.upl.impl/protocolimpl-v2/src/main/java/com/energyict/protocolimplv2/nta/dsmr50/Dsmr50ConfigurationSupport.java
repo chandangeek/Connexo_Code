@@ -6,6 +6,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
@@ -90,7 +91,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
     }
 
     protected PropertySpec pskPropertySpec() {
-        return PropertySpecFactory.hexStringPropertySpec(Dsmr50Properties.PSK_PROPERTY);
+        return PropertySpecFactory.hexStringPropertySpec(G3Properties.PSK);
     }
 
     protected PropertySpec aarqTimeoutPropertySpec() {

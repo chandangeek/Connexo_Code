@@ -9,22 +9,15 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
@@ -50,13 +43,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -75,7 +62,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private G3GatewayEvents g3GatewayEvents;
     protected RtuPlusServerMessages rtuPlusServerMessages;
     private DLMSCache dlmsCache = null;
-    private ComChannel comChannel = null;
+    protected ComChannel comChannel = null;
 
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
 
@@ -98,11 +85,12 @@ public class RtuPlusServer implements DeviceProtocol {
         this.comChannel = comChannel;
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        initDlmsSession(comChannel);
+        initDlmsSession();
     }
 
     //Cryptoserver protocol overrides this
-    protected void initDlmsSession(ComChannel comChannel) {
+    protected void initDlmsSession() {
+        readFrameCounter();
         dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
     }
 
@@ -113,12 +101,11 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType());
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(), new InboundIpConnectionType());
     }
 
     @Override
     public void logOn() {
-        readFrameCounter();
         getDlmsSession().connect();
         checkCacheObjects();
     }
@@ -127,13 +114,12 @@ public class RtuPlusServer implements DeviceProtocol {
      * First read out the frame counter for the management client, using the public client.
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
      */
-    private void readFrameCounter() {
+    protected void readFrameCounter() {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
-        clone.setProperty(DlmsProtocolProperties.SECURITY_LEVEL, "0:0");
         G3GatewayProperties publicClientProperties = new G3GatewayProperties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(getDlmsSessionProperties().getSecurityPropertySet());
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());

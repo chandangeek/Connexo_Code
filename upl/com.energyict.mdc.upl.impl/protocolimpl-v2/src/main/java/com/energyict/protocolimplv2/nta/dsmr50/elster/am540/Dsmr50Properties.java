@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.cbo.HexString;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
 
@@ -24,7 +25,6 @@ public class Dsmr50Properties extends DlmsProperties {
     public static final String AARQ_RETRIES_PROPERTY = "AARQRetries";
     public static final String READCACHE_PROPERTY = "ReadCache";
     public static final String CumulativeCaptureTimeChannel = "CumulativeCaptureTimeChannel";
-    public static final String PSK_PROPERTY = "PSK";
 
     /**
      * Property indicating to read the cache out (useful because there's no config change state)
@@ -37,8 +37,8 @@ public class Dsmr50Properties extends DlmsProperties {
         return getProperties().getTypedProperty(CumulativeCaptureTimeChannel, false);
     }
 
-    public HexString getPSK() { //TODO use this for the push event notification mechanism
-        return getProperties().getTypedProperty(PSK_PROPERTY);
+    public HexString getPSK() {
+        return getProperties().getTypedProperty(G3Properties.PSK);
     }
 
     public long getAARQTimeout() {

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties;
 
 import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.edp.EDPProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
@@ -20,6 +21,6 @@ public class G3GatewayProperties extends DlmsProperties {
     }
 
     public boolean isReadCache() {
-        return getProperties().<Boolean>getTypedProperty(EDPProperties.READCACHE_PROPERTY, false);
+        return getProperties().<Boolean>getTypedProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
     }
 }

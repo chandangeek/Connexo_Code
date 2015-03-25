@@ -4,7 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocolimplv2.edp.EDPProperties;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public class G3GatewayConfigurationSupport implements ConfigurationSupport {
     }
 
     private PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(EDPProperties.READCACHE_PROPERTY);
+        return PropertySpecFactory.notNullableBooleanPropertySpec(DlmsProtocolProperties.READCACHE_PROPERTY);
     }
 
     private PropertySpec forcedDelayPropertySpec() {

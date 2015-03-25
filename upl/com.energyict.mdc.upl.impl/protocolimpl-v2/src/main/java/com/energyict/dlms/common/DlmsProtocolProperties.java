@@ -27,6 +27,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String SERVER_MAC_ADDRESS = "ServerMacAddress";
     public static final String SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
     public static final String SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+    public static final String READCACHE_PROPERTY = "ReadCache";
     public static final String ADDRESSING_MODE = "AddressingMode";
     public static final String MANUFACTURER = "Manufacturer";
     public static final String INFORMATION_FIELD_SIZE = "InformationFieldSize";

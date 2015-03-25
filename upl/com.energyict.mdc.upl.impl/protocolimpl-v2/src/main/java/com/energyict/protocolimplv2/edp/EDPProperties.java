@@ -5,6 +5,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import java.math.BigDecimal;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
+import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERTY;
 
 /**
  * Wrapper class that holds the EDP DLMS protocol properties, parses them and returns the proper values.
@@ -16,8 +17,6 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_
  * Author: khe
  */
 public class EDPProperties extends DlmsProperties {
-
-    public static final String READCACHE_PROPERTY = "ReadCache";
 
     /**
      * Property indicating to read the cache out (useful because there's no config change state)

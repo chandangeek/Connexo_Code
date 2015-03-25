@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 
 import java.util.*;
 
@@ -40,7 +41,7 @@ public class EDPDlmsConfigurationSupport implements ConfigurationSupport {
     }
 
     private PropertySpec readCachePropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(EDPProperties.READCACHE_PROPERTY);
+        return PropertySpecFactory.notNullableBooleanPropertySpec(DlmsProtocolProperties.READCACHE_PROPERTY);
     }
 
     private PropertySpec forcedDelayPropertySpec() {
