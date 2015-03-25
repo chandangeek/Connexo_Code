@@ -36,6 +36,6 @@ public class LifeCycleStateTransitionInfo extends IdWithNameInfo {
     }
 
     private void fromBpmAction(Thesaurus thesaurus, AuthorizedBusinessProcessAction action){
-        // TODO apply name
+        this.name = action.getName();
     }
 }
