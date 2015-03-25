@@ -139,11 +139,6 @@ public class KpiResource {
                     kpi.calculateComTaskExecutionKpi(kpiInfo.communicationTarget);
                 }
             }
-        } else {
-            // remove ComTaskExecutionKpi
-            if (kpi.calculatesComTaskExecutionKpi()) {
-                kpi.dropComTaskExecutionKpi();
-            }
         }
         if (kpiInfo.connectionTarget!=null) {
             if (kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
@@ -153,10 +148,17 @@ public class KpiResource {
                     kpi.calculateConnectionKpi(kpiInfo.connectionTarget);
                 }
             }
-        } else {
+        }
+        if (kpiInfo.connectionTarget==null) {
             // drop connection kpi
             if (kpi.calculatesConnectionSetupKpi()) {
                 kpi.dropConnectionSetupKpi();
+            }
+        }
+        if (kpiInfo.communicationTarget==null) {
+            // remove ComTaskExecutionKpi
+            if (kpi.calculatesComTaskExecutionKpi()) {
+                kpi.dropComTaskExecutionKpi();
             }
         }
         kpi.updateDisplayRange(kpiInfo.displayRange == null ? null : kpiInfo.displayRange.asTimeDuration());
