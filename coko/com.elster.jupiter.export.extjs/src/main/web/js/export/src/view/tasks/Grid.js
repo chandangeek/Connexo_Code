@@ -62,7 +62,6 @@ Ext.define('Dxp.view.tasks.Grid', {
                 displayMoreMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} data export tasks'),
                 emptyMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.emptyMsg', 'DES', 'There are no data export tasks to display'),
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
