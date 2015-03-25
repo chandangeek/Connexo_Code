@@ -49,7 +49,7 @@
             <artifactId>validation-api</artifactId>
         </dependency>
 
-		<-- Testing -->
+		<!-- Testing -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
