@@ -10,7 +10,8 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     requires: [
         'Uni.util.QueryString',
-        'Uni.util.History'
+        'Uni.util.History',
+        'Ext.ux.exporter.ExporterButton'
     ],
 
     /**

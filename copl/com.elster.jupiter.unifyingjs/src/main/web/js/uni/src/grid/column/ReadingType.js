@@ -17,10 +17,14 @@ Ext.define('Uni.grid.column.ReadingType', {
     ],
 
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = Ext.Array.findBy(this.columns, function (item) {
-                return item.$className === 'Uni.grid.column.ReadingType';
-            }),
-            field = new Uni.form.field.ReadingTypeDisplay();
+        if(this.$className  !== 'Uni.grid.column.ReadingType'){
+            var me = Ext.Array.findBy(this.columns, function (item) {
+                    return item.$className === 'Uni.grid.column.ReadingType';
+                })
+        } else {
+            me = this;
+        }
+        var field = new Uni.form.field.ReadingTypeDisplay();
         me.link = me.makeLink(record);
         return field.renderer.apply(me, [value, field, view, record]);
     },

@@ -71,7 +71,14 @@ Ext.define('Uni.view.toolbar.PagingTop', {
                 xtype: 'tbtext',
                 itemId: 'displayItem'
             },
-            '->'
+            '->',
+            {
+                xtype: 'exporterbutton',
+                ui: 'icon',
+                iconCls: 'icon-file-download',
+                text: '',
+                component: this.up('grid')
+            }
         ];
     },
 
