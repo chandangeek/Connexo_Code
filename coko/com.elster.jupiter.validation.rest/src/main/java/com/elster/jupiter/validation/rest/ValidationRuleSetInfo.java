@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 @XmlRootElement
 public class ValidationRuleSetInfo {
 
@@ -22,7 +24,7 @@ public class ValidationRuleSetInfo {
         description = validationRuleSet.getDescription();
         List<? extends ValidationRule> rules = validationRuleSet.getRules();
         numberOfRules = rules.size();
-        numberOfInactiveRules = (int) validationRuleSet.getRules().stream().filter(ValidationRule::isActive).count();
+        numberOfInactiveRules = (int) validationRuleSet.getRules().stream().filter(not(ValidationRule::isActive)).count();
     }
 
     public ValidationRuleSetInfo() {
