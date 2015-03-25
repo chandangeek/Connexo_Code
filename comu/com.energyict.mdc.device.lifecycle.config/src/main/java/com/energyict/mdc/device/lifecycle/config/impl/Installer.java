@@ -18,7 +18,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.transaction.TransactionService;
+
 import com.elster.jupiter.users.UserService;
 
 import java.util.EnumSet;
@@ -42,20 +42,18 @@ public class Installer {
 
     private final DataModel dataModel;
     private final UserService userService;
-    private final TransactionService transactionService;
     private final FiniteStateMachineService stateMachineService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-    public Installer(DataModel dataModel, UserService userService, TransactionService transactionService, FiniteStateMachineService stateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public Installer(DataModel dataModel, UserService userService, FiniteStateMachineService stateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
-        this.transactionService = transactionService;
         this.stateMachineService = stateMachineService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
-    public void install(boolean transactional, boolean executeDdl) {
+    public void install(boolean executeDdl) {
         try {
             this.dataModel.install(executeDdl, true);
         }
@@ -63,12 +61,7 @@ public class Installer {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         this.createPrivileges();
-        if (transactional) {
-            this.installDefaultLifeCycle();
-        }
-        else {
-            this.doInstallDefaultLifeCycle();
-        }
+        this.installDefaultLifeCycle();
     }
 
     private void createPrivileges() {
@@ -83,17 +76,13 @@ public class Installer {
     }
 
     private DeviceLifeCycle installDefaultLifeCycle() {
-        return this.transactionService.execute(this::doInstallDefaultLifeCycle);
-    }
-
-    private DeviceLifeCycle doInstallDefaultLifeCycle() {
-        Map<String, CustomStateTransitionEventType> eventTypes = this.findorCreateStateTransitionEventTypes();
+        Map<String, CustomStateTransitionEventType> eventTypes = this.findOrCreateStateTransitionEventTypes();
         return this.createDefaultLifeCycle(
                 DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey(),
                 eventTypes);
     }
 
-    private Map<String, CustomStateTransitionEventType> findorCreateStateTransitionEventTypes() {
+    private Map<String, CustomStateTransitionEventType> findOrCreateStateTransitionEventTypes() {
         // Create default StateTransitionEventTypes
         this.logger.fine(() -> "Finding (or creating) default finite state machine transitions...");
         Map<String, CustomStateTransitionEventType> eventTypes = Stream
@@ -107,7 +96,7 @@ public class Installer {
     }
 
     public DeviceLifeCycle createDefaultLifeCycle(String name) {
-        return this.createDefaultLifeCycle(name, this.findorCreateStateTransitionEventTypes());
+        return this.createDefaultLifeCycle(name, this.findOrCreateStateTransitionEventTypes());
     }
 
     private DeviceLifeCycle createDefaultLifeCycle(String name, Map<String, CustomStateTransitionEventType> eventTypes) {

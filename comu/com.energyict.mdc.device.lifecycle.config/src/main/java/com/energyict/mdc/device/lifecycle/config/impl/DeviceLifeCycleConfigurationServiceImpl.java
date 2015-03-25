@@ -53,7 +53,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
     private volatile UserService userService;
-    private volatile TransactionService transactionService;
     private volatile FiniteStateMachineService stateMachineService;
     private Thesaurus thesaurus;
 
@@ -64,28 +63,23 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, TransactionService transactionService, FiniteStateMachineService stateMachineService) {
+    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
         this.setNlsService(nlsService);
-        this.setTransactionService(transactionService);
         this.setStateMachineService(stateMachineService);
         this.activate();
-        this.install(false);    // Requires all test classes to run in a transactional environment
+        this.install();
     }
 
     @Override
     public void install() {
-        this.getInstaller().install(true, true);
-    }
-
-    private void install(boolean transactional) {
-        this.getInstaller().install(transactional, true);
+        this.getInstaller().install(true);
     }
 
     private Installer getInstaller() {
-        return new Installer(this.dataModel, this.userService, this.transactionService, this.stateMachineService, this);
+        return new Installer(this.dataModel, this.userService, this.stateMachineService, this);
     }
 
     @Override
@@ -153,11 +147,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
     }
 
     @Reference
