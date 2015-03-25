@@ -44,6 +44,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     me.getApplication().fireEvent('changecontentevent', view);
     me.getApplication().fireEvent('devicelifecycleload', lifecycleRecord);
     view.down('device-life-cycle-states-grid').getSelectionModel().select(0);
+      view.down('#device-life-cycle-link').setText(lifecycleRecord.get('name'));
   },
 
   showDeviceLifeCycleStatePreview: function (selectionModel, record, index) {
