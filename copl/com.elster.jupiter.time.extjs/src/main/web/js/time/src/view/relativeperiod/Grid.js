@@ -43,7 +43,6 @@ Ext.define('Tme.view.relativeperiod.Grid', {
                 displayMoreMsg: Uni.I18n.translate('relativePeriods.pagingtoolbartop.displayMoreMsg', 'TME', '{0} - {1} of more than {2} relative periods'),
                 emptyMsg: Uni.I18n.translate('relativePeriods.pagingtoolbartop.emptyMsg', 'TME', 'There are no relative periods to display'),
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         itemId: 'btn-add-relative-period',
