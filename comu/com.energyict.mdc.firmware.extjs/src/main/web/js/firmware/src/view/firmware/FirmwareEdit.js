@@ -3,7 +3,8 @@ Ext.define('Fwc.view.firmware.FirmwareEdit', {
     alias: 'widget.firmware-edit',
     itemId: 'firmware-edit',
     requires: [
-        'Fwc.view.firmware.FormEdit'
+        'Fwc.view.firmware.FormEdit',
+        'Fwc.view.firmware.FormEditGhost'
     ],
     deviceType: null,
 

@@ -159,7 +159,10 @@ Ext.define('Fwc.controller.Firmware', {
             firmwareStore.model.proxy.setReader('json');
             firmwareStore.model.load(firmwareId, {
                 success: function (firmware) {
-                    me.getApplication().fireEvent('changecontentevent', 'firmware-edit', {deviceType: deviceType, record: firmware});
+                    me.getApplication().fireEvent('changecontentevent',
+                        firmware.get('status') === 'ghost' ? 'firmware-edit-ghost' : 'firmware-edit',
+                        {deviceType: deviceType, record: firmware}
+                    );
                 },
                 callback: function () {
                     container.setLoading(false);
