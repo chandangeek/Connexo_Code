@@ -2,7 +2,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Dlc.devicelifecyclestates.view.Setup'
+        'Dlc.devicelifecyclestates.view.Setup',
+        'Dlc.devicelifecyclestates.view.Edit'
     ],
 
     stores: [
@@ -18,6 +19,14 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         {
             ref: 'page',
             selector: 'device-life-cycle-states-setup'
+        },
+        {
+            ref: 'lifeCycleStatesGrid',
+            selector: 'device-life-cycle-states-grid'
+        },
+        {
+            ref: 'lifeCycleStatesEditForm',
+            selector: '#lifeCycleStateEditForm'
         }
     ],
 
@@ -25,8 +34,83 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         this.control({
             'device-life-cycle-states-setup device-life-cycle-states-grid': {
                 select: this.showDeviceLifeCycleStatePreview
+            },
+            'device-life-cycle-states-grid button[action=addState]': {
+                click: this.moveToCreatePage
+            },
+            'device-life-cycle-states-action-menu menuitem[action=edit]': {
+                click: this.moveToEditPage
+            },
+            'device-life-cycle-state-edit button[action=cancelAction]': {
+                click: this.cancelAction
+            },
+            'device-life-cycle-state-edit #createEditButton': {
+                click: this.saveState
             }
         });
+    },
+
+    showErrorPanel: function (value) {
+        var editForm = this.getLifeCycleStatesEditForm(),
+            errorPanel = editForm.down('#form-errors');
+
+        editForm.getForm().clearInvalid();
+        errorPanel.setVisible(value);
+    },
+
+    saveState: function (btn) {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            editForm = me.getLifeCycleStatesEditForm(),
+            successMessage = Uni.I18n.translate('deviceLifeCycleStates.saved', 'DLC', 'State saved'),
+            record;
+
+        editForm.updateRecord();
+        record = editForm.getRecord();
+
+        me.showErrorPanel(false);
+        editForm.setLoading();
+
+        if (btn.action === 'add') {
+            successMessage = Uni.I18n.translate('deviceLifeCycleStates.added', 'DLC', 'State added');
+        }
+
+        record.save({
+            success: function () {
+                router.getRoute('administration/devicelifecycles/devicelifecycle/states').forward();
+                me.getApplication().fireEvent('acknowledge', successMessage);
+            },
+            failure: function (record, operation) {
+                if (operation.response.status == 400) {
+                    me.showErrorPanel(true);
+                    if (!Ext.isEmpty(operation.response.responseText)) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            editForm.getForm().markInvalid(json.errors);
+                        }
+                    }
+                }
+            },
+            callback: function () {
+                editForm.setLoading(false);
+            }
+        });
+    },
+
+    cancelAction: function () {
+        this.getController('Uni.controller.history.Router').getRoute('administration/devicelifecycles/devicelifecycle/states').forward();
+    },
+
+    moveToCreatePage: function () {
+        this.getController('Uni.controller.history.Router').getRoute('administration/devicelifecycles/devicelifecycle/states/add').forward();
+    },
+
+    moveToEditPage: function () {
+        var grid = this.getLifeCycleStatesGrid(),
+            router = this.getController('Uni.controller.history.Router'),
+            record = grid.getSelectionModel().getLastSelected();
+
+        router.getRoute('administration/devicelifecycles/devicelifecycle/states/edit').forward({id: record.get('id')});
     },
 
     showDeviceLifeCycleStates: function (deviceLifeCycleId) {
@@ -53,7 +137,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
     },
 
-    showDeviceLifeCycleStatePreview: function (selectionModel, record, index) {
+    showDeviceLifeCycleStatePreview: function (selectionModel, record) {
         var me = this,
             page = me.getPage(),
             preview = page.down('device-life-cycle-states-preview'),
@@ -63,5 +147,50 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
         Ext.resumeLayouts(true);
+    },
+
+    showDeviceLifeCycleStateEdit: function (deviceLifeCycleId, id) {
+        var me = this,
+            widget = Ext.widget('device-life-cycle-state-edit'),
+            stateModel = me.getModel('Dlc.devicelifecyclestates.model.DeviceLifeCycleState'),
+            router = me.getController('Uni.controller.history.Router'),
+            deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
+            form = widget.down('#lifeCycleStateEditForm'),
+            createBtn = widget.down('#createEditButton');
+
+        stateModel.getProxy().setUrl(router.arguments);
+
+        deviceLifeCycleModel.load(deviceLifeCycleId, {
+            success: function (deviceLifeCycleRecord) {
+                me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
+            }
+        });
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+        if (!Ext.isEmpty(id)) {
+            form.setTitle(Uni.I18n.translate('deviceLifeCycleStates.edit', 'DLC', 'Edit state'));
+            stateModel.load(id, {
+                success: function (record) {
+                    var editTitle = Uni.I18n.translate('general.edit', 'DLC', 'Edit') + " '" + record.get('name') + "'";
+                    form.setTitle(editTitle);
+                    form.loadRecord(record);
+                    me.getApplication().fireEvent('loadlifecyclestate', editTitle);
+                    createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
+                    createBtn.action = 'save';
+                    if (!record.get('isCustom')) {
+                        createBtn.disable();
+                        form.down('#lifeCycleStateNameField').hide();
+                        form.down('#lifeCycleStateNameDisplayField').setValue(record.get('name'));
+                        form.down('#lifeCycleStateNameDisplayField').show();
+                    }
+                    widget.setLoading(false);
+                }
+            });
+        } else {
+            form.loadRecord(Ext.create(stateModel));
+            form.setTitle(Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'));
+            widget.setLoading(false);
+        }
     }
 });

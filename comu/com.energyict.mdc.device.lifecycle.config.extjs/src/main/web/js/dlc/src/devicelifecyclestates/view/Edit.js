@@ -8,17 +8,34 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
             xtype: 'form',
             itemId: 'lifeCycleStateEditForm',
             ui: 'large',
-            width: '100%',
             defaults: {
-                labelWidth: 250,
+                labelWidth: 200,
                 validateOnChange: false,
-                validateOnBlur: false
+                validateOnBlur: false,
+                width: 500
             },
             items: [
                 {
                     itemId: 'form-errors',
                     xtype: 'uni-form-error-message',
                     name: 'form-errors',
+                    hidden: true
+                },
+                {
+                    xtype: 'textfield',
+                    name: 'name',
+                    msgTarget: 'under',
+                    required: true,
+                    fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
+                    itemId: 'lifeCycleStateNameField',
+                    maxLength: 80,
+                    enforceMaxLength: true
+                },
+                {
+                    xtype: 'displayfield',
+                    itemId: 'lifeCycleStateNameDisplayField',
+                    fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
+                    required: true,
                     hidden: true
                 },
                 {

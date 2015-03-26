@@ -28,7 +28,28 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     title: Uni.I18n.translate('general.states', 'DLC', 'States'),
                                     route: 'states',
                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
-                                    action: 'showDeviceLifeCycleStates'
+                                    action: 'showDeviceLifeCycleStates',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
+                                            route: 'add',
+                                            controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
+                                            action: 'showDeviceLifeCycleStateEdit'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('deviceLifeCycleStates.edit', 'DLC', 'Edit state'),
+                                            route: '{id}/edit',
+                                            controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
+                                            action: 'showDeviceLifeCycleStateEdit',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadlifecyclestate', function (title) {
+                                                    route.setTitle(title);
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            }
+                                        }
+                                    }
                                 },
                                 transitions: {
                                     title: Uni.I18n.translate('general.transitions', 'DLC', 'Transitions'),

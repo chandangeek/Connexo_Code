@@ -8,5 +8,16 @@ Ext.define('Dlc.devicelifecyclestates.store.DeviceLifeCycleStates', {
             property: 'name',
             direction: 'ASC'
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        urlTpl: '/api/dld/devicelifecycles/{id}/states',
+        reader: {
+            type: 'json',
+            root: 'deviceLifeCycleStates'
+        },
+        setUrl: function (params) {
+            this.url = this.urlTpl.replace('{id}', params.deviceLifeCycleId);
+        }
+    }
 });
