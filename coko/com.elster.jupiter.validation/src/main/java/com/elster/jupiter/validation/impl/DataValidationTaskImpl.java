@@ -41,7 +41,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.validation.MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.validation.MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @Pattern(regexp="[a-zA-Z0-9\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.NAME_WITH_SYMBOLS +"}")
+    @Pattern(regexp="[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.NAME_WITH_SYMBOLS +"}")
     private String name;
 
     private final TaskService taskService;
@@ -90,7 +90,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     DataValidationTaskImpl init(String name, Instant nextExecution,ValidationService dataValidationService) {
         this.nextExecution = nextExecution;
-        this.name = name;
+        this.name = name.trim();
         this.dataValidationService = dataValidationService;
         return this;
     }
