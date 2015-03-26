@@ -173,6 +173,14 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
+    public List<String> getAvailableEstimatorImplementations() {
+        return estimatorFactories.stream()
+                .flatMap(factory -> factory.available().stream())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Estimator> getAvailableEstimators() {
         return estimatorFactories.stream()
                 .flatMap(factory -> factory.available().stream().map(factory::createTemplate))
