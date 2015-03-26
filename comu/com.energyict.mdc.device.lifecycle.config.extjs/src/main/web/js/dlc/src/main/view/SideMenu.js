@@ -11,7 +11,7 @@ Ext.define('Dlc.main.view.SideMenu', {
             {
                 text: Uni.I18n.translate('general.deviceLifeCycle', 'DLC', 'Device life cycle'),
                 itemId: 'device-life-cycle-link',
-                href: me.router.getRoute('administration/devicelifecycles/devicelifecycle').buildUrl({deviceLifeCycleId: me.router.arguments.deviceLifeCycleId})
+                href: me.router.getRoute('administration/devicelifecycles/devicelifecycle').buildUrl()
             },
             {
                 text: Uni.I18n.translate('general.states', 'DLC', 'States'),

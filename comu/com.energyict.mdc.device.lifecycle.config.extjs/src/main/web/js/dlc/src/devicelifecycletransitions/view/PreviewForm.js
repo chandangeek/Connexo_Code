@@ -26,13 +26,15 @@ Ext.define('Dlc.devicelifecycletransitions.view.PreviewForm', {
                 name: 'privileges',
                 renderer: function (privileges) {
                     var str = '';
-                    Ext.Array.each(privileges, function (privilege) {
-                        if (privilege.privilege === privileges[privileges.length - 1].privilege) {
-                            str += privilege.name;
-                        } else {
-                            str += privilege.name + ' - ';
-                        }
-                    });
+                    if (privileges) {
+                        Ext.Array.each(privileges, function (privilege) {
+                            if (privilege.privilege === privileges[privileges.length - 1].privilege) {
+                                str += privilege.name;
+                            } else {
+                                str += privilege.name + ' - ';
+                            }
+                        });
+                    }
                     return str;
                 }
             }

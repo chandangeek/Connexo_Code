@@ -32,10 +32,14 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
     showDeviceLifeCycleTransitions: function (deviceLifeCycleId) {
         var me = this,
             deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
+            router = me.getController('Uni.controller.history.Router'),
+            store = me.getStore('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitions'),
             view;
 
+        store.getProxy().setUrl(router.arguments);
+
         view = Ext.widget('device-life-cycle-transitions-setup', {
-            router: me.getController('Uni.controller.history.Router')
+            router: router
         });
 
         me.getApplication().fireEvent('changecontentevent', view);
