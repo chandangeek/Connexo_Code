@@ -29,6 +29,12 @@ Ext.define('Dlc.devicelifecycles.view.Setup', {
                         reasons: [
                             Uni.I18n.translate('deviceLifeCycles.empty.list.item1', 'DLC', 'No device life cycles have been defined yet.'),
                             Uni.I18n.translate('deviceLifeCycles.empty.list.item2', 'DLC', 'Device life cycles exist, but you do not have permission to view them.')
+                        ],
+                        stepItems: [
+                            {
+                                text: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Add device life cycle'),
+                                href: me.router.getRoute('administration/devicelifecycles/add').buildUrl()
+                            }
                         ]
                     },
                     previewComponent: {

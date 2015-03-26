@@ -19,6 +19,23 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
             }
         ];
 
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                emptyMsg: '',
+                dock: 'top',
+                items: [
+                    '->',
+                    {
+                        xtype: 'button',
+                        itemId: 'toolbar-button',
+                        text: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Add device life cycle'),
+                        href: me.router.getRoute('administration/devicelifecycles/add').buildUrl()
+                    }
+                ]
+            }
+        ];
+
         me.callParent(arguments);
     }
 });

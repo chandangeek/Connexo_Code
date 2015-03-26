@@ -4,10 +4,10 @@ Ext.define('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitions', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dld/devicelifecycles/{id}/transitions',
+        urlTpl: '/api/dld/devicelifecycles/{id}/actions',
         reader: {
             type: 'json',
-            root: 'deviceLifeCycleTransitions'
+            root: 'deviceLifeCycleActions'
         },
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{id}', params.deviceLifeCycleId);
