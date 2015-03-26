@@ -13,6 +13,12 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                     controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
                     action: 'showDeviceLifeCycles',
                     items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Add device life cycle'),
+                            route: 'add',
+                            controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                            action: 'showAddDeviceLifeCycle'
+                        },
                         devicelifecycle: {
                             route: '{deviceLifeCycleId}',
                             redirect: 'administration/devicelifecycles/devicelifecycle/states',
