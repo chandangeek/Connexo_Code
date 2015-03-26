@@ -332,6 +332,10 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             me.showEdit(id);
             editPage = me.getEditPage();
         }
+        if (editPage && id != null) {
+            var loadProfileModel =  me.getModel('Mdc.model.LoadProfileType');
+            store.getProxy().url = loadProfileModel.getProxy().url + '/' + id + '/measurementtypes';
+        }
 
         Ext.suspendLayouts();
         editPage.getLayout().setActiveItem(1);
