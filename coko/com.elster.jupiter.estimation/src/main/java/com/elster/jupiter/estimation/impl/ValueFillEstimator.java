@@ -82,7 +82,7 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     @Override
     public String getDefaultFormat() {
-        return "Zero fill";
+        return "Value fill";
     }
 
     @Override
