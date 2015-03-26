@@ -19,4 +19,10 @@ public class UnknownStateException extends LocalizedException {
         this.set("stateName", stateName);
     }
 
+    public UnknownStateException(Thesaurus thesaurus, FiniteStateMachine finiteStateMachine, long stateId) {
+        super(thesaurus, MessageSeeds.UNKNOWN_STATE, stateId, finiteStateMachine.getName());
+        this.set("finiteStateMachineId", finiteStateMachine.getId());
+        this.set("stateId", stateId);
+    }
+
 }

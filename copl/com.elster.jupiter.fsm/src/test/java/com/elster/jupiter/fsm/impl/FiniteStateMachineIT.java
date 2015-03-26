@@ -926,6 +926,65 @@ public class FiniteStateMachineIT {
     }
 
     @Transactional
+    @Test(expected = UnknownStateException.class)
+    public void renameStateByNameThatDoesNotExist() {
+        String expectedName = "renameState";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String initialName = "Single";
+        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState(initialName).complete());
+        stateMachine.save();
+
+        // Business method
+        String newName = "renamed";
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state(newName).setName(newName).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @Test
+    public void renameStateById() {
+        String expectedName = "renameState";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String initialName = "Single";
+        State state = builder.newCustomState(initialName).complete();
+        FiniteStateMachine stateMachine = builder.complete(state);
+        stateMachine.save();
+
+        // Business method
+        String newName = "renamed";
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state(state.getId()).setName(newName).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        assertThat(stateMachine.getState(newName).isPresent()).isTrue();
+        assertThat(stateMachine.getState(newName).get().isInitial()).isTrue();
+        assertThat(stateMachine.getState(initialName).isPresent()).isFalse();
+    }
+
+    @Transactional
+    @Test(expected = UnknownStateException.class)
+    public void renameStateByIdThatDoesNotExist() {
+        String expectedName = "renameState";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String initialName = "Single";
+        State state = builder.newCustomState(initialName).complete();
+        FiniteStateMachine stateMachine = builder.complete(state);
+        stateMachine.save();
+
+        // Business method
+        String newName = "renamed";
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state(state.getId() + 1).setName(newName).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts: see expected exception rule
+    }
+
+    @Transactional
     @Test
     public void findAfterRenameStateByName() {
         String expectedName = "findAfterRenameStateByName";

@@ -152,6 +152,10 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
         return this.states.stream().filter(s -> name.equals(s.getName())).findFirst();
     }
 
+    Optional<StateImpl> findInternalState(long id) {
+        return this.states.stream().filter(s -> s.getId() == id).findFirst();
+    }
+
     void add(StateImpl state) {
         this.states.add(state);
     }

@@ -52,6 +52,14 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
     public StateUpdater state(String name);
 
     /**
+     * Starts the update process for the {@link State} with the unique identifier.
+     *
+     * @param id The unique identifier of the State that needs updating
+     * @return The StateUpdater
+     */
+    public StateUpdater state(long id);
+
+    /**
      * Assists in updating {@link State}s that already exist
      * in the main builder's update target.
      */

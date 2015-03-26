@@ -59,6 +59,20 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
                     .orElseThrow(() -> new UnknownStateException(this.thesaurus, stateMachine, stateName));
     }
 
+    /**
+     * Finds the {@link State} with the specified id and throws
+     * an {@link UnknownStateException} when the State does not exist.
+     *
+     * @param id The id of the State
+     * @param stateMachine The {@link FiniteStateMachine}
+     * @return The State
+     */
+    private StateImpl findStateIfExists(long id, FiniteStateMachineImpl stateMachine) {
+        return stateMachine
+                    .findInternalState(id)
+                    .orElseThrow(() -> new UnknownStateException(this.thesaurus, stateMachine, id));
+    }
+
     @Override
     public FiniteStateMachineUpdater removeState(State obsoleteState) {
         FiniteStateMachineImpl stateMachine = this.getUnderConstruction();
@@ -74,6 +88,11 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
     @Override
     public StateUpdater state(String name) {
         return new StateUpdaterImpl(this.findStateIfExists(name, this.getUnderConstruction()));
+    }
+
+    @Override
+    public StateUpdater state(long id) {
+        return new StateUpdaterImpl(this.findStateIfExists(id, this.getUnderConstruction()));
     }
 
     @Override
