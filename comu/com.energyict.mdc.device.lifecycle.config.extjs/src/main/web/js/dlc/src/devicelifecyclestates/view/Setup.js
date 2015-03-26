@@ -33,10 +33,9 @@ Ext.define('Dlc.devicelifecyclestates.view.Setup', {
           },
           emptyComponent: {
             xtype: 'no-items-found-panel',
-            title: Uni.I18n.translate('deviceLifeCycleStates.empty.title', 'DLC', 'No device life cycle states found'),
+            title: Uni.I18n.translate('deviceLifeCycleStates.empty.title', 'DLC', 'No states found'),
             reasons: [
-              Uni.I18n.translate('deviceLifeCycleStates.empty.list.item1', 'DLC', 'No device life cycle states have been defined yet'),
-              Uni.I18n.translate('deviceLifeCycleStates.empty.list.item2', 'DLC', 'Device life cycles exist, but you do not have permission to view them')
+              Uni.I18n.translate('deviceLifeCycleStates.empty.list.item1', 'DLC', 'o states have been added yet')
             ]
           },
           previewComponent: {
