@@ -112,6 +112,11 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
 
     @Override
     public Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode) {
+        ReadingTypeCodeBuilder readingTypeCodeBuilder = getReadingTypeCodeBuilderWithInterval(readingType, interval, registerObisCode);
+        return this.meteringService.getReadingType(readingTypeCodeBuilder.code());
+    }
+
+    private ReadingTypeCodeBuilder getReadingTypeCodeBuilderWithInterval(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode) {
         ReadingTypeCodeBuilder readingTypeCodeBuilder = copyReadingTypeFields(readingType);
 
         if(interval.isPresent() && interval.get().equals(TimeDuration.days(1))){
@@ -120,10 +125,19 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
             readingTypeCodeBuilder.period(MacroPeriod.MONTHLY);
         } else {
             readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval.orElse(null)));
-
         }
+        return readingTypeCodeBuilder;
+    }
 
-        return this.meteringService.getReadingType(readingTypeCodeBuilder.code());
+    @Override
+    public ReadingType getOrCreateIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode) {
+        ReadingTypeCodeBuilder readingTypeCodeBuilder = getReadingTypeCodeBuilderWithInterval(readingType, interval, registerObisCode);
+        Optional<ReadingType> intervalAppliedReadingType = this.meteringService.getReadingType(readingTypeCodeBuilder.code());
+        if(intervalAppliedReadingType.isPresent()){
+            return intervalAppliedReadingType.get();
+        } else {
+            return this.meteringService.createReadingType(readingTypeCodeBuilder.code(), readingType.getAliasName());
+        }
     }
 
     private ReadingTypeCodeBuilder copyReadingTypeFields(ReadingType readingType) {
