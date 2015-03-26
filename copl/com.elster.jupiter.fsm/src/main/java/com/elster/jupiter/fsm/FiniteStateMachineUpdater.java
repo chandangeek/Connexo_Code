@@ -140,6 +140,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
         public StateUpdater transitionTo(State state);
         public StateUpdater transitionTo(StateBuilder stateBuilder);
         public StateUpdater transitionTo(String stateName);
+        public StateUpdater transitionTo(long stateId);
     }
 
 }

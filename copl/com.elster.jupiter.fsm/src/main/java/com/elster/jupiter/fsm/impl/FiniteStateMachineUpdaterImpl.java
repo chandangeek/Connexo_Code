@@ -290,6 +290,11 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
+        public StateUpdater transitionTo(long stateId) {
+            return this.transitionTo(findStateIfExists(stateId, getUnderConstruction()));
+        }
+
+        @Override
         public StateUpdater transitionTo(State state) {
             FiniteStateMachineImpl stateMachine = getUnderConstruction();
             StateTransitionImpl stateTransition = this.newInitializedTransition(state, stateMachine);

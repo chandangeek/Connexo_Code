@@ -978,7 +978,7 @@ public class FiniteStateMachineIT {
         // Business method
         String newName = "renamed";
         FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
-        stateMachineUpdater.state(state.getId() + 1).setName(newName).complete();
+        stateMachineUpdater.state(Long.MAX_VALUE).setName(newName).complete();
         stateMachineUpdater.complete();
 
         // Asserts: see expected exception rule
@@ -1310,6 +1310,65 @@ public class FiniteStateMachineIT {
         assertThat(reloaded.getStates()).hasSize(2);
         List<StateTransition> transitions = reloaded.getTransitions();
         assertThat(transitions).hasSize(1);
+    }
+
+    @Transactional
+    @Test(expected = UnknownStateException.class)
+    public void testAddTransitionByStateNameThatDoesNotExist() {
+        String expectedName = "testAddTransitionByStateName";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        builder.newCustomState("Commissioned").complete();
+        State inStock = builder.newCustomState("InStock").complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+        stateMachine.save();
+
+        // Business methods
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo("Does not exist");
+
+        // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @Test
+    public void testAddTransitionByStateId() {
+        String expectedName = "testAddTransitionByStateId";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        State inStock = builder.newCustomState("InStock").complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+        stateMachine.save();
+
+        // Business methods
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo(commissioned.getId());
+
+        // Asserts
+        FiniteStateMachine reloaded = this.getTestService().findFiniteStateMachineByName(expectedName).get();
+        assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getStates()).hasSize(2);
+        List<StateTransition> transitions = reloaded.getTransitions();
+        assertThat(transitions).hasSize(1);
+    }
+
+    @Transactional
+    @Test(expected = UnknownStateException.class)
+    public void testAddTransitionByStateIdThatDoesNotExist() {
+        String expectedName = "testAddTransitionByStateId";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State commissioned = builder.newCustomState("Commissioned").complete();
+        State inStock = builder.newCustomState("InStock").complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+        stateMachine.save();
+
+        // Business methods
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo(Long.MAX_VALUE);
+
+        // Asserts: see expected exception rule
     }
 
     @Transactional
