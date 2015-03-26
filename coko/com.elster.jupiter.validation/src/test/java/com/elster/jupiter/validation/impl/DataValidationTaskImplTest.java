@@ -71,7 +71,9 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     private Validator validator;
 
     private DataValidationTaskImpl newTask() {
-        return new DataValidationTaskImpl(dataModel,taskService,dataValidationService,thesaurus, recurrentTask);
+        DataValidationTaskImpl newTask = new DataValidationTaskImpl(dataModel,taskService,dataValidationService,thesaurus);
+        newTask.setRecurrentTask(recurrentTask);
+        return newTask;
     }
 
     private DataValidationTaskImpl setId(DataValidationTaskImpl entity, long id) {
