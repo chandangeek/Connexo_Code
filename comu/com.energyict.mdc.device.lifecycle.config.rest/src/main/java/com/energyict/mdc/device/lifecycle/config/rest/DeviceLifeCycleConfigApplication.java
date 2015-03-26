@@ -16,7 +16,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateTransitionsResource;
-import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeVycleResource;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.ResourceHelper;
 import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateTransitionFactory;
@@ -36,9 +36,9 @@ import java.util.Set;
 @Component(
         name = "com.energyict.mdc.device.lifecycle.config.rest",
         service = {Application.class, TranslationKeyProvider.class},
-        property = {"alias=/dld", "app=MDC", "name=" + DeviceLifeVycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT},
+        property = {"alias=/dld", "app=MDC", "name=" + DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT},
         immediate = true)
-public class DeviceLifeVycleConfigApplication extends Application implements TranslationKeyProvider {
+public class DeviceLifeCycleConfigApplication extends Application implements TranslationKeyProvider {
     public static final String DEVICE_CONFIG_LIFECYCLE_COMPONENT = "DLR";
 
     private volatile TransactionService transactionService;
@@ -52,7 +52,7 @@ public class DeviceLifeVycleConfigApplication extends Application implements Tra
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                LifeVycleResource.class,
+                LifeCycleResource.class,
                 LifeCycleStateResource.class,
                 LifeCycleStateTransitionsResource.class,
                 ConstraintViolationExceptionMapper.class,

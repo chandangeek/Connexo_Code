@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LifeCycleStateResourceTest extends DeviceLifeVycleConfigApplicationJerseyTest {
+public class LifeCycleStateResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
 
     @Test
     public void testLifeCycleStateJsonModel(){

@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class LifeCycleStateTransitionsResourceTest extends DeviceLifeVycleConfigApplicationJerseyTest {
+public class LifeCycleStateTransitionsResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
 
     @Test
     public void testLifeCycleTransitionJsonModel(){

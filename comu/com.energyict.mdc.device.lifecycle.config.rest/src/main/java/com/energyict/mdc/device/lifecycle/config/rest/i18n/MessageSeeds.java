@@ -3,7 +3,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.i18n;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeVycleConfigApplication;
+import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplication;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
@@ -64,7 +64,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     @Override
     public String getModule() {
-        return DeviceLifeVycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT;
+        return DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT;
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.rest.response.LifeVycleInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
 
 
 @Path("/devicelifecycles")
-public class LifeVycleResource {
+public class LifeCycleResource {
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
     private final Provider<LifeCycleStateResource> lifeCycleStateResourceProvider;
     private final Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider;
 
     @Inject
-    public LifeVycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper, Provider<LifeCycleStateResource> lifeCycleStateResourceProvider, Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider) {
+    public LifeCycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper, Provider<LifeCycleStateResource> lifeCycleStateResourceProvider, Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.lifeCycleStateResourceProvider = lifeCycleStateResourceProvider;
@@ -42,8 +42,8 @@ public class LifeVycleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
     public PagedInfoList getDeviceLifecycles(@BeanParam QueryParameters queryParams) {
-        List<LifeVycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
-                .map(LifeVycleInfo::new).collect(Collectors.toList());
+        List<LifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
+                .map(LifeCycleInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycles", lifecycles, queryParams);
     }
 
@@ -53,16 +53,16 @@ public class LifeVycleResource {
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
     public Response getDeviceLifecycleById(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle lifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
-        return Response.ok(new LifeVycleInfo(lifeCycle)).build();
+        return Response.ok(new LifeCycleInfo(lifeCycle)).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
-    public Response addDeviceLifecycle(LifeVycleInfo lifeCycle) {
+    public Response addDeviceLifecycle(LifeCycleInfo lifeCycle) {
         DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(lifeCycle.name);
-        return Response.status(Response.Status.CREATED).entity(new LifeVycleInfo(newLifeCycle)).build();
+        return Response.status(Response.Status.CREATED).entity(new LifeCycleInfo(newLifeCycle)).build();
     }
 
     @Path("/{cycleId}/states")

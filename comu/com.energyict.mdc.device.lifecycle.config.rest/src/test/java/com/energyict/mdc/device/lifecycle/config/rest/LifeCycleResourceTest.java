@@ -3,7 +3,7 @@ package com.energyict.mdc.device.lifecycle.config.rest;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.rest.response.LifeVycleInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleInfo;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LifeVycleResourceTest extends DeviceLifeVycleConfigApplicationJerseyTest {
+public class LifeCycleResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
 
     @Test
     public void testLifeCycleJsonModel(){
@@ -77,7 +77,7 @@ public class LifeVycleResourceTest extends DeviceLifeVycleConfigApplicationJerse
         DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "New life cycle");
         when(deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(Matchers.anyString())).thenReturn(lifeCycle);
 
-        LifeVycleInfo newLifeCycle = new LifeVycleInfo();
+        LifeCycleInfo newLifeCycle = new LifeCycleInfo();
         newLifeCycle.name = "New life cycle";
         Response response = target("/devicelifecycles").request().post(Entity.json(newLifeCycle));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
