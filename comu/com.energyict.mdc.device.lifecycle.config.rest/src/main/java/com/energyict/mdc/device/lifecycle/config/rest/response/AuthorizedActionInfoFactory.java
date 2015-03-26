@@ -6,17 +6,17 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import javax.inject.Inject;
 import java.util.Objects;
 
-public class LifeCycleStateTransitionFactory {
+public class AuthorizedActionInfoFactory {
 
     private final Thesaurus thesaurus;
 
     @Inject
-    public LifeCycleStateTransitionFactory(Thesaurus thesaurus) {
+    public AuthorizedActionInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
-    public LifeCycleStateTransitionInfo from(AuthorizedAction action){
+    public AuthorizedActionInfo from(AuthorizedAction action){
         Objects.requireNonNull(action);
-        return new LifeCycleStateTransitionInfo(thesaurus, action);
+        return new AuthorizedActionInfo(thesaurus, action);
     }
 }

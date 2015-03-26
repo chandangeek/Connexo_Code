@@ -41,7 +41,7 @@ public class LifeCycleResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
-    public PagedInfoList getDeviceLifecycles(@BeanParam QueryParameters queryParams) {
+    public PagedInfoList getDeviceLifeCycles(@BeanParam QueryParameters queryParams) {
         List<LifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
                 .map(LifeCycleInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycles", lifecycles, queryParams);
@@ -51,7 +51,7 @@ public class LifeCycleResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
-    public Response getDeviceLifecycleById(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
+    public Response getDeviceLifeCycleById(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle lifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         return Response.ok(new LifeCycleInfo(lifeCycle)).build();
     }
@@ -60,7 +60,7 @@ public class LifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
-    public Response addDeviceLifecycle(LifeCycleInfo lifeCycle) {
+    public Response addDeviceLifeCycle(LifeCycleInfo lifeCycle) {
         DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(lifeCycle.name);
         return Response.status(Response.Status.CREATED).entity(new LifeCycleInfo(newLifeCycle)).build();
     }

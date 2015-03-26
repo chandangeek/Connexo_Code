@@ -13,7 +13,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     DEVICE_LIFECYCLE_NOT_FOUND(1, "device.lifecycle.not.found", "Device lifecycle with id '{0}' doesn't exist", Level.SEVERE),
     DEVICE_LIFECYCLE_STATE_NOT_FOUND(2, "device.lifecycle.state.not.found", "Device lifecycle state with id '{0}' doesn't exist", Level.SEVERE),
-    DEVICE_LIFECYCLE_TRANSITION_NOT_FOUND(3, "device.lifecycle.transition.not.found", "Device lifecycle transition with id '{0}' doesn't exist", Level.SEVERE),
+    DEVICE_LIFECYCLE_AUTH_ACTION_NOT_FOUND(3, "device.lifecycle.auth.action.not.found", "Authorized action with id '{0}' doesn't exist", Level.SEVERE),
 
     TRANSITION_COMMISSIONED(1001, "#commissioned", "Commission a device", Level.INFO),
     TRANSITION_ACTIVATED(1002, "#activated", "Activate a device", Level.INFO),

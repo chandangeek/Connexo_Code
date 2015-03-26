@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateResource;
@@ -19,7 +20,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateTra
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.ResourceHelper;
 import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateTransitionFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfoFactory;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -52,6 +53,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
+                TransactionWrapper.class,
                 LifeCycleResource.class,
                 LifeCycleStateResource.class,
                 LifeCycleStateTransitionsResource.class,
@@ -121,7 +123,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
-            bind(LifeCycleStateTransitionFactory.class).to(LifeCycleStateTransitionFactory.class);
+            bind(AuthorizedActionInfoFactory.class).to(AuthorizedActionInfoFactory.class);
             bind(LifeCycleStateFactory.class).to(LifeCycleStateFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);

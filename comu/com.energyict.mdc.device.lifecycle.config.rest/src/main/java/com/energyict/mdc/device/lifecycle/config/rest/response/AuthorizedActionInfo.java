@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LifeCycleStateTransitionInfo extends IdWithNameInfo {
+public class AuthorizedActionInfo extends IdWithNameInfo {
     public LifeCycleStateInfo fromState;
     public LifeCycleStateInfo toState;
     public List<LifeCyclePrivilegeInfo> privileges;
 
-    public LifeCycleStateTransitionInfo() {}
+    public AuthorizedActionInfo() {}
 
-    public LifeCycleStateTransitionInfo(Thesaurus thesaurus, AuthorizedAction action) {
+    public AuthorizedActionInfo(Thesaurus thesaurus, AuthorizedAction action) {
         super();
         this.id = action.getId();
         this.privileges = action.getLevels().stream().map(lvl -> new LifeCyclePrivilegeInfo(thesaurus, lvl)).collect(Collectors.toList());

@@ -35,12 +35,12 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_NOT_FOUND, stateId));
     }
 
-    public AuthorizedAction findTransitionByIdOrThrowException(DeviceLifeCycle lifeCycle, long actionId){
+    public AuthorizedAction findAuthorizedActionByIdOrThrowException(DeviceLifeCycle lifeCycle, long actionId){
         Objects.requireNonNull(lifeCycle);
         return lifeCycle.getAuthorizedActions()
                 .stream()
                 .filter(action -> action.getId() == actionId)
                 .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_TRANSITION_NOT_FOUND, actionId));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_AUTH_ACTION_NOT_FOUND, actionId));
     }
 }

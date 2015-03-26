@@ -7,8 +7,8 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateTransitionFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateTransitionInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,26 +26,26 @@ import java.util.stream.Collectors;
 public class LifeCycleStateTransitionsResource {
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
-    private final LifeCycleStateTransitionFactory lifeCycleStateTransitionFactory;
+    private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
 
     @Inject
     public LifeCycleStateTransitionsResource(
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             ResourceHelper resourceHelper,
-            LifeCycleStateTransitionFactory lifeCycleStateTransitionFactory) {
+            AuthorizedActionInfoFactory authorizedActionInfoFactory) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
-        this.lifeCycleStateTransitionFactory = lifeCycleStateTransitionFactory;
+        this.authorizedActionInfoFactory = authorizedActionInfoFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
-    public PagedInfoList getTransitionsForDeviceLifecycle(@PathParam("cycleId") Long lifeCycleId, @BeanParam QueryParameters queryParams) {
+    public PagedInfoList getActionsForDeviceLifecycle(@PathParam("cycleId") Long lifeCycleId, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(lifeCycleId);
-        List<LifeCycleStateTransitionInfo> transitions = deviceLifeCycle.getAuthorizedActions()
+        List<AuthorizedActionInfo> transitions = deviceLifeCycle.getAuthorizedActions()
                 .stream()
-                .map(action -> lifeCycleStateTransitionFactory.from(action))
+                .map(action -> authorizedActionInfoFactory.from(action))
                 .sorted(Comparator.comparing(transition -> transition.name)) // alphabetical sort
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycleTransitions", ListPager.of(transitions).from(queryParams).find(), queryParams);
@@ -55,9 +55,9 @@ public class LifeCycleStateTransitionsResource {
     @Path("/{transitionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
-    public Response getStateTransitionById(@PathParam("cycleId") Long lifeCycleId, @PathParam("transitionId") Long transitionId, @BeanParam QueryParameters queryParams) {
+    public Response getAuthorizedActionById(@PathParam("cycleId") Long lifeCycleId, @PathParam("transitionId") Long transitionId, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(lifeCycleId);
-        AuthorizedAction action = resourceHelper.findTransitionByIdOrThrowException(deviceLifeCycle, transitionId);
-        return Response.ok(lifeCycleStateTransitionFactory.from(action)).build();
+        AuthorizedAction action = resourceHelper.findAuthorizedActionByIdOrThrowException(deviceLifeCycle, transitionId);
+        return Response.ok(authorizedActionInfoFactory.from(action)).build();
     }
 }
