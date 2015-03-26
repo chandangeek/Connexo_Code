@@ -10,7 +10,8 @@
         "com.energyict.comserver.comserver.core.extjs",
         "com.energyict.mdc.dashboard.extjs",
         "com.energyict.mdc.device.data.imp.extjs",
-        "com.elster.jupiter.yellowfin.extjs"
+        "com.elster.jupiter.yellowfin.extjs",
+        "com.energyict.mdc.device.lifecycle.config.extjs"
     ],
 
     "id": "28c552c9-436e-4d93-8f74-038373138820"
