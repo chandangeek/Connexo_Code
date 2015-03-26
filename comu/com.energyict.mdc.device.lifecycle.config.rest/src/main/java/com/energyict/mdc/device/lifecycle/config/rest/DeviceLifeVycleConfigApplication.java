@@ -16,8 +16,9 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateTransitionsResource;
-import com.energyict.mdc.device.lifecycle.config.rest.resource.LifecycleResource;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeVycleResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.ResourceHelper;
+import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateTransitionFactory;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -35,9 +36,9 @@ import java.util.Set;
 @Component(
         name = "com.energyict.mdc.device.lifecycle.config.rest",
         service = {Application.class, TranslationKeyProvider.class},
-        property = {"alias=/dld", "app=MDC", "name=" + DeviceLifecycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT},
+        property = {"alias=/dld", "app=MDC", "name=" + DeviceLifeVycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT},
         immediate = true)
-public class DeviceLifecycleConfigApplication extends Application implements TranslationKeyProvider {
+public class DeviceLifeVycleConfigApplication extends Application implements TranslationKeyProvider {
     public static final String DEVICE_CONFIG_LIFECYCLE_COMPONENT = "DLR";
 
     private volatile TransactionService transactionService;
@@ -51,7 +52,7 @@ public class DeviceLifecycleConfigApplication extends Application implements Tra
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                LifecycleResource.class,
+                LifeVycleResource.class,
                 LifeCycleStateResource.class,
                 LifeCycleStateTransitionsResource.class,
                 ConstraintViolationExceptionMapper.class,
@@ -121,6 +122,7 @@ public class DeviceLifecycleConfigApplication extends Application implements Tra
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(LifeCycleStateTransitionFactory.class).to(LifeCycleStateTransitionFactory.class);
+            bind(LifeCycleStateFactory.class).to(LifeCycleStateFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
         }

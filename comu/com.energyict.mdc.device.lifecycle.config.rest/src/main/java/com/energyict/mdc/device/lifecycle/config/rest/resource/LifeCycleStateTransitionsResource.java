@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.resource;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -47,7 +48,7 @@ public class LifeCycleStateTransitionsResource {
                 .map(action -> lifeCycleStateTransitionFactory.from(action))
                 .sorted(Comparator.comparing(transition -> transition.name)) // alphabetical sort
                 .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("deviceLifeCycleTransitions", transitions, queryParams);
+        return PagedInfoList.fromPagedList("deviceLifeCycleTransitions", ListPager.of(transitions).from(queryParams).find(), queryParams);
     }
 
     @GET

@@ -31,8 +31,8 @@ public class LifeCycleStateTransitionInfo extends IdWithNameInfo {
 
     private void fromBasicAction(Thesaurus thesaurus, AuthorizedTransitionAction action){
         this.name = action.getStateTransition().getName(thesaurus);
-        this.fromState = new LifeCycleStateInfo(action.getStateTransition().getFrom());
-        this.toState = new LifeCycleStateInfo(action.getStateTransition().getTo());
+        this.fromState = new LifeCycleStateInfo(thesaurus, action.getStateTransition().getFrom());
+        this.toState = new LifeCycleStateInfo(thesaurus, action.getStateTransition().getTo());
     }
 
     private void fromBpmAction(Thesaurus thesaurus, AuthorizedBusinessProcessAction action){

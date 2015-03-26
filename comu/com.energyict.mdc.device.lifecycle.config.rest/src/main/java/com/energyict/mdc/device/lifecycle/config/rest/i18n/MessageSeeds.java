@@ -3,7 +3,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.i18n;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifecycleConfigApplication;
+import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeVycleConfigApplication;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
@@ -15,32 +15,33 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_LIFECYCLE_STATE_NOT_FOUND(2, "device.lifecycle.state.not.found", "Device lifecycle state with id '{0}' doesn't exist", Level.SEVERE),
     DEVICE_LIFECYCLE_TRANSITION_NOT_FOUND(3, "device.lifecycle.transition.not.found", "Device lifecycle transition with id '{0}' doesn't exist", Level.SEVERE),
 
-    TRANSITION_COMMISSIONED(1001, "#commissioned", "Commission device", Level.INFO),
-    TRANSITION_ACTIVATED(1002, "#activated", "Activate device", Level.INFO),
-    TRANSITION_DEACTIVATED(1003, "#deactivated", "Deactivate device", Level.INFO),
-    TRANSITION_DECOMMISSIONED(1004, "#decommissioned", "Decommission device", Level.INFO),
-    TRANSITION_DELETED(1005, "#deleted", "Delete device", Level.INFO),
-    // TODO set correct translations!
-    TRANSITION_COMTASK_CREATED(1006, "com/energyict/mdc/device/data/comtaskexecution/CREATED", "", Level.INFO),
-    TRANSITION_COMTASK_UPDATED(1007, "com/energyict/mdc/device/data/comtaskexecution/UPDATED", "", Level.INFO),
-    TRANSITION_COMTASK_DELETED(1008, "com/energyict/mdc/device/data/comtaskexecution/DELETED", "", Level.INFO),
-    TRANSITION_CONNECTION_TASK_CREATED(1009, "com/energyict/mdc/device/data/connectiontask/CREATED", "", Level.INFO),
-    TRANSITION_CONNECTION_TASK_UPDATED(1010, "com/energyict/mdc/device/data/connectiontask/UPDATED", "", Level.INFO),
-    TRANSITION_CONNECTION_TASK_DELETED(1011, "com/energyict/mdc/device/data/connectiontask/DELETED", "", Level.INFO),
-    TRANSITION_CONNECTION_TASK_SET_AS_DEFAULT(1012, "com/energyict/mdc/device/data/connectiontask/SETASDEFAULT", "", Level.INFO),
-    TRANSITION_CONNECTION_TASK_CLEAR_DEFAULT(1013, "com/energyict/mdc/device/data/connectiontask/CLEARDEFAULT", "", Level.INFO),
-    TRANSITION_CONNECTION_TASK_FAILURE(1014, "com/energyict/mdc/connectiontask/FAILURE", "", Level.INFO),
-    TRANSITION_CONNECTION_TASK_COMPLETION(1015, "com/energyict/mdc/connectiontask/COMPLETION", "", Level.INFO),
-    TRANSITION_COMMUNICATION_TOPOLOGY_CHANGED(1016, "com/energyict/mdc/outboundcommunication/DEVICETOPOLOGYCHANGED", "", Level.INFO),
-    TRANSITION_DEVICE_CREATED(1017, "com/energyict/mdc/device/data/device/CREATED", "", Level.INFO),
-    TRANSITION_DEVICE_UPDATED(1018, "com/energyict/mdc/device/data/device/UPDATED", "", Level.INFO),
-    TRANSITION_DEVICE_DELETED(1019, "com/energyict/mdc/device/data/device/DELETED", "", Level.INFO),
-    TRANSITION_DEVICE_MESSAGE_CREATED(1020, "com/energyict/mdc/device/data/deviceMessage/CREATED", "", Level.INFO),
-    TRANSITION_DEVICE_MESSAGE_UPDATED(1021, "com/energyict/mdc/device/data/deviceMessage/UPDATED", "", Level.INFO),
-    TRANSITION_DEVICE_MESSAGE_DELETED(1022, "com/energyict/mdc/device/data/deviceMessage/DELETED", "", Level.INFO),
-    TRANSITION_PROTOCOL_DIALECT_CREATED(1023, "com/energyict/mdc/device/data/protocoldialectproperties/CREATED", "", Level.INFO),
-    TRANSITION_PROTOCOL_DIALECT_UPDATED(1024, "com/energyict/mdc/device/data/protocoldialectproperties/UPDATED", "", Level.INFO),
-    TRANSITION_PROTOCOL_DIALECT_DELETED(1025, "com/energyict/mdc/device/data/protocoldialectproperties/DELETED", "", Level.INFO),
+    TRANSITION_COMMISSIONED(1001, "#commissioned", "Commission a device", Level.INFO),
+    TRANSITION_ACTIVATED(1002, "#activated", "Activate a device", Level.INFO),
+    TRANSITION_DEACTIVATED(1003, "#deactivated", "Deactivate a device", Level.INFO),
+    TRANSITION_DECOMMISSIONED(1004, "#decommissioned", "Decommission a device", Level.INFO),
+    TRANSITION_DELETED(1005, "#deleted", "Deletion of a device", Level.INFO),
+    TRANSITION_COMTASK_CREATED(1006, "com/energyict/mdc/device/data/comtaskexecution/CREATED", "Creation of a communication task on a device", Level.INFO),
+    TRANSITION_COMTASK_UPDATED(1007, "com/energyict/mdc/device/data/comtaskexecution/UPDATED", "Change a communication taks of a device", Level.INFO),
+    TRANSITION_COMTASK_DELETED(1008, "com/energyict/mdc/device/data/comtaskexecution/DELETED", "Deletion of a communication task on a device", Level.INFO),
+    TRANSITION_CONNECTION_TASK_CREATED(1009, "com/energyict/mdc/device/data/connectiontask/CREATED", "Creation of a connection method on a device", Level.INFO),
+    TRANSITION_CONNECTION_TASK_UPDATED(1010, "com/energyict/mdc/device/data/connectiontask/UPDATED", "Change of a connection method of a device", Level.INFO),
+    TRANSITION_CONNECTION_TASK_DELETED(1011, "com/energyict/mdc/device/data/connectiontask/DELETED", "Deletion of a connection method on a device", Level.INFO),
+    TRANSITION_CONNECTION_TASK_SET_AS_DEFAULT(1012, "com/energyict/mdc/device/data/connectiontask/SETASDEFAULT", "Mark a connection method as the default for a device", Level.INFO),
+    TRANSITION_CONNECTION_TASK_CLEAR_DEFAULT(1013, "com/energyict/mdc/device/data/connectiontask/CLEARDEFAULT", "Unmark a connection method as the default for a device", Level.INFO),
+    TRANSITION_CONNECTION_TASK_FAILURE(1014, "com/energyict/mdc/connectiontask/FAILURE", "Failure to setup a connection with a device", Level.INFO),
+    TRANSITION_CONNECTION_TASK_COMPLETION(1015, "com/energyict/mdc/connectiontask/COMPLETION", "Successful completion of a connection with a device", Level.INFO),
+    TRANSITION_COMMUNICATION_TOPOLOGY_CHANGED(1016, "com/energyict/mdc/outboundcommunication/DEVICETOPOLOGYCHANGED", "Topology of a gateway device changed", Level.INFO),
+    TRANSITION_DEVICE_CREATED(1017, "com/energyict/mdc/device/data/device/CREATED", "Creation of a device", Level.INFO),
+    TRANSITION_DEVICE_UPDATED(1018, "com/energyict/mdc/device/data/device/UPDATED", "Change a device", Level.INFO),
+    TRANSITION_DEVICE_DELETED(1019, "com/energyict/mdc/device/data/device/DELETED", "Deletion of a device", Level.INFO),
+    TRANSITION_DEVICE_MESSAGE_CREATED(1020, "com/energyict/mdc/device/data/deviceMessage/CREATED", "Creation of a command on a device", Level.INFO),
+    TRANSITION_DEVICE_MESSAGE_UPDATED(1021, "com/energyict/mdc/device/data/deviceMessage/UPDATED", "Change of a command on a device", Level.INFO),
+    TRANSITION_DEVICE_MESSAGE_DELETED(1022, "com/energyict/mdc/device/data/deviceMessage/DELETED", "Deletion of a command on a device", Level.INFO),
+    TRANSITION_PROTOCOL_DIALECT_CREATED(1023, "com/energyict/mdc/device/data/protocoldialectproperties/CREATED", "Creation of protocol dialect properties on a device", Level.INFO),
+    TRANSITION_PROTOCOL_DIALECT_UPDATED(1024, "com/energyict/mdc/device/data/protocoldialectproperties/UPDATED", "Change of protocol dialect properties on a device", Level.INFO),
+    TRANSITION_PROTOCOL_DIALECT_DELETED(1025, "com/energyict/mdc/device/data/protocoldialectproperties/DELETED", "Deletion of protocol dialect properties on a device", Level.INFO),
+    TRANSITION_RECYCLED(1026, "#recycled", "Recycle a device", Level.INFO),
+    TRANSITION_REVOKED(1027, "#revoked", "Revoke a device", Level.INFO),
 
     PRIVILEGE_LEVEL_1(2001, Keys.PRIVILEGE_LEVEL_TRANSLATE_KEY + "ONE", "Level 1", Level.INFO),
     PRIVILEGE_LEVEL_2(2002, Keys.PRIVILEGE_LEVEL_TRANSLATE_KEY + "TWO", "Level 2", Level.INFO),
@@ -63,7 +64,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     @Override
     public String getModule() {
-        return DeviceLifecycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT;
+        return DeviceLifeVycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT;
     }
 
     @Override

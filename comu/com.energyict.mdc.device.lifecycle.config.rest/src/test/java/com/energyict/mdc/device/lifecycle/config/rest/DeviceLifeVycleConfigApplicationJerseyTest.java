@@ -25,7 +25,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DeviceLifecycleConfigApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+public class DeviceLifeVycleConfigApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
     RestQueryService restQueryService;
@@ -36,13 +36,13 @@ public class DeviceLifecycleConfigApplicationJerseyTest extends FelixRestApplica
 
     @Override
     protected Application getApplication() {
-        DeviceLifecycleConfigApplication application = new DeviceLifecycleConfigApplication();
+        DeviceLifeVycleConfigApplication application = new DeviceLifeVycleConfigApplication();
         application.setTransactionService(transactionService);
         application.setRestQueryService(restQueryService);
         application.setUserService(userService);
         application.setNlsService(nlsService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        when(nlsService.getThesaurus(DeviceLifecycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)).thenReturn(thesaurus);
+        when(nlsService.getThesaurus(DeviceLifeVycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)).thenReturn(thesaurus);
         return application;
     }
 
