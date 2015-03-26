@@ -15,8 +15,6 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                     items: {
                         devicelifecycle: {
                             route: '{deviceLifeCycleId}',
-                            controller: 'Dlc.controller.DeviceLifeCycles',
-                            action: 'showDeviceLifeCycleDetails',
                             redirect: 'administration/devicelifecycles/devicelifecycle/states',
                             callback: function (route) {
                                 this.getApplication().on('devicelifecycleload', function (record) {

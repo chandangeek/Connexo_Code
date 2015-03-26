@@ -35,12 +35,8 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             }),
             store = me.getStore('Dlc.devicelifecycles.store.DeviceLifeCycles');
 
-      /*  store.getProxy().extraParams = {
-            sort: 'name',
-            dir: 'asc'
-        };*/
+        me.getApplication().fireEvent('changecontentevent', view);
         store.load(function () {
-            me.getApplication().fireEvent('changecontentevent', view);
             view.down('device-life-cycles-grid').getSelectionModel().select(0);
         });
     },
