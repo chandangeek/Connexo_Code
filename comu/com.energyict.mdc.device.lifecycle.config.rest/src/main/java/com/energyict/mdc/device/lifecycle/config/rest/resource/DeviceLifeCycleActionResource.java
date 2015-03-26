@@ -23,13 +23,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LifeCycleStateTransitionsResource {
+public class DeviceLifeCycleActionResource {
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
 
     @Inject
-    public LifeCycleStateTransitionsResource(
+    public DeviceLifeCycleActionResource(
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             ResourceHelper resourceHelper,
             AuthorizedActionInfoFactory authorizedActionInfoFactory) {
@@ -41,23 +41,23 @@ public class LifeCycleStateTransitionsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
-    public PagedInfoList getActionsForDeviceLifecycle(@PathParam("cycleId") Long lifeCycleId, @BeanParam QueryParameters queryParams) {
-        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(lifeCycleId);
+    public PagedInfoList getActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam QueryParameters queryParams) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         List<AuthorizedActionInfo> transitions = deviceLifeCycle.getAuthorizedActions()
                 .stream()
                 .map(action -> authorizedActionInfoFactory.from(action))
                 .sorted(Comparator.comparing(transition -> transition.name)) // alphabetical sort
                 .collect(Collectors.toList());
-        return PagedInfoList.fromPagedList("deviceLifeCycleTransitions", ListPager.of(transitions).from(queryParams).find(), queryParams);
+        return PagedInfoList.fromPagedList("deviceLifeCycleActions", ListPager.of(transitions).from(queryParams).find(), queryParams);
     }
 
     @GET
-    @Path("/{transitionId}")
+    @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
-    public Response getAuthorizedActionById(@PathParam("cycleId") Long lifeCycleId, @PathParam("transitionId") Long transitionId, @BeanParam QueryParameters queryParams) {
-        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(lifeCycleId);
-        AuthorizedAction action = resourceHelper.findAuthorizedActionByIdOrThrowException(deviceLifeCycle, transitionId);
+    public Response getAuthorizedActionById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("actionId") Long actionId, @BeanParam QueryParameters queryParams) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        AuthorizedAction action = resourceHelper.findAuthorizedActionByIdOrThrowException(deviceLifeCycle, actionId);
         return Response.ok(authorizedActionInfoFactory.from(action)).build();
     }
 }

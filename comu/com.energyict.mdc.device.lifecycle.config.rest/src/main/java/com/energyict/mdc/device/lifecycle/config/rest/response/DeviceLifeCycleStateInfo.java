@@ -9,10 +9,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LifeCycleStateInfo extends IdWithNameInfo {
-    public LifeCycleStateInfo() {}
+public class DeviceLifeCycleStateInfo extends IdWithNameInfo {
+    public DeviceLifeCycleStateInfo() {}
 
-    public LifeCycleStateInfo(Thesaurus thesaurus, State state) {
+    public DeviceLifeCycleStateInfo(Thesaurus thesaurus, State state) {
         super();
         this.id = state.getId();
         Optional<DefaultState> defaultState = DefaultState.from(state);

@@ -6,13 +6,13 @@ import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LifeCyclePrivilegeInfo {
+public class DeviceLifeCyclePrivilegeInfo {
     public String privilege;
     public String name;
 
-    public LifeCyclePrivilegeInfo() {}
+    public DeviceLifeCyclePrivilegeInfo() {}
 
-    public LifeCyclePrivilegeInfo(Thesaurus thesaurus, AuthorizedAction.Level level){
+    public DeviceLifeCyclePrivilegeInfo(Thesaurus thesaurus, AuthorizedAction.Level level){
         this.privilege = level.name();
         this.name = thesaurus.getString(MessageSeeds.Keys.PRIVILEGE_LEVEL_TRANSLATE_KEY + this.privilege, this.privilege);
     }

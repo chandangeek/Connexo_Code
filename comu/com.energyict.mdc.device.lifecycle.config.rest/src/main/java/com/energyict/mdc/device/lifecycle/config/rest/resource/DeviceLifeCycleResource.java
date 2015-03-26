@@ -5,7 +5,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
 
 
 @Path("/devicelifecycles")
-public class LifeCycleResource {
+public class DeviceLifeCycleResource {
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
-    private final Provider<LifeCycleStateResource> lifeCycleStateResourceProvider;
-    private final Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider;
+    private final Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider;
+    private final Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider;
 
     @Inject
-    public LifeCycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper, Provider<LifeCycleStateResource> lifeCycleStateResourceProvider, Provider<LifeCycleStateTransitionsResource> lifeCycleStateTransitionsResourceProvider) {
+    public DeviceLifeCycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper, Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider, Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.lifeCycleStateResourceProvider = lifeCycleStateResourceProvider;
@@ -42,8 +42,8 @@ public class LifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
     public PagedInfoList getDeviceLifeCycles(@BeanParam QueryParameters queryParams) {
-        List<LifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
-                .map(LifeCycleInfo::new).collect(Collectors.toList());
+        List<DeviceLifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
+                .map(DeviceLifeCycleInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycles", lifecycles, queryParams);
     }
 
@@ -53,25 +53,25 @@ public class LifeCycleResource {
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
     public Response getDeviceLifeCycleById(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle lifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
-        return Response.ok(new LifeCycleInfo(lifeCycle)).build();
+        return Response.ok(new DeviceLifeCycleInfo(lifeCycle)).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
-    public Response addDeviceLifeCycle(LifeCycleInfo lifeCycle) {
+    public Response addDeviceLifeCycle(DeviceLifeCycleInfo lifeCycle) {
         DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(lifeCycle.name);
-        return Response.status(Response.Status.CREATED).entity(new LifeCycleInfo(newLifeCycle)).build();
+        return Response.status(Response.Status.CREATED).entity(new DeviceLifeCycleInfo(newLifeCycle)).build();
     }
 
-    @Path("/{cycleId}/states")
-    public LifeCycleStateResource getLifeCycleStateResource() {
+    @Path("/{deviceLifeCycleId}/states")
+    public DeviceLifeCycleStateResource getLifeCycleStateResource() {
         return this.lifeCycleStateResourceProvider.get();
     }
 
-    @Path("/{cycleId}/transitions")
-    public LifeCycleStateTransitionsResource getLifeCycleTransitionsResource() {
+    @Path("/{deviceLifeCycleId}/actions")
+    public DeviceLifeCycleActionResource getLifeCycleTransitionsResource() {
         return this.lifeCycleStateTransitionsResourceProvider.get();
     }
 }

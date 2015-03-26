@@ -5,10 +5,10 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LifeCycleInfo extends IdWithNameInfo {
-    public LifeCycleInfo() {}
+public class DeviceLifeCycleInfo extends IdWithNameInfo {
+    public DeviceLifeCycleInfo() {}
 
-    public LifeCycleInfo(DeviceLifeCycle lifeCycle) {
+    public DeviceLifeCycleInfo(DeviceLifeCycle lifeCycle) {
         super(lifeCycle.getId(), lifeCycle.getName());
     }
 }

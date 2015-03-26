@@ -12,16 +12,16 @@ import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthorizedActionInfo extends IdWithNameInfo {
-    public LifeCycleStateInfo fromState;
-    public LifeCycleStateInfo toState;
-    public List<LifeCyclePrivilegeInfo> privileges;
+    public DeviceLifeCycleStateInfo fromState;
+    public DeviceLifeCycleStateInfo toState;
+    public List<DeviceLifeCyclePrivilegeInfo> privileges;
 
     public AuthorizedActionInfo() {}
 
     public AuthorizedActionInfo(Thesaurus thesaurus, AuthorizedAction action) {
         super();
         this.id = action.getId();
-        this.privileges = action.getLevels().stream().map(lvl -> new LifeCyclePrivilegeInfo(thesaurus, lvl)).collect(Collectors.toList());
+        this.privileges = action.getLevels().stream().map(lvl -> new DeviceLifeCyclePrivilegeInfo(thesaurus, lvl)).collect(Collectors.toList());
         if (action instanceof AuthorizedTransitionAction){
             fromBasicAction(thesaurus, (AuthorizedTransitionAction) action);
         } else {
@@ -31,8 +31,8 @@ public class AuthorizedActionInfo extends IdWithNameInfo {
 
     private void fromBasicAction(Thesaurus thesaurus, AuthorizedTransitionAction action){
         this.name = action.getStateTransition().getName(thesaurus);
-        this.fromState = new LifeCycleStateInfo(thesaurus, action.getStateTransition().getFrom());
-        this.toState = new LifeCycleStateInfo(thesaurus, action.getStateTransition().getTo());
+        this.fromState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getFrom());
+        this.toState = new DeviceLifeCycleStateInfo(thesaurus, action.getStateTransition().getTo());
     }
 
     private void fromBpmAction(Thesaurus thesaurus, AuthorizedBusinessProcessAction action){

@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class LifeCycleStateTransitionsResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
+public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
 
     @Test
     public void testLifeCycleTransitionJsonModel(){
@@ -24,23 +24,23 @@ public class LifeCycleStateTransitionsResourceTest extends DeviceLifeCycleConfig
         when(dlc.getAuthorizedActions()).thenReturn(actions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
-        String stringResponse = target("/devicelifecycles/1/transitions").request().get(String.class);
+        String stringResponse = target("/devicelifecycles/1/actions").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
         assertThat(model.<Number>get("$.total")).isEqualTo(2);
-        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions")).isNotNull();
-        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions")).hasSize(2);
-        assertThat(model.<Number>get("$.deviceLifeCycleTransitions[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.deviceLifeCycleTransitions[0].name")).isEqualTo(MessageSeeds.TRANSITION_COMMISSIONED.getDefaultFormat());
-        assertThat(model.<Object>get("$.deviceLifeCycleTransitions[0].fromState")).isNotNull();
-        assertThat(model.<Number>get("$.deviceLifeCycleTransitions[0].fromState.id")).isEqualTo(3);
-        assertThat(model.<String>get("$.deviceLifeCycleTransitions[0].fromState.name")).isEqualTo("In stock");
-        assertThat(model.<Object>get("$.deviceLifeCycleTransitions[0].toState")).isNotNull();
-        assertThat(model.<Number>get("$.deviceLifeCycleTransitions[0].toState.id")).isEqualTo(1);
-        assertThat(model.<String>get("$.deviceLifeCycleTransitions[0].toState.name")).isEqualTo("Commissioned");
-        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions[0].privileges")).isNotNull();
-        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions[0].privileges")).hasSize(1);
-        assertThat(model.<String>get("$.deviceLifeCycleTransitions[0].privileges[0].privilege")).isEqualTo("ONE");
-        assertThat(model.<String >get("$.deviceLifeCycleTransitions[0].privileges[0].name")).isEqualTo(MessageSeeds.PRIVILEGE_LEVEL_1.getDefaultFormat());
+        assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).isNotNull();
+        assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).hasSize(2);
+        assertThat(model.<Number>get("$.deviceLifeCycleActions[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.deviceLifeCycleActions[0].name")).isEqualTo(MessageSeeds.TRANSITION_COMMISSIONED.getDefaultFormat());
+        assertThat(model.<Object>get("$.deviceLifeCycleActions[0].fromState")).isNotNull();
+        assertThat(model.<Number>get("$.deviceLifeCycleActions[0].fromState.id")).isEqualTo(3);
+        assertThat(model.<String>get("$.deviceLifeCycleActions[0].fromState.name")).isEqualTo("In stock");
+        assertThat(model.<Object>get("$.deviceLifeCycleActions[0].toState")).isNotNull();
+        assertThat(model.<Number>get("$.deviceLifeCycleActions[0].toState.id")).isEqualTo(1);
+        assertThat(model.<String>get("$.deviceLifeCycleActions[0].toState.name")).isEqualTo("Commissioned");
+        assertThat(model.<List<?>>get("$.deviceLifeCycleActions[0].privileges")).isNotNull();
+        assertThat(model.<List<?>>get("$.deviceLifeCycleActions[0].privileges")).hasSize(1);
+        assertThat(model.<String>get("$.deviceLifeCycleActions[0].privileges[0].privilege")).isEqualTo("ONE");
+        assertThat(model.<String >get("$.deviceLifeCycleActions[0].privileges[0].name")).isEqualTo(MessageSeeds.PRIVILEGE_LEVEL_1.getDefaultFormat());
     }
 
     @Test
@@ -49,12 +49,12 @@ public class LifeCycleStateTransitionsResourceTest extends DeviceLifeCycleConfig
         when(dlc.getAuthorizedActions()).thenReturn(Collections.emptyList());
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
-        String stringResponse = target("/devicelifecycles/1/transitions").request().get(String.class);
+        String stringResponse = target("/devicelifecycles/1/actions").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
 
         assertThat(model.<Number>get("$.total")).isEqualTo(0);
-        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions")).isNotNull();
-        assertThat(model.<List<?>>get("$.deviceLifeCycleTransitions")).isEmpty();
+        assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).isNotNull();
+        assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).isEmpty();
     }
 
     @Test
@@ -64,7 +64,7 @@ public class LifeCycleStateTransitionsResourceTest extends DeviceLifeCycleConfig
         when(dlc.getAuthorizedActions()).thenReturn(actions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
-        String stringResponse = target("/devicelifecycles/1/transitions/1").request().get(String.class);
+        String stringResponse = target("/devicelifecycles/1/actions/1").request().get(String.class);
         JsonModel model = JsonModel.create(stringResponse);
         assertThat(model.<Number>get("$.id")).isEqualTo(1);
         assertThat(model.<String>get("$.name")).isEqualTo(MessageSeeds.TRANSITION_DECOMMISSIONED.getDefaultFormat());
@@ -77,7 +77,7 @@ public class LifeCycleStateTransitionsResourceTest extends DeviceLifeCycleConfig
         when(dlc.getAuthorizedActions()).thenReturn(actions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
-        Response response = target("/devicelifecycles/1/transitions/200").request().get();
+        Response response = target("/devicelifecycles/1/actions/200").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }

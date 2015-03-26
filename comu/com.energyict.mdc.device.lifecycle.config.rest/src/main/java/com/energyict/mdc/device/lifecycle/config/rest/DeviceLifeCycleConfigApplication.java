@@ -15,11 +15,11 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateResource;
-import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleStateTransitionsResource;
-import com.energyict.mdc.device.lifecycle.config.rest.resource.LifeCycleResource;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.DeviceLifeCycleStateResource;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.DeviceLifeCycleActionResource;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.DeviceLifeCycleResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.ResourceHelper;
-import com.energyict.mdc.device.lifecycle.config.rest.response.LifeCycleStateFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfoFactory;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -54,9 +54,9 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 TransactionWrapper.class,
-                LifeCycleResource.class,
-                LifeCycleStateResource.class,
-                LifeCycleStateTransitionsResource.class,
+                DeviceLifeCycleResource.class,
+                DeviceLifeCycleStateResource.class,
+                DeviceLifeCycleActionResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
     }
@@ -124,7 +124,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(AuthorizedActionInfoFactory.class).to(AuthorizedActionInfoFactory.class);
-            bind(LifeCycleStateFactory.class).to(LifeCycleStateFactory.class);
+            bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
         }
