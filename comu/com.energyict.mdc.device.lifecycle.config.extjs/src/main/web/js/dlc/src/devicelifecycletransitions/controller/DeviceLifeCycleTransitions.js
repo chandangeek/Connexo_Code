@@ -48,6 +48,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             success: function (deviceLifeCycleRecord) {
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
                 view.down('#device-life-cycle-link').setText(deviceLifeCycleRecord.get('name'));
+
             }
         });
     },
