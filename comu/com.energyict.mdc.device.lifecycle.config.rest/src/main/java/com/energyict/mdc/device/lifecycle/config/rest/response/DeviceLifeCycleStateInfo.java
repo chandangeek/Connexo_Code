@@ -9,7 +9,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DeviceLifeCycleStateInfo extends IdWithNameInfo {
+public class DeviceLifeCycleStateInfo {
+    public Long id;
+    public String name;
+
     public DeviceLifeCycleStateInfo() {}
 
     public DeviceLifeCycleStateInfo(Thesaurus thesaurus, State state) {

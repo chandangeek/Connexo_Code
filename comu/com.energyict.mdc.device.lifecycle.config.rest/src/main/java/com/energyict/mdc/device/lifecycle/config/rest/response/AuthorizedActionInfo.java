@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AuthorizedActionInfo extends IdWithNameInfo {
+public class AuthorizedActionInfo {
+    public Long id;
+    public String name;
     public DeviceLifeCycleStateInfo fromState;
     public DeviceLifeCycleStateInfo toState;
     public List<DeviceLifeCyclePrivilegeInfo> privileges;
@@ -19,7 +21,6 @@ public class AuthorizedActionInfo extends IdWithNameInfo {
     public AuthorizedActionInfo() {}
 
     public AuthorizedActionInfo(Thesaurus thesaurus, AuthorizedAction action) {
-        super();
         this.id = action.getId();
         this.privileges = action.getLevels().stream().map(lvl -> new DeviceLifeCyclePrivilegeInfo(thesaurus, lvl)).collect(Collectors.toList());
         if (action instanceof AuthorizedTransitionAction){

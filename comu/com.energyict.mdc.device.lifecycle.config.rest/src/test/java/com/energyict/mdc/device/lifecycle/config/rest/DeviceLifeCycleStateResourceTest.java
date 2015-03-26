@@ -1,12 +1,17 @@
 package com.energyict.mdc.device.lifecycle.config.rest;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateInfo;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
@@ -79,5 +84,24 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
 
         Response response = target("/devicelifecycles/1/states/3").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testAddNewLifeCycle(){
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
+        when(stateMachine.update()).thenReturn(fsmUpdater);
+        FiniteStateMachineBuilder.StateBuilder stateBuilder = mock(FiniteStateMachineBuilder.StateBuilder.class);
+        when(fsmUpdater.newCustomState(Matchers.anyString())).thenReturn(stateBuilder);
+        State newState = mockSimpleState(1L, "New state");
+        when(stateBuilder.complete()).thenReturn(newState);
+
+        DeviceLifeCycleStateInfo entity = new DeviceLifeCycleStateInfo();
+        entity.name = "New state";
+        Response response = target("/devicelifecycles/1/states").request().post(Entity.json(entity));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 }

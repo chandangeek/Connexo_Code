@@ -4,15 +4,19 @@ import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -53,5 +57,16 @@ public class DeviceLifeCycleStateResource {
     public Response getStateById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, @BeanParam QueryParameters queryParams) {
         State state = resourceHelper.findStateByIdOrThrowException(resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId), stateId);
         return Response.ok(deviceLifeCycleStateFactory.from(state)).build();
+    }
+
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    public Response addDeviceLifeCycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, DeviceLifeCycleStateInfo stateInfo) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        State newState = deviceLifeCycle.getFiniteStateMachine().update().newCustomState(stateInfo.name).complete();
+        return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(newState)).build();
     }
 }

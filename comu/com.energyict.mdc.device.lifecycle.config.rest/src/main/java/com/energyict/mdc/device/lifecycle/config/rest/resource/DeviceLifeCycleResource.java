@@ -60,8 +60,8 @@ public class DeviceLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
-    public Response addDeviceLifeCycle(DeviceLifeCycleInfo lifeCycle) {
-        DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(lifeCycle.name);
+    public Response addDeviceLifeCycle(DeviceLifeCycleInfo deviceLifeCycleInfo) {
+        DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(deviceLifeCycleInfo.name);
         return Response.status(Response.Status.CREATED).entity(new DeviceLifeCycleInfo(newLifeCycle)).build();
     }
 
