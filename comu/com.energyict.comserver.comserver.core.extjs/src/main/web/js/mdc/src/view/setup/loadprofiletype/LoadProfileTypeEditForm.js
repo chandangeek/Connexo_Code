@@ -230,7 +230,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         Ext.iterate(obj, function (key, value) {
             record.set(key, value);
         });
-        if (!me.down('#timeDuration').getValue()) {
+        if (typeof !me.down('#timeDuration').getValue() === "undefined") {
             record.set('timeDuration', null);
         } else {
             record.set('timeDuration', {id: obj.timeDuration});
