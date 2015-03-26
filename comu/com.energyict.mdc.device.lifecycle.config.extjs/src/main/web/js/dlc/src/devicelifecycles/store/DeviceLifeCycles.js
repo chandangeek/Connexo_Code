@@ -13,6 +13,7 @@ Ext.define('Dlc.devicelifecycles.store.DeviceLifeCycles', {
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
+        timeout: 300000,
         reader: {
             type: 'json',
             root: 'deviceLifeCycles'
