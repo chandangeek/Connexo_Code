@@ -26,18 +26,18 @@ public class ResourceHelper {
         return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_NOT_FOUND, id));
     }
 
-    public State findStateByIdOrThrowException(DeviceLifeCycle cycle, long stateId){
-        Objects.requireNonNull(cycle);
-        return cycle.getFiniteStateMachine().getStates()
+    public State findStateByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long stateId){
+        Objects.requireNonNull(deviceLifeCycle);
+        return deviceLifeCycle.getFiniteStateMachine().getStates()
                 .stream()
                 .filter(state -> state.getId() == stateId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_NOT_FOUND, stateId));
     }
 
-    public AuthorizedAction findAuthorizedActionByIdOrThrowException(DeviceLifeCycle lifeCycle, long actionId){
-        Objects.requireNonNull(lifeCycle);
-        return lifeCycle.getAuthorizedActions()
+    public AuthorizedAction findAuthorizedActionByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long actionId){
+        Objects.requireNonNull(deviceLifeCycle);
+        return deviceLifeCycle.getAuthorizedActions()
                 .stream()
                 .filter(action -> action.getId() == actionId)
                 .findFirst()

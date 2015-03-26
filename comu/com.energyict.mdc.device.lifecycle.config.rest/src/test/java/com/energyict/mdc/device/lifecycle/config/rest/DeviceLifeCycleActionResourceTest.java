@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
 
     @Test
-    public void testLifeCycleTransitionJsonModel(){
+    public void testDeviceLifeCycleActionJsonModel(){
         List<AuthorizedAction> actions = mockDefaultActions();
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getAuthorizedActions()).thenReturn(actions);
@@ -44,7 +44,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
     }
 
     @Test
-    public void testEmptyLifeCycleTransitionsList(){
+    public void testEmptyDeviceLifeCycleActionsList(){
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getAuthorizedActions()).thenReturn(Collections.emptyList());
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
@@ -58,7 +58,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
     }
 
     @Test
-    public void testGetLifeCycleTransitionById(){
+    public void testGetDeviceLifeCycleActionById(){
         List<AuthorizedAction> actions = mockDefaultActions();
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getAuthorizedActions()).thenReturn(actions);
@@ -71,7 +71,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
     }
 
     @Test
-    public void testGetUnexistedLifeCycleTransition(){
+    public void testGetUnexistedDeviceLifeCycleAction(){
         List<AuthorizedAction> actions = mockDefaultActions();
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(dlc.getAuthorizedActions()).thenReturn(actions);

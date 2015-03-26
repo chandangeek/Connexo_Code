@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
 
     @Test
-    public void testLifeCycleJsonModel(){
+    public void testDeviceLifeCycleJsonModel(){
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         Finder<DeviceLifeCycle> finder = mock(Finder.class);
         when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
@@ -39,7 +39,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testEmptyLifeCycleList(){
+    public void testEmptyDeviceLifeCycleList(){
         Finder<DeviceLifeCycle> finder = mock(Finder.class);
         when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
         when(finder.stream()).thenReturn(Collections.<DeviceLifeCycle>emptyList().stream());
@@ -54,7 +54,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testGetLifeCycleById(){
+    public void testGetDeviceLifeCycleById(){
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
@@ -65,7 +65,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testGetUnexistedLifeCycle(){
+    public void testGetUnexistedDeviceLifeCycle(){
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.empty());
 
         Response response = target("/devicelifecycles/1").request().get();
@@ -73,7 +73,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     }
 
     @Test
-    public void testAddNewLifeCycle(){
+    public void testAddNewDeviceLifeCycle(){
         DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "New life cycle");
         when(deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(Matchers.anyString())).thenReturn(lifeCycle);
 

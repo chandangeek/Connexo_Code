@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.response;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;

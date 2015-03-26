@@ -5,9 +5,9 @@ import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateInfo;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -19,6 +19,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
@@ -87,21 +89,70 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
     }
 
     @Test
-    public void testAddNewLifeCycle(){
+        public void testAddNewDeviceLifeCycleState(){
+        State newState = mockSimpleState(1L, "New state");
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getState("New state")).thenReturn(Optional.of(newState));
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
         when(stateMachine.update()).thenReturn(fsmUpdater);
         FiniteStateMachineBuilder.StateBuilder stateBuilder = mock(FiniteStateMachineBuilder.StateBuilder.class);
         when(fsmUpdater.newCustomState(Matchers.anyString())).thenReturn(stateBuilder);
-        State newState = mockSimpleState(1L, "New state");
+        when(fsmUpdater.complete()).thenReturn(stateMachine);
+
         when(stateBuilder.complete()).thenReturn(newState);
 
         DeviceLifeCycleStateInfo entity = new DeviceLifeCycleStateInfo();
         entity.name = "New state";
         Response response = target("/devicelifecycles/1/states").request().post(Entity.json(entity));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+
+    @Test
+    public void testEditDeviceLifeCycleState(){
+        State stateForEdit = mockSimpleState(1L, "Custom state");
+        when(stateForEdit.isCustom()).thenReturn(true);
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForEdit));
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+        FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
+        when(stateMachine.update()).thenReturn(fsmUpdater);
+        FiniteStateMachineUpdater.StateUpdater stateUpdater = mock(FiniteStateMachineUpdater.StateUpdater.class);
+        when(fsmUpdater.state(Matchers.anyLong())).thenReturn(stateUpdater);
+        when(stateUpdater.complete()).thenReturn(stateForEdit);
+
+        DeviceLifeCycleStateInfo entity = new DeviceLifeCycleStateInfo();
+        entity.name = "Eddited custom state";
+        Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(entity));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(stateUpdater, times(1)).setName(Matchers.anyString());
+    }
+
+    @Test
+    public void testEditDefaultDeviceLifeCycleState(){
+        State stateForEdit = mockSimpleState(1L, "Custom state");
+        when(stateForEdit.isCustom()).thenReturn(false);
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForEdit));
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+        FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
+        when(stateMachine.update()).thenReturn(fsmUpdater);
+        FiniteStateMachineUpdater.StateUpdater stateUpdater = mock(FiniteStateMachineUpdater.StateUpdater.class);
+        when(fsmUpdater.state(Matchers.anyLong())).thenReturn(stateUpdater);
+        when(stateUpdater.complete()).thenReturn(stateForEdit);
+
+        DeviceLifeCycleStateInfo entity = new DeviceLifeCycleStateInfo();
+        entity.name = "Eddited custom state";
+        Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(entity));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(stateUpdater, times(0)).setName(Matchers.anyString());
     }
 }

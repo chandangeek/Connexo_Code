@@ -7,8 +7,8 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
