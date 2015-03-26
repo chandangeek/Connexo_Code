@@ -1,5 +1,7 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -21,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -47,12 +51,14 @@ public class LoadProfileTypeResource {
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
+    private final MeteringService meteringService;
 
     @Inject
-    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, MeteringService meteringService) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
+        this.meteringService = meteringService;
     }
 
     @GET
@@ -141,6 +147,57 @@ public class LoadProfileTypeResource {
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/measurementtypes")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam QueryParameters queryParameters) {
+        Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
+                .filter(filterOutReadingTypesWithInterval())
+                .filter(filterOnCommodity())
+                .skip(queryParameters.getStart())
+                .limit(queryParameters.getLimit() + 1);
+
+        List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
+                .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+                .collect(toList());
+        return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
+    }
+
+    @GET
+    @Path("{id}/measurementtypes")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam QueryParameters queryParameters, @PathParam("id") long loadProfileId) {
+        LoadProfileType loadProfileType = this.findLoadProfileTypeByIdOrThrowException(loadProfileId);
+        Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
+                .filter(filterOutReadingTypesWithInterval())
+                .filter(filterOnCommodity())
+                .filter(filterExistingRegisterTypesOnLoadProfileType(loadProfileType))
+                .skip(queryParameters.getStart())
+                .limit(queryParameters.getLimit() + 1);
+
+        List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
+                .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+                .collect(toList());
+        return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
+    }
+
+    private Predicate<? super RegisterType> filterExistingRegisterTypesOnLoadProfileType(LoadProfileType loadProfileType) {
+        return registerType -> loadProfileType.getChannelTypes().stream()
+                .filter(channelType -> channelType.getTemplateRegister().getId() == registerType.getId()).count() == 0;
+    }
+
+    private Predicate<? super RegisterType> filterOutReadingTypesWithInterval() {
+        return registerType -> !(registerType.getReadingType().getMacroPeriod().isApplicable()
+                || registerType.getReadingType().getMeasuringPeriod().isApplicable());
+    }
+
+    private Predicate<? super RegisterType> filterOnCommodity() {
+        return registerType -> !(registerType.getReadingType().getCommodity().equals(Commodity.NOTAPPLICABLE)
+                || (registerType.getReadingType().getCommodity().equals(Commodity.COMMUNICATION))
+                || (registerType.getReadingType().getCommodity().equals(Commodity.DEVICE)));
+    }
 
     private LoadProfileType findLoadProfileTypeByIdOrThrowException(long loadProfileId) {
         Optional<LoadProfileType> loadProfileTypeRef = masterDataService.findLoadProfileType(loadProfileId);
@@ -150,7 +207,6 @@ public class LoadProfileTypeResource {
 
         return loadProfileTypeRef.get();
     }
-
 
     private void addAllChannelTypesToLoadProfileType(LoadProfileType loadProfileType) {
         Set<Long> alreadyAdded = loadProfileType.getChannelTypes().stream().map(ChannelType::getId).collect(Collectors.toSet());
