@@ -219,7 +219,16 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
-	
+
+	@Override
+	public Optional<T> lockVersionOfObject(long version, Object... values) {
+		try {
+			return Optional.ofNullable(reader.lock(KeyValue.of(values), version));
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
+
 	@Override
 	public Optional<T> lockNoWait(Object... values)  {
 		try {
