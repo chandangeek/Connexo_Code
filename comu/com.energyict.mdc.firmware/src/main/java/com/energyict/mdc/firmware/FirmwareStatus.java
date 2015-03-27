@@ -1,19 +1,30 @@
 package com.energyict.mdc.firmware;
 
 public enum FirmwareStatus {
-    TEST("test"),
-    FINAL("final"),
-    GHOST("ghost"),
-    DEPRECATED("deprecated");
+    TEST("test", "Test"),
+    FINAL("final", "Final"),
+    GHOST("ghost", "Ghost"),
+    DEPRECATED("deprecated", "Deprecated");
 
     private String status;
+    private String displayValue;
 
-    private FirmwareStatus(String status) {
+    private FirmwareStatus(String status, String displayValue) {
         this.status = status;
+        this.displayValue = displayValue;
     }
 
     public String getStatus() {
         return status;
+    }
+
+    public String getDisplayValue() {
+        return displayValue;
+    }
+
+    @Override
+    public String toString() {
+        return getStatus();
     }
 
     public static FirmwareStatus from(String status) {
