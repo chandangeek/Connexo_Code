@@ -55,7 +55,7 @@ public class ComTaskResource {
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComTasks(@BeanParam QueryParameters queryParameters) {
         List<ComTaskInfo> comTaskInfos =
-                ComTaskInfo.from(ListPager.of(taskService.findAllComTasks(), new ComTaskComparator()).from(queryParameters).find());
+                ComTaskInfo.from(ListPager.of(taskService.findAllUserComTasks(), new ComTaskComparator()).from(queryParameters).find());
         return PagedInfoList.fromPagedList("data", comTaskInfos, queryParameters);
     }
 
@@ -169,7 +169,7 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
-        Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageSpecificationService.allCategories().stream();
+        Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream();
         String availableFor = uriInfo.getQueryParameters().getFirst("availableFor");
         if (availableFor != null) {
             ComTask comTask = taskService.findComTask(Long.parseLong(availableFor)).orElse(null);
