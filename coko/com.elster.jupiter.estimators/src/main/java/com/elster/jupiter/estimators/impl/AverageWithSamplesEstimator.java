@@ -59,7 +59,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     @Override
-    public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
+    public void init() {
         numberOfConsecutiveSuspects = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
         if (numberOfConsecutiveSuspects == null) {
             this.numberOfConsecutiveSuspects = MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE;
