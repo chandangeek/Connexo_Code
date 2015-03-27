@@ -18,6 +18,7 @@ Export-Package: com.energyict.mdc.protocol.api,\
         com.energyict.mdc.protocol.api.dialer.serialserviceprovider,\
         com.energyict.mdc.protocol.api.dynamic,\
         com.energyict.mdc.protocol.api.exceptions,\
+        com.energyict.mdc.protocol.api.firmware,\
         com.energyict.mdc.protocol.api.inbound,\
         com.energyict.mdc.protocol.api.legacy,\
         com.energyict.mdc.protocol.api.legacy.dynamic,\

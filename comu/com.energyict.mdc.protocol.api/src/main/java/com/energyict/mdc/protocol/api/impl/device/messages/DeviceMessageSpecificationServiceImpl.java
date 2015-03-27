@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -18,6 +20,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService} interface.
@@ -69,7 +72,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     }
 
     @Override
-    public List<DeviceMessageCategory> allCategories() {
+    public List<DeviceMessageCategory> filteredCategoriesForUserSelection() {
         EnumSet<DeviceMessageCategories> excluded =
                 EnumSet.of(
                         DeviceMessageCategories.ACTIVITY_CALENDAR,
@@ -86,8 +89,18 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     }
 
     @Override
+    public List<DeviceMessageCategory> allCategories() {
+        return Stream.of(DeviceMessageCategories.values())
+                .map(DeviceMessageCategoryImpl::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<DeviceMessageCategory> findCategoryById(int categoryId) {
-        return this.allCategories().stream().filter(category -> categoryId == category.getId()).findFirst();
+        return Stream.of(DeviceMessageCategories.values())
+                .map(deviceMessageCategories -> ((DeviceMessageCategory) new DeviceMessageCategoryImpl(deviceMessageCategories)))
+                .filter(category -> categoryId == category.getId())
+                .findFirst();
     }
 
     @Override
@@ -95,16 +108,33 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         return this.allMessageSpecs().stream().filter(messageSpec -> messageSpecIdDbValue == messageSpec.getId().dbValue()).findFirst();
     }
 
+    @Override
+    public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId) {
+        return Stream.of(FirmwareDeviceMessage.values())
+                .filter(firmwareDeviceMessage -> firmwareDeviceMessage.getId().equals(deviceMessageId))
+                .map(FirmwareDeviceMessage::getProtocolSupportedFirmwareOption)
+                .findAny().orElse(Optional.empty());
+    }
+
+    @Override
+    public DeviceMessageCategory getFirmwareCategory() {
+        return new DeviceMessageCategoryImpl(DeviceMessageCategories.FIRMWARE);
+    }
+
     private List<DeviceMessageSpec> allMessageSpecs() {
-        return this.allCategories().stream().flatMap(category -> category.getMessageSpecifications().stream()).collect(Collectors.toList());
+        return Stream.of(DeviceMessageCategories.values())
+                .map(deviceMessageCategories -> ((DeviceMessageCategory) new DeviceMessageCategoryImpl(deviceMessageCategories)))
+                .flatMap(category -> category.getMessageSpecifications().stream()).collect(Collectors.toList());
     }
 
     private class DeviceMessageCategoryImpl implements DeviceMessageCategory {
         private final DeviceMessageCategories category;
+        private final int deviceMessageCategoryId;
 
         private DeviceMessageCategoryImpl(DeviceMessageCategories category) {
             super();
             this.category = category;
+            deviceMessageCategoryId = this.category.ordinal();
         }
 
         @Override
@@ -119,7 +149,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
 
         @Override
         public int getId() {
-            return this.category.ordinal();
+            return deviceMessageCategoryId;
         }
 
         @Override
@@ -127,6 +157,26 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
             return this.category.getMessageSpecifications(this, propertySpecService, thesaurus);
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DeviceMessageCategoryImpl)) {
+                return false;
+            }
+
+            DeviceMessageCategoryImpl that = (DeviceMessageCategoryImpl) o;
+
+            return deviceMessageCategoryId == that.deviceMessageCategoryId;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = category.hashCode();
+            result = 31 * result + deviceMessageCategoryId;
+            return result;
+        }
     }
 
 }

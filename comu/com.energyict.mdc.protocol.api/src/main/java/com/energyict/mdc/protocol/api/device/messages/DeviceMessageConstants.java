@@ -17,7 +17,7 @@ public class DeviceMessageConstants {
     public static final String dstStartAlgorithmAttributeName = "ClockDeviceMessage.dstStartAlgorithm";
     public static final String dstEndAlgorithmAttributeName = "ClockDeviceMessage.dstEndAlgorithm";
     public static final String firmwareUpdateVersionNumberAttributeName = "FirmwareDeviceMessage.upgrade.version";
-    public static final String firmwareUpdateUserFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
+    public static final String firmwareUpdateFileAttributeName = "FirmwareDeviceMessage.upgrade.firwareversion";
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
