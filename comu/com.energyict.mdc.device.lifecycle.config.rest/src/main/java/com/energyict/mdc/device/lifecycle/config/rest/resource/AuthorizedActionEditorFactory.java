@@ -138,7 +138,7 @@ public class AuthorizedActionEditorFactory {
             Set<AuthorizedAction.Level> levels = EnumSet.noneOf(AuthorizedAction.Level.class);
             levelInfos
                 .stream()
-                .map(each -> each.name)
+                .map(each -> each.privilege)
                 .map(AuthorizedAction.Level::valueOf)
                 .forEach(levels::add);
             return levels;

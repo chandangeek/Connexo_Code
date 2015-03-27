@@ -21,7 +21,10 @@ public class AuthorizedActionInfo {
 
     public AuthorizedActionInfo(Thesaurus thesaurus, AuthorizedAction action) {
         this.id = action.getId();
-        this.privileges = action.getLevels().stream().map(lvl -> new DeviceLifeCyclePrivilegeInfo(thesaurus, lvl)).collect(Collectors.toList());
+        this.privileges = action.getLevels()
+                .stream()
+                .map(lvl -> new DeviceLifeCyclePrivilegeInfo(thesaurus, lvl))
+                .collect(Collectors.toList());
         if (action instanceof AuthorizedTransitionAction){
             fromBasicAction(thesaurus, (AuthorizedTransitionAction) action);
         } else {
