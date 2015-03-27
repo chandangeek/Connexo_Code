@@ -1,10 +1,6 @@
 package com.energyict.mdc.issue.datacollection.impl.actions;
 
 
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.issue.share.cep.AbstractIssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionResult;
 import com.elster.jupiter.issue.share.cep.controls.DefaultActionResult;
@@ -13,13 +9,13 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import java.util.Map;
+import javax.inject.Inject;
 
 public class RetryConnectionTaskAction extends AbstractIssueAction {
     private IssueService issueService;
@@ -40,7 +36,6 @@ public class RetryConnectionTaskAction extends AbstractIssueAction {
             issue.save();
             ScheduledConnectionTask task = (ScheduledConnectionTask)((IssueDataCollection) issue).getConnectionTask().get();
             task.scheduleNow();
-            task.getScheduledComTasks().stream().filter(comTaskExecution -> comTaskExecution.getStatus().equals(TaskStatus.Failed)|| comTaskExecution.getStatus().equals(TaskStatus.Retrying)).forEach(ComTaskExecution::runNow);
             result.success(MessageSeeds.ACTION_RETRY_CONNECTION_SUCCESS.getTranslated(getThesaurus()));
         }
         return result;
