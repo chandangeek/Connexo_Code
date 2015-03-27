@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 public class FirmwareVersionInfo {
     public Long id;
     public String firmwareVersion;
-    //@XmlJavaTypeAdapter(FirmwareTypeAdapter.class)
     public FirmwareTypeInfo firmwareType;
-    //@XmlJavaTypeAdapter(FirmwareStatusAdapter.class)
     public FirmwareStatusInfo firmwareStatus;
     public Integer fileSize;
     public String firmwareFile;
