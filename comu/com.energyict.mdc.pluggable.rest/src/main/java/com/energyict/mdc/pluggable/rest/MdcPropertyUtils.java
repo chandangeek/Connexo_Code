@@ -16,6 +16,7 @@ import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
@@ -27,6 +28,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
@@ -38,6 +40,13 @@ import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.
  * and their corresponding PropertySpecs
  */
 public class MdcPropertyUtils {
+
+    private FirmwareService firmwareService;
+
+    @Inject
+    public MdcPropertyUtils(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
+    }
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
         convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList, SHOW_VALUES, WITHOUT_PRIVILEGES);
@@ -156,6 +165,8 @@ public class MdcPropertyUtils {
                 possibleValues = device.getLogBooks();
             } else if (simplePropertyType.equals(SimplePropertyType.REGISTER)) {
                 possibleValues = device.getRegisters();
+            } else if(simplePropertyType.equals(SimplePropertyType.FIRMWAREVERSION)){
+                possibleValues = this.firmwareService.getAllUpgradableFirmwareVersionsFor(device);
             }
         }
 

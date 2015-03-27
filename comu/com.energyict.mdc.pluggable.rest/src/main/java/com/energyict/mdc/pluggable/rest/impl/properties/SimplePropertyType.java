@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.dynamic.*;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
@@ -37,7 +38,6 @@ public enum SimplePropertyType implements PropertyType {
     CODETABLE(FactoryIds.CODE, Code.class),
     TIMEZONEINUSE(FactoryIds.TIMEZONE_IN_USE, TimeZoneInUse.class),
     USERFILEREFERENCE(FactoryIds.USERFILE, UserFile.class),
-    //LOADPROFILETYPE(FactoryIds.LOADPROFILE_TYPE, LoadProfileType.class),
     EAN13(Ean13Factory.class),
     EAN18(Ean18Factory.class),
     DATE(DateFactory.class),
@@ -49,7 +49,8 @@ public enum SimplePropertyType implements PropertyType {
     LOADPROFILE(JupiterReferenceFactory.class, LoadProfile.class),
     LOGBOOK(JupiterReferenceFactory.class, LogBook.class),
     REGISTER(JupiterReferenceFactory.class, Register.class),
-    TEXT(StringFactory.class);
+    TEXT(StringFactory.class),
+    FIRMWAREVERSION(JupiterReferenceFactory.class, FirmwareVersion.class);
 
     private Class valueFactoryClass;
     private Class domainClass;
