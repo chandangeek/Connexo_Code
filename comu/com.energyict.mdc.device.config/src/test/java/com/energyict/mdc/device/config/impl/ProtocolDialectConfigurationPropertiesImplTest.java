@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -191,6 +193,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new ProtocolPluggableModule(),
                 new IssuesModule(),
                 new ValidationModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule());

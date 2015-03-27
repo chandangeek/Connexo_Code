@@ -48,7 +48,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private String description;
     @IsPresent(message = "{" + MessageSeeds.Keys.DEVICE_LIFE_CYCLE_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<DeviceLifeCycle> deviceLifeCycle = ValueReference.absent();
-    private boolean useChannelJournal;
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     @Valid
@@ -475,10 +474,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     public boolean supportsMessaging() {
         return this.getDeviceProtocolPluggableClass() != null;
-    }
-
-    public boolean isChannelJournalUsed() {
-        return this.useChannelJournal;
     }
 
     public boolean isLogicalSlave() {

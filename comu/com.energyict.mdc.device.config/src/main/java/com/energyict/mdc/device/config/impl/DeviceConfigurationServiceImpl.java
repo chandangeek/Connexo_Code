@@ -117,7 +117,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, MasterDataService masterDataService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -127,7 +127,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setProtocolPluggableService(protocolPluggableService);
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.setEngineConfigurationService(engineConfigurationService);
-        this.setMasterDataService(this.masterDataService);
+        this.setMasterDataService(masterDataService);
         this.setSchedulingService(schedulingService);
         this.setValidationService(validationService);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);

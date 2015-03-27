@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.FactoryIds;
@@ -196,6 +198,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
                 new IssuesModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
@@ -232,6 +236,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                     schedulingService,
                     injector.getInstance(ValidationService.class),
                     injector.getInstance(DeviceLifeCycleConfigurationService.class));
+                    injector.getInstance(ValidationService.class),
+                    injector.getInstance(MasterDataService.class));
             DataModel dataModel = deviceConfigurationService.getDataModel();
             createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
