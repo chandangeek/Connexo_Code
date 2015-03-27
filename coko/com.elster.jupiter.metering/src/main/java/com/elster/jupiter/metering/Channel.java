@@ -27,8 +27,8 @@ public interface Channel {
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Range<Instant> interval);
     List<BaseReadingRecord> getReadings(ReadingType readingType, Range<Instant> interval);
     Optional<BaseReadingRecord> getReading(Instant when);
-    ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReading baseReading);
-    ReadingQualityRecord createReadingQuality(ReadingQualityType type, Instant timestamp);
+    ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, BaseReading baseReading);
+    ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, Instant timestamp);
     Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
     List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval);
     List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval);
@@ -52,6 +52,8 @@ public interface Channel {
 	}
 
     ZoneId getZoneId();
+
+    Optional<CimChannel> getCimChannel(ReadingType readingType);
 
     interface ReadingsDeletedEvent {
 		Channel getChannel();

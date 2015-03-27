@@ -1,12 +1,16 @@
 package com.elster.jupiter.metering.impl;
 
-import javax.inject.Inject;
-
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class ReadingTypeInChannel {
-	
+import javax.inject.Inject;
+import java.util.List;
+
+public class ReadingTypeInChannel extends AbstractCimChannel {
+
     @SuppressWarnings("unused")
     private int position;
     
@@ -14,7 +18,8 @@ public class ReadingTypeInChannel {
     private final Reference<ReadingTypeImpl> readingType = ValueReference.absent();
 
     @Inject
-    ReadingTypeInChannel() {
+    ReadingTypeInChannel(DataModel dataModel) {
+        super(dataModel);
     }
 
     ReadingTypeInChannel init(ChannelImpl channel, ReadingTypeImpl readingType) {
@@ -23,7 +28,26 @@ public class ReadingTypeInChannel {
         return this;
     }
 
-    public ReadingTypeImpl getReadingType() {        
+    @Override
+    public ReadingTypeImpl getReadingType() {
         return readingType.get();
     }
+
+    @Override
+    public ChannelImpl getChannel() {
+        return channel.get();
+    }
+
+    @Override
+    public void editReadings(List<? extends BaseReading> readings) {
+        //TODO automatically generated method body, provide implementation.
+
+    }
+
+    @Override
+    public void removeReadings(List<? extends BaseReadingRecord> readings) {
+        //TODO automatically generated method body, provide implementation.
+
+    }
+
 }

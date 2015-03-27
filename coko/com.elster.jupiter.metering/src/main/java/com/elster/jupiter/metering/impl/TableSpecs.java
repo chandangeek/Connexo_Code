@@ -291,11 +291,13 @@ public enum TableSpecs {
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
             Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
+            Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
             table.column("COMMENTS").type("varchar(4000)").map("comment").add();
             table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();
             table.foreignKey("MTR_FK_RQ_CHANNEL").references(MTR_CHANNEL.name()).onDelete(DeleteRule.RESTRICT).map("channel").on(channelColumn).add();
+            table.foreignKey("MTR_FK_RQ_READINGTYPE").references(MTR_READINGTYPE.name()).onDelete(DeleteRule.RESTRICT).map("readingType").on(readingTypeColumn).add();
             table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn).add();
         }
     },

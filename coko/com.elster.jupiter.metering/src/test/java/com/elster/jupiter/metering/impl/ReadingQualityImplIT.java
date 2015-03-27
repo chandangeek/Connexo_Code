@@ -189,7 +189,7 @@ public class ReadingQualityImplIT {
         regularStorer.addReading(channel, IntervalReadingImpl.of(date, BigDecimal.valueOf(561561, 2)));
         regularStorer.execute();
         BaseReadingRecord reading = channel.getReading(date).get();
-        ReadingQualityRecord readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);
+        ReadingQualityRecord readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), readingType, reading);
         readingQuality.save();
         return readingQuality;
     }

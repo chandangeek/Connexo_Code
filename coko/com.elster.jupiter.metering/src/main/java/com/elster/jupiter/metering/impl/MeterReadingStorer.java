@@ -26,17 +26,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.google.common.collect.Range;
 
-import java.time.Instant;
-import java.util.Optional;
-
 import javax.inject.Provider;
-
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -308,7 +306,7 @@ public class MeterReadingStorer {
     }
 
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
-        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), channel, reading.getTimeStamp());
+        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), channel.getCimChannel(channel.getMainReadingType()).get(), reading.getTimeStamp());
         newReadingQuality.setComment(readingQuality.getComment());
         return newReadingQuality;
     }
