@@ -58,6 +58,8 @@ public interface DeviceLifeCycle {
      */
     public List<AuthorizedAction> getAuthorizedActions(State state);
 
+    public DeviceLifeCycleUpdater startUpdate();
+
     public void save();
 
     public void delete();

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
 
 import com.elster.jupiter.domain.util.Save;
@@ -136,4 +137,8 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         this.dataModel.remove(this);
     }
 
+    @Override
+    public DeviceLifeCycleUpdater startUpdate() {
+        return null;
+    }
 }
