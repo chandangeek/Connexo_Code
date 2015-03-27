@@ -380,22 +380,15 @@
         <profile>
             <id>mdc-all</id>
             <modules>
+                <!-- Can we please keep this list organized alphabetically -->
+                <module>../com.energyict.comserver.comserver.core.extjs</module>
+                <module>../com.energyict.comserver.comserver.core.rest</module>
                 <module>../com.energyict.mdc.app</module>
                 <module>../com.energyict.mdc.app.help</module>
                 <module>../com.energyict.mdc.common</module>
-                <module>../com.energyict.mdc.dynamic</module>
-                <module>../com.energyict.mdc.pluggable</module>
-                <module>../com.energyict.mdc.pluggable.rest</module>
-                <module>../com.energyict.mdc.issues</module>
-                <module>../com.energyict.mdc.metering</module>
-                <module>../com.energyict.mdc.tasks</module>
-                <module>../com.energyict.mdc.tasks.rest</module>
-                <module>../com.energyict.mdc.io</module>
-                <module>../com.energyict.mdc.gogo</module>
-                <module>../com.energyict.mdc.protocol.api</module>
-                <module>../com.energyict.mdc.protocol.pluggable</module>
-                <module>../com.energyict.mdc.masterdata</module>
-                <module>../com.energyict.mdc.masterdata.rest</module>
+                <module>../com.energyict.mdc.dashboard</module>
+                <module>../com.energyict.mdc.dashboard.rest</module>
+                <module>../com.energyict.mdc.dashboard.extjs</module>
                 <module>../com.energyict.mdc.device.config</module>
                 <module>../com.energyict.mdc.device.config.rest</module>
                 <module>../com.energyict.mdc.device.data</module>
@@ -404,29 +397,37 @@
                 <module>../com.energyict.mdc.device.lifecycle.config.rest</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.extjs</module>
                 <module>../com.energyict.mdc.device.topology</module>
-                <module>../com.energyict.mdc.favorites</module>
                 <module>../com.energyict.mdc.device.data.rest</module>
                 <module>../com.energyict.mdc.device.data.imp</module>
                 <module>../com.energyict.mdc.device.data.imp.messagehandlers</module>
                 <module>../com.energyict.mdc.device.data.imp.rest</module>
                 <module>../com.energyict.mdc.device.data.imp.extjs</module>
+                <module>../com.energyict.mdc.dynamic</module>
                 <module>../com.energyict.mdc.engine</module>
                 <module>../com.energyict.mdc.engine.config</module>
                 <module>../com.energyict.mdc.favorites</module>
                 <module>../com.energyict.mdc.firmware</module>
                 <module>../com.energyict.mdc.firmware.extjs</module>
                 <module>../com.energyict.mdc.firmware.rest</module>
+                <module>../com.energyict.mdc.gogo</module>
+                <module>../com.energyict.mdc.io</module>
                 <module>../com.energyict.mdc.issue.datacollection</module>
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
+                <module>../com.energyict.mdc.issues</module>
+                <module>../com.energyict.mdc.masterdata</module>
+                <module>../com.energyict.mdc.masterdata.rest</module>
+                <module>../com.energyict.mdc.metering</module>
+                <module>../com.energyict.mdc.pluggable</module>
+                <module>../com.energyict.mdc.pluggable.rest</module>
+                <module>../com.energyict.mdc.protocol.api</module>
+                <module>../com.energyict.mdc.protocol.pluggable</module>
+                <module>../com.energyict.mdc.protocols</module>
                 <module>../com.energyict.mdc.scheduling</module>
                 <module>../com.energyict.mdc.scheduling.rest</module>
-                <module>../com.energyict.mdc.dashboard</module>
-                <module>../com.energyict.mdc.dashboard.rest</module>
-                <module>../com.energyict.mdc.dashboard.extjs</module>
-                <module>../com.energyict.comserver.comserver.core.extjs</module>
-                <module>../com.energyict.comserver.comserver.core.rest</module>
-                <module>../com.energyict.mdc.protocols</module>
+                <module>../com.energyict.mdc.tasks</module>
+                <module>../com.energyict.mdc.tasks.rest</module>
+                <!-- Can we please keep this list organized alphabetically -->
             </modules>
         </profile>
     </profiles>
