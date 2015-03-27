@@ -83,7 +83,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Inject
-    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService) {
+    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService, UserService userService) {
         setMeteringService(meteringService);
         setOrmService(ormService);
         setQueryService(queryService);
@@ -93,6 +93,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         setMeteringGroupsService(meteringGroupsService);
         setMessageService(messageService);
         setTimeService(timeService);
+        setUserService(userService);
         activate();
         install();
     }
@@ -150,7 +151,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Reference
-    public void setTimeService(TimeService timeService) {
+     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
 
