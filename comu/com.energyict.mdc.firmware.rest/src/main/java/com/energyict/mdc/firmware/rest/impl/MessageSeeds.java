@@ -9,7 +9,8 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
-    FIELD_IS_REQUIRED(1, Keys.FIELD_IS_REQUIRED, "This field is required"),
+    VERSION_IN_USE(1, Keys.VERSION_IN_USE, "This version is in use and can''t be modified"),
+    VERSION_IS_DEPRECATED(2, Keys.VERSION_IS_DEPRECATED, "This version is deprecated and can''t be modified"),
     ;
     private final int number;
     private final String key;
@@ -54,6 +55,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     }
 
     public static class Keys {
-        public static final String FIELD_IS_REQUIRED = "FieldIsRequired";
+        public static final String VERSION_IN_USE = "VersionInUse";
+        public static final String VERSION_IS_DEPRECATED = "VersionInDeprecated";
     }
 }
