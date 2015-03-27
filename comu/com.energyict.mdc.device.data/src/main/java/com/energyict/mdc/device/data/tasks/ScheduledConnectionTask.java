@@ -106,8 +106,8 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
     void setDynamicMaxNumberOfTries(int maxNumberOfTries);
 
     /**
-     * Updates the next execution of this ConnectionTask
-     * so that it will get picked up as soon as possible.
+     * Updates the next execution of this ConnectionTask so that it will get picked up as soon as possible.
+     * All ComTaskExecutions linked to this ConnectionTask in states Pending, Failed, Retrying or Never completed
      *
      * @return The timestamp on which this ScheduledConnectionTask is scheduled.
      */

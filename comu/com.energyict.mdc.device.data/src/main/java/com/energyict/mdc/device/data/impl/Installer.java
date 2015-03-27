@@ -1,25 +1,24 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.security.Privileges;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.UserService;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,13 +35,15 @@ import java.util.logging.Logger;
  */
 public class Installer {
 
+    private final static Logger LOGGER = Logger.getLogger(Installer.class.getName());
+
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_NAME = "COMSCHED_RECALCULATOR";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME = "COMSCHED_BATCH_OBSOLETE";
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
-    private static final int KPI_CALCULATOR_TASK_RETRY_DELAY = 60;
 
+    private static final int KPI_CALCULATOR_TASK_RETRY_DELAY = 60;
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
@@ -132,17 +133,23 @@ public class Installer {
         try {
             this.createMessageHandler(COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
             this.createMessageHandler(COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
+            this.createMessageHandler(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER);
+            this.createMessageHandler(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER);
         } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
     }
 
     private void createMessageHandler(String messagingName) {
+        createMessageHandler(messagingName, messagingName);
+    }
+
+    private void createMessageHandler(String messagingName, String subscriberName) {
         try {
             QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
             DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(messagingName, DEFAULT_RETRY_DELAY_IN_SECONDS);
             destinationSpec.activate();
-            destinationSpec.subscribe(messagingName);
+            destinationSpec.subscribe(subscriberName);
         } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }

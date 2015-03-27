@@ -513,7 +513,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
         ConnectionTask<?, ?> connectionTask = this.getConnectionTask();
         if (connectionTask instanceof ScheduledConnectionTask) {
-            ((ScheduledConnectionTask) connectionTask).scheduleNow();
+            ((ScheduledConnectionTaskImpl) connectionTask).scheduleConnectionNow();
         }
         this.update();
     }
