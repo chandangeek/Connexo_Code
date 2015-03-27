@@ -225,6 +225,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                 .filter(rule -> rule.getReadingTypes().contains(readingType))
                 .map(IEstimationRule::createNewEstimator)
                 .forEach(estimator -> {
+                    estimator.init();
                     EstimationResult estimationResult = result.get();
                     estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
                     result.update(estimator.estimate(estimationResult.remainingToBeEstimated()));
