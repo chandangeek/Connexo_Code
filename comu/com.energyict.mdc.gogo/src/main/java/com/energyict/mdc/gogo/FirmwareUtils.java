@@ -184,13 +184,13 @@ public class FirmwareUtils {
     }
 
     public void createFirmwareMessageFor(String mridOfDevice, String firwareVersion) {
-        Device device = this.deviceService.findByUniqueMrid(mridOfDevice);
-        if (device != null) {
-            Condition where = Where.where("firmwareVersion").isEqualTo(firwareVersion).and(Where.where("deviceType").isEqualTo(device.getDeviceType()));
+        Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
+        if (device.isPresent()) {
+            Condition where = Where.where("firmwareVersion").isEqualTo(firwareVersion).and(Where.where("deviceType").isEqualTo(device.get().getDeviceType()));
             List<FirmwareVersion> firmwareVersions = this.firmwareService.findAllFirmwareVersions(where).find();
             if (firmwareVersions.size() > 0) {
                 executeTransaction(() -> {
-                    Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
+                    Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
                     DeviceMessage<Device> deviceMessage = deviceMessageBuilder
                             .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersions.get(0))
                             .setReleaseDate(clock.instant())
@@ -207,11 +207,11 @@ public class FirmwareUtils {
     }
 
     public void triggerFirmwareTaskFor(String mridOfDevice) {
-        Device device = this.deviceService.findByUniqueMrid(mridOfDevice);
-        if (device != null) {
+        Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
+        if (device.isPresent()) {
             Optional<ComTask> firmwareComTask = this.taskService.findFirmwareComTask();
             if (firmwareComTask.isPresent()) {
-                Optional<ComTaskExecution> existingFirmwareComTaskExecution = device.getComTaskExecutions().stream()
+                Optional<ComTaskExecution> existingFirmwareComTaskExecution = device.get().getComTaskExecutions().stream()
                         .filter(comTaskExecution -> comTaskExecution.getComTasks().stream().filter(comTask -> comTask.getId() == firmwareComTask.get().getId()).count() > 0).findFirst();
 
                 executeTransaction(() -> {
@@ -222,11 +222,11 @@ public class FirmwareUtils {
                         System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
                     } else {
                         System.out.println("Creating a new FirmwareComTaskExecution based on the enablement of the config");
-                        Optional<ComTaskEnablement> firmwareComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask.get());
+                        Optional<ComTaskEnablement> firmwareComTaskEnablement = device.get().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask.get());
                         if (firmwareComTaskEnablement.isPresent()) {
-                            ComTaskExecutionBuilder<FirmwareComTaskExecution> firmwareComTaskExecutionBuilder = device.newFirmwareComTaskExecution(firmwareComTaskEnablement.get());
+                            ComTaskExecutionBuilder<FirmwareComTaskExecution> firmwareComTaskExecutionBuilder = device.get().newFirmwareComTaskExecution(firmwareComTaskEnablement.get());
                             FirmwareComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionBuilder.add();
-                            device.save();
+                            device.get().save();
                             firmwareComTaskExecution.runNow();
                             System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
                         } else {
