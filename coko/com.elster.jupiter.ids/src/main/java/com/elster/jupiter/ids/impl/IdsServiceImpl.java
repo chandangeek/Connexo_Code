@@ -4,6 +4,7 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
+import com.elster.jupiter.ids.TimeSeriesDataWriter;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -13,21 +14,18 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Optional;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
@@ -69,6 +67,11 @@ public class IdsServiceImpl implements IdsService, InstallService, TranslationKe
     @Override
     public TimeSeriesDataStorer createStorer(boolean overrules) {
         return new TimeSeriesDataStorerImpl(dataModel, clock, thesaurus, overrules);
+    }
+
+    @Override
+    public TimeSeriesDataWriter createWriter(boolean overrules) {
+        return new TimeSeriesDataWriterImpl(dataModel, clock, thesaurus, overrules);
     }
 
     @Override
