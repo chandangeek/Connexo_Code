@@ -2,12 +2,14 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.TimeSeriesDataStorer;
+import com.elster.jupiter.ids.TimeSeriesDataWriter;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.util.Pair;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -17,51 +19,64 @@ import java.util.Map;
 
 public class ReadingStorerImpl implements ReadingStorer {
     private static final ProcessStatus DEFAULTPROCESSSTATUS = ProcessStatus.of();
-    private final TimeSeriesDataStorer storer;
+    private final TimeSeriesDataWriter writer;
 
-    private final Map<Channel, Range<Instant>> scope = new HashMap<>();
+    private final Map<CimChannel, Range<Instant>> scope = new HashMap<>();
     private final EventService eventService;
+    private final Map<Pair<Channel, Instant>, Object[]> consolidatedValues = new HashMap<>();
+    private final Map<Pair<Channel, Instant>, BaseReading> readings = new HashMap<>();
 
     public ReadingStorerImpl(IdsService idsService, EventService eventService, boolean overrules) {
         this.eventService = eventService;
-        this.storer = idsService.createStorer(overrules);
+        this.writer = idsService.createWriter(overrules);
     }
 
     @Override
-    public void addReading(Channel channel, BaseReading reading) {
+    public void addReading(CimChannel channel, BaseReading reading) {
         addReading(channel, reading, DEFAULTPROCESSSTATUS);
     }
 
     @Override
-    public void addReading(Channel channel, BaseReading reading, ProcessStatus status) {
-        Object[] values = ((ChannelContract) channel).toArray(reading, status);
-        ((ChannelContract) channel).validateValues(reading, values);
-        this.storer.add(((ChannelContract) channel).getTimeSeries(), reading.getTimeStamp(), values);
+    public void addReading(CimChannel channel, BaseReading reading, ProcessStatus status) {
+        Pair<Channel, Instant> key = Pair.of(channel.getChannel(), reading.getTimeStamp());
+        int offset = channel.isRegular() ? 2 : 1;
+
+        Object[] values = consolidatedValues.computeIfAbsent(key, k -> new Object[offset + k.getFirst().getReadingTypes().size()]);
+        values[offset + channel.getChannel().getReadingTypes().indexOf(channel.getReadingType())] = reading.getValue();
+        ProcessStatus processStatus;
+        if (values[0] != null) {
+            processStatus = status.or((ProcessStatus) values[0]);
+        } else {
+            processStatus = status;
+        }
+        values[0] = processStatus;
         addScope(channel, reading.getTimeStamp());
     }
 
     @Override
     public void execute() {
-        storer.execute();
+        consolidatedValues.entrySet().stream()
+                .forEach(entry -> ((ChannelContract) entry.getKey().getFirst()).validateValues(readings.get(entry.getKey()), entry.getValue()));
+        writer.execute();
         eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
     }
 
     @Override
     public boolean overrules() {
-        return storer.overrules();
+        return writer.overrules();
     }
 
     @Override
-    public Map<Channel, Range<Instant>> getScope() {
+    public Map<CimChannel, Range<Instant>> getScope() {
         return Collections.unmodifiableMap(scope);
     }
 
-    private void addScope(Channel channel, Instant timestamp) {
+    private void addScope(CimChannel channel, Instant timestamp) {
         scope.merge(channel, Range.singleton(timestamp), Range::span);
     }
 
     @Override
     public boolean processed(Channel channel, Instant instant) {
-        return storer.processed(((ChannelContract) channel).getTimeSeries(), instant);
+        return writer.processed(((ChannelContract) channel).getTimeSeries(), instant);
     }
 }

@@ -197,7 +197,7 @@ public class MeterReadingStorer {
     private void store(Reading reading, MeterActivation meterActivation) {
         Channel channel = findOrCreateChannel(reading, meterActivation);
         if (channel != null) {
-            readingStorer.addReading(channel, reading);
+            readingStorer.addReading(channel.getCimChannel(channel.getMainReadingType()).get(), reading);
             addedReading(channel, reading);
         }
     }
@@ -222,7 +222,7 @@ public class MeterReadingStorer {
     	}
         Channel channel = findOrCreateChannel(reading, readingType);
         if (channel != null) {
-            readingStorer.addReading(channel, reading);
+            readingStorer.addReading(channel.getCimChannel(channel.getMainReadingType()).get(), reading);
             addedReading(channel, reading);
         }
     }

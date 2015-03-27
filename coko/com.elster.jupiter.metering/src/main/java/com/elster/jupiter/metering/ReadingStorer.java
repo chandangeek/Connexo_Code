@@ -18,11 +18,11 @@ public interface ReadingStorer {
 
     void execute();
 
-    void addReading(Channel channel, BaseReading reading);
+    void addReading(CimChannel channel, BaseReading reading);
 
-    void addReading(Channel channel, BaseReading reading, ProcessStatus status);
+    void addReading(CimChannel channel, BaseReading reading, ProcessStatus status);
 
-    Map<Channel, Range<Instant>> getScope();
+    Map<CimChannel, Range<Instant>> getScope();
     
     /*
      * 

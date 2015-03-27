@@ -25,12 +25,13 @@ public class CimChannelAdapter extends AbstractCimChannel implements CimChannel 
 
     private final ChannelImpl channel;
     private final ReadingType readingType;
-//    private final MeteringService meteringService;
+    private final MeteringService meteringService;
 
-    CimChannelAdapter(ChannelImpl channel, ReadingType readingType, DataModel dataModel) {
+    CimChannelAdapter(ChannelImpl channel, ReadingType readingType, DataModel dataModel, MeteringService meteringService) {
         super(dataModel);
         this.channel = channel;
         this.readingType = readingType;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -75,7 +76,7 @@ public class CimChannelAdapter extends AbstractCimChannel implements CimChannel 
             currentQualityRecords.stream()
                     .filter(either(ReadingQualityRecord::hasValidationCategory).or(ReadingQualityRecord::isMissing))
                     .forEach(ReadingQualityRecordImpl::makePast);
-            storer.addReading(getChannel(), reading, processStatus);
+            storer.addReading(this, reading, processStatus);
         }
         storer.execute();
     }

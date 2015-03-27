@@ -339,8 +339,8 @@ public final class ChannelImpl implements ChannelContract {
 
     @Override
     public Optional<CimChannel> getCimChannel(ReadingType readingType) {
-        Stream<CimChannel> main = mainReadingType.map(rt -> (CimChannel) new CimChannelAdapter(this, rt, dataModel)).map(Stream::of).orElse(Stream.empty());
-        Stream<CimChannel> bulk = bulkQuantityReadingType.map(rt -> (CimChannel) new CimChannelAdapter(this, rt, dataModel)).map(Stream::of).orElse(Stream.empty());
+        Stream<CimChannel> main = mainReadingType.map(rt -> (CimChannel) new CimChannelAdapter(this, rt, dataModel, meteringService)).map(Stream::of).orElse(Stream.empty());
+        Stream<CimChannel> bulk = bulkQuantityReadingType.map(rt -> (CimChannel) new CimChannelAdapter(this, rt, dataModel, meteringService)).map(Stream::of).orElse(Stream.empty());
         Stream<ReadingTypeInChannel> readingTypeInChannel = readingTypeInChannels.stream()
                 .filter(cimChannel -> readingType.equals(cimChannel.getReadingType()));
         return Stream.of(main, bulk, readingTypeInChannel)
@@ -491,7 +491,7 @@ public final class ChannelImpl implements ChannelContract {
         	currentQualityRecords.stream()
     			.filter(either(ReadingQualityRecord::hasValidationCategory).or(ReadingQualityRecord::isMissing))
                         .forEach(ReadingQualityRecordImpl::makePast);
-        	storer.addReading(this, reading, processStatus);
+        	storer.addReading(this.getCimChannel(getMainReadingType()).get(), reading, processStatus);
         }
         storer.execute();
     }

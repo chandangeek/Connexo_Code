@@ -126,8 +126,8 @@ public class CumulativeChannelTest {
             assertThat(channel.getBulkQuantityReadingType().isPresent()).isTrue();
             ReadingStorer storer = meteringService.createOverrulingStorer();
             Instant instant = ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant();           
-            storer.addReading(channel, IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
-            storer.addReading(channel, IntervalReadingImpl.of(instant.plusSeconds(15*60L), BigDecimal.valueOf(1100)));
+            storer.addReading(channel.getCimChannel(channel.getMainReadingType()).get(), IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
+            storer.addReading(channel.getCimChannel(channel.getMainReadingType()).get(), IntervalReadingImpl.of(instant.plusSeconds(15*60L), BigDecimal.valueOf(1100)));
             storer.execute();
             List<BaseReadingRecord> readings = channel.getReadings(Range.openClosed(instant.minusSeconds(15*60L), instant.plusSeconds(15*60L)));
             assertThat(readings).hasSize(2);
