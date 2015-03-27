@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -85,10 +86,12 @@ public class EstimationServiceImplTest {
     private Channel channel;
     @Mock
     private Estimator estimator1, estimator2;
+    @Mock
+    private UserService userService;
 
     @Before
     public void setUp() {
-        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService);
+        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService);
 
         estimationService.addEstimationResolver(resolver);
 
