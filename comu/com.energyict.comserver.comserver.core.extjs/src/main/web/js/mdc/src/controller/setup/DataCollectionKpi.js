@@ -72,8 +72,6 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                             case 'confirm':
                                 me.removeKpi(menu.record);
                                 break;
-                            case 'cancel':
-                                break;
                         }
                     }
                 });
@@ -104,7 +102,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             editForm = me.getDataCollectionKpiEditForm(),
             record = editForm.getRecord(),
             deviceGroup = {
-                id: editForm.down('[name=devicegroup]').getValue()
+                id: editForm.down('[name=deviceGroup]').getValue()
             },
             frequency = editForm.down('[name=frequency]').getValue(),
             displayRange = editForm.down('[name=displayRange]').getValue(),
@@ -179,7 +177,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
     showDataCollectionKpiEditView: function (id) {
         var me = this,
             widget = Ext.widget('dataCollectionKpiEdit'),
-            deviceGroupStore = widget.down('combobox[name=devicegroup]').getStore(),
+            deviceGroupStore = widget.down('combobox[name=deviceGroup]').getStore(),
             kpiModel = Ext.ModelManager.getModel('Mdc.model.DataCollectionKpi'),
             form = widget.down('#dataCollectionKpiEditForm'),
             deviceGroupCombo = widget.down('#cmb-device-group'),
@@ -198,7 +196,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
 
                             Ext.suspendLayouts();
                             form.loadRecord(kpiRecord);
-                            form.down('[name=devicegroup]').disable();
+                            form.down('[name=deviceGroup]').disable();
                             form.down('[name=frequency]').disable();
                             widget.down('#dataCollectionKpiEditForm').setTitle(editTitle);
                             me.getApplication().fireEvent('loadDataCollectionKpi', editTitle);
@@ -229,7 +227,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
 
     onFrequencyChange: function (combo, newValue) {
         var me = this,
-            displayRangeCombo = me.getDataCollectionKpiEditForm().down('#displayRangeCombo');
+            displayRangeCombo = me.getDataCollectionKpiEditForm().down('#cmb-display-range');
 
         Ext.suspendLayouts();
         if (newValue) {

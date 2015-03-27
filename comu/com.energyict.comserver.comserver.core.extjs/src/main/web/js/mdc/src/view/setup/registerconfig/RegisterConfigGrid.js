@@ -53,10 +53,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                 emptyMsg: Uni.I18n.translate('registerConfigs.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register configurations to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
 
                         text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),

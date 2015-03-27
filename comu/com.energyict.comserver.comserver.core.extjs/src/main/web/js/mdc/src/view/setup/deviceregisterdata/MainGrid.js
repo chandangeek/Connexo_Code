@@ -26,10 +26,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
                 emptyMsg: Uni.I18n.translate('device.registerData.pagingtoolbartop.emptyMsg', 'MDC', 'There are no readings to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         xtype: 'button',
                         text: Uni.I18n.translate('device.registerData.reading.add', 'MDC', 'Add reading'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceData'),

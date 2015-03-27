@@ -86,10 +86,6 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
                 emptyMsg: Uni.I18n.translate('datacollectionkpis.pagingtoolbartop.emptyMsg', 'MDC', 'There are no data collection KPIs to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         xtype: 'button',
                         itemId: 'btn-data-collection-kpi',
                         text: Uni.I18n.translate('datacollectionkpis.add', 'MDC', 'Add data collection KPI'),

@@ -52,10 +52,6 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
                 emptyMsg: Uni.I18n.translate('executionLevel.pagingtoolbartop.emptyMsg', 'MDC', 'There are no privileges'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         text: Uni.I18n.translate('executionLevel.addExecutionLevel', 'MDC', 'Add privileges'),
                         itemId: 'createExecutionLevel',
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),

@@ -39,10 +39,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
                 emptyMsg: Uni.I18n.translate('registerGroups.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register groups to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         text: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
                         itemId: 'createRegisterGroup',

@@ -58,7 +58,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 displayMoreMsg: Uni.I18n.translate('deviceconfiguration.logbookConfiguration.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} logbook configurations'),
                                 emptyMsg: Uni.I18n.translate('deviceconfiguration.logbookConfiguration.pagingtoolbartop.emptyMsg', 'MDC', 'There are no logbook configurations to display'),
                                 items: [
-                                    '->',
                                     {
                                         xtype: 'button',
                                         margin: '10 0 0 0',

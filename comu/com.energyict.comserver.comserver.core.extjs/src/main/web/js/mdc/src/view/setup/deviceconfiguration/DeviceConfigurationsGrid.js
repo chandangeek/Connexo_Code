@@ -54,10 +54,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                 emptyMsg: Uni.I18n.translate('deviceconfiguration.pagingtoolbartop.emptyMsg', 'MDC', 'There are no device configurations to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         text: Uni.I18n.translate('deviceconfiguration.createDeviceConfiguration', 'MDC', 'Add device configuration'),
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
                         itemId: 'createDeviceConfiguration',

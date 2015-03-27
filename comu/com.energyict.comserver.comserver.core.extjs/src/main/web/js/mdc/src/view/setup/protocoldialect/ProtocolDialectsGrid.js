@@ -39,12 +39,6 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
                 displayMsg: Uni.I18n.translate('protocolDialects.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} protocol dialects'),
                 displayMoreMsg: Uni.I18n.translate('protocolDialects.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} protocol dialects'),
                 emptyMsg: Uni.I18n.translate('protocolDialects.pagingtoolbartop.emptyMsg', 'MDC', 'There are no protocol dialects to display'),
-                items: [
-                    {
-                        xtype: 'component',
-                        flex: 1
-                    }
-                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',

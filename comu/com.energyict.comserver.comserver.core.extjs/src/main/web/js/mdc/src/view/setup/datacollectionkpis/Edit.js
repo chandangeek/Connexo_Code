@@ -29,8 +29,8 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                 },
                 {
                     xtype: 'combobox',
-                    name: 'devicegroup',
-                    emptyText: Uni.I18n.translate('datacollectionkpis.selectDeviceGroup', 'MDC', 'Select a device group'),
+                    name: 'deviceGroup',
+                    emptyText: Uni.I18n.translate('datacollectionkpis.selectDeviceGroup', 'MDC', 'Select a device group...'),
                     itemId: 'cmb-device-group',
                     fieldLabel: Uni.I18n.translate('datacollectionkpis.deviceGroup', 'MDC', 'Device group'),
                     store: 'Mdc.store.MeterExportGroups',
@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                 {
                     xtype: 'combobox',
                     name: 'frequency',
-                    emptyText: Uni.I18n.translate('datacollectionkpis.selectCalculationFrequency', 'MDC', 'Select a calculation frequency'),
+                    emptyText: Uni.I18n.translate('datacollectionkpis.selectCalculationFrequency', 'MDC', 'Select a calculation frequency...'),
                     itemId: 'cmb-frequency',
                     fieldLabel: Uni.I18n.translate('datacollectionkpis.calculationFrequency', 'MDC', 'Calculation frequency'),
                     store: 'Mdc.store.DataCollectionKpiFrequency',
@@ -67,8 +67,8 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                 {
                     xtype: 'combobox',
                     name: 'displayRange',
-                    emptyText: Uni.I18n.translate('datacollectionkpis.selectDisplayRange', 'MDC', 'Select a display range'),
-                    itemId: 'displayRangeCombo',
+                    emptyText: Uni.I18n.translate('datacollectionkpis.selectDisplayRange', 'MDC', 'Select a display range...'),
+                    itemId: 'cmb-display-range',
                     fieldLabel: Uni.I18n.translate('datacollectionkpis.displayRange', 'MDC', 'Display range'),
                     store: 'Mdc.store.DataCollectionKpiRange',
                     queryMode: 'local',
@@ -130,7 +130,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                     displayRange = record.get('displayRange'),
                     connectionTarget = record.get('connectionTarget'),
                     communicationTarget = record.get('communicationTarget'),
-                    deviceGroupCombo = me.down('[name=devicegroup]');
+                    deviceGroupCombo = me.down('[name=deviceGroup]');
 
                 me.getForm().loadRecord(record);
                 if (deviceGroup) {

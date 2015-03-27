@@ -105,7 +105,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 isFullTotalCount: true,
                 displayMsg: '{2} reading(s)',
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         itemId: 'device-load-profile-channel-data-edit-readings-button',

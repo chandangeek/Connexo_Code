@@ -57,7 +57,6 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
             displayMoreMsg: Uni.I18n.translate('comServerComPorts.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication ports'),
             emptyMsg: Uni.I18n.translate('comServerComPorts.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communication ports to display'),
             items: [
-                '->',
                 {
                     xtype: 'button',
                     itemId: 'mnu-add-comport',
