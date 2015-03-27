@@ -1,5 +1,11 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -24,30 +30,24 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
-
-import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.junit.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -159,6 +159,34 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().latestStatuses).contains(ConnectionTask.SuccessIndicator.SUCCESS).contains(ConnectionTask.SuccessIndicator.FAILURE).contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE).hasSize(3);
+    }
+
+    @Test
+    public void testRunConnectionsWithFilter() throws Exception {
+        when(jsonService.serialize(any())).thenReturn("json");
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(messageService.getDestinationSpec("ItemizeFilterQueueDest")).thenReturn(Optional.of(destinationSpec));
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(destinationSpec.message("json")).thenReturn(messageBuilder);
+
+        ConnectionTaskFilterSpecificationMessage message = new ConnectionTaskFilterSpecificationMessage();
+        message.comPortPools.add(1001L);
+        message.currentStates.add("OnHold");
+        message.connectionTypes.add(1002L);
+        message.deviceGroups.add(1003L);
+        message.latestResults.add("Broken");
+        message.latestStates.add("Failure");
+        message.deviceTypes.add(1004L);
+        message.deviceTypes.add(1005L);
+        message.startIntervalFrom = Instant.now();
+        message.startIntervalTo = Instant.now() ;
+        message.finishIntervalFrom = Instant.now();
+        message.finishIntervalTo = Instant.now() ;
+
+        BulkRequestInfo info = new BulkRequestInfo();
+        info.filter = message;
+        Response response = target("/connections/run").request().put(Entity.json(info));
+
     }
 
     @Test

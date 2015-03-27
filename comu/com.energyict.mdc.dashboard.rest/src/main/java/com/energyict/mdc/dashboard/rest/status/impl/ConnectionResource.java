@@ -1,7 +1,10 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
@@ -9,6 +12,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.imp.QueueMessage;
 import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.ConnectionTaskSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
@@ -21,6 +25,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.time.Instant;
@@ -63,9 +68,11 @@ public class ConnectionResource {
     private final ExceptionFactory exceptionFactory;
     private final MeteringGroupsService meteringGroupsService;
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
+    private final MessageService messageService;
+    private final JsonService jsonService;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService) {
         super();
         this.connectionTaskService = connectionTaskService;
         this.engineConfigurationService = engineConfigurationService;
@@ -75,6 +82,8 @@ public class ConnectionResource {
         this.exceptionFactory = exceptionFactory;
         this.meteringGroupsService = meteringGroupsService;
         this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
+        this.messageService = messageService;
+        this.jsonService = jsonService;
     }
 
     @GET
@@ -193,6 +202,74 @@ public class ConnectionResource {
         return filter;
     }
 
+    private ConnectionTaskFilterSpecificationMessage buildFilterMessageFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
+        ConnectionTaskFilterSpecificationMessage filter = new ConnectionTaskFilterSpecificationMessage();
+        filter.currentStates = new HashSet<>();
+        if (jsonQueryFilter.hasProperty(FilterOption.currentStates.name())) {
+            jsonQueryFilter.getPropertyList(FilterOption.currentStates.name(), TASK_STATUS_ADAPTER).stream().forEach(ts -> filter.currentStates.add(ts.name()));
+        }
+
+        filter.comPortPools = new HashSet<>();
+        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.comPortPools.name())) {
+            filter.comPortPools.addAll(jsonQueryFilter.getLongList(FilterOption.comPortPools.name()));
+        }
+
+        filter.connectionTypes = new HashSet<>();
+        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.connectionTypes.name())) {
+            List<Long> connectionTypeIds = jsonQueryFilter.getLongList(FilterOption.connectionTypes.name());
+            connectionTypeIds
+                    .stream()
+                    .map(protocolPluggableService::findConnectionTypePluggableClass)
+                    .flatMap(asStream())
+                    .map(PluggableClass::getId)
+                    .forEach(filter.connectionTypes::add);
+        }
+
+        filter.latestResults = new HashSet<>();
+        if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
+            jsonQueryFilter.getPropertyList(FilterOption.latestResults.name(), COM_SESSION_SUCCESS_INDICATOR_ADAPTER).stream().forEach(lr->filter.latestResults.add(lr.name()));
+        }
+
+        filter.latestStates = new HashSet<>();
+        if (jsonQueryFilter.hasProperty(FilterOption.latestStates.name())) {
+            jsonQueryFilter.getPropertyList(FilterOption.latestStates.name(), CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER).stream().forEach(ls -> filter.latestStates.add(ls.name()));
+        }
+
+        filter.deviceTypes = new HashSet<>();
+        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.deviceTypes.name())) {
+            filter.deviceTypes.addAll(jsonQueryFilter.getLongList(FilterOption.deviceTypes.name()));
+        }
+
+        if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
+            Instant start = null;
+            Instant end = null;
+            if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name())) {
+                filter.startIntervalFrom = jsonQueryFilter.getInstant(FilterOption.startIntervalFrom.name());
+            }
+            if (jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
+                filter.startIntervalTo = jsonQueryFilter.getInstant(FilterOption.startIntervalTo.name());
+            }
+        }
+
+        filter.deviceGroups = new HashSet<>();
+        if (jsonQueryFilter.hasProperty(FilterOption.deviceGroups.name())) {
+            filter.deviceGroups.addAll(jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()));
+        }
+
+        if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
+            Instant start = null;
+            Instant end = null;
+            if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name())) {
+                filter.finishIntervalFrom = jsonQueryFilter.getInstant(FilterOption.finishIntervalFrom.name());
+            }
+            if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
+                filter.finishIntervalTo = jsonQueryFilter.getInstant(FilterOption.finishIntervalTo.name());
+            }
+        }
+
+        return filter;
+    }
+
     @GET
     @Path("/{connectionId}/latestcommunications")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -216,6 +293,7 @@ public class ConnectionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    // TODO Would be better if this method moved to ConnectionResource in device.data.rest
     public Response runConnectionTask(@PathParam("connectionId") long connectionId, @Context UriInfo uriInfo) {
         ConnectionTask connectionTask =
                 connectionTaskService
@@ -228,6 +306,54 @@ public class ConnectionResource {
             throw exceptionFactory.newException(MessageSeeds.RUN_CONNECTIONTASK_IMPOSSIBLE);
         }
         return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/run")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response runConnectionTask(BulkRequestInfo bulkRequestInfo) throws Exception {
+        if (bulkRequestInfo!=null && bulkRequestInfo.filter!=null) {
+            Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+            return processMessagePost(new ItemizeFilterQueueMessage(bulkRequestInfo.filter, "scheduleNow"), destinationSpec);
+        } else if (bulkRequestInfo!=null && bulkRequestInfo.connections!=null) {
+            Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
+            bulkRequestInfo.connections.stream().forEach(c->processMessagePost(new ConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec));
+            return Response.status(Response.Status.OK).build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+
+    private Response processMessagePost(QueueMessage message, Optional<DestinationSpec> destinationSpec) {
+        if (destinationSpec.isPresent()) {
+            String json = jsonService.serialize(message);
+            destinationSpec.get().message(json).send();
+            return Response.ok().entity("{\"success\":\"true\"}").build();
+        }
+        return Response.serverError().build();
+    }
+
+
+    class ItemizeFilterQueueMessage implements QueueMessage {
+        public ConnectionTaskFilterSpecificationMessage connectionTaskFilterSpecification;
+        public String action;
+
+        public ItemizeFilterQueueMessage(ConnectionTaskFilterSpecificationMessage connectionTaskFilterSpecification, String action) {
+            this.connectionTaskFilterSpecification = connectionTaskFilterSpecification;
+            this.action = action;
+        }
+    }
+
+    class ConnectionTaskQueueMessage implements QueueMessage {
+        public Long connectionTaskId;
+        public String action;
+
+        public ConnectionTaskQueueMessage(Long connectionTaskId, String action) {
+            this.connectionTaskId = connectionTaskId;
+            this.action = action;
+        }
     }
 
 }
