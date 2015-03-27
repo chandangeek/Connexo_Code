@@ -137,11 +137,6 @@ public abstract class MockComPort implements ComPort, Cloneable {
     }
 
     @Override
-    public String getType() {
-        return "";
-    }
-
-    @Override
     public String getName() {
         return "";
     }

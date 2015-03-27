@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.CreateComTaskExecutionSessionTask;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.FirmwareUpgradeTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -21,6 +22,8 @@ import java.util.List;
  * @author gna
  * @since 10/05/12 - 14:50
  */
+//public <T extends Enum<T> & MyInterface> C1(Class<T> enumClz)
+//<C extends Class<? extends ProtocolTask>>
 public enum ComCommandTypes implements ComCommandType {
 
     UNKNOWN,
@@ -202,6 +205,17 @@ public enum ComCommandTypes implements ComCommandType {
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
             root.createComTaskSessionTask((CreateComTaskExecutionSessionTask) protocolTask, root, comTaskExecution);
+        }
+    },
+    FIRMWARE_COMMAND(FirmwareUpgradeTask.class){
+        @Override
+        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            root.getFirmwareCommand((FirmwareUpgradeTask) protocolTask, root, comTaskExecution);
+        }
+
+        @Override
+        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            root.getFirmwareCommand((FirmwareUpgradeTask) protocolTask, root, comTaskExecution);
         }
     };
 

@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -422,15 +423,30 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution instanceof ScheduledComTaskExecution) {
+        if (isItAScheduledComTaskExecution(comTaskExecution)) {
             ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) comTaskExecution;
             return getProtocolDialectTypedProperties(scheduledComTaskExecution);
-        } else if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
+        } else if (isItAManuallyScheduledComTaskExecution(comTaskExecution)) {
             ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = (ManuallyScheduledComTaskExecution) comTaskExecution;
             return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), manuallyScheduledComTaskExecution.getProtocolDialectConfigurationProperties());
+        } else if(isItAFirmwareComTaskExecution(comTaskExecution)){
+            FirmwareComTaskExecution firmwareComTaskExecution = (FirmwareComTaskExecution) comTaskExecution;
+            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), firmwareComTaskExecution.getProtocolDialectConfigurationProperties());
         } else {
             return TypedProperties.empty();
         }
+    }
+
+    private static boolean isItAFirmwareComTaskExecution(ComTaskExecution comTaskExecution) {
+        return comTaskExecution instanceof FirmwareComTaskExecution;
+    }
+
+    private static boolean isItAManuallyScheduledComTaskExecution(ComTaskExecution comTaskExecution) {
+        return comTaskExecution instanceof ManuallyScheduledComTaskExecution;
+    }
+
+    private static boolean isItAScheduledComTaskExecution(ComTaskExecution comTaskExecution) {
+        return comTaskExecution instanceof ScheduledComTaskExecution;
     }
 
     static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {

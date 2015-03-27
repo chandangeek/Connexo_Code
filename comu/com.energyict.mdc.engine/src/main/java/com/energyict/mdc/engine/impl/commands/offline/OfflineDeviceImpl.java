@@ -71,32 +71,32 @@ public class OfflineDeviceImpl implements OfflineDevice {
     /**
      * Contains the {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice}
      */
-    private List<OfflineLoadProfile> masterLoadProfiles;
+    private List<OfflineLoadProfile> masterLoadProfiles = Collections.emptyList();
 
     /**
      * Contains all {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice} <b>AND</b> OR any slave device
      */
-    private List<OfflineLoadProfile> allLoadProfiles;
+    private List<OfflineLoadProfile> allLoadProfiles = Collections.emptyList();
 
     /**
      * Contains all {@link OfflineLogBook offlineLogBooks} which are owned by this {@link OfflineDevice}
      */
-    private List<OfflineLogBook> allLogBooks;
+    private List<OfflineLogBook> allLogBooks = Collections.emptyList();
 
     /**
      * Contains all {@link OfflineRegister rtuRegisters} which are owned by this {@link OfflineDevice} or a slave which has the
      * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave() rtuType.isLogicalSlave} checked
      */
-    private List<OfflineRegister> allRegisters;
+    private List<OfflineRegister> allRegisters = Collections.emptyList();
 
     /**
      * Contains all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}
      */
-    private List<OfflineDeviceMessage> pendingDeviceMessages;
+    private List<OfflineDeviceMessage> pendingDeviceMessages = Collections.emptyList();
     /**
      * Contains all {@link DeviceMessageStatus#SENT sent} {@link OfflineDeviceMessage}
      */
-    private List<OfflineDeviceMessage> sentDeviceMessages;
+    private List<OfflineDeviceMessage> sentDeviceMessages = Collections.emptyList();
     /**
      * The used DeviceProtocolPluggableClass
      */
