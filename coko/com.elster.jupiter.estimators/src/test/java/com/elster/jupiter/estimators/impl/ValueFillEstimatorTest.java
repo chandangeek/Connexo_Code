@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.google.common.collect.Range;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static java.math.BigDecimal.ZERO;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,7 +55,7 @@ public class ValueFillEstimatorTest {
         properties.put(ValueFillEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, new BigDecimal(10));
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
-        estimator.init(channel, readingType, Range.all());
+        estimator.init();
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 

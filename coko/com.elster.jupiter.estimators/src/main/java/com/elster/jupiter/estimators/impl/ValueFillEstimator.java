@@ -3,16 +3,12 @@ package com.elster.jupiter.estimators.impl;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +38,7 @@ public class ValueFillEstimator extends AbstractEstimator {
     }
 
     @Override
-    public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
+    public void init() {
         numberOfConsecutiveSuspects = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
         if (numberOfConsecutiveSuspects == null) {
             this.numberOfConsecutiveSuspects = MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE;
