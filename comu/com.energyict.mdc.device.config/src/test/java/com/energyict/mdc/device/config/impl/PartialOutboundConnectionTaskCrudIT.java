@@ -235,9 +235,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                     engineConfigurationService,
                     schedulingService,
                     injector.getInstance(ValidationService.class),
+                    injector.getInstance(MasterDataService.class),
                     injector.getInstance(DeviceLifeCycleConfigurationService.class));
-                    injector.getInstance(ValidationService.class),
-                    injector.getInstance(MasterDataService.class));
             DataModel dataModel = deviceConfigurationService.getDataModel();
             createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
