@@ -126,7 +126,7 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.waveCardFirmware)
                 || propertySpec.getName().equals(DeviceMessageConstants.sslCertificateUserFile)
-                || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.PricingInformationUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.nodeListUserFile)) {
             try {

@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.common.HexString;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
@@ -123,9 +122,9 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(RawDataAttributeName)) {
             return ((HexString) messageAttribute).getContent();
-        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
-            UserFile userFile = (UserFile) messageAttribute;
-            return new String(userFile.loadFileInByteArray());
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+            return new String(firmwareVersion.getFirmwareFile());
         }
         return EMPTY_FORMAT;
     }
@@ -150,7 +149,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.PLC_CONFIGURATION_SET_SFSK_REPEATER, new MultipleAttributeMessageEntry("SetSFSKRepeater", "REPEATER"));
 
         registry.put(DeviceMessageId.MBUS_SETUP_DECOMMISSION_ALL, new SimpleTagMessageEntry("DecommissionAll"));
-        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
+        registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName));
         return registry;
     }
 

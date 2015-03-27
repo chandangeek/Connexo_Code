@@ -303,10 +303,10 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
                 DeviceMessageId.CONTACTOR_ARM,
                 DeviceMessageId.CONTACTOR_CLOSE,
                 DeviceMessageId.CONTACTOR_OPEN,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE,
+                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE,
+                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER,
                 DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE,
-                DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE);
+                DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE);
+        return message.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
     private void loadUserFile(OfflineDeviceMessage message) {
         super.getLogger().info("Loading the Firmware file.");
-        String base64Firmware = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String base64Firmware = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
 
 //        Base64EncoderDecoder decoder = new Base64EncoderDecoder();
 //        this.firmwareUpgradeFile = decoder.decode(base64Firmware);

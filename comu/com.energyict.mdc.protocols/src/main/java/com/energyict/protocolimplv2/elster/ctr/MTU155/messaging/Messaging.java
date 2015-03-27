@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -16,8 +17,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
@@ -55,7 +54,7 @@ public class Messaging implements DeviceMessageSupport {
             DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF,
             DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATE,
             DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST,
-            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE
 
     );
 
@@ -133,9 +132,9 @@ public class Messaging implements DeviceMessageSupport {
                 return CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-                UserFile userFile = (UserFile) messageAttribute;
-                return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
+                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
+                return new String(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareVersion, as a string
             default:
                 return messageAttribute.toString();
         }

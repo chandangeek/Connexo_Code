@@ -51,7 +51,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
             DeviceMessageId.PUBLIC_LIGHTING_SET_OVERALL_MAXIMUM_THRESHOLD,
             DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_TIME_OFFSETS_TABLE,
             DeviceMessageId.PUBLIC_LIGHTING_WRITE_GPS_COORDINATES,
-            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE,
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
             DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT,
             DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME,
             DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET,
@@ -90,7 +90,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
             case specialDaysCodeTableAttributeName:
                 return parseSpecialDays((Code) messageAttribute);
             case configUserFileAttributeName:
-            case firmwareUpdateUserFileAttributeName:
+            case firmwareUpdateFileAttributeName:
                 return new String(((UserFile) messageAttribute).loadFileInByteArray());
             case activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());     //Epoch

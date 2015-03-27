@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -44,7 +44,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.meterTimeAttributeName;
@@ -74,8 +74,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             DeviceMessageId.CONTACTOR_CLOSE,
             DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE,
             DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE,
-            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE,
-            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE,
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE,
             DeviceMessageId.ACTIVITY_CALENDER_SEND,
             DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME,
             DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND,
@@ -122,8 +122,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case UserFileConfigAttributeName:
-            case firmwareUpdateUserFileAttributeName:
-                return ProtocolTools.getHexStringFromBytes(((UserFile) messageAttribute).loadFileInByteArray(), "");
+            case firmwareUpdateFileAttributeName:
+                return ProtocolTools.getHexStringFromBytes(((FirmwareVersion) messageAttribute).getFirmwareFile(), "");
             case activityCalendarCodeTableAttributeName:
                 return convertCodeTableToXML((Code) messageAttribute);
             case authenticationLevelAttributeName:
