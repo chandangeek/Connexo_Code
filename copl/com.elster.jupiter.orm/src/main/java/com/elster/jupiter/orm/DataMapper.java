@@ -17,14 +17,17 @@ public interface DataMapper<T> extends Finder<T> {
 	T lock(Object... values);
 
 	/**
-	 * locks the tuple with the given primary key (values) and specific version
+	 * Locks the object with the given primary key (values) if it has the passed version in the database.
+	 * If the object exists and it has the passed version, the object is returned and the tuple is locked in the database.
+	 * This method must be called within a Transaction
 	 *
 	 * @param version              the current version of the object to lock
-	 * @param primaryKeyComposites the identi
-	 * @return
+	 * @param primaryKeyComposites the identitifiers that together compose the primary key
+	 * @return the object identified by the primaryKeyComposites and that has the passed version.
+	 * 			If the object did not have the passed version, or no object with the passed primaryKey exists, Optional.emtpy()
 	 * @since 1.2
 	 */
-	Optional<T> lockVersionOfObject(long version, Object... primaryKeyComposites);
+	Optional<T> lockObjectIfVersion(long version, Object... primaryKeyComposites);
 
 	Optional<T> lockNoWait(Object... values);
 	/**

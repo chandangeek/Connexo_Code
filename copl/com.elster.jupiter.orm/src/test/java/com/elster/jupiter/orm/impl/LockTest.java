@@ -118,11 +118,11 @@ public class LockTest {
 
         FutureTask<Optional<LockVersion>> future = new FutureTask<>(() -> {
             try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-                return dataModel.mapper(LockVersion.class).lockVersionOfObject(version.getVersion(), version.getId());
+                return dataModel.mapper(LockVersion.class).lockObjectIfVersion(version.getVersion(), version.getId());
             }
         });
         injector.getInstance(TransactionService.class).builder().principal(() -> "test").run(() -> {
-            Optional<LockVersion> lockVersion = dataModel.mapper(LockVersion.class).lockVersionOfObject(version.getVersion(), version.getId());
+            Optional<LockVersion> lockVersion = dataModel.mapper(LockVersion.class).lockObjectIfVersion(version.getVersion(), version.getId());
             assertThat(lockVersion.isPresent()).isTrue();
             Thread lockedThread = new Thread(future);
 
@@ -162,12 +162,12 @@ public class LockTest {
 
         FutureTask<Optional<LockVersion>> future = new FutureTask<>(() -> {
             try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-                return dataModel.mapper(LockVersion.class).lockVersionOfObject(version.getVersion(), version.getId());
+                return dataModel.mapper(LockVersion.class).lockObjectIfVersion(version.getVersion(), version.getId());
             }
         });
         try {
             injector.getInstance(TransactionService.class).builder().principal(() -> "test").run(() -> {
-                Optional<LockVersion> lockVersion = dataModel.mapper(LockVersion.class).lockVersionOfObject(version.getVersion(), version.getId());
+                Optional<LockVersion> lockVersion = dataModel.mapper(LockVersion.class).lockObjectIfVersion(version.getVersion(), version.getId());
                 assertThat(lockVersion.isPresent()).isTrue();
                 Thread lockedThread = new Thread(future);
 

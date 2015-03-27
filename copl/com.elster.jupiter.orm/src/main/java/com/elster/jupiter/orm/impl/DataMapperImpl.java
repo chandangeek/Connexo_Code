@@ -221,7 +221,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 
 	@Override
-	public Optional<T> lockVersionOfObject(long version, Object... values) {
+	public Optional<T> lockObjectIfVersion(long version, Object... values) {
 		try {
 			return Optional.ofNullable(reader.lock(KeyValue.of(values), version));
 		} catch (SQLException ex) {
