@@ -58,11 +58,6 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
         this.engineConfigurationService = engineConfigurationService;
     }
 
-    @Override
-    public String getType () {
-        return OnlineComServer.class.getName();
-    }
-
     protected void validate() {
         super.validate();
         this.validateInboundComPortDuplicateComPorts();

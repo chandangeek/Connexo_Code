@@ -42,17 +42,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
     Provider<OutboundComPortImpl> outboundComPortProvider;
 
     @Test
-    public void testGetTypeDoesNotReturnServerBasedClassName() {
-        RemoteComServer onlineComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, null, null, null, null, null);
-
-        // Business method
-        String type = onlineComServer.getType();
-
-        // Asserts
-        assertThat(type).doesNotContain(".Server");
-    }
-
-    @Test
     @Transactional
     public void testCreateWithoutViolations() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();

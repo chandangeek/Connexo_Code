@@ -252,8 +252,6 @@ public interface ComServer extends HasId, HasName {
 
     public void setActive(boolean active);
 
-    public String getType();
-
     public OutboundComPort.OutboundComPortBuilder newOutboundComPort(String name, int numberOfSimultaneousConnections);
     public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber);
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport(
