@@ -12,9 +12,9 @@
  */
 Ext.define("Ext.ux.exporter.ExporterButton", {
     extend: "Ext.Button",
-    requires: ['Ext.ux.exporter.Exporter', 'Ext.ux.exporter.FileSaver'], 
+    requires: ['Ext.ux.exporter.Exporter', 'Ext.ux.exporter.FileSaver'],
     alias: "widget.exporterbutton",
-    
+
     /**
      * @cfg {String} text
      * The button text to be used as innerHTML (html tags are accepted).
@@ -23,50 +23,50 @@ Ext.define("Ext.ux.exporter.ExporterButton", {
 
     /**
      * @cfg {String} format
-     * The Exported File formatter 
+     * The Exported File formatter
      */
     format: 'csv',
-    
+
     /**
      * @cfg {Boolean} preventDefault
      * False to allow default action when the {@link #clickEvent} is processed.
      */
     preventDefault: false,
-    
+
     /**
      * @cfg {Number} saveDelay
      * Increased buffer to avoid clickEvent fired many times within a short period.
      */
     saveDelay: 300,
-    
+
     //iconCls: 'save',
-    
+
     /**
      * @cfg {Boolean} remote
-     * To remotely download file only if browser doesn't support locally 
+     * To remotely download file only if browser doesn't support locally
      * otherwise it will try to open in new window
      */
     remote: false,
     /**
      * @cfg {String} title
-     * To set name to eported file, extension will be appended based on format  
+     * To set name to eported file, extension will be appended based on format
      */
     title: 'export',
-    
-    constructor: function(config) {
+
+    constructor: function (config) {
         var me = this;
-        
+
         Ext.ux.exporter.ExporterButton.superclass.constructor.call(me, config);
-        
-        me.on("afterrender", function() { //wait for the button to be rendered, so we can look up to grab the component
+
+        me.on("afterrender", function () { //wait for the button to be rendered, so we can look up to grab the component
             if (me.component) {
                 me.component = !Ext.isString(me.component) ? me.component : Ext.ComponentQuery.query(me.component)[0];
             }
             me.setComponent(me.store || me.component || me.up("gridpanel") || me.up("treepanel"), config);
         });
     },
-    
-    onClick: function(e) {
+
+    onClick: function (e) {
         var me = this,
             blobURL = "",
             format = me.format,
@@ -77,20 +77,20 @@ Ext.define("Ext.ux.exporter.ExporterButton", {
             res, fullname;
 
         me.fireEvent('start', me);
-        res = Ext.ux.exporter.Exporter.exportAny(me.component, format, { title : title });
+        res = Ext.ux.exporter.Exporter.exportAny(me.component, format, {title: title});
         filename = title + "_" + Ext.Date.format(dt, "Y-m-d h:i:s") + "." + res.ext;
         Ext.ux.exporter.FileSaver.saveAs(res.data, res.mimeType, res.charset, filename, link, remote, me.onComplete, me);
-        
+
         me.callParent(arguments);
     },
 
-    setComponent: function(component, config) {
+    setComponent: function (component, config) {
         var me = this;
         me.component = component;
         me.store = !component.is ? component : component.getStore(); // only components or stores, if it doesn't respond to is method, it's a store        
     },
 
-    onComplete: function() {
+    onComplete: function () {
         this.fireEvent('complete', this);
     }
 });
