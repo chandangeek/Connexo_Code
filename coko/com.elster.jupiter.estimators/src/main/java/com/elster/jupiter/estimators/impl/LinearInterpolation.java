@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 

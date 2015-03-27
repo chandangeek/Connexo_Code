@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -70,12 +71,18 @@ public class ValueFillEstimator extends AbstractEstimator {
     }
 
     public void estimate(EstimationBlock estimationBlock) {
-        estimationBlock.estimatables().forEach(estimatable -> estimate(estimatable));
+        if (isEstimatable(estimationBlock)) {
+            estimationBlock.estimatables().forEach(estimatable -> estimate(estimatable));
+        }
     }
 
     private void estimate(Estimatable estimatable) {
         estimatable.setEstimation(fillValue);
         Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+    }
+
+    private boolean isEstimatable(EstimationBlock block) {
+        return (block.estimatables().size() <= numberOfConsecutiveSuspects.intValue());
     }
 
 

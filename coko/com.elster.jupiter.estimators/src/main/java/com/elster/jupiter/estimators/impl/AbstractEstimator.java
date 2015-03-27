@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.validation.ValidationService;
 
 import java.util.Collections;
 import java.util.List;
