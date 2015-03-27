@@ -20,11 +20,6 @@ public enum FirmwareType {
         return displayValue;
     }
 
-    @Override
-    public String toString() {
-        return getType();
-    }
-
     public static FirmwareType from(String type) {
         switch(type.toLowerCase()) {
             case "communication":

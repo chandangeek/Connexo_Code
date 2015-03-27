@@ -22,11 +22,6 @@ public enum FirmwareStatus {
         return displayValue;
     }
 
-    @Override
-    public String toString() {
-        return getStatus();
-    }
-
     public static FirmwareStatus from(String status) {
         switch (status.toLowerCase()) {
             case "test":
