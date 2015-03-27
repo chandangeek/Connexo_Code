@@ -1,13 +1,65 @@
 package com.elster.jupiter.validation.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorFactory;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Range;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
+import javax.inject.Provider;
 import java.lang.reflect.Field;
 import java.time.Clock;
 import java.time.Instant;
@@ -22,61 +74,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Provider;
-
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.validation.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Range;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationServiceImplTest {
@@ -403,7 +407,7 @@ public class ValidationServiceImplTest {
         BaseReading reading = mock(BaseReading.class);
         when(reading.getTimeStamp()).thenReturn(readingDate);
 
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(Instant.class))).thenAnswer(new Answer<Object>() {
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), any(Instant.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 ReadingQualityRecord record = mock(ReadingQualityRecord.class);
@@ -450,7 +454,7 @@ public class ValidationServiceImplTest {
         when(channelValidation.getLastChecked()).thenReturn(readingDate1);
         when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), eq(readingDate1))).thenReturn(readingQualityRecord);
 
         setupValidationRuleSet(channelValidation, channel1, true);
 
@@ -467,7 +471,7 @@ public class ValidationServiceImplTest {
         assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
+        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), any(), eq(readingDate1));
         assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
     }
 
@@ -488,7 +492,7 @@ public class ValidationServiceImplTest {
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
         when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), eq(readingDate1))).thenReturn(readingQualityRecord);
         setupValidationRuleSet(channelValidation1, channel1, true);
         setupValidationRuleSet(channelValidation2, channel1, true);
 
@@ -505,7 +509,7 @@ public class ValidationServiceImplTest {
         assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
+        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), any(), eq(readingDate1));
         assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
     }
 
@@ -530,7 +534,7 @@ public class ValidationServiceImplTest {
         when(readingQuality.getType()).thenReturn(readingQualityType);
         when(readingQuality.getTypeCode()).thenReturn("3.6.32131");
         when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality));
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(mock(ReadingQualityRecord.class));
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), eq(readingDate1))).thenReturn(mock(ReadingQualityRecord.class));
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType);
         setupValidationRuleSet(channelValidation2, channel1, true);
 
@@ -575,7 +579,7 @@ public class ValidationServiceImplTest {
         when(readingQuality2.getTypeCode()).thenReturn("3.6.9856");
         when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality1, readingQuality2));
         ReadingQualityRecord readingDate2ReadingQuality = mock(ReadingQualityRecord.class);
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(BaseReading.class))).thenReturn(readingDate2ReadingQuality);
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), any(BaseReading.class))).thenReturn(readingDate2ReadingQuality);
         when(channel1.getMainReadingType()).thenReturn(mock(ReadingType.class));
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType1, readingQualityType2);
 
@@ -587,7 +591,7 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus.get(0).completelyValidated()).isTrue();
         assertThat((Collection<ReadingQuality>) validationStatus.get(0).getReadingQualities()).containsExactly(readingDate2ReadingQuality);
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate2));
+        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), any(), eq(readingDate2));
         assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         // reading1 has suspects
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);

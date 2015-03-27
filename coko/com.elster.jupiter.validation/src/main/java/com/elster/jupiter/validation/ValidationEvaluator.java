@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -28,9 +29,17 @@ public interface ValidationEvaluator {
 
     boolean isAllDataValidated(MeterActivation meterActivation);
 
-    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
+    default List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
+        return getValidationStatus(channel.getCimChannel(channel.getMainReadingType()).get(), readings);
+    }
 
-    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval);
+    default List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
+        return getValidationStatus(channel.getCimChannel(channel.getMainReadingType()).get(), readings, interval);
+    }
+
+    List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings);
+
+    List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings, Range<Instant> interval);
 
     boolean isValidationEnabled(Meter meter);
 

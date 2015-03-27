@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -55,10 +56,10 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     }
 
     @Override
-    public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
+    public List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings) {
         List<DataValidationStatus> result = new ArrayList<>(readings.size());
         if (!readings.isEmpty()) {
-            List<? extends IChannelValidation> channelValidations = validationService.getChannelValidations(channel);
+            List<? extends IChannelValidation> channelValidations = validationService.getChannelValidations(channel.getChannel());
             boolean configured = !channelValidations.isEmpty();
             Instant lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                     .filter(IChannelValidation::hasActiveRules)
@@ -88,9 +89,9 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     }
 
     @Override
-    public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
+    public List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
         List<DataValidationStatus> result = new ArrayList<>();
-        List<? extends IChannelValidation> channelValidations = validationService.getChannelValidations(channel);
+        List<? extends IChannelValidation> channelValidations = validationService.getChannelValidations(channel.getChannel());
         boolean configured = !channelValidations.isEmpty();
         Instant lastChecked = configured ? getMinLastChecked(channelValidations.stream()
                 .filter(IChannelValidation::hasActiveRules)
@@ -147,7 +148,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
         return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());
     }
 
-    private ListMultimap<Instant, ReadingQualityRecord> getReadingQualities(Channel channel, Range<Instant> interval) {
+    private ListMultimap<Instant, ReadingQualityRecord> getReadingQualities(CimChannel channel, Range<Instant> interval) {
         List<ReadingQualityRecord> readingQualities = channel.findReadingQuality(interval);
         return Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp);
     }
