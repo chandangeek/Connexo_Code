@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.firmware.FirmwareType;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;

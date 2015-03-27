@@ -53,7 +53,7 @@ public class FirmwareVersionResource {
 
         Finder<FirmwareVersion> allFirmwaresFinder = firmwareService.findAllFirmwareVersions(getFirmwareVersionConditions(filter, deviceType));
         List<FirmwareVersion> allFirmwares = allFirmwaresFinder.from(queryParameters).sorted("firmwareVersion", false).find();
-        List<FirmwareVersionInfo> firmwareInfos = FirmwareVersionInfo.from(allFirmwares);
+        List<FirmwareVersionInfo> firmwareInfos = FirmwareVersionInfo.from(allFirmwares, thesaurus);
         return PagedInfoList.fromPagedList("firmwares", firmwareInfos, queryParameters);
     }
 
@@ -64,7 +64,7 @@ public class FirmwareVersionResource {
     public Response getFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam QueryParameters queryParameters) {
         FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
-        return Response.status(Response.Status.OK).entity(FirmwareVersionInfo.from(firmwareVersion)).build();
+        return Response.status(Response.Status.OK).entity(FirmwareVersionInfo.from(firmwareVersion, thesaurus)).build();
     }
 
     @POST
@@ -76,7 +76,7 @@ public class FirmwareVersionResource {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareVersion versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
-                firmwareVersionInfo.firmwareStatus, firmwareVersionInfo.firmwareType);
+                firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
 
         if (firmwareVersionInfo.fileSize != null) {
             versionToValidate.setFirmwareFile(new byte[firmwareVersionInfo.fileSize]);
@@ -93,14 +93,14 @@ public class FirmwareVersionResource {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareVersion versionToSave = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
-                firmwareVersionInfo.firmwareStatus, firmwareVersionInfo.firmwareType);
+                firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
 
         if (firmwareVersionInfo.fileSize != null && firmwareVersionInfo.firmwareFile != null) {
             versionToSave.setFirmwareFile(Base64.decode(firmwareVersionInfo.firmwareFile.trim().getBytes()));
         }
 
         firmwareService.saveFirmwareVersion(versionToSave);
-        return Response.status(Response.Status.CREATED).entity(FirmwareVersionInfo.from(versionToSave)).build();
+        return Response.status(Response.Status.CREATED).entity(FirmwareVersionInfo.from(versionToSave, thesaurus)).build();
     }
 
     @PUT
@@ -112,7 +112,7 @@ public class FirmwareVersionResource {
         FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         checkIfEditableOrThrowException(firmwareVersion);
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
-        firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus);
+        firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
         if (firmwareVersionInfo.fileSize != null) {
             firmwareVersion.setFirmwareFile(new byte[firmwareVersionInfo.fileSize]);
         }
@@ -128,7 +128,7 @@ public class FirmwareVersionResource {
     public Response editFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
         FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
-        firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus);
+        firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
         if (firmwareVersionInfo.fileSize != null && firmwareVersionInfo.firmwareFile != null) {
             firmwareVersion.setFirmwareFile(Base64.decode(firmwareVersionInfo.firmwareFile.trim().getBytes()));
         }

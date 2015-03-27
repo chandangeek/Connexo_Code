@@ -5,7 +5,7 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class FirmwareStatusAdapter  extends XmlAdapter<String, FirmwareStatus> {
+public class FirmwareStatusAdapter extends XmlAdapter<String, FirmwareStatus> {
     @Override
     public FirmwareStatus unmarshal(String jsonValue) throws Exception {
         if (Checks.is(jsonValue).emptyOrOnlyWhiteSpace()) {

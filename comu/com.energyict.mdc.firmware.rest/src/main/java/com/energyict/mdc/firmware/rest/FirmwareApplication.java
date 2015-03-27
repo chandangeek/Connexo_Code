@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.*;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.google.common.collect.ImmutableSet;
@@ -34,6 +35,7 @@ public class FirmwareApplication extends Application implements BinderProvider, 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 FirmwareVersionResource.class,
+                FirmwareFieldResource.class,
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
