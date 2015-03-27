@@ -9,6 +9,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -47,6 +48,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     TaskService taskService;
     @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
+    @Mock
+    FirmwareService firmwareService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -70,6 +73,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setTaskService(taskService);
         application.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        application.setFirmwareService(firmwareService);
         return application;
     }
 }
