@@ -32,6 +32,14 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
         this.underConstruction = underConstruction;
     }
 
+    protected DataModel getDataModel() {
+        return dataModel;
+    }
+
+    protected DeviceLifeCycleImpl getUnderConstruction() {
+        return underConstruction;
+    }
+
     @Override
     public AuthorizedActionBuilder<AuthorizedBusinessProcessAction> newCustomAction(State state, String name, String deploymentId, String processId) {
         AuthorizedBusinessProcessActionImpl businessProcessAction = this.dataModel
@@ -69,6 +77,10 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
             this.underConstruction = underConstruction;
         }
 
+        protected T getUnderConstruction() {
+            return underConstruction;
+        }
+
         @Override
         public AuthorizedActionBuilder<AT> addLevel(AuthorizedAction.Level level, AuthorizedAction.Level... otherLevels) {
             this.underConstruction.add(level);
@@ -95,11 +107,11 @@ public class DeviceLifeCycleBuilderImpl implements DeviceLifeCycleBuilder {
 
     }
 
-    private class AuthorizedTransitionActionBuilderImpl
+    protected class AuthorizedTransitionActionBuilderImpl
             extends AuthorizedActionBuilderImpl<AuthorizedTransitionAction, AuthorizedTransitionActionImpl>
             implements AuthorizedTransitionActionBuilder {
 
-        private AuthorizedTransitionActionBuilderImpl(AuthorizedTransitionActionImpl underConstruction) {
+        protected AuthorizedTransitionActionBuilderImpl(AuthorizedTransitionActionImpl underConstruction) {
             super(underConstruction);
         }
 

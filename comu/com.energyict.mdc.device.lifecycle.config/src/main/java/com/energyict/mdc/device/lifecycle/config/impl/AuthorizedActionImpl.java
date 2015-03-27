@@ -135,6 +135,11 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
         return EnumSet.copyOf(this.levels);
     }
 
+    void clearLevels() {
+        this.levelBits = 0;
+        this.levels = EnumSet.noneOf(AuthorizedAction.Level.class);
+    }
+
     void add(Level level) {
         this.levelBits |= (1L << level.ordinal());
         this.levels.add(level);

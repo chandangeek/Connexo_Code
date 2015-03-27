@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
@@ -8,6 +9,7 @@ import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -90,6 +92,10 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         return this.name;
     }
 
+    void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public FiniteStateMachine getFiniteStateMachine() {
         return this.stateMachine.get();
@@ -139,6 +145,22 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public DeviceLifeCycleUpdater startUpdate() {
-        return null;
+        return new DeviceLifeCycleUpdaterImpl(this.dataModel, this);
     }
+
+    AuthorizedTransitionActionImpl findActionFor(StateTransition transition) {
+        return this.actions
+                .stream()
+                .filter(each -> each instanceof AuthorizedTransitionAction)
+                .map(AuthorizedTransitionActionImpl.class::cast)
+                .filter(each -> each.getStateTransition().getId() == transition.getId())
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No authorized action for state transition with id " + transition.getId()));
+    }
+
+    void removeTransitionAction(StateTransition transition) {
+        AuthorizedTransitionAction transitionAction = this.findActionFor(transition);
+        this.actions.remove(transitionAction);
+    }
+
 }

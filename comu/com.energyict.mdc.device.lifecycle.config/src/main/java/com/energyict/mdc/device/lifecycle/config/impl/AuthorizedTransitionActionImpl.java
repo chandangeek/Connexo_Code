@@ -85,6 +85,11 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
         return EnumSet.copyOf(this.checks);
     }
 
+    void clearChecks() {
+        this.checkBits = 0;
+        this.checks = EnumSet.noneOf(MicroCheck.class);
+    }
+
     void add(MicroCheck check) {
         this.checkBits |= (1L << check.ordinal());
         this.checks.add(check);
@@ -93,6 +98,11 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
     @Override
     public Set<MicroAction> getActions() {
         return EnumSet.copyOf(this.actions);
+    }
+
+    void clearActions() {
+        this.actionBits = 0;
+        this.actions = EnumSet.noneOf(MicroAction.class);
     }
 
     void add(MicroAction action) {
