@@ -6,7 +6,6 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCyclePrivilegeInfo;
 
@@ -32,9 +31,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
 
 /**
  * Integration test for the {@link AuthorizedActionEditorFactory} component.
@@ -118,10 +114,10 @@ public class AuthorizedActionEditorFactoryIT {
         AuthorizedActionInfo actionInfo = new AuthorizedActionInfo(this.thesaurus, deviceLifeCycle.getAuthorizedActions().get(0));
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         long stateAID = finiteStateMachine.getState("A").get().getId();
-        long stateBID = finiteStateMachine.getState("B").get().getId();
+        long stateCID = finiteStateMachine.getState("C").get().getId();
 
         // Business method: change the to state of the transition action and save changes
-        actionInfo.toState.id = stateBID;
+        actionInfo.toState.id = stateCID;
         AuthorizedActionEditor editor = this.getTestInstance().from(deviceLifeCycle, actionInfo);
         AuthorizedAction updatedAction = editor.saveChanges();
 
@@ -129,7 +125,7 @@ public class AuthorizedActionEditorFactoryIT {
         assertThat(updatedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction updatedTransitionAction = (AuthorizedTransitionAction) updatedAction;
         assertThat(updatedTransitionAction.getStateTransition().getFrom().getId()).isEqualTo(stateAID);
-        assertThat(updatedTransitionAction.getStateTransition().getTo().getId()).isEqualTo(stateBID);
+        assertThat(updatedTransitionAction.getStateTransition().getTo().getId()).isEqualTo(stateCID);
         assertThat(updatedTransitionAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO);
         assertThat(updatedTransitionAction.getChecks()).isEmpty();
         assertThat(updatedTransitionAction.getActions()).isEmpty();
@@ -180,6 +176,32 @@ public class AuthorizedActionEditorFactoryIT {
         assertThat(updatedTransitionAction.getStateTransition().getFrom().getId()).isEqualTo(stateBID);
         assertThat(updatedTransitionAction.getStateTransition().getTo().getId()).isEqualTo(stateCID);
         assertThat(updatedTransitionAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO);
+        assertThat(updatedTransitionAction.getChecks()).isEmpty();
+        assertThat(updatedTransitionAction.getActions()).isEmpty();
+    }
+
+    @Transactional
+    @Test
+    public void changeOnlyLevels() {
+        DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
+        AuthorizedActionInfo actionInfo = new AuthorizedActionInfo(this.thesaurus, deviceLifeCycle.getAuthorizedActions().get(0));
+        FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
+        long stateAID = finiteStateMachine.getState("A").get().getId();
+        long stateBID = finiteStateMachine.getState("B").get().getId();
+
+        // Business method: change levels and save changes
+        actionInfo.privileges = Arrays.asList(
+                new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.THREE),
+                new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.FOUR));
+        AuthorizedActionEditor editor = this.getTestInstance().from(deviceLifeCycle, actionInfo);
+        AuthorizedAction updatedAction = editor.saveChanges();
+
+        // Asserts
+        assertThat(updatedAction).isInstanceOf(AuthorizedTransitionAction.class);
+        AuthorizedTransitionAction updatedTransitionAction = (AuthorizedTransitionAction) updatedAction;
+        assertThat(updatedTransitionAction.getStateTransition().getFrom().getId()).isEqualTo(stateAID);
+        assertThat(updatedTransitionAction.getStateTransition().getTo().getId()).isEqualTo(stateBID);
+        assertThat(updatedTransitionAction.getLevels()).containsOnly(AuthorizedAction.Level.THREE, AuthorizedAction.Level.FOUR);
         assertThat(updatedTransitionAction.getChecks()).isEmpty();
         assertThat(updatedTransitionAction.getActions()).isEmpty();
     }
