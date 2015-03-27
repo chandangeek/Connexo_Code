@@ -16,7 +16,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -52,6 +51,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -83,14 +83,23 @@ import static org.mockito.Mockito.*;
  */
 public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTest {
 
+    private final DeviceMessageCategoryImpl deviceMessageCategoryDeviceActions = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS, thesaurus, propertySpecService);
+    private final DeviceMessageCategoryImpl deviceMessageCategoryActivityCalendar = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR,thesaurus, propertySpecService);
+    private final DeviceMessageCategoryImpl deviceMessageCategoryClock = new DeviceMessageCategoryImpl(DeviceMessageCategories.CLOCK,thesaurus, propertySpecService);
+
+    @Before
+    public void initBefore() {
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService)).collect(Collectors.toList()));
+    }
+
     @Test
     public void testGetDeviceCommands() throws Exception {
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
         Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
-        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
-        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), sent);
+        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(10), null, deviceMessageCategoryDeviceActions);
+        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", created.minusSeconds(5), created.plusSeconds(5), sent, deviceMessageCategoryClock);
         when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -117,7 +126,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("do delete rule");
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
         assertThat(model.<String>get("$.deviceMessages[0].trackingId")).isEqualTo("T14");
-        assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("DeviceMessageCategories.RESET");
+        assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("Device actions");
         assertThat(model.<String>get("$.deviceMessages[0].status.displayValue")).isEqualTo("Pending");
         assertThat(model.<String>get("$.deviceMessages[0].status.value")).isEqualTo("CommandPending");
         assertThat(model.<Long>get("$.deviceMessages[0].releaseDate")).isEqualTo(created.plusSeconds(10).toEpochMilli());
@@ -135,10 +144,10 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
-        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
-        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(20), null);
-        DeviceMessage<Device> command3 = mockCommand(device, 3L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.minusSeconds(10), null);
-        DeviceMessage<Device> command4 = mockCommand(device, 4L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.minusSeconds(20), null);
+        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(10), null, deviceMessageCategoryDeviceActions);
+        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(20), null, deviceMessageCategoryDeviceActions);
+        DeviceMessage<Device> command3 = mockCommand(device, 3L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.minusSeconds(10), null, deviceMessageCategoryDeviceActions);
+        DeviceMessage<Device> command4 = mockCommand(device, 4L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.minusSeconds(20), null, deviceMessageCategoryDeviceActions);
         when(device.getMessages()).thenReturn(Arrays.asList(command1,command2, command3, command4));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -170,8 +179,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
-        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
-        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), null, sent);
+        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(10), null, deviceMessageCategoryDeviceActions);
+        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", created.minusSeconds(5), null, sent, deviceMessageCategoryClock);
         when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -202,7 +211,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
 
         Device device = mock(Device.class);
-        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.CLOCK_SET_TIME, "set clock", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.CLOCK_SET_TIME, "set clock", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(10), null, deviceMessageCategoryClock);
         DeviceMessageAttribute attribute1 = mockAttribute("ID", BigDecimal.valueOf(123L), new BigDecimalFactory(), Required);
         DeviceMessageAttribute attribute2 = mockAttribute("Delete", true, new BooleanFactory(), Required);
         Date now = new Date();
@@ -217,7 +226,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CLOCK_SET_TIME, DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -259,7 +268,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mock(Device.class);
         int categoryId = 101;
-        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", categoryId, "DeviceMessageCategories.RESET", created.minusSeconds(5), created.plusSeconds(5), null);
+        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "T15", "Jeff", created.minusSeconds(5), created.plusSeconds(5), null, deviceMessageCategoryClock);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
@@ -295,9 +304,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         int categoryId = 1011;
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
-
-        // there is a total of 34 device messages supported by the protocol
-        when(deviceMessageSpecificationService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
 
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
 
@@ -350,9 +356,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         int categoryId = 1011;
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
-
-        // there is a total of 34 device messages supported by the protocol
-        when(deviceMessageSpecificationService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
 
         doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], (ValueFactory)invocationOnMock.getArguments()[2])).
                 when(propertySpecService).basicPropertySpec(any(String.class), any(Boolean.class), any(ValueFactory.class));
@@ -453,7 +456,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage msg1 = mock(DeviceMessage.class);
         when(msg1.getId()).thenReturn(1L);
         when(msg1.getSpecification()).thenReturn(deviceMessageSpecification);
-        DeviceMessage msg2 = mockCommand(device, 2L, DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, "spec", "error", DeviceMessageStatus.REVOKED, "tracker", "admin", 1, "bulk", null, null, null);
+        DeviceMessage msg2 = mockCommand(device, 2L, DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, "spec", "error", DeviceMessageStatus.REVOKED, "tracker", "admin", null, null, null, deviceMessageCategoryActivityCalendar);
         DeviceMessage msg3 = mock(DeviceMessage.class);
         when(msg3.getId()).thenReturn(3L);
         when(msg3.getSpecification()).thenReturn(deviceMessageSpecification);
@@ -563,7 +566,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         return comTask;
     }
 
-    private DeviceMessage<Device> mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Integer categoryId, String categoryName, Instant creationDate, Instant releaseDate, Instant sentDate) {
+    private DeviceMessage<Device> mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Instant creationDate, Instant releaseDate, Instant sentDate, DeviceMessageCategory deviceMessageCategory) {
         DeviceMessage mock = mock(DeviceMessage.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getSentDate()).thenReturn(Optional.ofNullable(sentDate));
@@ -574,10 +577,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(mock.getTrackingId()).thenReturn(trackingId);
         when(mock.getUser()).thenReturn(userName);
         DeviceMessageSpec specification = mock(DeviceMessageSpec.class);
-        DeviceMessageCategory category = mock(DeviceMessageCategory.class);
-        when(category.getName()).thenReturn(categoryName);
-        when(category.getId()).thenReturn(categoryId);
-        when(specification.getCategory()).thenReturn(category);
+        when(specification.getCategory()).thenReturn(deviceMessageCategory);
         when(specification.getId()).thenReturn(deviceMessageId);
         when(specification.getName()).thenReturn(messageSpecName);
         when(mock.getSpecification()).thenReturn(specification);
@@ -597,36 +597,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         boolean bool() {
             return b;
         }
-    }
-
-    private class DeviceMessageCategoryImpl implements DeviceMessageCategory {
-        private final DeviceMessageCategories category;
-
-        private DeviceMessageCategoryImpl(DeviceMessageCategories category) {
-            super();
-            this.category = category;
-        }
-
-        @Override
-        public String getName() {
-            return thesaurus.getString(this.category.getNameResourceKey(), this.category.defaultTranslation());
-        }
-
-        @Override
-        public String getDescription() {
-            return thesaurus.getString(this.category.getDescriptionResourceKey(), this.category.getDescriptionResourceKey());
-        }
-
-        @Override
-        public int getId() {
-            return this.category.ordinal();
-        }
-
-        @Override
-        public List<DeviceMessageSpec> getMessageSpecifications() {
-            return this.category.getMessageSpecifications(this, propertySpecService, thesaurus);
-        }
-
     }
 
     public static class MessageTestDeviceProtocol implements DeviceProtocol {

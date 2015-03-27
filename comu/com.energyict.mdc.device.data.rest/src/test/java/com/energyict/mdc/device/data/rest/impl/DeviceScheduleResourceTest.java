@@ -204,12 +204,12 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
-        when(device.newManuallyScheduledComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties, schedulingInfo.schedule.asTemporalExpression())).thenReturn(comTaskExecutionBuilder);
+        when(device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression())).thenReturn(comTaskExecutionBuilder);
 
         Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(comTaskExecutionBuilder, times(1)).add();
-        verify(device, times(1)).newManuallyScheduledComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties, schedulingInfo.schedule.asTemporalExpression());
+        verify(device, times(1)).newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
     }
 
     @Test
@@ -299,7 +299,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
-        when(device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties)).thenReturn(comTaskExecutionBuilder);
+        when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
 

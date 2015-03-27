@@ -14,11 +14,13 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.FirmwareUpgradeTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
@@ -37,6 +39,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -72,10 +75,20 @@ public class DeviceComTaskResource {
     public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-        List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
+        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions().stream()
+                .filter(this::isNotFirmwareComTaskExecution).collect(Collectors.toList());
+        List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements().stream()
+                .filter(this::isNotFirmwareComTask).collect(Collectors.toList());
         List<DeviceComTaskInfo> deviceSchedulesInfos = deviceComTaskInfoFactory.from(comTaskExecutions, comTaskEnablements, device);
         return Response.ok(PagedInfoList.fromPagedList("comTasks", deviceSchedulesInfos, queryParameters)).build();
+    }
+
+    private boolean isNotFirmwareComTask(ComTaskEnablement comTaskEnablement) {
+        return comTaskEnablement.getComTask().getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof FirmwareUpgradeTask).count() == 0;
+    }
+
+    private boolean isNotFirmwareComTaskExecution(ComTaskExecution comTaskExecution) {
+        return !(comTaskExecution instanceof FirmwareComTaskExecution);
     }
 
     @PUT
@@ -308,7 +321,7 @@ public class DeviceComTaskResource {
     }
 
     private ManuallyScheduledComTaskExecution createManuallyScheduledComTaskExecutionWithoutFrequency(Device device, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null));
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         if (comTaskEnablement.hasPartialConnectionTask()) {
             device.getConnectionTasks().stream()
                     .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
@@ -387,7 +400,7 @@ public class DeviceComTaskResource {
 
     private Consumer<ComTaskEnablement> createManuallyScheduledComTaskExecutionForEnablement(ComTaskFrequencyInfo comTaskFrequencyInfo, Device device) {
         return comTaskEnablement -> {
-            ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null), comTaskFrequencyInfo.temporalExpression.asTemporalExpression());
+            ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskFrequencyInfo.temporalExpression.asTemporalExpression());
             if (comTaskEnablement.hasPartialConnectionTask()) {
                 device.getConnectionTasks().stream()
                         .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())

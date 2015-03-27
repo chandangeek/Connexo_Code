@@ -67,6 +67,8 @@ public class DeviceMessageResource {
     public DeviceMessageInfos getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
+                // we do the explicit filtering because some categories should be hidden for the user
+                filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForUserSelection().contains(deviceMessage.getSpecification().getCategory())).
                 sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
                 map(deviceMessageInfoFactory::asInfo).
                 collect(toList());
@@ -143,7 +145,7 @@ public class DeviceMessageResource {
         final boolean[] hasCommandsWithPrivileges = {false};
         Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
-        deviceMessageSpecificationService.allCategories().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).forEach(category-> {
+        deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).forEach(category-> {
             List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
                     .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
                     .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
