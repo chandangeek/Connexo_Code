@@ -45,7 +45,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -345,12 +344,12 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         resolvers.remove(estimationResolver);
     }
 
-    private SimpleEstimationResult getInitialBlocksToEstimateAsResult(MeterActivation meterActivation, ReadingType readingType) {
+    private EstimationResult getInitialBlocksToEstimateAsResult(MeterActivation meterActivation, ReadingType readingType) {
         return asInitialResult(getBlocksToEstimate(meterActivation, readingType));
     }
 
-    private SimpleEstimationResult asInitialResult(List<EstimationBlock> blocksToEstimate) {
-        return SimpleEstimationResult.of(blocksToEstimate, Collections.emptyList());
+    private EstimationResult asInitialResult(List<EstimationBlock> blocksToEstimate) {
+        return new InitialEstimationResult(blocksToEstimate);
     }
 
     private Stream<IEstimationRule> determineEstimationRules(MeterActivation meterActivation) {
