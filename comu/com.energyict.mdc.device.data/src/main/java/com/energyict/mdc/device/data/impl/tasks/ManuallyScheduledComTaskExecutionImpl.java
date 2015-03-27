@@ -57,19 +57,18 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
         super(dataModel, eventService, thesaurus, clock, communicationTaskService, schedulingService);
     }
 
-    public ManuallyScheduledComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
+    public ManuallyScheduledComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
         super.initializeFrom(device, comTaskEnablement);
         this.setComTask(comTaskEnablement.getComTask());
         this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null));
-        this.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
         if (temporalExpression != null) {
             this.setNextExecutionSpecsFrom(temporalExpression);
         }
         return this;
     }
 
-    public ManuallyScheduledComTaskExecutionImpl initializeAdhoc(Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        return this.initialize(device, comTaskEnablement, protocolDialectConfigurationProperties, null);
+    public ManuallyScheduledComTaskExecutionImpl initializeAdhoc(Device device, ComTaskEnablement comTaskEnablement) {
+        return this.initialize(device, comTaskEnablement, null);
     }
 
     @Override
@@ -300,14 +299,14 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
      * Uses as a marker interface for javax.validation when
      * saving an ad-hoc manually scheduled task.
      */
-    private interface SaveAdHoc {
+    interface SaveAdHoc {
     }
 
     /**
      * Uses as a marker interface for javax.validation when
      * saving a manually scheduled task.
      */
-    private interface SaveScheduled {
+    interface SaveScheduled {
     }
 
 }

@@ -80,6 +80,7 @@ import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
@@ -90,6 +91,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
@@ -102,7 +105,6 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -113,6 +115,12 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -140,16 +148,9 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
 import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
@@ -211,6 +212,7 @@ public class DeviceImpl implements Device, CanLock {
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     private final Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
+    private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
 
     @Inject
@@ -229,7 +231,7 @@ public class DeviceImpl implements Device, CanLock {
             Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
             Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
             ProtocolPluggableService protocolPluggableService,
-            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
+            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider, Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -244,6 +246,7 @@ public class DeviceImpl implements Device, CanLock {
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
         this.scheduledComTaskExecutionProvider = scheduledComTaskExecutionProvider;
         this.manuallyScheduledComTaskExecutionProvider = manuallyScheduledComTaskExecutionProvider;
+        this.firmwareComTaskExecutionProvider = firmwareComTaskExecutionProvider;
         this.protocolPluggableService = protocolPluggableService;
     }
 
@@ -1432,17 +1435,21 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        return new AdHocComTaskExecutionBuilderForDevice(manuallyScheduledComTaskExecutionProvider, this, comTaskEnablement, protocolDialectConfigurationProperties);
+    public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        return new AdHocComTaskExecutionBuilderForDevice(manuallyScheduledComTaskExecutionProvider, this, comTaskEnablement);
     }
 
     @Override
-    public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
+    public ComTaskExecutionBuilder<FirmwareComTaskExecution> newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        return new FirmwareComTaskExecutionBuilderForDevice(firmwareComTaskExecutionProvider, this, comTaskEnablement);
+    }
+
+    @Override
+    public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
         return new ManuallyScheduledComTaskExecutionBuilderForDevice(
                 this.manuallyScheduledComTaskExecutionProvider,
                 this,
                 comTaskEnablement,
-                protocolDialectConfigurationProperties,
                 temporalExpression);
     }
 
@@ -1453,6 +1460,11 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution) {
+        return comTaskExecution.getUpdater();
+    }
+
+    @Override
+    public FirmwareComTaskExecutionUpdater getComTaskExecutionUpdater(FirmwareComTaskExecution comTaskExecution) {
         return comTaskExecution.getUpdater();
     }
 
@@ -1776,9 +1788,9 @@ public class DeviceImpl implements Device, CanLock {
     public class AdHocComTaskExecutionBuilderForDevice
             extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
 
-        private AdHocComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        private AdHocComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
             super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initializeAdhoc(device, comTaskEnablement, protocolDialectConfigurationProperties);
+            this.getComTaskExecution().initializeAdhoc(device, comTaskEnablement);
         }
 
 
@@ -1790,12 +1802,27 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
+    public class FirmwareComTaskExecutionBuilderForDevice extends FirmwareComTaskExecutionImpl.FirmwareComTaskExecutionBuilderImpl {
+
+        private FirmwareComTaskExecutionBuilderForDevice(Provider<FirmwareComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
+            super(comTaskExecutionProvider.get());
+            this.getComTaskExecution().initializeFirmwareTask(device, comTaskEnablement);
+        }
+
+        @Override
+        public FirmwareComTaskExecution add() {
+            FirmwareComTaskExecution firmwareComTaskExecution = super.add();
+            DeviceImpl.this.add((ComTaskExecutionImpl) firmwareComTaskExecution);
+            return firmwareComTaskExecution;
+        }
+    }
+
     public class ManuallyScheduledComTaskExecutionBuilderForDevice
             extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
 
-        private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TemporalExpression temporalExpression) {
+        private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
             super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initialize(device, comTaskEnablement, protocolDialectConfigurationProperties, temporalExpression);
+            this.getComTaskExecution().initialize(device, comTaskEnablement, temporalExpression);
         }
 
         @Override

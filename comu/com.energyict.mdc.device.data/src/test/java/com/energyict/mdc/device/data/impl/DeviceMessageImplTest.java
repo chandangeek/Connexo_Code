@@ -462,7 +462,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
         Device device = createSimpleDeviceWithName("createWithIncorrectDeviceMessageIdTest", "createWithIncorrectDeviceMessageIdTest");
-        DeviceMessageId contactorClose = DeviceMessageId.FIRMWARE_UPGRADE_URL;
+        DeviceMessageId contactorClose = DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL;
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
     }
 

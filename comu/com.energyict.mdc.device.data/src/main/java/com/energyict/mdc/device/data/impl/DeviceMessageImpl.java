@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.IllegalDeviceMessageIdException;
 import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMessageAttributes;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Straightforward implementation of a ServerDeviceMessage
@@ -73,7 +75,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private Instant modTime;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
-    private DeviceMessageId deviceMessageId;
+    private long deviceMessageId;
     private DeviceMessageStatus deviceMessageStatus;
     @IsRevokeAllowed(groups = {Save.Create.class, Save.Update.class})
     private RevokeChecker revokeChecker;
@@ -97,10 +99,10 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     }
 
     public DeviceMessageImpl initialize(Device device, DeviceMessageId deviceMessageId) {
-        this.deviceMessageId = deviceMessageId;
+        this.deviceMessageId = deviceMessageId.dbValue();
         this.device.set(device);
         this.deviceMessageStatus = DeviceMessageStatus.WAITING;
-        this.messageSpec = this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId.dbValue());
+        this.messageSpec = this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId);
         return this;
     }
 
@@ -131,12 +133,12 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public DeviceMessageSpec getSpecification() {
-        return this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId.dbValue()).orElse(null);
+        return this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId).orElse(null);
     }
 
     @Override
     public DeviceMessageId getDeviceMessageId() {
-        return this.deviceMessageId;
+        return Stream.of(DeviceMessageId.values()).filter(deviceMessage -> deviceMessage.dbValue() == this.deviceMessageId).findAny().orElseThrow(() -> new IllegalDeviceMessageIdException(getThesaurus(), this.deviceMessageId));
     }
 
     @Override
