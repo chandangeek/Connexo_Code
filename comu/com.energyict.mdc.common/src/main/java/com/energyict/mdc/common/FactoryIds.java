@@ -21,7 +21,8 @@ public enum FactoryIds {
     DEVICE_PROTOCOL_DIALECT(Constants.DEVICE_PROTOCOL_DIALECT),
     CONNECTION_TASK(Constants.CONNECTION_TASK_FACTORYID),
     SECURITY_SET(Constants.SECURITY_SET_FACTORYID),
-    LOGBOOK(Constants.LOGBOOK_FACTORYID);
+    LOGBOOK(Constants.LOGBOOK_FACTORYID),
+    FIRMWAREVERSION(Constants.FIRMWARE_FACTORYID);
 
     int id;
 
@@ -58,5 +59,6 @@ public enum FactoryIds {
         public static final int CONNECTION_TASK_FACTORYID = 5004;
         public static final int SECURITY_SET_FACTORYID = 5012;
         public static final int LOGBOOK_FACTORYID = 206;
+        public static final int FIRMWARE_FACTORYID = 10000;
     }
 }
