@@ -34,7 +34,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.firmware</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
