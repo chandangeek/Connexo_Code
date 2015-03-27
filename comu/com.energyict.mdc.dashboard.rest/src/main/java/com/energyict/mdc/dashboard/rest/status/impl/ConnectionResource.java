@@ -1,5 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -20,18 +23,6 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.time.Interval;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -41,6 +32,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 
