@@ -140,6 +140,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public void delete() {
+        this.actions.clear();
         this.dataModel.remove(this);
     }
 
