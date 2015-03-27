@@ -54,7 +54,7 @@ public class DeviceLifeCycleStateResource {
     public PagedInfoList getStatesForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam QueryParameters queryParams) {
         List<DeviceLifeCycleStateInfo> states = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId).getFiniteStateMachine().getStates()
                 .stream()
-                .map(state -> deviceLifeCycleStateFactory.from(state))
+                .map(deviceLifeCycleStateFactory::from)
                 .sorted(Comparator.comparing(state -> state.name)) // alphabetical sort
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycleStates", ListPager.of(states).from(queryParams).find(), queryParams);
@@ -76,7 +76,7 @@ public class DeviceLifeCycleStateResource {
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
     public Response addDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, DeviceLifeCycleStateInfo stateInfo) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
-        FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().update();
+        FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
         fsmUpdater.newCustomState(stateInfo.name).complete();
         FiniteStateMachine fsm = fsmUpdater.complete();
         Optional<State> newState = fsm.getState(stateInfo.name);
@@ -92,7 +92,7 @@ public class DeviceLifeCycleStateResource {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         State stateForEdit = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
 
-        FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().update();
+        FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
         FiniteStateMachineUpdater.StateUpdater stateUpdater = fsmUpdater.state(stateId);
         if (stateForEdit.isCustom()) {
             stateUpdater.setName(stateInfo.name);

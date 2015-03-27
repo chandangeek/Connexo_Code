@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import java.util.Objects;
 
 public class ResourceHelper {
+
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ExceptionFactory exceptionFactory;
 
@@ -26,7 +27,7 @@ public class ResourceHelper {
         return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_NOT_FOUND, id));
     }
 
-    public State findStateByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long stateId){
+    public State findStateByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long stateId) {
         Objects.requireNonNull(deviceLifeCycle);
         return deviceLifeCycle.getFiniteStateMachine().getStates()
                 .stream()
@@ -35,7 +36,7 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_NOT_FOUND, stateId));
     }
 
-    public AuthorizedAction findAuthorizedActionByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long actionId){
+    public AuthorizedAction findAuthorizedActionByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long actionId) {
         Objects.requireNonNull(deviceLifeCycle);
         return deviceLifeCycle.getAuthorizedActions()
                 .stream()
@@ -43,4 +44,5 @@ public class ResourceHelper {
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_AUTH_ACTION_NOT_FOUND, actionId));
     }
+
 }

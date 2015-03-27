@@ -1,21 +1,22 @@
 package com.energyict.mdc.device.lifecycle.config.rest;
 
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateInfo;
+
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateInfo;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -97,7 +98,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         when(stateMachine.getState("New state")).thenReturn(Optional.of(newState));
         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
-        when(stateMachine.update()).thenReturn(fsmUpdater);
+        when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
         FiniteStateMachineBuilder.StateBuilder stateBuilder = mock(FiniteStateMachineBuilder.StateBuilder.class);
         when(fsmUpdater.newCustomState(Matchers.anyString())).thenReturn(stateBuilder);
         when(fsmUpdater.complete()).thenReturn(stateMachine);
@@ -121,7 +122,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
-        when(stateMachine.update()).thenReturn(fsmUpdater);
+        when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
         FiniteStateMachineUpdater.StateUpdater stateUpdater = mock(FiniteStateMachineUpdater.StateUpdater.class);
         when(fsmUpdater.state(Matchers.anyLong())).thenReturn(stateUpdater);
         when(stateUpdater.complete()).thenReturn(stateForEdit);
@@ -144,7 +145,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
         FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
-        when(stateMachine.update()).thenReturn(fsmUpdater);
+        when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
         FiniteStateMachineUpdater.StateUpdater stateUpdater = mock(FiniteStateMachineUpdater.StateUpdater.class);
         when(fsmUpdater.state(Matchers.anyLong())).thenReturn(stateUpdater);
         when(stateUpdater.complete()).thenReturn(stateForEdit);
