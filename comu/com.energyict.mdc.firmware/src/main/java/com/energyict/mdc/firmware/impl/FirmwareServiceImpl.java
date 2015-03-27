@@ -116,6 +116,12 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
+    public boolean isFirmwareVersionInUse(long firmwareVersionId) {
+        // TODO
+        return false;
+    }
+
+    @Override
     public Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType) {
         return dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
     }

@@ -9,9 +9,15 @@ public interface FirmwareVersion extends HasId{
 
     FirmwareType getFirmwareType();
 
+    void setFirmwareType(FirmwareType firmwareType);
+
     FirmwareStatus getFirmwareStatus();
 
+    void setFirmwareStatus(FirmwareStatus firmwareStatus);
+
     String getFirmwareVersion();
+
+    void setFirmwareVersion(String firmwareVersion);
 
     byte[] getFirmwareFile();
 

@@ -13,7 +13,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIELD_IS_REQUIRED(1, Keys.FIELD_IS_REQUIRED, "This field is required", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH(2, Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH, "Field's text length should be between 1 and " + Table.NAME_LENGTH + " symbols", Level.SEVERE),
     NAME_MUST_BE_UNIQUE(3, Keys.NAME_MUST_BE_UNIQUE, "Relative period with such name already exists", Level.SEVERE),
-    MAX_FILE_SIZE_EXCEEDED(4, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE + " Mb", Level.SEVERE);
+    MAX_FILE_SIZE_EXCEEDED(4, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE + " Mb", Level.SEVERE),
+    STATE_TRANSFER_NOT_ALLOWED(5, Keys.STATE_TRANSFER_NOT_ALLOWED, "Transfer to requested state is not allowed", Level.SEVERE),
     ;
     private final int number;
     private final String key;
@@ -65,5 +66,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH = "FieldSizeBetween1and80";
         public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
         public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
+        public static final String STATE_TRANSFER_NOT_ALLOWED = "StateTransferNotAllowed";
     }
 }

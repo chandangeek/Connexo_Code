@@ -38,6 +38,8 @@ import java.util.Set;
 
     void deprecateFirmwareVersion(FirmwareVersion firmwareVersion);
 
+    boolean isFirmwareVersionInUse(long firmwareVersionId);
+
     Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
 
     /**
