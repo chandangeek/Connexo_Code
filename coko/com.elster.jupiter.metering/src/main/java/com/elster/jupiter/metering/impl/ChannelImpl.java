@@ -1,27 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import com.elster.jupiter.metering.EventType;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -33,6 +11,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -51,6 +30,25 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public final class ChannelImpl implements ChannelContract {
 
@@ -135,8 +133,19 @@ public final class ChannelImpl implements ChannelContract {
     public Instant getFirstDateTime() {
     	return timeSeries.get().getFirstDateTime();
     }
-    
-    Optional<TemporalAmount> getIntervalLength() {
+
+    @Override
+    public Instant getNextDateTime(Instant instant) {
+        return getTimeSeries().getNextDateTime(instant);
+    }
+
+    @Override
+    public Instant getPreviousDateTime(Instant instant) {
+        return getTimeSeries().getPreviousDateTime(instant);
+    }
+
+    @Override
+    public Optional<TemporalAmount> getIntervalLength() {
         Iterator<ReadingTypeImpl> it = getReadingTypes().iterator();
         Optional<TemporalAmount> result = ((ReadingTypeImpl) it.next()).getIntervalLength();
         while (it.hasNext()) {
@@ -350,7 +359,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private Condition ofThisChannel() {
-        return where("channelId").isEqualTo(getId());
+        return where("channel").isEqualTo(this);
     }
 
     private Condition ofType(ReadingQualityType type) {
@@ -370,6 +379,12 @@ public final class ChannelImpl implements ChannelContract {
     @Override
     public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> range) {
         Condition ofTypeAndInInterval = ofThisChannel().and(inRange(range)).and(ofType(type));
+        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
+    }
+
+    @Override
+    public List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval) {
+        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval)).and(ofType(type)).and(isActual());
         return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
     }
 
@@ -415,15 +430,13 @@ public final class ChannelImpl implements ChannelContract {
         boolean regular = isRegular();
         List<TimeSeriesEntry> entries = getTimeSeries().getEntriesOnOrBefore(when, readingCount);
         ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
-        for (TimeSeriesEntry entry : entries) {
-            builder.add(createReading(regular, entry));
-        }
+        entries.forEach(entry -> builder.add(createReading(regular, entry)));
         return builder.build();
     }
 
     @Override
     public boolean hasMacroPeriod() {
-        return !mainReadingType.get().equals(MacroPeriod.NOTAPPLICABLE);
+        return !MacroPeriod.NOTAPPLICABLE.equals(mainReadingType.get().getMacroPeriod());
     }
 
     @Override

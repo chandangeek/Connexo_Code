@@ -4,6 +4,8 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +13,9 @@ import java.util.Set;
 public interface Channel {
 	long getId();
 	MeterActivation getMeterActivation();
+
+    Optional<TemporalAmount> getIntervalLength();
+
     List<? extends ReadingType> getReadingTypes();
     List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval);
     List<ReadingRecord> getRegisterReadings(Range<Instant> interval);
@@ -26,6 +31,7 @@ public interface Channel {
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, Instant timestamp);
     Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
     List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval);
+    List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval);
     List<ReadingQualityRecord> findReadingQuality(Instant timestamp);
     List<ReadingQualityRecord> findReadingQuality(Range<Instant> interval);
     List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> interval);
@@ -38,12 +44,16 @@ public interface Channel {
 	void removeReadings(List<? extends BaseReadingRecord> readings);
 	Instant getFirstDateTime();
 	Instant getLastDateTime();
+    Instant getNextDateTime(Instant instant);
+    Instant getPreviousDateTime(Instant instant);
 	List<Instant> toList(Range<Instant> range);
 	default boolean hasReadingType(ReadingType readingType) {
 		return getReadingTypes().contains(readingType);
 	}
-	
-	interface ReadingsDeletedEvent {
+
+    ZoneId getZoneId();
+
+    interface ReadingsDeletedEvent {
 		Channel getChannel();
 		Set<Instant> getReadingTimeStamps();
 		default Range<Instant> getRange() {

@@ -11,24 +11,24 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
-
-import java.time.Instant;
-import java.util.Optional;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Optional;
 
 public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     private long id;
     private String comment;
-    private long channelId;
     private Instant readingTimestamp;
     private String typeCode;
     private boolean actual;
 
     private transient ReadingQualityType type;
     private transient Optional<BaseReadingRecord> baseReadingRecord;
-    private transient Channel channel;
+    private Reference<Channel> channel = ValueReference.absent();
 
     private long version;
     @SuppressWarnings("unused")
@@ -50,8 +50,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
     ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, BaseReading baseReading) {
-        this.channel = channel;
-        this.channelId = channel.getId();
+        this.channel.set(channel);
         if (baseReading instanceof BaseReadingRecord) {
         	this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
         }
@@ -62,8 +61,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
     ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, Instant timestamp) {
-        this.channel = channel;
-        this.channelId = channel.getId();
+        this.channel.set(channel);
         readingTimestamp = timestamp;
         this.type = type;
         this.typeCode = type.getCode();
@@ -95,10 +93,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @Override
     public Channel getChannel() {
-        if (channel == null) {
-            channel = meteringService.findChannel(channelId).get();
-        }
-        return channel;
+        return channel.get();
     }
 
     @Override
@@ -219,7 +214,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         }
 
         public long getChannelId() {
-            return readingQuality.channelId;
+            return readingQuality.channel.get().getId();
         }
 
         public String getTypeCode() {
