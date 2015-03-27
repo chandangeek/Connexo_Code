@@ -228,7 +228,7 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         private void save() {
-            this.stateMachine.add(this.underConstruction);
+            this.stateMachine.validateAndAdd(this.underConstruction);
         }
 
     }

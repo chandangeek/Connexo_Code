@@ -431,8 +431,9 @@ public class FiniteStateMachineIT {
         String expectedName = "createStateMachineWithTwiceTheSameStateName";
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         State initial = builder.newCustomState("Initial").complete();
-        builder.newCustomState("State").complete();
-        builder.newCustomState("State").complete();
+        String sameName = "State";
+        builder.newCustomState(sameName).complete();
+        builder.newCustomState(sameName).complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
 
         // Business method
@@ -630,7 +631,7 @@ public class FiniteStateMachineIT {
 
         // Business method
         String newName = "renamed";
-        stateMachine.update().setName(newName).complete();
+        stateMachine.startUpdate().setName(newName).complete();
 
         // Asserts
         assertThat(stateMachine.getName()).isEqualTo(newName);
@@ -660,7 +661,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().setName(duplicateName).complete();
+        stateMachine.startUpdate().setName(duplicateName).complete();
 
         // Asserts: see expected constraint violation rule
     }
@@ -675,7 +676,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().setName("").complete();
+        stateMachine.startUpdate().setName("").complete();
 
         // Asserts: see expected constraint violation rule
     }
@@ -690,7 +691,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().setName(null).complete();
+        stateMachine.startUpdate().setName(null).complete();
 
         // Asserts: see expected constraint violation rule
     }
@@ -705,7 +706,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().setName(Strings.repeat("Too long", 100)).complete();
+        stateMachine.startUpdate().setName(Strings.repeat("Too long", 100)).complete();
 
         // Asserts: see expected constraint violation rule
     }
@@ -722,7 +723,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().removeState(commissioned).complete();
+        stateMachine.startUpdate().removeState(commissioned).complete();
 
         // Asserts
         assertThat(stateMachine.getName()).isEqualTo(expectedName);
@@ -743,7 +744,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().removeState(commissioned).complete();
+        stateMachine.startUpdate().removeState(commissioned).complete();
 
         // Asserts
         FiniteStateMachine reloaded = this.getTestService().findFiniteStateMachineByName(expectedName).get();
@@ -765,7 +766,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().removeState("InStock").complete();
+        stateMachine.startUpdate().removeState("InStock").complete();
 
         // Asserts
         assertThat(stateMachine.getName()).isEqualTo(expectedName);
@@ -787,7 +788,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().removeState("Commissioned").complete();
+        stateMachine.startUpdate().removeState("Commissioned").complete();
 
         // Asserts: see expected constraint violation
     }
@@ -804,7 +805,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().removeState("Commissioned").complete(inStock);
+        stateMachine.startUpdate().removeState("Commissioned").complete(inStock);
 
         // Asserts
         assertThat(stateMachine.getName()).isEqualTo(expectedName);
@@ -828,7 +829,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().complete(inStock);
+        stateMachine.startUpdate().complete(inStock);
 
         // Asserts
         assertThat(stateMachine.getInitialState().getId()).isEqualTo(inStock.getId());
@@ -851,7 +852,7 @@ public class FiniteStateMachineIT {
         other.save();
 
         // Business method
-        stateMachine.update().removeState(whatever).complete();
+        stateMachine.startUpdate().removeState(whatever).complete();
 
         // Asserts: see expected exception rule
     }
@@ -867,7 +868,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().removeState("does not exist").complete();
+        stateMachine.startUpdate().removeState("does not exist").complete();
 
         // Asserts: see expected exception rule
     }
@@ -882,7 +883,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().removeState("Single").complete();
+        stateMachine.startUpdate().removeState("Single").complete();
 
         // Asserts: see expected constraint violation rule
     }
@@ -899,7 +900,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        stateMachine.update().removeState("First").complete();
+        stateMachine.startUpdate().removeState("First").complete();
 
         // Asserts: see expected constraint violation rule
     }
@@ -915,7 +916,7 @@ public class FiniteStateMachineIT {
 
         // Business method
         String newName = "renamed";
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state(initialName).setName(newName).complete();
         stateMachineUpdater.complete();
 
@@ -923,6 +924,60 @@ public class FiniteStateMachineIT {
         assertThat(stateMachine.getState(newName).isPresent()).isTrue();
         assertThat(stateMachine.getState(newName).get().isInitial()).isTrue();
         assertThat(stateMachine.getState(initialName).isPresent()).isFalse();
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
+    @Test
+    public void renameStateToNullName() {
+        String expectedName = "renameStateToNullName";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String initialName = "Single";
+        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState(initialName).complete());
+        stateMachine.save();
+
+        // Business method
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        stateMachineUpdater.state(initialName).setName(null).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
+    @Test
+    public void renameStateToEmptyName() {
+        String expectedName = "renameStateToEmptyName";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String initialName = "Single";
+        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState(initialName).complete());
+        stateMachine.save();
+
+        // Business method
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        stateMachineUpdater.state(initialName).setName("").complete();
+        stateMachineUpdater.complete();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
+    @Test
+    public void renameStateToNameThatIsTooLong() {
+        String expectedName = "renameStateToNameThatIsTooLong";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String initialName = "Single";
+        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState(initialName).complete());
+        stateMachine.save();
+
+        // Business method
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        stateMachineUpdater.state(initialName).setName(Strings.repeat("Too long", 100)).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
@@ -936,11 +991,41 @@ public class FiniteStateMachineIT {
 
         // Business method
         String newName = "renamed";
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state(newName).setName(newName).complete();
         stateMachineUpdater.complete();
 
         // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @Test
+    public void findAfterRenameStateByName() {
+        String expectedName = "findAfterRenameStateByName";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String initialName = "Single";
+        State state = builder.newCustomState(initialName).complete();
+        long initialStateVersion = state.getVersion();
+        FiniteStateMachine stateMachine = builder.complete(state);
+        stateMachine.save();
+
+        // Business method
+        String newName = "renamed";
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        stateMachineUpdater.state(initialName).setName(newName).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts
+        FiniteStateMachine reloaded = this.getTestService().findFiniteStateMachineByName(expectedName).get();
+        assertThat(reloaded.getState(newName).isPresent()).isTrue();
+        assertThat(stateMachine.getState(newName).get().isInitial()).isTrue();
+        assertThat(stateMachine.getInitialState()).isNotNull();
+        assertThat(stateMachine.getInitialState().getId()).isEqualTo(stateMachine.getState(newName).get().getId());
+        assertThat(stateMachine.getInitialState().isInitial()).isTrue();
+        assertThat(reloaded.getState(initialName).isPresent()).isFalse();
+        State updatedState = reloaded.getState(newName).get();
+        assertThat(updatedState.getVersion()).isGreaterThan(initialStateVersion);
+        assertThat(updatedState.getModifiedTimestamp()).isNotNull();
     }
 
     @Transactional
@@ -955,7 +1040,7 @@ public class FiniteStateMachineIT {
 
         // Business method
         String newName = "renamed";
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state(state.getId()).setName(newName).complete();
         stateMachineUpdater.complete();
 
@@ -977,7 +1062,7 @@ public class FiniteStateMachineIT {
 
         // Business method
         String newName = "renamed";
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state(Long.MAX_VALUE).setName(newName).complete();
         stateMachineUpdater.complete();
 
@@ -986,8 +1071,8 @@ public class FiniteStateMachineIT {
 
     @Transactional
     @Test
-    public void findAfterRenameStateByName() {
-        String expectedName = "findAfterRenameStateByName";
+    public void findAfterRenameStateById() {
+        String expectedName = "findAfterRenameStateById";
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
         String initialName = "Single";
         State state = builder.newCustomState(initialName).complete();
@@ -997,8 +1082,8 @@ public class FiniteStateMachineIT {
 
         // Business method
         String newName = "renamed";
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
-        stateMachineUpdater.state(initialName).setName(newName).complete();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        stateMachineUpdater.state(state.getId()).setName(newName).complete();
         stateMachineUpdater.complete();
 
         // Asserts
@@ -1028,7 +1113,7 @@ public class FiniteStateMachineIT {
 
         // Business method
         String newName = "InStock";
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Commissioned").setName(newName).complete();
         stateMachineUpdater.complete();
 
@@ -1045,7 +1130,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("does not exist").setName("whatever").complete();
         stateMachineUpdater.complete();
 
@@ -1067,7 +1152,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("InStock").prohibit(commissionedEventType).complete();
         stateMachineUpdater.complete();
 
@@ -1093,7 +1178,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("InStock").prohibit(deliveredEventType).complete();
 
         // Asserts: see expected exception rul
@@ -1114,7 +1199,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("InStock").prohibit(commissionedEventType).complete();
         stateMachineUpdater.complete();
 
@@ -1136,7 +1221,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial").onEntry("onEntryDepId", "onEntry").onExit("onExitDepId", "onExit").complete();
         stateMachineUpdater.complete();
 
@@ -1165,7 +1250,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial")
                 .onEntry("onEntryDepId", "onEntry1")
                 .onEntry("onEntryDepId", "onEntry2")
@@ -1241,7 +1326,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.removeState(temporary);
         FiniteStateMachineBuilder.StateBuilder activeBuilder = stateMachineUpdater.newStandardState("Active");
         FiniteStateMachineBuilder.StateBuilder inactiveBuilder = stateMachineUpdater.newStandardState("Inactive");
@@ -1301,7 +1386,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business methods
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo("Commissioned");
 
         // Asserts
@@ -1324,7 +1409,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business methods
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo("Does not exist");
 
         // Asserts: see expected exception rule
@@ -1342,7 +1427,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business methods
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo(commissioned.getId());
 
         // Asserts
@@ -1365,7 +1450,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business methods
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo(Long.MAX_VALUE);
 
         // Asserts: see expected exception rule
@@ -1387,7 +1472,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial")
                 .removeOnEntry("onEntryDepId", "onEntry1")
                 .removeOnExit("onExitDepId", "onExit2")
@@ -1425,7 +1510,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial")
                 .removeOnEntry("onEntryDepId", "onEntry1")
                 .removeOnEntry("onEntryDepId", "onEntry2")
@@ -1457,7 +1542,7 @@ public class FiniteStateMachineIT {
         stateMachine.save();
 
         // Business method
-        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.update();
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
         stateMachineUpdater.state("Initial")
                 .removeOnEntry("onEntryDepId", "does not exist")
                 .complete();    // Not expecting to get this far in fact
@@ -1616,6 +1701,63 @@ public class FiniteStateMachineIT {
         assertThat(onExitProcesses).hasSize(1);
         assertThat(onExitProcesses.get(0).getDeploymentId()).isEqualTo("onExitDepId");
         assertThat(onExitProcesses.get(0).getProcessId()).isEqualTo("onExit");
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Test
+    public void addStateWithNullName() {
+        String expectedName = "addStateWithNullName";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State inStock = builder.newCustomState("InStock").complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+        stateMachine.save();
+
+        // Business methods
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        State commissioned = stateMachineUpdater.newCustomState(null).complete();
+        FiniteStateMachine updated = stateMachineUpdater.complete();
+        updated.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Test
+    public void addStateWithEmptyName() {
+        String expectedName = "addStateWithEmptyName";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State inStock = builder.newCustomState("InStock").complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+        stateMachine.save();
+
+        // Business methods
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        stateMachineUpdater.newCustomState("").complete();
+        FiniteStateMachine updated = stateMachineUpdater.complete();
+        updated.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Test
+    public void addStateWithNameThatIsTooLong() {
+        String expectedName = "addStateWithNameThatIsTooLong";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State inStock = builder.newCustomState("InStock").complete();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
+        stateMachine.save();
+
+        // Business methods
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        stateMachineUpdater.newCustomState(Strings.repeat("Too long", 100)).complete();
+        FiniteStateMachine updated = stateMachineUpdater.complete();
+        updated.save();
+
+        // Asserts: see expected constraint violation rule
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {

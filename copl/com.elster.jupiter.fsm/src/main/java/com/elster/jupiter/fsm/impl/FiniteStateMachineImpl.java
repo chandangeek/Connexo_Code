@@ -160,6 +160,11 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
         this.states.add(state);
     }
 
+    void validateAndAdd(StateImpl state) {
+        Save.CREATE.validate(this.dataModel, state);
+        this.add(state);
+    }
+
     void removeState(StateImpl obsoleteState) {
         this.removeObsoleteTransitions(obsoleteState);
         obsoleteState.prepareDelete();
@@ -201,7 +206,7 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     }
 
     @Override
-    public FiniteStateMachineUpdater update() {
+    public FiniteStateMachineUpdater startUpdate() {
         return new FiniteStateMachineUpdaterImpl(this.dataModel, this.thesaurus, this);
     }
 

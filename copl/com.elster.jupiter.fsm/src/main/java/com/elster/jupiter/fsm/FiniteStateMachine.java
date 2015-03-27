@@ -57,7 +57,7 @@ public interface FiniteStateMachine {
 
     public List<StateTransition> getTransitions();
 
-    public FiniteStateMachineUpdater update();
+    public FiniteStateMachineUpdater startUpdate();
 
     public void save();
 
