@@ -1,10 +1,10 @@
 /**
- * @class Ext.ux.exporter.csvFormatter.CsvFormatter
+ * @class Ext.ux.exporter.csvformatter.CsvFormatter
  * @extends Ext.ux.Exporter.Formatter
  * Specialised Format class for outputting .csv files
  * modification from Yogesh to extract value if renderers returning html
  */
-Ext.define("Ext.ux.exporter.csvFormatter.CsvFormatter", {
+Ext.define("Ext.ux.exporter.csvformatter.CsvFormatter", {
     extend: "Ext.ux.exporter.Formatter",
     mimeType: 'text/csv',
     charset:'UTF-8',

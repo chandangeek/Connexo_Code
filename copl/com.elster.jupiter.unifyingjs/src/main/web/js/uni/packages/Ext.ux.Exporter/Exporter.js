@@ -6,8 +6,8 @@
 Ext.define("Ext.ux.exporter.Exporter", {
     uses: [
         "Ext.ux.exporter.ExporterButton",
-        "Ext.ux.exporter.csvFormatter.CsvFormatter",
-        "Ext.ux.exporter.excelFormatter.ExcelFormatter",
+        "Ext.ux.exporter.csvformatter.CsvFormatter",
+        "Ext.ux.exporter.excelformatter.ExcelFormatter",
         "Ext.ux.exporter.FileSaver"],
 
     statics: {

@@ -1,9 +1,9 @@
 /**
- * @class Ext.ux.exporter.excelFormatter.Workbook
+ * @class Ext.ux.exporter.excelformatter.Workbook
  * @extends Object
  * Represents an Excel workbook
  */
-Ext.define("Ext.ux.exporter.excelFormatter.Workbook", {
+Ext.define("Ext.ux.exporter.excelformatter.Workbook", {
 
   constructor: function(config) {
     config = config || {};
@@ -95,7 +95,7 @@ Ext.define("Ext.ux.exporter.excelFormatter.Workbook", {
    * @return {Ext.ux.Exporter.ExcelFormatter.Worksheet} The worksheet
    */
   addWorksheet: function(store, config) {
-    var worksheet = new Ext.ux.exporter.excelFormatter.Worksheet(store, config);
+    var worksheet = new Ext.ux.exporter.excelformatter.Worksheet(store, config);
 
     this.worksheets.push(worksheet);
 
@@ -107,7 +107,7 @@ Ext.define("Ext.ux.exporter.excelFormatter.Workbook", {
    * @param {Object} config The style config, passed to the Style constructor (required)
    */
   addStyle: function(config) {
-    var style = new Ext.ux.exporter.excelFormatter.Style(config || {});
+    var style = new Ext.ux.exporter.excelformatter.Style(config || {});
 
     this.styles.push(style);
 
