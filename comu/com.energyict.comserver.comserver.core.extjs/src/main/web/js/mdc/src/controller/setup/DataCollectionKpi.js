@@ -65,7 +65,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                 break;
             case 'remove':
                 Ext.create('Uni.view.window.Confirmation').show({
-                    title: Uni.I18n.translate('datacollectionkpis.deleteConfirmation.title', 'MDC', 'Remove \'Selected data collection KPI\'?'),
+                    title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + menu.record.get('deviceGroup').name + '\'?',
                     msg: Uni.I18n.translate('datacollectionkpis.deleteConfirmation.msg', 'MDC', 'This data collection KPI will no longer be available on connections &#38; communications overview.'),
                     fn: function (state) {
                         switch (state) {
