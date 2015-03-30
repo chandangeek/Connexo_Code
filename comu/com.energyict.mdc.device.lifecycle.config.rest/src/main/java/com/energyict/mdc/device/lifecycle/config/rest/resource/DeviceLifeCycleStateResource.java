@@ -17,6 +17,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -100,5 +101,17 @@ public class DeviceLifeCycleStateResource {
         State stateAfterEdit = stateUpdater.complete();
         fsmUpdater.complete();
         return Response.ok(deviceLifeCycleStateFactory.from(stateAfterEdit)).build();
+    }
+
+    @DELETE
+    @Path("/{stateId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    public Response deleteDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        State stateForDeletion = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
+        FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
+        fsmUpdater.removeState(stateForDeletion).complete();
+        return Response.ok(deviceLifeCycleStateFactory.from(stateForDeletion)).build();
     }
 }

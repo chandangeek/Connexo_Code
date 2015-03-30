@@ -7,11 +7,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class DeviceLifeCycleInfo {
     public Long id;
     public String name;
+    public long version;
 
     public DeviceLifeCycleInfo() {}
 
     public DeviceLifeCycleInfo(DeviceLifeCycle lifeCycle) {
         this.id = lifeCycle.getId();
         this.name = lifeCycle.getName();
+        this.version = lifeCycle.getVersion();
     }
 }

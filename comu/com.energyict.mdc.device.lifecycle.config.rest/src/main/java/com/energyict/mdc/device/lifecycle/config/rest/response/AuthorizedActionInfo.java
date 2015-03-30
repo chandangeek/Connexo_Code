@@ -16,12 +16,14 @@ public class AuthorizedActionInfo {
     public DeviceLifeCycleStateInfo fromState;
     public DeviceLifeCycleStateInfo toState;
     public List<DeviceLifeCyclePrivilegeInfo> privileges;
+    public long version;
 
     public AuthorizedActionInfo() {}
 
     public AuthorizedActionInfo(Thesaurus thesaurus, AuthorizedAction action) {
         this.id = action.getId();
         this.privileges = action.getLevels().stream().map(lvl -> new DeviceLifeCyclePrivilegeInfo(thesaurus, lvl)).collect(Collectors.toList());
+        this.version = action.getVersion();
         if (action instanceof AuthorizedTransitionAction){
             fromBasicAction(thesaurus, (AuthorizedTransitionAction) action);
         } else {

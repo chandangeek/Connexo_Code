@@ -1,17 +1,16 @@
 package com.energyict.mdc.device.lifecycle.config.rest.resource;
 
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCyclePrivilegeInfo;
-
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.fsm.StateTransitionEventType;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -138,7 +137,7 @@ public class AuthorizedActionEditorFactory {
             Set<AuthorizedAction.Level> levels = EnumSet.noneOf(AuthorizedAction.Level.class);
             levelInfos
                 .stream()
-                .map(each -> each.name)
+                .map(each -> each.privilege)
                 .map(AuthorizedAction.Level::valueOf)
                 .forEach(levels::add);
             return levels;

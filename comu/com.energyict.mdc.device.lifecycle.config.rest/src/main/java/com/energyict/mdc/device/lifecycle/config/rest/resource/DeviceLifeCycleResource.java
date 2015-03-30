@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.resource;
 
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -12,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -63,6 +65,18 @@ public class DeviceLifeCycleResource {
     public Response addDeviceLifeCycle(DeviceLifeCycleInfo deviceLifeCycleInfo) {
         DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(deviceLifeCycleInfo.name);
         return Response.status(Response.Status.CREATED).entity(new DeviceLifeCycleInfo(newLifeCycle)).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    public Response deleteDeviceLifeCycle(@PathParam("id") Long id) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
+        FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
+        deviceLifeCycle.delete();
+        finiteStateMachine.delete();
+        return Response.ok(new DeviceLifeCycleInfo(deviceLifeCycle)).build();
     }
 
     @Path("/{deviceLifeCycleId}/states")

@@ -12,6 +12,7 @@ public class DeviceLifeCycleStateInfo {
     public Long id;
     public String name;
     public boolean isCustom;
+    public long version;
 
     public DeviceLifeCycleStateInfo() {}
 
@@ -19,6 +20,7 @@ public class DeviceLifeCycleStateInfo {
         super();
         this.id = state.getId();
         this.isCustom = state.isCustom();
+        this.version = state.getVersion();
         Optional<DefaultState> defaultState = DefaultState.from(state);
         if (defaultState.isPresent()){
             this.name = thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getDefaultFormat()) ;
