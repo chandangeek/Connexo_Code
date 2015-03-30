@@ -315,7 +315,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private void updateNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int priority) {
         Condition condition = where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
+                .and(where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp))
+                .and(where("obsoleteDate").isNull());
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();

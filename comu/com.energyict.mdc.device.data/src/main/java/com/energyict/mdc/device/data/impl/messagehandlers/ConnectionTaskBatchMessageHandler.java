@@ -29,10 +29,14 @@ public class ConnectionTaskBatchMessageHandler implements MessageHandler {
     }
 
     private void scheduleNow(ConnectionTask connectionTask) {
-        if (connectionTask instanceof ScheduledConnectionTask) {
-            ((ScheduledConnectionTask)connectionTask).scheduleNow();
+        if (!connectionTask.isObsolete()) {
+            if (connectionTask instanceof ScheduledConnectionTask) {
+                ((ScheduledConnectionTask) connectionTask).scheduleNow();
+            } else {
+                // TODO Only scheduled supported
+            }
         } else {
-            // TODO LOG
+            // TODO LOG OBSOLETE
         }
     }
 
