@@ -28,17 +28,29 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
     ruleSetId: null,
 
     init: function () {
-        this.control({
+        var me = this;
+
+        me.control({
             'rule-device-configuration-grid': {
-                select: this.loadDetails
+                select: me.loadDetails
             },
             'rule-device-configuration-add rule-device-configuration-add-grid': {
-                allitemsadd: this.onAllDeviceConfigurationsAdd,
-                selecteditemsadd: this.onSelectedDeviceConfigurationsAdd
+                allitemsadd: me.onAllDeviceConfigurationsAdd,
+                selecteditemsadd: me.onSelectedDeviceConfigurationsAdd
             },
             'rule-device-configuration-action-menu': {
-                click: this.chooseAction
+                click: me.chooseAction
             }
+        });
+
+        me.getApplication().on('validationrulesetmenurender', function (menu) {
+            menu.add(
+                {
+                    text: Uni.I18n.translate('validation.deviceConfigurations', 'CFG', 'Device configurations'),
+                    itemId: 'deviceConfigLink',
+                    href: '#/administration/validation/rulesets/' + menu.ruleSetId + '/deviceconfigurations'
+                }
+            );
         });
     },
 
@@ -58,7 +70,9 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
                 var ruleSet = ruleSetsStore.getById(parseInt(ruleSetId)),
                     widget = Ext.widget('ruleDeviceConfigurationBrowse', {ruleSetId: ruleSetId});
                 me.getApplication().fireEvent('changecontentevent', widget);
+
                 widget.down('#stepsMenu #ruleSetOverviewLink').setText(ruleSet.get('name'));
+
                 widget.down('#deviceConfigLink').show();
                 me.getApplication().fireEvent('loadRuleSet', ruleSet);
             }
