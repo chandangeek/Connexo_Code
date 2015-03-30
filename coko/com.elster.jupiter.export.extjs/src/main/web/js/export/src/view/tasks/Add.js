@@ -5,7 +5,7 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.form.field.DateTime',
         'Dxp.view.tasks.AddScheduleGrid',
         'Uni.property.form.Property',
-        'Dxp.view.tasks.PropertyForm',
+        'Uni.property.form.GroupedPropertyForm',
         'Uni.util.FormErrorMessage',
         'Uni.grid.column.ReadingType'
     ],
@@ -395,7 +395,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         ]
                     },
                     {
-                        xtype: 'tasks-property-form'
+                        xtype: 'grouped-property-form'
                     },
                     {
                         xtype: 'fieldcontainer',

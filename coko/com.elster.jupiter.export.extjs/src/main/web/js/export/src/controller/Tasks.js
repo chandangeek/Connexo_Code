@@ -432,7 +432,7 @@ Ext.define('Dxp.controller.Tasks', {
                                 recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                             }
                             if (record.properties() && record.properties().count()) {
-                                taskForm.down('tasks-property-form').loadRecord(record);
+                                taskForm.down('grouped-property-form').loadRecord(record);
                             }
                         }
                         view.setLoading(false);
@@ -686,7 +686,7 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             page = me.getAddPage(),
             record = Ext.getStore('Dxp.store.FileFormatters').getById(newValue),
-            propertyForm = page.down('tasks-property-form');
+            propertyForm = page.down('grouped-property-form');
 
         if (record && record.properties() && record.properties().count()) {
             propertyForm.addEditPage = true;
@@ -702,7 +702,7 @@ Ext.define('Dxp.controller.Tasks', {
             page = me.getAddPage(),
             form = page.down('#add-data-export-task-form'),
             formErrorsPanel = form.down('#form-errors'),
-            propertyForm = form.down('tasks-property-form'),
+            propertyForm = form.down('grouped-property-form'),
             lastDayOfMonth = false,
             startOnDate,
             timeUnitValue,
@@ -1090,7 +1090,7 @@ Ext.define('Dxp.controller.Tasks', {
         view.down('#add-data-export-task-form').loadRecord(formModel);
         view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
         Ext.suspendLayouts();
-        Ext.Array.each(view.down('tasks-property-form').query('[isFormField=true]'), function (formItem) {
+        Ext.Array.each(view.down('grouped-property-form').query('[isFormField=true]'), function (formItem) {
             if (formItem.name in obj) {
                 formItem.setValue(obj[formItem.name]);
             }

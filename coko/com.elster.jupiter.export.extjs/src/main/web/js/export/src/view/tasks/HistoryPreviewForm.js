@@ -5,7 +5,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
     requires: [
         'Uni.property.form.Property',
         'Uni.form.field.Duration',
-        'Dxp.view.tasks.PropertyForm'
+        'Uni.property.form.GroupedPropertyForm'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -152,7 +152,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                 ]
             },
             {
-                xtype: 'tasks-property-form',
+                xtype: 'grouped-property-form',
                 isEdit: false,
                 frame: false,
                 defaults: {
