@@ -10,6 +10,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -62,13 +63,21 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
-        estimationBlocks.forEach(this::estimate);
-        return SimpleEstimationResult.of(Collections.<EstimationBlock>emptyList(), estimationBlocks);
+        List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
+        List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
+        for (EstimationBlock block : estimationBlocks) {
+            estimate (block, remain, estimated);
+        }
+        return SimpleEstimationResult.of(remain, estimated);
     }
 
-    public void estimate(EstimationBlock estimationBlock) {
+    public void estimate(EstimationBlock estimationBlock, List<EstimationBlock> remain, List<EstimationBlock> estimated) {
         if (isEstimatable(estimationBlock)) {
             estimationBlock.estimatables().forEach(estimatable -> estimate(estimatable));
+
+            estimated.add(estimationBlock);
+        } else {
+            remain.add(estimationBlock);
         }
     }
 
