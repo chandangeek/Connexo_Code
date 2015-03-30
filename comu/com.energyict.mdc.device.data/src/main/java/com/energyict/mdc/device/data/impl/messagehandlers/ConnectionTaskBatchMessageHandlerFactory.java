@@ -15,10 +15,10 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.device.connectiontask.message.handler.factory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber="+ ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER,
-                "destination="+ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION},
+        property = {"subscriber="+ ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER,
+                "destination="+ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION},
         immediate = true)
-public class FilterItemizerHandlerFactory implements MessageHandlerFactory {
+public class ConnectionTaskBatchMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -27,8 +27,8 @@ public class FilterItemizerHandlerFactory implements MessageHandlerFactory {
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
-                getInstance(ConnectionTaskMessageHandler.class).
-                init(connectionTaskService);
+                getInstance(ConnectionTaskBatchMessageHandler.class).
+                init(connectionTaskService, jsonService);
     }
 
     @Reference

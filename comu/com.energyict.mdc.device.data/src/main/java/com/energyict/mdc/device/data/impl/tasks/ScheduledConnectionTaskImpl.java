@@ -438,6 +438,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public Instant scheduleNow() {
         this.getScheduledComTasks().stream().
                 filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus())).
+                filter(comTaskExecution -> !comTaskExecution.isObsolete()).
                 forEach(ComTaskExecution::runNow);
         return scheduleConnectionNow();
     }
