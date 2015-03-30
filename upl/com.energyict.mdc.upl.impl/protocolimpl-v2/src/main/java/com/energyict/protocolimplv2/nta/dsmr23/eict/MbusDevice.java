@@ -35,7 +35,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3) Mbus Slave";
+        return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3) Mbus Slave V2";
     }
 
     @Override
