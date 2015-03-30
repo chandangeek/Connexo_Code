@@ -1,8 +1,11 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -12,11 +15,13 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -37,6 +42,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +56,7 @@ import org.mockito.Matchers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -164,6 +171,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testRunConnectionsWithFilter() throws Exception {
+        mockAppServers(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
         when(jsonService.serialize(any())).thenReturn("json");
         DestinationSpec destinationSpec = mock(DestinationSpec.class);
         when(messageService.getDestinationSpec("ItemizeFilterQueueDest")).thenReturn(Optional.of(destinationSpec));
@@ -179,15 +187,32 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         message.latestStates.add("Failure");
         message.deviceTypes.add(1004L);
         message.deviceTypes.add(1005L);
-        message.startIntervalFrom = Instant.now();
-        message.startIntervalTo = Instant.now() ;
-        message.finishIntervalFrom = Instant.now();
-        message.finishIntervalTo = Instant.now() ;
+        Instant now = Instant.now();
+        message.startIntervalFrom = now;
+        message.startIntervalTo = now;
+        message.finishIntervalFrom = now;
+        message.finishIntervalTo = now;
 
         BulkRequestInfo info = new BulkRequestInfo();
         info.filter = message;
         Response response = target("/connections/run").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(jsonService).serialize(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue() instanceof ItemizeFilterQueueMessage);
+        ItemizeFilterQueueMessage itemizeFilterQueueMessage = (ItemizeFilterQueueMessage) argumentCaptor.getValue();
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.comPortPools).containsOnly(1001L);
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.currentStates).containsOnly(TaskStatus.OnHold.name());
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.connectionTypes).containsOnly(1002L);
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.deviceGroups).containsOnly(1003L);
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.latestResults).containsOnly(ComSession.SuccessIndicator.Broken.name());
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.latestStates).containsOnly( ConnectionTask.SuccessIndicator.FAILURE.name());
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.deviceTypes).containsOnly(1004L, 1005L);
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.startIntervalFrom).isEqualTo(now);
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.startIntervalTo).isEqualTo(now);
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalFrom).isEqualTo(now);
+        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalTo).isEqualTo(now);
     }
 
     @Test
@@ -529,6 +554,28 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comSchedule.getName()).thenReturn("Weekly billing");
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS), new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
         return comSchedule;
+    }
+
+    private AppServer mockAppServers(String ...name) {
+        AppServer appServer = mock(AppServer.class);
+        List<SubscriberExecutionSpec> execSpecs = new ArrayList<>();
+        for (String specName: name) {
+            SubscriberExecutionSpec subscriberExecutionSpec = mock(SubscriberExecutionSpec.class);
+            SubscriberSpec spec = mock(SubscriberSpec.class);
+            when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(spec);
+            DestinationSpec destinationSpec = mock(DestinationSpec.class);
+            when(spec.getDestination()).thenReturn(destinationSpec);
+            when(destinationSpec.getName()).thenReturn(specName);
+            when(destinationSpec.isActive()).thenReturn(true);
+            List<SubscriberSpec> list = mock(List.class);
+            when(list.isEmpty()).thenReturn(false);
+            when(destinationSpec.getSubscribers()).thenReturn(list);
+            execSpecs.add(subscriberExecutionSpec);
+        }
+        doReturn(execSpecs).when(appServer).getSubscriberExecutionSpecs();
+        when(appServer.isActive()).thenReturn(true);
+        when(appService.findAppServers()).thenReturn(Arrays.asList(appServer));
+        return appServer;
     }
 
 }

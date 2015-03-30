@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
@@ -66,6 +67,9 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     MessageService messageService;
     @Mock
     JsonService jsonService;
+    @Mock
+    AppService appService;
+
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -95,6 +99,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setFavoritesService(favoritesService);
         dashboardApplication.setMessageService(messageService);
         dashboardApplication.setJsonService(jsonService);
+        dashboardApplication.setAppService(appService);
         return dashboardApplication;
     }
 }
