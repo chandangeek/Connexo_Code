@@ -1,6 +1,7 @@
 Ext.define('Fwc.view.firmware.FormEditGhost', {
     extend: 'Fwc.view.firmware.Form',
     xtype: 'firmware-form-edit-ghost',
+    hydrator: 'Fwc.form.Hydrator',
     edit: true,
     items: [
         {
@@ -11,7 +12,10 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
         {
             xtype: 'displayfield',
             fieldLabel: 'Firmware type',
-            name: 'firmwareType'
+            name: 'firmwareType',
+            renderer: function (data) {
+                return data.displayValue;
+            }
         },
         {
             xtype: 'firmware-field-file',

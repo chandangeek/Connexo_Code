@@ -2,6 +2,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
     extend: 'Fwc.view.firmware.Form',
     xtype: 'firmware-form-add',
     edit: false,
+    hydrator: 'Fwc.form.Hydrator',
 
     items: [
         {

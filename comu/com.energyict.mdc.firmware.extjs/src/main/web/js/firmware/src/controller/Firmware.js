@@ -14,7 +14,9 @@ Ext.define('Fwc.controller.Firmware', {
     ],
 
     stores: [
-        'Fwc.store.Firmwares'
+        'Fwc.store.Firmwares',
+        'Fwc.store.FirmwareStatuses',
+        'Fwc.store.FirmwareTypes'
     ],
 
     refs: [
@@ -141,7 +143,11 @@ Ext.define('Fwc.controller.Firmware', {
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             var firmwareStore = Ext.getStore('Fwc.store.Firmwares'),
                 record = new firmwareStore.model;
+
+            record.getProxy().setUrl(deviceType.getId());
             firmwareStore.getProxy().setUrl(deviceType.getId());
+            //Ext.getStore('Fwc.store.FirmwareStatuses').load();
+            //Ext.getStore('Fwc.store.FirmwareTypes').load();
 
             me.getApplication().fireEvent('changecontentevent', 'firmware-add', {deviceType: deviceType, record: record});
         });
@@ -158,8 +164,9 @@ Ext.define('Fwc.controller.Firmware', {
             firmwareStore.model.getProxy().setUrl(deviceType.getId());
             firmwareStore.model.load(firmwareId, {
                 success: function (firmware) {
-                    me.getApplication().fireEvent('changecontentevent',
-                        firmware.get('status') === 'ghost' ? 'firmware-edit-ghost' : 'firmware-edit',
+                    me.getApplication().fireEvent(
+                        'changecontentevent',
+                        'firmware-edit',
                         {deviceType: deviceType, record: firmware}
                     );
                 },

@@ -2,6 +2,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
     extend: 'Fwc.view.firmware.Form',
     xtype: 'firmware-form-edit',
     edit: true,
+    hydrator: 'Fwc.form.Hydrator',
     items: [
         {
             xtype: 'textfield',
@@ -18,12 +19,18 @@ Ext.define('Fwc.view.firmware.FormEdit', {
         {
             xtype: 'displayfield',
             fieldLabel: 'Firmware type',
-            name: 'firmwareType'
+            name: 'firmwareType',
+            renderer: function (data) {
+                return data.displayValue;
+            }
         },
         {
             xtype: 'displayfield',
             fieldLabel: 'Stauts',
-            name: 'firmwareStatus'
+            name: 'firmwareStatus',
+            renderer: function (data) {
+                return data.displayValue;
+            }
         }
     ]
 });

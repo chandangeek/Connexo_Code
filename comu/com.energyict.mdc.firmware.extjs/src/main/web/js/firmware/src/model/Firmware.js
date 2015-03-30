@@ -3,23 +3,36 @@ Ext.define('Fwc.model.Firmware', {
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'firmwareVersion', type: 'string', useNull: true},
-        {name: 'firmwareType', type: 'string', useNull: true},
-        {name: 'firmwareStatus', type: 'string', useNull: true},
         {name: 'firmwareFile', useNull: true},
         {name: 'fileSize', type: 'number', useNull: true}
     ],
 
+    requires: [
+        'Fwc.model.FirmwareType',
+        'Fwc.model.FirmwareStatus'
+    ],
+
+    associations: [
+        {
+            type: 'hasOne',
+            model: 'Fwc.model.FirmwareType',
+            name: 'firmwareType',
+            associationKey: 'firmwareType'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.model.FirmwareStatus',
+            name: 'firmwareStatus',
+            associationKey: 'firmwareStatus'
+        }
+    ],
+
     doValidate: function (callback) {
         Ext.Ajax.request({
-            method: 'POST',
+            method: this.hasId() ? 'PUT' : 'POST',
             url: this.proxy.url + '/validate',
             callback: callback,
-            jsonData: {
-                firmwareVersion: this.get('firmwareVersion'),
-                firmwareType: this.get('firmwareType'),
-                firmwareStatus: this.get('firmwareStatus'),
-                fileSize: this.get('fileSize')
-            }
+            jsonData: this.getData(true)
         });
     },
 

@@ -16,7 +16,8 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
             action: 'setFinal',
             itemId: 'setFinal',
             visible: function () {
-                return this.record.get('status') === 'test';
+                return this.record.getAssociatedData().firmwareStatus
+                    && this.record.getAssociatedData().firmwareStatus.id === 'test';
             }
         },
         {
@@ -29,7 +30,8 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
     listeners: {
         beforeshow: function () {
             var me = this;
-            if (me.record.get('status') === 'deprecated') {
+            if (me.record.getAssociatedData().firmwareStatus
+             && me.record.getAssociatedData().firmwareStatus.id === 'deprecated') {
                 // do not show the menu
                 return false;
             } else {
