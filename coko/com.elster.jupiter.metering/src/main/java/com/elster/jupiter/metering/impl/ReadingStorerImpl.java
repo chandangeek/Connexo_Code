@@ -45,18 +45,24 @@ public class ReadingStorerImpl implements ReadingStorer {
         values[offset + channel.getChannel().getReadingTypes().indexOf(channel.getReadingType())] = reading.getValue();
         ProcessStatus processStatus;
         if (values[0] != null) {
-            processStatus = status.or((ProcessStatus) values[0]);
+            processStatus = status.or(new ProcessStatus((Long) values[0]));
         } else {
             processStatus = status;
         }
-        values[0] = processStatus;
+        values[0] = processStatus.getBits();
         addScope(channel, reading.getTimeStamp());
     }
 
     @Override
     public void execute() {
         consolidatedValues.entrySet().stream()
-                .forEach(entry -> ((ChannelContract) entry.getKey().getFirst()).validateValues(readings.get(entry.getKey()), entry.getValue()));
+                .forEach(entry -> {
+                    ChannelContract channel = (ChannelContract) entry.getKey().getFirst();
+                    Instant timestamp = entry.getKey().getLast();
+                    Object[] values = entry.getValue();
+                    channel.validateValues(readings.get(entry.getKey()), values);
+                    writer.add(channel.getTimeSeries(), timestamp, values);
+                });
         writer.execute();
         eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
     }
