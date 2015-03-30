@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
 import java.util.List;
 
 /**

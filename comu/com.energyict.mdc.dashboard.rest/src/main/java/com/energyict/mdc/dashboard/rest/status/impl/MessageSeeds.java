@@ -62,6 +62,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_LABEL_CATEGORY(53, "NoSuchLabelCategory", "No such label category with key {0}"),
     RUN_CONNECTIONTASK_IMPOSSIBLE(54,"runConTaskImpossible", "Running of this connection task is impossible"),
     NO_SUCH_COMMUNICATION_TASK(55, "NoSuchCommunicationTask", "No communication task with id {0}"),
+    NO_SUCH_MESSAGE_QUEUE(56, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
     ;
 
     private final int number;

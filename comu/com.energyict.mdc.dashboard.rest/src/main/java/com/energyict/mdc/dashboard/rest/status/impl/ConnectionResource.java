@@ -12,20 +12,22 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.imp.QueueMessage;
+import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.ConnectionTaskSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.time.Instant;
@@ -52,6 +54,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.stream.Collectors.toSet;
 
 @Path("/connections")
 public class ConnectionResource {
@@ -145,7 +148,7 @@ public class ConnectionResource {
                     .stream()
                     .map(protocolPluggableService::findConnectionTypePluggableClass)
                     .flatMap(asStream())
-                    .collect(Collectors.toSet());
+                    .collect(toSet());
         }
 
         filter.latestResults = new HashSet<>();
@@ -202,72 +205,20 @@ public class ConnectionResource {
         return filter;
     }
 
-    private ConnectionTaskFilterSpecificationMessage buildFilterMessageFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
-        ConnectionTaskFilterSpecificationMessage filter = new ConnectionTaskFilterSpecificationMessage();
-        filter.currentStates = new HashSet<>();
-        if (jsonQueryFilter.hasProperty(FilterOption.currentStates.name())) {
-            jsonQueryFilter.getPropertyList(FilterOption.currentStates.name(), TASK_STATUS_ADAPTER).stream().forEach(ts -> filter.currentStates.add(ts.name()));
+    private ConnectionTaskFilterSpecificationMessage substituteRestToDomainEnums(ConnectionTaskFilterSpecificationMessage jsonQueryFilter) throws Exception {
+        if (jsonQueryFilter.currentStates!=null) {
+            jsonQueryFilter.currentStates=jsonQueryFilter.currentStates.stream().map(TASK_STATUS_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
         }
 
-        filter.comPortPools = new HashSet<>();
-        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.comPortPools.name())) {
-            filter.comPortPools.addAll(jsonQueryFilter.getLongList(FilterOption.comPortPools.name()));
+        if (jsonQueryFilter.latestResults!=null) {
+            jsonQueryFilter.latestResults=jsonQueryFilter.latestResults.stream().map(COM_SESSION_SUCCESS_INDICATOR_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
         }
 
-        filter.connectionTypes = new HashSet<>();
-        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.connectionTypes.name())) {
-            List<Long> connectionTypeIds = jsonQueryFilter.getLongList(FilterOption.connectionTypes.name());
-            connectionTypeIds
-                    .stream()
-                    .map(protocolPluggableService::findConnectionTypePluggableClass)
-                    .flatMap(asStream())
-                    .map(PluggableClass::getId)
-                    .forEach(filter.connectionTypes::add);
+        if (jsonQueryFilter.latestStates!=null) {
+            jsonQueryFilter.latestStates=jsonQueryFilter.latestStates.stream().map(CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
         }
 
-        filter.latestResults = new HashSet<>();
-        if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
-            jsonQueryFilter.getPropertyList(FilterOption.latestResults.name(), COM_SESSION_SUCCESS_INDICATOR_ADAPTER).stream().forEach(lr->filter.latestResults.add(lr.name()));
-        }
-
-        filter.latestStates = new HashSet<>();
-        if (jsonQueryFilter.hasProperty(FilterOption.latestStates.name())) {
-            jsonQueryFilter.getPropertyList(FilterOption.latestStates.name(), CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER).stream().forEach(ls -> filter.latestStates.add(ls.name()));
-        }
-
-        filter.deviceTypes = new HashSet<>();
-        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.deviceTypes.name())) {
-            filter.deviceTypes.addAll(jsonQueryFilter.getLongList(FilterOption.deviceTypes.name()));
-        }
-
-        if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
-            Instant start = null;
-            Instant end = null;
-            if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name())) {
-                filter.startIntervalFrom = jsonQueryFilter.getInstant(FilterOption.startIntervalFrom.name());
-            }
-            if (jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
-                filter.startIntervalTo = jsonQueryFilter.getInstant(FilterOption.startIntervalTo.name());
-            }
-        }
-
-        filter.deviceGroups = new HashSet<>();
-        if (jsonQueryFilter.hasProperty(FilterOption.deviceGroups.name())) {
-            filter.deviceGroups.addAll(jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()));
-        }
-
-        if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
-            Instant start = null;
-            Instant end = null;
-            if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name())) {
-                filter.finishIntervalFrom = jsonQueryFilter.getInstant(FilterOption.finishIntervalFrom.name());
-            }
-            if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
-                filter.finishIntervalTo = jsonQueryFilter.getInstant(FilterOption.finishIntervalTo.name());
-            }
-        }
-
-        return filter;
+        return jsonQueryFilter;
     }
 
     @GET
@@ -316,44 +267,29 @@ public class ConnectionResource {
     public Response runConnectionTask(BulkRequestInfo bulkRequestInfo) throws Exception {
         if (bulkRequestInfo!=null && bulkRequestInfo.filter!=null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
-            return processMessagePost(new ItemizeFilterQueueMessage(bulkRequestInfo.filter, "scheduleNow"), destinationSpec);
+            if (destinationSpec.isPresent()) {
+                return processMessagePost(new ItemizeFilterQueueMessage(substituteRestToDomainEnums(bulkRequestInfo.filter), "scheduleNow"), destinationSpec.get());
+            } else {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+            }
+
         } else if (bulkRequestInfo!=null && bulkRequestInfo.connections!=null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
-            bulkRequestInfo.connections.stream().forEach(c->processMessagePost(new ConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec));
-            return Response.status(Response.Status.OK).build();
+            if (destinationSpec.isPresent()) {
+                bulkRequestInfo.connections.stream().forEach(c -> processMessagePost(new ConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec.get()));
+                return Response.status(Response.Status.OK).build();
+            } else {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+            }
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
 
-    private Response processMessagePost(QueueMessage message, Optional<DestinationSpec> destinationSpec) {
-        if (destinationSpec.isPresent()) {
-            String json = jsonService.serialize(message);
-            destinationSpec.get().message(json).send();
-            return Response.ok().entity("{\"success\":\"true\"}").build();
-        }
-        return Response.serverError().build();
-    }
-
-
-    class ItemizeFilterQueueMessage implements QueueMessage {
-        public ConnectionTaskFilterSpecificationMessage connectionTaskFilterSpecification;
-        public String action;
-
-        public ItemizeFilterQueueMessage(ConnectionTaskFilterSpecificationMessage connectionTaskFilterSpecification, String action) {
-            this.connectionTaskFilterSpecification = connectionTaskFilterSpecification;
-            this.action = action;
-        }
-    }
-
-    class ConnectionTaskQueueMessage implements QueueMessage {
-        public Long connectionTaskId;
-        public String action;
-
-        public ConnectionTaskQueueMessage(Long connectionTaskId, String action) {
-            this.connectionTaskId = connectionTaskId;
-            this.action = action;
-        }
+    private Response processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
+        String json = jsonService.serialize(message);
+        destinationSpec.message(json).send();
+        return Response.ok().entity("{\"success\":\"true\"}").build();
     }
 
 }
