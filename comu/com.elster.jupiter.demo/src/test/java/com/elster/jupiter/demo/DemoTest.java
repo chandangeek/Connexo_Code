@@ -53,6 +53,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
@@ -237,6 +238,19 @@ public class DemoTest {
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
         }
+    }
+
+    @Test
+    public void testNtaSimulationToolPropertyOnDeviceTest() {
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        try{
+            demoService.createDemoData("DemoServ", "host", "2014-12-01");
+        } catch (Exception e) {
+            fail("The demo command shouldn't produce errors");
+        }
+        DeviceService deviceService = injector.getInstance(DeviceService.class);
+        Device spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        assertThat(spe010000010156.getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
     }
 
     @Test
