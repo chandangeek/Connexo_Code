@@ -41,7 +41,7 @@ Ext.define('Fwc.model.Firmware', {
 
     setFinal: function (callback) {
         var me = this;
-        me.set('status', 'final');
+        me.getProxy().getReader().readAssociated(me, {firmwareStatus: {id: 'final'}});
         me.save(callback);
     },
 

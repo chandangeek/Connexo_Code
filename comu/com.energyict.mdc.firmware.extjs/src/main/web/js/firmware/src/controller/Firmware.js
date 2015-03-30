@@ -100,6 +100,7 @@ Ext.define('Fwc.controller.Firmware', {
             container = me.getContainer();
 
         container.setLoading();
+        firmware.getProxy().setUrl(router.arguments.deviceTypeId);
         firmware.setFinal({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.final.success', 'FWC', 'The firmware have been set as final'));
@@ -123,6 +124,7 @@ Ext.define('Fwc.controller.Firmware', {
                 if (btn === 'confirm') {
                     container.setLoading();
 
+                    firmware.getProxy().setUrl(router.arguments.deviceTypeId);
                     firmware.deprecate({
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.deprecate.success', 'FWC', 'The firmware have been deprecated'));
