@@ -28,11 +28,14 @@ Ext.define('Fwc.model.Firmware', {
     ],
 
     doValidate: function (callback) {
+        var data = this.getData(true);
+        delete data.firmwareFile;
+
         Ext.Ajax.request({
             method: this.hasId() ? 'PUT' : 'POST',
-            url: this.proxy.url + '/validate',
+            url: this.proxy.url + (this.hasId() ? '/' + this.getId() : '') + '/validate',
             callback: callback,
-            jsonData: this.getData(true)
+            jsonData: data
         });
     },
 
