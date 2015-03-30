@@ -73,7 +73,7 @@ public class DeviceLifeCycleActionResource {
         if (action instanceof AuthorizedTransitionAction) {
 
         } else {
-            
+
         }
         return Response.ok(authorizedActionInfoFactory.from(action)).build();
     }
