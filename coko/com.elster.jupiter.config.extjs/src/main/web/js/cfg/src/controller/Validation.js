@@ -144,11 +144,17 @@ Ext.define('Cfg.controller.Validation', {
             '#addReadingTypesToRuleSetup cfg-side-filter button[action=clearfilter]': {
                 click: this.clearAllCombos
             },
-
             '#addReadingTypesToRuleSetup #buttonsContainer button[name=add]': {
                 click: this.addReadingTypesToGrid
+            },
+            'ruleSetSubMenu': {
+                beforerender: this.onRuleSetMenuBeforeRender
             }
         });
+    },
+
+    onRuleSetMenuBeforeRender: function (menu) {
+        this.getApplication().fireEvent('validationrulesetmenurender', menu);
     },
 
     showAddReadingGrid: function () {
@@ -290,7 +296,7 @@ Ext.define('Cfg.controller.Validation', {
         if (record && record.properties() && record.properties().count()) {
             propertyForm.loadRecord(record);
 
-            propertyForm.on('afterlayout', function(){
+            propertyForm.on('afterlayout', function () {
                 if (propertyForm.down('#minimumnumberfield')) {
                     propertyForm.down('#minimumnumberfield').hasNotValueSameAsDefaultMessage = true;
                     propertyForm.down('#maximumnumberfield').hasNotValueSameAsDefaultMessage = true;
@@ -502,7 +508,7 @@ Ext.define('Cfg.controller.Validation', {
                 });
                 properties.push({
                     property: 'selectedReadings',
-                    value:mRIDs
+                    value: mRIDs
                 });
             }
         }
@@ -718,9 +724,7 @@ Ext.define('Cfg.controller.Validation', {
                     rulesContainerWidget = Ext.widget('rulePreviewContainer', {ruleSetId: id});
                 me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
                 rulesContainerWidget.down('#stepsMenu #ruleSetOverviewLink').setText(selectedRuleSet.get('name'));
-                if (me.mdcIsActive) {
-                    rulesContainerWidget.down('#deviceConfigLink').show();
-                }
+
                 me.getApplication().fireEvent('loadRuleSet', selectedRuleSet);
             }
         });
@@ -736,9 +740,6 @@ Ext.define('Cfg.controller.Validation', {
 
                 me.getRulesetOverviewForm().loadRecord(ruleSet);
                 rulesContainerWidget.down('#stepsMenu #ruleSetOverviewLink').setText(ruleSet.get('name'));
-                if (me.mdcIsActive) {
-                    rulesContainerWidget.down('#deviceConfigLink').show();
-                }
 
                 me.getApplication().fireEvent('loadRuleSet', ruleSet);
                 rulesContainerWidget.down('ruleset-action-menu').record = ruleSet;
@@ -816,7 +817,7 @@ Ext.define('Cfg.controller.Validation', {
                     returnLink: cancelLink
                 });
 
-               ;
+                ;
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 if (me.validationRuleRecord) {
@@ -880,7 +881,7 @@ Ext.define('Cfg.controller.Validation', {
                 callback: function () {
                     editRulePanel.setLoading(false);
                     rule = this.getById(me.ruleId);
-                    if(!rule){
+                    if (!rule) {
                         crossroads.parse("/error/notfound");
                         return;
                     }

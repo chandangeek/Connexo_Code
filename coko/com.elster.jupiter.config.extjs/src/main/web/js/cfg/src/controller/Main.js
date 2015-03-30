@@ -72,10 +72,6 @@ Ext.define('Cfg.controller.Main', {
             Uni.store.PortalItems.add(
                 portalItem1
             );
-
-            this.getApplication().on('cfginitialized', function () {
-                this.getController('Cfg.controller.Validation').mdcIsActive = true;
-            });
         }
     },
 

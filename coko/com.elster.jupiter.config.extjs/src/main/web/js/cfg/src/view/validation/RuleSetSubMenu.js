@@ -19,12 +19,6 @@ Ext.define('Cfg.view.validation.RuleSetSubMenu', {
                 text: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
                 itemId: 'rulesLink',
                 href: '#/administration/validation/rulesets/' + me.ruleSetId + '/rules'
-            },
-            {
-                text: Uni.I18n.translate('validation.deviceConfigurations', 'CFG', 'Device configurations'),
-                itemId: 'deviceConfigLink',
-                href: '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations',
-                hidden: true
             }
         ];
 
