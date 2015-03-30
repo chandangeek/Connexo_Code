@@ -148,8 +148,7 @@ Ext.define('Fwc.controller.Firmware', {
 
             record.getProxy().setUrl(deviceType.getId());
             firmwareStore.getProxy().setUrl(deviceType.getId());
-            //Ext.getStore('Fwc.store.FirmwareStatuses').load();
-            //Ext.getStore('Fwc.store.FirmwareTypes').load();
+            Ext.getStore('Fwc.store.FirmwareStatuses').addFilter(function (rec) {return ['test', 'final'].indexOf(rec.getId()) >= 0; }, false);
 
             me.getApplication().fireEvent('changecontentevent', 'firmware-add', {deviceType: deviceType, record: record});
         });
