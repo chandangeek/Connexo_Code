@@ -63,7 +63,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     RUN_CONNECTIONTASK_IMPOSSIBLE(54,"runConTaskImpossible", "Running of this connection task is impossible"),
     NO_SUCH_COMMUNICATION_TASK(55, "NoSuchCommunicationTask", "No communication task with id {0}"),
     NO_SUCH_MESSAGE_QUEUE(56, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
-    ;
+    NO_APPSERVER(57, "NoAppServer", "There is no active application server that can handle this request");
 
     private final int number;
     private final String key;

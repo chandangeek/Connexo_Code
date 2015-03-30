@@ -1,5 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -73,9 +75,10 @@ public class ConnectionResource {
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
     private final MessageService messageService;
     private final JsonService jsonService;
+    private final AppService appService;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService, AppService appService) {
         super();
         this.connectionTaskService = connectionTaskService;
         this.engineConfigurationService = engineConfigurationService;
@@ -87,6 +90,7 @@ public class ConnectionResource {
         this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
         this.messageService = messageService;
         this.jsonService = jsonService;
+        this.appService = appService;
     }
 
     @GET
@@ -265,6 +269,9 @@ public class ConnectionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runConnectionTask(BulkRequestInfo bulkRequestInfo) throws Exception {
+        if (!verifyAppServerExists(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION)) {
+            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
+        }
         if (bulkRequestInfo!=null && bulkRequestInfo.filter!=null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
@@ -283,6 +290,16 @@ public class ConnectionResource {
             }
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    private boolean verifyAppServerExists(String destinationName) {
+        return appService.findAppServers().stream().
+                filter(AppServer::isActive).
+                flatMap(server->server.getSubscriberExecutionSpecs().stream()).
+                map(execSpec->execSpec.getSubscriberSpec().getDestination()).
+                filter(DestinationSpec::isActive).
+                filter(spec->!spec.getSubscribers().isEmpty()).
+                anyMatch(spec -> destinationName.equals(spec.getName()));
     }
 
 

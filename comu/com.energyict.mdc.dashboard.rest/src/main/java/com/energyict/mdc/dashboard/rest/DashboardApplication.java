@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
@@ -99,6 +100,8 @@ public class DashboardApplication extends Application implements TranslationKeyP
     private volatile License license;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
+    private volatile AppService appService;
+
     private Clock clock = Clock.systemDefaultZone();
 
     @Reference
@@ -217,6 +220,11 @@ public class DashboardApplication extends Application implements TranslationKeyP
         this.license = license;
     }
 
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
     // Only for testing purposes
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -290,6 +298,7 @@ public class DashboardApplication extends Application implements TranslationKeyP
             bind(favoritesService).to(FavoritesService.class);
             bind(clock).to(Clock.class);
             bind(jsonService).to(JsonService.class);
+            bind(appService).to(AppService.class);
         }
     }
 
