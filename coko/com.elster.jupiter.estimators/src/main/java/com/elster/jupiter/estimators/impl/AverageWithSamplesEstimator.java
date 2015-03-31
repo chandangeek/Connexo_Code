@@ -17,6 +17,7 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,9 +82,6 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         }
 
         relativePeriod = (RelativePeriod) properties.get(RELATIVE_PERIOD);
-        if (relativePeriod == null) {
-            this.minNumberOfSamples = MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE;
-        }
     }
 
     @Override
@@ -111,7 +109,16 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
     }
 
-
+    private Range<Instant> getPeriod(Channel channel, Instant referenceTime) {
+        if (relativePeriod != null) {
+            Range<ZonedDateTime> range = relativePeriod.getInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
+            Instant start = range.lowerEndpoint().toInstant();
+            Instant end = range.upperEndpoint().toInstant();
+            return Range.open(start, end);
+        } else {
+            return Range.all();
+        }
+    }
 
     @Override
     public String getDefaultFormat() {
@@ -131,6 +138,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                 MAX_NUMBER_OF_SAMPLES, false, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
 
         builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, false, new BooleanFactory()));
+
+        builder.add(getPropertySpecService().relativePeriodPropertySpec(
+                RELATIVE_PERIOD, false));
         return builder.build();
     }
 
