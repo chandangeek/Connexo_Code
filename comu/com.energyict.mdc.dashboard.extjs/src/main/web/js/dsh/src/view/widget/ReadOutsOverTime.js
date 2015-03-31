@@ -147,6 +147,13 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                         yValue = point.plotY > labelHeight ? point.plotY - labelHeight: additionalY + labelHeight/2;
                         return {x: point.plotX, y: yValue}
                     },
+                    formatter: function (tooltip) {
+                        if (!this.y && this.y !== 0) {
+                            return false;
+                        } else {
+                            return tooltip.defaultFormatter.apply(this, arguments);
+                        }
+                    },
                     valueSuffix: '%'
                 },
                 plotOptions: {
