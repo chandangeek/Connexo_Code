@@ -341,10 +341,10 @@ public final class ChannelImpl implements ChannelContract {
     public Optional<CimChannel> getCimChannel(ReadingType readingType) {
         Stream<CimChannel> main = mainReadingType.map(rt -> (CimChannel) new CimChannelAdapter(this, rt, dataModel, meteringService)).map(Stream::of).orElse(Stream.empty());
         Stream<CimChannel> bulk = bulkQuantityReadingType.map(rt -> (CimChannel) new CimChannelAdapter(this, rt, dataModel, meteringService)).map(Stream::of).orElse(Stream.empty());
-        Stream<ReadingTypeInChannel> readingTypeInChannel = readingTypeInChannels.stream()
-                .filter(cimChannel -> readingType.equals(cimChannel.getReadingType()));
+        Stream<ReadingTypeInChannel> readingTypeInChannel = readingTypeInChannels.stream();
         return Stream.of(main, bulk, readingTypeInChannel)
                 .flatMap(Function.identity())
+                .filter(cimChannel -> cimChannel.getReadingType().equals(readingType))
                 .findFirst();
     }
 
