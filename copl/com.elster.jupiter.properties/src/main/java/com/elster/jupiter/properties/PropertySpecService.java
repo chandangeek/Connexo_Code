@@ -103,4 +103,6 @@ public interface PropertySpecService {
      */
     public PropertySpecBuilder newPropertySpecBuilder (ValueFactory valueFactory);
 
+    public PropertySpec relativePeriodPropertySpec(String name, boolean required);
+
 }

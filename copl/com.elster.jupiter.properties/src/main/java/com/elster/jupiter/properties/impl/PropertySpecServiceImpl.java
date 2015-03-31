@@ -9,9 +9,12 @@ import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.TimeService;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 
@@ -24,6 +27,13 @@ import java.math.BigDecimal;
  */
 @Component(name = "com.elster.jupiter.properties.propertyspecservice", service = PropertySpecService.class)
 public class PropertySpecServiceImpl implements PropertySpecService {
+
+    private volatile TimeService timeService;
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
 
     @Override
     public PropertySpec basicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
@@ -73,6 +83,15 @@ public class PropertySpecServiceImpl implements PropertySpecService {
             builder.markRequired();
         }
         return builder.name(name).setDefaultValue(defaultValue).finish();
+    }
+
+    @Override
+    public PropertySpec relativePeriodPropertySpec(String name, boolean required) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new RelativePeriodFactory(timeService));
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.name(name).finish();
     }
 
     @Override
