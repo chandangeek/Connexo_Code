@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'bufferedrenderer'
     ],
     viewConfig: {
-        loadMask: false
+        loadMask: false,
+        enableTextSelection: true
     },
 
     channelRecord: null,

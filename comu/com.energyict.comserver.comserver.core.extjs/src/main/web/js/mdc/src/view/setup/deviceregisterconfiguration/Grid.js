@@ -12,7 +12,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
         'Mdc.view.setup.deviceregisterconfiguration.ActionMenu'
     ],
     viewConfig: {
-        style: { overflow: 'auto', overflowX: 'hidden' }
+        style: { overflow: 'auto', overflowX: 'hidden' },
+        enableTextSelection: true
+
     },
     initComponent: function () {
         var me = this;

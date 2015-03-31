@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         'showConditionalToolTip'
     ],
     viewConfig: {
-        loadMask: false
+        enableTextSelection: true
     },
     channels: null,
 

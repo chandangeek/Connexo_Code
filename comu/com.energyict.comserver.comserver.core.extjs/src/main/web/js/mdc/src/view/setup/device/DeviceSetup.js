@@ -292,7 +292,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         store: me.device.connections(),
                         router: me.router,
                         viewConfig: {
-                            disableSelection: true
+                            disableSelection: true,
+                            enableTextSelection: true
                         }
                     }
                 }
@@ -316,7 +317,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         store: me.device.communications(),
                         router: me.router,
                         viewConfig: {
-                            disableSelection: true
+                            disableSelection: true,
+                            enableTextSelection: true
                         },
                         tools: [
                             {

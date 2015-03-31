@@ -13,7 +13,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         'Uni.grid.column.ReadingType'
     ],
     viewConfig: {
-        style: { overflow: 'auto', overflowX: 'hidden' }
+        style: { overflow: 'auto', overflowX: 'hidden' },
+        enableTextSelection: true
     },
 
     initComponent: function () {
