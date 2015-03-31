@@ -198,7 +198,12 @@ Ext.define('Uni.controller.history.Router', {
              * @param queryParams
              */
             forward: function (arguments, queryParams) {
-                window.location.href = this.buildUrl(arguments, queryParams);
+                var url = this.buildUrl(arguments, queryParams);
+                if (url === window.location.hash) {
+                    Ext.util.History.fireEvent('change', Ext.util.History.getToken());
+                } else {
+                    window.location.assign(url);
+                }
             }
         });
 
