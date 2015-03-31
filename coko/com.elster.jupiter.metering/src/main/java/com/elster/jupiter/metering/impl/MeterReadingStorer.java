@@ -298,7 +298,7 @@ public class MeterReadingStorer {
         dataModel.mapper(ReadingQualityRecord.class).persist(
                 channelReadings.entrySet().stream()
                         .flatMap(entry -> buildReadingQualities(entry.getKey(), entry.getValue().values()))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.<ReadingQualityRecord>toList()));
     }
 
     private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel, Collection<BaseReading> readings) {
