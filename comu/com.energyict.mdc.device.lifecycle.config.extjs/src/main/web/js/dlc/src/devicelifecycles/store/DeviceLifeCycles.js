@@ -10,9 +10,6 @@ Ext.define('Dlc.devicelifecycles.store.DeviceLifeCycles', {
     proxy: {
         type: 'rest',
         url: '/api/dld/devicelifecycles',
-        pageParam: undefined,
-        startParam: undefined,
-        limitParam: undefined,
         timeout: 300000,
         reader: {
             type: 'json',
