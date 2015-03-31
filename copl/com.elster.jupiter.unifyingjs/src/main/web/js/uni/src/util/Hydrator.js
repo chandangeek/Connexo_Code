@@ -1,68 +1,18 @@
 /**
  * @class Uni.util.Hydrator
- * todo: rename on
+ * todo: rename on Uni.util.lazyHydrator
  *
  * This is the hydrator which allows you to work with the associations of the Ext.data.model
  */
 Ext.define('Uni.util.Hydrator', {
-
-    /**
-     * Extracts data from the provided object
-     * @param object Ext.data.Model
-     * @returns {Object}
-     */
-    extract: function (object) {
-        var me = this,
-            data = object.getData();
-
-        object.associations.each(function (association) {
-            switch (association.type) {
-                case 'hasOne':
-                    data[association.name] = me.extractHasOne(object.get(association.name));
-                    break;
-                case 'hasMany':
-                    data[association.name] = me.extractHasMany(object[association.name]());
-                    break;
-            }
-        });
-
-        return data;
-    },
-
-    /**
-     * Extracts data from the association object to the Integer
-     *
-     * @param object The associated record
-     *
-     * @returns {Number}
-     */
-    extractHasOne: function (object) {
-        return object ? object.getId() : null;
-    },
-
-    /**
-     * Extracts data from the store to the array
-     *
-     * @param store The associated store
-     *
-     * @returns {Number[]}
-     */
-    extractHasMany: function (store) {
-        var result = [];
-
-        store.each(function (record) {
-            result.push(record.getId());
-        });
-
-        return result;
-    },
+    extend: 'Uni.util.IdHydrator',
 
     // todo: replace on normal promises
-    Promise: function(){
+    Promise: function () {
         return {
             callback: null,
             callbacks: [],
-            when: function(callbacks) {
+            when: function (callbacks) {
                 this.callbacks = callbacks;
                 return this;
             },
@@ -70,7 +20,7 @@ Ext.define('Uni.util.Hydrator', {
                 this.callbacks.length ? this.callback = callback : callback();
                 return this;
             },
-            resolve: function(fn) {
+            resolve: function (fn) {
                 var i = _.indexOf(this.callbacks, fn);
                 this.callbacks.splice(i, 1);
 
@@ -79,7 +29,7 @@ Ext.define('Uni.util.Hydrator', {
                 }
                 return this;
             }
-        }
+        };
     },
 
     /**
