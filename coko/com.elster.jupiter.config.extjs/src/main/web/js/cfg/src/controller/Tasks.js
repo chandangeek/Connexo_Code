@@ -521,6 +521,7 @@ Ext.define('Cfg.controller.Tasks', {
                 }
                 record.set('nextRun', startOnDate);
             } else {
+				record.set('nextRun', null);
                 record.set('schedule', null);
             }
      
