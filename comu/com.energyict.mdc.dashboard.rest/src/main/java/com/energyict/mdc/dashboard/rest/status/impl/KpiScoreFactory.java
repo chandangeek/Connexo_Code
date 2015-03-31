@@ -48,7 +48,7 @@ public class KpiScoreFactory {
 
         Instant timeIndex = intervalByPeriod.lowerEndpoint();
         Instant endTimeIndex = intervalByPeriod.upperEndpoint();
-
+        // kpiScores can contain gaps for certain intervals, while frontend wants a record (kpiScore) for every interval so the graph will look ok
         int kpiScoreIndex = 0;
         kpiScores.add(new SentinelKpiScore());
         while (timeIndex.isBefore(endTimeIndex)) {
@@ -66,7 +66,7 @@ public class KpiScoreFactory {
                 failed.data.add(null);
                 target.data.add(null);
             }
-            timeIndex = timeIndex.plus(frequency);
+            timeIndex = ZonedDateTime.ofInstant(timeIndex, ZoneId.systemDefault()).plus(frequency).toInstant();
         }
         return kpiInfo;
     }
