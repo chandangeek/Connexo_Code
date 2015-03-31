@@ -32,12 +32,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -92,7 +87,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
 
     @Override
     public Finder<FirmwareVersion> findAllFirmwareVersions(Condition condition) {
-        return DefaultFinder.of(FirmwareVersion.class, condition, dataModel);
+        return DefaultFinder.of(FirmwareVersion.class, condition, dataModel).sorted("lower(firmwareVersion)", false);
     }
 
     @Override
@@ -122,8 +117,25 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType) {
-        return dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
+    public FirmwareUpgradeOptions getFirmwareUpgradeOptions(DeviceType deviceType) {
+        Optional<FirmwareUpgradeOptions> ref = dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
+        return ref.isPresent() ? ref.get() : FirmwareUpgradeOptionsImpl.from(dataModel, deviceType);
+    }
+
+    @Override
+    public void saveFirmwareUpgradeOptions(FirmwareUpgradeOptions firmwareOptions) {
+        FirmwareUpgradeOptionsImpl.class.cast(firmwareOptions).save();
+    }
+
+    @Override
+    public Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareUpgradeOptionsFor(DeviceType deviceType) {
+        Set<ProtocolSupportedFirmwareOptions> set = new LinkedHashSet<>();
+        Optional<FirmwareUpgradeOptions> ref = dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
+         if (ref.isPresent()) {
+             FirmwareUpgradeOptions options = ref.get();
+              set = options.getOptions();
+         }
+        return set;
     }
 
     @Override

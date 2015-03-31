@@ -19,7 +19,7 @@ import java.util.Set;
 
     public static String COMPONENTNAME = "FWC";
     
-    public final int MAX_FIRMWARE_FILE_SIZE = 50 * 1024;
+    public final int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
 
     /**
      * Provides a set of ProtocolSupportedFirmwareOptions for the given DeviceType
@@ -40,7 +40,11 @@ import java.util.Set;
 
     boolean isFirmwareVersionInUse(long firmwareVersionId);
 
-    Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
+    FirmwareUpgradeOptions getFirmwareUpgradeOptions(DeviceType deviceType);
+
+    void saveFirmwareUpgradeOptions(FirmwareUpgradeOptions firmwareOptions);
+
+    Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareUpgradeOptionsFor(DeviceType deviceType);
 
     /**
      * Provides a list of all <i>upgradable</i> FirmwareVersions for the given Device.

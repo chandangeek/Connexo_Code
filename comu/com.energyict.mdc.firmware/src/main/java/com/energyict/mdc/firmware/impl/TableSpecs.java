@@ -29,9 +29,9 @@ public enum TableSpecs {
             Table<FirmwareUpgradeOptions> table = dataModel.addTable(name(),FirmwareUpgradeOptions.class);
             table.map(FirmwareUpgradeOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
-            table.column("INSTALL").bool().map("install").add();
-            table.column("ACTIVATE").bool().map("activate").add();
-            table.column("ACTIVATEONDATE").bool().map("activateOnDate").add();
+            table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map("install").add();
+            table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map("activate").add();
+            table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map("activateOnDate").add();
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWAREUPGRADEOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE").on(deviceTypeColumn).map("deviceType").references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
