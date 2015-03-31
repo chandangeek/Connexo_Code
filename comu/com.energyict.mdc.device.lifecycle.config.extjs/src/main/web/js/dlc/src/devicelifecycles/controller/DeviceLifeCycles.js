@@ -40,14 +40,9 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
         var me = this,
             view = Ext.widget('device-life-cycles-setup', {
                 router: me.getController('Uni.controller.history.Router')
-            }),
-            store = me.getStore('Dlc.devicelifecycles.store.DeviceLifeCycles');
+            });
 
         me.getApplication().fireEvent('changecontentevent', view);
-
-        store.load(function () {
-            view.down('device-life-cycles-grid').getSelectionModel().select(0);
-        });
     },
 
     showDeviceLifeCyclePreview: function (selectionModel, record, index) {

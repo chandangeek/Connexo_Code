@@ -22,7 +22,10 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                emptyMsg: '',
+                store: me.store,
+                displayMsg: Uni.I18n.translate('deviceLifeCycles.pagingtoolbartop.displayMsg', 'DLC', '{0} - {1} of {2} device life cycles'),
+                displayMoreMsg: Uni.I18n.translate('deviceLifeCycles.pagingtoolbartop.displayMoreMsg', 'DLC', '{0} - {1} of more than {2} device life cycles'),
+                emptyMsg: Uni.I18n.translate('deviceLifeCycles.pagingtoolbartop.emptyMsg', 'DLC', 'There are no device life cycles to display'),
                 dock: 'top',
                 items: [
                     '->',
@@ -33,6 +36,12 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
                         href: me.router.getRoute('administration/devicelifecycles/add').buildUrl()
                     }
                 ]
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('deviceLifeCycles.pagingtoolbarbottom.itemsPerPage', 'DLC', 'Device life cycles per page'),
+                dock: 'bottom'
             }
         ];
 
