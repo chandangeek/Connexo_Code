@@ -140,7 +140,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, false, new BooleanFactory()));
 
         builder.add(getPropertySpecService().relativePeriodPropertySpec(
-                RELATIVE_PERIOD, false));
+                RELATIVE_PERIOD, false, null));
         return builder.build();
     }
 
