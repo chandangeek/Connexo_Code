@@ -22,6 +22,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.device.data.exceptions.CannotReplaceExistingKPI;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
@@ -93,6 +94,9 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private Reference<RecurrentTask> communicationKpiTask = ValueReference.absent();
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateAllSchedules();
 
+    @NotNull(message = MessageSeeds.Keys.FIELD_REQUIRED, groups={Save.Create.class, Save.Update.class})
+    private transient TemporalAmount frequency;
+
     @Inject
     public DataCollectionKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService, KpiService kpiService, Thesaurus thesaurus) {
         super();
@@ -124,11 +128,28 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     public void postLoad() {
         this.kpiSaveStrategy = new KpiSaveStrategyForUpdate();
         this.recurrentTaskSaveStrategy = new UpdateAllSchedules();
+        Stream.of(this.comTaskExecutionKpiCalculationIntervalLength(), this.connectionSetupKpiCalculationIntervalLength()).
+            flatMap(Functions.asStream()).
+            findFirst().
+            ifPresent(temporalAmount -> this.frequency = temporalAmount);
     }
 
     @Override
     public long getId() {
         return this.id;
+    }
+
+    @Override
+    public void setFrequency(TemporalAmount frequency) {
+        if (this.frequency!=null) {
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.CAN_NOT_CHANGE_FREQUENCY);
+        }
+        this.frequency = frequency;
+    }
+
+    @Override
+    public TemporalAmount getFrequency() {
+        return frequency;
     }
 
     @Override
@@ -160,7 +181,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         if (this.communicationKpi.isPresent()) {
             this.communicationKpi.get().getMembers().forEach(member -> member.updateTarget(staticTarget));
         } else {
-            KpiBuilder kpiBuilder = newKpi(this.connectionKpi.get().getIntervalLength(), staticTarget);
+            KpiBuilder kpiBuilder = newKpi(this.getFrequency(), staticTarget);
             this.communicationKpiBuilder(kpiBuilder);
             this.save();
         }
@@ -177,7 +198,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         if (this.connectionKpi.isPresent()) {
             this.connectionKpi.get().getMembers().forEach(member->member.updateTarget(staticTarget));
         } else {
-            KpiBuilder kpiBuilder = newKpi(this.communicationKpi.get().getIntervalLength(), staticTarget);
+            KpiBuilder kpiBuilder = newKpi(this.getFrequency(), staticTarget);
             this.connectionKpiBuilder(kpiBuilder);
             this.save();
         }

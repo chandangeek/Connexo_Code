@@ -126,7 +126,8 @@ public class MdcKPIs {
 
             @Override
             protected DataCollectionKpiService.KpiTargetBuilder targetBuilder(DataCollectionKpiService.DataCollectionKpiBuilder builder) {
-                return builder.calculateConnectionSetupKpi(Duration.ofHours(1));
+                builder.frequency(Duration.ofHours(1));
+                return builder.calculateConnectionSetupKpi();
             }
         },
 
@@ -138,7 +139,8 @@ public class MdcKPIs {
 
             @Override
             protected DataCollectionKpiService.KpiTargetBuilder targetBuilder(DataCollectionKpiService.DataCollectionKpiBuilder builder) {
-                return builder.calculateComTaskExecutionKpi(Duration.ofHours(1));
+                builder.frequency(Duration.ofHours(1));
+                return builder.calculateComTaskExecutionKpi();
             }
         };
 
