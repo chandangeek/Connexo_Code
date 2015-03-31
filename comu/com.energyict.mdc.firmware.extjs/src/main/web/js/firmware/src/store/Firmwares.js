@@ -9,7 +9,7 @@ Ext.define('Fwc.store.Firmwares', {
     remoteSort: true,
     hydrator: 'Uni.util.IdHydrator',
     sorters: [{
-        property: 'version',
+        property: 'firmwareVersion',
         direction: 'DESC'
     }],
 
