@@ -35,7 +35,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             'device-life-cycle-states-setup device-life-cycle-states-grid': {
                 select: this.showDeviceLifeCycleStatePreview
             },
-            'device-life-cycle-states-grid button[action=addState]': {
+            'device-life-cycle-states-setup button[action=addState]': {
                 click: this.moveToCreatePage
             },
             'device-life-cycle-states-action-menu menuitem[action=edit]': {
