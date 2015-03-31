@@ -88,7 +88,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private Reference<Kpi> connectionKpi = ValueReference.absent();
     private Reference<Kpi> communicationKpi = ValueReference.absent();
     private CompositeKpiSaveStrategy kpiSaveStrategy = new KpiSaveStrategyAtCreationTime();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_GROUP_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
     private Reference<RecurrentTask> connectionKpiTask = ValueReference.absent();
     private Reference<RecurrentTask> communicationKpiTask = ValueReference.absent();
