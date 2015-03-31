@@ -118,8 +118,9 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = mock(DataCollectionKpiService.DataCollectionKpiBuilder.class);
         DataCollectionKpiService.KpiTargetBuilder connectionKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
         DataCollectionKpiService.KpiTargetBuilder communicationKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
-        when(kpiBuilder.calculateComTaskExecutionKpi(anyObject())).thenReturn(communicationKpiTargetBuilder);
-        when(kpiBuilder.calculateConnectionSetupKpi(anyObject())).thenReturn(connectionKpiTargetBuilder);
+        when(kpiBuilder.calculateComTaskExecutionKpi()).thenReturn(communicationKpiTargetBuilder);
+        when(kpiBuilder.frequency(anyObject())).thenReturn(kpiBuilder);
+        when(kpiBuilder.calculateConnectionSetupKpi()).thenReturn(connectionKpiTargetBuilder);
         long kpiId = 71L;
         DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2));
         when(kpiBuilder.save()).thenReturn(kpiMock);
@@ -129,8 +130,8 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(dataCollectionKpiService).newDataCollectionKpi(endDeviceGroupOptional.get());
-        verify(kpiBuilder).calculateComTaskExecutionKpi(Duration.ofMinutes(15));
-        verify(kpiBuilder, never()).calculateConnectionSetupKpi(anyObject());
+        verify(kpiBuilder).calculateComTaskExecutionKpi();
+        verify(kpiBuilder, never()).calculateConnectionSetupKpi();
         verify(communicationKpiTargetBuilder).expectingAsMaximum(BigDecimal.valueOf(99.9));
         verify(connectionKpiTargetBuilder, never()).expectingAsMaximum(anyObject());
         verify(kpiBuilder).save();
@@ -150,8 +151,9 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = mock(DataCollectionKpiService.DataCollectionKpiBuilder.class);
         DataCollectionKpiService.KpiTargetBuilder connectionKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
         DataCollectionKpiService.KpiTargetBuilder communicationKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
-        when(kpiBuilder.calculateComTaskExecutionKpi(anyObject())).thenReturn(communicationKpiTargetBuilder);
-        when(kpiBuilder.calculateConnectionSetupKpi(anyObject())).thenReturn(connectionKpiTargetBuilder);
+        when(kpiBuilder.frequency(anyObject())).thenReturn(kpiBuilder);
+        when(kpiBuilder.calculateComTaskExecutionKpi()).thenReturn(communicationKpiTargetBuilder);
+        when(kpiBuilder.calculateConnectionSetupKpi()).thenReturn(connectionKpiTargetBuilder);
         long kpiId = 71L;
         DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2));
         when(kpiBuilder.save()).thenReturn(kpiMock);
@@ -176,8 +178,9 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = mock(DataCollectionKpiService.DataCollectionKpiBuilder.class);
         DataCollectionKpiService.KpiTargetBuilder connectionKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
         DataCollectionKpiService.KpiTargetBuilder communicationKpiTargetBuilder = mock(DataCollectionKpiService.KpiTargetBuilder.class);
-        when(kpiBuilder.calculateComTaskExecutionKpi(anyObject())).thenReturn(communicationKpiTargetBuilder);
-        when(kpiBuilder.calculateConnectionSetupKpi(anyObject())).thenReturn(connectionKpiTargetBuilder);
+        when(kpiBuilder.frequency(anyObject())).thenReturn(kpiBuilder);
+        when(kpiBuilder.calculateComTaskExecutionKpi()).thenReturn(communicationKpiTargetBuilder);
+        when(kpiBuilder.calculateConnectionSetupKpi()).thenReturn(connectionKpiTargetBuilder);
         long kpiId = 71L;
         DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2));
         when(kpiBuilder.save()).thenReturn(kpiMock);
@@ -187,8 +190,9 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(dataCollectionKpiService).newDataCollectionKpi(endDeviceGroupOptional.get());
-        verify(kpiBuilder).calculateConnectionSetupKpi(Duration.ofHours(1));
-        verify(kpiBuilder, never()).calculateComTaskExecutionKpi(anyObject());
+        verify(kpiBuilder).frequency(Duration.ofHours(1));
+        verify(kpiBuilder).calculateConnectionSetupKpi();
+        verify(kpiBuilder, never()).calculateComTaskExecutionKpi();
         verify(connectionKpiTargetBuilder).expectingAsMaximum(BigDecimal.valueOf(99.1));
         verify(communicationKpiTargetBuilder, never()).expectingAsMaximum(anyObject());
         verify(kpiBuilder).save();
@@ -303,6 +307,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         DataCollectionKpi kpiMock = mock(DataCollectionKpi.class);
         when(kpiMock.getDeviceGroup()).thenReturn(endDeviceGroup);
         when(kpiMock.getId()).thenReturn(kpiId);
+        when(kpiMock.getFrequency()).thenReturn(Duration.ofMinutes(15));
         when(kpiMock.comTaskExecutionKpiCalculationIntervalLength()).thenReturn(Optional.<TemporalAmount>empty());
         when(kpiMock.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(kpiMock.getStaticCommunicationKpiTarget()).thenReturn(Optional.of(BigDecimal.valueOf(15.8)));
