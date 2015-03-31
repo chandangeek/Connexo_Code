@@ -6,11 +6,13 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.rest.FirmwareApplication;
+import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
+    // firmware versions
     VERSION_IN_USE(1, Keys.VERSION_IN_USE, "This version is in use and can''t be modified"),
     VERSION_IS_DEPRECATED(2, Keys.VERSION_IS_DEPRECATED, "This version is deprecated and can''t be modified"),
     // firmware statuses translation
@@ -21,6 +23,12 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // firmware types translation
     TYPE_METER(7, Keys.TYPE_METER, FirmwareType.METER.getDisplayValue()),
     TYPE_COMMUNICATION(8, Keys.TYPE_COMMUNICATION, FirmwareType.COMMUNICATION.getDisplayValue()),
+    // firmware upgrade options translation
+    UPGRADE_OPTION_INSTALL(9, Keys.UPGRADE_OPTION_INSTALL, "Upload firmware"),
+    UPGRADE_OPTION_ACTIVATE(10, Keys.UPGRADE_OPTION_ACTIVATE, "Upload firmware and activate immediately"),
+    UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware with activation date"),
+    // firmware upgrade options
+    UPGRADE_OPTIONS_REQUIRED(12, Keys.UPGRADE_OPTIONS_REQUIRED, "At least one option should be selected"),
     ;
     private final int number;
     private final String key;
@@ -73,5 +81,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String STATUS_DEPRECATED = FirmwareStatus.DEPRECATED.getStatus();
         public static final String TYPE_METER = FirmwareType.METER.getType();
         public static final String TYPE_COMMUNICATION = FirmwareType.COMMUNICATION.getType();
+        public static final String UPGRADE_OPTION_INSTALL = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId();
+        public static final String UPGRADE_OPTION_ACTIVATE = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId();
+        public static final String UPGRADE_OPTION_ACTIVATE_ON_DATE = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId();
+        public static final String UPGRADE_OPTIONS_REQUIRED = "FirmwareUpgradeOptionsRequired";
     }
 }

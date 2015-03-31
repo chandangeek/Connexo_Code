@@ -6,6 +6,7 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareUpgradeOptionsResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.google.common.collect.ImmutableSet;
@@ -36,6 +37,7 @@ public class FirmwareApplication extends Application implements BinderProvider, 
         return ImmutableSet.of(
                 FirmwareVersionResource.class,
                 FirmwareFieldResource.class,
+                FirmwareUpgradeOptionsResource.class,
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,

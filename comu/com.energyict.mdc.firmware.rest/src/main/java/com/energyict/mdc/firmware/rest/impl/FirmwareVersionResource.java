@@ -52,7 +52,7 @@ public class FirmwareVersionResource {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         Finder<FirmwareVersion> allFirmwaresFinder = firmwareService.findAllFirmwareVersions(getFirmwareVersionConditions(filter, deviceType));
-        List<FirmwareVersion> allFirmwares = allFirmwaresFinder.from(queryParameters).sorted("firmwareVersion", false).find();
+        List<FirmwareVersion> allFirmwares = allFirmwaresFinder.from(queryParameters)/*.sorted("lower(firmwareVersion)", false)*/.find();
         List<FirmwareVersionInfo> firmwareInfos = FirmwareVersionInfo.from(allFirmwares, thesaurus);
         return PagedInfoList.fromPagedList("firmwares", firmwareInfos, queryParameters);
     }
