@@ -172,4 +172,5 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         verify(dataModel).remove(task);
     }
 
+
 }

@@ -1,9 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -82,7 +79,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
         DataValidationTask task = occurrence.getTask();
 
         try (TransactionContext transactionContext = transactionService.getContext()) {
-            //task.getEndDeviceGroup().getMembers(Instant.now()).stream().map();
+
 
             List<EndDevice> devices = task.getEndDeviceGroup().getMembers(Instant.now());
             for(EndDevice device : devices){

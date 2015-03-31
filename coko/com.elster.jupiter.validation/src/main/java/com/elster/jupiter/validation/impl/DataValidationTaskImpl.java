@@ -91,8 +91,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public DataValidationStatus execute(DataValidationOccurrence taskOccurence) {
-        return null;
+    public DataValidationTaskStatus execute(DataValidationOccurrence taskOccurence) {
+        return taskOccurence.getStatus();
     }
 
     @Override

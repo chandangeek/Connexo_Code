@@ -12,7 +12,7 @@ public interface DataValidationTask extends HasAuditInfo {
 
     public void activate();
 
-    public DataValidationStatus execute(DataValidationOccurrence taskOccurence);
+    public DataValidationTaskStatus execute(DataValidationOccurrence taskOccurence);
 
     public void deactivate();
 
