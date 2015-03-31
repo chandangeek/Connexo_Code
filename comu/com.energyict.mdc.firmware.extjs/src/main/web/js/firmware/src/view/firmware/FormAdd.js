@@ -19,10 +19,12 @@ Ext.define('Fwc.view.firmware.FormAdd', {
         },
         {
             xtype: 'firmware-type',
+            defaultType : 'radiofield',
             required: true
         },
         {
             xtype: 'firmware-status',
+            defaultType : 'radiofield',
             required: true
         }
     ]

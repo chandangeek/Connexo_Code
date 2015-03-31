@@ -1,5 +1,5 @@
 Ext.define('Fwc.view.firmware.field.Radio', {
-    extend: 'Ext.form.RadioGroup',
+    extend: 'Ext.form.CheckboxGroup',
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
@@ -7,12 +7,6 @@ Ext.define('Fwc.view.firmware.field.Radio', {
     getStoreListeners: function () {
         return {
             refresh: this.refresh
-            //beforeload: function () {
-            //    this.setLoading();
-            //},
-            //load: function () {
-            //    this.setLoading(false);
-            //}
         };
     },
 
@@ -32,6 +26,7 @@ Ext.define('Fwc.view.firmware.field.Radio', {
         var me = this;
         me.bindStore(me.store || 'ext-empty-store', true);
         this.callParent(arguments);
+
         // todo: move?
         me.store.load();
     },
@@ -56,13 +51,12 @@ Ext.define('Fwc.view.firmware.field.Radio', {
             });
         });
 
-        Ext.resumeLayouts();
-        me.updateLayout();
-
         // re-populate data values
         if (me.values) {
             me.setValue(me.values);
         }
+        Ext.resumeLayouts();
+        me.doLayout();
     },
 
     getFieldModelData: function () {
@@ -78,9 +72,14 @@ Ext.define('Fwc.view.firmware.field.Radio', {
     },
 
     setValue: function (data) {
-        var values = {};
-        values[this.name] = data[this.valueField];
-        this.values = data;
-        this.callParent([values]);
+        var me = this,
+            values = {};
+
+        values[me.name] = Ext.isArray(data)
+            ? data.map(function (item) { return item[me.valueField]; })
+            : data[me.valueField];
+
+        me.values = data;
+        me.callParent([values]);
     }
 });

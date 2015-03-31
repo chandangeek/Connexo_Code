@@ -7,6 +7,7 @@ Ext.define('Fwc.store.Firmwares', {
     storeId: 'Firmwares',
     autoLoad: false,
     remoteSort: true,
+    hydrator: 'Uni.util.IdHydrator',
     sorters: [{
         property: 'version',
         direction: 'DESC'

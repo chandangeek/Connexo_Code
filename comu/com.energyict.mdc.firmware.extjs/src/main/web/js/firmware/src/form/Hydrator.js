@@ -16,7 +16,7 @@ Ext.define('Fwc.form.Hydrator', {
      * @param object
      */
     hydrate: function (data, object) {
-        object.set(data);
+        object.set(_.pick(data, object.fields.keys));
         object.getProxy().getReader().readAssociated(object, data);
     }
 });
