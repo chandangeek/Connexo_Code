@@ -277,6 +277,7 @@ Ext.define('Fwc.controller.Firmware', {
             Ext.getStore('Fwc.store.FirmwareStatuses').clearFilter(true);
 
             me.getApplication().fireEvent('changecontentevent', 'firmware-versions', {deviceType: deviceType});
+            me.getContainer().down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
             me.initFilter();
         });
     },
