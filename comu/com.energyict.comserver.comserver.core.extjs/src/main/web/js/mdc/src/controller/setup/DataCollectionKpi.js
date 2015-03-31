@@ -249,7 +249,9 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
             success: function () {
-                gridToolbarTop.totalCount = 0;
+                gridToolbarTop.isFullTotalCount = false;
+                gridToolbarTop.totalCount = -1;
+                grid.down('pagingtoolbarbottom').totalCount--;
                 grid.getStore().loadPage(1);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datacollectionkpis.kpiRemoved', 'MDC', 'Data collection KPI removed'));
             },
