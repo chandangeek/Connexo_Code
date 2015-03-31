@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -86,12 +87,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpec relativePeriodPropertySpec(String name, boolean required) {
+    public PropertySpec relativePeriodPropertySpec(String name, boolean required, RelativePeriod defaultRelativePeriod) {
         PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new RelativePeriodFactory(timeService));
         if (required) {
             builder.markRequired();
         }
-        return builder.name(name).finish();
+        return builder.name(name).setDefaultValue(defaultRelativePeriod).finish();
     }
 
     @Override

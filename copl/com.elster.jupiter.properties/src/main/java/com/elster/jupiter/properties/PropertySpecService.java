@@ -1,5 +1,7 @@
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.time.RelativePeriod;
+
 import java.math.BigDecimal;
 
 /**
@@ -103,6 +105,6 @@ public interface PropertySpecService {
      */
     public PropertySpecBuilder newPropertySpecBuilder (ValueFactory valueFactory);
 
-    public PropertySpec relativePeriodPropertySpec(String name, boolean required);
+    public PropertySpec relativePeriodPropertySpec(String name, boolean required, RelativePeriod defaultPeriod);
 
 }
