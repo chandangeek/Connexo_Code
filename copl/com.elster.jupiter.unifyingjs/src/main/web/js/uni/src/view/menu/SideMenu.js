@@ -98,6 +98,11 @@ Ext.define('Uni.view.menu.SideMenu', {
         }
 
         me.checkNavigation(Ext.util.History.getToken());
+
+        // Takes dynamic changes to the menu into consideration.
+        me.on('add', function () {
+            me.checkNavigation(Ext.util.History.getToken());
+        });
     },
 
     buildMenuItems: function () {

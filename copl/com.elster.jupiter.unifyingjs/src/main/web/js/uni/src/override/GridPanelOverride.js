@@ -9,7 +9,9 @@ Ext.define('Uni.override.GridPanelOverride', {
     plugins: [
         'showConditionalToolTip'
     ],
-
+    viewConfig: {
+        enableTextSelection: true
+    },
     /**
      * Do not select row when column is of type actioncolumn.
      */
