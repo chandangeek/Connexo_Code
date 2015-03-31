@@ -24,6 +24,10 @@ Ext.define('Fwc.view.firmware.Grid', {
         },
         {
             xtype: 'uni-actioncolumn',
+            isDisabled: function(view, rowIndex, colIndex, item, record) {
+                return record.getAssociatedData().firmwareStatus
+                    && record.getAssociatedData().firmwareStatus.id === 'deprecated';
+            },
             menu: {
                 xtype: 'firmware-action-menu'
             }
@@ -34,7 +38,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         this.dockedItems = [
             {
                 dock: 'top',
-                title: 'Sort',
+                title: Uni.I18n.translate('firmware.sort.title', 'FWC', 'Sort'),
                 xtype: 'filter-toolbar',
                 itemId: 'firmware-sort-top',
                 showClearButton: false,
@@ -42,20 +46,20 @@ Ext.define('Fwc.view.firmware.Grid', {
                     xtype: 'button',
                     ui: 'tag',
                     iconCls: 'x-btn-sort-item-desc',
-                    text: 'Version'
+                    text: Uni.I18n.translate('firmware.sort.version', 'FWC', 'Version')
                 }
             },
             {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} firmwares'),
-                displayMoreMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} firmwares'),
-                emptyMsg: Uni.I18n.translate('firmware.pagingtoolbartop.emptyMsg', 'FWC', 'There are no firmwares to display'),
+                displayMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMsg', 'FWC', '{0} - {1} of {2} firmware versions'),
+                displayMoreMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} firmware versions'),
+                emptyMsg: Uni.I18n.translate('firmware.pagingtoolbartop.emptyMsg', 'FWC', 'There are no firmware versions to display'),
                 items: [
                     '->',
                     {
-                        text: Uni.I18n.translate('firmware.createDeviceType', 'FWC', 'Add firmware'),
+                        text: Uni.I18n.translate('firmware.add', 'FWC', 'Add version'),
                         itemId: 'addFirmware',
                         xtype: 'button',
                         action: 'addFirmware'
@@ -67,7 +71,7 @@ Ext.define('Fwc.view.firmware.Grid', {
                 store: this.store,
                 deferLoading: true,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('firmware.pagingtoolbarbottom.itemsPerPage', 'FWC', 'Firmwares per page')
+                itemsPerPageMsg: Uni.I18n.translate('firmware.pagingtoolbarbottom.itemsPerPage', 'FWC', 'Firmware versions per page')
             }
         ];
 

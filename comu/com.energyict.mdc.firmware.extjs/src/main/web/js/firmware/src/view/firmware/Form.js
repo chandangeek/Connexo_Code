@@ -6,19 +6,32 @@ Ext.define('Fwc.view.firmware.Form', {
     defaults: {
         labelWidth: 150
     },
+    minButtonWidth: 50,
     requires: [
+        'Uni.util.FormErrorMessage',
         'Fwc.view.firmware.field.File',
         'Fwc.view.firmware.field.FirmwareType',
         'Fwc.view.firmware.field.FirmwareStatus'
     ],
     record: null,
 
+    dockedItems: [{
+        xtype: 'toolbar',
+        dock: 'top',
+        border: true,
+        items: {
+            xtype: 'uni-form-error-message',
+            itemId: 'form-errors',
+            hidden: true
+        }
+    }],
+
     initComponent: function () {
         var me = this;
 
         me.buttons = [
             {
-                text: me.edit ? Uni.I18n.translate('general.edit', 'MDC', 'Edit') : Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                text: me.edit ? Uni.I18n.translate('general.edit', 'MDC', 'Save') : Uni.I18n.translate('general.add', 'MDC', 'Add'),
                 ui: 'action',
                 action: 'saveFirmware',
                 itemId: 'createEditButton'

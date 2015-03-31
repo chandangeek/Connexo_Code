@@ -14,6 +14,13 @@ Ext.define('Fwc.view.firmware.FormEdit', {
         },
         {
             xtype: 'firmware-field-file',
+            required: false,
+            allowBlank: true,
+            afterBodyEl: [
+                '<div class="x-form-display-field"><i>',
+                Uni.I18n.translate('firmware.filesize.edit', 'FWC', 'Selected file will replace already uploaded firmware file. Maximum file size is 50Mb'),
+                '</i></div>'
+            ],
             anchor: '60%'
         },
         {

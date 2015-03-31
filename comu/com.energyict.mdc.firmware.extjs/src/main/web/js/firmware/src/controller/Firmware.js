@@ -106,7 +106,7 @@ Ext.define('Fwc.controller.Firmware', {
             var checked = me.getSideFilterForm().down('firmware-type').getChecked();
             if (checked.length) {
                 me.getFilterPanel().setFilter(
-                    'firmwareTypes',
+                    'firmwareType',
                     'firmware Type',
                     checked.map(function (ch) {return ch.boxLabel; }).join(', ')
                 );
@@ -139,7 +139,8 @@ Ext.define('Fwc.controller.Firmware', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'This firmware version will no longer be available.'),
-            title: Uni.I18n.translate('firmware.deprecate.title', 'FWC', 'Deprecate') + " '" + firmware.get('version') + "'?",
+            title: Uni.I18n.translate('firmware.deprecate.title', 'FWC', 'Deprecate') + " '" + firmware.get('firmwareVersion') + "'?",
+            confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate'),
             fn: function (btn) {
                 if (btn === 'confirm') {
                     container.setLoading();
@@ -204,19 +205,13 @@ Ext.define('Fwc.controller.Firmware', {
             form = me.getFirmwareForm(),
             record;
 
+        form.down('uni-form-error-message').hide();
         if (form.isValid()) {
             record = form.updateRecord().getRecord();
 
-            var input = form.down('filefield').extractFileInput();
-            var file = input.files[0];
-            var reader = new FileReader();
-
-            form.setLoading();
-            reader.onload = function () {
-                record.set('fileSize', file.size);
-                record.set('firmwareFile', window.btoa(reader.result));
-
-                record.doValidate(function (options, success, response) {
+            var input = form.down('filefield').extractFileInput(),
+                file = input.files[0],
+                callback = function (options, success, response) {
                     if (success) {
                         record.save({
                             success: function () {
@@ -234,14 +229,29 @@ Ext.define('Fwc.controller.Firmware', {
                         me.setFormErrors(response, form);
                         form.setLoading(false);
                     }
-                });
-            };
+                };
 
-            reader.readAsBinaryString(file);
+            if (file) {
+                var reader = new FileReader();
+
+                form.setLoading();
+                reader.onload = function () {
+                    record.set('fileSize', file.size);
+                    record.set('firmwareFile', window.btoa(reader.result));
+                    record.doValidate(callback);
+                };
+
+                reader.readAsBinaryString(file);
+            } else {
+                record.doValidate(callback);
+            }
+        } else {
+            form.down('uni-form-error-message').show();
         }
     },
 
     setFormErrors: function (response, form) {
+        form.down('uni-form-error-message').show();
         var json = Ext.decode(response.responseText);
         if (json && json.errors) {
             form.getForm().markInvalid(json.errors);
