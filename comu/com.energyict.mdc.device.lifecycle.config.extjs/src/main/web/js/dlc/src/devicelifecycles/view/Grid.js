@@ -10,7 +10,7 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'DLC', 'Name'),
-                dataIndex: 'name',
+                dataIndex: 'sorted_name',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/devicelifecycles/devicelifecycle').buildUrl({deviceLifeCycleId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
