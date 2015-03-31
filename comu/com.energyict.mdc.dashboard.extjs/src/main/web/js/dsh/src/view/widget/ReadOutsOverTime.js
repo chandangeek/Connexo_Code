@@ -39,10 +39,9 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 height: 400,
                 listeners: {
                     resize: {
-                        fn: function () {
+                        fn: function (container, width, height) {
                             if (me.chart) {
-                                me.chart.setSize(Ext.getBody().getViewSize().width - 100, 400);
-                                me.doLayout();
+                                me.chart.setSize(width, height, false);
                             }
                         }
                     }
@@ -64,6 +63,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
         var me = this;
         var filter = me.router.filter;
 
+        Ext.suspendLayouts();
         if (!filter.get('deviceGroup')) {
             me.hide();
         } else {
@@ -94,6 +94,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 }
             }
         }
+        Ext.resumeLayouts(true);
     },
 
     renderChart: function (container) {
@@ -109,7 +110,6 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     zoomType: 'x',
                     renderTo: container.el.dom,
                     reflow: false,
-                    width: Ext.getBody().getViewSize().width-100,
                     height: 400,
                     events: {
                         load: function () {
@@ -136,6 +136,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 tooltip: {
                     positioner: function (labelWidth, labelHeight, point){
                         var yValue,
+                            xValue,
                             additionalY;
 
                         if (point.plotY < 0) {
@@ -144,8 +145,14 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                             additionalY = point.plotY;
                         }
 
+                        if (labelWidth > me.getEl().getWidth() - point.plotX) {
+                            xValue = point.plotX - labelWidth/4;
+                        } else {
+                            xValue = point.plotX;
+                        }
+
                         yValue = point.plotY > labelHeight ? point.plotY - labelHeight: additionalY + labelHeight/2;
-                        return {x: point.plotX, y: yValue}
+                        return {x: xValue, y: yValue}
                     },
                     formatter: function (tooltip) {
                         if (!this.y && this.y !== 0) {
