@@ -10,8 +10,9 @@ public interface IdsService {
 	Optional<Vault> getVault(String component, long id);
 	Optional<RecordSpec> getRecordSpec(String component, long id);
 	Optional<TimeSeries> getTimeSeries(long id);
-	TimeSeriesDataStorer createStorer(boolean overrules);
-	TimeSeriesDataWriter createWriter(boolean overrules);
+	TimeSeriesDataStorer createUpdatingStorer();
+	TimeSeriesDataStorer createOverrulingStorer();
+	TimeSeriesDataStorer createNonOverrulingStorer();
 	Vault newVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular);
 	RecordSpec newRecordSpec(String component , long id,String name);
 	void purge(Logger logger);

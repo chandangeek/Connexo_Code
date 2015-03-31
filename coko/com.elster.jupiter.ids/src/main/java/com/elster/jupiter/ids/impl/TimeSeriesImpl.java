@@ -196,7 +196,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	
 	@Override
 	public boolean add(Instant instant, boolean overrule, Object... values) {
-		TimeSeriesDataStorer storer = idsService.createStorer(overrule);
+		TimeSeriesDataStorer storer = overrule ? idsService.createOverrulingStorer() : idsService.createNonOverrulingStorer();
 		storer.add(this, instant, values);
 		StorerStats stats = storer.execute();
 		return stats.getInsertCount() > 0 || stats.getUpdateCount() > 0;

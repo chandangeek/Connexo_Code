@@ -85,14 +85,14 @@ public class IdsCrudTest {
         TimeSeries ts = null;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), Duration.ofMinutes(15), 0);
-            TimeSeriesDataStorer storer = idsService.createStorer(true);
+            TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
             ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
             storer.add(ts, dateTime, BigDecimal.valueOf(10));
             dateTime = dateTime.plusMinutes(15);
             storer.add(ts, dateTime, BigDecimal.valueOf(20));
             storer.execute();
             assertThat(storer.processed(ts, dateTime.toInstant())).isTrue();
-            storer = idsService.createStorer(true);
+            storer = idsService.createOverrulingStorer();
             storer.add(ts, dateTime, BigDecimal.valueOf(20));
             storer.execute();
             assertThat(storer.processed(ts, dateTime.toInstant())).isFalse();
@@ -135,7 +135,7 @@ public class IdsCrudTest {
             spec.addFieldSpec("Value2", FieldType.TEXT);
             spec.persist();
             ts = vault.createIrregularTimeSeries(spec, TimeZone.getDefault());
-            TimeSeriesDataStorer storer = idsService.createStorer(true);
+            TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
             ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, zoneId);
             storer.add(ts, dateTime, BigDecimal.valueOf(10), "Text1");
             dateTime = dateTime.plusMinutes(15);

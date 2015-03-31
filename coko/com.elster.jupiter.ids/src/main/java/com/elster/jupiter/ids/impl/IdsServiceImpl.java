@@ -4,7 +4,6 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
-import com.elster.jupiter.ids.TimeSeriesDataWriter;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -65,13 +64,18 @@ public class IdsServiceImpl implements IdsService, InstallService, TranslationKe
     }
 
     @Override
-    public TimeSeriesDataStorer createStorer(boolean overrules) {
-        return new TimeSeriesDataStorerImpl(dataModel, clock, thesaurus, overrules);
+    public TimeSeriesDataStorer createOverrulingStorer() {
+        return TimeSeriesDataStorerImpl.createOverrulingStorer(dataModel, clock, thesaurus);
     }
 
     @Override
-    public TimeSeriesDataWriter createWriter(boolean overrules) {
-        return new TimeSeriesDataWriterImpl(dataModel, clock, thesaurus, overrules);
+    public TimeSeriesDataStorer createUpdatingStorer() {
+        return TimeSeriesDataStorerImpl.createUpdatingStorer(dataModel, clock, thesaurus);
+    }
+
+    @Override
+    public TimeSeriesDataStorer createNonOverrulingStorer() {
+        return TimeSeriesDataStorerImpl.createNonOverrulingStorer(dataModel, clock, thesaurus);
     }
 
     @Override

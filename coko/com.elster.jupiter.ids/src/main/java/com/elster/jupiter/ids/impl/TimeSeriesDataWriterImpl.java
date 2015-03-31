@@ -11,12 +11,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
+import java.time.Clock;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,7 +88,7 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
         storerMap.values().stream()
         	.flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
         	.sorted(Comparator.comparing(TimeSeriesImpl::getId))
-        	.forEach(timeSeries -> timeSeries.lock());                
+        	.forEach(TimeSeriesImpl::lock);
         for (SlaveTimeSeriesDataStorer storer : storerMap.values()) {
             storer.execute(stats, overrules());
         }
@@ -103,6 +103,15 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
         } else {
             return storer.processed(timeSeries, instant, overrules());
         }
+    }
+
+    @Override
+    public Object doNotUpdateMarker() {
+        return DoNotUpdateMarker.INSTANCE;
+    }
+
+    private enum DoNotUpdateMarker {
+        INSTANCE;
     }
 
     private static final class RecordSpecInVault {
@@ -294,7 +303,6 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
             newEntries.put(instant, entry);
         }
 
-
         TimeSeriesImpl getTimeSeries() {
             return timeSeries;
         }
@@ -391,6 +399,9 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
                             entry.set(i + 1, oldEntry.getBigDecimal(i + 1));
                         }
                     }
+                    if (DoNotUpdateMarker.INSTANCE.equals(entry.getValues()[i])) {
+                        entry.set(i + 1, oldEntry.getBigDecimal(i + 1));
+                    }
                 }
             }
             return oldEntry != null && !entry.matches(oldEntry);
@@ -449,4 +460,4 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
         }
     }
 
-}	
+}

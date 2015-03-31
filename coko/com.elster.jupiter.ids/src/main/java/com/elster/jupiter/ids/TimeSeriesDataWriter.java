@@ -23,4 +23,6 @@ public interface TimeSeriesDataWriter {
     StorerStats execute();
 
     boolean processed(TimeSeries timeSeries, Instant instant);
+
+    Object doNotUpdateMarker();
 }

@@ -30,23 +30,79 @@ import java.util.TreeMap;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
-    private final boolean overrules;
+    private final UpdateBehaviour updateBehaviour;
     private final Map<RecordSpecInVault, SlaveTimeSeriesDataStorer> storerMap = new HashMap<>();
     private final StorerStatsImpl stats = new StorerStatsImpl();
     private final DataModel dataModel;
     private final Clock clock;
     private final Thesaurus thesaurus;
 
-    public TimeSeriesDataStorerImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, boolean overrules) {
+    private TimeSeriesDataStorerImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, UpdateBehaviour updateBehaviour) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.thesaurus = thesaurus;
-        this.overrules = overrules;
+        this.updateBehaviour = updateBehaviour;
+    }
+
+    static TimeSeriesDataStorer createOverrulingStorer(DataModel dataModel, Clock clock, Thesaurus thesaurus) {
+        return new TimeSeriesDataStorerImpl(dataModel, clock, thesaurus, Behaviours.OVERRULE);
+    }
+
+    static TimeSeriesDataStorer createUpdatingStorer(DataModel dataModel, Clock clock, Thesaurus thesaurus) {
+        return new TimeSeriesDataStorerImpl(dataModel, clock, thesaurus, Behaviours.UPDATE);
+    }
+
+    static TimeSeriesDataStorer createNonOverrulingStorer(DataModel dataModel, Clock clock, Thesaurus thesaurus) {
+        return new TimeSeriesDataStorerImpl(dataModel, clock, thesaurus, Behaviours.INSERT_ONLY);
+    }
+
+    private interface UpdateBehaviour {
+        boolean overrules();
+
+        Object doNotUpdateMarker();
+    }
+
+    private enum Behaviours implements UpdateBehaviour {
+        INSERT_ONLY {
+            @Override
+            public boolean overrules() {
+                return false;
+            }
+
+            @Override
+            public Object doNotUpdateMarker() {
+                return null;
+            }
+        },
+
+        OVERRULE {
+            @Override
+            public boolean overrules() {
+                return true;
+            }
+
+            @Override
+            public Object doNotUpdateMarker() {
+                return null;
+            }
+        },
+
+        UPDATE {
+            @Override
+            public boolean overrules() {
+                return true;
+            }
+
+            @Override
+            public Object doNotUpdateMarker() {
+                return DoNotUpdateMarker.INSTANCE;
+            }
+        };
     }
 
     @Override
     public boolean overrules() {
-        return overrules;
+        return updateBehaviour.overrules();
     }
 
     @Override
@@ -86,11 +142,11 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
     private void doExecute() throws SQLException {
         // lock all timeseries objects, but make sure to do this in id order to avoid deadlocks between concurrent storers
         storerMap.values().stream()
-        	.flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
-        	.sorted(Comparator.comparing(TimeSeriesImpl::getId))
-        	.forEach(timeSeries -> timeSeries.lock());                
+                .flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
+                .sorted(Comparator.comparing(TimeSeriesImpl::getId))
+                .forEach(TimeSeriesImpl::lock);
         for (SlaveTimeSeriesDataStorer storer : storerMap.values()) {
-            storer.execute(stats, overrules());
+            storer.execute(stats, updateBehaviour);
         }
     }
 
@@ -101,8 +157,17 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         if (storer == null) {
             return false;
         } else {
-            return storer.processed(timeSeries, instant, overrules());
+            return storer.processed(timeSeries, instant, updateBehaviour);
         }
+    }
+
+    @Override
+    public Object doNotUpdateMarker() {
+        return updateBehaviour.doNotUpdateMarker();
+    }
+
+    private enum DoNotUpdateMarker {
+        INSTANCE;
     }
 
     private static final class RecordSpecInVault {
@@ -209,7 +274,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                         storer.add(rs);
                     }
                 }
-                storers.forEach(storer -> storer.prepare());
+                storers.forEach(SingleTimeSeriesStorer::prepare);
             }
         }
 
@@ -243,12 +308,12 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             }
         }
 
-        void execute(StorerStatsImpl stats, boolean overrules) throws SQLException {
+        void execute(StorerStatsImpl stats, UpdateBehaviour updateBehaviour) throws SQLException {
             try (Connection connection = dataModel.getConnection(true)) {
                 setOldEntries(connection);
                 long now = clock.millis();
                 addInserts(connection, now);
-                if (overrules) {
+                if (updateBehaviour.overrules()) {
                     if (vault.hasJournal()) {
                         addJournaledUpdates(connection, now);
                     } else {
@@ -262,12 +327,12 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             }
         }
 
-        boolean processed(TimeSeries timeSeries, Instant instant, boolean overrules) {
+        boolean processed(TimeSeries timeSeries, Instant instant, UpdateBehaviour updateBehaviour) {
             SingleTimeSeriesStorer storer = storerMap.get(timeSeries.getId());
             if (storer == null) {
                 return false;
             } else {
-                return storer.processed(instant, overrules);
+                return storer.processed(instant, updateBehaviour);
             }
         }
     }
@@ -293,7 +358,6 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             }
             newEntries.put(instant, entry);
         }
-
 
         TimeSeriesImpl getTimeSeries() {
             return timeSeries;
@@ -351,7 +415,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             boolean result = false;
             for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
                 FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
-                if (fieldSpec.isDerived() && current.getBigDecimal(i) == null) {
+                if (fieldSpec.isDerived() && (DoNotUpdateMarker.INSTANCE.equals(current.getValues()[i]) || current.getBigDecimal(i) == null)) {
                     BigDecimal currentValue = current.getBigDecimal(i + 1);
                     if (currentValue != null) {
                         BigDecimal previousValue = previous.getBigDecimal(i + 1);
@@ -387,6 +451,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                 for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
                     FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
                     if (fieldSpec.isDerived() && entry.getBigDecimal(i + 1) == null) {
+                        entry.set(i + 1, oldEntry.getBigDecimal(i + 1));
+                    }
+                    if (DoNotUpdateMarker.INSTANCE.equals(entry.getValues()[i])) {
                         entry.set(i + 1, oldEntry.getBigDecimal(i + 1));
                     }
                 }
@@ -434,7 +501,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             }
         }
 
-        boolean processed(Instant instant, boolean overrules) {
+        boolean processed(Instant instant, UpdateBehaviour updateBehaviour) {
             TimeSeriesEntryImpl entry = newEntries.get(instant);
             if (entry == null) {
                 return false;
@@ -443,7 +510,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             if (oldEntry == null) {
                 return true;
             }
-            return overrules && !entry.matches(oldEntry);
+            return updateBehaviour.overrules() && !entry.matches(oldEntry);
         }
     }
 

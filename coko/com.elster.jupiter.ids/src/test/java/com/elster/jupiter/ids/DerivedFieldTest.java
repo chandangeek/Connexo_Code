@@ -82,13 +82,13 @@ public class DerivedFieldTest {
         	recordSpec.persist();
         	Vault vault = idsService.getVault("IDS", 1).get();
 	        ts = vault.createRegularTimeSeries(recordSpec, defaultZone, Duration.ofMinutes(15), 0);
-	        TimeSeriesDataStorer storer = idsService.createStorer(true);
+	        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
 	        ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultZone);
 	        storer.add(ts, dateTime, null, BigDecimal.valueOf(10));
 	        ZonedDateTime last = dateTime.plusMinutes(45);
 	        storer.add(ts, last, null, BigDecimal.valueOf(500));
 	        storer.execute();
-	        storer = idsService.createStorer(true);
+	        storer = idsService.createOverrulingStorer();
 	        dateTime = dateTime.plus(ts.interval());
 	        storer.add(ts, dateTime, null, BigDecimal.valueOf(100));
 	        dateTime = dateTime.plus(ts.interval());
@@ -105,7 +105,7 @@ public class DerivedFieldTest {
         assertThat(entries.get(3).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(300));
         assertThat(entries.get(3).getVersion()).isEqualTo(2);
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	TimeSeriesDataStorer storer = idsService.createStorer(true);
+        	TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
             dateTime = dateTime.plusMinutes(15);
 	        storer.add(ts, dateTime, null, BigDecimal.valueOf(50));
 	        dateTime = dateTime.plusMinutes(15);

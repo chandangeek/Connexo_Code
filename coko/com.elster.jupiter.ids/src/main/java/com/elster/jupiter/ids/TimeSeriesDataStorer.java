@@ -15,4 +15,6 @@ public interface TimeSeriesDataStorer {
     StorerStats execute();
 
     boolean processed(TimeSeries timeSeries, Instant instant);
+
+    Object doNotUpdateMarker();
 }
