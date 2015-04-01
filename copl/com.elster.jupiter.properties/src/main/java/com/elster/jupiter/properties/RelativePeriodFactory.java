@@ -4,12 +4,15 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 
 /**
  * Provides an implementation for the {@link ValueFactory} interface
  * for TimeZone values.
+ *
+ * relative period id == 0 => All period
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-31 (14:04)
@@ -18,7 +21,7 @@ public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> 
 
     private TimeService timeService;
 
-    public RelativePeriodFactory(TimeService timeservice) {
+    public RelativePeriodFactory(TimeService timeService) {
         this.timeService = timeService;
     }
 
@@ -39,7 +42,8 @@ public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> 
 
     @Override
     public RelativePeriod valueFromDatabase (Object object) throws SQLException {
-        return getRelativePeriod(((Number) object).longValue());
+        long id = ((Number) object).longValue();
+        return getRelativePeriod(id);
     }
 
     @Override
@@ -49,12 +53,8 @@ public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> 
 
     @Override
     public RelativePeriod fromStringValue (String stringValue) {
-        if (stringValue == null) {
-            return null;
-        }
-        else {
-            return getRelativePeriod(Long.parseLong(stringValue));
-        }
+        long id = Long.parseLong(stringValue);
+        return getRelativePeriod(id);
     }
 
     @Override
@@ -63,7 +63,11 @@ public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> 
     }
 
     private RelativePeriod getRelativePeriod(long id) {
-        return timeService.findRelativePeriod(id).orElse(null);
+        if (id == 0) {
+            return new AllRelativePeriod();
+        } else {
+            return timeService.findRelativePeriod(id).orElse(null);
+        }
     }
 
 }
