@@ -1,6 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -8,7 +7,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -51,7 +49,7 @@ class TestValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return "Threshold violation";
+        return "Test validator";
     }
 
 

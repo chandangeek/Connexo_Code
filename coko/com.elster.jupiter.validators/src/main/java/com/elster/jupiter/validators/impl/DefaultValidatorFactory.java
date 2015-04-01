@@ -30,6 +30,8 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     public static final String REGISTER_INCREASE_VALIDATOR = RegisterIncreaseValidator.class.getName();
     public static final String INTERVAL_STATE_VALIDATOR = IntervalStateValidator.class.getName();
 
+    public static final String TEST_VALIDATOR = TestValidator.class.getName();
+
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
 
@@ -119,6 +121,17 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             @Override
             IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
                 return new IntervalStateValidator(thesaurus, propertySpecService);
+            }
+        },
+        TEST(TEST_VALIDATOR) {
+            @Override
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+                return new TestValidator(thesaurus, propertySpecService, props);
+            }
+
+            @Override
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+                return new TestValidator(thesaurus, propertySpecService);
             }
         };
 
