@@ -92,6 +92,25 @@ public class FiniteStateMachineServiceImplIT {
         }
     }
 
+    @Test
+    public void getStateTransitionEventTypes() {
+        try {
+            FiniteStateMachineServiceImpl service = this.getTestService();
+            StandardEventPredicate predicate = mock(StandardEventPredicate.class);
+            when(predicate.isCandidate(any(EventType.class))).thenReturn(true);
+
+            // Business method
+            service.addStandardEventPredicate(predicate);
+
+            // Asserts
+            assertThat(service.getStateTransitionEventTypes()).hasSize(
+                    inMemoryPersistence.getService(EventService.class).getEventTypes().size());
+        }
+        finally {
+            this.deleteAllStandardStateTransitionEventTypesIfAny();
+        }
+    }
+
     private void deleteAllStandardStateTransitionEventTypesIfAny() {
         try (TransactionContext context = getTransactionService().getContext()) {
             FiniteStateMachineServiceImpl service = this.getTestService();

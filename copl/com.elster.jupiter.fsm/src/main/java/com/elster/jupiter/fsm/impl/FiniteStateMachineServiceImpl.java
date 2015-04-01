@@ -220,6 +220,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
+    public List<StateTransitionEventType> getStateTransitionEventTypes() {
+        return this.dataModel.query(StateTransitionEventType.class).select(Condition.TRUE);
+    }
+
+    @Override
     public FiniteStateMachineBuilder newFiniteStateMachine(String name) {
         FiniteStateMachineImpl stateMachine = this.dataModel.getInstance(FiniteStateMachineImpl.class).initialize(name);
         return new FiniteStateMachineBuilderImpl(dataModel, stateMachine);

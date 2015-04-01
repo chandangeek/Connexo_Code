@@ -2,6 +2,7 @@ package com.elster.jupiter.fsm;
 
 import com.elster.jupiter.events.EventType;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -59,6 +60,7 @@ public interface FiniteStateMachineService {
      */
     public Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType);
 
+    public List<StateTransitionEventType> getStateTransitionEventTypes();
     /**
      * Starts the building process for a new {@link FiniteStateMachine}
      * with the specified name. The name must be unique across the system,
