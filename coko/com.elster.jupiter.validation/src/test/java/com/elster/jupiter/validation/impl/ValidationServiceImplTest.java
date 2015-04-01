@@ -50,7 +50,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -461,9 +460,9 @@ public class ValidationServiceImplTest {
         IChannelValidation channelValidation = mock(IChannelValidation.class);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(readingDate1);
-        when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
+        when(cimChannel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), eq(readingDate1))).thenReturn(readingQualityRecord);
+        when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
 
         setupValidationRuleSet(channelValidation, channel1, true);
 
@@ -480,7 +479,7 @@ public class ValidationServiceImplTest {
         assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), any(), eq(readingDate1));
+        verify(cimChannel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
         assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
     }
 
@@ -501,7 +500,7 @@ public class ValidationServiceImplTest {
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
         when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), eq(readingDate1))).thenReturn(readingQualityRecord);
+        when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
         ReadingType readingType = mock(ReadingType.class);
         doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
         doReturn(readingType).when(channel1).getMainReadingType();
@@ -521,7 +520,7 @@ public class ValidationServiceImplTest {
         assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQualityRecord);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), any(), eq(readingDate1));
+        verify(cimChannel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate1));
         assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
     }
 
@@ -545,8 +544,8 @@ public class ValidationServiceImplTest {
         ReadingQualityType readingQualityType = new ReadingQualityType("3.6.32131");
         when(readingQuality.getType()).thenReturn(readingQualityType);
         when(readingQuality.getTypeCode()).thenReturn("3.6.32131");
-        when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality));
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), eq(readingDate1))).thenReturn(mock(ReadingQualityRecord.class));
+        when(cimChannel1.findActualReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality));
+        when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(mock(ReadingQualityRecord.class));
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType);
         setupValidationRuleSet(channelValidation2, channel1, true);
 
@@ -566,7 +565,6 @@ public class ValidationServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void testGetValidationStatusWithSuspects() {
         Instant readingDate1 = ZonedDateTime.of(2012, 1, 2, 3, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Instant readingDate2 = ZonedDateTime.of(2012, 1, 2, 5, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -589,9 +587,10 @@ public class ValidationServiceImplTest {
         ReadingQualityType readingQualityType2 = new ReadingQualityType("3.6.9856");
         when(readingQuality2.getType()).thenReturn(readingQualityType2);
         when(readingQuality2.getTypeCode()).thenReturn("3.6.9856");
-        when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality1, readingQuality2));
+        when(readingQuality2.isSuspect()).thenReturn(true);
+        when(cimChannel1.findActualReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality1, readingQuality2));
         ReadingQualityRecord readingDate2ReadingQuality = mock(ReadingQualityRecord.class);
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), any(BaseReading.class))).thenReturn(readingDate2ReadingQuality);
+        when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), any(Instant.class))).thenReturn(readingDate2ReadingQuality);
         when(channel1.getMainReadingType()).thenReturn(mock(ReadingType.class));
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType1, readingQualityType2);
 
@@ -603,7 +602,7 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus.get(0).completelyValidated()).isTrue();
         assertThat((Collection<ReadingQuality>) validationStatus.get(0).getReadingQualities()).containsExactly(readingDate2ReadingQuality);
         ArgumentCaptor<ReadingQualityType> readingQualitypCapture = ArgumentCaptor.forClass(ReadingQualityType.class);
-        verify(channel1).createReadingQuality(readingQualitypCapture.capture(), any(), eq(readingDate2));
+        verify(cimChannel1).createReadingQuality(readingQualitypCapture.capture(), eq(readingDate2));
         assertThat(readingQualitypCapture.getValue().getCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         // reading1 has suspects
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
