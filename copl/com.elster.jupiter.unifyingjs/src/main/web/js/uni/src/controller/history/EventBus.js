@@ -5,7 +5,9 @@ Ext.define('Uni.controller.history.EventBus', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Ext.util.History'
+        'Ext.util.History',
+        'Uni.store.MenuItems',
+        'Uni.store.PortalItems'
     ],
 
     config: {
@@ -16,12 +18,13 @@ Ext.define('Uni.controller.history.EventBus', {
 
     onLaunch: function () {
         this.initHistory();
+        this.initListeners();
     },
 
     initHistory: function () {
         var me = this;
 
-        crossroads.bypassed.add(function(request){
+        crossroads.bypassed.add(function (request) {
             crossroads.parse("/error/notfound");
         });
 
@@ -31,6 +34,26 @@ Ext.define('Uni.controller.history.EventBus', {
             });
 
             me.checkHistoryState();
+        });
+    },
+
+    initListeners: function () {
+        Uni.store.MenuItems.on({
+            add: this.checkHistoryState,
+            load: this.checkHistoryState,
+            update: this.checkHistoryState,
+            remove: this.checkHistoryState,
+            bulkremove: this.checkHistoryState,
+            scope: this
+        });
+
+        Uni.store.PortalItems.on({
+            add: this.checkHistoryState,
+            load: this.checkHistoryState,
+            update: this.checkHistoryState,
+            remove: this.checkHistoryState,
+            bulkremove: this.checkHistoryState,
+            scope: this
         });
     },
 

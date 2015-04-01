@@ -13,8 +13,7 @@ Ext.define('Uni.controller.Navigation', {
         'Uni.controller.history.Router'
     ],
 
-    views: [
-    ],
+    views: [],
 
     refs: [
         {
@@ -41,7 +40,7 @@ Ext.define('Uni.controller.Navigation', {
 
     applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
-    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
     onlineHelpEnabled: false,
 
     init: function (app) {
@@ -69,11 +68,11 @@ Ext.define('Uni.controller.Navigation', {
             }
         });
 
-        me.getApplication().on('changemaincontentevent', me.showContent,me);
-        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb,me);
-        me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged,me);
-        me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch,me);
-        me.getApplication().on('ononlinehelpenabled', me.onOnlineHelpEnabled,me);
+        me.getApplication().on('changemaincontentevent', me.showContent, me);
+        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb, me);
+        me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged, me);
+        me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch, me);
+        me.getApplication().on('ononlinehelpenabled', me.onOnlineHelpEnabled, me);
 
         me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
         me.getController('Uni.controller.history.Router').on('routechange', me.initBreadcrumbs, me);
@@ -83,15 +82,15 @@ Ext.define('Uni.controller.Navigation', {
         Uni.store.Apps.load();
     },
 
-    onNavigationTitleChanged: function(title){
+    onNavigationTitleChanged: function (title) {
         this.applicationTitle = title;
     },
-    onNavigationToggleSearch: function(enabled){
+    onNavigationToggleSearch: function (enabled) {
         this.searchEnabled = enabled;
     },
 
-    onOnlineHelpEnabled: function(enabled){
-       this.onlineHelpEnabled = enabled;
+    onOnlineHelpEnabled: function (enabled) {
+        this.onlineHelpEnabled = enabled;
     },
 
     initTitle: function (breadcrumbItem) {
@@ -109,8 +108,8 @@ Ext.define('Uni.controller.Navigation', {
 
         if (!Ext.isEmpty(text)) {
             Ext.getDoc().dom.title = text + ' '
-                + me.applicationTitleSeparator + ' '
-                + me.applicationTitle;
+            + me.applicationTitleSeparator + ' '
+            + me.applicationTitle;
         } else {
             Ext.getDoc().dom.title = me.applicationTitle;
         }
@@ -143,7 +142,7 @@ Ext.define('Uni.controller.Navigation', {
 
     initSearch: function () {
         var me = this;
-        me.getSearchButton().setVisible(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']));
+        me.getSearchButton().setVisible(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']));
     },
 
     initOnlineHelp: function () {
@@ -153,7 +152,7 @@ Ext.define('Uni.controller.Navigation', {
         if (me.onlineHelpEnabled) {
             Ext.Ajax.request({
                 url: '/api/usr/currentuser',
-                success: function(response){
+                success: function (response) {
                     var currentUser = Ext.decode(response.responseText, true),
                         url;
                     if (currentUser && currentUser.language && currentUser.language.languageTag) {
@@ -161,7 +160,7 @@ Ext.define('Uni.controller.Navigation', {
                         Ext.Ajax.request({
                             url: url,
                             method: 'HEAD',
-                            success: function(response){
+                            success: function (response) {
                                 helpBtn.setHref(url);
                             },
                             callback: function () {
@@ -219,7 +218,8 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     refreshNavigationMenu: function () {
-        var menu = this.getNavigationMenu(),
+        var me = this,
+            menu = this.getNavigationMenu(),
             store = Uni.store.MenuItems;
 
         this.removeDuplicatesFromStore(store);
@@ -238,6 +238,8 @@ Ext.define('Uni.controller.Navigation', {
                 Ext.resumeLayouts(true);
             }
         }
+
+        me.selectMenuItemByActiveToken();
     },
 
     removeDuplicatesFromStore: function (store) {
@@ -281,15 +283,13 @@ Ext.define('Uni.controller.Navigation', {
         Uni.store.MenuItems.each(function (model) {
             modelTokens = me.stripAndSplitToken(model.get('href'));
             if (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal')) {
-                var text = '';
-
                 me.getNavigationMenu().selectMenuItem(model);
-                text = model.get('text');
+                var text = model.get('text');
 
                 if (!Ext.isEmpty(text)) {
                     Ext.getDoc().dom.title = text + ' '
-                        + me.applicationTitleSeparator + ' '
-                        + me.applicationTitle;
+                    + me.applicationTitleSeparator + ' '
+                    + me.applicationTitle;
                 } else {
                     Ext.getDoc().dom.title = me.applicationTitle;
                 }
@@ -317,6 +317,7 @@ Ext.define('Uni.controller.Navigation', {
     showContent: function (content, side) {
         var panel = this.getContentWrapper();
 
+        Ext.suspendLayouts();
         panel.removeAll();
 
         if (content instanceof Uni.view.container.ContentContainer) {
