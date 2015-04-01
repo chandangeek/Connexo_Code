@@ -4,8 +4,7 @@
 Ext.define('Uni.controller.AppController', {
     extend: 'Ext.app.Controller',
 
-    requires: [
-    ],
+    requires: [],
 
     refs: [
         {
@@ -88,12 +87,13 @@ Ext.define('Uni.controller.AppController', {
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
         me.getApplication().on('sessionexpired', me.redirectToLogin, me);
-        
+
         if (Uni.Auth.hasAnyPrivilege(me.privileges)) {
             me.checkLicenseStatus();
             me.loadControllers();
             me.showLicenseGraced();
         }
+
         me.callParent(arguments);
     },
 
@@ -122,7 +122,6 @@ Ext.define('Uni.controller.AppController', {
         var panel = this.getContentPanel();
 
         Ext.suspendLayouts();
-
         panel.removeAll();
 
         if (Ext.isString(widget)) {
@@ -139,12 +138,13 @@ Ext.define('Uni.controller.AppController', {
 
     checkLicenseStatus: function () {
         var me = this;
+
         if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS') {
             Ext.Ajax.request({
                 url: '/api/apps/apps/status/' + me.applicationKey,
                 method: 'GET',
                 async: false,
-                success: function(response){
+                success: function (response) {
                     var data = Ext.JSON.decode(response.responseText);
                     me.licenseStatus = data.status;
                     if (me.licenseStatus === 'EXPIRED') {
@@ -163,6 +163,7 @@ Ext.define('Uni.controller.AppController', {
         if (!isNaN(this.licenseStatus) && !Ext.state.Manager.get('licenseGraced')) {
             Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
             Ext.state.Manager.set('licenseGraced', 'Y');
+
             var config = {
                 title: Uni.I18n.translate('error.license', 'UNI', 'License'),
                 msg: Uni.I18n.translate('error.license.graced', 'UNI', 'The system is currently running on a license that has a grace period. You have {0} day(s) remaining.', [this.licenseStatus]),
@@ -192,8 +193,8 @@ Ext.define('Uni.controller.AppController', {
 
     redirectToLogin: function () {
         window.location = '/apps/login/index.html?expired&page='
-            + window.location.pathname
-            + window.location.hash;
+        + window.location.pathname
+        + window.location.hash;
     },
 
     loadControllers: function () {
