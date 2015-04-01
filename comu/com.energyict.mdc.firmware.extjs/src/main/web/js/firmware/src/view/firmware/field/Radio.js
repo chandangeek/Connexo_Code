@@ -52,8 +52,8 @@ Ext.define('Fwc.view.firmware.field.Radio', {
         });
 
         // re-populate data values
-        if (me.values) {
-            me.setValue(me.values);
+        if (me.value) {
+            me.setValue(me.value);
         }
         Ext.resumeLayouts();
         me.doLayout();
@@ -79,7 +79,7 @@ Ext.define('Fwc.view.firmware.field.Radio', {
             ? data.map(function (item) { return item[me.valueField]; })
             : data[me.valueField];
 
-        me.values = data;
+        me.value = data;
         me.callParent([values]);
     }
 });

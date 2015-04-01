@@ -59,7 +59,7 @@ Ext.define('Fwc.view.firmware.Grid', {
                 items: [
                     '->',
                     {
-                        text: Uni.I18n.translate('firmware.add', 'FWC', 'Add version'),
+                        text: Uni.I18n.translate('firmware.add', 'FWC', 'Add firmware version'),
                         itemId: 'addFirmware',
                         xtype: 'button',
                         action: 'addFirmware'

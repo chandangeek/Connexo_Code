@@ -96,7 +96,7 @@ Ext.define('Fwc.controller.Firmware', {
             if (checked.length) {
                 me.getFilterPanel().setFilter(
                     'firmwareStatus',
-                    'firmware Status',
+                    Uni.I18n.translate('firmware.filter.status', 'FWC', 'Status'),
                     checked.map(function (ch) {return ch.boxLabel; }).join(', ')
                 );
             }
@@ -107,7 +107,7 @@ Ext.define('Fwc.controller.Firmware', {
             if (checked.length) {
                 me.getFilterPanel().setFilter(
                     'firmwareType',
-                    'firmware Type',
+                    Uni.I18n.translate('firmware.filter.type', 'FWC', 'Type'),
                     checked.map(function (ch) {return ch.boxLabel; }).join(', ')
                 );
             }
@@ -123,7 +123,7 @@ Ext.define('Fwc.controller.Firmware', {
         firmware.getProxy().setUrl(router.arguments.deviceTypeId);
         firmware.setFinal({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.final.success', 'FWC', 'The firmware have been set as final'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.final.success', 'FWC', 'Firmware version set as final'));
                 router.getRoute().forward();
             },
             callback: function () {
@@ -141,6 +141,7 @@ Ext.define('Fwc.controller.Firmware', {
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'This firmware version will no longer be available.'),
             title: Uni.I18n.translate('firmware.deprecate.title', 'FWC', 'Deprecate') + " '" + firmware.get('firmwareVersion') + "'?",
             confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate'),
+            icon: 'icon-question',
             fn: function (btn) {
                 if (btn === 'confirm') {
                     container.setLoading();
@@ -148,7 +149,7 @@ Ext.define('Fwc.controller.Firmware', {
                     firmware.getProxy().setUrl(router.arguments.deviceTypeId);
                     firmware.deprecate({
                         success: function () {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.deprecate.success', 'FWC', 'The firmware have been deprecated'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.deprecate.success', 'FWC', 'Firmware version deprecated'));
                             router.getRoute().forward();
                         },
                         callback: function () {
@@ -215,7 +216,7 @@ Ext.define('Fwc.controller.Firmware', {
                     if (success) {
                         record.save({
                             success: function () {
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.save.success', 'FWC', 'The firmware have been updated'));
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.save.success', 'FWC', 'Firmware version updated'));
                                 form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
                             },
                             failure: function (record, operation) {
