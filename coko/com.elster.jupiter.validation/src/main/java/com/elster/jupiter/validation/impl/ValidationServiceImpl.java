@@ -75,7 +75,9 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         setNlsService(nlsService);
         setUserService(userService);
         activate();
-        install();
+        if (!dataModel.isInstalled()) {
+            install();
+        }
         // subscribe manually when not using OSGI
         ValidationEventHandler handler = new ValidationEventHandler();
         handler.setValidationService(this);

@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -118,6 +119,8 @@ public class ValidationServiceImplTest {
     @Mock
     private Channel channel1, channel2;
     @Mock
+    private CimChannel cimChannel1, cimChannel2;
+    @Mock
     private DataMapper<IChannelValidation> channelValidationFactory;
     @Mock
     private MeterValidationImpl meterValidation;
@@ -174,6 +177,7 @@ public class ValidationServiceImplTest {
     @Before
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
+        when(dataModel.isInstalled()).thenReturn(true);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<DataValidationTask>mapper(any())).thenReturn(dataValidationTaskFactory2);
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
@@ -192,6 +196,10 @@ public class ValidationServiceImplTest {
         doNothing().when(destinationSpec).save();
         doNothing().when(destinationSpec).activate();
         when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpec);
+        doReturn(Optional.of(cimChannel1)).when(channel1).getCimChannel(any());
+        doReturn(Optional.of(cimChannel2)).when(channel2).getCimChannel(any());
+        doReturn(channel1).when(cimChannel1).getChannel();
+        doReturn(channel2).when(cimChannel2).getChannel();
 
         validationService = new ValidationServiceImpl(clock,messageService , eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
@@ -317,6 +325,7 @@ public class ValidationServiceImplTest {
         when(channel1.getId()).thenReturn(1001L);
         ReadingType readingType = mock(ReadingType.class);
         doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
+        doReturn(readingType).when(channel1).getMainReadingType();
         when(channel2.getId()).thenReturn(1002L);
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
@@ -493,6 +502,9 @@ public class ValidationServiceImplTest {
         when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
         when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), eq(readingDate1))).thenReturn(readingQualityRecord);
+        ReadingType readingType = mock(ReadingType.class);
+        doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
+        doReturn(readingType).when(channel1).getMainReadingType();
         setupValidationRuleSet(channelValidation1, channel1, true);
         setupValidationRuleSet(channelValidation2, channel1, true);
 

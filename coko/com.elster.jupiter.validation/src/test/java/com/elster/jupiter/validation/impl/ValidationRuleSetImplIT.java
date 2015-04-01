@@ -7,6 +7,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -15,6 +16,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -96,6 +98,8 @@ public class ValidationRuleSetImplIT {
                 new InMemoryMessagingModule(),
                 new IdsModule(),
                 new MeteringModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
