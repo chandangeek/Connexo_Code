@@ -554,7 +554,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
 
         private String taskName() {
-            return this.kpiType.recurrentTaskName(DataCollectionKpiImpl.this);
+            return this.kpiType.recurrentTaskName();
         }
 
     }

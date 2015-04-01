@@ -9,6 +9,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 
 import java.text.MessageFormat;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,8 +57,8 @@ public enum KpiType {
     private static final Pattern PAYLOAD_PARSE_PATTERN = Pattern.compile("(\\w*)-(\\d*)");
     public abstract String recurrentTaskNamePattern();
 
-    public String recurrentTaskName(DataCollectionKpiImpl dataCollectionKpi) {
-        return MessageFormat.format(this.recurrentTaskNamePattern(), dataCollectionKpi.getDeviceGroup().getName());
+    public String recurrentTaskName() {
+        return MessageFormat.format(this.recurrentTaskNamePattern(), UUID.randomUUID());
     }
 
     public String recurrentPayload(DataCollectionKpiImpl dataCollectionKpi) {
