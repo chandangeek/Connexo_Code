@@ -23,7 +23,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.device.data.exceptions.CannotReplaceExistingKPI;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
@@ -49,7 +48,7 @@ import javax.validation.constraints.NotNull;
  * @since 2014-10-06 (10:25)
  */
 @MustHaveUniqueEndDeviceGroup(message=MessageSeeds.Keys.DEVICE_GROUP_MUST_BE_UNIQUE, groups={Save.Create.class, Save.Update.class})
-@MustHaveEitherConnectionSetupOrComTaskExecution(groups = {Save.Update.class})
+@MustHaveEitherConnectionSetupOrComTaskExecution(groups = {Save.Update.class, Save.Create.class})
 public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAware {
 
     public enum Fields {
@@ -87,7 +86,6 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     private TimeDuration displayRange;
     private Reference<Kpi> connectionKpi = ValueReference.absent();
     private Reference<Kpi> communicationKpi = ValueReference.absent();
-    private CompositeKpiSaveStrategy kpiSaveStrategy = new KpiSaveStrategyAtCreationTime();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
     private Reference<RecurrentTask> connectionKpiTask = ValueReference.absent();
@@ -108,7 +106,11 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     DataCollectionKpiImpl initialize(EndDeviceGroup group) {
-        this.deviceGroup.set(group);
+        if (group != null) {
+            this.deviceGroup.set(group);
+        } else {
+            this.deviceGroup.setNull();
+        }
         return this;
     }
 
@@ -118,7 +120,6 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             Save.CREATE.save(this.dataModel, this);
         }
         // Now save the KPIs and the recurrent task
-        this.kpiSaveStrategy.save();
         this.recurrentTaskSaveStrategy.save();
         // Update myself (with validation this time) to set the KPIs and the recurrent task
         Save.UPDATE.save(this.dataModel, this);
@@ -126,7 +127,6 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
 
     @Override
     public void postLoad() {
-        this.kpiSaveStrategy = new KpiSaveStrategyForUpdate();
         this.recurrentTaskSaveStrategy = new UpdateAllSchedules();
         Stream.of(this.comTaskExecutionKpiCalculationIntervalLength(), this.connectionSetupKpiCalculationIntervalLength()).
             flatMap(Functions.asStream()).
@@ -280,7 +280,9 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     void connectionKpiBuilder(KpiBuilder builder) {
-        this.kpiSaveStrategy.connectionKpiBuilder(builder);
+        Kpi kpi = builder.build();
+        kpi.save();
+        this.connectionKpi.set(kpi);
     }
 
     @Override
@@ -322,7 +324,9 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     void communicationKpiBuilder(KpiBuilder builder) {
-        this.kpiSaveStrategy.communicationKpiBuilder(builder);
+        Kpi kpi = builder.build();
+        kpi.save();
+        this.communicationKpi.set(kpi);
     }
 
     @Override
@@ -363,116 +367,6 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         this.save();
         kpi.ifPresent (Kpi::remove);
         recurrentTask.ifPresent(RecurrentTask::delete);
-    }
-
-    private interface KpiSaveStrategy {
-        void save();
-    }
-
-    private interface CompositeKpiSaveStrategy {
-        void connectionKpiBuilder(KpiBuilder builder);
-        void communicationKpiBuilder(KpiBuilder builder);
-        void save();
-    }
-
-    private class KpiSaveStrategyAtCreationTime implements CompositeKpiSaveStrategy {
-        private KpiSaveStrategy connectionKpi = new StubKpiSaveStrategy();
-        private KpiSaveStrategy communicationKpi = new StubKpiSaveStrategy();
-
-        @Override
-        public void connectionKpiBuilder(KpiBuilder builder) {
-            if (builder != null) {
-                this.connectionKpi = new BuildAndSave(DataCollectionKpiImpl.this.connectionKpi, builder);
-            }
-        }
-
-        @Override
-        public void communicationKpiBuilder(KpiBuilder builder) {
-            if (builder != null) {
-                this.communicationKpi = new BuildAndSave(DataCollectionKpiImpl.this.communicationKpi, builder);
-            }
-        }
-
-        @Override
-        public void save() {
-            this.connectionKpi.save();
-            this.communicationKpi.save();
-        }
-    }
-
-    private class BuildAndSave implements KpiSaveStrategy {
-        private final Reference<Kpi> kpiReference;
-        private final KpiBuilder builder;
-
-        private BuildAndSave(Reference<Kpi> kpiReference, KpiBuilder builder) {
-            super();
-            this.kpiReference = kpiReference;
-            this.builder = builder;
-        }
-
-        @Override
-        public void save() {
-            Kpi kpi = this.builder.build();
-            kpi.save();
-            this.kpiReference.set(kpi);
-        }
-    }
-
-    private class UpdateAndSave implements KpiSaveStrategy {
-        private final Reference<Kpi> kpiReference;
-        private final KpiBuilder builder;
-
-        private UpdateAndSave(Reference<Kpi> kpiReference, KpiBuilder builder) {
-            super();
-            this.kpiReference = kpiReference;
-            this.builder = builder;
-        }
-
-        @Override
-        public void save() {
-            Kpi kpi = this.builder.build();
-            kpi.save();
-            this.kpiReference.set(kpi);
-        }
-    }
-
-    private class StubKpiSaveStrategy implements KpiSaveStrategy {
-        @Override
-        public void save() {
-            // Stubs do not save
-        }
-    }
-
-    private class KpiSaveStrategyForUpdate implements CompositeKpiSaveStrategy {
-        private KpiSaveStrategy connectionKpiSaveStrategy = new StubKpiSaveStrategy();
-        private KpiSaveStrategy communicationKpiSaveStrategy = new StubKpiSaveStrategy();
-
-        @Override
-        public void connectionKpiBuilder(KpiBuilder builder) {
-            if (builder != null) {
-                if (DataCollectionKpiImpl.this.connectionKpi.isPresent()) {
-                    throw new CannotReplaceExistingKPI(thesaurus);
-                }
-                this.connectionKpiSaveStrategy = new BuildAndSave(DataCollectionKpiImpl.this.connectionKpi, builder);
-            }
-        }
-
-        @Override
-        public void communicationKpiBuilder(KpiBuilder builder) {
-            if (builder != null) {
-                if (DataCollectionKpiImpl.this.communicationKpi.isPresent()) {
-                    this.communicationKpiSaveStrategy = new UpdateAndSave(DataCollectionKpiImpl.this.communicationKpi, builder);
-                } else {
-                    this.communicationKpiSaveStrategy = new BuildAndSave(DataCollectionKpiImpl.this.communicationKpi, builder);
-                }
-            }
-        }
-
-        @Override
-        public void save() {
-            this.connectionKpiSaveStrategy.save();
-            this.communicationKpiSaveStrategy.save();
-        }
     }
 
     private interface RecurrentTaskSaveStrategy {

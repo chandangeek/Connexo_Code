@@ -62,8 +62,12 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         INCOMPLETE {
             @Override
             DataCollectionKpiBuilderState save(DataCollectionKpiImpl underConstruction, KpiBuilder connectionKpiBuilder, KpiBuilder communicationTaskBuilder) {
-                underConstruction.connectionKpiBuilder(connectionKpiBuilder);
-                underConstruction.communicationKpiBuilder(communicationTaskBuilder);
+                if (connectionKpiBuilder!=null) {
+                    underConstruction.connectionKpiBuilder(connectionKpiBuilder);
+                }
+                if (communicationTaskBuilder!=null) {
+                    underConstruction.communicationKpiBuilder(communicationTaskBuilder);
+                }
                 underConstruction.save();
                 return COMPLETE;
             }
