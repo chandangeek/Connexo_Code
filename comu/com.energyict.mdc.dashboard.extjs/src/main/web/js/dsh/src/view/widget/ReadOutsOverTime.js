@@ -200,6 +200,11 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     labels: {
                         format: '{value}%'
                     },
+                    tickPositioner: function () {
+                        if (!this.dataMax && this.dataMax !== 0 && !this.dataMin && this.dataMin !== 0) {
+                            return [0,10,20,30,40,50,60,70,80,90,100];
+                        }
+                    },
                     lineWidth: 2,
                     tickWidth: 1,
                     floor: 0,
