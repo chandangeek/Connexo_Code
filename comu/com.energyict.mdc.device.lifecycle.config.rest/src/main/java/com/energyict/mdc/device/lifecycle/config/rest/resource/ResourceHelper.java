@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.lifecycle.config.rest.resource;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -9,18 +13,25 @@ import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
 
 import javax.inject.Inject;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ResourceHelper {
 
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final FiniteStateMachineService finiteStateMachineService;
     private final ExceptionFactory exceptionFactory;
+    private final EventService eventService;
 
     @Inject
     public ResourceHelper(
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
-            ExceptionFactory exceptionFactory) {
+            FiniteStateMachineService finiteStateMachineService,
+            ExceptionFactory exceptionFactory,
+            EventService eventService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.finiteStateMachineService = finiteStateMachineService;
         this.exceptionFactory = exceptionFactory;
+        this.eventService = eventService;
     }
 
     public DeviceLifeCycle findDeviceLifeCycleByIdOrThrowException(long id) {
@@ -43,6 +54,21 @@ public class ResourceHelper {
                 .filter(action -> action.getId() == actionId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_AUTH_ACTION_NOT_FOUND, actionId));
+    }
+
+    public StateTransitionEventType findStateTransitionEventTypeOrThrowException(String symbol){
+        if (symbol == null){
+            throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND, "empty");
+        }
+        Optional<EventType> eventType = eventService.getEventType(symbol);
+        Optional<? extends StateTransitionEventType> stateTransitionEventType = Optional.empty();
+        if (eventType.isPresent()){
+            stateTransitionEventType = finiteStateMachineService.findStandardStateTransitionEventType(eventType.get());
+        } else {
+            stateTransitionEventType = finiteStateMachineService.findCustomStateTransitionEventType(symbol);
+        }
+        return stateTransitionEventType.orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND, symbol));
+
     }
 
 }

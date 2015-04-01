@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,7 +22,9 @@ import com.energyict.mdc.device.lifecycle.config.rest.resource.DeviceLifeCycleRe
 import com.energyict.mdc.device.lifecycle.config.rest.resource.DeviceLifeCycleStateResource;
 import com.energyict.mdc.device.lifecycle.config.rest.resource.ResourceHelper;
 import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCyclePrivilegeFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.response.StateTransitionEventTypeFactory;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -49,6 +53,8 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     private volatile Thesaurus thesaurus;
 
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile EventService eventService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -88,6 +94,16 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     @Override
     public String getComponentName() {
         return DEVICE_CONFIG_LIFECYCLE_COMPONENT;
@@ -125,8 +141,12 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(AuthorizedActionInfoFactory.class).to(AuthorizedActionInfoFactory.class);
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
+            bind(DeviceLifeCyclePrivilegeFactory.class).to(DeviceLifeCyclePrivilegeFactory.class);
+            bind(StateTransitionEventTypeFactory.class).to(StateTransitionEventTypeFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(finiteStateMachineService).to(FiniteStateMachineService.class);
+            bind(eventService).to(EventService.class);
         }
     }
 }

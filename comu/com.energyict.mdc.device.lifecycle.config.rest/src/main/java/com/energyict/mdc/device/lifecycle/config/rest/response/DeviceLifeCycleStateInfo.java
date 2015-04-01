@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceLifeCycleStateInfo {
-    public Long id;
+    public long id;
     public String name;
     public boolean isCustom;
     public long version;

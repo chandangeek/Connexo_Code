@@ -1,8 +1,14 @@
 package com.energyict.mdc.device.lifecycle.config.rest;
 
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCyclePrivilegeInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.StateTransitionEventTypeInfo;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -41,6 +47,8 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions[0].privileges")).hasSize(1);
         assertThat(model.<String>get("$.deviceLifeCycleActions[0].privileges[0].privilege")).isEqualTo("ONE");
         assertThat(model.<String >get("$.deviceLifeCycleActions[0].privileges[0].name")).isEqualTo(MessageSeeds.PRIVILEGE_LEVEL_1.getDefaultFormat());
+        assertThat(model.<String >get("$.deviceLifeCycleActions[0].triggeredBy.symbol")).isEqualTo("#eventType");
+        assertThat(model.<String >get("$.deviceLifeCycleActions[0].triggeredBy.name")).isNotEmpty();
     }
 
     @Test

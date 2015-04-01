@@ -1,17 +1,9 @@
 package com.energyict.mdc.device.lifecycle.config.rest.resource;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfo;
-import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCyclePrivilegeInfo;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
@@ -20,27 +12,47 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.requests.AuthorizedActionChangeRequest;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.requests.AuthorizedActionRequestFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.requests.AuthorizedTransitionActionComplexEditRequest;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.requests.AuthorizedTransitionActionCreateRequest;
+import com.energyict.mdc.device.lifecycle.config.rest.resource.requests.AuthorizedTransitionActionDeleteRequest;
+import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCyclePrivilegeInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.DeviceLifeCycleStateInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.response.StateTransitionEventTypeInfo;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration test for the {@link AuthorizedActionEditorFactory} component.
+ * Integration test for the {@link AuthorizedActionRequestFactory} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-27 (11:28)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AuthorizedActionEditorFactoryIT {
+public class AuthorizedActionRequestFactoryIT {
 
+    private static final String EVENT_TYPE_TOPIC = "#whatever";
     private static InMemoryPersistence inMemoryPersistence;
 
     @Rule
@@ -55,7 +67,7 @@ public class AuthorizedActionEditorFactoryIT {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = InMemoryPersistence.defaultPersistence();
-        inMemoryPersistence.initializeDatabase(AuthorizedActionEditorFactoryIT.class.getSimpleName());
+        inMemoryPersistence.initializeDatabase(AuthorizedActionRequestFactoryIT.class.getSimpleName());
         TransactionService transactionService = inMemoryPersistence.getService(TransactionService.class);
         try (TransactionContext context = transactionService.getContext()) {
             createDeviceLifeCycle(createFiniteStateMachine());
@@ -65,7 +77,7 @@ public class AuthorizedActionEditorFactoryIT {
 
     private static FiniteStateMachine createFiniteStateMachine() {
         FiniteStateMachineService service = inMemoryPersistence.getService(FiniteStateMachineService.class);
-        CustomStateTransitionEventType eventType = service.newCustomStateTransitionEventType("#whatever");
+        CustomStateTransitionEventType eventType = service.newCustomStateTransitionEventType(EVENT_TYPE_TOPIC);
         eventType.save();
         FiniteStateMachineBuilder builder = service.newFiniteStateMachine("ABC");
         State b = builder.newCustomState("B").complete();
@@ -104,7 +116,9 @@ public class AuthorizedActionEditorFactoryIT {
         this.resourceHelper =
                 new ResourceHelper(
                         getDeviceLifeCycleConfigurationService(),
-                        new ExceptionFactory(this.thesaurus));
+                        inMemoryPersistence.getService(FiniteStateMachineService.class),
+                        new ExceptionFactory(this.thesaurus),
+                        inMemoryPersistence.getService(EventService.class));
     }
 
     @Transactional
@@ -118,8 +132,8 @@ public class AuthorizedActionEditorFactoryIT {
 
         // Business method: change the to state of the transition action and save changes
         actionInfo.toState.id = stateCID;
-        AuthorizedActionEditor editor = this.getTestInstance().from(deviceLifeCycle, actionInfo);
-        AuthorizedAction updatedAction = editor.saveChanges();
+        AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, actionInfo, AuthorizedActionRequestFactory.Operation.MODIFY);
+        AuthorizedAction updatedAction = request.perform();
 
         // Asserts
         assertThat(updatedAction).isInstanceOf(AuthorizedTransitionAction.class);
@@ -142,8 +156,8 @@ public class AuthorizedActionEditorFactoryIT {
 
         // Business method: change the to state of the transition action and save changes
         actionInfo.fromState.id = stateCID;
-        AuthorizedActionEditor editor = this.getTestInstance().from(deviceLifeCycle, actionInfo);
-        AuthorizedAction updatedAction = editor.saveChanges();
+        AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, actionInfo, AuthorizedActionRequestFactory.Operation.MODIFY);
+        AuthorizedAction updatedAction = request.perform();
 
         // Asserts
         assertThat(updatedAction).isInstanceOf(AuthorizedTransitionAction.class);
@@ -167,8 +181,8 @@ public class AuthorizedActionEditorFactoryIT {
         // Business method: change the to state of the transition action and save changes
         actionInfo.fromState.id = stateBID;
         actionInfo.toState.id = stateCID;
-        AuthorizedActionEditor editor = this.getTestInstance().from(deviceLifeCycle, actionInfo);
-        AuthorizedAction updatedAction = editor.saveChanges();
+        AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, actionInfo, AuthorizedActionRequestFactory.Operation.MODIFY);
+        AuthorizedAction updatedAction = request.perform();
 
         // Asserts
         assertThat(updatedAction).isInstanceOf(AuthorizedTransitionAction.class);
@@ -193,8 +207,8 @@ public class AuthorizedActionEditorFactoryIT {
         actionInfo.privileges = Arrays.asList(
                 new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.THREE),
                 new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.FOUR));
-        AuthorizedActionEditor editor = this.getTestInstance().from(deviceLifeCycle, actionInfo);
-        AuthorizedAction updatedAction = editor.saveChanges();
+        AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, actionInfo, AuthorizedActionRequestFactory.Operation.MODIFY);
+        AuthorizedAction updatedAction = request.perform();
 
         // Asserts
         assertThat(updatedAction).isInstanceOf(AuthorizedTransitionAction.class);
@@ -221,10 +235,11 @@ public class AuthorizedActionEditorFactoryIT {
         actionInfo.privileges = Arrays.asList(
                 new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.THREE),
                 new DeviceLifeCyclePrivilegeInfo(this.thesaurus, AuthorizedAction.Level.FOUR));
-        AuthorizedActionEditor editor = this.getTestInstance().from(deviceLifeCycle, actionInfo);
-        AuthorizedAction updatedAction = editor.saveChanges();
+        AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, actionInfo, AuthorizedActionRequestFactory.Operation.MODIFY);
+        AuthorizedAction updatedAction = request.perform();
 
         // Asserts
+        assertThat(request).isInstanceOf(AuthorizedTransitionActionComplexEditRequest.class);
         assertThat(updatedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction updatedTransitionAction = (AuthorizedTransitionAction) updatedAction;
         assertThat(updatedTransitionAction.getStateTransition().getFrom().getId()).isEqualTo(stateBID);
@@ -234,12 +249,64 @@ public class AuthorizedActionEditorFactoryIT {
         assertThat(updatedTransitionAction.getActions()).isEmpty();
     }
 
+    @Transactional
+    @Test
+    public void createNewAuthorizedAction() {
+        DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
+        FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
+
+        DeviceLifeCyclePrivilegeInfo privilegeInfo = new DeviceLifeCyclePrivilegeInfo();
+        privilegeInfo.privilege = "ONE";
+        StateTransitionEventTypeInfo eventTypeInfo = new StateTransitionEventTypeInfo();
+        eventTypeInfo.symbol = AuthorizedActionRequestFactoryIT.EVENT_TYPE_TOPIC;
+        DeviceLifeCycleStateInfo fromState = new DeviceLifeCycleStateInfo();
+        fromState.id = finiteStateMachine.getState("A").get().getId();
+        DeviceLifeCycleStateInfo toState = new DeviceLifeCycleStateInfo();
+        toState.id = finiteStateMachine.getState("C").get().getId();
+        AuthorizedActionInfo info = new AuthorizedActionInfo();
+        info.name = "A new transition";
+        info.fromState = fromState;
+        info.toState = toState;
+        info.triggeredBy = eventTypeInfo;
+        info.privileges = Collections.singletonList(privilegeInfo);
+
+        AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, deviceLifeCycle.getAuthorizedActions().get(0).getId(), AuthorizedActionRequestFactory.Operation.CREATE);
+        AuthorizedAction newAction = request.perform();
+
+        // Asserts
+        assertThat(request).isInstanceOf(AuthorizedTransitionActionCreateRequest.class);
+        assertThat(newAction).isInstanceOf(AuthorizedTransitionAction.class);
+        AuthorizedTransitionAction newTransitionAction = (AuthorizedTransitionAction) newAction;
+        assertThat(newTransitionAction.getStateTransition().getFrom().getId()).isEqualTo(fromState.id);
+        assertThat(newTransitionAction.getStateTransition().getTo().getId()).isEqualTo(toState.id);
+        assertThat(newTransitionAction.getLevels()).containsOnly(AuthorizedAction.Level.ONE);
+        assertThat(newTransitionAction.getChecks()).isEmpty();
+        assertThat(newTransitionAction.getActions()).isEmpty();
+    }
+
+    @Test
+    public void deleteAuthorizedAction() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
+
+            AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, deviceLifeCycle.getAuthorizedActions().get(0).getId(), AuthorizedActionRequestFactory.Operation.DELETE);
+            request.perform();
+
+            assertThat(request).isInstanceOf(AuthorizedTransitionActionDeleteRequest.class);
+            assertThat(deviceLifeCycle.getAuthorizedActions()).isEmpty();
+
+            // Do not commit
+        }
+    }
+
+
+
     private static DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
         return inMemoryPersistence.getService(DeviceLifeCycleConfigurationService.class);
     }
 
-    private AuthorizedActionEditorFactory getTestInstance() {
-        return new AuthorizedActionEditorFactory(this.resourceHelper);
+    private AuthorizedActionRequestFactory getTestInstance() {
+        return new AuthorizedActionRequestFactory(this.resourceHelper);
     }
 
 }

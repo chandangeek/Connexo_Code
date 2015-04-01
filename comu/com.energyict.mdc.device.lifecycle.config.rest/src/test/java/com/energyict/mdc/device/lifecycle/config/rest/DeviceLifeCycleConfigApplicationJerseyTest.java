@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.lifecycle.config.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -33,6 +36,10 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     UserService userService;
     @Mock
     DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
+    FiniteStateMachineService finiteStateMachineService;
+    @Mock
+    EventService eventService;
 
     @Override
     protected Application getApplication() {
@@ -42,6 +49,8 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         application.setUserService(userService);
         application.setNlsService(nlsService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setFiniteStateMachineService(finiteStateMachineService);
+        application.setEventService(eventService);
         when(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)).thenReturn(thesaurus);
         return application;
     }
@@ -82,6 +91,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         when(transition.getFrom()).thenReturn(from);
         when(transition.getTo()).thenReturn(to);
         when(transition.getName()).thenReturn(Optional.of(name));
+        StateTransitionEventType eventType = mock(StateTransitionEventType.class);
+        when(eventType.getSymbol()).thenReturn("#eventType");
+        when(transition.getEventType()).thenReturn(eventType);
         String translated = thesaurus.getString(name, name);
         when(transition.getName(Matchers.any(Thesaurus.class))).thenReturn(translated);
         when(action.getStateTransition()).thenReturn(transition);

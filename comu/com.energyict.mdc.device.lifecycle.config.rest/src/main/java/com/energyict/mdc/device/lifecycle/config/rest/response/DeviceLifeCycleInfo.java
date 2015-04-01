@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceLifeCycleInfo {
-    public Long id;
+    public long id;
     public String name;
     public long version;
 
