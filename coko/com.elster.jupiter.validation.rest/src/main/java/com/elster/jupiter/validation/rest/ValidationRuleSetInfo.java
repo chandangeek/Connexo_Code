@@ -24,7 +24,8 @@ public class ValidationRuleSetInfo {
         description = validationRuleSet.getDescription();
         List<? extends ValidationRule> rules = validationRuleSet.getRules();
         numberOfRules = rules.size();
-        numberOfInactiveRules = (int) validationRuleSet.getRules().stream().filter(not(ValidationRule::isActive)).count();
+        //numberOfInactiveRules = (int) validationRuleSet.getRules().stream().filter(not(ValidationRule::isActive)).count();
+        numberOfInactiveRules = 0;
     }
 
     public ValidationRuleSetInfo() {
