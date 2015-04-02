@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.kpi.rest;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -106,18 +105,17 @@ public class KpiResource {
             endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
         }
         DataCollectionKpiService.DataCollectionKpiBuilder dataCollectionKpiBuilder = dataCollectionKpiService.newDataCollectionKpi(endDeviceGroup);
-        if (kpiInfo.frequency == null || kpiInfo.frequency.every == null){
-            /* Send the correct validation error because if frequency is null we can't create connection or communication kpi -> FE receive unclear message */
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "frequency");
+        if (kpiInfo.frequency !=null && kpiInfo.frequency.every!=null && kpiInfo.frequency.every.asTimeDuration()!=null) {
+            dataCollectionKpiBuilder.frequency(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount());
         }
         if (kpiInfo.displayRange != null){
             dataCollectionKpiBuilder.displayPeriod(kpiInfo.displayRange.asTimeDuration());
         }
-        if (kpiInfo.communicationTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null && kpiInfo.frequency.every.asTimeDuration()!=null) {
-            dataCollectionKpiBuilder.calculateComTaskExecutionKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.communicationTarget);
+        if (kpiInfo.communicationTarget!=null) {
+            dataCollectionKpiBuilder.calculateComTaskExecutionKpi().expectingAsMaximum(kpiInfo.communicationTarget);
         }
-        if (kpiInfo.connectionTarget!=null && kpiInfo.frequency !=null && kpiInfo.frequency.every!=null && kpiInfo.frequency.every.asTimeDuration()!=null) {
-            dataCollectionKpiBuilder.calculateConnectionSetupKpi(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount()).expectingAsMaximum(kpiInfo.connectionTarget);
+        if (kpiInfo.connectionTarget!=null) {
+            dataCollectionKpiBuilder.calculateConnectionSetupKpi().expectingAsMaximum(kpiInfo.connectionTarget);
         }
 
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiBuilder.save();

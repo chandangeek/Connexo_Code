@@ -64,10 +64,9 @@ public class DeviceGroupResource {
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
     private final DeviceGroupInfoFactory deviceGroupInfoFactory;
-    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory) {
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
@@ -75,7 +74,6 @@ public class DeviceGroupResource {
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.deviceGroupInfoFactory = deviceGroupInfoFactory;
-        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -138,6 +136,7 @@ public class DeviceGroupResource {
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
         endDeviceGroup.setName(deviceGroupInfo.name);
+        endDeviceGroup.setMRID("MDC:" + deviceGroupInfo.name);
 
         if (deviceGroupInfo.dynamic) {
             ((QueryEndDeviceGroup) endDeviceGroup).setCondition(getCondition(deviceGroupInfo));
