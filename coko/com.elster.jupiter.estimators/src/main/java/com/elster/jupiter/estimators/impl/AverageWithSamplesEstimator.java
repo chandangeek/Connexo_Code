@@ -46,7 +46,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     static final String ALLOW_NEGATIVE_VALUES = "allowNegativeValues";
     static final String RELATIVE_PERIOD = "relativePeriod";
-    static final String ADVANCE_READINGS_SETTINGS = "relativePeriod";
+    static final String ADVANCE_READINGS_SETTINGS = "advanceReadingsSettings";
 
     private BigDecimal numberOfConsecutiveSuspects;
     private BigDecimal minNumberOfSamples;
