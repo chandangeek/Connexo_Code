@@ -189,7 +189,7 @@ public class ValidationAddRemoveIT {
                     }
                 });
 
-                validationService.activateValidation(meter);
+                validationService.activateValidation(meter, true);
                 return null;
             }
         });

@@ -605,7 +605,7 @@ public class ValidationServiceImplTest {
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Collections.<ValidationRuleSet>emptyList());
 
 
-        validationService.activateValidation(meter);
+        validationService.activateValidation(meter, true);
 
         //Check that a MeterValidation object is made        
         verify(dataModel).persist(any(MeterValidationImpl.class));
@@ -616,18 +616,69 @@ public class ValidationServiceImplTest {
 
     }
 
+
     @Test
     public void testDeactivateMeterValidation() {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(ID);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
-
+        when(meterValidation.getValidateOnStorage()).thenReturn(true);
 
         validationService.deactivateValidation(meter);
 
         //Check that a MeterValidation object is made
         verify(meterValidation).setActivationStatus(false);
+        verify(meterValidation).save();
+
+    }
+
+
+    @Test
+    public void testActivateValidationOnStorage() {
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(ID);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
+        when(meterValidation.getActivationStatus()).thenReturn(true);
+        when(meterValidation.getValidateOnStorage()).thenReturn(true);
+
+        validationService.activateValidationOnStorage(meter);
+
+        //Check that a MeterValidation object is made
+        verify(meterValidation).setValidateOnStorage(true);
+        verify(meterValidation).save();
+
+    }
+
+    @Test
+    public void testDeactivateValidationOnStorage() {
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(ID);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
+        when(meterValidation.getActivationStatus()).thenReturn(true);
+        when(meterValidation.getValidateOnStorage()).thenReturn(true);
+
+        validationService.deactivateValidationOnStorage(meter);
+
+        //Check that a MeterValidation object is made
+        verify(meterValidation).setValidateOnStorage(false);
+        verify(meterValidation).save();
+
+    }
+
+    @Test
+    public void testValidationOnStorageOnValidationDeactivation() {
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(ID);
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
+        when(meterValidation.getActivationStatus()).thenReturn(true);
+        when(meterValidation.getValidateOnStorage()).thenReturn(false);
+
+        validationService.deactivateValidation(meter);
+
+        //Check that a MeterValidation object is made
+        verify(meterValidation).setActivationStatus(false);
+        verify(meterValidation).setValidateOnStorage(false);
         verify(meterValidation).save();
 
     }
