@@ -1,5 +1,8 @@
 package com.energyict.mdc.dynamic.impl;
 
+import com.elster.jupiter.properties.RelativePeriodFactory;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
@@ -47,6 +50,13 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     private volatile DataModel dataModel;
     private volatile DataVaultService dataVaultService;
+    private volatile TimeService timeService;
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
 
     public PropertySpecServiceImpl() {
     }
@@ -247,4 +257,15 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         }
         return timeZonePropertySpecBuilder.finish();
     }
+
+    @Override
+    public PropertySpec relativePeriodPropertySpec(String name, boolean required, RelativePeriod defaultRelativePeriod) {
+        PropertySpecBuilder builder = com.elster.jupiter.properties.impl.PropertySpecBuilderImpl.forClass(new RelativePeriodFactory(timeService));
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.name(name).setDefaultValue(defaultRelativePeriod).finish();
+    }
+
+
 }
