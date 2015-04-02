@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -34,7 +35,7 @@ class TestValidator extends AbstractValidator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, null));
+        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
         return builder.build();
     }
 
