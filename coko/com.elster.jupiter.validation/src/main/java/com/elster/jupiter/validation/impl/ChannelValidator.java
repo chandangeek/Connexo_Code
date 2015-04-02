@@ -103,7 +103,7 @@ class ChannelValidator {
     }
 
     private void handleRulePassed(ValidatedResult target) {
-        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp());
+        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp(), target.getReadingType());
         if (existingQualityForType.isPresent() && existingQualityForType.get().isActual()) {
             existingQualityForType.get().makePast();
         }
@@ -131,7 +131,7 @@ class ChannelValidator {
     }
 
     private void setValidationQuality(ValidatedResult target) {
-        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp());
+        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp(), target.getReadingType());
         if (existingQualityForType.isPresent()) {
             if (!existingQualityForType.get().isActual()) {
                 existingQualityForType.get().makeActual();
@@ -144,8 +144,9 @@ class ChannelValidator {
     }
 
 
-    private Optional<ReadingQualityRecord> getExistingReadingQualityForType(Instant timeStamp) {
+    private Optional<ReadingQualityRecord> getExistingReadingQualityForType(Instant timeStamp, ReadingType readingType) {
         return existingReadingQualities.get(timeStamp).stream()
+                .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(readingType))
                 .filter(input -> rule.getReadingQualityType().equals(input.getType()))
                 .findFirst();
     }
