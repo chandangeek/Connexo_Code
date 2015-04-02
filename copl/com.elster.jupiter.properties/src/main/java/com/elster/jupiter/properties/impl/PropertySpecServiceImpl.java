@@ -16,8 +16,12 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -30,6 +34,7 @@ import java.math.BigDecimal;
 public class PropertySpecServiceImpl implements PropertySpecService {
 
     private volatile TimeService timeService;
+    private final List<ValueFactory> valueFactories = new CopyOnWriteArrayList<>();
 
     @Reference
     public void setTimeService(TimeService timeService) {
@@ -95,6 +100,15 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return builder.name(name).setDefaultValue(defaultRelativePeriod).finish();
     }
 
+    /*@Override
+    public PropertySpec newPropertySpec(ValueFactory valueFactory, String name, boolean required, Object defaultObject) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(valueFactory);
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.name(name).setDefaultValue(defaultObject).finish();
+    }*/
+
     @Override
     public PropertySpec positiveDecimalPropertySpec(String name, boolean required) {
         BoundedBigDecimalPropertySpecImpl propertySpec = new BoundedBigDecimalPropertySpecImpl(name, BigDecimal.ZERO, null);
@@ -117,5 +131,14 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     public PropertySpecBuilder newPropertySpecBuilder(ValueFactory valueFactory) {
         return PropertySpecBuilderImpl.forClass(valueFactory);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addValueFactory(ValueFactory valueFactory) {
+        valueFactories.add(valueFactory);
+    }
+
+    public void removeValueFactory(ValueFactory valueFactory) {
+        valueFactories.remove(valueFactory);
     }
 }
