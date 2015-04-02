@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.FieldSpec;
-import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
@@ -12,7 +11,6 @@ import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.util.Pair;
 import com.google.common.collect.Range;
 
@@ -86,18 +84,22 @@ class ReadingStorerImpl implements ReadingStorer {
         Pair<Channel, Instant> key = Pair.of(channel.getChannel(), reading.getTimeStamp());
         int offset = channel.isRegular() ? 2 : 1;
 
-        List<? extends FieldSpec> fieldSpecs = ((ChannelContract) channel.getChannel()).getTimeSeries().getRecordSpec().getFieldSpecs();
+        ChannelContract channelContract = (ChannelContract) channel.getChannel();
+        List<? extends FieldSpec> fieldSpecs = channelContract.getTimeSeries().getRecordSpec().getFieldSpecs();
 
         Object[] values = consolidatedValues.computeIfAbsent(key, k -> {
             Object[] newValues = new Object[fieldSpecs.size()];
             IntStream.range(0, newValues.length).forEach(i -> newValues[i] = storer.doNotUpdateMarker());
             return newValues;
         });
-        values[offset + channel.getChannel().getReadingTypes().indexOf(channel.getReadingType())] = reading.getValue();
-        IntStream.range(0, values.length)
-                .filter(i -> FieldType.TEXT.equals(fieldSpecs.get(i).getType()))
-                .findFirst()
-                .ifPresent(i -> values[i] = ((Reading) reading).getText());
+        Object[] valuesToAdd = channelContract.toArray(reading, channel.getReadingType(), status);
+
+        IntStream.range(offset, values.length)
+                .filter(i -> valuesToAdd[i] != null)
+                .forEach(i -> {
+                    values[i] = valuesToAdd[i];
+                });
+
         ProcessStatus processStatus;
         if (values[0] != null && !storer.doNotUpdateMarker().equals(values[0])) {
             processStatus = status.or(new ProcessStatus((Long) values[0]));

@@ -77,7 +77,7 @@ public class ReadingStorerImplTest {
     public void testAddReading() {
         Instant dateTime = Instant.ofEpochMilli(215215641L);
         BaseReading reading = ReadingImpl.of("", BigDecimal.valueOf(1), dateTime);
-        when(channel.toArray(reading, ProcessStatus.of())).thenReturn(new Object[]{0L, 0L, reading.getValue()});
+        when(channel.toArray(reading, readingType2, ProcessStatus.of())).thenReturn(new Object[]{0L, 0L, reading.getValue()});
 
         readingStorer.addReading(cimChannel, reading);
 
@@ -85,13 +85,17 @@ public class ReadingStorerImplTest {
 
         readingStorer.execute();
 
-        verify(storer).add(timeSeries, dateTime, 0L, null, BigDecimal.valueOf(1));
+        verify(storer).add(timeSeries, dateTime, 0L, 0L, BigDecimal.valueOf(1));
         verify(storer).execute();
     }
 
 
     @Test
     public void testScope() {
+        when(channel.toArray(any(), eq(readingType2), any())).thenAnswer(invocation -> {
+            return new Object[]{0L, 0L, ((BaseReading) invocation.getArguments()[0]).getValue()};
+        });
+
         Instant instant = Instant.ofEpochMilli(215215641L);
         for (int i = 0; i < 3; i++) {
             readingStorer.addReading(cimChannel, ReadingImpl.of("", BigDecimal.valueOf(1), instant.plusSeconds(i * 3600L)));
