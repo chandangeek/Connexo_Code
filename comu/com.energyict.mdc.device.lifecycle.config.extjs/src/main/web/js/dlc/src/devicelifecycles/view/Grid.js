@@ -4,6 +4,13 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
     store: 'Dlc.devicelifecycles.store.DeviceLifeCycles',
     router: null,
 
+    requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom',
+        'Dlc.devicelifecycles.view.ActionMenu'
+    ],
+
+
     initComponent: function () {
         var me = this;
 
@@ -16,6 +23,13 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
                     return '<a href="' + url + '">' + value + '</a>';
                 },
                 flex: 1
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'device-life-cycles-action-menu',
+                    itemId: 'lifeCycleActionMenu'
+                }
             }
         ];
 

@@ -1,0 +1,17 @@
+Ext.define('Dlc.devicelifecycles.view.ActionMenu', {
+    extend: 'Ext.menu.Menu',
+    alias: 'widget.device-life-cycles-action-menu',
+    plain: true,
+    border: false,
+    shadow: false,
+    items: [
+        {
+            text: Uni.I18n.translate('general.clone', 'DLC', 'Clone'),
+            action: 'clone'
+        },
+        {
+            text: Uni.I18n.translate('general.Remove', 'DLC', 'Remove'),
+            action: 'remove'
+        }
+    ]
+});

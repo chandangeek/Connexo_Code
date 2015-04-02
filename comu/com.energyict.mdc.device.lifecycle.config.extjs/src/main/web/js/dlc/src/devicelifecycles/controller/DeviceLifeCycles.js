@@ -20,6 +20,10 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             selector: 'device-life-cycles-setup'
         },
         {
+            ref: 'lifeCyclesGrid',
+            selector: 'device-life-cycles-grid'
+        },
+        {
             ref: 'addPage',
             selector: 'device-life-cycles-add'
         }
@@ -32,8 +36,45 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             },
             'device-life-cycles-add #add-button': {
                 click: this.createDeviceLifeCycle
+            },
+            'device-life-cycles-action-menu menuitem[action=remove]': {
+                click: this.showRemoveConfirmationPanel
             }
         });
+    },
+
+    showRemoveConfirmationPanel: function() {
+        var me = this,
+            grid = me.getLifeCyclesGrid(),
+            record = grid.getSelectionModel().getLastSelected();
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('deviceLifeCycles.confirmWindow.removeMsg', 'DLC', 'This device life cycle will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'DLC', 'Remove') + " '" + record.get('name') + "'?",
+            config: {
+                me: me
+            },
+            fn: me.removeConfirmationPanelHandler
+        });
+    },
+
+    removeConfirmationPanelHandler: function (state, text, conf) {
+        var me = conf.config.me,
+            grid = me.getLifeCyclesGrid(),
+            router = me.getController('Uni.controller.history.Router'),
+            model = grid.getSelectionModel().getLastSelected(),
+            widget = me.getPage();
+
+        if (state === 'confirm') {
+            widget.setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
+            model.destroy({
+                success: function () {
+                    widget.setLoading(false);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.removeSuccessMsg', 'DLC', 'Device life cycle removed'));
+                    router.getRoute().forward(null, router.queryParams);
+                }
+            });
+        }
     },
 
     showDeviceLifeCycles: function () {
