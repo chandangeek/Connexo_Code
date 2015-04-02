@@ -260,7 +260,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec relativePeriodPropertySpec(String name, boolean required, RelativePeriod defaultRelativePeriod) {
-        PropertySpecBuilder builder = com.elster.jupiter.properties.impl.PropertySpecBuilderImpl.forClass(new RelativePeriodFactory(timeService));
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new RelativePeriodFactory(timeService));
         if (required) {
             builder.markRequired();
         }
