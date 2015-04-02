@@ -38,23 +38,23 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     initListeners: function () {
-        Uni.store.MenuItems.on({
-            add: this.checkHistoryState,
-            load: this.checkHistoryState,
-            update: this.checkHistoryState,
-            remove: this.checkHistoryState,
-            bulkremove: this.checkHistoryState,
-            scope: this
-        });
-
-        Uni.store.PortalItems.on({
-            add: this.checkHistoryState,
-            load: this.checkHistoryState,
-            update: this.checkHistoryState,
-            remove: this.checkHistoryState,
-            bulkremove: this.checkHistoryState,
-            scope: this
-        });
+        //Uni.store.MenuItems.on({
+        //    add: this.checkHistoryState,
+        //    load: this.checkHistoryState,
+        //    update: this.checkHistoryState,
+        //    remove: this.checkHistoryState,
+        //    bulkremove: this.checkHistoryState,
+        //    scope: this
+        //});
+        //
+        //Uni.store.PortalItems.on({
+        //    add: this.checkHistoryState,
+        //    load: this.checkHistoryState,
+        //    update: this.checkHistoryState,
+        //    remove: this.checkHistoryState,
+        //    bulkremove: this.checkHistoryState,
+        //    scope: this
+        //});
     },
 
     checkHistoryState: function () {
