@@ -1,37 +1,31 @@
-Ext.define('Cfg.store.ValidationRules', {
-    extend: 'Ext.data.Store',
-    autoLoad: false,
-    model: 'Cfg.model.ValidationRule',
+Ext.define('Cfg.store.ValidationRuleSetVersions', {
+    //extend: 'Ext.data.Store',
+    extend: 'Uni.data.store.Filterable',
+    model: 'Cfg.model.ValidationRuleSetVersion',
     pageSize: 10,
 
     proxy: {
         type: 'rest',
         url: '/api/val/validation',
-        appendId: false,
         reader: {
             type: 'json',
-            root: 'rules',
-            totalProperty: 'total'
+            root: 'rules'
+           // root: 'data'
         },
         buildUrl: function (request) {
             var me = this,
                 format = me.format,
                 url = me.getUrl(request),
-                ruleSetId = request.params.ruleSetId,
-                versionId = request.params.versionId;
+                id = request.params.ruleSetId;
 
             if (!url.match(/\/$/)) {
                 url += '/';
             }
 
-            /*
-            url += ruleSetId;
-            url += '/version/';
-            url += versionId;
+            url += id;
             url += '/rules';
-*/
-            url += ruleSetId;
-            url += '/rules';
+            //url += '/versions';
+
 
             if (format) {
                 if (!url.match(/\.$/)) {
@@ -51,3 +45,4 @@ Ext.define('Cfg.store.ValidationRules', {
         }
     }
 });
+

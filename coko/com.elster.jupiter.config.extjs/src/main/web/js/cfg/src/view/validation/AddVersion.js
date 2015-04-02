@@ -1,9 +1,7 @@
 Ext.define('Cfg.view.validation.AddVersion', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.validation-rule-set-version-add',
-    itemId: 'addVersion',
+    alias: 'widget.addVersion',
     overflowY: true,
-
     requires: [
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
@@ -25,15 +23,16 @@ Ext.define('Cfg.view.validation.AddVersion', {
         this.down('#cancel-link').href = returnLink;
     },
 
-    content: [
+    content: [		
         {
             xtype: 'panel',
             ui: 'large',
             itemId: 'addVersionTitle',
             items: [
+		
                 {
                     xtype: 'form',
-                    itemId: 'add-validation-rule-set-form',
+                    itemId: 'addVersionForm',
                     padding: '10 10 0 10',
                     layout: {
                         type: 'vbox'
@@ -44,7 +43,7 @@ Ext.define('Cfg.view.validation.AddVersion', {
                         validateOnBlur: false
                     },
                     items: [
-                        {
+                       {
                             itemId: 'form-errors',
                             xtype: 'uni-form-error-message',
                             name: 'form-errors',
@@ -55,7 +54,7 @@ Ext.define('Cfg.view.validation.AddVersion', {
                         {
                             xtype: 'textfield',
                             fieldLabel: Uni.I18n.translate('validation.validationRuleSetVersion', 'CFG', 'Validation rule set version'),
-                            itemId: 'add-version-name',
+                            itemId: 'addVersionName',
                             required: true,
                             labelAlign: 'right',
                             msgTarget: 'under',
@@ -68,64 +67,65 @@ Ext.define('Cfg.view.validation.AddVersion', {
                         {
                             xtype: 'textarea',
                             name: 'description',
-                            itemId: 'addRuleSetVersionDescription',
+                            itemId: 'addVersionDescription',
                             width: 600,
                             height: 150,
+							labelWidth: 260,
                             fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
                             enforceMaxLength: true
-                        },
+                        },						
                         {
                             xtype: 'fieldcontainer',
                             fieldLabel: Uni.I18n.translate('validationTasks.general.recurrence', 'CFG', 'Start'),
-                            itemId: 'start-period-container',
+                            itemId: 'startPeriodContainer',
                             layout: 'hbox',
                             items: [
                                 {
-                                    itemId: 'start-period-trigger',
+									itemId: 'startPeriodTrigger',
                                     xtype: 'radiogroup',
-                                    name: 'startTrigger',
+									name: 'startTrigger',
                                     columns: 1,
                                     vertical: true,
                                     width: 100,
                                     defaults: {
-                                        name: 'start-period'
+                                        name: 'startPeriod'
                                     },
-                                    items: [
+									items: [
                                         {
-                                            itemId: 'start-period-none',
+                                            itemId: 'startPeriodNone',
                                             boxLabel: Uni.I18n.translate('validationTasks.general.none', 'CFG', 'None'),
                                             inputValue: false,
                                             checked: true
                                         },
                                         {
-                                            itemId: 'start-period-on',
+                                            itemId: 'startPeriodOn',
                                             boxLabel: Uni.I18n.translate('validationTasks.general.every', 'CFG', 'On'),
                                             inputValue: true
                                         }
                                     ]
                                 },
                                 {
-                                    itemId: 'start-date-ctrl',
+                                    itemId: 'startDateCtrl',
                                     xtype: 'fieldcontainer',
-                                    fieldLabel: Uni.I18n.translate('validationTasks.general.startOn', 'CFG', 'Start on'),
+									margin: '30 0 10 0',                                
                                     layout: 'hbox',
                                     items: [
                                         {
                                             xtype: 'date-time',
-                                            itemId: 'start-date',
+                                            itemId: 'startDate',
                                             layout: 'hbox',
-                                            name: 'start-date',
+                                            name: 'startDate',
                                             dateConfig: {
                                                 allowBlank: true,
                                                 value: new Date(),
                                                 editable: false,
-                                                format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
-                                            },
-                                            listeners: {
-                                                focus: {
-                                                    fn: function () {
-                                                        var radioButton = Ext.ComponentQuery.query('validation-rule-set-version-add #start-period-on')[0];
-                                                        radioButton.setValue(true);
+                                                format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault),
+                                                listeners: {
+                                                    focus: {
+                                                        fn: function () {
+                                                            var radioButton = Ext.ComponentQuery.query('addVersion #startPeriodOn')[0];
+                                                            radioButton.setValue(true);
+                                                        }
                                                     }
                                                 }
                                             },
@@ -133,112 +133,25 @@ Ext.define('Cfg.view.validation.AddVersion', {
                                                 fieldLabel: Uni.I18n.translate('validationTasks.general.at', 'CFG', 'at'),
                                                 labelWidth: 10,
                                                 margin: '0 0 0 10',
-                                                value: new Date().getHours()
-                                            },
-                                            listeners: {
-                                                focus: {
-                                                    fn: function () {
-                                                        var radioButton = Ext.ComponentQuery.query('validation-rule-set-version-add #start-period-on')[0];
-                                                        radioButton.setValue(true);
+                                                value: new Date().getHours(),
+                                                listeners: {
+                                                    focus: {
+                                                        fn: function () {
+                                                            var radioButton = Ext.ComponentQuery.query('addVersion #startPeriodOn')[0];
+                                                            radioButton.setValue(true);
+                                                        }
                                                     }
                                                 }
                                             },
                                             minutesConfig: {
                                                 width: 55,
-                                                value: new Date().getMinutes()
-                                            },
-                                            listeners: {
-                                                focus: {
-                                                    fn: function () {
-                                                        var radioButton = Ext.ComponentQuery.query('validation-rule-set-version-add #start-period-on')[0];
-                                                        radioButton.setValue(true);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ]
-
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('validationTasks.general.recurrence', 'CFG', 'End'),
-                            itemId: 'end-period-container',
-                            layout: 'hbox',
-                            items: [
-                                {
-                                    itemId: 'end-period-trigger',
-                                    xtype: 'radiogroup',
-                                    name: 'startTrigger',
-                                    columns: 1,
-                                    vertical: true,
-                                    width: 100,
-                                    defaults: {
-                                        name: 'end-period'
-                                    },
-                                    items: [
-                                        {
-                                            itemId: 'end-period-none',
-                                            boxLabel: Uni.I18n.translate('validationTasks.general.none', 'CFG', 'None'),
-                                            inputValue: false,
-                                            checked: true
-                                        },
-                                        {
-                                            itemId: 'end-period-on',
-                                            boxLabel: Uni.I18n.translate('validationTasks.general.every', 'CFG', 'On'),
-                                            inputValue: true
-                                        }
-                                    ]
-                                },
-                                {
-                                    itemId: 'end-date-ctrl',
-                                    xtype: 'fieldcontainer',
-                                    fieldLabel: Uni.I18n.translate('validationTasks.general.startOn', 'CFG', 'End'),
-                                    layout: 'hbox',
-                                    items: [
-                                        {
-                                            xtype: 'date-time',
-                                            itemId: 'end-date',
-                                            layout: 'hbox',
-                                            name: 'end-date',
-                                            dateConfig: {
-                                                allowBlank: true,
-                                                value: new Date(),
-                                                editable: false,
-                                                format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
-                                            },
-                                            listeners: {
-                                                focus: {
-                                                    fn: function () {
-                                                        var radioButton = Ext.ComponentQuery.query('validation-rule-set-version-add #end-period-on')[0];
-                                                        radioButton.setValue(true);
-                                                    }
-                                                }
-                                            },
-                                            hoursConfig: {
-                                                fieldLabel: Uni.I18n.translate('validationTasks.general.at', 'CFG', 'at'),
-                                                labelWidth: 10,
-                                                margin: '0 0 0 10',
-                                                value: new Date().getHours()
-                                            },
-                                            listeners: {
-                                                focus: {
-                                                    fn: function () {
-                                                        var radioButton = Ext.ComponentQuery.query('validation-rule-set-version-add #end-period-on')[0];
-                                                        radioButton.setValue(true);
-                                                    }
-                                                }
-                                            },
-                                            minutesConfig: {
-                                                width: 55,
-                                                value: new Date().getMinutes()
-                                            },
-                                            listeners: {
-                                                focus: {
-                                                    fn: function () {
-                                                        var radioButton = Ext.ComponentQuery.query('validation-rule-set-version-add #end-period-on')[0];
-                                                        radioButton.setValue(true);
+                                                value: new Date().getMinutes(),
+                                                listeners: {
+                                                    focus: {
+                                                        fn: function () {
+                                                            var radioButton = Ext.ComponentQuery.query('addVersion #startPeriodOn')[0];
+                                                            radioButton.setValue(true);
+                                                        }
                                                     }
                                                 }
                                             }

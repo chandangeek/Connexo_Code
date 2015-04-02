@@ -119,9 +119,34 @@ Ext.define('Cfg.controller.history.Validation', {
                                             action: 'showAddDeviceConfigView'
                                         }
                                     }
+                                },
+                                versions: {
+                                    title: 'Versions',
+                                    route: 'versions',
+                                    controller: 'Cfg.controller.Validation',
+                                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
+                                        'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
+                                    action: 'showVersions',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
+                                            route: 'add',
+                                            controller: 'Cfg.controller.Validation',
+                                            privileges: ['privilege.administrate.validationConfiguration'],
+                                            action: 'addVersion'
+                                        }/*,
+                                        clone: {
+                                            //title: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
+                                            route: 'clone',
+                                            controller: 'Cfg.controller.Validation',
+                                            privileges: ['privilege.administrate.validationConfiguration'],
+                                            action: 'cloneVersion'
+                                        }*/
+                                    }
                                 }
                             }
                         }
+
                     }
                 }
             }
