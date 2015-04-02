@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
+import org.osgi.service.component.annotations.Component;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -13,6 +14,7 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:26)
  */
+@Component(name = "com.elster.jupiter.properties.BooleanFactory", service = {ValueFactory.class}, immediate = true)
 public class BooleanFactory extends AbstractValueFactory<Boolean> {
 
     public Class<Boolean> getValueType() {

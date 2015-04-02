@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
+import org.osgi.service.component.annotations.Component;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -14,6 +15,7 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:23)
  */
+@Component(name = "com.elster.jupiter.properties.ThreeStateFactory", service = {ValueFactory.class}, immediate = true)
 public class ThreeStateFactory extends AbstractValueFactory<Boolean> {
 
     public Class<Boolean> getValueType() {

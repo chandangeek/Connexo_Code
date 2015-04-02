@@ -65,6 +65,8 @@ public interface PropertySpecService {
      */
     public PropertySpec bigDecimalPropertySpec (String name, boolean required, BigDecimal defaultValue);
 
+    //PropertySpec newPropertySpec(ValueFactory valueFactory, String name, boolean required, Object defaultObject);
+
     /**
      * Creates a {@link PropertySpec} for positive BigDecimal values.
      *

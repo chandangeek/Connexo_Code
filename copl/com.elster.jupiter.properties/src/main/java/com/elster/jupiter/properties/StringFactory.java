@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Provides an implementation for the {@link ValueFactory} interface
@@ -12,6 +13,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (16:47)
  */
+@Component(name = "com.elster.jupiter.properties.StringFactory", service = {ValueFactory.class}, immediate = true)
 public class StringFactory extends AbstractValueFactory<String> {
 
     public static final int MAX_SIZE = 4000;

@@ -7,6 +7,7 @@ import java.sql.Types;
 import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Provides an implementation for the {@link ValueFactory} interface
@@ -17,6 +18,7 @@ import com.elster.jupiter.time.TimeService;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-31 (14:04)
  */
+@Component(name = "com.elster.jupiter.properties.RelativePeriodFactory", service = {ValueFactory.class}, immediate = true)
 public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> {
 
     private TimeService timeService;

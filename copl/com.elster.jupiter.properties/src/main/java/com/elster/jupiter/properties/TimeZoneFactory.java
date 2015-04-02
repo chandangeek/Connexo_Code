@@ -1,5 +1,7 @@
 package com.elster.jupiter.properties;
 
+import org.osgi.service.component.annotations.Component;
+
 import java.sql.SQLException;
 import java.util.TimeZone;
 
@@ -10,6 +12,7 @@ import java.util.TimeZone;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-31 (14:04)
  */
+@Component(name = "com.elster.jupiter.properties.TimeZoneFactory", service = {ValueFactory.class}, immediate = true)
 public class TimeZoneFactory extends AbstractValueFactory<TimeZone> {
 
     @Override

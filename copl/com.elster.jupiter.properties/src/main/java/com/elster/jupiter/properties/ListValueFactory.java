@@ -3,8 +3,11 @@ package com.elster.jupiter.properties;
 import java.sql.SQLException;
 
 import com.google.common.base.Joiner;
+import org.osgi.service.component.annotations.Component;
+
 import java.util.Optional;
 
+@Component(name = "com.elster.jupiter.properties.ListValueFactory", service = {ValueFactory.class}, immediate = true)
 public class ListValueFactory<T extends ListValueEntry> extends AbstractValueFactory<ListValue<T>> {
 
     public static final int MAX_SIZE = 4000;
