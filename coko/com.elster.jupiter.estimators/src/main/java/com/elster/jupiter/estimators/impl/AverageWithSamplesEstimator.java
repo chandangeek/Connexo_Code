@@ -1,14 +1,18 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.validation.ValidationService;
@@ -30,6 +34,7 @@ import java.util.logging.Logger;
 public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private final ValidationService validationService;
+    private final MeteringService meteringService = null;
 
     static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
     static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = new BigDecimal(10);
@@ -41,6 +46,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     static final String ALLOW_NEGATIVE_VALUES = "allowNegativeValues";
     static final String RELATIVE_PERIOD = "relativePeriod";
+    static final String ADVANCE_READINGS_SETTINGS = "relativePeriod";
 
     private BigDecimal numberOfConsecutiveSuspects;
     private BigDecimal minNumberOfSamples;
@@ -141,6 +147,16 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         builder.add(getPropertySpecService().relativePeriodPropertySpec(
                 RELATIVE_PERIOD, false, null));
+
+
+
+        PropertySpecBuilder propertySpecBuilder = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService));
+        propertySpecBuilder.markRequired();
+        PropertySpec spec =
+                propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS).setDefaultValue(new NoneAdvanceReadingsSettings()).finish();
+        builder.add(spec);
+
+
         return builder.build();
     }
 
