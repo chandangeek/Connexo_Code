@@ -108,7 +108,7 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     private Condition ofThisChannel() {
-        return where("channel").isEqualTo(this);
+        return where("channel").isEqualTo(this.getChannel());
     }
 
     private Condition ofType(ReadingQualityType type) {
