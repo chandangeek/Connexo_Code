@@ -43,10 +43,12 @@
         <dependency>
             <groupId>com.energyict.dataconcentrator.external</groupId>
             <artifactId>serialio</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.rxtx</groupId>
             <artifactId>rxtx</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- OSGi -->
