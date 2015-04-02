@@ -2,7 +2,10 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -12,7 +15,10 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -65,11 +71,19 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         DLMSAttribute attribute = getCorrectedClassId(attr, getProtocolLink());
         int index = getAttributeIndex(attribute);
         readAttribute(attribute);
-        if (dataResult[index] != null) {
-            if (dataResult[index] instanceof DataAccessResultType) {
-                throw new DataAccessResultException(dataResult[index].intValue());
+        AbstractDataType result = dataResult[index];
+        if (result != null) {
+            if (result instanceof DataAccessResultType) {
+                DLMSAttribute requestedAttribute = attributes[index];
+                StringBuilder description = new StringBuilder();
+                description.append(requestedAttribute.getObisCode().toString());
+                description.append(", classId: ");
+                description.append(requestedAttribute.getClassId());
+                description.append(", attribute: ");
+                description.append(requestedAttribute.getAttribute());
+                throw new DataAccessResultException(result.intValue(), description.toString());
             } else {
-                return dataResult[index];
+                return result;
             }
         } else {
             throw new ProtocolException("Unable to read attribute [" + attribute + "]. Expected DataAccessResult or DataType but Value is still null.");
