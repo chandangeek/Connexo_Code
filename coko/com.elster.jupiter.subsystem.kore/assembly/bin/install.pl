@@ -31,7 +31,7 @@ my $INSTALL_WSO2IS="yes";
 
 my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
-my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD;
+my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 my $SMTP_HOST, my $SMTP_PORT, my $SMTP_USER, my $SMTP_PASSWORD;
 
@@ -124,6 +124,7 @@ sub read_config {
 				if ( "$val[0]" eq "FACTS_DB_NAME" )     {$FACTS_DB_NAME=$val[1];}
 				if ( "$val[0]" eq "FACTS_DBUSER" )      {$FACTS_DBUSER=$val[1];}
 				if ( "$val[0]" eq "FACTS_DBPASSWORD" )  {$FACTS_DBPASSWORD=$val[1];}
+				if ( "$val[0]" eq "FACTS_LICENSE" )		{$FACTS_LICENSE=$val[1];}
 				if ( "$val[0]" eq "FLOW_JDBC_URL" )     {$FLOW_JDBC_URL=$val[1];}
 				if ( "$val[0]" eq "FLOW_DB_USER" )      {$FLOW_DB_USER=$val[1];}
 				if ( "$val[0]" eq "FLOW_DB_PASSWORD" )  {$FLOW_DB_PASSWORD=$val[1];}
@@ -289,6 +290,13 @@ sub install_facts {
 			chomp($FACTS_DBPASSWORD=<STDIN>);
 		}
 
+		if ("$FACTS_LICENSE" ne "") {
+			if (-e "$FACTS_LICENSE") {
+				copy("$FACTS_LICENSE","$INSTALLER_LICENSE") or die "File cannot be copied: $!";
+			} else {
+				print "License file $FACTS_LICENSE not found, taking the default one.\n";
+			}
+		}
 		make_path("$FACTS_BASE/appserver/bin");
 		copy("$CATALINA_BASE/bin/catalina.bat","$FACTS_BASE/appserver/bin/catalina.bat") or die "File cannot be copied: $!";
 		copy("$CATALINA_BASE/bin/catalina.sh","$FACTS_BASE/appserver/bin/catalina.sh") or die "File cannot be copied: $!";
