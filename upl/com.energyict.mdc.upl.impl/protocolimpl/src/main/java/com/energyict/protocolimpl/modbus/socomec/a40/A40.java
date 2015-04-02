@@ -96,7 +96,6 @@ public class A40 extends Modbus {
     }
     
     public Date getTime() throws IOException {
-    	getRegisterFactory().findRegister(RegisterFactory.currentDateTime).getReadHoldingRegistersRequest().getRegisters();
         return new Date();
     }
 
