@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslation;
@@ -34,12 +35,13 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
+    private volatile MeteringService meteringService;
 
     public DefaultValidatorFactory() {
 	}
 
     @Inject
-    public DefaultValidatorFactory(NlsService nlsService, PropertySpecService propertySpecService) {
+    public DefaultValidatorFactory(NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService) {
     	setNlsService(nlsService);
     	setPropertySpecService(propertySpecService);
     }
@@ -54,11 +56,16 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     @Override
     public void install() {
         List<Translation> translations = new ArrayList<>(ValidatorDefinition.values().length);
         for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
-            IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService);
+            IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService, meteringService);
             Translation translation = SimpleTranslation.translation(validator.getNlsKey(), Locale.ENGLISH, validator.getDefaultFormat());
             translations.add(translation);
             validator.getPropertySpecs()
@@ -81,57 +88,57 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     private enum ValidatorDefinition {
         THRESHOLD(THRESHOLD_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> props) {
                 return new ThresholdValidator(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
                 return new ThresholdValidator(thesaurus, propertySpecService);
             }
         },
         MISSING_VALUES(MISSING_VALUES_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> props) {
                 return new MissingValuesValidator(thesaurus, propertySpecService);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
                 return new MissingValuesValidator(thesaurus, propertySpecService);
             }
         },
         REGISTER_INCREASE(REGISTER_INCREASE_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> props) {
                 return new RegisterIncreaseValidator(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
                 return new RegisterIncreaseValidator(thesaurus, propertySpecService);
             }
         },
         INTERVAL_STATE(INTERVAL_STATE_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> props) {
                 return new IntervalStateValidator(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
                 return new IntervalStateValidator(thesaurus, propertySpecService);
             }
         },
         TEST(TEST_VALIDATOR) {
             @Override
-            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props) {
-                return new TestValidator(thesaurus, propertySpecService, props);
+            Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> props) {
+                return new TestValidator(thesaurus, propertySpecService, meteringService, props);
             }
 
             @Override
-            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-                return new TestValidator(thesaurus, propertySpecService);
+            IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
+                return new TestValidator(thesaurus, propertySpecService, meteringService);
             }
         };
 
@@ -145,9 +152,9 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
             this.implementation = implementation;
         }
 
-        abstract Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> props);
+        abstract Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> props);
 
-        abstract IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService);
+        abstract IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService);
     }
 
     @Override
@@ -163,7 +170,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     public Validator create(String implementation, Map<String, Object> props) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.create(thesaurus, propertySpecService, props);
+                return definition.create(thesaurus, propertySpecService, meteringService, props);
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);
@@ -173,7 +180,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     public Validator createTemplate(String implementation) {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.createTemplate(thesaurus, propertySpecService);
+                return definition.createTemplate(thesaurus, propertySpecService, meteringService);
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);
