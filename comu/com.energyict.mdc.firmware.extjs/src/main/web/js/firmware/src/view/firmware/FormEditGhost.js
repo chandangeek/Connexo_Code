@@ -7,11 +7,11 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
         {
             xtype: 'displayfield',
             name: 'firmwareVersion',
-            fieldLabel: 'Version'
+            fieldLabel: Uni.I18n.translate('firmware.field.version', 'FWC', 'Version')
         },
         {
             xtype: 'displayfield',
-            fieldLabel: 'Firmware type',
+            fieldLabel: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
             name: 'firmwareType',
             renderer: function (data) {
                 return data.displayValue;

@@ -1,6 +1,6 @@
 Ext.define('Fwc.view.firmware.FirmwareVersions', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.firmware-versions',
+    xtype: 'firmware-versions',
     itemId: 'firmware-versions',
     requires: [
         'Mdc.view.setup.devicetype.SideMenu',

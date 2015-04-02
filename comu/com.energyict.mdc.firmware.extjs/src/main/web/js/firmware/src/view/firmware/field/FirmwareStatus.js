@@ -4,7 +4,7 @@ Ext.define('Fwc.view.firmware.field.FirmwareStatus', {
         'Fwc.store.FirmwareStatuses'
     ],
     xtype: 'firmware-status',
-    fieldLabel: 'Firmware status',
+    fieldLabel: Uni.I18n.translate('firmware.field.status', 'FWC', 'Firmware status'),
     columns: 1,
     vertical: true,
     name: 'firmwareStatus',

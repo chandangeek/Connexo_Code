@@ -8,16 +8,19 @@ Ext.define('Fwc.view.firmware.Grid', {
     ],
 
     columns: [
-        {text: 'Version', dataIndex: 'firmwareVersion'},
         {
-            text: 'Type',
+            text: Uni.I18n.translate('firmware.field.version', 'FWC', 'Version'),
+            dataIndex: 'firmwareVersion'
+        },
+        {
+            text: Uni.I18n.translate('firmware.field.type', 'FWC', 'Type'),
             flex: 1,
             renderer: function (value, meta, record) {
                 return record.getAssociatedData().firmwareType ? record.getAssociatedData().firmwareType.displayValue : null;
             }
         },
         {
-            text: 'Status',
+            text: Uni.I18n.translate('firmware.field.status', 'FWC', 'Status'),
             renderer: function (value, meta, record) {
                 return record.getAssociatedData().firmwareStatus ? record.getAssociatedData().firmwareStatus.displayValue : null;
             }

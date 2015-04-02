@@ -1,6 +1,6 @@
 Ext.define('Fwc.view.firmware.SideFilter', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.firmware-side-filter',
+    xtype: 'firmware-side-filter',
     requires: [
         'Fwc.view.firmware.field.FirmwareType',
         'Fwc.view.firmware.field.FirmwareStatus'

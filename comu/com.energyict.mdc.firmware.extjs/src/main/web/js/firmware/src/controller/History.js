@@ -28,14 +28,6 @@ Ext.define('Fwc.controller.History', {
                     route: '{firmwareId}/edit',
                     controller: 'Fwc.controller.Firmware',
                     action: 'editFirmware'
-                    //callback: function (route) {
-                    //    this.getApplication().on('loadFirmware', function (record) {
-                    //        route.setTitle('Edit \'' + record.get('name') + '\'');
-                    //        return true;
-                    //    }, {single: true});
-                    //
-                    //    return this;
-                    //}
                 }
             }
         },

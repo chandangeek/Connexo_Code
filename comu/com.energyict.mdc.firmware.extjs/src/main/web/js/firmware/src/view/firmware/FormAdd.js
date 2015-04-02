@@ -14,7 +14,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             name: 'firmwareVersion',
             anchor: '60%',
             required: true,
-            fieldLabel: 'Version',
+            fieldLabel: Uni.I18n.translate('firmware.field.version', 'FWC', 'Version'),
             allowBlank: false
         },
         {
