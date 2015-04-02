@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -81,5 +82,31 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         newLifeCycle.name = "New life cycle";
         Response response = target("/devicelifecycles").request().post(Entity.json(newLifeCycle));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+
+    @Test
+    public void testCloneDeviceLifeCycle(){
+        DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "Cloned life cycle");
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(1L)).thenReturn(Optional.of(lifeCycle));
+        when(deviceLifeCycleConfigurationService.cloneDeviceLifeCycle(eq(lifeCycle), Matchers.anyString())).thenReturn(lifeCycle);
+
+        DeviceLifeCycleInfo newLifeCycle = new DeviceLifeCycleInfo();
+        newLifeCycle.id = 1L;
+        newLifeCycle.name = "Cloned life cycle";
+        Response response = target("/devicelifecycles/1/clone").request().post(Entity.json(newLifeCycle));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+
+    @Test
+    public void testCloneUnexistDeviceLifeCycle(){
+        DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "Cloned life cycle");
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(1L)).thenReturn(Optional.of(lifeCycle));
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(125)).thenReturn(Optional.empty());
+        when(deviceLifeCycleConfigurationService.cloneDeviceLifeCycle(eq(lifeCycle), Matchers.anyString())).thenReturn(lifeCycle);
+
+        DeviceLifeCycleInfo newLifeCycle = new DeviceLifeCycleInfo();
+        newLifeCycle.name = "Cloned life cycle";
+        Response response = target("/devicelifecycles/125/clone").request().post(Entity.json(newLifeCycle));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }

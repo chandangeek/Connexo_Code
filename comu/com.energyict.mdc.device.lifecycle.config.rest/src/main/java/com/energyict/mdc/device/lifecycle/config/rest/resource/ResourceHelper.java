@@ -34,6 +34,12 @@ public class ResourceHelper {
         this.eventService = eventService;
     }
 
+    private void checkKey(Object key, MessageSeeds errText){
+        if (key == null){
+            throw exceptionFactory.newException(errText, "empty");
+        }
+    }
+
     public DeviceLifeCycle findDeviceLifeCycleByIdOrThrowException(long id) {
         return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_NOT_FOUND, id));
     }
@@ -57,9 +63,7 @@ public class ResourceHelper {
     }
 
     public StateTransitionEventType findStateTransitionEventTypeOrThrowException(String symbol){
-        if (symbol == null){
-            throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND, "empty");
-        }
+        checkKey(symbol, MessageSeeds.DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND);
         Optional<EventType> eventType = eventService.getEventType(symbol);
         Optional<? extends StateTransitionEventType> stateTransitionEventType = Optional.empty();
         if (eventType.isPresent()){
@@ -68,7 +72,5 @@ public class ResourceHelper {
             stateTransitionEventType = finiteStateMachineService.findCustomStateTransitionEventType(symbol);
         }
         return stateTransitionEventType.orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND, symbol));
-
     }
-
 }
