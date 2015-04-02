@@ -71,7 +71,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
 
     // For unit test purposes only
     @Inject
-    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService, NlsService nlsService) {
+    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService, NlsService nlsService, ThreadPrincipalService threadPrincipalService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -81,6 +81,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
         this.setScheduleExpressionParser(cronExpressionParser);
         this.setJsonService(jsonService);
         this.setNlsService(nlsService);
+        this.setThreadPrincipalService(threadPrincipalService);
         this.activate();
         this.install();
     }
@@ -99,6 +100,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
                 bind(TaskService.class).toInstance(TaskServiceImpl.this);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         });
     }
