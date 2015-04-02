@@ -38,7 +38,7 @@ Ext.define('Uni.controller.Navigation', {
         }
     ],
 
-    applicationTitle: 'Connexo Multi Sense',
+    applicationTitle: 'Connexo',
     applicationTitleSeparator: '-',
     searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
     onlineHelpEnabled: false,
