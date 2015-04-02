@@ -1081,7 +1081,7 @@ public abstract class AbstractCosemObject {
     private void evalDataAccessResult(byte bVal) throws DataAccessResultException {
         if (bVal != 0) {
             StringBuilder description = new StringBuilder();
-            description.append(objectReference.getObisCode().toString());
+            description.append(objectReference.isLNReference() ? objectReference.getObisCode().toString() : objectReference.getSn());
             description.append(", classId: ");
             description.append(objectReference.getClassId());
             if (attributeNumber != null) {

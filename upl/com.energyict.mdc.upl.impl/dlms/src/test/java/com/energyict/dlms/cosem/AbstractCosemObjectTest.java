@@ -38,13 +38,13 @@ public class AbstractCosemObjectTest {
 
             DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
             ProtocolLink protocolLink = new MockProtocolLink(new MockDLMSConnection(), meterConfig);
-            data = new Data(protocolLink, null);
+            data = new Data(protocolLink, new ObjectReference(0));
             assertArrayEquals(DLMSUtils.hexStringToByteArray("091048bdb63e5df88885d67330f89ea444bd"), data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(iskraResponse)));
 
             try {
                 data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(iskraResponseFailure));
             } catch (DataAccessResultException e) {
-                if (!e.getMessage().equalsIgnoreCase("Cosem Data-Access-Result exception Object unavailable")) {
+                if (!e.getMessage().contains("Cosem Data-Access-Result exception Object unavailable")) {
                     e.printStackTrace();
                     fail();
                 }
@@ -52,14 +52,14 @@ public class AbstractCosemObjectTest {
 
             meterConfig = DLMSMeterConfig.getInstance("WKP::OLD");
             protocolLink = new MockProtocolLink(new MockDLMSConnection(), meterConfig);
-            data = new Data(protocolLink, null);
+            data = new Data(protocolLink, new ObjectReference(0));
             assertArrayEquals(DLMSUtils.hexStringToByteArray("091091ec1f928d8e6ace9823717c15c61271"), data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(z3Response)));
 
 
             try {
                 data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(z3ResponseFailure));
             } catch (DataAccessResultException e) {
-                if (!e.getMessage().equalsIgnoreCase("Cosem Data-Access-Result exception R/W denied")) {
+                if (!e.getMessage().contains("Cosem Data-Access-Result exception R/W denied")) {
                     e.printStackTrace();
                     fail();
                 }
@@ -81,7 +81,7 @@ public class AbstractCosemObjectTest {
 
         DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
         ProtocolLink protocolLink = new MockProtocolLink(new MockDLMSConnection(), meterConfig);
-        data = new Data(protocolLink, null);
+        data = new Data(protocolLink, new ObjectReference(0));
         try {
             data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(confirmedServiceErrorResponseEncryptionFailed));
         } catch (Exception e) {
