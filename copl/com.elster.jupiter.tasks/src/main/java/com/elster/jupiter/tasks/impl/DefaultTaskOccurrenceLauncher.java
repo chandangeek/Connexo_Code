@@ -40,9 +40,6 @@ class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
                     launchOccurrencesForDueTasks();
                 }
             });
-        } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
-            e.printStackTrace();
         } finally {
             threadPrincipalService.clear();
         }
