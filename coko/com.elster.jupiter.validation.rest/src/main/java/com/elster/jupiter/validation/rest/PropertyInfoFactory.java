@@ -3,6 +3,9 @@ package com.elster.jupiter.validation.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.elster.jupiter.estimation.AdvanceReadingsSettings;
+import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.rest.util.properties.ListValueInfo;
@@ -17,6 +20,9 @@ public class PropertyInfoFactory {
                 infos.add(entry.getId());
             }
             return infos;
+        }
+        if (property instanceof AdvanceReadingsSettings) {
+            return new AdvanceReadingsSettingsInfo((AdvanceReadingsSettings) property);
         }
         return property;
     }
