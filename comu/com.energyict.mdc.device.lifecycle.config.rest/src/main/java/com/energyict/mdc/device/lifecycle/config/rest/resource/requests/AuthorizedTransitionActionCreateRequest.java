@@ -22,7 +22,6 @@ public class AuthorizedTransitionActionCreateRequest implements AuthorizedAction
 
     public AuthorizedTransitionActionCreateRequest(DeviceLifeCycle deviceLifeCycle, StateTransitionEventType eventType, AuthorizedActionInfo infoForCreation) {
         Objects.requireNonNull(deviceLifeCycle);
-        Objects.requireNonNull(eventType);
         Objects.requireNonNull(infoForCreation);
         this.deviceLifeCycle = deviceLifeCycle;
         this.eventType = eventType;

@@ -42,6 +42,8 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         assertThat(model.<String>get("$.deviceLifeCycleStates[0].name")).isEqualTo("Commissioned");
         assertThat(model.<Number>get("$.deviceLifeCycleStates[2].id")).isEqualTo(3);
         assertThat(model.<String>get("$.deviceLifeCycleStates[2].name")).isEqualTo("In stock");
+        assertThat(model.<Boolean>get("$.deviceLifeCycleStates[2].isCustom")).isEqualTo(true);
+        assertThat(model.<Boolean>get("$.deviceLifeCycleStates[2].isInitial")).isEqualTo(false);
     }
 
     @Test
@@ -153,5 +155,24 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(entity));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(stateUpdater, times(0)).setName(Matchers.anyString());
+    }
+
+
+    @Test
+    public void testSetInitialDeviceLifeCycleState(){
+        State stateForEdit = mockSimpleState(1L, "Custom state");
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForEdit));
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(1L)).thenReturn(Optional.of(dlc));
+
+        FiniteStateMachineUpdater fsmUpdater = mock(FiniteStateMachineUpdater.class);
+        when(stateMachine.startUpdate()).thenReturn(fsmUpdater);
+
+        DeviceLifeCycleStateInfo entity = new DeviceLifeCycleStateInfo();
+        Response response = target("/devicelifecycles/1/states/1/status").request().put(Entity.json(entity));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(fsmUpdater, times(1)).complete(stateForEdit);
     }
 }

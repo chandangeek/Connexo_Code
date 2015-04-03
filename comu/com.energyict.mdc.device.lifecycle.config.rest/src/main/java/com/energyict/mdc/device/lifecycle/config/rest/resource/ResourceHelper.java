@@ -64,6 +64,10 @@ public class ResourceHelper {
 
     public StateTransitionEventType findStateTransitionEventTypeOrThrowException(String symbol){
         checkKey(symbol, MessageSeeds.DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND);
+        return findStateTransitionEventType(symbol).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND, symbol));
+    }
+
+    public Optional<StateTransitionEventType> findStateTransitionEventType(String symbol){
         Optional<EventType> eventType = eventService.getEventType(symbol);
         Optional<? extends StateTransitionEventType> stateTransitionEventType = Optional.empty();
         if (eventType.isPresent()){
@@ -71,6 +75,6 @@ public class ResourceHelper {
         } else {
             stateTransitionEventType = finiteStateMachineService.findCustomStateTransitionEventType(symbol);
         }
-        return stateTransitionEventType.orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND, symbol));
+        return Optional.ofNullable(stateTransitionEventType.orElse(null));
     }
 }

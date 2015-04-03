@@ -22,7 +22,7 @@ public class AuthorizedActionRequestFactory {
     }
 
     private StateTransitionEventType getEventType(){
-        return resourceHelper.findStateTransitionEventTypeOrThrowException(this.info.getEventTypeSymbol());
+        return resourceHelper.findStateTransitionEventType(this.info.getEventTypeSymbol()).orElse(null);
     }
 
     private boolean isComplexChanges(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info){

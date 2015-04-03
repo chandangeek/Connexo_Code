@@ -72,6 +72,8 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         State state = mock(State.class);
         when(state.getId()).thenReturn(id);
         when(state.getName()).thenReturn(name);
+        when(state.isCustom()).thenReturn(true);
+        when(state.isInitial()).thenReturn(false);
         return state;
     }
 

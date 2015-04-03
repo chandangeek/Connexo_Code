@@ -270,7 +270,7 @@ public class AuthorizedActionRequestFactoryIT {
         info.triggeredBy = eventTypeInfo;
         info.privileges = Collections.singletonList(privilegeInfo);
 
-        AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, deviceLifeCycle.getAuthorizedActions().get(0).getId(), AuthorizedActionRequestFactory.Operation.CREATE);
+        AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, info, AuthorizedActionRequestFactory.Operation.CREATE);
         AuthorizedAction newAction = request.perform();
 
         // Asserts
