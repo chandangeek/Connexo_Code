@@ -3,7 +3,8 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
     views: [
         'Dlc.devicelifecycles.view.Setup',
-        'Dlc.devicelifecycles.view.Add'
+        'Dlc.devicelifecycles.view.Add',
+        'Dlc.devicelifecycles.view.Clone'
     ],
 
     stores: [
@@ -26,6 +27,10 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
         {
             ref: 'addPage',
             selector: 'device-life-cycles-add'
+        },
+        {
+            ref: 'clonePage',
+            selector: 'device-life-cycles-clone'
         }
     ],
 
@@ -34,16 +39,31 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             'device-life-cycles-setup device-life-cycles-grid': {
                 select: this.showDeviceLifeCyclePreview
             },
-            'device-life-cycles-add #add-button': {
+            'device-life-cycles-add-form button[action=add]': {
                 click: this.createDeviceLifeCycle
+            },
+            'device-life-cycles-add-form button[action=clone]': {
+                click: this.cloneDeviceLifeCycle
             },
             'device-life-cycles-action-menu menuitem[action=remove]': {
                 click: this.showRemoveConfirmationPanel
+            },
+            'device-life-cycles-action-menu menuitem[action=clone]': {
+                click: this.moveToClone
             }
         });
     },
 
-    showRemoveConfirmationPanel: function() {
+    moveToClone: function () {
+        var me = this,
+            grid = me.getLifeCyclesGrid(),
+            record = grid.getSelectionModel().getLastSelected(),
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute('administration/devicelifecycles/clone').forward({deviceLifeCycleId: record.get('id')});
+    },
+
+    showRemoveConfirmationPanel: function () {
         var me = this,
             grid = me.getLifeCyclesGrid(),
             record = grid.getSelectionModel().getLastSelected();
@@ -105,6 +125,60 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             });
 
         me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showCloneDeviceLifeCycle: function (deviceLifeCycleId) {
+        var me = this,
+            deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
+            view;
+
+        deviceLifeCycleModel.load(deviceLifeCycleId, {
+            success: function (deviceLifeCycleRecord) {
+                var title = Uni.I18n.translate('general.clone', 'DLC', 'Clone') + " '" + deviceLifeCycleRecord.get('name') + "'";
+                me.getApplication().fireEvent('devicelifecyclecloneload', title);
+                view = Ext.widget('device-life-cycles-clone', {
+                    router: me.getController('Uni.controller.history.Router'),
+                    title: title,
+                    infoText: Uni.I18n.translatePlural('deviceLifeCycles.clone.templateMsg', deviceLifeCycleRecord.get('name'), 'DLC', "The new device life cycle is based on the '{0}' and will use the same states and transitions.")
+                });
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
+    },
+
+    cloneDeviceLifeCycle: function () {
+        var me = this,
+            page = me.getClonePage(),
+            form = page.down('#device-life-cycles-add-form'),
+            formErrorsPanel = form.down('#form-errors'),
+            router = me.getController('Uni.controller.history.Router'),
+            data = {};
+
+        if (!formErrorsPanel.isHidden()) {
+            formErrorsPanel.hide();
+            form.getForm().clearInvalid();
+        }
+
+        data.name = form.down('#device-life-cycle-name').getValue();
+        page.setLoading();
+        Ext.Ajax.request({
+            url: '/api/dld/devicelifecycles/' + router.arguments.deviceLifeCycleId + '/clone',
+            method: 'POST',
+            jsonData: data,
+            success: function () {
+                router.getRoute('administration/devicelifecycles').forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.clone.successMsg', 'DLC', 'Device life cycle cloned'));
+            },
+            failure: function (response) {
+                page.setLoading(false);
+                var json = Ext.decode(response.responseText, true);
+                if (json && json.errors) {
+                    form.getForm().markInvalid(json.errors);
+                    formErrorsPanel.show();
+                }
+            }
+        });
+
     },
 
     createDeviceLifeCycle: function () {

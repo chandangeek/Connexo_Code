@@ -19,6 +19,19 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                             controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
                             action: 'showAddDeviceLifeCycle'
                         },
+                        clone: {
+                            title: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Clone device life cycle'),
+                            route: '{deviceLifeCycleId}/clone',
+                            controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                            action: 'showCloneDeviceLifeCycle',
+                            callback: function (route) {
+                                this.getApplication().on('devicelifecyclecloneload', function (title) {
+                                    route.setTitle(title);
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+                        },
                         devicelifecycle: {
                             route: '{deviceLifeCycleId}',
                             redirect: 'administration/devicelifecycles/devicelifecycle/states',
