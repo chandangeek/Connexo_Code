@@ -8,6 +8,7 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Checks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -276,6 +277,7 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         private final StateUpdater continuation;
         private final StateTransitionEventType eventType;
         private final State from;
+        private String transitionName;
 
         private AddTransitionToExistingState(StateUpdater continuation, StateTransitionEventType eventType, State from) {
             super();
@@ -295,9 +297,18 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
+        public FiniteStateMachineUpdater.TransitionBuilder transitionName(String transitionName) {
+            if (!Checks.is(transitionName).emptyOrOnlyWhiteSpace()) {
+                this.transitionName = transitionName;
+            }
+            return this;
+        }
+
+        @Override
         public StateUpdater transitionTo(State state) {
             FiniteStateMachineImpl stateMachine = getUnderConstruction();
             StateTransitionImpl stateTransition = this.newInitializedTransition(state, stateMachine);
+            stateTransition.setName(this.transitionName);
             if (isPersistent(state)) {
                 stateMachine.add(stateTransition);
             }
