@@ -5242,16 +5242,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>14</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78720</entityId>
@@ -5312,16 +5303,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>8</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78719</entityId>
@@ -5442,6 +5424,16 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
+      <reportFormat>
+        <entityCode>REPORTFIELD</entityCode>
+        <entityId>1</entityId>
+        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
+        <formatCode>TRUE</formatCode>
+        <formatValue>0</formatValue>
+        <fieldId>0</fieldId>
+        <chartId>0</chartId>
+        <seriesId>0</seriesId>
+      </reportFormat>	  
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78723</entityId>
@@ -5591,16 +5583,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>3</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78720</entityId>
@@ -5760,16 +5743,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>7</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>DATA</entityCode>
         <entityId>0</entityId>
@@ -6087,16 +6061,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>10</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>PDF</entityCode>
         <entityId>0</entityId>
@@ -6216,16 +6181,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>6</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78719</entityId>
@@ -6763,16 +6719,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>9</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
         <entityId>6</entityId>
@@ -7148,16 +7095,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>2</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78721</entityId>
@@ -7661,16 +7599,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>2</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+      
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78724</entityId>
@@ -8027,16 +7956,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>3</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+      
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78724</entityId>
@@ -8910,16 +8830,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>4</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78724</entityId>
@@ -9882,6 +9793,16 @@ end</SQLClause>
         <seriesId>0</seriesId>
       </reportFormat>
       <reportFormat>
+        <entityCode>REPORTFIELD</entityCode>
+        <entityId>1</entityId>
+        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
+        <formatCode>TRUE</formatCode>
+        <formatValue>0</formatValue>
+        <fieldId>0</fieldId>
+        <chartId>0</chartId>
+        <seriesId>0</seriesId>
+      </reportFormat>	  
+      <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78819</entityId>
         <formatTypeCode>DAY30</formatTypeCode>
@@ -9990,16 +9911,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>10</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
         <entityId>4</entityId>
@@ -10029,16 +9941,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>4</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78819</entityId>
@@ -10118,16 +10021,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>11</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+ 
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78818</entityId>
@@ -10165,16 +10059,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>5</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>CHART</entityCode>
         <entityId>0</entityId>
@@ -10501,16 +10386,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>9</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78820</entityId>
@@ -11397,16 +11273,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>14</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+ 
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
         <entityId>10</entityId>
@@ -12082,16 +11949,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>2</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78818</entityId>
@@ -12142,16 +12000,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>13</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>CSV</entityCode>
         <entityId>0</entityId>
@@ -12530,16 +12379,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>6</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>DATA</entityCode>
         <entityId>0</entityId>
@@ -12806,16 +12646,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>3</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
         <entityId>9</entityId>
@@ -14195,16 +14026,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>8</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78946</entityId>
@@ -14363,16 +14185,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>17</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
         <entityId>19</entityId>
@@ -14471,16 +14284,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>10</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>PDF</entityCode>
         <entityId>0</entityId>
@@ -14611,16 +14415,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>15</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>PDF</entityCode>
         <entityId>0</entityId>
@@ -14848,16 +14643,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>2</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78945</entityId>
@@ -14928,26 +14714,8 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>9</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>14</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78945</entityId>
@@ -15373,16 +15141,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>13</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78945</entityId>
@@ -15622,16 +15381,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>16</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78945</entityId>
@@ -15716,26 +15466,6 @@ end</SQLClause>
         <entityId>0</entityId>
         <formatTypeCode>SECURE</formatTypeCode>
         <formatCode>false</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>19</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>4</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
         <formatValue>0</formatValue>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
@@ -16683,6 +16413,16 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
+      <reportFormat>
+        <entityCode>REPORTFIELD</entityCode>
+        <entityId>1</entityId>
+        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
+        <formatCode>TRUE</formatCode>
+        <formatValue>0</formatValue>
+        <fieldId>0</fieldId>
+        <chartId>0</chartId>
+        <seriesId>0</seriesId>
+      </reportFormat>	  
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78981</entityId>
@@ -18750,16 +18490,6 @@ end</SQLClause>
         <seriesId>0</seriesId>
       </reportFormat>
       <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>6</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>79021</entityId>
         <formatTypeCode>DAY30</formatTypeCode>
@@ -18872,16 +18602,6 @@ end</SQLClause>
         <entityId>79020</entityId>
         <formatTypeCode>FILTERPROMPT</formatTypeCode>
         <formatCode>DIRECT</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>2</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
         <formatValue>0</formatValue>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
@@ -19533,16 +19253,6 @@ end</SQLClause>
       </reportFormat>
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
-        <entityId>8</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
         <entityId>14</entityId>
         <formatTypeCode>TEXTALIGN</formatTypeCode>
         <formatCode>RIGHT</formatCode>
@@ -19655,16 +19365,6 @@ end</SQLClause>
         <entityId>0</entityId>
         <formatTypeCode>FOOTERSIZE</formatTypeCode>
         <formatCode/>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>10</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
         <formatValue>0</formatValue>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
@@ -19799,16 +19499,6 @@ end</SQLClause>
         <seriesId>0</seriesId>
       </reportFormat>
       <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>3</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>79020</entityId>
         <formatTypeCode>ALLOWPRESET</formatTypeCode>
@@ -19886,16 +19576,6 @@ end</SQLClause>
         <seriesId>0</seriesId>
       </reportFormat>
       <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>11</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>79021</entityId>
         <formatTypeCode>LINKDATEOFFSET</formatTypeCode>
@@ -19934,17 +19614,7 @@ end</SQLClause>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>9</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
+      </reportFormat>      
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
         <entityId>1</entityId>
@@ -19960,16 +19630,6 @@ end</SQLClause>
         <entityId>79020</entityId>
         <formatTypeCode>ALLOWDATETRAVERSE</formatTypeCode>
         <formatCode>FALSE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>7</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
         <formatValue>0</formatValue>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
@@ -20216,16 +19876,6 @@ end</SQLClause>
       </reportFormat>
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
-        <entityId>13</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
         <entityId>10</entityId>
         <formatTypeCode>FIELDTOTAL</formatTypeCode>
         <formatCode>false</formatCode>
@@ -20457,16 +20107,6 @@ end</SQLClause>
         <formatTypeCode>PREDEF_DATE_OPTIONS</formatTypeCode>
         <formatValue>0</formatValue>
         <description/>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>4</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
@@ -20971,16 +20611,6 @@ end</SQLClause>
         <seriesId>0</seriesId>
       </reportFormat>
       <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>10</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78766</entityId>
         <formatTypeCode>SAVEFILTER</formatTypeCode>
@@ -20994,16 +20624,6 @@ end</SQLClause>
         <entityCode>FILTER</entityCode>
         <entityId>78766</entityId>
         <formatTypeCode>USERPROMPT</formatTypeCode>
-        <formatCode>TRUE</formatCode>
-        <formatValue>0</formatValue>
-        <fieldId>0</fieldId>
-        <chartId>0</chartId>
-        <seriesId>0</seriesId>
-      </reportFormat>
-      <reportFormat>
-        <entityCode>REPORTFIELD</entityCode>
-        <entityId>11</entityId>
-        <formatTypeCode>SUPPRESSDUPS</formatTypeCode>
         <formatCode>TRUE</formatCode>
         <formatValue>0</formatValue>
         <fieldId>0</fieldId>
