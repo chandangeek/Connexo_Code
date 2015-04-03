@@ -27,6 +27,6 @@ public class AdvanceReadingsSettingsInfo {
         if (advanceReadingsSettings instanceof ReadingTypeAdvanceReadingsSettings) {
             readingType = ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType();
         }
-
     }
+
 }

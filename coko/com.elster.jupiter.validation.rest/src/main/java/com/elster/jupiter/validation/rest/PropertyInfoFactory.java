@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.rest.util.properties.ListValueInfo;
+import com.elster.jupiter.time.RelativePeriod;
 
 public class PropertyInfoFactory {
 
@@ -22,7 +23,10 @@ public class PropertyInfoFactory {
             return infos;
         }
         if (property instanceof AdvanceReadingsSettings) {
-            return new AdvanceReadingsSettingsInfo((AdvanceReadingsSettings) property);
+            return property.toString();
+        }
+        if (property instanceof RelativePeriod) {
+            return ((RelativePeriod) property).getId();
         }
         return property;
     }

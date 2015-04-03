@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.elster.jupiter.estimation.AdvanceReadingsSettings;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
