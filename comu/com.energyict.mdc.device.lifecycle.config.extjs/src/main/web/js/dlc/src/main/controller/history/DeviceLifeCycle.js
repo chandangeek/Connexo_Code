@@ -74,7 +74,21 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     title: Uni.I18n.translate('general.transitions', 'DLC', 'Transitions'),
                                     route: 'transitions',
                                     controller: 'Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
-                                    action: 'showDeviceLifeCycleTransitions'
+                                    action: 'showDeviceLifeCycleTransitions',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('general.add', 'DLC', 'Add'),
+                                            route: 'add',
+                                            controller: 'Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
+                                            action: 'showAddDeviceLifeCycleTransition'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
+                                            route: '{transitionId}/edit',
+                                            controller: 'Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
+                                            action: 'showAddDeviceLifeCycleTransition'
+                                        }
+                                    }
                                 }
                             }
                         }

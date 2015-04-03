@@ -6,6 +6,7 @@ Ext.define('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition', {
         'fromState',
         'toState',
         'privileges',
+        'triggeredBy',
         {
             name: 'fromState_name',
             persist: false,
@@ -19,6 +20,23 @@ Ext.define('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition', {
             mapping: function (data) {
                 return data.toState.name;
             }
+        },
+        {
+            name: 'triggeredBy_name',
+            persist: false,
+            mapping: function (data) {
+                return data.triggeredBy.name;
+            }
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        urlTpl: '/api/dld/devicelifecycles/{id}/actions',
+        reader: {
+            type: 'json'
+        },
+        setUrl: function (params) {
+            this.url = this.urlTpl.replace('{id}', params.deviceLifeCycleId);
+        }
+    }
 });

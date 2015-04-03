@@ -7,6 +7,17 @@ Ext.define('Dlc.devicelifecycletransitions.view.Preview', {
         'Dlc.devicelifecycletransitions.view.PreviewForm'
     ],
 
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'DLC', 'Actions'),
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'transitions-action-menu'
+            }
+        }
+    ],
+
     items: {
         xtype: 'device-life-cycle-transitions-preview-form'
     }

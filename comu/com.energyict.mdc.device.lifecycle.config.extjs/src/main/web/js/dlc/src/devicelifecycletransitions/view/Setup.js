@@ -6,7 +6,8 @@ Ext.define('Dlc.devicelifecycletransitions.view.Setup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Dlc.devicelifecycletransitions.view.Grid',
         'Dlc.devicelifecycletransitions.view.Preview',
-        'Dlc.main.view.SideMenu'
+        'Dlc.main.view.SideMenu',
+        'Dlc.devicelifecycletransitions.view.ActionsMenu'
     ],
 
     router: null,
@@ -34,6 +35,12 @@ Ext.define('Dlc.devicelifecycletransitions.view.Setup', {
                         title: Uni.I18n.translate('deviceLifeCycleTransitions.empty.title', 'DLC', 'No transitions found'),
                         reasons: [
                             Uni.I18n.translate('deviceLifeCycleTransitions.empty.list.item1', 'DLC', 'No transitions have been added yet')
+                        ],
+                        stepItems: [
+                            {
+                                text: Uni.I18n.translate('general.addTransition', 'DLC', 'Add transition'),
+                                href: me.router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add').buildUrl()
+                            }
                         ]
                     },
                     previewComponent: {

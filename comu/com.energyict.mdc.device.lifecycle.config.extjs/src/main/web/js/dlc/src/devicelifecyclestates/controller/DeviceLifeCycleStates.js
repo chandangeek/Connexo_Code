@@ -77,7 +77,15 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
         record.save({
             success: function () {
-                router.getRoute('administration/devicelifecycles/devicelifecycle/states').forward();
+                var route;
+                if (me.fromAddTransition) {
+                    route = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add');
+                } else if (me.fromEditTransition) {
+                    route = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/edit');
+                } else {
+                    route = router.getRoute('administration/devicelifecycles/devicelifecycle/states');
+                }
+                route.forward();
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
             failure: function (record, operation) {
@@ -98,7 +106,18 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     },
 
     cancelAction: function () {
-        this.getController('Uni.controller.history.Router').getRoute('administration/devicelifecycles/devicelifecycle/states').forward();
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+
+        if (me.fromAddTransition) {
+            route = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add');
+        } else if (me.fromEditTransition) {
+            route = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/edit');
+        } else {
+            route = router.getRoute('administration/devicelifecycles/devicelifecycle/states');
+        }
+        route.forward();
     },
 
     moveToCreatePage: function () {
@@ -158,8 +177,9 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             form = widget.down('#lifeCycleStateEditForm'),
             createBtn = widget.down('#createEditButton');
 
+        me.fromEditTransition = router.queryParams.fromEditTransitionPage === 'true';
+        me.fromAddTransition = router.queryParams.fromEditTransitionPage === 'false';
         stateModel.getProxy().setUrl(router.arguments);
-
         deviceLifeCycleModel.load(deviceLifeCycleId, {
             success: function (deviceLifeCycleRecord) {
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);

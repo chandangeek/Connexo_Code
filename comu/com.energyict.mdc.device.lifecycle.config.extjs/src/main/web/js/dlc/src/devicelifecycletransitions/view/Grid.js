@@ -25,6 +25,18 @@ Ext.define('Dlc.devicelifecycletransitions.view.Grid', {
                 header: Uni.I18n.translate('general.to', 'DLC', 'To'),
                 dataIndex: 'toState_name',
                 flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.triggeredBy', 'DLC', 'Triggered by'),
+                dataIndex: 'triggeredBy_name',
+                flex: 1
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'transitions-action-menu',
+                    itemId: 'transitions-action-menu'
+                }
             }
         ];
 
@@ -35,7 +47,16 @@ Ext.define('Dlc.devicelifecycletransitions.view.Grid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('deviceLifeCycleTransitions.pagingtoolbartop.displayMsg', 'DLC', '{0} - {1} of {2} transitions'),
                 displayMoreMsg: Uni.I18n.translate('deviceLifeCycleTransitions.pagingtoolbartop.displayMoreMsg', 'DLC', '{0} - {1} of more than {2} transitions'),
-                emptyMsg: Uni.I18n.translate('deviceLifeCycleTransitions.pagingtoolbartop.emptyMsg', 'DLC', 'There are no transitions to display')
+                emptyMsg: Uni.I18n.translate('deviceLifeCycleTransitions.pagingtoolbartop.emptyMsg', 'DLC', 'There are no transitions to display'),
+                items: [
+                    '->',
+                    {
+                        xtype: 'button',
+                        itemId: 'toolbar-button',
+                        text: Uni.I18n.translate('general.addTransition', 'DLC', 'Add transition'),
+                        href: me.router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add').buildUrl()
+                    }
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',

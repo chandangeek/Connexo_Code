@@ -22,6 +22,10 @@ Ext.define('Dlc.devicelifecycletransitions.view.PreviewForm', {
                 name: 'toState_name'
             },
             {
+                fieldLabel: Uni.I18n.translate('general.triggeredBy', 'DLC', 'Triggered by'),
+                name: 'triggeredBy_name'
+            },
+            {
                 fieldLabel: Uni.I18n.translate('general.privileges', 'DLC', 'Privileges'),
                 name: 'privileges',
                 renderer: function (privileges) {
