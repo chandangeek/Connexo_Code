@@ -30,4 +30,14 @@ public class AdvanceReadingsSettingsInfo {
         }
     }
 
+    public String toString() {
+        if (readingType != null) {
+            return readingType.mRID;
+        } else if (bulk) {
+            return BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS;
+        } else {
+            return NoneAdvanceReadingsSettings.NONE_ADVANCE_READINGS_SETTINGS;
+        }
+    }
+
 }

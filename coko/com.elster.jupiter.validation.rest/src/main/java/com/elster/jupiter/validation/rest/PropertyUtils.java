@@ -15,6 +15,8 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
 public class PropertyUtils {
 
@@ -118,6 +120,12 @@ public class PropertyUtils {
                 }
                 return listValue;
             }
+        }
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), RelativePeriod.class)) {
+            return propertySpec.getValueFactory().fromStringValue("" + ((RelativePeriodInfo) value).id);
+        }
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), AdvanceReadingsSettings.class)) {
+            return propertySpec.getValueFactory().fromStringValue(((AdvanceReadingsSettingsInfo) value).toString());
         }
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), Boolean.class)) {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
