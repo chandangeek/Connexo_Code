@@ -30,6 +30,7 @@ public class AdvanceReadingsSettingsInfo {
         }
     }
 
+
     public String toString() {
         if (readingType != null) {
             return readingType.mRID;

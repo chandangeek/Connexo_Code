@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
+import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
@@ -122,10 +124,17 @@ public class PropertyUtils {
             }
         }
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), RelativePeriod.class)) {
-            return propertySpec.getValueFactory().fromStringValue("" + ((RelativePeriodInfo) value).id);
+            return propertySpec.getValueFactory().fromStringValue("" + ((Map)value).get("id"));
         }
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), AdvanceReadingsSettings.class)) {
-            return propertySpec.getValueFactory().fromStringValue(((AdvanceReadingsSettingsInfo) value).toString());
+            Map map = (Map) value;
+            String advanceSettings = NoneAdvanceReadingsSettings.NONE_ADVANCE_READINGS_SETTINGS;
+            if ((Boolean) map.get(BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS)) {
+                advanceSettings = BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS;
+            } else if (map.get("readingType") != null) {
+                advanceSettings = (String) ((Map) map.get("readingType")).get("mRID");
+            }
+            return propertySpec.getValueFactory().fromStringValue(advanceSettings);
         }
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), Boolean.class)) {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
