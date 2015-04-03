@@ -14,6 +14,7 @@ import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
@@ -145,10 +146,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, false, new BooleanFactory()));
 
-        builder.add(getPropertySpecService().relativePeriodPropertySpec(
-                RELATIVE_PERIOD, false, null));
-
-
+        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
 
         PropertySpecBuilder propertySpecBuilder = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService));
         propertySpecBuilder.markRequired();
