@@ -4,7 +4,20 @@ Ext.define('Dlc.devicelifecycles.view.Preview', {
     alias: 'widget.device-life-cycles-preview',
 
     requires: [
-        'Dlc.devicelifecycles.view.PreviewForm'
+        'Dlc.devicelifecycles.view.PreviewForm',
+        'Dlc.devicelifecycles.view.ActionMenu'
+    ],
+
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'DLC', 'Actions'),
+            iconCls: 'x-uni-action-iconD',
+            menu: {
+                xtype: 'device-life-cycles-action-menu',
+                itemId: 'lifeCyclesActionMenu'
+            }
+        }
     ],
 
     items: {
