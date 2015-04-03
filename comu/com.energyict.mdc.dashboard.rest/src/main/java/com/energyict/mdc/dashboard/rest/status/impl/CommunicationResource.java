@@ -133,7 +133,7 @@ public class CommunicationResource {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        return handleCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow");
+        return queueCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow");
     }
 
     @PUT
@@ -145,10 +145,10 @@ public class CommunicationResource {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        return handleCommunicationBulkAction(communicationsBulkRequestInfo, "runNow");
+        return queueCommunicationBulkAction(communicationsBulkRequestInfo, "runNow");
     }
 
-    private Response handleCommunicationBulkAction(CommunicationsBulkRequestInfo communicationsBulkRequestInfo, String action) throws Exception {
+    private Response queueCommunicationBulkAction(CommunicationsBulkRequestInfo communicationsBulkRequestInfo, String action) throws Exception {
         if (communicationsBulkRequestInfo !=null && communicationsBulkRequestInfo.filter!=null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
