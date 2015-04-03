@@ -47,6 +47,7 @@ Ext.define('Cfg.controller.Validation', {
         'validation.VersionsContainer',
         'validation.AddVersion',
         'validation.VersionOverview',
+        'validation.VersionRulePreviewContainer'
     ],
 
     refs: [
@@ -87,7 +88,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'addReadingTypesSetup', selector: '#addReadingTypesToRuleSetup'},
         {ref: 'versionsContainer', selector: 'versionsContainer'},
         {ref: 'addVersion', selector: 'addVersion'},
-        {ref: 'versionOverview', selector: 'versionOverview'}
+        {ref: 'versionOverview', selector: 'versionOverview'},
+        {ref: 'versionRulePreviewContainer', selector: 'versionRulePreviewContainer'}
 
     ],
 
@@ -797,7 +799,7 @@ Ext.define('Cfg.controller.Validation', {
         Ext.suspendLayouts();
 
         var me = this,
-            itemPanel = me.getRulePreviewContainer() || me.getRuleSetBrowsePanel() || me.getVersionsContainer(),
+            itemPanel = me.getRulePreviewContainer() || me.getRuleSetBrowsePanel() || me.getVersionsContainer() || me.getVersionRulePreviewContainer(),
             itemForm = itemPanel.down('validation-rule-preview'),
             selectedRule;
         if (grid.view) {
@@ -814,6 +816,8 @@ Ext.define('Cfg.controller.Validation', {
         } else if (me.getRulePreviewContainer()) {
             itemForm.down('validation-rule-action-menu').record = record;
         } else if (me.getVersionsContainer()){
+            me.getRulePreview().down('validation-rule-action-menu').record = record;
+        } else if (me.getVersionRulePreviewContainer()) {
             me.getRulePreview().down('validation-rule-action-menu').record = record;
         }
 
@@ -1034,7 +1038,7 @@ Ext.define('Cfg.controller.Validation', {
     deleteRule: function (rule) {
         var self = this,
             router = this.getController('Uni.controller.history.Router'),
-            view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || me.getVersionsContainer(),
+            view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || me.getVersionsContainer();/*
             grid = view.down('#validationruleList'),
             gridRuleSet = view.down('#validationrulesetList');
 
@@ -1042,7 +1046,7 @@ Ext.define('Cfg.controller.Validation', {
             var ruleSetSelModel = gridRuleSet.getSelectionModel(),
                 ruleSet = ruleSetSelModel.getLastSelected();
         }
-
+*/
         view.setLoading('Removing...');
 
         rule.getProxy().setUrl(router.arguments.ruleSetId);
@@ -1063,7 +1067,10 @@ Ext.define('Cfg.controller.Validation', {
                         });
                     } else if (self.getRuleOverview()) {
                         router.getRoute('administration/rulesets/overview/rules').forward();
-                    } else {
+                    } else if (self.getVersionOverview()) {
+                        router.getRoute('administration/rulesets/overview/versions').forward();
+                    }
+                    else {
                         grid.getStore().load({
                             params: {
                                 id: rule.get('ruleSetId')
@@ -1320,7 +1327,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             //view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview(),
-            view = me.getVersionsContainer(),
+            view = me.getVersionsContainer() || me.getVersionOverview(),
             grid = view.down('#versionsList');
             //gridRuleSet = view.down('#validationrulesetList');
 
@@ -1331,7 +1338,7 @@ Ext.define('Cfg.controller.Validation', {
 */
         view.setLoading();
 
-        version.getProxy().setUrl(router.arguments.ruleSetId);
+        version.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId);
         version.destroy({
             callback: function (records, operation) {
                 if (operation.success) {
@@ -1388,7 +1395,7 @@ Ext.define('Cfg.controller.Validation', {
         me.addVersion(router.arguments.ruleSetId);*/
     },
 
-    addEditCloneVersion: function(ruleSetId, versionId, isClone) { 
+    addEditCloneVersion: function(ruleSetId, versionId, isClone) {
 
         var me = this,
             versionsStore = Ext.create('Cfg.store.ValidationRuleSetVersions'),
@@ -1582,5 +1589,44 @@ Ext.define('Cfg.controller.Validation', {
             }
         });*/
     },
+
+    showVersionRules: function (ruleSetId, versionId) {
+        var me = this,
+            rulesStore = Ext.create('Cfg.store.ValidationRules');
+
+        rulesStore.load({
+            params: {
+                ruleSetId: ruleSetId,
+                versionId: versionId
+            },
+            callback: function (records, operation, success) {
+                var selectedRuleSet = rulesStore.getByInternalId(versionId),
+                    rulesContainerWidget = Ext.widget('versionRulePreviewContainer', {
+                        ruleSetId: ruleSetId,
+                        versionId: versionId
+                    });
+                me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
+                rulesContainerWidget.down('#versionMenu #versionValidationRulesLink').setText(selectedRuleSet.get('name'));
+            }
+        });
+
+        /*
+        me.validationRuleRecord = null;
+        me.ruleSetId = id;
+        me.fromRulePreview = false;
+        ruleSetsStore.load({
+            params: {
+                id: id
+            },
+            callback: function () {
+                var selectedRuleSet = ruleSetsStore.getByInternalId(id),
+                    rulesContainerWidget = Ext.widget('rulePreviewContainer', {ruleSetId: id});
+                me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
+                rulesContainerWidget.down('#stepsMenu #ruleSetOverviewLink').setText(selectedRuleSet.get('name'));
+
+                me.getApplication().fireEvent('loadRuleSet', selectedRuleSet);
+            }
+        });*/
+    }
 
 });

@@ -37,8 +37,8 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
             type: 'json',
             root: 'rules'
         },
-        setUrl: function (id) {
-            this.url = this.urlTpl.replace('{ruleSetId}', id);
+        setUrl: function (ruleSetId, versionId) {
+            this.url = this.urlTpl.replace('{ruleSetId}', ruleSetId).replace('{versionId}', versionId);
         },
         timeout: 300000
     }

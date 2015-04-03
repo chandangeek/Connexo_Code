@@ -168,7 +168,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                     route: 'rules',
                                                     controller: 'Cfg.controller.Validation',
                                                     privileges: ['privilege.administrate.validationConfiguration'],
-                                                    action: 'showRules'
+                                                    action: 'showVersionRules'
                                                 }
                                             }
                                         }
