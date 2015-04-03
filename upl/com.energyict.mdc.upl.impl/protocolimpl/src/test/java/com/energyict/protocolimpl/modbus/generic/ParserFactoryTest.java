@@ -136,6 +136,42 @@ public class ParserFactoryTest {
     }
 
     @Test
+    public void test32BitsModulo10Parser() throws Exception {
+        int[] values = new int[]{0x00B1, 0x035A};
+
+        // Business method
+        Object val = getParser(DataTypeSelector.MODULO10_32_BIT_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
+
+        // Asserts
+        BigDecimal expected = new BigDecimal("1770858");
+        Assert.assertEquals(expected, val);
+    }
+
+    @Test
+    public void testEndian64BitsModulo10Parser() throws Exception {
+        int[] values = new int[]{0x0000, 0x0001, 0x031D, 0x0E1f};
+
+        // Business method
+        Object val = getParser(DataTypeSelector.MODULO10_64_BIT_DATA_TYPE.getDataTypeCode()).val(values, getDummyRegister());
+
+        // Asserts
+        BigDecimal expected = new BigDecimal("107973615");
+        Assert.assertEquals(expected, val);
+    }
+
+    @Test
+    public void testLittleEndian64BitsModulo10Parser() throws Exception {
+        int[] values = new int[]{0x0E1f, 0x031D, 0x0001, 0x0000};
+
+        // Business method
+        Object val = getParser(DataTypeSelector.MODULO10_64_BIT_DATA_TYPE.getDataTypeCode() + LITTLE_ENDIAN_OFFSET).val(values, getDummyRegister());
+
+        // Asserts
+        BigDecimal expected = new BigDecimal("107973615");
+        Assert.assertEquals(expected, val);
+    }
+
+    @Test
     public void test32BitsBCDParser() throws Exception {
         int[] values = new int[]{0x0177, 0x0858};
 

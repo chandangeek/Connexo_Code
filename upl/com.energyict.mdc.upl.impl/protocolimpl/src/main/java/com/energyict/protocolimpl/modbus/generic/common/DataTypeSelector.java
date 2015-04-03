@@ -24,6 +24,8 @@ public class DataTypeSelector {
     public static final DataType FLOAT_64_BIT_DATA_TYPE = new DataType("FLOAT_64BIT", 8, 4);
     public static final DataType BCD_32_BIT_DATA_TYPE = new DataType("BCD_32BIT", 9, 2);
     public static final DataType BCD_64_BIT_DATA_TYPE = new DataType("BCD_64BIT", 10, 4);
+    public static final DataType MODULO10_32_BIT_DATA_TYPE = new DataType("MODULO10_32BIT", 11, 2);
+    public static final DataType MODULO10_64_BIT_DATA_TYPE = new DataType("MODULO10_64BIT", 12, 4);
     public static final DataType ASCII_DATA_TYPE = new DataType("ASCII", 16, 1);
     public static final DataType UNKNOWN_DATA_TYPE = new DataType("UNKNOWN", -1, 0);
 
@@ -39,6 +41,8 @@ public class DataTypeSelector {
         dataTypes.add(FLOAT_64_BIT_DATA_TYPE);
         dataTypes.add(BCD_32_BIT_DATA_TYPE);
         dataTypes.add(BCD_64_BIT_DATA_TYPE);
+        dataTypes.add(MODULO10_32_BIT_DATA_TYPE);
+        dataTypes.add(MODULO10_64_BIT_DATA_TYPE);
         dataTypes.add(ASCII_DATA_TYPE);
     }
 

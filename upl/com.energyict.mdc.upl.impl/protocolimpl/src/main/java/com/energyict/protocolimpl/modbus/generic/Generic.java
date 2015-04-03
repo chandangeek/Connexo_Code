@@ -141,7 +141,7 @@ public class Generic extends Modbus {
     }
 
     /**
-     * The version date
+     * The protocol version
      */
     @Override
     public String getProtocolVersion() {

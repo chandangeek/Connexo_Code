@@ -33,31 +33,24 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
                 || dataType.equals(DataTypeSelector.REGISTER_DATA_TYPE)
                 || dataType.equals(DataTypeSelector.INTEGER_DATA_TYPE)
                 || dataType.equals(DataTypeSelector.LONG_DATA_TYPE)) {
-            return dataTypeSelector.isBigEndianEncoded()
-                    ? getUnsignedValueParser(true)
-                    : getUnsignedValueParser(false);
+            return getUnsignedValueParser(dataTypeSelector.isBigEndianEncoded());
         } else if (dataType.equals(DataTypeSelector.SIGNED_REGISTER_DATA_TYPE) ||
                 dataType.equals(DataTypeSelector.SIGNED_INTEGER_DATA_TYPE)
                 || dataType.equals(DataTypeSelector.SIGNED_LONG_DATA_TYPE)) {
-            return dataTypeSelector.isBigEndianEncoded()
-                    ? getSignedValueParser(true)
-                    : getSignedValueParser(false);
+            return getSignedValueParser(dataTypeSelector.isBigEndianEncoded());
         } else if (dataType.equals(DataTypeSelector.FLOAT_32_BIT_DATA_TYPE) ||
                 dataType.equals(DataTypeSelector.FLOAT_64_BIT_DATA_TYPE)) {
-            return dataTypeSelector.isBigEndianEncoded()
-                    ? getFloatingPointParser(true)
-                    : getFloatingPointParser(false);
+            return getFloatingPointParser(dataTypeSelector.isBigEndianEncoded());
         } else if (dataType.equals(DataTypeSelector.BCD_32_BIT_DATA_TYPE)
-            || dataType.equals(DataTypeSelector.BCD_64_BIT_DATA_TYPE)) {
-            return dataTypeSelector.isBigEndianEncoded()
-                    ? getBCDParser(true)
-                    : getBCDParser(false);
+                || dataType.equals(DataTypeSelector.BCD_64_BIT_DATA_TYPE)) {
+            return getBCDParser(dataTypeSelector.isBigEndianEncoded());
+        } else if (dataType.equals(DataTypeSelector.MODULO10_32_BIT_DATA_TYPE)
+                || dataType.equals(DataTypeSelector.MODULO10_64_BIT_DATA_TYPE)) {
+            return getModulo10Parser(dataTypeSelector.isBigEndianEncoded());
         } else if (dataType.equals(DataTypeSelector.ASCII_DATA_TYPE)) {
-            return dataTypeSelector.isBigEndianEncoded()
-                    ? getAsciiParser(true)
-                    : getAsciiParser(false);
+            return getAsciiParser(dataTypeSelector.isBigEndianEncoded());
         } else {
-                throw new ModbusException("ParserFactory, no parser found for key " + key + ".");
+            throw new ModbusException("ParserFactory, no parser found for key " + key + ".");
         }
     }
 
@@ -131,6 +124,26 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
                     }
                 } catch (NumberFormatException e) {
                     throw new ModbusException("ParserFactory, BCDParser, failed to parse the value: " + e.getMessage());
+                }
+            }
+        };
+    }
+
+    private Parser getModulo10Parser(final boolean bigEndianEncoding) {
+        return new Parser() {
+            public Object val(int[] values, AbstractRegister register) throws ModbusException {
+                try {
+                    if (values.length == 2 || values.length == 4) {
+                        long val = 0;
+                        for (int i = 0; i < values.length; i++) {
+                            val += values[i] * (long) Math.pow(10, (bigEndianEncoding ? (values.length - 1 -i) : i) * 4);
+                        }
+                        return BigDecimal.valueOf(val);
+                    } else {
+                        throw new ModbusException("ParserFactory, Modulo10Parser, received data has invalid length (" + values.length + ")");
+                    }
+                } catch (NumberFormatException e) {
+                    throw new ModbusException("ParserFactory, Modulo10Parser, failed to parse the value: " + e.getMessage());
                 }
             }
         };

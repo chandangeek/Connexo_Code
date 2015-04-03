@@ -17,6 +17,8 @@ public class PM5560DataTypeSelector extends DataTypeSelector {
 
     static {
         pm5560DataTypes.addAll(DataTypeSelector.dataTypes);
+        pm5560DataTypes.remove(DataTypeSelector.MODULO10_32_BIT_DATA_TYPE);
+        pm5560DataTypes.remove(DataTypeSelector.MODULO10_64_BIT_DATA_TYPE);
         pm5560DataTypes.add(POWER_FACTOR_DATA_TYPE);
     }
 
