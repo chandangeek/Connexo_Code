@@ -18,6 +18,11 @@ public class RelativePeriodInfo {
 
     }
 
+    public RelativePeriodInfo(RelativePeriod relativePeriod) {
+        this.id = relativePeriod.getId();
+        this.name = relativePeriod.getName();
+    }
+
     public RelativePeriodInfo(RelativePeriod relativePeriod, Thesaurus thesaurus) {
         this.id = relativePeriod.getId();
         this.name = relativePeriod.getName();
