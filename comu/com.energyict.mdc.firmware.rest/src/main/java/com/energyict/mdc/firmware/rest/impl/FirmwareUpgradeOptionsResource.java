@@ -50,7 +50,7 @@ public class FirmwareUpgradeOptionsResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareUpgradeOptionsInfo editFirmwareUpgradeOptions(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareUpgradeOptionsInfo inputOptions) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 

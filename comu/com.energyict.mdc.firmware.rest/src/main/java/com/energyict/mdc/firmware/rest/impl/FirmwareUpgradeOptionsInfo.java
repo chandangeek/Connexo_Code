@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FirmwareUpgradeOptionsInfo {
+    public Long id;
     public List<UpgradeOptionInfo> supportedOptions;
     public List<UpgradeOptionInfo> allowedOptions;
 

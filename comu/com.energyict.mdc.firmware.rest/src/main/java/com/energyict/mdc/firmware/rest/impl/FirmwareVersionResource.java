@@ -52,7 +52,7 @@ public class FirmwareVersionResource {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         Finder<FirmwareVersion> allFirmwaresFinder = firmwareService.findAllFirmwareVersions(getFirmwareVersionConditions(filter, deviceType));
-        List<FirmwareVersion> allFirmwares = allFirmwaresFinder.from(queryParameters)/*.sorted("lower(firmwareVersion)", false)*/.find();
+        List<FirmwareVersion> allFirmwares = allFirmwaresFinder.from(queryParameters).find();
         List<FirmwareVersionInfo> firmwareInfos = FirmwareVersionInfo.from(allFirmwares, thesaurus);
         return PagedInfoList.fromPagedList("firmwares", firmwareInfos, queryParameters);
     }
@@ -71,7 +71,7 @@ public class FirmwareVersionResource {
     @Path("/validate")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response validateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
@@ -88,7 +88,7 @@ public class FirmwareVersionResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response saveFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
@@ -107,7 +107,7 @@ public class FirmwareVersionResource {
     @Path("/{id}/validate")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response validateEditFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
         FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         checkIfEditableOrThrowException(firmwareVersion);
@@ -124,7 +124,7 @@ public class FirmwareVersionResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response editFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
         FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
@@ -140,7 +140,7 @@ public class FirmwareVersionResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response deprecateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id) {
         FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         firmwareService.deprecateFirmwareVersion(firmwareVersion);
