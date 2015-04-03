@@ -10,23 +10,23 @@ public class AuthorizedTransitionActionComplexEditRequest implements AuthorizedA
     private final AuthorizedTransitionAction action;
     private final DeviceLifeCycle deviceLifeCycle;
     private final AuthorizedActionInfo infoForEdit;
+    private final StateTransitionEventType stateTransitionEventType;
 
-    public AuthorizedTransitionActionComplexEditRequest(DeviceLifeCycle deviceLifeCycle, AuthorizedTransitionAction action, AuthorizedActionInfo infoForEdit) {
+    public AuthorizedTransitionActionComplexEditRequest(DeviceLifeCycle deviceLifeCycle, AuthorizedTransitionAction action, StateTransitionEventType eventType, AuthorizedActionInfo infoForEdit) {
         this.action = action;
         this.deviceLifeCycle = deviceLifeCycle;
         this.infoForEdit = infoForEdit;
+        this.stateTransitionEventType = eventType;
     }
 
     @Override
     public AuthorizedAction perform() {
-        StateTransitionEventType eventType = action.getStateTransition().getEventType();
-
         // Remove the old one
         AuthorizedActionChangeRequest deleteRequest = new AuthorizedTransitionActionDeleteRequest(this.deviceLifeCycle, this.action);
         deleteRequest.perform();
 
         // And create a new one
-        AuthorizedActionChangeRequest createRequest = new AuthorizedTransitionActionCreateRequest(this.deviceLifeCycle, eventType, this.infoForEdit);
+        AuthorizedActionChangeRequest createRequest = new AuthorizedTransitionActionCreateRequest(this.deviceLifeCycle, this.stateTransitionEventType, this.infoForEdit);
         return createRequest.perform();
     }
 }

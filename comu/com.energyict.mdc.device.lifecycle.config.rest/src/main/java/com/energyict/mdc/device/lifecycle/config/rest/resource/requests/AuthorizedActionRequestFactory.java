@@ -9,6 +9,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.resource.ResourceHelper;
 import com.energyict.mdc.device.lifecycle.config.rest.response.AuthorizedActionInfo;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class AuthorizedActionRequestFactory {
     private final ResourceHelper resourceHelper;
@@ -24,6 +25,14 @@ public class AuthorizedActionRequestFactory {
         return resourceHelper.findStateTransitionEventTypeOrThrowException(this.info.getEventTypeSymbol());
     }
 
+    private boolean isComplexChanges(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info){
+        Optional<String> specialTransitionName = transitionAction.getStateTransition().getName();
+        return (specialTransitionName.isPresent() && !specialTransitionName.get().equals(info.name))
+                || fromStateChanged(transitionAction, info)
+                || toStateChanged(transitionAction, info)
+                || triggerByChanged(transitionAction, info);
+    }
+
     private boolean fromStateChanged(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info) {
         return this.stateChanged(transitionAction.getStateTransition().getFrom(), info.fromState.id);
     }
@@ -34,6 +43,11 @@ public class AuthorizedActionRequestFactory {
 
     private boolean stateChanged(State state, long stateId) {
         return state.getId() != stateId;
+    }
+
+    private boolean triggerByChanged(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info){
+        String newEventType = info.getEventTypeSymbol();
+        return newEventType != null && !transitionAction.getStateTransition().getEventType().getSymbol().equals(newEventType);
     }
 
     public AuthorizedActionChangeRequest from(DeviceLifeCycle deviceLifeCycle, AuthorizedActionInfo info, Operation operation){
@@ -76,8 +90,8 @@ public class AuthorizedActionRequestFactory {
             AuthorizedActionChangeRequest getRequest(AuthorizedActionRequestFactory factory) {
                 if (factory.authorizedAction instanceof AuthorizedTransitionAction) {
                     AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) factory.authorizedAction;
-                    if (factory.toStateChanged(transitionAction, factory.info) || factory.fromStateChanged(transitionAction, factory.info)) {
-                        return new AuthorizedTransitionActionComplexEditRequest(factory.deviceLifeCycle, transitionAction, factory.info);
+                    if (factory.isComplexChanges(transitionAction, factory.info)) {
+                        return new AuthorizedTransitionActionComplexEditRequest(factory.deviceLifeCycle, transitionAction, factory.getEventType(), factory.info);
                     } else {
                         return new AuthorizedTransitionActionSimpleEditRequest(factory.deviceLifeCycle, transitionAction, factory.info);
                     }

@@ -12,6 +12,7 @@ public class DeviceLifeCycleStateInfo {
     public long id;
     public String name;
     public boolean isCustom;
+    public boolean isInitial;
     public long version;
 
     public DeviceLifeCycleStateInfo() {}
@@ -20,6 +21,7 @@ public class DeviceLifeCycleStateInfo {
         super();
         this.id = state.getId();
         this.isCustom = state.isCustom();
+        this.isInitial = state.isInitial();
         this.version = state.getVersion();
         Optional<DefaultState> defaultState = DefaultState.from(state);
         if (defaultState.isPresent()){

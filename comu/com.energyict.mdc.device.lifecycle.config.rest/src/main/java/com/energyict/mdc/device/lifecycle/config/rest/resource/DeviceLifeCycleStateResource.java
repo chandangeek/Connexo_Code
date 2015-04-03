@@ -85,11 +85,11 @@ public class DeviceLifeCycleStateResource {
     }
 
     @PUT
-    @Path("/{stateId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
-    public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo stateInfo) {
+     @Path("/{stateId}")
+     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+     public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo stateInfo) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         State stateForEdit = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
 
@@ -101,6 +101,20 @@ public class DeviceLifeCycleStateResource {
         State stateAfterEdit = stateUpdater.complete();
         fsmUpdater.complete();
         return Response.ok(deviceLifeCycleStateFactory.from(stateAfterEdit)).build();
+    }
+
+    @PUT
+    @Path("/{stateId}/status")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    public Response setInitialDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        State stateForEdit = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
+        FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
+        FiniteStateMachineUpdater fsmUpdater = finiteStateMachine.startUpdate();
+        fsmUpdater.complete(stateForEdit);
+        return Response.ok(deviceLifeCycleStateFactory.from(stateForEdit)).build();
     }
 
     @DELETE
