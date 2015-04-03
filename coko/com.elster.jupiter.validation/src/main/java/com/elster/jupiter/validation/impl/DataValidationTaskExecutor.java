@@ -6,10 +6,8 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.validation.DataValidationOccurrence;
-import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.DataValidationTaskStatus;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.validation.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -78,7 +76,6 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
 
-        try (TransactionContext transactionContext = transactionService.getContext()) {
 
 
             List<EndDevice> devices = task.getEndDeviceGroup().getMembers(Instant.now());
@@ -87,14 +84,17 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                 if(found.isPresent()){
                     List<? extends MeterActivation> activations = found.get().getMeterActivations();
                     for(MeterActivation activation : activations){
-                        validationService.validate(activation);
+                        try (TransactionContext transactionContext = transactionService.getContext()) {
+                            validationService.validate(activation);
+                            transactionContext.commit();
+                        }
+                        transactionService.execute(VoidTransaction.of(() -> com.elster.jupiter.validation.MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate().get())));
                     }
 
                 }
             }
 
-            transactionContext.commit();
-        }
+
 
     }
 

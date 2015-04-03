@@ -21,7 +21,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_GROUP_REQUIRED(103, Constants.DEVICE_GROUP_REQUIRED_PROPERTY_MISSING_KEY, "At least one device group has to be selected.", Level.SEVERE),
     DUPLICATE_VALIDATION_TASK(104, Constants.DUPLICATE_VALIDATION_TASK, "Name must be unique", Level.SEVERE),
     CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "Cannot delete a validation task (id = {0}) while it is running.", Level.SEVERE),
-    NAME_WITH_SYMBOLS(106, Constants.NAME_WITH_SYMBOLS, "The name of a data validation task should only contain a-z, A-Z, 0-9, . and - character", Level.SEVERE),
+    TASK_VALIDATED_SUCCESFULLY(107, Constants.TASK_VALIDATED_SUCCESFULLY, "Device {0} validated succesfully on {1}", Level.INFO),
 
     NO_SUCH_VALIDATOR(1001, Constants.NO_SUCH_VALIDATOR, "Validator {0} does not exist.", Level.SEVERE),
     NO_SUCH_READINGTYPE(1002, Constants.NO_SUCH_READINGTYPE, "Reading type {0} does not exist.", Level.SEVERE),
@@ -77,6 +77,7 @@ public enum MessageSeeds implements MessageSeed {
         logger.log(getLevel(), format.format(args), t);
     }
 
+
     public enum Constants {
         ;
         public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
@@ -95,6 +96,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DUPLICATE_VALIDATION_TASK = "DuplicateValidationTask";
         public static final String CANNOT_DELETE_WHILE_RUNNING = "CannotDeleteValidationTask";
         public static final String NAME_WITH_SYMBOLS = "CannotAddNameWithSymbols";
+        public static final String TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
 
     }
 }
