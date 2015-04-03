@@ -24,7 +24,7 @@ public class PropertyInfoFactory {
             return infos;
         }
         if (property instanceof AdvanceReadingsSettings) {
-            return property.toString();
+            return new AdvanceReadingsSettingsInfo((AdvanceReadingsSettings) property);
         }
         if (property instanceof RelativePeriod) {
             return new RelativePeriodInfo((RelativePeriod) property);

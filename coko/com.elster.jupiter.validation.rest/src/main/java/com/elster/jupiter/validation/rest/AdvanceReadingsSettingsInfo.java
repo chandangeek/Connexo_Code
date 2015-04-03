@@ -5,6 +5,7 @@ import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 
 /**
  * Created by igh on 3/04/2015.
@@ -13,7 +14,7 @@ public class AdvanceReadingsSettingsInfo {
 
     public boolean none = false;
     public boolean bulk = false;
-    public ReadingType readingType;
+    public ReadingTypeInfo readingType;
 
     public AdvanceReadingsSettingsInfo() {}
 
@@ -25,7 +26,7 @@ public class AdvanceReadingsSettingsInfo {
             bulk = true;
         }
         if (advanceReadingsSettings instanceof ReadingTypeAdvanceReadingsSettings) {
-            readingType = ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType();
+            readingType = new ReadingTypeInfo(((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType());
         }
     }
 
