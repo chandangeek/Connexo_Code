@@ -26,7 +26,7 @@ public class ABBA1500Registry extends AbstractVDEWRegistry {
     public ABBA1500Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, String dateFormat) {
         // Use ChannelMap to dcetermine which VHI tu access... First entry in the ChannelMap is the
         // OBIS B value.
-        super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()), dateFormat);
+        super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()), dateFormat, null);
     }
     // KV TO_DO change OBIS B value to control channel id
     protected void initRegisters() {

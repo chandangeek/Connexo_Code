@@ -12,32 +12,11 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -51,28 +30,23 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
  * @author jme
  * @since 19-aug-2009
- *        <p/>
- *        19-08-2009 jme > Copied ABBA1350 protocol as base for new A1440 protocol
+ * <p/>
+ * 19-08-2009 jme > Copied ABBA1350 protocol as base for new A1440 protocol
  */
 public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
     private final static int DEBUG = 0;
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
     private static final String PROPERTY_DATE_FORMAT = "DateFormat";
+    private static final String PROPERTY_BILLING_DATE_FORMAT = "BillingDateFormat";
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
 
     private static final int MIN_LOADPROFILE = 1;
@@ -115,6 +89,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private Date meterDate = null;
     private String meterSerial = null;
     private String dateFormat = null;
+    private String billingDateFormat = null;
 
     private boolean software7E1;
 
@@ -239,6 +214,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             this.channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
             this.dateFormat = properties.getProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+            this.billingDateFormat = properties.getProperty(PROPERTY_BILLING_DATE_FORMAT);
             this.requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
             this.protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
             this.scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
@@ -323,6 +299,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         result.add("DataReadout");
         result.add("ExtendedLogging");
         result.add(PROPERTY_DATE_FORMAT);
+        result.add(PROPERTY_BILLING_DATE_FORMAT);
         result.add("VDEWCompatible");
         result.add("ForceDelay");
         result.add("Software7E1");
@@ -354,7 +331,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         try {
             this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
                     this.iForceDelay, this.iEchoCancelling, 1, null, this.halfDuplex != 0 ? this.halfDuplexController : null, this.software7E1, logger);
-            this.a1440Registry = new A1440Registry(this, this, dateFormat);
+            this.a1440Registry = new A1440Registry(this, this, dateFormat, billingDateFormat);
             this.a1440Profile = new A1440Profile(this, this, this.a1440Registry);
 
         } catch (ConnectionException e) {
@@ -606,11 +583,21 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                     } else {
                         billingPoint = fs;
                     }
-                    VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
                     timeStampData = read("0.1.2" + billingPoint);
                     toTimeString = dp.parseBetweenBrackets(timeStampData);
-                    vts.parse(toTimeString);
-                    toTime = vts.getCalendar().getTime();
+                    if (billingDateFormat == null || billingDateFormat.length() == 0) {
+                        VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
+                        vts.parse(toTimeString);
+                        toTime = vts.getCalendar().getTime();
+                    } else {
+                        SimpleDateFormat format = new SimpleDateFormat(billingDateFormat);
+                        format.setTimeZone(getTimeZone());
+                        try {
+                            toTime = format.parse(toTimeString);
+                        } catch (ParseException e) {
+                            throw new IOException("Could not parse the received timestamp (" + toTimeString + ") in the configured format + " + billingDateFormat);
+                        }
+                    }
                 } catch (Exception e) {
                     // If encountering a timeout, protocol session should fail immediately. It is not useful to continue.
                     if (e instanceof FlagIEC1107ConnectionException && ((FlagIEC1107ConnectionException) e).getReason() == FlagIEC1107Connection.TIMEOUT_ERROR) {
@@ -642,7 +629,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 String dString = dp.parseBetweenBrackets(data, 0, 1);
                 if ("0000000000".equals(dString)) {
                     // If timestamp is empty - return eventTime null, instead of throwing an error
-					// throw new NoSuchRegisterException();
+                    // throw new NoSuchRegisterException();
                     eventTime = null;
                 } else {
                     VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
@@ -660,7 +647,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 return new RegisterValue(obis, null, null, null);
             }
 
-			Quantity q;
+            Quantity q;
             Unit obisUnit = obis.getUnitElectricity(this.scaler);
             if (obisUnit.isUndefined()) {
                 q = new Quantity(bd, obis.getUnitElectricity(0));

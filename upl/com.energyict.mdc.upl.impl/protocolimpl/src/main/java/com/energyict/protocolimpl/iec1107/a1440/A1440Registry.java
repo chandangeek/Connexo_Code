@@ -54,9 +54,9 @@ public class A1440Registry extends AbstractVDEWRegistry {
 	 * @param meterExceptionInfo
 	 * @param protocolLink
 	 */
-	public A1440Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, String dateFormat) {
+	public A1440Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, String dateFormat, String billingDateFormat) {
 		// Use ChannelMap to dcetermine which VHI tu access... First entry in the ChannelMap is the OBIS B value.
-		super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()), dateFormat);
+		super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()), dateFormat, billingDateFormat);
 	}
 
 	@Override

@@ -1,10 +1,6 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
@@ -13,32 +9,11 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -52,23 +27,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
  * @author jme
  * @since 19-aug-2009
- *
- *        19-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
- *
+ * <p/>
+ * 19-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
  */
 public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
@@ -78,6 +46,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
     private static final String PROPERTY_DATE_FORMAT = "DateFormat";
+    private static final String PROPERTY_BILLING_DATE_FORMAT = "BillingDateFormat";
     private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
 
     private String strID;
@@ -127,8 +96,11 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private DataDumpParser dataDumpParser;
     private String dateFormat = null;
+    private String billingDateFormat = null;
 
-    /** Creates a new instance of AS220, empty constructor */
+    /**
+     * Creates a new instance of AS220, empty constructor
+     */
     public AS220() {
     }
 
@@ -160,7 +132,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         // Read the profile data, and take the limitMaxNrOfDays property in account.
         ProfileData profileData = getAS220Profile().getProfileData(from, to, includeEvents, this.loadProfileNumber);
 
-         // If there are no intervals in the profile, read the profile data again, but now with limitMaxNrOfDays increased with the value of Custom Property limitMaxNrOfDays property
+        // If there are no intervals in the profile, read the profile data again, but now with limitMaxNrOfDays increased with the value of Custom Property limitMaxNrOfDays property
         // This way we can prevent the profile to be stuck at a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
         if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0) && (limiter.getOldToDate().getTime() != limiter.getToDate().getTime())) {
             profileData = getProfileWithLimiter(new ProfileLimiter(limiter.getOldFromDate(), limiter.getOldToDate(), limiter.getLimitMaxNrOfDays() + getLimitMaxNrOfDays()), includeEvents);
@@ -244,6 +216,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
             this.scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
             this.dateFormat = properties.getProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+            this.billingDateFormat = properties.getProperty(PROPERTY_BILLING_DATE_FORMAT);
             this.dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
             if (this.dataReadoutRequest != 0 && this.dataReadoutRequest != 1 && dataReadoutRequest != 2) {
                 throw new InvalidPropertyException("AS220, validateProperties, Property dataReadOutRequest only supports values 0, 1 and 2");
@@ -268,7 +241,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     protected boolean isDataReadout() {
-		return (this.dataReadoutRequest == 1) || (this.dataReadoutRequest == 2);
+        return (this.dataReadoutRequest == 1) || (this.dataReadoutRequest == 2);
     }
 
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
@@ -329,7 +302,8 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         result.add("ExtendedLogging");
         result.add("VDEWCompatible");
         result.add("ForceDelay");
-		result.add(PROPERTY_DATE_FORMAT);
+        result.add(PROPERTY_DATE_FORMAT);
+        result.add(PROPERTY_BILLING_DATE_FORMAT);
         result.add("Software7E1");
         result.add("HalfDuplex");
         result.add("FailOnUnitMismatch");
@@ -361,7 +335,6 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     /**
      * initializes the receiver
-	 *
      */
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.timeZone = timeZone;
@@ -370,7 +343,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         try {
             this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
                     this.iForceDelay, this.iEchoCancelling, 1, null, this.halfDuplex != 0 ? this.halfDuplexController : null, this.software7E1, logger);
-			this.aS220Registry = new AS220Registry(this, this, dateFormat);
+            this.aS220Registry = new AS220Registry(this, this, dateFormat, billingDateFormat);
             this.aS220Profile = new AS220Profile(this, this, this.aS220Registry);
 
         } catch (ConnectionException e) {
@@ -499,6 +472,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     static Map exceptionInfoMap = new HashMap();
+
     static {
         exceptionInfoMap.put("ERROR", "Request could not execute!");
         exceptionInfoMap.put("ERROR00", "AS220 ERROR 00, no valid command!");
@@ -635,11 +609,22 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 } else {
                     billingPoint = fs;
                 }
-                VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
                 timeStampData = read("0.1.2" + billingPoint);
                 toTimeString = dp.parseBetweenBrackets(timeStampData);
-                vts.parse(toTimeString);
-                toTime = vts.getCalendar().getTime();
+
+                if (billingDateFormat == null || billingDateFormat.length() == 0) {
+                    VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
+                    vts.parse(toTimeString);
+                    toTime = vts.getCalendar().getTime();
+                } else {
+                    SimpleDateFormat format = new SimpleDateFormat(billingDateFormat);
+                    format.setTimeZone(getTimeZone());
+                    try {
+                        toTime = format.parse(toTimeString);
+                    } catch (ParseException e) {
+                        throw new IOException("Could not parse the received timestamp (" + toTimeString + ") in the configured format + " + billingDateFormat);
+                    }
+                }
             } catch (Exception e) {
             }
 
@@ -649,7 +634,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             if (temp.indexOf('*') != -1) {
                 readUnit = Unit.get(temp.substring(temp.indexOf('*') + 1));
                 temp = temp.substring(0, temp.indexOf('*'));
-			} else {
+            } else {
                 readUnit = Unit.getUndefined();
             }
 
@@ -684,14 +669,14 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
             if (readUnit.getBaseUnit() != unitFromObis.getBaseUnit()) {
                 String message = "Unit from obiscode is different from register Unit in meter!!! ";
-                        message += " (Unit from meter: " + readUnit;
+                message += " (Unit from meter: " + readUnit;
                 message += " -  Unit from obiscode: " + unitFromObis + ")\n";
                 getLogger().warning(message);
 
-                        if (this.failOnUnitMismatch == 1) {
-                            throw new InvalidPropertyException(message);
-                        }
-                    }
+                if (this.failOnUnitMismatch == 1) {
+                    throw new InvalidPropertyException(message);
+                }
+            }
 
             q = new Quantity(bd, readUnit);
             return new RegisterValue(obis, q, eventTime, toTime);
@@ -714,7 +699,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
             data = this.flagIEC1107Connection.receiveRawData();
         } else {
-			data = getDataDumpParser().getRegisterStrValue(edisNotation).getBytes();
+            data = getDataDumpParser().getRegisterStrValue(edisNotation).getBytes();
         }
         return data;
     }
@@ -802,7 +787,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         if (this.billingCount == null) {
 
             if (isDataReadout()) {
-				this.billingCount = new int[] { getDataDumpParser().getBillingCounter() };
+                this.billingCount = new int[]{getDataDumpParser().getBillingCounter()};
             } else {
 
                 String data;

@@ -57,9 +57,9 @@ public class AS220Registry extends AbstractVDEWRegistry {
 	 * @param meterExceptionInfo
 	 * @param protocolLink
 	 */
-	public AS220Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, String dateFormat) {
+	public AS220Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, String dateFormat, String billingDateFormat) {
 		// Use ChannelMap to dcetermine which VHI tu access... First entry in the ChannelMap is the OBIS B value.
-		super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()), dateFormat);
+		super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()), dateFormat, billingDateFormat);
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class AS220Registry extends AbstractVDEWRegistry {
 		this.registers.put(DISPLAY_MESSAGE_REGISTER, new VDEWRegister("S0K",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
 
         this.registers.put(PROGRAMCOUNTER,  new VDEWRegister("C.2.0", VDEWRegisterDataParse.VDEW_INTEGER, 0, 1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1, FlagIEC1107Connection.WRITE1));
-        this.registers.put(BILLINGPOINTTIMESTAMP, new VDEWRegister("0.1.2", VDEWRegisterDataParse.VDEW_TIMEDATE, 0, 1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1, null));
+        this.registers.put(BILLINGPOINTTIMESTAMP, new VDEWRegister("0.1.2", VDEWRegisterDataParse.VDEW_TIMEDATE, 0, 1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1, null, true, billingDateFormat));
 	}
 
 }
