@@ -174,7 +174,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         mockAppServers(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
         when(jsonService.serialize(any())).thenReturn("json");
         DestinationSpec destinationSpec = mock(DestinationSpec.class);
-        when(messageService.getDestinationSpec("ItemizeFilterQueueDest")).thenReturn(Optional.of(destinationSpec));
+        when(messageService.getDestinationSpec("ItemizeConnFilterQD")).thenReturn(Optional.of(destinationSpec));
         MessageBuilder messageBuilder = mock(MessageBuilder.class);
         when(destinationSpec.message("json")).thenReturn(messageBuilder);
 
