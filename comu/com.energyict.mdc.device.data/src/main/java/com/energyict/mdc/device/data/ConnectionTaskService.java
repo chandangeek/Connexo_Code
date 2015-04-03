@@ -31,8 +31,8 @@ import java.util.Set;
  */
 public interface ConnectionTaskService {
 
-    public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeFilterQueueDest";
-    public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeFilterQueueSubsc";
+    public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeConnFilterQueueDest";
+    public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeConnFilterQueueSubsc";
     public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize connections from filter";
     public String CONNECTION_RESCHEDULER_QUEUE_DESTINATION = "ReschConnQueueDest";
     public String CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschConnQueueSubsc";

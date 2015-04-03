@@ -14,7 +14,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskQueueMessage;
-import com.energyict.mdc.device.data.tasks.ItemizeFilterQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -34,7 +34,7 @@ import static java.util.stream.Collectors.toSet;
  * This message handler will trigger connections to rerun. Supports both a group of connections identified by a filter and an exhaustive list
  * Created by bvn on 3/25/15.
  */
-public class FilterItimizerMessageHandler implements MessageHandler {
+public class ConnectionFilterItimizerMessageHandler implements MessageHandler {
 
     private ConnectionTaskService connectionTaskService;
     private EngineConfigurationService engineConfigurationService;
@@ -48,7 +48,7 @@ public class FilterItimizerMessageHandler implements MessageHandler {
     public void process(Message message) {
         Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
         if (destinationSpec.isPresent()) {
-            ItemizeFilterQueueMessage filterQueueMessage = jsonService.deserialize(message.getPayload(), ItemizeFilterQueueMessage.class);
+            ItemizeConnectionFilterQueueMessage filterQueueMessage = jsonService.deserialize(message.getPayload(), ItemizeConnectionFilterQueueMessage.class);
             ConnectionTaskFilterSpecification connectionTaskFilterSpecification = buildFilterFromJsonQuery(filterQueueMessage.connectionTaskFilterSpecification);
             List<ConnectionTask> connectionTasks = connectionTaskService.findConnectionTasksByFilter(connectionTaskFilterSpecification, 0, Integer.MAX_VALUE-1);
             connectionTasks.stream().forEach(c -> processMessagePost(new ConnectionTaskQueueMessage(c.getId(), filterQueueMessage.action), destinationSpec.get()));

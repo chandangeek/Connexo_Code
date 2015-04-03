@@ -4,31 +4,29 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.connectiontask.message.handler.factory",
+@Component(name = "com.energyict.mdc.communicationtask.message.handler.factory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber="+ ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER,
-                "destination="+ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION},
+        property = {"subscriber="+ CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER,
+                "destination="+CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION},
         immediate = true)
-public class ConnectionTaskBatchMessageHandlerFactory implements MessageHandlerFactory {
+public class CommunicationTaskBatchMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
-    private volatile TransactionService transactionService;
-    private volatile ConnectionTaskService connectionTaskService;
+    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
-                getInstance(ConnectionTaskBatchMessageHandler.class).
-                init(connectionTaskService, jsonService);
+                getInstance(CommunicationTaskBatchMessageHandler.class).
+                init(communicationTaskService, jsonService);
     }
 
     @Reference
@@ -37,18 +35,13 @@ public class ConnectionTaskBatchMessageHandlerFactory implements MessageHandlerF
     }
 
     @Reference
-    private void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
-        this.connectionTaskService = connectionTaskService;
+    public void setConnectionTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel("ConnectionTaskMessageHandlers", "Message handler for bulk action on connection tasks");
+        this.dataModel = ormService.newDataModel("CommunicationTaskMessageHandlers", "Message handler for bulk action on communication tasks");
     }
 
     @Activate
@@ -61,9 +54,8 @@ public class ConnectionTaskBatchMessageHandlerFactory implements MessageHandlerF
         return new AbstractModule() {
             @Override
             public void configure() {
-                bind(TransactionService.class).toInstance(transactionService);
                 bind(JsonService.class).toInstance(jsonService);
-                bind(ConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
             }
         };
     }

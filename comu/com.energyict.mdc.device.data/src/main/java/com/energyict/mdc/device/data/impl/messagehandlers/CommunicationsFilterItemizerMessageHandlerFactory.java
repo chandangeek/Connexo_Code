@@ -6,39 +6,42 @@ import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.device.filter.itimizer.message.handler.factory",
+@Component(name = "com.energyict.mdc.communicationtask.filter.itimizer.message.handler.factory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber="+ ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER,
-                "destination="+ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION},
+        property = {"subscriber="+ CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER,
+                "destination="+CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION},
         immediate = true)
-public class FilterItemizerMessageHandlerFactory implements MessageHandlerFactory {
+public class CommunicationsFilterItemizerMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
-    private volatile TransactionService transactionService;
-    private volatile ConnectionTaskService connectionTaskService;
+    private volatile CommunicationTaskService communicationTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MessageService messageService;
+    private volatile SchedulingService schedulingService;
+    private volatile TaskService taskService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
-                getInstance(FilterItimizerMessageHandler.class).
-                init(connectionTaskService, engineConfigurationService, protocolPluggableService, deviceConfigurationService, meteringGroupsService, messageService, jsonService);
+                getInstance(CommunicationFilterItimizerMessageHandler.class).
+                init(communicationTaskService, deviceConfigurationService, meteringGroupsService, messageService,
+                        jsonService, schedulingService, taskService);
     }
 
     @Reference
@@ -47,18 +50,13 @@ public class FilterItemizerMessageHandlerFactory implements MessageHandlerFactor
     }
 
     @Reference
-    private void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
-        this.connectionTaskService = connectionTaskService;
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel("ConnectionTaskMessageHandlers", "Message handler for bulk action on connection tasks");
+        this.dataModel = ormService.newDataModel("CommunicationTaskMessageHandlers", "Message handler for bulk action on communication tasks");
     }
 
     @Reference
@@ -86,6 +84,16 @@ public class FilterItemizerMessageHandlerFactory implements MessageHandlerFactor
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -96,9 +104,8 @@ public class FilterItemizerMessageHandlerFactory implements MessageHandlerFactor
         return new AbstractModule() {
             @Override
             public void configure() {
-                bind(TransactionService.class).toInstance(transactionService);
                 bind(JsonService.class).toInstance(jsonService);
-                bind(ConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);

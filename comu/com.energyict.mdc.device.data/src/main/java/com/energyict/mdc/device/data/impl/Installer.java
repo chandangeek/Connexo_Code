@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
@@ -131,25 +132,35 @@ public class Installer {
 
     private void createMessageHandlers() {
         try {
-            this.createMessageHandler(COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
-            this.createMessageHandler(COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
-            this.createMessageHandler(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER);
-            this.createMessageHandler(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER);
+            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            this.createMessageHandler(defaultQueueTableSpec, COMSCHEDULE_RECALCULATOR_MESSAGING_NAME);
+            this.createMessageHandler(defaultQueueTableSpec, COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME);
+            this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER);
+            this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER);
+            this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER);
+            this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER);
         } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
     }
 
-    private void createMessageHandler(String messagingName) {
-        createMessageHandler(messagingName, messagingName);
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String messagingName) {
+        createMessageHandler(defaultQueueTableSpec, messagingName, messagingName);
     }
 
-    private void createMessageHandler(String messagingName, String subscriberName) {
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName) {
         try {
-            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(messagingName, DEFAULT_RETRY_DELAY_IN_SECONDS);
-            destinationSpec.activate();
-            destinationSpec.subscribe(subscriberName);
+            Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+            if (!destinationSpecOptional.isPresent()) {
+                DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+                destinationSpec.activate();
+                destinationSpec.subscribe(subscriberName);
+            } else {
+                boolean alreadySubscribed = destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
+                if (!alreadySubscribed) {
+                    destinationSpecOptional.get().subscribe(subscriberName);
+                }
+            }
         } catch (Exception e) {
             this.logger.severe(e.getMessage());
         }
