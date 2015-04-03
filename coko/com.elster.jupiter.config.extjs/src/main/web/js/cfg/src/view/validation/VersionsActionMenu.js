@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.validation.VersionsActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.versions-action-menu',
-    itemId: 'ruleset-action-menu',
+    itemId: 'ruleset-versions-action-menu',
 
     plain: true,
     border: false,

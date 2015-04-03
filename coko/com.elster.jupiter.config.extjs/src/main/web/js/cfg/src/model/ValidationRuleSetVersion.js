@@ -25,7 +25,7 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
             name: 'versionName',
             persist: false,
             mapping: function (data) {
-                return '<a href="#/administration/validation/rulesets/validationrules/' + data.ruleSet.id + '/ruleoverview/' + data.id + '">' + data.name + '</a>';
+                return '<a href="#/administration/validation/rulesets/' + data.ruleSet.id + '/versions/' + data.id + '">' + data.name + '</a>';
             }
         }
     ],

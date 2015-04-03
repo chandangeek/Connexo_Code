@@ -15,14 +15,15 @@ Ext.define('Cfg.view.validation.VersionsList', {
         items: [
             {
                 header: Uni.I18n.translate('validation.validationRuleSetVersionName', 'CFG', 'Name'),
-                dataIndex: 'name',
+                dataIndex: 'versionName',
                 flex: 0.3,
                 sortable: false,
-                fixed: true/*,
+                fixed: true,
                 renderer: function (value, metaData, record) {
                     metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
-                }*/
+                    return value;
+                    //return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
+                }
             },
             {
                 header: Uni.I18n.translate('validation.versionStartPeriod', 'CFG', 'Start period'),
@@ -35,7 +36,11 @@ Ext.define('Cfg.view.validation.VersionsList', {
             {
                 xtype: 'uni-actioncolumn',
                 hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
-                items: 'Cfg.view.validation.VersionsActionMenu'
+                menu: {
+                    itemId: 'ruleSetVersionsGridMenu',
+                    xtype: 'versions-action-menu'
+                }
+
             }
         ]
     },

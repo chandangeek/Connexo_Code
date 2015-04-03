@@ -10,7 +10,7 @@ Ext.define('Cfg.view.validation.VersionsPreviewContainerPanel', {
     requires: [
         'Cfg.view.validation.VersionsList',
         'Cfg.view.validation.RulePreview',
-        'Cfg.view.validation.RuleActionMenu',
+        'Cfg.view.validation.VersionsActionMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Cfg.view.validation.RuleSetPreview'
@@ -29,15 +29,15 @@ Ext.define('Cfg.view.validation.VersionsPreviewContainerPanel', {
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
                     itemId: 'ctr-no-validation-rule',
-                    title: Uni.I18n.translate('validation.empty.versions.title', 'CFG', 'No validation rule versions found'),
+                    title: Uni.I18n.translate('validation.empty.versions.title', 'CFG', 'No validation rule set versions found'),
                     reasons: [
-                        Uni.I18n.translate('validation.empty.versions.list.item1', 'CFG', 'No validation rule versions have been added yet.')
+                        Uni.I18n.translate('validation.empty.versions.list.item1', 'CFG', 'No validation rule set versions have been added yet.')
                     ],
                     stepItems: [
                         {
-                            text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add validation rule version'),
+                            text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add validation rule set version'),
                             privileges: ['privilege.administrate.validationConfiguration'],
-                            href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/rules/add'
+                            href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/add'
                         }
                     ]
                 },

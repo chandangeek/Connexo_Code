@@ -134,14 +134,44 @@ Ext.define('Cfg.controller.history.Validation', {
                                             controller: 'Cfg.controller.Validation',
                                             privileges: ['privilege.administrate.validationConfiguration'],
                                             action: 'addVersion'
-                                        }/*,
-                                        clone: {
-                                            //title: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
-                                            route: 'clone',
+                                        },
+                                        overview: {
+                                            title: 'Overview',
+                                            route: '{versionId}',
                                             controller: 'Cfg.controller.Validation',
                                             privileges: ['privilege.administrate.validationConfiguration'],
-                                            action: 'cloneVersion'
-                                        }*/
+                                            action: 'showVersionOverview',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadVersion', function (record) {
+                                                    route.setTitle(record.get('name'));
+                                                    return true;
+                                                }, {single: true});
+                                                return this;
+                                            },
+                                            items: {
+                                                edit: {
+                                                    title: Uni.I18n.translate('validation.editVersion', 'CFG', 'Edit version'),
+                                                    route: 'edit',
+                                                    controller: 'Cfg.controller.Validation',
+                                                    privileges: ['privilege.administrate.validationConfiguration'],
+                                                    action: 'editVersion'
+                                                },
+                                                clone: {
+                                                    title: Uni.I18n.translate('validation.CloneVersion', 'CFG', 'Clone version'),
+                                                    route: 'clone',
+                                                    controller: 'Cfg.controller.Validation',
+                                                    privileges: ['privilege.administrate.validationConfiguration'],
+                                                    action: 'cloneVersion'
+                                                },
+                                                rules: {
+                                                    title: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rule'),
+                                                    route: 'rules',
+                                                    controller: 'Cfg.controller.Validation',
+                                                    privileges: ['privilege.administrate.validationConfiguration'],
+                                                    action: 'showRules'
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
