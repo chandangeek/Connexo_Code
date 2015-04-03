@@ -28,8 +28,10 @@ Ext.define('Fwc.view.firmware.Grid', {
         {
             xtype: 'uni-actioncolumn',
             isDisabled: function(view, rowIndex, colIndex, item, record) {
-                return record.getAssociatedData().firmwareStatus
-                    && record.getAssociatedData().firmwareStatus.id === 'deprecated';
+                return Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType')
+                    || (record.getAssociatedData().firmwareStatus
+                    && record.getAssociatedData().firmwareStatus.id === 'deprecated'
+                    );
             },
             menu: {
                 xtype: 'firmware-action-menu'

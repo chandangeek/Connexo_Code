@@ -14,6 +14,7 @@ Ext.define('Fwc.controller.History', {
             title: 'Firmware versions',
             route: '/administration/devicetypes/{deviceTypeId}/firmware/versions',
             controller: 'Fwc.controller.Firmware',
+            privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
             action: 'showFirmwareVersions',
             filter: 'Fwc.model.FirmwareFilter',
             items: {
@@ -21,12 +22,14 @@ Ext.define('Fwc.controller.History', {
                     title: 'Add firmware version',
                     route: 'add',
                     controller: 'Fwc.controller.Firmware',
+                    privileges: ['privilege.administrate.deviceType'],
                     action: 'addFirmware'
                 },
                 edit: {
                     title: 'Edit firmware version',
                     route: '{firmwareId}/edit',
                     controller: 'Fwc.controller.Firmware',
+                    privileges: ['privilege.administrate.deviceType'],
                     action: 'editFirmware'
                 }
             }

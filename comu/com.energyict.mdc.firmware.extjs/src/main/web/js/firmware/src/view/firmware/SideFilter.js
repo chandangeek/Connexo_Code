@@ -5,7 +5,7 @@ Ext.define('Fwc.view.firmware.SideFilter', {
         'Fwc.view.firmware.field.FirmwareType',
         'Fwc.view.firmware.field.FirmwareStatus'
     ],
-    title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
+    title: Uni.I18n.translate('firmware.sideFilter.title', 'FWC', 'Filter'),
     cls: 'filter-form',
     itemId: 'filter-form',
     ui: 'filter',
@@ -28,13 +28,13 @@ Ext.define('Fwc.view.firmware.SideFilter', {
             dock: 'bottom',
             items: [
                 {
-                    text: Uni.I18n.translate('connection.widget.sideFilter.apply', 'DSH', 'Apply'),
+                    text: Uni.I18n.translate('firmware.sideFilter.apply', 'FWC', 'Apply'),
                     ui: 'action',
                     action: 'applyfilter',
                     itemId: 'btn-apply-filter'
                 },
                 {
-                    text: Uni.I18n.translate('connection.widget.sideFilter.clearAll', 'DSH', 'Clear all'),
+                    text: Uni.I18n.translate('firmware.sideFilter.clearAll', 'FWC', 'Clear all'),
                     action: 'clearfilter',
                     itemId: 'btn-clear-filter'
                 }
