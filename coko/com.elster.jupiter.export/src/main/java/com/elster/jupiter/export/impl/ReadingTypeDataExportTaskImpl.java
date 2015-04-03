@@ -220,8 +220,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         properties.clear();
         readingTypes.clear();
         exportItems.clear();
-        dataModel.remove(this);
         dataModel.mapper(DataExportOccurrence.class).remove(getOccurrences());
+        dataModel.remove(this);
         if (recurrentTask.isPresent()) {
             recurrentTask.get().delete();
         }
