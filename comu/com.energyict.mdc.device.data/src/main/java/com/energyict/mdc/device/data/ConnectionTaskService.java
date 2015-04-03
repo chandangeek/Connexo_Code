@@ -31,11 +31,11 @@ import java.util.Set;
  */
 public interface ConnectionTaskService {
 
-    public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeConnFilterQueueDest";
-    public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeConnFilterQueueSubsc";
+    public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeConnFilterQD";
+    public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeConnFilterQS";
     public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize connections from filter";
-    public String CONNECTION_RESCHEDULER_QUEUE_DESTINATION = "ReschConnQueueDest";
-    public String CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschConnQueueSubsc";
+    public String CONNECTION_RESCHEDULER_QUEUE_DESTINATION = "ReschConnQD";
+    public String CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschConnQS";
     public String CONNECTION_RESCHEDULER_QUEUE_DISPLAYNAME = "Reschedule connection message handler";
 
     public Optional<ConnectionTask> findConnectionTask(long id);

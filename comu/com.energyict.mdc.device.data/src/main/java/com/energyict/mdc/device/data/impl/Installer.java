@@ -158,6 +158,7 @@ public class Installer {
             } else {
                 boolean alreadySubscribed = destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
                 if (!alreadySubscribed) {
+                    destinationSpecOptional.get().activate();
                     destinationSpecOptional.get().subscribe(subscriberName);
                 }
             }
