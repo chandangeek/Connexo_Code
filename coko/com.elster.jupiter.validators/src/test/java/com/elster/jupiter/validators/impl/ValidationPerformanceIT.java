@@ -154,7 +154,7 @@ public class ValidationPerformanceIT {
                     return false;
                 }
             });
-            validationService.activateValidation(meter);
+            validationService.activateValidation(meter, true);
             return null;
         });
     }
