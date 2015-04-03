@@ -3,7 +3,14 @@ Ext.define('Dlc.devicelifecyclestates.model.DeviceLifeCycleState', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name:'name', type: 'string'},
-        {name: 'isCustom', type: 'boolean'}
+        {name: 'isCustom', type: 'boolean'},
+        {
+            name: 'sorted_name',
+            persist: false,
+            mapping: function (data) {
+                return data.name;
+            }
+        }
     ],
     proxy: {
         type: 'rest',
