@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.rest.util.properties.ListValueInfo;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
 public class PropertyInfoFactory {
 
@@ -26,7 +27,7 @@ public class PropertyInfoFactory {
             return property.toString();
         }
         if (property instanceof RelativePeriod) {
-            return ((RelativePeriod) property).getId();
+            return new RelativePeriodInfo((RelativePeriod) property);
         }
         return property;
     }
