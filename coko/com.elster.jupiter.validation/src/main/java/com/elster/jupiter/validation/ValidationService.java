@@ -20,7 +20,7 @@ public interface ValidationService {
     String COMPONENTNAME = "VAL";
 
     /**
-     * Mangagement of ruleSets and ules *
+     * Management of ruleSets and rules *
      */
 
     DestinationSpec getDestination();
@@ -28,6 +28,10 @@ public interface ValidationService {
     ValidationRuleSet createValidationRuleSet(String name);
 
     ValidationRuleSet createValidationRuleSet(String name, String description);
+
+    ValidationRuleSet createValidationRuleSetVersion(String name);
+
+    List<ValidationRuleSetVersion> getValidationRuleSetVersions(long id);
 
     List<ValidationRuleSet> getValidationRuleSets();
 

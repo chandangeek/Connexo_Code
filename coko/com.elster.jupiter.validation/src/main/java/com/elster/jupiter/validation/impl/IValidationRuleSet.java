@@ -8,5 +8,6 @@ public interface IValidationRuleSet extends ValidationRuleSet {
 
     List<IValidationRule> getRules();
     List<IValidationRule> getRules(int start, int limit);
+    List<IValidationRuleSetVersion> getVersions();
 
 }

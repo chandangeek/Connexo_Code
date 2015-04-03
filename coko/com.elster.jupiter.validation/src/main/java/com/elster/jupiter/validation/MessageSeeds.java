@@ -80,6 +80,7 @@ public enum MessageSeeds implements MessageSeed {
     public enum Constants {
         ;
         public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
+        public static final String DUPLICATE_VALIDATION_RULE_SET_VERSION = "DuplicateValidationRuleSetVersion";
         public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
         public static final String INVALID_CHARS = "InvalidChars";
         public static final String NO_SUCH_VALIDATOR = "NoSuchValidator";

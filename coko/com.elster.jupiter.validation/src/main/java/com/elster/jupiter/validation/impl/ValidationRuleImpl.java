@@ -15,13 +15,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
-import com.elster.jupiter.validation.ReadingTypeInValidationRule;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -64,6 +59,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
     private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
+   private Reference<ValidationRuleSetVersion> ruleSetVersion = ValueReference.absent();
 
     @SuppressWarnings("unused")
     private int position;
