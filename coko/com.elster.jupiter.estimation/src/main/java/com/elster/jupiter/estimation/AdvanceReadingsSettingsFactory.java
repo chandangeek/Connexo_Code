@@ -3,13 +3,9 @@ package com.elster.jupiter.estimation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.AbstractValueFactory;
-import com.elster.jupiter.properties.ValueFactory;
-import org.osgi.service.component.annotations.Component;
 
-import java.math.BigDecimal;
 import java.sql.SQLException;
 
-@Component(name = "com.elster.jupiter.properties.AdvanceReadingsSettingsFactory", service = {ValueFactory.class}, immediate = true)
 public class AdvanceReadingsSettingsFactory extends AbstractValueFactory<AdvanceReadingsSettings> {
 
     private MeteringService meteringService;
