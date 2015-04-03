@@ -15,7 +15,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (16:47)
  */
-@Component(name = "com.elster.jupiter.properties.BigDecimalFactory", service = {ValueFactory.class}, immediate = true)
 public class BigDecimalFactory extends AbstractValueFactory<BigDecimal> {
 
     @Override

@@ -34,7 +34,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PropertySpecServiceImpl implements PropertySpecService {
 
     private volatile TimeService timeService;
-    private final List<ValueFactory> valueFactories = new CopyOnWriteArrayList<>();
 
     @Reference
     public void setTimeService(TimeService timeService) {
@@ -133,12 +132,4 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addValueFactory(ValueFactory valueFactory) {
-        valueFactories.add(valueFactory);
-    }
-
-    public void removeValueFactory(ValueFactory valueFactory) {
-        valueFactories.remove(valueFactory);
-    }
 }

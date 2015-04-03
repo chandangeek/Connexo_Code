@@ -18,7 +18,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-31 (14:04)
  */
-@Component(name = "com.elster.jupiter.properties.RelativePeriodFactory", service = {ValueFactory.class}, immediate = true)
 public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> {
 
     private TimeService timeService;

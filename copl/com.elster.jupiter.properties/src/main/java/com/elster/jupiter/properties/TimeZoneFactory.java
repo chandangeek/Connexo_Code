@@ -12,7 +12,6 @@ import java.util.TimeZone;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-31 (14:04)
  */
-@Component(name = "com.elster.jupiter.properties.TimeZoneFactory", service = {ValueFactory.class}, immediate = true)
 public class TimeZoneFactory extends AbstractValueFactory<TimeZone> {
 
     @Override

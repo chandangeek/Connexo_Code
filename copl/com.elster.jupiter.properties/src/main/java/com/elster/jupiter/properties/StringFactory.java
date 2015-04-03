@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (16:47)
  */
-@Component(name = "com.elster.jupiter.properties.StringFactory", service = {ValueFactory.class}, immediate = true)
 public class StringFactory extends AbstractValueFactory<String> {
 
     public static final int MAX_SIZE = 4000;
