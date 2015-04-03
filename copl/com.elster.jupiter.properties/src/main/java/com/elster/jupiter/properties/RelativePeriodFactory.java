@@ -2,12 +2,10 @@ package com.elster.jupiter.properties;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
-import org.osgi.service.component.annotations.Component;
 
 /**
  * Provides an implementation for the {@link ValueFactory} interface
