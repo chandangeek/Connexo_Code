@@ -35,8 +35,9 @@ public class DynamicKpiBuilder implements Builder<DataCollectionKpi> {
     public DataCollectionKpi create() {
         Log.write(this);
         DataCollectionKpiService.DataCollectionKpiBuilder kpiBuilder = dataCollectionKpiService.newDataCollectionKpi(group);
-        kpiBuilder.calculateComTaskExecutionKpi(Duration.ofMinutes(5)).expectingAsMinimum(new BigDecimal(95));
-        kpiBuilder.calculateConnectionSetupKpi(Duration.ofMinutes(5)).expectingAsMinimum(new BigDecimal(95));
+        kpiBuilder.frequency(Duration.ofMinutes(5));
+        kpiBuilder.calculateComTaskExecutionKpi().expectingAsMinimum(new BigDecimal(95));
+        kpiBuilder.calculateConnectionSetupKpi().expectingAsMinimum(new BigDecimal(95));
         kpiBuilder.displayPeriod(TimeDuration.hours(1));
         DataCollectionKpi kpi = kpiBuilder.save();
         return kpi;

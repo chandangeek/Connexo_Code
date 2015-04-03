@@ -7,7 +7,7 @@ import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.configuration.WebRTUProtocolPropertiesDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
@@ -186,7 +186,6 @@ public class CreateCollectRemoteDataSetupCommand {
     private DeviceConfiguration createDeviceConfiguration(DeviceType deviceType, DeviceConfigurationTpl deviceConfigurationTpl) {
         DeviceConfiguration configuration = Builders.from(deviceConfigurationTpl).withDeviceType(deviceType)
                 .withPostBuilder(this.connectionMethodsProvider.get().withHost(this.host))
-                .withPostBuilder(new WebRTUProtocolPropertiesDevConfPostBuilder())
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                 .get();
         configuration.activate();
@@ -201,6 +200,7 @@ public class CreateCollectRemoteDataSetupCommand {
                 .withComSchedules(Arrays.asList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
                 .withPostBuilder(this.connectionsDevicePostBuilderProvider.get().withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get()).withHost(this.host))
                 .withPostBuilder(new SecurityPropertiesDevicePostBuilder())
+                .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .get();
     }
 

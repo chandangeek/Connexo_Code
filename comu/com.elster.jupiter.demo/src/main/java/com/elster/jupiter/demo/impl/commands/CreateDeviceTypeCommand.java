@@ -3,7 +3,7 @@ package com.elster.jupiter.demo.impl.commands;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.configuration.WebRTUProtocolPropertiesDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -35,7 +35,6 @@ public class CreateDeviceTypeCommand {
         DeviceType deviceType = Builders.from(DeviceTypeTpl.Elster_AS1440).withName(this.deviceTypeName).get();
         DeviceConfiguration configuration = Builders.from(DeviceConfigurationTpl.DEFAULT).withDeviceType(deviceType)
                 .withPostBuilder(this.connectionMethodsProvider.get().withHost(this.host))
-                .withPostBuilder(new WebRTUProtocolPropertiesDevConfPostBuilder())
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                 .get();
         configuration.activate();
