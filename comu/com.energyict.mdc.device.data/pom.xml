@@ -79,6 +79,11 @@
 
     <!-- Testing -->
     <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>devtools</artifactId>
       <scope>test</scope>
