@@ -73,7 +73,7 @@ class TestValidator extends AbstractValidator {
 
     @Override
     public List<String> getRequiredProperties() {
-        return Arrays.asList(RELATIVE_PERIOD);
+        return Arrays.asList(RELATIVE_PERIOD, ADVANCE_READINGS_SETTINGS);
     }
 
     @Override
