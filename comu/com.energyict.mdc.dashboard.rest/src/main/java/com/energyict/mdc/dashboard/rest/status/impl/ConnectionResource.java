@@ -23,7 +23,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskQueueMessage;
-import com.energyict.mdc.device.data.tasks.ItemizeFilterQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -268,22 +268,22 @@ public class ConnectionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runConnectionTask(BulkRequestInfo bulkRequestInfo) throws Exception {
+    public Response runConnectionTask(ConnectionsBulkRequestInfo connectionsBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        if (bulkRequestInfo!=null && bulkRequestInfo.filter!=null) {
+        if (connectionsBulkRequestInfo !=null && connectionsBulkRequestInfo.filter!=null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
-                return processMessagePost(new ItemizeFilterQueueMessage(substituteRestToDomainEnums(bulkRequestInfo.filter), "scheduleNow"), destinationSpec.get());
+                return processMessagePost(new ItemizeConnectionFilterQueueMessage(substituteRestToDomainEnums(connectionsBulkRequestInfo.filter), "scheduleNow"), destinationSpec.get());
             } else {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
             }
 
-        } else if (bulkRequestInfo!=null && bulkRequestInfo.connections!=null) {
+        } else if (connectionsBulkRequestInfo !=null && connectionsBulkRequestInfo.connections!=null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
-                bulkRequestInfo.connections.stream().forEach(c -> processMessagePost(new ConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec.get()));
+                connectionsBulkRequestInfo.connections.stream().forEach(c -> processMessagePost(new ConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec.get()));
                 return Response.status(Response.Status.OK).build();
             } else {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);

@@ -21,7 +21,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
-import com.energyict.mdc.device.data.tasks.ItemizeFilterQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -193,26 +193,26 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         message.finishIntervalFrom = now;
         message.finishIntervalTo = now;
 
-        BulkRequestInfo info = new BulkRequestInfo();
+        ConnectionsBulkRequestInfo info = new ConnectionsBulkRequestInfo();
         info.filter = message;
         Response response = target("/connections/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
         verify(jsonService).serialize(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue() instanceof ItemizeFilterQueueMessage);
-        ItemizeFilterQueueMessage itemizeFilterQueueMessage = (ItemizeFilterQueueMessage) argumentCaptor.getValue();
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.comPortPools).containsOnly(1001L);
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.currentStates).containsOnly(TaskStatus.OnHold.name());
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.connectionTypes).containsOnly(1002L);
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.deviceGroups).containsOnly(1003L);
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.latestResults).containsOnly(ComSession.SuccessIndicator.Broken.name());
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.latestStates).containsOnly( ConnectionTask.SuccessIndicator.FAILURE.name());
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.deviceTypes).containsOnly(1004L, 1005L);
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.startIntervalFrom).isEqualTo(now);
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.startIntervalTo).isEqualTo(now);
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalFrom).isEqualTo(now);
-        assertThat(itemizeFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalTo).isEqualTo(now);
+        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterQueueMessage);
+        ItemizeConnectionFilterQueueMessage itemizeConnectionFilterQueueMessage = (ItemizeConnectionFilterQueueMessage) argumentCaptor.getValue();
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.comPortPools).containsOnly(1001L);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.currentStates).containsOnly(TaskStatus.OnHold.name());
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.connectionTypes).containsOnly(1002L);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.deviceGroups).containsOnly(1003L);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.latestResults).containsOnly(ComSession.SuccessIndicator.Broken.name());
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.latestStates).containsOnly( ConnectionTask.SuccessIndicator.FAILURE.name());
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.deviceTypes).containsOnly(1004L, 1005L);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.startIntervalFrom).isEqualTo(now);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.startIntervalTo).isEqualTo(now);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalFrom).isEqualTo(now);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalTo).isEqualTo(now);
     }
 
     @Test
