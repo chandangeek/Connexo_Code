@@ -25,6 +25,8 @@ public interface ValidationRule {
 
     ValidationRuleSet getRuleSet();
 
+    ValidationRuleSetVersion getRuleSetVersion();
+
     List<ValidationRuleProperties> getProperties();
 
     ValidationRuleProperties addProperty(String name, Object value);

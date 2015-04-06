@@ -259,6 +259,11 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     @Override
+    public ValidationRuleSetVersion getRuleSetVersion() {
+        return ruleSetVersion.get();
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(id);
     }
