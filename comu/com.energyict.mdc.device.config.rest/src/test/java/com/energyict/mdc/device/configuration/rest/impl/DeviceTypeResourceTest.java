@@ -37,6 +37,8 @@ import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
@@ -153,18 +155,23 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     @Test
     public void testCreateDeviceType() throws Exception {
+        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name = "newName";
         deviceTypeInfo.deviceProtocolPluggableClassName = "theProtocol";
+        deviceTypeInfo.deviceLifeCycle = new DeviceLifeCycleInfo();
+        deviceTypeInfo.deviceLifeCycle.id = deviceLifeCycle.getId();
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(deviceLifeCycle));
         DeviceProtocolPluggableClass protocol = mock(DeviceProtocolPluggableClass.class);
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.of(protocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
         DeviceType deviceType = mock(DeviceType.class);
-        when(deviceConfigurationService.newDeviceType("newName", protocol)).thenReturn(deviceType);
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceConfigurationService.newDeviceType("newName", protocol, deviceLifeCycle)).thenReturn(deviceType);
 
         Response response = target("/devicetypes/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -266,7 +273,16 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         return deviceType;
+    }
+
+    private DeviceLifeCycle mockStandardDeviceLifeCycle() {
+        DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
+        when(deviceLifeCycle.getId()).thenReturn(1L);
+        when(deviceLifeCycle.getName()).thenReturn("Default");
+        return deviceLifeCycle;
     }
 
     private DeviceConfiguration mockDeviceConfiguration(String name, long id) {
@@ -298,6 +314,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List registerList = Arrays.asList(new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo());
         List logBooksList = mock(List.class);
         when(logBooksList.size()).thenReturn(NUMBER_OF_LOGBOOKS);
+        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");

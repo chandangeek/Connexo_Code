@@ -16,18 +16,14 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -44,6 +40,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -109,7 +111,8 @@ public class DeviceTypeResource {
         if (!deviceProtocolPluggableClass.isPresent()) {
             throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
         }
-        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get());
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycle(deviceTypeInfo.deviceLifeCycle != null ? deviceTypeInfo.deviceLifeCycle.id : 0);
+        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get(), deviceLifeCycle);
         deviceType.save();
         return DeviceTypeInfo.from(deviceType);
     }

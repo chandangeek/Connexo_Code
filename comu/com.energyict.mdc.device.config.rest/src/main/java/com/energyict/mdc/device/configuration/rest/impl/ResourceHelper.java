@@ -7,6 +7,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
@@ -20,12 +22,14 @@ public class ResourceHelper {
 
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Inject
-    public ResourceHelper(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService) {
+    public ResourceHelper(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super();
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     public RegisterGroup findRegisterGroupByIdOrThrowException(long id) {
@@ -91,4 +95,7 @@ public class ResourceHelper {
                             .build()));
     }
 
+    public DeviceLifeCycle findDeviceLifeCycle(long id){
+        return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id).orElse(null);
+    }
 }

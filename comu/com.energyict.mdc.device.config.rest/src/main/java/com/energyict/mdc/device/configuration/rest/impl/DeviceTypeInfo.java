@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +31,7 @@ public class DeviceTypeInfo {
     public long deviceProtocolPluggableClassId;
     @JsonProperty("registerTypes")
     public List<RegisterTypeInfo> registerTypes;
+    public DeviceLifeCycleInfo deviceLifeCycle;
 
     public DeviceTypeInfo() {
     }
@@ -59,6 +60,7 @@ public class DeviceTypeInfo {
             deviceTypeInfo.deviceProtocolPluggableClassName =deviceProtocolPluggableClass.getName();
             deviceTypeInfo.deviceProtocolPluggableClassId =deviceProtocolPluggableClass.getId();
         }
+        deviceTypeInfo.deviceLifeCycle = new DeviceLifeCycleInfo(deviceType.getDeviceLifeCycle());
         return deviceTypeInfo;
     }
 
