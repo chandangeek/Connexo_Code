@@ -120,6 +120,26 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         return updated;
     }
 
+    @Override
+    public FiniteStateMachine complete(State initial) {
+        Optional<State> oldInitialState = getUnderConstruction().getStates().stream()
+                .filter(state -> state.isInitial())
+                .findFirst();
+        getUnderConstruction().setInitialState((StateImpl) initial);
+        if (oldInitialState.isPresent() && !stateWillBeAutoSaved(oldInitialState.get())){
+            new StateUpdaterImpl((StateImpl) oldInitialState.get()).complete();
+        }
+        if (!stateWillBeAutoSaved(initial)){
+            new StateUpdaterImpl((StateImpl) initial).complete();
+        }
+        return complete();
+    }
+
+    private boolean stateWillBeAutoSaved(State candidate){
+        // state will be auto saved if it is a new state or it is already modified
+        return candidate.getId() == 0 || this.completedStateUpdaters.stream().anyMatch(updater -> updater.hasTheSameState(candidate));
+    }
+
     private class StateUpdaterImpl implements StateUpdater {
         private final StateImpl underConstruction;
 
@@ -179,6 +199,9 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
             this.underConstruction.save();
         }
 
+        boolean hasTheSameState(State candidate){
+            return candidate!= null && this.underConstruction.getId() == candidate.getId();
+        }
     }
 
     private class AddState implements ServerStateBuilder {
