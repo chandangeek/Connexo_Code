@@ -111,7 +111,7 @@ public class DeviceTypeResource {
         if (!deviceProtocolPluggableClass.isPresent()) {
             throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
         }
-        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycle(deviceTypeInfo.deviceLifeCycle != null ? deviceTypeInfo.deviceLifeCycle.id : 0);
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycle(deviceTypeInfo.deviceLifeCycleId != null ? deviceTypeInfo.deviceLifeCycleId : 0);
         DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get(), deviceLifeCycle);
         deviceType.save();
         return DeviceTypeInfo.from(deviceType);

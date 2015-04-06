@@ -159,8 +159,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.name = "newName";
         deviceTypeInfo.deviceProtocolPluggableClassName = "theProtocol";
-        deviceTypeInfo.deviceLifeCycle = new DeviceLifeCycleInfo();
-        deviceTypeInfo.deviceLifeCycle.id = deviceLifeCycle.getId();
+        deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(deviceLifeCycle));
