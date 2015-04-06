@@ -8,6 +8,5 @@ import java.util.List;
 public interface IValidationRuleSetVersion extends ValidationRuleSetVersion{
 
     List<IValidationRule> getRules();
-    List<IValidationRule> getRules(int start, int limit);
 
 }

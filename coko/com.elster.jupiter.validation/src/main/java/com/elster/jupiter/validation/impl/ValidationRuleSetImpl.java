@@ -222,17 +222,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
                 .flatMap(v1 -> v1.getRules().stream().filter(r -> !r.isObsolete()));
     }
 
-    public List<IValidationRule> getRules(int start, int limit) {
-        return Collections.unmodifiableList(
-                getRuleQuery().select(
-                        Where.where("ruleSet").isEqualTo(this), 
-                        new Order[]{Order.ascending("name").toUpperCase()}, 
-                        false, 
-                        new String[]{}, 
-                        start + 1, 
-                        start + limit));
-    }
-
     @Override
     public List<? extends ValidationRuleSetVersion> getRuleSetVersions() {
         return null;
@@ -259,12 +248,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         } else {
             throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided rule set version Id: " + version.getId());
         }
-    }
-
-    private QueryExecutor<IValidationRule> getRuleQuery() {
-        QueryExecutor<IValidationRule> ruleQuery = dataModel.query(IValidationRule.class, ValidationRuleProperties.class);
-        ruleQuery.setRestriction(where("obsoleteTime").isNull());
-        return ruleQuery;
     }
 
     private IValidationRuleSetVersion doUpdateVersion(IValidationRuleSetVersion version, String name, String description, Instant startDate) {

@@ -544,13 +544,4 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
     }
 
-    @Override
-    public ValidationRuleSet createValidationRuleSetVersion(String name) {
-        return null;
-    }
-
-    @Override
-    public List<ValidationRuleSetVersion> getValidationRuleSetVersions(long id) {
-        return null;
-    }
 }

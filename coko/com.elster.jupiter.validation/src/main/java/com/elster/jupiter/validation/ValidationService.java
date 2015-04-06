@@ -29,10 +29,6 @@ public interface ValidationService {
 
     ValidationRuleSet createValidationRuleSet(String name, String description);
 
-    ValidationRuleSet createValidationRuleSetVersion(String name);
-
-    List<ValidationRuleSetVersion> getValidationRuleSetVersions(long id);
-
     List<ValidationRuleSet> getValidationRuleSets();
 
     Optional<Instant> getLastChecked(Channel channel);
