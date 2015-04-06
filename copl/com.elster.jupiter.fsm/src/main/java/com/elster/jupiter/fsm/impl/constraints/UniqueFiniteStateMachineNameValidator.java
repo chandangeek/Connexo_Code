@@ -32,12 +32,13 @@ public class UniqueFiniteStateMachineNameValidator implements ConstraintValidato
     @Override
     public boolean isValid(FiniteStateMachine finiteStateMachine, ConstraintValidatorContext context) {
         Optional<FiniteStateMachine> stateMachine = this.service.findFiniteStateMachineByName(finiteStateMachine.getName());
-        if (stateMachine.isPresent()) {
-            return stateMachine.get().getId() == finiteStateMachine.getId();
+        if (stateMachine.isPresent() && stateMachine.get().getId() != finiteStateMachine.getId()) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode("name").addConstraintViolation();
+            return false;
         }
-        else {
-            return true;
-        }
+        return true;
     }
 
 }

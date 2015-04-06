@@ -5,6 +5,8 @@ import com.elster.jupiter.util.Checks;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Validates the {@link Unique} constraint against a {@link State}.
@@ -20,14 +22,17 @@ public class UniqueStateNameValidator implements ConstraintValidator<Unique, Sta
     }
 
     @Override
-    public boolean isValid(State state, ConstraintValidatorContext context) {
-        return state.getFiniteStateMachine()
-                    .getStates()
-                    .stream()
-                    .map(State::getName)
-                    .filter(stateName -> !Checks.is(stateName).empty())
-                    .filter(stateName -> stateName.equals(state.getName()))
-                    .count() <= 1;
+    public boolean isValid(State stateForValidation, ConstraintValidatorContext context) {
+        List<State> statesWithTheSameName = stateForValidation.getFiniteStateMachine().getStates().stream()
+                .filter(state -> !Checks.is(state.getName()).empty()) // preserve states only with name
+                .filter(state -> state.getName().equals(stateForValidation.getName())) // states only with the same name
+                .collect(Collectors.toList());
+        if (!statesWithTheSameName.isEmpty() && (statesWithTheSameName.size() > 1 || statesWithTheSameName.get(0).getId() != stateForValidation.getId())) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode("name").addConstraintViolation();
+            return false;
+        }
+        return true;
     }
-
 }
