@@ -15,7 +15,8 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
@@ -31,15 +32,15 @@ import static org.mockito.Mockito.when;
 public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
-    RestQueryService restQueryService;
+    protected RestQueryService restQueryService;
     @Mock
-    UserService userService;
+    protected UserService userService;
     @Mock
-    DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    protected DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
-    FiniteStateMachineService finiteStateMachineService;
+    protected FiniteStateMachineService finiteStateMachineService;
     @Mock
-    EventService eventService;
+    protected EventService eventService;
 
     @Override
     protected Application getApplication() {
