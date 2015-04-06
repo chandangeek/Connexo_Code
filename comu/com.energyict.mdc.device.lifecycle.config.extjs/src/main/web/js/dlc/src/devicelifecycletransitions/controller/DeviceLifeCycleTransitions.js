@@ -157,6 +157,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
                                     privilegesArray = [];
 
                                 me.transition = transition;
+                                me.getApplication().fireEvent('deviceLifeCycleEdit', transition);
                                 form.setTitle(Uni.I18n.translatePlural('deviceLifeCycleTransitions.edit.title', transition.get('name'), 'DLC', 'Edit \'{0}\''));
                                 if (me.getStore('Dlc.main.store.Clipboard').get('addTransitionValues')) {
                                     me.setFormValues();
