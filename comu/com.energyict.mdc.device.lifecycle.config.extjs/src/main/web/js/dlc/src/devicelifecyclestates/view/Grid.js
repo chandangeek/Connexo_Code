@@ -17,12 +17,12 @@ Ext.define('Dlc.devicelifecyclestates.view.Grid', {
                 header: Uni.I18n.translate('general.initial', 'DLC', 'Initial'),
                 dataIndex: 'isInitial',
                 minWidth: 70,
-                flex: 1
+                width: 70
             },
             {
                 header: Uni.I18n.translate('general.states', 'DLC', 'States'),
                 dataIndex: 'sorted_name',
-                flex: 15
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
