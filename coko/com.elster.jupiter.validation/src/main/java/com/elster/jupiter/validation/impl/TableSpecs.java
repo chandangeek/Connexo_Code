@@ -34,6 +34,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ValidationRuleSetVersion> table = dataModel.addTable(name(), ValidationRuleSetVersion.class);
             table.map(ValidationRuleSetVersionImpl.class);
+            table.setJournalTableName("VAL_VALIDRULESETVERSIONJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("START_DATE").map("startDate").number().conversion(NUMBER2INSTANT).add();
@@ -41,7 +42,7 @@ public enum TableSpecs {
             table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.addAuditColumns();
-            table.primaryKey("VAL_PK_VALIDRULESETVERSION").on(idColumn).add();
+            table.primaryKey("VAL_PK_VALIDRULESETVERS").on(idColumn).add();
             table.foreignKey("VAL_FK_RULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
                     .map("ruleSet").reverseMap("versions").composition().add();
         }
