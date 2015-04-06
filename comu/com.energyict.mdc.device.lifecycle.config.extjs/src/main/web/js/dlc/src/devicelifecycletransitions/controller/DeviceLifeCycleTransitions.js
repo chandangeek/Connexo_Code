@@ -255,13 +255,28 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         var me = this,
             page = me.getAddPage(),
             form = page.down('#device-life-cycle-transitions-add-form'),
-            obj = me.getStore('Dlc.main.store.Clipboard').get('addTransitionValues');
+            fromCombo = page.down('#transition-from-combo'),
+            toCombo = page.down('#transition-to-combo'),
+            statesStore = me.getStore('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionFromState'),
+            obj = me.getStore('Dlc.main.store.Clipboard').get('addTransitionValues'),
+            fromValue,
+            toValue;
 
         page.down('#privileges-checkboxgroup').setValue({
             privilege: obj.privilege
         });
         page.down('#transition-triggered-by-combo').setValue(obj.triggeredBy);
         page.down('#transition-name').setValue(obj.name);
+        if (obj.fromState) {
+            fromValue = statesStore.getById(obj.fromState);
+            fromCombo.setValue(fromValue);
+            fromCombo.fireEvent('select', fromCombo, fromValue);
+        }
+        if (obj.toState) {
+            toValue = statesStore.getById(obj.toState);
+            toCombo.setValue(toValue);
+            toCombo.fireEvent('select', toCombo, toValue);
+        }
     },
 
     checkRoute: function (token) {

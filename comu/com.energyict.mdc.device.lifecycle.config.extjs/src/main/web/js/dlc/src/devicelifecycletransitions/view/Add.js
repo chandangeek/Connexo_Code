@@ -56,6 +56,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'transition-from-combo',
+                                name: 'fromState',
                                 width: 235,
                                 store: 'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionFromState',
                                 editable: false,
@@ -65,10 +66,15 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                 valueField: 'id',
                                 listeners: {
                                     select: function(combo, chosenState) {
+                                        var store = me.down('#transition-to-combo').getStore();
                                         me.down('#transition-to-combo').getStore().filterBy(function (state) {
                                             var id = Ext.isArray(chosenState) ? chosenState[0].getId() : chosenState.getId();
                                             return state.getId() !== id;
                                         });
+                                        if (store.getCount() == 0) {
+                                            me.down('#transition-to-combo').hide();
+                                            me.down('#transition-to-combo').nextSibling().show();
+                                        }
                                     }
                                 }
                             },
@@ -102,6 +108,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'transition-to-combo',
+                                name: 'toState',
                                 width: 235,
                                 store: 'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionToState',
                                 editable: false,
@@ -111,10 +118,15 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                 valueField: 'id',
                                 listeners: {
                                     select: function(combo, chosenState) {
-                                        me.down('#transition-from-combo').getStore().filterBy(function (state) {
+                                        var store = me.down('#transition-from-combo').getStore();
+                                        store.filterBy(function (state) {
                                             var id = Ext.isArray(chosenState) ? chosenState[0].getId() : chosenState.getId();
                                             return state.getId() !== id;
                                         });
+                                        if (store.getCount() == 0) {
+                                            me.down('#transition-from-combo').hide();
+                                            me.down('#transition-from-combo').nextSibling().show();
+                                        }
                                     }
                                 }
                             },
