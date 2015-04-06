@@ -41,13 +41,27 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             'device-life-cycle-states-action-menu menuitem[action=edit]': {
                 click: this.moveToEditPage
             },
+            'device-life-cycle-states-action-menu menuitem[action=setAsInitial]': {
+                click: this.setAsInitial
+            },
             'device-life-cycle-state-edit button[action=cancelAction]': {
                 click: this.cancelAction
             },
             'device-life-cycle-state-edit #createEditButton': {
                 click: this.saveState
+            },
+            'device-life-cycle-states-action-menu': {
+                show: this.configureMenu
             }
         });
+    },
+
+
+    configureMenu: function (menu) {
+        var initialAction = menu.down('#initialAction'),
+            isInitial = menu.record.get('isInitial');
+
+        isInitial ? initialAction.hide() : initialAction.show();
     },
 
     showErrorPanel: function (value) {
@@ -124,6 +138,25 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         this.getController('Uni.controller.history.Router').getRoute('administration/devicelifecycles/devicelifecycle/states/add').forward();
     },
 
+    setAsInitial: function () {
+        var me = this,
+            grid = this.getLifeCycleStatesGrid(),
+            page = this.getPage(),
+            router = this.getController('Uni.controller.history.Router'),
+            record = grid.getSelectionModel().getLastSelected();
+
+        page.setLoading();
+        Ext.Ajax.request({
+            url: '/api/dld/devicelifecycles/' + router.arguments.deviceLifeCycleId + '/states/' + record.get('id') + '/status',
+            method: 'PUT',
+            jsonData: null,
+            success: function () {
+                router.getRoute().forward(null, router.queryParams);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleStates.saved', 'DLC', 'State saved'));
+            }
+        });
+    },
+
     moveToEditPage: function () {
         var grid = this.getLifeCycleStatesGrid(),
             router = this.getController('Uni.controller.history.Router'),
@@ -164,6 +197,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));
+        preview.down('device-life-cycle-states-action-menu').record = record;
         previewForm.loadRecord(record);
         Ext.resumeLayouts(true);
     },

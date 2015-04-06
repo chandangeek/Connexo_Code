@@ -8,6 +8,11 @@ Ext.define('Dlc.devicelifecyclestates.view.ActionMenu', {
         {
             text: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
             action: 'edit'
+        },
+        {
+            text: Uni.I18n.translate('deviceLifeCycleStates.setAsInitial', 'DLC', 'Set as initial state'),
+            itemId: 'initialAction',
+            action: 'setAsInitial'
         }
     ]
 });

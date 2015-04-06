@@ -11,6 +11,15 @@ Ext.define('Dlc.devicelifecyclestates.view.PreviewForm', {
                 fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
                 name: 'name',
                 labelWidth: 250
+            },
+            {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('deviceLifeCycleStates.initialState', 'DLC', 'Initial state'),
+                name: 'isInitial',
+                labelWidth: 250,
+                renderer: function (value) {
+                    return value ? Uni.I18n.translate('general.yes', 'DLC', 'Yes') : Uni.I18n.translate('general.no', 'DLC', 'No')
+                }
             }
         ];
 
