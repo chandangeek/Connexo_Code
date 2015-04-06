@@ -13,9 +13,9 @@ public enum EventType {
     VALIDATIONRULE_CREATED("validationrule/CREATED", false),
     VALIDATIONRULE_UPDATED("validationrule/UPDATED", false),
     VALIDATIONRULE_DELETED("validationrule/DELETED", false),
-    VALIDATIONRULESETVERSION_CREATED("validationruleset/CREATED", false),
-    VALIDATIONRULESETVERSION_UPDATED("validationruleset/UPDATED", false),
-    VALIDATIONRULESETVERSION_DELETED("validationrule/DELETED", false);
+    VALIDATIONRULESETVERSION_CREATED("validationrulesetversion/CREATED", false),
+    VALIDATIONRULESETVERSION_UPDATED("validationrulesetversion/UPDATED", false),
+    VALIDATIONRULESETVERSION_DELETED("validationrulesetversion/DELETED", false);
 
     private static final String NAMESPACE = "com/elster/jupiter/validation/";
     private final String topic;

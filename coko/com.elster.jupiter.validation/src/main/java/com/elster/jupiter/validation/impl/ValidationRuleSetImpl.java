@@ -56,15 +56,13 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private final EventService eventService;
     private final DataModel dataModel;
-    private final Provider<ValidationRuleImpl> validationRuleProvider;
     private final Provider<ValidationRuleSetVersionImpl> validationRuleSetVersionProvider;
 
     @Inject
-    ValidationRuleSetImpl(DataModel dataModel, EventService eventService, Provider<ValidationRuleImpl> validationRuleProvider, Provider<ValidationRuleSetVersionImpl> validationRuleSetValidationProvider) {
+    ValidationRuleSetImpl(DataModel dataModel, EventService eventService,  Provider<ValidationRuleSetVersionImpl> validationRuleSetValidationProvider) {
         // for persistence
         this.dataModel = dataModel;
         this.eventService = eventService;
-        this.validationRuleProvider = validationRuleProvider;
         this.validationRuleSetVersionProvider = validationRuleSetValidationProvider;
     }
     
@@ -199,9 +197,9 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public List<IValidationRuleSetVersion> getVersions() {
+    public List<IValidationRuleSetVersion> getRuleSetVersions() {
         return doGetVersions()
-                .sorted(Comparator.comparing(version -> Optional.ofNullable(version.getStartDate()).orElse(Instant.EPOCH)))
+                .sorted(Comparator.comparing(ver -> Optional.ofNullable(ver.getStartDate()).orElse(Instant.EPOCH)))
                 .collect(Collectors.toList());
     }
 
@@ -222,10 +220,28 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
                 .flatMap(v1 -> v1.getRules().stream().filter(r -> !r.isObsolete()));
     }
 
+
     @Override
-    public List<? extends ValidationRuleSetVersion> getRuleSetVersions() {
-        return null;
+    public List<IValidationRuleSetVersion> getRuleSetVersions(int start, int limit) {
+        return Collections.unmodifiableList(
+                getRuleSetVersionQuery().select(
+                        Where.where("ruleSet").isEqualTo(this),
+                        new Order[]{Order.ascending("startDate").toUpperCase()},
+                        false,
+                        new String[]{},
+                        start + 1,
+                        start + limit));
     }
+
+    private QueryExecutor<IValidationRuleSetVersion> getRuleSetVersionQuery() {
+        QueryExecutor<IValidationRuleSetVersion> ruleQuery = dataModel.query(IValidationRuleSetVersion.class);
+        ruleQuery.setRestriction(where("obsoleteTime").isNull());
+        return ruleQuery;
+    }
+
+
+
+
 
     @Override
     public ValidationRuleSetVersion addRuleSetVersion(String name, String description, Instant startDate) {

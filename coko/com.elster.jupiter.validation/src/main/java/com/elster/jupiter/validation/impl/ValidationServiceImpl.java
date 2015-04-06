@@ -271,6 +271,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Override
+    public Optional<? extends ValidationRuleSetVersion> getValidationRuleSetVersion(long ruleSetVersionId){
+        return dataModel.mapper(IValidationRuleSetVersion.class).getOptional(ruleSetVersionId);
+    }
+
+    @Override
     public Optional<ValidationRule> getValidationRule(long id) {
         return dataModel.mapper(ValidationRule.class).getOptional(id);
     }

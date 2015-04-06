@@ -39,6 +39,8 @@ public interface ValidationService {
 
     Optional<ValidationRuleSet> getValidationRuleSet(String name);
 
+    Optional<? extends ValidationRuleSetVersion> getValidationRuleSetVersion(long ruleSetVersionId);
+
     boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet);
 
     Query<ValidationRuleSet> getRuleSetQuery();
@@ -103,4 +105,7 @@ public interface ValidationService {
     DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence);
 
     Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence);
+
+
+
 }

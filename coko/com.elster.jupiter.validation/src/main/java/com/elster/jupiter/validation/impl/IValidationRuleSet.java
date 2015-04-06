@@ -7,6 +7,7 @@ import java.util.List;
 public interface IValidationRuleSet extends ValidationRuleSet {
 
     List<IValidationRule> getRules();
-    List<IValidationRuleSetVersion> getVersions();
+    List<IValidationRuleSetVersion> getRuleSetVersions();
+    List<IValidationRuleSetVersion> getRuleSetVersions(int start, int limit);
 
 }
