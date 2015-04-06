@@ -50,7 +50,7 @@ public class DeviceLifeCycleStateResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
     public PagedInfoList getStatesForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam QueryParameters queryParams) {
         List<DeviceLifeCycleStateInfo> states = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId).getFiniteStateMachine().getStates()
@@ -63,7 +63,7 @@ public class DeviceLifeCycleStateResource {
 
     @GET
     @Path("/{stateId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
     public Response getStateById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, @BeanParam QueryParameters queryParams) {
         State state = resourceHelper.findStateByIdOrThrowException(resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId), stateId);
@@ -72,8 +72,8 @@ public class DeviceLifeCycleStateResource {
 
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
     public Response addDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, DeviceLifeCycleStateInfo stateInfo) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -85,11 +85,11 @@ public class DeviceLifeCycleStateResource {
     }
 
     @PUT
-     @Path("/{stateId}")
-     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
-     public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo stateInfo) {
+    @Path("/{stateId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo stateInfo) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         State stateForEdit = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
 
@@ -105,8 +105,8 @@ public class DeviceLifeCycleStateResource {
 
     @PUT
     @Path("/{stateId}/status")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
     public Response setInitialDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -119,7 +119,7 @@ public class DeviceLifeCycleStateResource {
 
     @DELETE
     @Path("/{stateId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
     public Response deleteDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);

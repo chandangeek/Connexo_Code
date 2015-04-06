@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.resource.requests;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
@@ -31,14 +32,15 @@ public class AuthorizedTransitionActionCreateRequest implements AuthorizedAction
     @Override
     public AuthorizedAction perform() {
         // Create a new transition for finite state machine
+        boolean firstState = deviceLifeCycle.getFiniteStateMachine().getStates().isEmpty();
         FiniteStateMachineUpdater finiteStateMachineUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
-        finiteStateMachineUpdater
+        State newState = finiteStateMachineUpdater
                 .state(this.infoForCreation.fromState.id)
                 .on(this.eventType)
                 .transitionName(this.infoForCreation.name)
                 .transitionTo(this.infoForCreation.toState.id)
                 .complete();
-        FiniteStateMachine finiteStateMachine = finiteStateMachineUpdater.complete();
+        FiniteStateMachine finiteStateMachine = firstState ? finiteStateMachineUpdater.complete(newState) : finiteStateMachineUpdater.complete();
         finiteStateMachine.save();
 
         // Create a new authorized action
