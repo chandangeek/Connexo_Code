@@ -21,7 +21,7 @@ public class ValidationRuleInfo {
     public ValidationAction action = ValidationAction.FAIL;
     public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
-    public ValidationRuleSetInfo ruleSet;
+    public ValidationRuleSetVersionInfo ruleSetVersion;
 
     public ValidationRuleInfo(ValidationRule validationRule) {
         id = validationRule.getId();
@@ -31,7 +31,7 @@ public class ValidationRuleInfo {
         action = validationRule.getAction();
         name = validationRule.getName();
         deleted = validationRule.isObsolete();
-        ruleSet = new ValidationRuleSetInfo(validationRule.getRuleSet());
+        ruleSetVersion = new ValidationRuleSetVersionInfo(validationRule.getRuleSetVersion());
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(validationRule.getPropertySpecs(), validationRule.getProps());
         for (ReadingType readingType : validationRule.getReadingTypes()) {
             readingTypes.add(new ReadingTypeInfo(readingType));

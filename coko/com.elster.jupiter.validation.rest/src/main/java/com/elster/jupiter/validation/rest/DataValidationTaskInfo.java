@@ -2,25 +2,16 @@ package com.elster.jupiter.validation.rest;
 
 
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
-
-import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
-import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.validation.DataValidationTask;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
