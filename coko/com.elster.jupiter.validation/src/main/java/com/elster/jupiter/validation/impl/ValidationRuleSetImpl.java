@@ -3,13 +3,7 @@ package com.elster.jupiter.validation.impl;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,11 +24,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
 
 @XmlRootElement
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE_SET + "}")
@@ -60,20 +51,21 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private String userName;
 
     @Valid
-    private List<IValidationRule> rules = new ArrayList<>();
-    private List<IValidationRule> rulesToSave = new ArrayList<>();
     private List<IValidationRuleSetVersion> versions = new ArrayList<>();
+    private List<IValidationRuleSetVersion> versionToSave = new ArrayList<>();
 
     private final EventService eventService;
     private final DataModel dataModel;
     private final Provider<ValidationRuleImpl> validationRuleProvider;
+    private final Provider<ValidationRuleSetVersionImpl> validationRuleSetVersionProvider;
 
     @Inject
-    ValidationRuleSetImpl(DataModel dataModel, EventService eventService, Provider<ValidationRuleImpl> validationRuleProvider) {
+    ValidationRuleSetImpl(DataModel dataModel, EventService eventService, Provider<ValidationRuleImpl> validationRuleProvider, Provider<ValidationRuleSetVersionImpl> validationRuleSetValidationProvider) {
         // for persistence
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.validationRuleProvider = validationRuleProvider;
+        this.validationRuleSetVersionProvider = validationRuleSetValidationProvider;
     }
     
     ValidationRuleSetImpl init(String name) {
@@ -169,6 +161,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public void save() {
+        addNewVersion();
         if (getId() == 0) {
             doPersist();
         } else {
@@ -176,9 +169,12 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         }
     }
 
+
+
+
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
-        doGetRules().forEach( rule -> Save.UPDATE.save(dataModel, rule));
+        doGetVersions().forEach( version -> Save.UPDATE.save(dataModel, version));
         eventService.postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
 
@@ -190,7 +186,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public void delete() {
         this.setObsoleteTime(Instant.now()); // mark obsolete
-        doGetRules().forEach(rule -> rule. delete());   
+        doGetVersions().forEach(version -> version.delete());
         validationRuleSetFactory().update(this);
         eventService.postEvent(EventType.VALIDATIONRULESET_DELETED.topic(), this);
     }
@@ -204,19 +200,26 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public List<IValidationRuleSetVersion> getVersions() {
-        return versions;
+        return doGetVersions()
+                .sorted(Comparator.comparing(version -> Optional.ofNullable(version.getStartDate()).orElse(Instant.EPOCH)))
+                .collect(Collectors.toList());
     }
 
-    private void addNewRules() {
-        rulesToSave.forEach( newRule -> {
-            Save.CREATE.validate(dataModel, newRule);
-            rules.add(newRule);
+    private Stream<IValidationRuleSetVersion> doGetVersions() {
+        return versions.stream().filter(version -> !version.isObsolete());
+    }
+
+    private void addNewVersion() {
+        versionToSave.forEach( newVersion -> {
+            Save.CREATE.validate(dataModel, newVersion);
+            versions.add(newVersion);
         });
-        rulesToSave.clear();
+        versionToSave.clear();
     }
     
     private Stream<IValidationRule> doGetRules() {
-    	return rules.stream().filter(rule -> !rule.isObsolete());
+    	return versions.stream().filter(v -> !v.isObsolete())
+                .flatMap(v1 -> v1.getRules().stream().filter(r -> !r.isObsolete()));
     }
 
     public List<IValidationRule> getRules(int start, int limit) {
@@ -230,60 +233,52 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
                         start + limit));
     }
 
+    @Override
+    public List<? extends ValidationRuleSetVersion> getRuleSetVersions() {
+        return null;
+    }
+
+    @Override
+    public ValidationRuleSetVersion addRuleSetVersion(String name, String description, Instant startDate) {
+        ValidationRuleSetVersionImpl newRule = validationRuleSetVersionProvider.get().init(this, name, description, startDate);
+        versionToSave.add(newRule);
+        return newRule;
+    }
+
+    @Override
+    public IValidationRuleSetVersion updateRuleSetVersion(long id, String name, String description, Instant startDate) {
+        IValidationRuleSetVersion version = getExistingVersion(id);
+        return doUpdateVersion(version, name, description, startDate);
+    }
+
+    @Override
+    public void deleteRuleSetVersion(ValidationRuleSetVersion version) {
+        IValidationRuleSetVersion iVersion = (IValidationRuleSetVersion) version;
+        if (doGetVersions().anyMatch( candidate -> candidate.equals(iVersion))) {
+            iVersion.delete();
+        } else {
+            throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided rule set version Id: " + version.getId());
+        }
+    }
+
     private QueryExecutor<IValidationRule> getRuleQuery() {
         QueryExecutor<IValidationRule> ruleQuery = dataModel.query(IValidationRule.class, ValidationRuleProperties.class);
         ruleQuery.setRestriction(where("obsoleteTime").isNull());
         return ruleQuery;
     }
 
-    @Override
-    public IValidationRule addRule(ValidationAction action, String implementation, String name) {
-        ValidationRuleImpl newRule = validationRuleProvider.get().init(this, action, implementation, name);
-        rulesToSave.add(newRule);
-        return newRule;
+    private IValidationRuleSetVersion doUpdateVersion(IValidationRuleSetVersion version, String name, String description, Instant startDate) {
+        version.setName(name);
+        version.setDescription(description);
+        version.setStartDate(startDate);
+        return version;
     }
 
-    @Override
-    public IValidationRule updateRule(long id, String name, boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
-        IValidationRule rule = getExistingRule(id);
-        return doUpdateRule(rule, name, activeStatus, action,  mRIDs, properties);
-    }
-
-    private IValidationRule doUpdateRule(IValidationRule rule, String name,  boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
-        rule.rename(name);
-        rule.setAction(action);
-
-        if (activeStatus != rule.isActive()) {
-            rule.toggleActivation();
-        }
-        updateReadingTypes(rule, mRIDs);
-        rule.setProperties(properties);
-
-        return rule;
-    }
-
-    private void updateReadingTypes(IValidationRule rule, List<String> mRIDs) {
-        rule.clearReadingTypes();
-        for (String readingTypeMRID : mRIDs) {
-            rule.addReadingType(readingTypeMRID);
-        }
-    }
-
-    private IValidationRule getExistingRule(long id) {
-    	return doGetRules()
-    		.filter(rule -> rule.getId() == id)
-    		.findFirst()
-    		.orElseThrow(() -> new IllegalArgumentException("The ruleset " + this.getId() + " doesn't contain provided ruleId: " + id));
-    }
-
-    @Override
-    public void deleteRule(ValidationRule rule) {
-        IValidationRule iRule = (IValidationRule) rule;
-        if (doGetRules().anyMatch( candidate -> candidate.equals(iRule))) {
-            iRule.delete();
-        } else {
-            throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided ruleId: " + rule.getId());
-        }      
+    private IValidationRuleSetVersion getExistingVersion(long id) {
+        return doGetVersions()
+                .filter(version -> version.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("The ruleset " + this.getId() + " doesn't contain provided rule set version Id: " + id));
     }
 
     @Override
@@ -320,4 +315,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private void setObsoleteTime(Instant obsoleteTime) {
         this.obsoleteTime = obsoleteTime;
     }
+
+
 }

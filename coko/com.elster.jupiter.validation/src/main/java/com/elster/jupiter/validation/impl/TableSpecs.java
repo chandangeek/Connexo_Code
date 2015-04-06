@@ -36,7 +36,9 @@ public enum TableSpecs {
             table.map(ValidationRuleSetVersionImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            table.column("STARTDATE").map("startDate").number().conversion(NUMBER2INSTANT).add();
+            table.column("START_DATE").map("startDate").number().conversion(NUMBER2INSTANT).add();
+            table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
+            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDRULESETVERSION").on(idColumn).add();

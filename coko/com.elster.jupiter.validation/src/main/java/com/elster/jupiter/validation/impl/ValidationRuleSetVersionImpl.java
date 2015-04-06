@@ -1,53 +1,67 @@
 package com.elster.jupiter.validation.impl;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.validation.MessageSeeds;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetVersion;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.elster.jupiter.util.conditions.Where.where;
+import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.MessageSeeds.Constants;
 
 //@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_RULE_SET_VERSION + "}")
 //@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
+    static final String OBSOLETE_TIME_FIELD = "obsoleteTime";
+
     private long id;
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
-
+    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    private String aliasName;
+    @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    private String description;
     private Instant startDate;
+    private Instant obsoleteTime;
 
     private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
-    private List<IValidationRule> rules = new ArrayList<>();
-    private List<IValidationRule> rulesToSave = new ArrayList<>();
 
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
+
+    @Valid
+    private List<IValidationRule> rules = new ArrayList<>();
+    private List<IValidationRule> rulesToSave = new ArrayList<>();
 
     private final EventService eventService;
     private final DataModel dataModel;
@@ -61,9 +75,21 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
         this.validationRuleProvider = validationRuleProvider;
     }
 
+    ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet, String name) {
+        return init(validationRuleSet, name, null, null);
+    }
+
+    ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet, String name, String description, Instant startDate) {
+        this.ruleSet.set(validationRuleSet);
+        this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
+        this.description = description;
+        this.startDate = startDate;
+        return this;
+    }
+
     @Override
-    public long getId() {
-        return id;
+    public String getDescription() {
+        return description;
     }
 
     @Override
@@ -72,14 +98,31 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
     }
 
     @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
     public Instant getStartDate() {
         return startDate;
     }
 
-    public Reference<ValidationRuleSet> getRuleSet() {
-        return ruleSet;
+    @Override
+    public void setName(String name) {
+        this.name = name != null ? name.trim() : name;
     }
 
+    @Override
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
     public long getVersion() {
         return version;
     }
@@ -97,6 +140,25 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ValidationRuleSetVersion)) {
+            return false;
+        }
+
+        ValidationRuleSetVersion validationRuleSetVersion = (ValidationRuleSetVersion) o;
+
+        return id == validationRuleSetVersion.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
     public void save() {
         addNewRules();
         if (getId() == 0) {
@@ -109,19 +171,27 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
         doGetRules().forEach( rule -> Save.UPDATE.save(dataModel, rule));
-        eventService.postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
+        eventService.postEvent(EventType.VALIDATIONRULESETVERSION_UPDATED.topic(), this);
     }
 
     private void doPersist() {
         Save.CREATE.save(dataModel, this);
-        eventService.postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
+        eventService.postEvent(EventType.VALIDATIONRULESETVERSION_CREATED.topic(), this);
     }
 
     @Override
     public void delete() {
+        this.setObsoleteTime(Instant.now()); // mark obsolete
         doGetRules().forEach(rule -> rule. delete());
-        validationRuleSetFactory().update(this);
-        eventService.postEvent(EventType.VALIDATIONRULESET_DELETED.topic(), this);
+        validationRuleSetVersionFactory().update(this);
+        eventService.postEvent(EventType.VALIDATIONRULESETVERSION_DELETED.topic(), this);
+    }
+
+    @Override
+    public List<IValidationRule> getRules() {
+        return doGetRules()
+                .sorted(Comparator.comparing(rule -> rule.getName().toUpperCase()))
+                .collect(Collectors.toList());
     }
 
     private void addNewRules() {
@@ -136,21 +206,10 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
         return rules.stream().filter(rule -> !rule.isObsolete());
     }
 
-    private DataMapper<IValidationRuleSetVersion> validationRuleSetFactory() {
-        return dataModel.mapper(IValidationRuleSetVersion.class);
-    }
-
-    @Override
-    public List<IValidationRule> getRules() {
-        return doGetRules()
-                .sorted(Comparator.comparing(rule -> rule.getName().toUpperCase()))
-                .collect(Collectors.toList());
-    }
-
     public List<IValidationRule> getRules(int start, int limit) {
         return Collections.unmodifiableList(
                 getRuleQuery().select(
-                        Where.where("ruleSet").isEqualTo(this),
+                        Where.where("ruleSetVersion").isEqualTo(this),
                         new Order[]{Order.ascending("name").toUpperCase()},
                         false,
                         new String[]{},
@@ -162,6 +221,101 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
         QueryExecutor<IValidationRule> ruleQuery = dataModel.query(IValidationRule.class, ValidationRuleProperties.class);
         ruleQuery.setRestriction(where("obsoleteTime").isNull());
         return ruleQuery;
+    }
+
+    @Override
+    public IValidationRule addRule(ValidationAction action, String implementation, String name) {
+        ValidationRuleImpl newRule = validationRuleProvider.get().init(ruleSet.get(), this, action, implementation, name);
+        rulesToSave.add(newRule);
+        return newRule;
+    }
+
+    @Override
+    public IValidationRule updateRule(long id, String name, boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
+        IValidationRule rule = getExistingRule(id);
+        return doUpdateRule(rule, name, activeStatus, action,  mRIDs, properties);
+    }
+
+    private IValidationRule doUpdateRule(IValidationRule rule, String name,  boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
+        rule.rename(name);
+        rule.setAction(action);
+
+        if (activeStatus != rule.isActive()) {
+            rule.toggleActivation();
+        }
+        updateReadingTypes(rule, mRIDs);
+        rule.setProperties(properties);
+
+        return rule;
+    }
+
+    private void updateReadingTypes(IValidationRule rule, List<String> mRIDs) {
+        rule.clearReadingTypes();
+        for (String readingTypeMRID : mRIDs) {
+            rule.addReadingType(readingTypeMRID);
+        }
+    }
+
+    private IValidationRule getExistingRule(long id) {
+        return doGetRules()
+                .filter(rule -> rule.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("The ruleset version" + this.getId() + " doesn't contain provided ruleId: " + id));
+    }
+
+    @Override
+    public void deleteRule(ValidationRule rule) {
+        IValidationRule iRule = (IValidationRule) rule;
+        if (doGetRules().anyMatch( candidate -> candidate.equals(iRule))) {
+            iRule.delete();
+        } else {
+            throw new IllegalArgumentException("The rulset version" + this.getId() + " doesn't contain provided ruleId: " + rule.getId());
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(getName());
+        builder.append('\n');
+        doGetRules().forEach(rule -> builder.append(rule.toString()).append('\n'));
+        return builder.toString();
+    }
+
+    private DataMapper<IValidationRuleSetVersion> validationRuleSetVersionFactory() {
+        return dataModel.mapper(IValidationRuleSetVersion.class);
+    }
+
+    public List<ValidationRule> getRules(Iterable<? extends ReadingType> readingTypes) {
+        List<ValidationRule> result = new ArrayList<>();
+        List<IValidationRule> rules = getRules();
+        for (ValidationRule rule : rules) {
+            Set<ReadingType> readingTypesForRule = rule.getReadingTypes();
+            for (ReadingType readingtype : readingTypes) {
+                if (readingTypesForRule.contains(readingtype)) {
+                    result.add(rule);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Instant getObsoleteDate() {
+        return getObsoleteTime() != null ? getObsoleteTime() : null;
+    }
+
+    private Instant getObsoleteTime() {
+        return this.obsoleteTime;
+    }
+
+    private void setObsoleteTime(Instant obsoleteTime) {
+        this.obsoleteTime = obsoleteTime;
+    }
+
+
+    @Override
+    public boolean isObsolete() {
+        return getObsoleteDate() != null;
     }
 
 }

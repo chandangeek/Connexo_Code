@@ -59,7 +59,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
     private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
-   private Reference<ValidationRuleSetVersion> ruleSetVersion = ValueReference.absent();
+    private Reference<ValidationRuleSetVersion> ruleSetVersion = ValueReference.absent();
 
     @SuppressWarnings("unused")
     private int position;
@@ -84,8 +84,9 @@ public final class ValidationRuleImpl implements IValidationRule {
         this.readingTypeInRuleProvider = readingTypeInRuleProvider;
     }
 
-    ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, String name) {
+    ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationRuleSetVersion ruleSetVersion, ValidationAction action, String implementation, String name) {
         this.ruleSet.set(ruleSet);
+        this.ruleSetVersion.set(ruleSetVersion);
         this.action = action;
         this.implementation = implementation;
         this.name = name != null ? name.trim() : name;

@@ -29,11 +29,13 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     List<? extends ValidationRule> getRules(int start, int limit);
 
-    ValidationRule addRule(ValidationAction action, String implementation, String name);
+    List<? extends ValidationRuleSetVersion> getRuleSetVersions();
 
-    ValidationRule updateRule(long id, String name, boolean active, ValidationAction action,  List<String> mRIDs, Map<String, Object> properties);
+    ValidationRuleSetVersion addRuleSetVersion(String name, String description, Instant startDate);
 
-    void deleteRule(ValidationRule rule);
+    ValidationRuleSetVersion updateRuleSetVersion(long id, String name, String description, Instant startDate);
+
+    void deleteRuleSetVersion(ValidationRuleSetVersion version);
 
     List<ValidationRule> getRules(Iterable<? extends ReadingType> readingTypes);
 
