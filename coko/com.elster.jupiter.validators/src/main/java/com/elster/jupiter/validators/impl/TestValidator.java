@@ -1,6 +1,8 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
+import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
+import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -27,6 +29,7 @@ class TestValidator extends AbstractValidator {
 
     static final String RELATIVE_PERIOD = "relativePeriod";
     static final String ADVANCE_READINGS_SETTINGS = "advanceReadingsSettings";
+    static final String ADVANCE_READINGS_SETTINGS_WITHOUT_NONE = "advanceReadingsSettingsWithoutNone";
 
     private final MeteringService meteringService;
 
@@ -52,6 +55,11 @@ class TestValidator extends AbstractValidator {
                 propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS).setDefaultValue(new NoneAdvanceReadingsSettings()).finish();
         builder.add(spec);
 
+        propertySpecBuilder = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsWithoutNoneFactory(meteringService));
+        propertySpecBuilder.markRequired();
+        spec = propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS_WITHOUT_NONE).setDefaultValue(new BulkAdvanceReadingsSettings()).finish();
+        builder.add(spec);
+
         return builder.build();
     }
 
@@ -73,7 +81,7 @@ class TestValidator extends AbstractValidator {
 
     @Override
     public List<String> getRequiredProperties() {
-        return Arrays.asList(RELATIVE_PERIOD, ADVANCE_READINGS_SETTINGS);
+        return Arrays.asList(RELATIVE_PERIOD, ADVANCE_READINGS_SETTINGS, ADVANCE_READINGS_SETTINGS_WITHOUT_NONE);
     }
 
     @Override
@@ -81,6 +89,10 @@ class TestValidator extends AbstractValidator {
         switch (property) {
             case RELATIVE_PERIOD:
                 return "Relative period";
+            case ADVANCE_READINGS_SETTINGS:
+                return "Use advance readings";
+            case ADVANCE_READINGS_SETTINGS_WITHOUT_NONE:
+                return "Use advance readings";
             default:
                 return null;
         }
