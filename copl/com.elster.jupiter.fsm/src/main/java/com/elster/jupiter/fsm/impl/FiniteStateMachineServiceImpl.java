@@ -312,9 +312,17 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     private void cloneTransition(StateTransition source, FiniteStateMachineBuilder.StateBuilder builder, Map<Long, FiniteStateMachineBuilder.StateBuilder> otherBuilders) {
-        builder
-            .on(source.getEventType())
-            .transitionTo(otherBuilders.get(source.getTo().getId()));
+        Optional<String> customName = source.getName();
+        if (customName.isPresent()) {
+            builder
+                .on(source.getEventType())
+                .transitionTo(otherBuilders.get(source.getTo().getId()), customName.get());
+        }
+        else {
+            builder
+                .on(source.getEventType())
+                .transitionTo(otherBuilders.get(source.getTo().getId()));
+        }
     }
 
     @Override

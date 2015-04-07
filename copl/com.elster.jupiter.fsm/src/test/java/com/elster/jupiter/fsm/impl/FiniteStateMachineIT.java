@@ -1698,6 +1698,50 @@ public class FiniteStateMachineIT {
 
     @Transactional
     @Test
+    public void cloneStateMachineWithCustomTransitionName() {
+        FiniteStateMachineServiceImpl service = this.getTestService();
+        StateTransitionEventType activatedEventType = this.createNewStateTransitionEventType("#activated");
+        StateTransitionEventType deactivatedEventType = this.createNewStateTransitionEventType("#deactivated");
+        FiniteStateMachineBuilder builder = service.newFiniteStateMachine("cloneStateMachineWithCustomTransitionName");
+        FiniteStateMachineBuilder.StateBuilder inactive = builder.newCustomState("Inactive");
+        FiniteStateMachineBuilder.StateBuilder active = builder.newCustomState("Active");
+        String activateTransitionName = "Activate";
+        String deactivateTransitionName = "Deactivate";
+        inactive.on(activatedEventType).transitionTo(active, activateTransitionName);
+        active.on(deactivatedEventType).transitionTo(inactive, deactivateTransitionName);
+        inactive.complete();
+        FiniteStateMachine stateMachine = builder.complete(active.complete());
+        stateMachine.save();
+
+        String expectedName = "Cloned";
+        // Business method
+        FiniteStateMachine cloned = service.cloneFiniteStateMachine(stateMachine, expectedName);
+
+        // Asserts
+        assertThat(cloned.getName()).isEqualTo(expectedName);
+        assertThat(cloned.getStates()).hasSize(2);
+        List<StateTransition> transitions = cloned.getTransitions();
+        assertThat(transitions).hasSize(2);
+        for (StateTransition transition : transitions) {
+            switch (transition.getEventType().getSymbol()) {
+                case "#activated": {
+                    assertThat(transition.getName().isPresent()).isTrue();
+                    assertThat(transition.getName().get()).isEqualTo(activateTransitionName);
+                    break;
+                }
+                case "#deactivated": {
+                    assertThat(transition.getName().isPresent()).isTrue();
+                    assertThat(transition.getName().get()).isEqualTo(deactivateTransitionName);
+                    break;
+                }
+                default: {
+                }
+            }
+        }
+    }
+
+    @Transactional
+    @Test
     public void cloneDefaultLifeCycle() {
         FiniteStateMachineServiceImpl service = this.getTestService();
         // Create default StateTransitionEventTypes
