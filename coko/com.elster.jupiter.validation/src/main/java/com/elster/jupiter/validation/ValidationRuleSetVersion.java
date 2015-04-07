@@ -28,6 +28,8 @@ public interface ValidationRuleSetVersion {
 
     public Instant getObsoleteDate();
 
+    ValidationRuleSet getRuleSet();
+
     List<? extends ValidationRule> getRules();
 
     List<? extends ValidationRule> getRules(int start, int limit);
