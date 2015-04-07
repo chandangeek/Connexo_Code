@@ -1,6 +1,8 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
+import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
+import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -48,6 +50,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     static final String ALLOW_NEGATIVE_VALUES = "allowNegativeValues";
     static final String RELATIVE_PERIOD = "relativePeriod";
     static final String ADVANCE_READINGS_SETTINGS = "advanceReadingsSettings";
+    static final String ADVANCE_READINGS_SETTINGS_WITHOUT_NONE = "advanceReadingsSettingsWithoutNone";
 
     private BigDecimal numberOfConsecutiveSuspects;
     private BigDecimal minNumberOfSamples;
@@ -152,6 +155,11 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         propertySpecBuilder.markRequired();
         PropertySpec spec =
                 propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS).setDefaultValue(new NoneAdvanceReadingsSettings()).finish();
+        builder.add(spec);
+
+        propertySpecBuilder = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsWithoutNoneFactory(meteringService));
+        propertySpecBuilder.markRequired();
+        spec = propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS_WITHOUT_NONE).setDefaultValue(new BulkAdvanceReadingsSettings()).finish();
         builder.add(spec);
 
 
