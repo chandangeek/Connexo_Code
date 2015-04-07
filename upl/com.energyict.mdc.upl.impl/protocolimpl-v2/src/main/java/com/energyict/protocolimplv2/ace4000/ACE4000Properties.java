@@ -31,7 +31,6 @@ public class ACE4000Properties {
     public List<PropertySpec> getOptionalKeys() {
         List<PropertySpec> optional = new ArrayList<PropertySpec>();
         optional.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT));
-        optional.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES));
         return optional;
     }
 
