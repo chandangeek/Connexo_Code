@@ -20,7 +20,8 @@
         <dependency>
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-core-common</artifactId>
-        </dependency>        <dependency>
+        </dependency>
+        <dependency>
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-core-impl</artifactId>
         </dependency>
