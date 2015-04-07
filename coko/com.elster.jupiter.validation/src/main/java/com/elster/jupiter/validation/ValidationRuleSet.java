@@ -29,9 +29,7 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     List<? extends ValidationRuleSetVersion> getRuleSetVersions();
 
-
     List<? extends ValidationRuleSetVersion> getRuleSetVersions(int start, int limit);
-
 
     ValidationRuleSetVersion addRuleSetVersion(String name, String description, Instant startDate);
 

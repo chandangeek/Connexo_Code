@@ -167,9 +167,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         }
     }
 
-
-
-
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
         doGetVersions().forEach( version -> Save.UPDATE.save(dataModel, version));
@@ -240,11 +237,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
 
-
-
-
     @Override
-    public ValidationRuleSetVersion addRuleSetVersion(String name, String description, Instant startDate) {
+    public IValidationRuleSetVersion addRuleSetVersion(String name, String description, Instant startDate) {
         ValidationRuleSetVersionImpl newRule = validationRuleSetVersionProvider.get().init(this, name, description, startDate);
         versionToSave.add(newRule);
         return newRule;
