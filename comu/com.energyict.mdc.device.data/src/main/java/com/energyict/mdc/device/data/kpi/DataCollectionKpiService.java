@@ -60,6 +60,13 @@ public interface DataCollectionKpiService {
     public interface DataCollectionKpiBuilder {
 
         /**
+         * The Kpi's calculation frequency. This field is transient, serves mainly as a validation field.
+         *
+         * @param intervalLength The amount of time between each calculation of the communication task execution KPI
+         * @return The KpiTargetBuilder
+         */
+        public DataCollectionKpiBuilder frequency(TemporalAmount temporalAmount);
+        /**
          * The displayPeriod is the period for which the KPI will be displayed in the UI. So display period will be
          * fixed for the moment.
          *
@@ -72,20 +79,17 @@ public interface DataCollectionKpiService {
          * will calculate the connection setup KPI and will do that e.g. every day.
          * The returned KpiTargetBuilder allows to define targets.
          *
-         * @param intervalLength The amount of time between each calculation of the connection setup KPI
          * @return The KpiTargetBuilder
          */
-        public KpiTargetBuilder calculateConnectionSetupKpi(TemporalAmount intervalLength);
+        public KpiTargetBuilder calculateConnectionSetupKpi();
 
         /**
          * Specifies that the DataCollectionKpi that is under construction
          * will calculate the communication task execution KPI and will do that e.g. every day.
          * The returned KpiTargetBuilder allows to define targets.
          *
-         * @param intervalLength The amount of time between each calculation of the communication task execution KPI
-         * @return The KpiTargetBuilder
          */
-        public KpiTargetBuilder calculateComTaskExecutionKpi(TemporalAmount intervalLength);
+        public KpiTargetBuilder calculateComTaskExecutionKpi();
 
         /**
          * Completes the builder and returns the newly

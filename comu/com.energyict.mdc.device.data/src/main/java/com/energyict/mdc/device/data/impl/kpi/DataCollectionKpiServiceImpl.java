@@ -62,8 +62,12 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         INCOMPLETE {
             @Override
             DataCollectionKpiBuilderState save(DataCollectionKpiImpl underConstruction, KpiBuilder connectionKpiBuilder, KpiBuilder communicationTaskBuilder) {
-                underConstruction.connectionKpiBuilder(connectionKpiBuilder);
-                underConstruction.communicationKpiBuilder(communicationTaskBuilder);
+                if (connectionKpiBuilder!=null) {
+                    underConstruction.connectionKpiBuilder(connectionKpiBuilder);
+                }
+                if (communicationTaskBuilder!=null) {
+                    underConstruction.communicationKpiBuilder(communicationTaskBuilder);
+                }
                 underConstruction.save();
                 return COMPLETE;
             }
@@ -96,15 +100,21 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
         }
 
         @Override
-        public KpiTargetBuilder calculateConnectionSetupKpi(TemporalAmount intervalLength) {
-            this.connectionKpiBuilder = deviceDataModelService.kpiService().newKpi();
-            return new KpiTargetBuilderImpl(this.connectionKpiBuilder, intervalLength);
+        public DataCollectionKpiBuilder frequency(TemporalAmount temporalAmount) {
+            this.underConstruction.setFrequency(temporalAmount);
+            return this;
         }
 
         @Override
-        public KpiTargetBuilder calculateComTaskExecutionKpi(TemporalAmount intervalLength) {
+        public KpiTargetBuilder calculateConnectionSetupKpi() {
+            this.connectionKpiBuilder = deviceDataModelService.kpiService().newKpi();
+            return new KpiTargetBuilderImpl(this.connectionKpiBuilder, underConstruction.getFrequency());
+        }
+
+        @Override
+        public KpiTargetBuilder calculateComTaskExecutionKpi() {
             this.communicationKpiBuilder = deviceDataModelService.kpiService().newKpi();
-            return new KpiTargetBuilderImpl(this.communicationKpiBuilder, intervalLength);
+            return new KpiTargetBuilderImpl(this.communicationKpiBuilder, underConstruction.getFrequency());
         }
 
         @Override

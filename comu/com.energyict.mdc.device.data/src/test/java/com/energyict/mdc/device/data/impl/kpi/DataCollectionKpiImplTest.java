@@ -256,6 +256,7 @@ public class DataCollectionKpiImplTest {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
 
         // Business method
+        builder.frequency(Duration.ofMinutes(15));
         builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Asserts: see expected ConstraintViolationsRule
@@ -265,7 +266,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreatedKpiIsReturnedByFindById() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
@@ -279,7 +280,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreateKpiWithoutEndDeviceGroup() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(null);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
@@ -291,7 +292,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testDisplayPeriodIsPersisted() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
@@ -316,7 +317,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreatedKpiIsReturnedByFindByGroup() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
@@ -330,7 +331,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testFindByGroupForDifferentGroup() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         builder.displayPeriod(TimeDuration.days(1)).save();
 
         DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
@@ -352,7 +353,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreateConnectionKpiAlsoCreatesRecurrentTasks() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
@@ -368,7 +369,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreateCommunicationKpiAlsoCreatesRecurrentTasks() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
@@ -394,7 +395,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreatedKpiIsReturnedByFindByAll() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
@@ -409,7 +410,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreateWithConnectionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.displayPeriod(TimeDuration.days(1)).calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.displayPeriod(TimeDuration.days(1)).frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpi kpi = builder.save();
@@ -428,7 +429,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreateWithComTaskExecutionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
@@ -447,8 +448,8 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreateWithConnectionAndComTaskExecutionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofMinutes(15)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
 
         // Business method
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
@@ -468,7 +469,7 @@ public class DataCollectionKpiImplTest {
     public void testConnectionKpiKoreSettingsOneHour() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Duration expectedIntervalLength = Duration.ofHours(1);
-        builder.calculateConnectionSetupKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(expectedIntervalLength).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
@@ -484,7 +485,7 @@ public class DataCollectionKpiImplTest {
     public void testConnectionKpiKoreSettings15Minutes() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Duration expectedIntervalLength = Duration.ofMinutes(15);
-        builder.calculateConnectionSetupKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(expectedIntervalLength).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
@@ -500,7 +501,7 @@ public class DataCollectionKpiImplTest {
     public void testConnectionKpiKoreSettings60Minutes() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Duration expectedIntervalLength = Duration.ofMinutes(60);
-        builder.calculateConnectionSetupKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(expectedIntervalLength).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
@@ -516,7 +517,7 @@ public class DataCollectionKpiImplTest {
     public void testConnectionKpiKoreSettings3600Seconds() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Duration expectedIntervalLength = Duration.ofSeconds(3600);
-        builder.calculateConnectionSetupKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(expectedIntervalLength).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
@@ -527,20 +528,18 @@ public class DataCollectionKpiImplTest {
         assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     @Transactional
+    @org.junit.Ignore // Ignore until COPL-384 is fixed
     public void testConnectionKpi1Year() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        Period expectedPeriod = Period.ofYears(1);
-        builder.calculateConnectionSetupKpi(expectedPeriod).expectingAsMaximum(BigDecimal.ONE);
+        Period unsupported = Period.ofDays(1);
+        builder.frequency(unsupported).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
 
-        // Asserts
-        Kpi connectionKpi = kpi.connectionKpi().get();
-        assertThat(connectionKpi.getIntervalLength()).isEqualTo(expectedPeriod);
-        assertThat(connectionKpi.getMembers()).hasSize(MonitoredTaskStatus.values().length);
+        // Asserts: see expected exception rule
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -548,7 +547,7 @@ public class DataCollectionKpiImplTest {
     public void testConnectionKpiZeroSeconds() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Duration unsupported = Duration.ofSeconds(0);
-        builder.calculateConnectionSetupKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(unsupported).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         builder.displayPeriod(TimeDuration.days(1)).save();
@@ -561,7 +560,7 @@ public class DataCollectionKpiImplTest {
     public void testConnectionKpiInYearsMonthsAndDays() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Period unsupported = Period.of(1, 1, 1);
-        builder.calculateConnectionSetupKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(unsupported).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         builder.displayPeriod(TimeDuration.days(1)).save();
@@ -574,7 +573,7 @@ public class DataCollectionKpiImplTest {
     public void testComTaskExecutionKpiKoreSettings() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Duration expectedIntervalLength = Duration.ofHours(1);
-        builder.calculateComTaskExecutionKpi(expectedIntervalLength).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(expectedIntervalLength).calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
@@ -589,7 +588,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testNoConnectionScoresForOnlyComTaskExecutionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.ONE);
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
@@ -603,7 +602,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testNoComTaskExecutionScoresForOnlyConnectionSetupKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
@@ -618,7 +617,7 @@ public class DataCollectionKpiImplTest {
     public void testComTaskExecutionKpiInYearsMonthsAndDays() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         Period unsupported = Period.of(1, 1, 1);
-        builder.calculateComTaskExecutionKpi(unsupported).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(unsupported).calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         builder.displayPeriod(TimeDuration.days(1)).save();
@@ -630,8 +629,8 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testDelete() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofMinutes(15)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
         long kpiId = kpi.getId();
 
@@ -646,8 +645,8 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testDeleteAlsoDeletesKoreKPIs() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
         long connectionKpiId = kpi.connectionKpi().get().getId();
         long communicationKpiId = kpi.communicationKpi().get().getId();
@@ -665,8 +664,8 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testRemoveExistingComTaskExecutionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
 
         // must reload to trigger postLoad and init strategies
@@ -692,7 +691,7 @@ public class DataCollectionKpiImplTest {
     @Transactional // COMU-305
     public void testAddCommunicationTargetToKpiWithConnectionTarget() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
 
         // must reload to trigger postLoad and init strategies
@@ -709,8 +708,8 @@ public class DataCollectionKpiImplTest {
     public void testUpdateExistingComTaskExecutionKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         builder.displayPeriod(TimeDuration.days(1));
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
 
         // must reload to trigger postLoad and init strategies
@@ -740,8 +739,8 @@ public class DataCollectionKpiImplTest {
     public void testUpdateExistingConnectionTaskKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
         builder.displayPeriod(TimeDuration.days(1));
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.save();
 
         // must reload to trigger postLoad and init strategies
@@ -770,8 +769,8 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testRemoveExistingConnectionTaskKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
 
         // must reload to trigger postLoad and init strategies
@@ -797,7 +796,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testSwitchKpis() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateComTaskExecutionKpi(Duration.ofMinutes(15)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofMinutes(15)).calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
 
         // must reload to trigger postLoad and init strategies
@@ -814,8 +813,8 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testDeleteAlsoDeletesRecurrentTasks() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofMinutes(30)).expectingAsMaximum(BigDecimal.ONE);
-        builder.calculateComTaskExecutionKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.TEN);
+        builder.frequency(Duration.ofMinutes(30)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+        builder.calculateComTaskExecutionKpi().expectingAsMaximum(BigDecimal.TEN);
         DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
         long connectionTaskId = kpi.connectionKpiTask().get().getId();
         long communicationTaskId = kpi.communicationKpiTask().get().getId();

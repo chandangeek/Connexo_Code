@@ -91,6 +91,10 @@ public interface DataCollectionKpi extends HasId {
      */
     public List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Range<Instant> interval);
 
+    void setFrequency(TemporalAmount intervalLength);
+
+    TemporalAmount getFrequency();
+
     /**
      * Gets the group of devices against which this DataCollectionKpi is calculated.
      *
