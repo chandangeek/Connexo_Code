@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
@@ -8,6 +9,7 @@ import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
@@ -170,12 +172,14 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();     //Outbound protocol only has dialect properties
+        return Collections.emptyList();
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();     //Outbound protocol only has dialect properties
+        List<PropertySpec> optionalProperties = new ArrayList<>();
+        optionalProperties.add(PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME));
+        return optionalProperties;
     }
 
     @Override
