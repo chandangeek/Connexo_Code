@@ -3,13 +3,7 @@ package com.elster.jupiter.validation.impl;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,6 +44,7 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant startDate;
+    private Instant endDate;
     private Instant obsoleteTime;
 
     private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
@@ -107,6 +102,17 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
         return startDate;
     }
 
+
+    @Override
+    public Instant getNotNullStartDate() {
+        return Optional.ofNullable(startDate).orElse(Instant.EPOCH);
+    }
+
+    @Override
+    public Instant getNotNullEndDate() {
+        return Optional.ofNullable(endDate).orElse(Instant.MAX);
+    }
+
     @Override
     public void setName(String name) {
         this.name = name != null ? name.trim() : name;
@@ -115,6 +121,10 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
     @Override
     public void setStartDate(Instant startDate) {
         this.startDate = startDate;
+    }
+    @Override
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
     }
 
     @Override
@@ -193,6 +203,7 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
                 .sorted(Comparator.comparing(rule -> rule.getName().toUpperCase()))
                 .collect(Collectors.toList());
     }
+
 
     private void addNewRules() {
         rulesToSave.forEach( newRule -> {

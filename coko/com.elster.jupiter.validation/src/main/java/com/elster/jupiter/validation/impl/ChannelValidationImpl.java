@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -79,7 +80,29 @@ final class ChannelValidationImpl implements IChannelValidation {
     			.filter(rule -> rule.appliesTo(getChannel()))    			
                 .collect(Collectors.toList());
     }
-    
+
+    private List<IValidationRuleSetVersion> getUpdatedRuleSetVersions() {
+        Optional<IValidationRuleSetVersion> previousVersion = Optional.empty();
+        List<IValidationRuleSetVersion> versions = getMeterActivationValidation().getRuleSet().getRuleSetVersions().stream()
+                .map(IValidationRuleSetVersion.class::cast)
+                .sorted(Comparator.comparing(ver -> ver.getNotNullStartDate()))
+                .collect(Collectors.toList());
+        versions.forEach((currentVersion) ->
+        {
+            if (previousVersion.isPresent()) {
+                previousVersion.get().setEndDate(currentVersion.getNotNullStartDate());
+            }
+        });
+        return versions;
+    }
+
+    private List<IValidationRule> activeRulesOfVersion(IValidationRuleSetVersion version) {
+        return  version.getRules().stream()
+                .map(IValidationRule.class::cast)
+                .filter(rule -> rule.appliesTo(getChannel()))
+                .collect(Collectors.toList());
+    }
+
     void setActiveRules(boolean activeRules) {
         this.activeRules = activeRules;
     }
@@ -139,13 +162,23 @@ final class ChannelValidationImpl implements IChannelValidation {
     	if (end == null || !lastChecked.isBefore(end)) {
     		return;
     	}
-    	Range<Instant> range = Range.openClosed(lastChecked, end);
-    	ChannelValidator validator = new ChannelValidator(getChannel(), range) ;
-    	Instant newLastChecked = activeRules().stream()    	    	
-    			.map(validator::validateRule)  			
-    			.min(Comparator.naturalOrder())
-    			.orElse(end);
-    	updateLastChecked(newLastChecked);
+    	Range<Instant> dataRange = Range.openClosed(lastChecked, end);
+        List<IValidationRuleSetVersion> versions = getUpdatedRuleSetVersions();
+
+        Instant newLastChecked = versions.stream()
+                .filter(cv -> dataRange.intersection(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())).isEmpty())
+                .flatMap(currentVersion ->
+                    {
+                        Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));
+                        Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
+                        ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
+                        return activeRulesOfVersion(currentVersion).stream()
+                                .map(validator::validateRule);
+                    })
+                .min(Comparator.naturalOrder()).orElse(end);
+
+        updateLastChecked(newLastChecked);
+
     }
-    	        
+
 }
