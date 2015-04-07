@@ -318,4 +318,9 @@ public class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
         return getObsoleteDate() != null;
     }
 
+    @Override
+    public ValidationRuleSet getRuleSet() {
+        return ruleSet.get();
+    }
+
 }
