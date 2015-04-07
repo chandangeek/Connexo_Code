@@ -23,7 +23,9 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -123,7 +125,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(dashboardService.getConnectionTypeBreakdown(endDeviceGroup)).thenReturn(connectionStatusBreakdown);
         DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
-        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
+        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi(Duration.ofMinutes(15), TimeDuration.days(1));
         when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
         when(meteringGroupsService.findEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
@@ -159,7 +161,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(dashboardService.getConnectionTypeBreakdown(endDeviceGroup)).thenReturn(connectionStatusBreakdown);
         DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
         when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
-        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi();
+        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi(Duration.ofMinutes(15), TimeDuration.days(1));
         when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
         when(meteringGroupsService.findEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
         when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
@@ -191,11 +193,44 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.connectionSummary.target).isEqualTo(100L);
     }
 
-    private DataCollectionKpi mockDataCollectionKpi() {
+    @Test // COMU-360
+    public void testGetOverviewWithKpisWithDeviceGroupAndFrequencyOneMonth() throws UnsupportedEncodingException {
+        int deviceGroupId = 123;
+
+        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
+        when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
+        when(dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup)).thenReturn(comSessionSuccessIndicatorOverview);
+        ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
+        when(dashboardService.getComPortPoolBreakdown(endDeviceGroup)).thenReturn(comPortPoolBreakdown);
+        ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
+        when(dashboardService.getConnectionTypeBreakdown(endDeviceGroup)).thenReturn(connectionStatusBreakdown);
+        DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
+        when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
+        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi(Period.ofMonths(1), new TimeDuration("1 years"));
+        when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
+        when(meteringGroupsService.findEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
+        when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
+        when(endDeviceGroup.getName()).thenReturn("South region");
+
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(ConnectionOverviewInfo.class);
+        assertThat(connectionOverviewInfo.kpi).isNotNull();
+        assertThat(connectionOverviewInfo.kpi.time).hasSize(12); // all year
+        assertThat(connectionOverviewInfo.kpi.series.get(0).name).isEqualTo("Success");
+        assertThat(connectionOverviewInfo.kpi.series.get(1).name).isEqualTo("Ongoing");
+        assertThat(connectionOverviewInfo.kpi.series.get(2).name).isEqualTo("Failed");
+        assertThat(connectionOverviewInfo.kpi.series.get(3).name).isEqualTo("Target");
+        assertThat(connectionOverviewInfo.deviceGroup.id).isEqualTo(123);
+        assertThat(connectionOverviewInfo.deviceGroup.name).isEqualTo("South region");
+        assertThat(connectionOverviewInfo.deviceGroup.alias).isEqualTo("deviceGroups");
+    }
+
+    private DataCollectionKpi mockDataCollectionKpi(TemporalAmount frequency, TimeDuration displayRange) {
         DataCollectionKpi dataCollectionKpi = mock(DataCollectionKpi.class);
         when(dataCollectionKpi.calculatesConnectionSetupKpi()).thenReturn(true);
-        when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
-        when(dataCollectionKpi.getDisplayRange()).thenReturn(TimeDuration.days(1));
+        when(dataCollectionKpi.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(frequency));
+        when(dataCollectionKpi.getDisplayRange()).thenReturn(displayRange);
         List<DataCollectionKpiScore> kpiScores = new ArrayList<>();
         kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14, 0, 0).atZone(ZoneId.systemDefault()).toInstant(), 10, 80, 10, 100));
         kpiScores.add(mockDataCollectionKpiScore(LocalDateTime.of(2014,10,1,14,15, 0).atZone(ZoneId.systemDefault()).toInstant(), 20, 70, 10, 100));
