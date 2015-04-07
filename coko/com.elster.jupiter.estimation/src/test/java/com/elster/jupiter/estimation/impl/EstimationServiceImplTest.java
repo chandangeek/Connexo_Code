@@ -113,7 +113,7 @@ public class EstimationServiceImplTest {
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
             estimationBlocks.stream().findFirst().ifPresent((block) -> {
                 builder.addEstimated(block);
-                block.setReadingQuailtyType(readingQualityType1);
+                block.setReadingQualityType(readingQualityType1);
             });
             estimationBlocks.stream().skip(1).forEach(builder::addRemaining);
             return builder.build();
@@ -123,7 +123,7 @@ public class EstimationServiceImplTest {
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
             estimationBlocks.stream().reduce((a, b) -> b).ifPresent((block) -> {
                 builder.addEstimated(block);
-                block.setReadingQuailtyType(readingQualityType2);
+                block.setReadingQualityType(readingQualityType2);
             });
             estimationBlocks.subList(0, Math.max(0, estimationBlocks.size() - 1)).stream().forEach(builder::addRemaining);
             return builder.build();

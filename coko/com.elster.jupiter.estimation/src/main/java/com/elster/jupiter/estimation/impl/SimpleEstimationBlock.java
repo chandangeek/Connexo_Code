@@ -42,7 +42,7 @@ class SimpleEstimationBlock implements EstimationBlock {
     }
 
     @Override
-    public void setReadingQuailtyType(ReadingQualityType readingQualityType) {
+    public void setReadingQualityType(ReadingQualityType readingQualityType) {
         this.readingQualityType = readingQualityType;
     }
 

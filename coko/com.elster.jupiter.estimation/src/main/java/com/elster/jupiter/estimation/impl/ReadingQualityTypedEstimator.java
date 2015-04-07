@@ -29,7 +29,7 @@ class ReadingQualityTypedEstimator implements Estimator {
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlock) {
         EstimationResult result = decorated.estimate(estimationBlock);
-        result.estimated().forEach(block -> block.setReadingQuailtyType(readingQualityType));
+        result.estimated().forEach(block -> block.setReadingQualityType(readingQualityType));
         return result;
     }
 

@@ -14,7 +14,7 @@ public interface EstimationBlock {
 
     List<? extends Estimatable> estimatables();
 
-    void setReadingQuailtyType(ReadingQualityType readingQualityType);
+    void setReadingQualityType(ReadingQualityType readingQualityType);
 
     ReadingQualityType getReadingQualityType();
 }

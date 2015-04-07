@@ -22,6 +22,8 @@ public interface EstimationService {
 
     EstimationReport estimate(MeterActivation meterActivation);
 
+    EstimationReport previewEstimate(MeterActivation meterActivation);
+
     EstimationReport estimate(MeterActivation meterActivation, ReadingType readingType);
 
     void estimate(MeterActivation meterActivation, ReadingType readingType, Estimator estimator);

@@ -60,7 +60,8 @@ import java.util.stream.Stream;
                 "osgi.command.function=removeRuleSet",
                 "osgi.command.function=removeRule",
                 "osgi.command.function=updateRule",
-                "osgi.command.function=createEstimationTask"
+                "osgi.command.function=createEstimationTask",
+                "osgi.command.function=log"
         },
         immediate = true)
 public class ConsoleCommands {

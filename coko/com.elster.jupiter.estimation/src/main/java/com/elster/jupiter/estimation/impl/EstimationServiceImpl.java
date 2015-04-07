@@ -205,6 +205,13 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public EstimationReport estimate(MeterActivation meterActivation) {
+        EstimationReportImpl report = previewEstimate(meterActivation);
+        new EstimationEngine().applyEstimations(report);
+        return report;
+    }
+
+    @Override
+    public EstimationReportImpl previewEstimate(MeterActivation meterActivation) {
         EstimationReportImpl report = new EstimationReportImpl();
 
         meterActivation.getReadingTypes().forEach(readingType -> {
