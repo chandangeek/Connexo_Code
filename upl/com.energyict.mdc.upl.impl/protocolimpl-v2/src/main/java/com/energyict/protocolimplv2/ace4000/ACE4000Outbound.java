@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
@@ -311,6 +312,8 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return new ArrayList<>();
+        ArrayList<ConnectionType> connectionTypes = new ArrayList<>();
+        connectionTypes.add(new InboundIpConnectionType());
+        return connectionTypes;
     }
 }

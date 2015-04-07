@@ -2,10 +2,12 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.comserver.adapters.common.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.comserver.adapters.common.InheritedEncryptionDeviceAccessLevel;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,5 +53,17 @@ public class ACE4000MBus extends ACE4000Outbound {
     @Override
     public String getVersion() {
         return "$Date$";
+    }
+
+    @Override
+    public List<ConnectionType> getSupportedConnectionTypes() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+        ArrayList<DeviceProtocolDialect> dialects = new ArrayList<DeviceProtocolDialect>();
+        dialects.add(new NoParamsDeviceProtocolDialect());
+        return dialects;
     }
 }
