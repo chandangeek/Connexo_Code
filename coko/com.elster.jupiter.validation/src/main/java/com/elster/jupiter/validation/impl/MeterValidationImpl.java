@@ -11,6 +11,7 @@ import javax.inject.Inject;
 public class MeterValidationImpl {
 
     private boolean isActive = false;
+    private boolean validateOnStorage = false;
     private Reference<Meter> meter = ValueReference.absent();
 
     private transient boolean saved = true;
@@ -33,6 +34,14 @@ public class MeterValidationImpl {
 
     public void setActivationStatus(boolean status) {
         this.isActive = status;
+    }
+
+    public boolean getValidateOnStorage() {
+        return validateOnStorage;
+    }
+
+    public void setValidateOnStorage(boolean status) {
+        this.validateOnStorage = status;
     }
 
     public void save() {

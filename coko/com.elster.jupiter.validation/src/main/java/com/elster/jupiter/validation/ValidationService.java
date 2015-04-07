@@ -55,15 +55,18 @@ public interface ValidationService {
      * Activation/Deactivation of validation on meters *
      */
 
-    void activateValidation(Meter meter);
+    void activateValidation(Meter meter, boolean validateOnStorage);
+    void activateValidationOnStorage(Meter meter);
 
     void deactivateValidation(Meter meter);
-    
+    void deactivateValidationOnStorage(Meter meter);
+
+
     void activate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
     
     void deactivate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
-    
-    List<ValidationRuleSet> activeRuleSets(MeterActivation meterActivation); 
+
+    List<ValidationRuleSet> activeRuleSets(MeterActivation meterActivation);
 
     boolean validationEnabled(Meter meter);
 
