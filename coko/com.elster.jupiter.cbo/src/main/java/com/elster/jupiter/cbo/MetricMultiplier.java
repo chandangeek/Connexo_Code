@@ -1,5 +1,9 @@
 package com.elster.jupiter.cbo;
 
+import com.elster.jupiter.util.units.Quantity;
+
+import java.math.BigDecimal;
+
 public enum MetricMultiplier {
 	YOCTO(-24,"y"),
 	ZEPTO(-21,"z"),
@@ -59,5 +63,9 @@ public enum MetricMultiplier {
 	@Override 
 	public String toString() {
 		return "*10^" + multiplier;
+	}
+
+	public static Quantity quantity(BigDecimal value, MetricMultiplier multiplier, ReadingTypeUnit unit) {
+		return unit.getUnit().amount(value, multiplier.getMultiplier());
 	}
 }
