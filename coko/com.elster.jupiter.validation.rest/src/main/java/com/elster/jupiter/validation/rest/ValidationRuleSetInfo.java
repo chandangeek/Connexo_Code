@@ -22,9 +22,9 @@ public class ValidationRuleSetInfo {
         id = validationRuleSet.getId();
         name = validationRuleSet.getName();
         description = validationRuleSet.getDescription();
-        List<? extends ValidationRule> rules = validationRuleSet.getRules();
-        numberOfRules = rules.size();
-        numberOfInactiveRules = (int) validationRuleSet.getRules().stream().filter(not(ValidationRule::isActive)).count();
+    //    List<? extends ValidationRule> rules = validationRuleSet.getRules();
+       // numberOfRules = rules.size();
+       // numberOfInactiveRules = (int) validationRuleSet.getRules().stream().filter(not(ValidationRule::isActive)).count();
     }
 
     public ValidationRuleSetInfo() {
