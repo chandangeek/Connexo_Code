@@ -3,6 +3,7 @@ Ext.define('Cfg.view.validation.RuleSubMenu', {
     alias: 'widget.ruleSubMenu',
 
     ruleSetId: null,
+	versionId: null,
     ruleId: null,
 
     title: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
@@ -14,7 +15,7 @@ Ext.define('Cfg.view.validation.RuleSubMenu', {
             {
                 text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
                 itemId: 'ruleSetOverviewLink',
-                href: '#/administration/validation/rulesets/' + me.ruleSetId + '/rules/' + me.ruleId
+                href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/' + me.versionId + '/rules/' + me.ruleId
             }
         ];
 

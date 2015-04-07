@@ -9,8 +9,11 @@ Ext.define('Cfg.view.validation.RuleOverview', {
         'Cfg.view.validation.RulePreview'
     ],
 
+	ruleSetId: null,
+	versionID: null,
     ruleId: null,
-    ruleSetId: null,
+	
+    
 
     content: [
         {
@@ -53,6 +56,7 @@ Ext.define('Cfg.view.validation.RuleOverview', {
                         xtype: 'ruleSubMenu',
                         itemId: 'stepsRuleMenu',
                         ruleSetId: this.ruleSetId,
+						versionId: this.versionId,
                         ruleId: this.ruleId
                     }
                 ]

@@ -254,9 +254,7 @@ Ext.define('Cfg.controller.Validation', {
         formErrorsPanel.hide();
 
         record.set('ruleSetVersion', {
-            id: router.arguments.versionId,
-            versionId: router.arguments.versionId,
-            ruleSetId: router.arguments.ruleSetId
+            id: router.arguments.versionId
         });
 
         if (button.action === 'editRuleAction') {
@@ -287,9 +285,9 @@ Ext.define('Cfg.controller.Validation', {
                     messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
                 }
                 if (me.fromRulePreview) {
-                    router.getRoute('administration/rulesets/overview/rules/overview').forward({ruleId: record.getId()});
+                    router.getRoute('administration/validation/rulesets/overview/rules/overview').forward({ruleId: record.getId()});
                 } else {
-                    router.getRoute('administration/rulesets/overview/rules').forward();
+                    router.getRoute('administration/rulesets/overview/versions').forward();
                 }
 
                 me.getApplication().fireEvent('acknowledge', messageText);
@@ -601,7 +599,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             widget = Ext.widget('addRule', {
                 edit: false,
-                returnLink: '#/administration/validation/rulesets/' + ruleSetId + '/rules'
+                returnLink: '#/administration/validation/rulesets/' + ruleSetId + '/versions'
             }),
             editRulePanel = me.getAddRule(),
             ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets'),
@@ -662,7 +660,7 @@ Ext.define('Cfg.controller.Validation', {
                 if (button.text === 'Save') {
                     messageText = Uni.I18n.translate('validation.editRuleSetSuccess.msg', 'CFG', 'Validation rule set saved');
                     if (me.fromRuleSetOverview) {
-                        location.href = '#/administration/validation/rulesets/' + record.get('id');
+                        location.href = '#/administration/validation/rulesets/' + record.get('id')+ '/versions';
                     } else {
                         me.getValidationRuleSetsStore().reload(
                             {
@@ -674,7 +672,7 @@ Ext.define('Cfg.controller.Validation', {
                     }
                 } else {
                     messageText = Uni.I18n.translate('validation.addRuleSetSuccess.msg', 'CFG', 'Validation rule set added');
-                    location.href = '#/administration/validation/rulesets/' + record.get('id') + '/rules';
+                    location.href = '#/administration/validation/rulesets/' + record.get('id') + '/versions';
                 }
                 me.getApplication().fireEvent('acknowledge', messageText);
             },
@@ -1043,7 +1041,7 @@ Ext.define('Cfg.controller.Validation', {
     deleteRule: function (rule) {
         var self = this,
             router = this.getController('Uni.controller.history.Router'),
-            view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || me.getVersionsContainer();/*
+            view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || self.getVersionsContainer();/*
             grid = view.down('#validationruleList'),
             gridRuleSet = view.down('#validationrulesetList');
 
@@ -1182,11 +1180,12 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    showRuleOverview: function (ruleSetId, ruleId) {
+    showRuleOverview: function (ruleSetId, versionId, ruleId) {
         var me = this,
             rulesContainerWidget = Ext.widget('ruleOverview',
                 {
                     ruleSetId: ruleSetId,
+                    versionId: versionId,
                     ruleId: ruleId
                 }
             );
@@ -1201,7 +1200,9 @@ Ext.define('Cfg.controller.Validation', {
         var rulesStore = me.getValidationRulesStore();
         rulesStore.load({
             params: {
-                id: ruleSetId
+                ruleSetId: ruleSetId,
+                versionId: versionId
+
             },
             callback: function (records, operation, success) {
                 var rule = rulesStore.getById(parseInt(ruleId));
@@ -1518,7 +1519,7 @@ Ext.define('Cfg.controller.Validation', {
                 if (me.fromRulePreview) {
                     router.getRoute('administration/rulesets/overview/rules/overview').forward({ruleId: record.getId()});
                 } else {
-                    router.getRoute('administration/rulesets/overview/rules').forward();
+                    router.getRoute('administration/rulesets/overview/versions').forward();
                 }
 
                 me.getApplication().fireEvent('acknowledge', messageText);
