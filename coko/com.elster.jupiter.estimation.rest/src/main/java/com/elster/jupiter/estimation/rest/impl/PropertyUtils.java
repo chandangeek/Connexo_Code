@@ -125,10 +125,11 @@ public class PropertyUtils {
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), RelativePeriod.class)) {
             return propertySpec.getValueFactory().fromStringValue("" + ((Map)value).get("id"));
         }
-        if (Objects.equals(propertySpec.getValueFactory().getValueType(), AdvanceReadingsSettings.class)) {
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), AdvanceReadingsSettings.class))  {
             Map map = (Map) value;
             String advanceSettings = NoneAdvanceReadingsSettings.NONE_ADVANCE_READINGS_SETTINGS;
-            if ((Boolean) map.get(BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS)) {
+            Object bulkProperty = map.get(BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS);
+            if ((bulkProperty != null) && ((Boolean) bulkProperty)) {
                 advanceSettings = BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS;
             } else if (map.get("readingType") != null) {
                 advanceSettings = (String) ((Map) map.get("readingType")).get("mRID");
