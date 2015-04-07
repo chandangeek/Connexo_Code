@@ -38,7 +38,7 @@ public class DateTime {
         int index = dateFormatBuilder.indexOf("z"); // 'season identification': 0 = normal time, 1 = summer time, 2 = UTC
         if (index != -1) {
             int timeZoneIndication = dateTimeString.charAt(index);
-            if (timeZoneIndication == 50) {
+            if (timeZoneIndication == '2') {
                 timeZone = TimeZone.getTimeZone("UTC");
             }
             dateFormatBuilder.deleteCharAt(index);
@@ -60,7 +60,6 @@ public class DateTime {
         StringBuilder dateTimeBuilder = new StringBuilder();
         StringBuilder dateFormatBuilder = new StringBuilder(dateFormat);
 
-        TimeZone timeZone = this.timeZone;
         int seasonIdentificationIndex = dateFormatBuilder.indexOf("z"); // 'season identification': 0 = normal time, 1 = summer time, 2 = UTC
         if (seasonIdentificationIndex != -1) {
             dateFormatBuilder.deleteCharAt(seasonIdentificationIndex);
@@ -76,10 +75,10 @@ public class DateTime {
         dateTimeBuilder.append(dateFormatter.format(date));
 
         if (dayOfWeekIdentificationIndex != -1) {
-            dateTimeBuilder.insert(dayOfWeekIdentificationIndex, '0');
+            dateTimeBuilder.insert(dayOfWeekIdentificationIndex, '0');  // Leave 'day of week' unspecified
         }
         if (seasonIdentificationIndex != -1) {
-            dateTimeBuilder.insert(dayOfWeekIdentificationIndex, timeZone.inDaylightTime(date) ? '1' : '0');
+            dateTimeBuilder.insert(seasonIdentificationIndex, timeZone.inDaylightTime(date) ? '1' : '0');
         }
 
         return dateTimeBuilder.toString();
