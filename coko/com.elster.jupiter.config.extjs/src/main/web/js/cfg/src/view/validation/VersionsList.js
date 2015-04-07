@@ -27,7 +27,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
             },
             {
                 header: Uni.I18n.translate('validation.versionStartPeriod', 'CFG', 'Start period'),
-                dataIndex: 'startPeriodFormatted',
+                dataIndex: 'startDateFormatted',
                 flex: 0.3,
                 align: 'left',
                 sortable: false,

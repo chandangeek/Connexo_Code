@@ -5,26 +5,29 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
         'id',
         'name',
 		'description',
-        'startPeriod',
+        'startDate',
         {
-            name: 'startPeriodFormatted',
+            name: 'startDateFormatted',
             persist: false,
             mapping: function (data) {
                 var result;
-                if (data.startPeriod && (data.startPeriod !== 0)) {
-                    result = moment(data.startPeriod).format('ddd, DD MMM YYYY HH:mm:ss');
-                    result = Uni.DateTime.formatDateTimeLong(new Date(data.startPeriod));
+                if (data.startDate && (data.startDate !== 0)) {
+                    result = moment(data.startDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                    result = Uni.DateTime.formatDateTimeLong(new Date(data.startDate));
                 } else {
                     result = Uni.I18n.translate('validationTasks.general.notStart', 'CFG', '-')
                 }
                 return result;
             }
         },
-        'action',
+        {
+            name: 'action',
+            persist: false
+        },
         {
             name: 'versionName',
             persist: false,
-            mapping: function (data) {
+            mapping: function (data) {                
                 return '<a href="#/administration/validation/rulesets/' + data.ruleSet.id + '/versions/' + data.id + '">' + data.name + '</a>';
             }
         }
@@ -32,10 +35,11 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/val/validation/{ruleSetId}/rules',
+        //urlTpl: '/api/val/validation/{ruleSetId}/rules',
+        urlTpl: '/api/val/validation/{ruleSetId}/versions',
         reader: {
             type: 'json',
-            root: 'rules'
+            root: 'versions'
         },
         setUrl: function (ruleSetId, versionId) {
             this.url = this.urlTpl.replace('{ruleSetId}', ruleSetId).replace('{versionId}', versionId);

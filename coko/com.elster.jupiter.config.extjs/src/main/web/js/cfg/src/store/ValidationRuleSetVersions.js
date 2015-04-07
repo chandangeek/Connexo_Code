@@ -9,7 +9,7 @@ Ext.define('Cfg.store.ValidationRuleSetVersions', {
         url: '/api/val/validation',
         reader: {
             type: 'json',
-            root: 'rules'
+            root: 'versions'
            // root: 'data'
         },
         buildUrl: function (request) {
@@ -23,8 +23,8 @@ Ext.define('Cfg.store.ValidationRuleSetVersions', {
             }
 
             url += id;
-            url += '/rules';
-            //url += '/versions';
+            //url += '/rules';
+            url += '/versions';
 
 
             if (format) {

@@ -253,8 +253,8 @@ Ext.define('Cfg.controller.Validation', {
 
         formErrorsPanel.hide();
 
-        record.set('ruleSet', {
-            id: router.arguments.ruleSetId
+        record.set('ruleSetVersion', {
+            id: router.arguments.versionId
         });
 
         if (button.action === 'editRuleAction') {
@@ -275,7 +275,7 @@ Ext.define('Cfg.controller.Validation', {
         record.readingTypes().add(arrReadingTypes);
 
         me.getAddRule().setLoading('Loading...');
-        record.getProxy().setUrl(router.arguments.ruleSetId);
+        record.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId);
         record.save({
             success: function (record) {
                 var messageText;
@@ -779,8 +779,11 @@ Ext.define('Cfg.controller.Validation', {
         if (record) {
             Ext.suspendLayouts();
 
+
+
             this.getRuleSetBrowsePreviewCt().removeAll(true);
-            var rulesPreviewContainerPanel = Ext.widget('rule-preview-container-panel', {
+//            var rulesPreviewContainerPanel = Ext.widget('rule-preview-container-panel', {
+            var rulesPreviewContainerPanel = Ext.widget('versions-preview-container-panel', {
                 ruleSetId: record.getId(),
                 title: record.get('name'),
                 isSecondPagination: true
@@ -1024,11 +1027,11 @@ Ext.define('Cfg.controller.Validation', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        this.close();
+                        //this.close();
                         self.deleteRule(rule);
                         break;
                     case 'cancel':
-                        this.close();
+                        //this.close();
                         break;
                 }
             }
@@ -1128,11 +1131,11 @@ Ext.define('Cfg.controller.Validation', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        this.close();
+                        //this.close();
                         me.deleteRuleSet(ruleSet);
                         break;
                     case 'cancel':
-                        this.close();
+                        //this.close();
                         break;
                 }
             }
@@ -1270,6 +1273,7 @@ Ext.define('Cfg.controller.Validation', {
 
 
     onVersionMenuShow: function (menu) {
+
        /* if (menu.record.get('active')) {
             menu.down('#editVersion').hide();
             menu.down('#deleteVersion').hide();
@@ -1316,7 +1320,7 @@ Ext.define('Cfg.controller.Validation', {
                         self.deleteVersion(version);
                         break;
                     case 'cancel':
-                        this.close();
+                        //this.close();
                         break;
                 }
             }
@@ -1428,7 +1432,7 @@ Ext.define('Cfg.controller.Validation', {
             newVersion = Ext.create('Cfg.model.ValidationRuleSetVersion');
             newVersion.set('name', selectedVersion.get('name'));
             newVersion.set('description', selectedVersion.get('description'));
-            newVersion.set('startPeriod', selectedVersion.get('startPeriod'));
+            newVersion.set('startDate', selectedVersion.get('startDate'));
             editVersionPanel.down('#addVersionTitle').setTitle(Uni.I18n.translate('validation.addValidationRulesetVersion', 'CFG', 'Add validation rule set version'));
             form.loadRecord(newVersion);
         }
@@ -1483,7 +1487,7 @@ Ext.define('Cfg.controller.Validation', {
 
         var values = form.getValues();
         record.set(values);
-        record.set('startPeriod', startOnDate);
+        record.set('startDate', startOnDate);
 
        /* record.beginEdit();
         record.set('name', form.down('#addVersionName').getValue());

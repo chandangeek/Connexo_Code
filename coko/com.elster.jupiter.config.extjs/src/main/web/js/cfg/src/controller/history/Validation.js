@@ -52,7 +52,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                 'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                     action: 'showRules',
                                     items: {
-                                        add: {
+                                   /*     add: {
                                             title: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                                             route: 'add',
                                             controller: 'Cfg.controller.Validation',
@@ -67,7 +67,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                     action: 'addReadingTypes'
                                                 }
                                             }
-                                        },
+                                        },*/
                                         overview: {
                                             title: 'Overview',
                                             route: '{ruleId}',
@@ -168,7 +168,26 @@ Ext.define('Cfg.controller.history.Validation', {
                                                     route: 'rules',
                                                     controller: 'Cfg.controller.Validation',
                                                     privileges: ['privilege.administrate.validationConfiguration'],
-                                                    action: 'showVersionRules'
+                                                    action: 'showVersionRules',
+                                                    items:{
+                                                        add: {
+                                                            title: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
+                                                            route: 'add',
+                                                            controller: 'Cfg.controller.Validation',
+                                                            privileges: ['privilege.administrate.validationConfiguration'],
+                                                            action: 'addRule',
+                                                            items: {
+                                                                readingtypes: {
+                                                                    title: 'Add reading types',
+                                                                    route: 'readingtypes',
+                                                                    controller: 'Cfg.controller.Validation',
+                                                                    privileges: ['privilege.administrate.validationConfiguration'],
+                                                                    action: 'addReadingTypes'
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
                                                 }
                                             }
                                         }

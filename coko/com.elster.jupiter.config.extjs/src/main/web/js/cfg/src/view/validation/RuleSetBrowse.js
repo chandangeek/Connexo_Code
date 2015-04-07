@@ -7,7 +7,8 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
         'Cfg.view.validation.RuleSetPreview',
         'Cfg.view.validation.RuleSetActionMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+
     ],
 
     content: [

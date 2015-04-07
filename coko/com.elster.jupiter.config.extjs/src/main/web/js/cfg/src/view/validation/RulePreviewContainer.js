@@ -2,15 +2,15 @@ Ext.define('Cfg.view.validation.RulePreviewContainer', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.rulePreviewContainer',
     requires: [
-        'Cfg.view.validation.RulePreviewContainerPanel',
-        'Cfg.view.validation.RuleSetSubMenu'
+        'Cfg.view.validation.RulePreviewContainerPanel',		        
+        'Cfg.view.validation.RuleSetSubMenu'		      
     ],
     ruleSetId: null,
     initComponent: function () {
         var me = this;
         this.content = [
             {
-                xtype: 'rule-preview-container-panel',
+                xtype: 'rule-preview-container-panel',				
                 ruleSetId: me.ruleSetId
             }
         ];

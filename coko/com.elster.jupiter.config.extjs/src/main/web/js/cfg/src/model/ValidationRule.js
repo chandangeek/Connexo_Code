@@ -15,27 +15,27 @@ Ext.define('Cfg.model.ValidationRule', {
         'properties',
         'name',
         {
-            name: 'ruleSet'
+            name: 'ruleSetVersion'
         },
         {
-            name: 'ruleSetId',
+            name: 'ruleSetVersionId',
             persist: false,
             convert: function (value, record) {
-                return record.data.ruleSet.id;
+                return record.data.ruleSetVersion.id;
             }
         },
         {
-            name: 'ruleSetName',
+            name: 'ruleSetVersionName',
             persist: false,
             convert: function (value, record) {
-                return record.data.ruleSet.name;
+                return record.data.ruleSetVersion.name;
             }
         },
         {
             name: 'rule_name',
             persist: false,
             mapping: function (data) {
-                return '<a href="#/administration/validation/rulesets/validationrules/' + data.ruleSet.id + '/ruleoverview/' + data.id + '">' + data.name + '</a>';
+                return '<a href="#/administration/validation/rulesets/validationrules/' + data.ruleSetVersion.id + '/ruleoverview/' + data.id + '">' + data.name + '</a>';
             }
         }
     ],
@@ -61,14 +61,15 @@ Ext.define('Cfg.model.ValidationRule', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/val/validation/{ruleSetId}/rules',
+        urlTpl: '/api/val/validation/{ruleSetId}/versions/{versionId}/rules',
         reader: {
             type: 'json',
             root: 'rules'
         },
-        setUrl: function (id) {
-            this.url = this.urlTpl.replace('{ruleSetId}', id);
+        setUrl: function (ruleSetId, versionId) {
+            this.url = this.urlTpl.replace('{ruleSetId}', ruleSetId).replace('{versionId}', versionId);
         },
+
         timeout: 300000
     }
 });
