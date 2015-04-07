@@ -103,6 +103,7 @@ public enum TableSpecs {
             table.map(MeterValidationImpl.class);
             Column meterId = table.column("METERID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("ACTIVE").bool().map("isActive").add();
+            table.column("VALIDATEONSTORAGE").bool().map("validateOnStorage").add();
             table.primaryKey("VAL_PK_MA_METER_VALIDATION").on(meterId).add();
             table.foreignKey("VAL_FK_MA_METER_VALIDATION").references(MeteringService.COMPONENTNAME, "MTR_ENDDEVICE").onDelete(RESTRICT).map("meter").on(meterId).add();
         }

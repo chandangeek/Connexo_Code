@@ -90,7 +90,10 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                 if(found.isPresent()){
                     List<? extends MeterActivation> activations = found.get().getMeterActivations();
                     for(MeterActivation activation : activations){
+
                         validationService.validate(activation);
+                        //transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, mrid, readingType, fromDate, toDate)));
+
                     }
 
                 }
