@@ -97,6 +97,8 @@ public class ValidationServiceImplTest {
     @Mock
     private DataMapper<IValidationRuleSet> validationRuleSetFactory;
     @Mock
+    private DataMapper<IValidationRuleSetVersion> validationRuleSetVersionFactory;
+    @Mock
     private DataMapper<IValidationRule> validationRuleFactory;
     @Mock
     private DataMapper<MeterValidationImpl> meterValidationFactory;
@@ -185,7 +187,8 @@ public class ValidationServiceImplTest {
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<DataValidationTask>mapper(any())).thenReturn(dataValidationTaskFactory2);
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
-        when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);        
+        when(dataModel.mapper(IValidationRuleSetVersion.class)).thenReturn(validationRuleSetVersionFactory);
+        when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);
         when(dataModel.mapper(IChannelValidation.class)).thenReturn(channelValidationFactory);
         when(dataModel.mapper(MeterValidationImpl.class)).thenReturn(meterValidationFactory);
         when(dataModel.mapper(DataValidationTaskImpl.class)).thenReturn(dataValidationTaskFactory);
@@ -209,8 +212,10 @@ public class ValidationServiceImplTest {
 
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
-        Provider<ValidationRuleImpl> provider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
-        when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, provider));
+        Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
+        Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider);
+        when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, versionProvider));
+        when(dataModel.getInstance(ValidationRuleSetVersionImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider));
         when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> newDataValidationTask);
         when(dataModel.query(IMeterActivationValidation.class, IChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.elster.jupiter.validation.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,13 +62,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -82,6 +76,7 @@ public class ValidationAddRemoveIT {
 
     private static final String MIN_MAX = "minMax";
     private static final String MY_RULE_SET = "MyRuleSet";
+    private static final String MY_RULE_SET_VERSION = "MyRuleSetVersion";
     private static final String MIN = "min";
     private static final String MAX = "max";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -170,7 +165,8 @@ public class ValidationAddRemoveIT {
                 validationService.addResource(validatorFactory);
                 
                 final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
-                ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
+                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion(MY_RULE_SET_VERSION, "description", Instant.now());
+                ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
                 minMaxRule.addReadingType(readingType1);
                 minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
                 minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));

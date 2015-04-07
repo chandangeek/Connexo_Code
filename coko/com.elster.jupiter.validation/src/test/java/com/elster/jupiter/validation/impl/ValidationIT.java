@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.elster.jupiter.validation.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,13 +50,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -70,6 +64,7 @@ public class ValidationIT {
     private static final String MIN_MAX = "minMax";
     private static final String CONSECUTIVE_ZEROES = "consecutiveZeroes";
     private static final String MY_RULE_SET = "MyRuleSet";
+    private static final String MY_RULE_SET_VERSION = "MyRuleSet";
     private static final String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
     private static final String MIN = "min";
     private static final String MAX = "max";
@@ -160,12 +155,13 @@ public class ValidationIT {
                 validationService.addResource(validatorFactory);
 
                 final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
-                ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros");
+                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion(MY_RULE_SET_VERSION, "description", Instant.now());
+                ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros");
                 zeroesRule.addReadingType(readingType1);
                 zeroesRule.addReadingType(readingType2);
                 zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
                 zeroesRule.activate();
-                ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
+                ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
                 minMaxRule.addReadingType(readingType3);
                 minMaxRule.addReadingType(readingType2);
                 minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));

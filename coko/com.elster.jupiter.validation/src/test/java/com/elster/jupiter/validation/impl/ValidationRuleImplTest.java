@@ -22,6 +22,7 @@ import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidatorFactory;
 
+import com.elster.jupiter.validation.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,11 +46,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
-import com.elster.jupiter.validation.ReadingTypeInValidationRule;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.Validator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -75,6 +71,8 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Mock
     private ValidationRuleSet ruleSet;
+    @Mock
+    private ValidationRuleSetVersion ruleSetVersion;
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
@@ -140,7 +138,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationRule == null) {
-        	validationRule = setId(newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),ID);            
+        	validationRule = setId(newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),ID);
         }
         return validationRule;
     }
@@ -152,12 +150,12 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {        
-        return setId(newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),ID);
+        return setId(newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),ID);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(setId(newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),OTHER_ID));
+        return ImmutableList.of(setId(newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),OTHER_ID));
     }
 
     @Override
@@ -172,14 +170,14 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testPersist() {
-        ValidationRuleImpl testPersistValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
+        ValidationRuleImpl testPersistValidationRule = newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         testPersistValidationRule.save();
         verify(dataModel).persist(testPersistValidationRule);
     }
 
     @Test
     public void testUpdate() {
-        ValidationRuleImpl testUpdateValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
+        ValidationRuleImpl testUpdateValidationRule = newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         field("id").ofType(Long.TYPE).in(testUpdateValidationRule).set(ID);
         testUpdateValidationRule.save();
         verify(dataModel).update(testUpdateValidationRule);
@@ -187,7 +185,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithProperties() {
-        ValidationRuleImpl testPersistValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
+        ValidationRuleImpl testPersistValidationRule = newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         testPersistValidationRule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
 
         testPersistValidationRule.save();
@@ -197,7 +195,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testDeleteWithProperties() {
-        ValidationRuleImpl rule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
+        ValidationRuleImpl rule = newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         rule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
         field("id").ofType(Long.TYPE).in(rule).set(ID);
         rule.save();
@@ -228,7 +226,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithReadingTypes() {
-        ValidationRuleImpl newRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
+        ValidationRuleImpl newRule = newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         newRule.addReadingType(readingType1);
 
         newRule.save();
@@ -238,7 +236,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Test
     public void testDeleteWithReadingTypes() {
-        ValidationRuleImpl newRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
+        ValidationRuleImpl newRule = newRule().init(ruleSet, ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
         newRule.addReadingType(readingType1);
         field("id").ofType(Long.TYPE).in(newRule).set(ID);
         newRule.save();
