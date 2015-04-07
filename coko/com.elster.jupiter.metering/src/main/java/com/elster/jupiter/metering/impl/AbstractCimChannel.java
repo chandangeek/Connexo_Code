@@ -1,39 +1,45 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.util.conditions.Condition;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Predicates.either;
 
-/**
- * Copyrights EnergyICT
- * Date: 26/03/2015
- * Time: 17:00
- */
 public abstract class AbstractCimChannel implements CimChannel {
-    protected final DataModel dataModel;
+    private final DataModel dataModel;
+    private final MeteringService meteringService;
 
     @Override
     public abstract ChannelImpl getChannel();
 
-    public AbstractCimChannel(DataModel dataModel) {
+    public AbstractCimChannel(DataModel dataModel, MeteringService meteringService) {
         this.dataModel = dataModel;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -185,4 +191,73 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .map(record -> record.filter(getReadingType()))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void editReadings(List<? extends BaseReading> readings) {
+        if (readings.isEmpty()) {
+            return;
+        }
+        ReadingQualityType qualityForUpdate = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC);
+        ReadingQualityType qualityForCreate = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED);
+        modifyReadings(readings, qualityForUpdate, qualityForCreate, ProcessStatus.of(ProcessStatus.Flag.EDITED));
+    }
+
+    @Override
+    public void estimateReadings(List<? extends BaseReading> readings) {
+        if (readings.isEmpty()) {
+            return;
+        }
+        Map<Instant, List<ReadingQualityRecordImpl>> readingQualityByTimestamp = findReadingQualitiesByTimestamp(readings);
+        ReadingStorer storer = meteringService.createOverrulingStorer();
+        for (BaseReading reading : readings) {
+            List<ReadingQualityRecordImpl> currentQualityRecords = Optional.ofNullable(readingQualityByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
+            Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+            ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.ESTIMATED).or(oldReading.map(BaseReadingRecord::getProcesStatus).orElse(ProcessStatus.of()));
+            reading.getReadingQualities().stream()
+                    .filter(readingQuality -> currentQualityRecords.stream().map(ReadingQualityRecord::getType).noneMatch(type -> type.equals(readingQuality.getType())))
+                    .forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading).save());
+            makeNoLongerSuspect(currentQualityRecords);
+            storer.addReading(this, reading, processStatus);
+        }
+        storer.execute();
+    }
+
+    private void modifyReadings(List<? extends BaseReading> readings, ReadingQualityType qualityForUpdate, ReadingQualityType qualityForCreate, ProcessStatus processStatusToSet) {
+        Map<Instant, List<ReadingQualityRecordImpl>> readingQualityByTimestamp = findReadingQualitiesByTimestamp(readings);
+        ReadingStorer storer = meteringService.createOverrulingStorer();
+        for (BaseReading reading : readings) {
+            List<ReadingQualityRecordImpl> currentQualityRecords = Optional.ofNullable(readingQualityByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
+            boolean alreadyHasQuality = alreadyHasQuality(currentQualityRecords, ImmutableSet.of(qualityForUpdate, qualityForCreate));
+            Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+            ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcesStatus).orElse(ProcessStatus.of()));
+            if (!alreadyHasQuality) {
+                this.createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading).save();
+            }
+            makeNoLongerSuspect(currentQualityRecords);
+            storer.addReading(this, reading, processStatus);
+        }
+        storer.execute();
+    }
+
+    private Map<Instant, List<ReadingQualityRecordImpl>> findReadingQualitiesByTimestamp(List<? extends BaseReading> readings) {
+        Range<Instant> range = readings.stream().map(BaseReading::getTimeStamp).map(Range::singleton).reduce(Range::span).get();
+        return findReadingQuality(range).stream()
+                .map(ReadingQualityRecordImpl.class::cast)
+                .collect(Collectors.groupingBy(ReadingQualityRecordImpl::getReadingTimestamp));
+    }
+
+    private boolean alreadyHasQuality(List<ReadingQualityRecordImpl> currentQualityRecords, Collection<ReadingQualityType> qualitiesToCheck) {
+        return currentQualityRecords.stream().map(ReadingQualityRecord::getType).anyMatch(qualitiesToCheck::contains);
+    }
+
+    private void makeNoLongerSuspect(List<ReadingQualityRecordImpl> currentQualityRecords) {
+        currentQualityRecords.stream()
+                .filter(ReadingQualityRecordImpl::isSuspect)
+                .forEach(ReadingQualityRecordImpl::delete);
+        currentQualityRecords.stream()
+                .filter(either(ReadingQualityRecord::hasValidationCategory).or(ReadingQualityRecord::isMissing))
+                .forEach(ReadingQualityRecordImpl::makePast);
+    }
+
+
 }

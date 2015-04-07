@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -18,8 +18,8 @@ public class ReadingTypeInChannel extends AbstractCimChannel {
     private final Reference<ReadingTypeImpl> readingType = ValueReference.absent();
 
     @Inject
-    ReadingTypeInChannel(DataModel dataModel) {
-        super(dataModel);
+    ReadingTypeInChannel(DataModel dataModel, MeteringService meteringService) {
+        super(dataModel, meteringService);
     }
 
     ReadingTypeInChannel init(ChannelImpl channel, ReadingTypeImpl readingType) {
@@ -36,12 +36,6 @@ public class ReadingTypeInChannel extends AbstractCimChannel {
     @Override
     public ChannelImpl getChannel() {
         return channel.get();
-    }
-
-    @Override
-    public void editReadings(List<? extends BaseReading> readings) {
-        //TODO automatically generated method body, provide implementation.
-
     }
 
     @Override
