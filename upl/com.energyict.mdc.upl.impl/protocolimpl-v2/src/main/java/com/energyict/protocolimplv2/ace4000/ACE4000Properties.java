@@ -21,7 +21,7 @@ public class ACE4000Properties {
     public TypedProperties properties;
 
     public ACE4000Properties() {
-        this(new TypedProperties());
+        this(TypedProperties.empty());
     }
 
     public ACE4000Properties(TypedProperties properties) {
@@ -46,5 +46,9 @@ public class ACE4000Properties {
 
     public int getRetries() {
         return properties.getIntegerProperty(RETRIES, DEFAULT_RETRIES).intValue();
+    }
+
+    public TypedProperties getProperties() {
+        return properties;
     }
 }

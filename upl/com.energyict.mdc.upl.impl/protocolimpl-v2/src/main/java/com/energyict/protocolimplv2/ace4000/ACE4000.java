@@ -9,10 +9,7 @@ import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -73,9 +70,8 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
         return properties;
     }
 
-
     public void addProperties(TypedProperties properties) {
-        this.properties = new ACE4000Properties(properties);
+        getProperties().getProperties().setAllProperties(properties, true);
     }
 
     public List<PropertySpec> getRequiredProperties() {

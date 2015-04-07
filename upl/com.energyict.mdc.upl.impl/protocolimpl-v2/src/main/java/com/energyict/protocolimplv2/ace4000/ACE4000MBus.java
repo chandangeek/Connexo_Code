@@ -44,16 +44,6 @@ public class ACE4000MBus extends ACE4000Outbound {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();     //Properties are managed by the master device
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();     //Properties are managed by the master device
-    }
-
-    @Override
     public String getProtocolDescription() {
         return "Actaris ACE4000 MeterXML Mbus Device";
     }

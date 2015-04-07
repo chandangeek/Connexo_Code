@@ -29,10 +29,7 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -171,8 +168,18 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return Collections.emptyList();     //Outbound protocol only has dialect properties
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return Collections.emptyList();     //Outbound protocol only has dialect properties
+    }
+
+    @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        addProperties(dialectProperties);    //Does a set, not an add
+        addProperties(dialectProperties);
     }
 
     @Override
