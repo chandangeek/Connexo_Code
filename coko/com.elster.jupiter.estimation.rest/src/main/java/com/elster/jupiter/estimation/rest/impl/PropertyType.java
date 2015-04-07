@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
+import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.RelativePeriodFactory;
@@ -17,7 +18,8 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
     TEXT(StringFactory.class),
     LISTVALUE(ListValueFactory.class),
     RELATIVEPERIOD(RelativePeriodFactory.class),
-    ADVANCEREADINGSSETTINGS(AdvanceReadingsSettingsFactory.class);
+    ADVANCEREADINGSSETTINGS(AdvanceReadingsSettingsFactory.class),
+    ADVANCEREADINGSSETTINGSWITHOUTNONE(AdvanceReadingsSettingsWithoutNoneFactory.class);
 
     private Class valueFactoryClass;
 
