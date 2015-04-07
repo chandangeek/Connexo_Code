@@ -12,7 +12,8 @@ public class ValidationRuleSetVersionInfo{
     public long id;
     public String name;
     public String description;
-    Instant startDate;
+    public Instant startDate;
+    public ValidationRuleSetInfo ruleSet;
 
     public ValidationRuleSetVersionInfo() {
     }
@@ -30,5 +31,6 @@ public class ValidationRuleSetVersionInfo{
         name = validationRuleSetVersion.getName();
         description = validationRuleSetVersion.getDescription();
         startDate = validationRuleSetVersion.getStartDate();
+        ruleSet = new ValidationRuleSetInfo(validationRuleSetVersion.getRuleSet());
     }
 }
