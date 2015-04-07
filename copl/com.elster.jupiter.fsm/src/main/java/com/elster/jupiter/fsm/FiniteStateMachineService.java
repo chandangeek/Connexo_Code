@@ -60,7 +60,13 @@ public interface FiniteStateMachineService {
      */
     public Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType);
 
+    /**
+     * Gets all the {@link StateTransitionEventType} that have been defined in the system.
+     *
+     * @return The List of StateTransitionEventType
+     */
     public List<StateTransitionEventType> getStateTransitionEventTypes();
+
     /**
      * Starts the building process for a new {@link FiniteStateMachine}
      * with the specified name. The name must be unique across the system,

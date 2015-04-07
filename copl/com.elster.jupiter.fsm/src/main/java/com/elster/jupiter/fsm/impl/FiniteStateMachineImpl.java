@@ -191,6 +191,11 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
         this.transitions.add(stateTransition);
     }
 
+    void validateAndAdd(StateTransitionImpl stateTransition) {
+        Save.CREATE.validate(this.dataModel, stateTransition);
+        this.add(stateTransition);
+    }
+
     void removeTransition(StateImpl state, StateTransitionEventType eventType) {
         Optional<StateTransitionImpl> stateTransition = this.transitions
                 .stream()

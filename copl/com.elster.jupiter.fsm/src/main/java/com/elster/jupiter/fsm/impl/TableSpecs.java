@@ -110,7 +110,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column from = table.column("FROMSTATE").number().notNull().add();
             Column to = table.column("TOSTATE").number().notNull().add();
-            Column name = table.column("NAME").varChar().map(StateTransitionImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().map(StateTransitionImpl.Fields.NAME.fieldName()).add();
             Column eventType = table.column("EVENTTYPE").number().notNull().add();
             Column finiteStateMachine = table.column("FSM").number().notNull().add();
             table.primaryKey("PK_FSM_STATE_TRANSITION").on(id).add();
@@ -135,6 +135,9 @@ public enum TableSpecs {
                     .on(eventType)
                     .references(FSM_EVENT_TYPE.name())
                     .map(StateTransitionImpl.Fields.EVENT_TYPE.fieldName())
+                    .add();
+            table.unique("UK_FSM_FROM_TO_EVENT_TYPE")
+                    .on(from, eventType)
                     .add();
         }
     };

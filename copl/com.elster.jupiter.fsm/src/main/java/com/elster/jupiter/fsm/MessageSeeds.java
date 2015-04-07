@@ -88,6 +88,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String UNKNOWN_STATE = "finite.state.machine.unknown.state";
         public static final String UNKNOWN_STATE_TRANSITION = "finite.state.machine.unknown.state.transition";
         public static final String NO_SUCH_PROCESS = "finite.state.machine.unknown.state.process";
+        public static final String DUPLICATE_STATE_TRANSITION = "finite.state.machine.duplicate.state.transition";
     }
 
 }

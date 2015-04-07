@@ -23,16 +23,23 @@ public class UniqueStateNameValidator implements ConstraintValidator<Unique, Sta
 
     @Override
     public boolean isValid(State stateForValidation, ConstraintValidatorContext context) {
-        List<State> statesWithTheSameName = stateForValidation.getFiniteStateMachine().getStates().stream()
-                .filter(state -> !Checks.is(state.getName()).empty()) // preserve states only with name
-                .filter(state -> state.getName().equals(stateForValidation.getName())) // states only with the same name
-                .collect(Collectors.toList());
+        List<State> statesWithTheSameName =
+                stateForValidation
+                        .getFiniteStateMachine()
+                        .getStates()
+                        .stream()
+                        .filter(state -> !Checks.is(state.getName()).empty()) // preserves states that have a name
+                        .filter(state -> state.getName().equals(stateForValidation.getName())) // preserves states that have the same name
+                        .collect(Collectors.toList());
         if (!statesWithTheSameName.isEmpty() && (statesWithTheSameName.size() > 1 || statesWithTheSameName.get(0).getId() != stateForValidation.getId())) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                    .addPropertyNode("name").addConstraintViolation();
+            context
+                .buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                .addPropertyNode("name")
+                .addConstraintViolation();
             return false;
         }
         return true;
     }
+
 }

@@ -320,10 +320,8 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         @Override
-        public FiniteStateMachineUpdater.TransitionBuilder transitionName(String transitionName) {
-            if (!Checks.is(transitionName).emptyOrOnlyWhiteSpace()) {
-                this.transitionName = transitionName;
-            }
+        public FiniteStateMachineUpdater.TransitionBuilder setName(String transitionName) {
+            this.transitionName = transitionName;
             return this;
         }
 
@@ -333,7 +331,7 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
             StateTransitionImpl stateTransition = this.newInitializedTransition(state, stateMachine);
             stateTransition.setName(this.transitionName);
             if (isPersistent(state)) {
-                stateMachine.add(stateTransition);
+                stateMachine.validateAndAdd(stateTransition);
             }
             else {
                 FiniteStateMachineUpdaterImpl.this.completedNewTransitions.add(stateTransition);

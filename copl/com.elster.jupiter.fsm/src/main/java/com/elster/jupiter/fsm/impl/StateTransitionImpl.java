@@ -6,11 +6,11 @@ import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Size;
 import java.util.Optional;
@@ -23,6 +23,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:29)
  */
+@Unique(message = "{" + MessageSeeds.Keys.DUPLICATE_STATE_TRANSITION + "}", groups = { Save.Create.class, Save.Update.class })
 public class StateTransitionImpl implements StateTransition {
 
     public enum Fields {
@@ -51,8 +52,9 @@ public class StateTransitionImpl implements StateTransition {
         return this;
     }
 
+    @SuppressWarnings("unused")
     private long id;
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
@@ -66,6 +68,10 @@ public class StateTransitionImpl implements StateTransition {
     @Override
     public long getId() {
         return this.id;
+    }
+
+    public FiniteStateMachine getFiniteStateMachine() {
+        return finiteStateMachine.get();
     }
 
     @Override
@@ -108,6 +114,32 @@ public class StateTransitionImpl implements StateTransition {
         this.to.set(null);
     }
 
+    /**
+     * Tests if this StateTransitionImpl is a duplicate for the
+     * other StateTransitionImpl.
+     * It is a duplicate if the source and eventType are the same.
+     *
+     * @param otherTransition The other StateTransitionImpl
+     * @return A flag that indicates if this StateTransitionImpl duplicates the other
+     */
+    public boolean duplicates(StateTransitionImpl otherTransition) {
+        return !this.theSame(otherTransition)
+            && this.sameSource(otherTransition)
+            && this.sameEventType(otherTransition);
+    }
+
+    private boolean theSame(StateTransitionImpl otherTransition) {
+        return this == otherTransition;
+    }
+
+    private boolean sameSource(StateTransitionImpl otherTransition) {
+        return fromStateOf(this).isEqualTo(otherTransition.from);
+    }
+
+    private boolean sameEventType(StateTransitionImpl otherTransition) {
+        return reference(this.eventType).isEqualTo(otherTransition.eventType);
+    }
+
     // Mostly here for debugging purposes
     @Override
     public String toString() {
@@ -118,8 +150,115 @@ public class StateTransitionImpl implements StateTransition {
         return Stream.of(
              "from:" + this.getFrom().getName(),
              "to:" + this.getTo().getName(),
-             "eventTYpe:" + this.getEventType().getSymbol()
+             "eventType:" + this.getEventType().getSymbol()
         );
+    }
+
+    private ReferenceStateChecker fromStateOf(StateTransitionImpl transition) {
+        return new ReferenceStateChecker(transition.from);
+    }
+
+    private StateChecker is(State first) {
+        long id = first.getId();
+        if (id > 0) {
+            return new PersistentStateChecker(first);
+        }
+        else {
+            return new MemoryStateChecker(first);
+        }
+    }
+
+    private ReferenceEventTypeChecker reference(Reference<StateTransitionEventType> first) {
+        return new ReferenceEventTypeChecker(first);
+    }
+
+    private EventTypeChecker is(StateTransitionEventType first) {
+        return new PersistentEventTypeChecker(first);
+    }
+
+    private class ReferenceStateChecker {
+
+        private final Reference<State> target;
+
+        private ReferenceStateChecker(Reference<State> target) {
+            super();
+            this.target = target;
+        }
+
+        private boolean isEqualTo(Reference<State> other) {
+            return (this.target.isPresent() && other.isPresent())
+                    && is(this.target.get()).equalTo(other.get());
+        }
+
+    }
+
+    private interface StateChecker {
+        public boolean equalTo(State other);
+    }
+
+    private class MemoryStateChecker implements StateChecker {
+        private final State target;
+
+        private MemoryStateChecker(State target) {
+            super();
+            this.target = target;
+        }
+
+        @Override
+        public boolean equalTo(State other) {
+            return this.target == other;
+        }
+
+    }
+
+    private class PersistentStateChecker implements StateChecker {
+        private final State target;
+
+        private PersistentStateChecker(State target) {
+            super();
+            this.target = target;
+        }
+
+        @Override
+        public boolean equalTo(State other) {
+            return this.target.getId() == other.getId();
+        }
+
+    }
+
+    private class ReferenceEventTypeChecker {
+
+        private final Reference<StateTransitionEventType> target;
+
+        private ReferenceEventTypeChecker(Reference<StateTransitionEventType> target) {
+            super();
+            this.target = target;
+        }
+
+        private boolean isEqualTo(Reference<StateTransitionEventType> other) {
+            return (this.target.isPresent() && other.isPresent())
+                && is(this.target.get()).equalTo(other.get());
+        }
+
+    }
+
+    private interface EventTypeChecker {
+        public boolean equalTo(StateTransitionEventType other);
+    }
+
+    private class PersistentEventTypeChecker implements EventTypeChecker {
+        private final StateTransitionEventType target;
+
+        private PersistentEventTypeChecker(StateTransitionEventType target) {
+            super();
+            this.target = target;
+        }
+
+        @Override
+        public boolean equalTo(StateTransitionEventType other) {
+            return this.target.getId() == other.getId();
+        }
+
     }
 
 }

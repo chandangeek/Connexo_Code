@@ -137,7 +137,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
     }
 
     public interface TransitionBuilder {
-        public TransitionBuilder transitionName(String transitionName);
+        public TransitionBuilder setName(String transitionName);
         public StateUpdater transitionTo(State state);
         public StateUpdater transitionTo(StateBuilder stateBuilder);
         public StateUpdater transitionTo(String stateName);

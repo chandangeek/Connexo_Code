@@ -1100,6 +1100,26 @@ public class FiniteStateMachineIT {
     }
 
     @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.UNIQUE_STATE_NAME)
+    @Test
+    public void addStateWithNameThatAlreadyExists() {
+        String expectedName = "addStateWithNameThatAlreadyExists";
+        StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        String duplicateName = "Commissioned";
+        State commissioned = builder.newCustomState(duplicateName).complete();
+        FiniteStateMachine stateMachine = builder.complete(commissioned);
+        stateMachine.save();
+
+        // Business method
+        FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
+        stateMachineUpdater.newCustomState(duplicateName).complete();
+        stateMachineUpdater.complete();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
     @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.UNIQUE_STATE_NAME, strict = false)
     @Test
     public void renameStateToOneThatAlreadyExists() {
@@ -1444,7 +1464,7 @@ public class FiniteStateMachineIT {
         String expectedName = "testAddTransitionByStateId";
         StateTransitionEventType commissionedEventType = this.createNewStateTransitionEventType("#commissioned");
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
-        State commissioned = builder.newCustomState("Commissioned").complete();
+        builder.newCustomState("Commissioned").complete();
         State inStock = builder.newCustomState("InStock").complete();
         FiniteStateMachine stateMachine = builder.complete(inStock);
         stateMachine.save();
@@ -1454,6 +1474,47 @@ public class FiniteStateMachineIT {
         stateMachineUpdater.state("InStock").on(commissionedEventType).transitionTo(Long.MAX_VALUE);
 
         // Asserts: see expected exception rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_STATE_TRANSITION + "}", strict = false)
+    @Test
+    public void testCreateWithDuplicateTransition() {
+        String expectedName = "testCreateWithDuplicateTransition";
+        StateTransitionEventType eventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        FiniteStateMachineBuilder.StateBuilder a = builder.newCustomState("A");
+        State b = builder.newCustomState("B").complete();
+        State c = builder.newCustomState("C").complete();
+        a.on(eventType).transitionTo(b);
+        a.on(eventType).transitionTo(c);
+        FiniteStateMachine stateMachine = builder.complete(a.complete());
+
+        // Business methods
+        stateMachine.save();
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_STATE_TRANSITION + "}", strict = false)
+    @Test
+    public void testAddDuplicateTransition() {
+        String expectedName = "testAddDuplicateTransition";
+        StateTransitionEventType eventType = this.createNewStateTransitionEventType("#commissioned");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State b = builder.newCustomState("B").complete();
+        State c = builder.newCustomState("C").complete();
+        State a = builder.newCustomState("A").on(eventType).transitionTo(b).complete();
+        FiniteStateMachine stateMachine = builder.complete(a);
+        stateMachine.save();
+
+        // Business methods
+        FiniteStateMachineUpdater updater = stateMachine.startUpdate();
+        updater.state(a.getId()).on(eventType).transitionTo(c);
+        updater.complete().save();
+
+        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
@@ -1715,7 +1776,7 @@ public class FiniteStateMachineIT {
 
         // Business methods
         FiniteStateMachineUpdater stateMachineUpdater = stateMachine.startUpdate();
-        State commissioned = stateMachineUpdater.newCustomState(null).complete();
+        stateMachineUpdater.newCustomState(null).complete();
         FiniteStateMachine updated = stateMachineUpdater.complete();
         updated.save();
 
