@@ -5,12 +5,10 @@ import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -47,8 +45,12 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
+import static com.elster.jupiter.cbo.MetricMultiplier.quantity;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingEstimateTest {
@@ -120,7 +122,7 @@ public class ReadingEstimateTest {
                     .accumulate(Accumulation.BULKQUANTITY)
                     .flow(FlowDirection.FORWARD)
                     .measure(MeasurementKind.ENERGY)
-                    .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+                    .in(KILO, WATTHOUR);
             readingTypeCode = builder.code();
             ctx.commit();
         }
@@ -144,9 +146,12 @@ public class ReadingEstimateTest {
             reading2.addQuality("3.8.2"); // estimated by rule 2
             channel.getCimChannel(readingType).get().estimateReadings(ImmutableList.of(reading1, reading2));
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1), existDate).isPresent()).isTrue();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT),existDate).isPresent()).isFalse();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), existDate).isPresent()).isFalse();
             assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isFalse();
             assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2), newDate).isPresent()).isTrue();
+            Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
+            assertThat(channelReading).isPresent();
+            assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(2), KILO, WATTHOUR));
             ctx.commit();
         }
     }
