@@ -1,11 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -42,7 +39,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +52,6 @@ import org.mockito.Matchers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -556,26 +551,5 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         return comSchedule;
     }
 
-    private AppServer mockAppServers(String ...name) {
-        AppServer appServer = mock(AppServer.class);
-        List<SubscriberExecutionSpec> execSpecs = new ArrayList<>();
-        for (String specName: name) {
-            SubscriberExecutionSpec subscriberExecutionSpec = mock(SubscriberExecutionSpec.class);
-            SubscriberSpec spec = mock(SubscriberSpec.class);
-            when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(spec);
-            DestinationSpec destinationSpec = mock(DestinationSpec.class);
-            when(spec.getDestination()).thenReturn(destinationSpec);
-            when(destinationSpec.getName()).thenReturn(specName);
-            when(destinationSpec.isActive()).thenReturn(true);
-            List<SubscriberSpec> list = mock(List.class);
-            when(list.isEmpty()).thenReturn(false);
-            when(destinationSpec.getSubscribers()).thenReturn(list);
-            execSpecs.add(subscriberExecutionSpec);
-        }
-        doReturn(execSpecs).when(appServer).getSubscriberExecutionSpecs();
-        when(appServer.isActive()).thenReturn(true);
-        when(appService.findAppServers()).thenReturn(Arrays.asList(appServer));
-        return appServer;
-    }
 
 }

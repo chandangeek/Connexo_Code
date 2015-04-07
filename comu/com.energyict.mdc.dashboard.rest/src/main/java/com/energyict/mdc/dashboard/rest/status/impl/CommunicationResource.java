@@ -14,7 +14,6 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
@@ -158,7 +157,7 @@ public class CommunicationResource {
             }
 
         } else if (communicationsBulkRequestInfo !=null && communicationsBulkRequestInfo.communications!=null) {
-            Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
+            Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
                 communicationsBulkRequestInfo.communications.stream().forEach(c -> processMessagePost(new ComTaskExecutionQueueMessage(c, action), destinationSpec.get()));
                 return Response.status(Response.Status.OK).build();
