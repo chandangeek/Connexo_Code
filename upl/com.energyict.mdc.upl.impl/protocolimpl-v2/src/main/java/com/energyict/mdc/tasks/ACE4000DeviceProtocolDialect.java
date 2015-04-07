@@ -5,6 +5,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,9 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     public static final String TIMEOUT_PROPERTY_NAME = "Timeout";
     public static final String RETRIES_PROPERTY_NAME = "Retries";
 
+    public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal("30000");
+    public static final BigDecimal DEFAULT_RETRIES = new BigDecimal("3");
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.ACE4000_DEVICE_PROTOCOL_DIALECT_NAME.getName();
@@ -32,11 +36,11 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME, DEFAULT_TIMEOUT);
     }
 
     private PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES_PROPERTY_NAME, DEFAULT_RETRIES);
     }
 
     @Override
