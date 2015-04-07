@@ -128,7 +128,7 @@ public class CommunicationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runConnectionTask(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
+    public Response runCommunicationTask(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
@@ -140,7 +140,7 @@ public class CommunicationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runConnectionTaskNow(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
+    public Response runCommunicationTaskNow(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
