@@ -311,24 +311,6 @@ public class DeviceLifeCycleIT {
     }
 
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.AT_LEAST_ONE_LEVEL + "}")
-    @Test
-    public void addBusinessProcessActionWithoutLevels() {
-        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
-
-        // Business method
-        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
-        builder
-            .newCustomAction(state, "custom", "deploymentId1", "processId")
-            .complete();
-        DeviceLifeCycle deviceLifeCycle = builder.complete();
-        deviceLifeCycle.save();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "actions[0].deploymentId")
     @Test
     public void addBusinessProcessActionWithNullDeploymentId() {

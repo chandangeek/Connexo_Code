@@ -20,10 +20,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field cannot be empty"),
 
     // DeviceLifeCycle
-    UNIQUE_DEVICE_LIFE_CYCLE_NAME(102, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "The name of a device life cycle must be unique"),
-
-    // AuthorizedAction
-    AT_LEAST_ONE_LEVEL(302, Keys.AT_LEAST_ONE_LEVEL, "At least one privilege level must be specified");
+    UNIQUE_DEVICE_LIFE_CYCLE_NAME(102, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "The name of a device life cycle must be unique");
 
     private final int number;
     private final String key;
@@ -69,7 +66,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     public static final class Keys {
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
-        public static final String AT_LEAST_ONE_LEVEL = "authorizedAction.atLeastOneLevel";
         public static final String UNIQUE_DEVICE_LIFE_CYCLE_NAME = "device.life.cycle.unique.name";
     }
 

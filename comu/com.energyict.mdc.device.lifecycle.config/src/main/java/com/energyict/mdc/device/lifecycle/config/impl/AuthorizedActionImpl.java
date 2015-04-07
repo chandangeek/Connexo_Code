@@ -69,7 +69,6 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
     private Reference<DeviceLifeCycle> deviceLifeCycle = ValueReference.absent();
     private int levelBits;
-    @NotEmpty(message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_LEVEL + "}", groups = { Save.Create.class, Save.Update.class })
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
     @SuppressWarnings("unused")
     private String userName;
