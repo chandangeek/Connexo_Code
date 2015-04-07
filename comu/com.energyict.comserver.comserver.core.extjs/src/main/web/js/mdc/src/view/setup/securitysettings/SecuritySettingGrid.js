@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
     store: 'Mdc.store.SecuritySettingsOfDeviceConfiguration',
     scroll: false,
     viewConfig: {
-        style: { overflow: 'auto', overflowX: 'hidden' }
+        style: { overflow: 'auto', overflowX: 'hidden' },
+        enableTextSelection: true
     },
 
     initComponent: function () {

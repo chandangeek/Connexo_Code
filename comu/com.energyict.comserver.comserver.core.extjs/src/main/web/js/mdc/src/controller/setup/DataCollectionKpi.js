@@ -65,7 +65,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                 break;
             case 'remove':
                 Ext.create('Uni.view.window.Confirmation').show({
-                    title: Uni.I18n.translate('datacollectionkpis.deleteConfirmation.title', 'MDC', 'Remove \'Selected data collection KPI\'?'),
+                    title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + menu.record.get('deviceGroup').name + '\'?',
                     msg: Uni.I18n.translate('datacollectionkpis.deleteConfirmation.msg', 'MDC', 'This data collection KPI will no longer be available on connections &#38; communications overview.'),
                     fn: function (state) {
                         switch (state) {
@@ -249,7 +249,9 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
             success: function () {
-                gridToolbarTop.totalCount = 0;
+                gridToolbarTop.isFullTotalCount = false;
+                gridToolbarTop.totalCount = -1;
+                grid.down('pagingtoolbarbottom').totalCount--;
                 grid.getStore().loadPage(1);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datacollectionkpis.kpiRemoved', 'MDC', 'Data collection KPI removed'));
             },

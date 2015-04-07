@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
         'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
     ],
     viewConfig: {
-        style: { overflow: 'auto', overflowX: 'hidden' }
+        style: { overflow: 'auto', overflowX: 'hidden' },
+        enableTextSelection: true
     },
     initComponent: function () {
         var me = this;
