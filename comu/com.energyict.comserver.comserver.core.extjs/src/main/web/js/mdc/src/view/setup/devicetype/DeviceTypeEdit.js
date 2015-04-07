@@ -56,6 +56,33 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                     },
                     {
                         xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
+                        required: true,
+                        hidden: me.edit,
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                itemId: 'device-life-cycle-combo',
+                                name: 'deviceLifeCycleId',
+                                width: 335,
+                                store: 'Mdc.store.DeviceLifeCycles',
+                                editable: false,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id'
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'no-device-life-cycles',
+                                hidden: true,
+                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceLifeCyclesMsg', 'MDC', 'No device life cycles defined') + '</div>',
+                                width: 335
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldcontainer',
                         ui: 'actions',
                         fieldLabel: '&nbsp',
                         layout: {

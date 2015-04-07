@@ -20,7 +20,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'DeviceTypes',
         'DeviceCommunicationProtocols',
         'LogbookTypesOfDeviceType',
-        'AvailableLogbookTypes'
+        'AvailableLogbookTypes',
+        'Mdc.store.DeviceLifeCycles'
     ],
 
     refs: [
@@ -226,6 +227,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeCreateView: function () {
         var me = this,
             protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols'),
+            deviceLifeCyclesStore = me.getStore('Mdc.store.DeviceLifeCycles'),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('deviceTypeEdit', {
             edit: false,
@@ -235,11 +237,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
-        protocolStore.load({
-            callback: function (store) {
-                me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device type');
-                widget.setLoading(false);
+        protocolStore.load();
+        deviceLifeCyclesStore.load(function () {
+            if (deviceLifeCyclesStore.getCount() == 0) {
+                widget.down('#device-life-cycle-combo').hide();
+                widget.down('#no-device-life-cycles').show();
             }
+            me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device type');
+            widget.setLoading(false);
         });
     },
 
