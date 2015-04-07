@@ -37,7 +37,7 @@ public class AuthorizedTransitionActionCreateRequest implements AuthorizedAction
         State newState = finiteStateMachineUpdater
                 .state(this.infoForCreation.fromState.id)
                 .on(this.eventType)
-                .transitionName(this.infoForCreation.name)
+                .setName(this.infoForCreation.name)
                 .transitionTo(this.infoForCreation.toState.id)
                 .complete();
         FiniteStateMachine finiteStateMachine = firstState ? finiteStateMachineUpdater.complete(newState) : finiteStateMachineUpdater.complete();
