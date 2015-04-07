@@ -32,13 +32,13 @@ import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.*;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
@@ -119,378 +119,382 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     }
 
     @Test
-    public void testGetValidationRulesNoRules() {
+    public void testGetValidationRulesNoVersions() {
         mockValidationRuleSets(mockValidationRuleSet(13, false));
 
-        ValidationRuleInfos ruleInfos = target("/validation/13/rules").request().get(ValidationRuleInfos.class);
+        ValidationRuleSetVersionInfos versionInfos = target("/validation/13/versions").request().get(ValidationRuleSetVersionInfos.class);
 
-        assertThat(ruleInfos.total).isEqualTo(0);
-        assertThat(ruleInfos.rules).hasSize(0);
+        assertThat(versionInfos.total).isEqualTo(0);
     }
 
     @Test
-    public void testGetValidationRules() {
-        mockValidationRuleSets(mockValidationRuleSet(13, true));
+    public void testGetValidationRulesVersions(){
 
-        ValidationRuleInfos ruleInfos = target("/validation/13/rules").request().get(ValidationRuleInfos.class);
-
-        assertThat(ruleInfos.total).isEqualTo(1);
-
-        List<ValidationRuleInfo> rules = ruleInfos.rules;
-        assertThat(rules).hasSize(1);
-
-        ValidationRuleInfo ruleInfo = rules.get(0);
-        assertThat(ruleInfo.id).isEqualTo(1);
-        assertThat(ruleInfo.name).isEqualTo("MyRule");
-        assertThat(ruleInfo.implementation).isEqualTo("com.blablabla.Validator");
-        assertThat(ruleInfo.displayName).isEqualTo("My rule");
-        assertThat(ruleInfo.active).isEqualTo(true);
-
-        ValidationRuleSetInfo ruleSetInfo = ruleInfo.ruleSet;
-        assertThat(ruleSetInfo.id).isEqualTo(13);
-        assertThat(ruleSetInfo.name).isEqualTo("MyName");
-        assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
-        assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
-        assertThat(ruleSetInfo.numberOfRules).isEqualTo(1);
-
-        List<ReadingTypeInfo> readingTypeInfos = ruleInfo.readingTypes;
-        assertThat(readingTypeInfos.get(0).mRID).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
-
-        List<PropertyInfo> propertyInfos = ruleInfo.properties;
-        assertThat(propertyInfos).hasSize(5);
-
-        PropertyInfo propertyNumberInfo = propertyInfos.get(0);
-        assertThat(propertyNumberInfo.key).isEqualTo("number");
-        assertThat(propertyNumberInfo.required).isEqualTo(true);
-
-        PropertyValueInfo<?> numberValueInfo = propertyNumberInfo.propertyValueInfo;
-        assertThat(numberValueInfo.value).isEqualTo(13);
-        assertThat(numberValueInfo.defaultValue).isEqualTo(null);
-
-        PropertyInfo propertyNullableBooleanInfo = propertyInfos.get(1);
-        assertThat(propertyNullableBooleanInfo.key).isEqualTo("nullableboolean");
-        assertThat(propertyNullableBooleanInfo.required).isEqualTo(true);
-
-        PropertyValueInfo<?> nullableBooleanValueInfo = propertyNullableBooleanInfo.propertyValueInfo;
-        assertThat(nullableBooleanValueInfo.value).isEqualTo(true);
-        assertThat(nullableBooleanValueInfo.defaultValue).isEqualTo(null);
-
-        PropertyInfo propertyBooleanInfo = propertyInfos.get(2);
-        assertThat(propertyBooleanInfo.key).isEqualTo("boolean");
-        assertThat(propertyBooleanInfo.required).isEqualTo(true);
-
-        PropertyValueInfo<?> booleanValueInfo = propertyBooleanInfo.propertyValueInfo;
-        assertThat(booleanValueInfo.value).isEqualTo(false);
-        assertThat(booleanValueInfo.defaultValue).isEqualTo(null);
-
-        PropertyInfo propertyTextInfo = propertyInfos.get(3);
-        assertThat(propertyTextInfo.key).isEqualTo("text");
-        assertThat(propertyTextInfo.required).isEqualTo(true);
-
-        PropertyValueInfo<?> textValueInfo = propertyTextInfo.propertyValueInfo;
-        assertThat(textValueInfo.value).isEqualTo("string");
-        assertThat(textValueInfo.defaultValue).isEqualTo(null);
-
-        PropertyInfo propertyListValueInfo = propertyInfos.get(4);
-        assertThat(propertyListValueInfo.key).isEqualTo("listvalue");
-        assertThat(propertyListValueInfo.required).isEqualTo(true);
-
-        PropertyValueInfo<?> listValueInfo = propertyListValueInfo.propertyValueInfo;
-        assertThat(listValueInfo.defaultValue).isEqualTo(null);
-
-        List<?> listValue = (List<?>) listValueInfo.value;
-        assertThat(listValue).hasSize(2);
-
-        assertThat(listValue.get(0)).isEqualTo("1");
-        assertThat(listValue.get(1)).isEqualTo("2");
     }
 
-    @Test
-    public void testGetValidatorsNoValidators() {
-        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
-
-        assertThat(validatorInfos.total).isEqualTo(0);
-        assertThat(validatorInfos.validators).hasSize(0);
-    }
-
-    @Test
-    public void testGetValidators() {
-        List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
-        when(validationService.getAvailableValidators()).thenReturn(mockValidator);
-
-        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
-
-        assertThat(validatorInfos.total).isEqualTo(2);
-        List<ValidatorInfo> validators = validatorInfos.validators;
-        assertThat(validators).hasSize(2);
-
-        ValidatorInfo validatorAInfo = validators.get(0);
-        assertThat(validatorAInfo.displayName).isEqualTo("A Validator");
-        assertThat(validatorAInfo.implementation).isNotNull();
-
-        ValidatorInfo validatorBInfo = validators.get(1);
-        assertThat(validatorBInfo.displayName).isEqualTo("B Validator");
-        assertThat(validatorBInfo.implementation).isNotNull();
-
-        List<PropertyInfo> propertyInfos = validatorAInfo.properties;
-        assertThat(propertyInfos).hasSize(1);
-
-        PropertyInfo propertyInfo = propertyInfos.get(0);
-        assertThat(propertyInfo.key).isEqualTo("listvalue");
-        assertThat(propertyInfo.required).isEqualTo(false);
-
-        PropertyTypeInfo typeInfo = propertyInfo.propertyTypeInfo;
-        PredefinedPropertyValuesInfo<?> predefinedValuesInfo = typeInfo.predefinedPropertyValuesInfo;
-        assertThat(predefinedValuesInfo.selectionMode).isEqualTo(PropertySelectionMode.LIST);
-
-        Object[] possibleValuesInfo = predefinedValuesInfo.possibleValues;
-        assertThat(possibleValuesInfo).hasSize(2);
-
-        Map<?, ?> possibleValue1 = (Map<?, ?>) possibleValuesInfo[0];
-        assertThat(possibleValue1.get("id")).isEqualTo("1");
-        assertThat(possibleValue1.get("name")).isEqualTo("first");
-
-        Map<?, ?> possibleValue2 = (Map<?, ?>) possibleValuesInfo[1];
-        assertThat(possibleValue2.get("id")).isEqualTo("2");
-        assertThat(possibleValue2.get("name")).isEqualTo("second");
-    }
-
-    @Test
-    public void testAddValidationRule() {
-        final ValidationRuleInfo info = new ValidationRuleInfo();
-        info.name = "MyRule";
-        info.implementation = "com.blablabla.Validator";
-        info.properties = createPropertyInfos();
-
-        Entity<ValidationRuleInfo> entity = Entity.json(info);
-
-        ValidationRuleSet ruleSet = mockValidationRuleSet(13, false);
-        ValidationRule rule = mockValidationRuleInRuleSet(1L, ruleSet);
-        when(ruleSet.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
-
-        Response response = target("/validation/13/rules").request().post(entity);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        ValidationRuleInfo resultInfo = response.readEntity(ValidationRuleInfo.class);
-        assertThat(resultInfo.name).isEqualTo("MyRule");
-
-        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
-        verify(rule).addProperty("nullableboolean", false);
-        verify(rule).addProperty("boolean", true);
-        verify(rule).addProperty("text", "string");
-        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
-    }
-
-    @Test
-    public void testAddValidationRuleWarnOnly() {
-        final ValidationRuleInfo info = new ValidationRuleInfo();
-        info.name = "MyRule";
-        info.implementation = "com.blablabla.Validator";
-        info.properties = createPropertyInfos();
-        info.action = ValidationAction.WARN_ONLY;
-
-        Entity<ValidationRuleInfo> entity = Entity.json(info);
-
-        ValidationRuleSet ruleSet = mockValidationRuleSet(13, false);
-        ValidationRule rule = mockValidationRuleInRuleSet(1L, ruleSet);
-        when(rule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
-        when(ruleSet.addRule(Matchers.eq(ValidationAction.WARN_ONLY), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
-
-        Response response = target("/validation/13/rules").request().post(entity);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        ValidationRuleInfo resultInfo = response.readEntity(ValidationRuleInfo.class);
-        assertThat(resultInfo.name).isEqualTo("MyRule");
-        assertThat(resultInfo.action).isEqualTo(ValidationAction.WARN_ONLY);
-
-        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
-        verify(rule).addProperty("nullableboolean", false);
-        verify(rule).addProperty("boolean", true);
-        verify(rule).addProperty("text", "string");
-        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
-    }
-
-    @Test
-    public void testAddValidationRuleToNonExistingRuleSet() {
-        final ValidationRuleInfo info = new ValidationRuleInfo();
-        info.name = "MyRule";
-        info.implementation = "com.blablabla.Validator";
-        info.properties = createPropertyInfos();
-
-        Entity<ValidationRuleInfo> entity = Entity.json(info);
-
-        when(validationService.getValidationRuleSet(666)).thenReturn(Optional.empty());
-        Response response = target("/validation/666/rules").request().post(entity);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    public void testUpdateValidationRuleSet() throws Exception {
-        ValidationRuleSet ruleSet = mockValidationRuleSet(15, true);
-
-        final ValidationRuleSetInfo info = new ValidationRuleSetInfo();
-        info.name = "MyRuleUpdated";
-        info.description = "blablabla";
-
-        Response response = target("/validation/15").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(ruleSet).setName(stringArgumentCaptor.capture());
-        assertThat(stringArgumentCaptor.getValue()).isEqualTo(info.name);
-        verify(ruleSet).setDescription(stringArgumentCaptor.capture());
-        assertThat(stringArgumentCaptor.getValue()).isEqualTo(info.description);
-        verify(ruleSet, times(1)).save();
-    }
-
-    @Test
-    public void testCreateValidationRuleSetInfo() throws Exception {
-        ValidationRuleSetInfo info = new ValidationRuleSetInfo();
-        info.name="ruleset";
-        info.description="desc";
-
-        ValidationRuleSet ruleSet = mockValidationRuleSet(12, false);
-        when(validationService.createValidationRuleSet(info.name, info.description)).thenReturn(ruleSet);
-        Response response = target("/validation").request().post(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-    }
-
-    @Test
-    public void testGetValidationRuleInfo() throws Exception {
-        ValidationRuleSet ruleSet = mockValidationRuleSet(12, false);
-        ValidationRule validationRule = mockValidationRuleInRuleSet(13, ruleSet);
-        doReturn(Arrays.asList(validationRule)).when(ruleSet).getRules();
-        Response response = target("/validation/12/rules/13").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRule");
-        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(13);
-    }
-
-    @Test
-    public void testDeleteRuleSet() throws Exception {
-        ValidationRuleSet validationRuleSet = mockValidationRuleSet(99, false);
-        Response response = target("/validation/99").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        verify(validationRuleSet).delete();
-    }
-
-    @Test
-    public void testGetRuleSetUsage() throws Exception {
-        ValidationRuleSet validationRuleSet = mockValidationRuleSet(1, false);
-        ValidationRuleSet validationRuleSet2 = mockValidationRuleSet(2, false);
-        when(validationService.isValidationRuleSetInUse(validationRuleSet)).thenReturn(true);
-        when(validationService.isValidationRuleSetInUse(validationRuleSet2)).thenReturn(false);
-        Response response = target("/validation/1/usage").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Boolean>get("$.isInUse")).isEqualTo(true);
-    }
-
-    @Test
-    public void testEditValidationRule() {
-        final ValidationRuleInfo info = new ValidationRuleInfo();
-        info.name = "MyRuleUpdated";
-        info.implementation = "com.blablabla.Validator";
-        info.properties = new ArrayList<>();
-        info.action = ValidationAction.FAIL;
-
-        ValidationRuleSet ruleSet = mockValidationRuleSet(13, true);
-        ValidationRule rule = ruleSet.getRules().get(0);
-        when(rule.getName()).thenReturn("MyRuleUpdated");
-        when(ruleSet.updateRule(
-                Matchers.eq(1L),
-                Matchers.eq("MyRuleUpdated"),
-                Matchers.eq(false),
-                Matchers.eq(ValidationAction.FAIL),
-                Matchers.eq(new ArrayList<>()),
-                Matchers.eq(new HashMap<>()))).
-                thenReturn(rule);
-
-        Entity<ValidationRuleInfo> entity = Entity.json(info);
-        Response response = target("/validation/13/rules/1").request().put(entity);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
-        assertThat(resultInfos.total).isEqualTo(1);
-        assertThat(resultInfos.rules).hasSize(1);
-        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRuleUpdated");
-        assertThat(resultInfos.rules.get(0).action).isEqualTo(ValidationAction.FAIL);
-    }
-
-    @Test
-    public void testEditValidationRuleWarnOnly() {
-        final ValidationRuleInfo info = new ValidationRuleInfo();
-        info.name = "MyRuleUpdated";
-        info.implementation = "com.blablabla.Validator";
-        info.properties = new ArrayList<>();
-        info.action = ValidationAction.WARN_ONLY;
-
-        ValidationRuleSet ruleSet = mockValidationRuleSet(13, true);
-        ValidationRule rule = ruleSet.getRules().get(0);
-        when(rule.getName()).thenReturn("MyRuleUpdated");
-        when(rule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
-        when(ruleSet.updateRule(
-                Matchers.eq(1L),
-                Matchers.eq("MyRuleUpdated"),
-                Matchers.eq(false),
-                Matchers.eq(ValidationAction.WARN_ONLY),
-                Matchers.eq(new ArrayList<>()),
-                Matchers.eq(new HashMap<>()))).
-                thenReturn(rule);
-
-        Entity<ValidationRuleInfo> entity = Entity.json(info);
-        Response response = target("/validation/13/rules/1").request().put(entity);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
-        assertThat(resultInfos.total).isEqualTo(1);
-        assertThat(resultInfos.rules).hasSize(1);
-        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRuleUpdated");
-        assertThat(resultInfos.rules.get(0).action).isEqualTo(ValidationAction.WARN_ONLY);
-    }
-
-    @Test
-    public void testDeleteValidationRule() {
-        mockValidationRuleSet(13, true);
-        Response response = target("/validation/13/rules/1").request().delete();
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-    }
-
-    @Test
-    public void testDeleteValidationRuleNoRuleSet() {
-        when(validationService.getValidationRuleSet(13)).thenReturn(Optional.empty());
-
-        Response response = target("/validation/13/rules/12").request().delete();
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    public void testDeleteValidationRuleNoRule() {
-        mockValidationRuleSet(13, false);
-        when(validationService.getValidationRule(1)).thenReturn(Optional.empty());
-
-        Response response = target("/validation/13/rules/1").request().delete();
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    public void testGetReadingTypes() throws Exception {
-        ValidationRuleSet validationRuleSet = mockValidationRuleSet(26, false);
-        ValidationRule validationRule = mockValidationRuleInRuleSet(1, validationRuleSet);
-        doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules();
-        ReadingType readingType = mockReadingType();
-        when(validationRule.getReadingTypes()).thenReturn(new HashSet<>(Arrays.asList(readingType)));
-        Response response = target("/validation/26/rule/1/readingtypes").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-    }
-
+//    @Test
+//    public void testGetValidationRules() {
+//        mockValidationRuleSets(mockValidationRuleSet(13, true));
+//
+//        ValidationRuleInfos ruleInfos = target("/validation/13/rules").request().get(ValidationRuleInfos.class);
+//
+//        assertThat(ruleInfos.total).isEqualTo(1);
+//
+//        List<ValidationRuleInfo> rules = ruleInfos.rules;
+//        assertThat(rules).hasSize(1);
+//
+//        ValidationRuleInfo ruleInfo = rules.get(0);
+//        assertThat(ruleInfo.id).isEqualTo(1);
+//        assertThat(ruleInfo.name).isEqualTo("MyRule");
+//        assertThat(ruleInfo.implementation).isEqualTo("com.blablabla.Validator");
+//        assertThat(ruleInfo.displayName).isEqualTo("My rule");
+//        assertThat(ruleInfo.active).isEqualTo(true);
+//
+//        ValidationRuleSetInfo ruleSetInfo = ruleInfo.ruleSet;
+//        assertThat(ruleSetInfo.id).isEqualTo(13);
+//        assertThat(ruleSetInfo.name).isEqualTo("MyName");
+//        assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
+//        assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
+//        assertThat(ruleSetInfo.numberOfRules).isEqualTo(1);
+//
+//        List<ReadingTypeInfo> readingTypeInfos = ruleInfo.readingTypes;
+//        assertThat(readingTypeInfos.get(0).mRID).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+//
+//        List<PropertyInfo> propertyInfos = ruleInfo.properties;
+//        assertThat(propertyInfos).hasSize(5);
+//
+//        PropertyInfo propertyNumberInfo = propertyInfos.get(0);
+//        assertThat(propertyNumberInfo.key).isEqualTo("number");
+//        assertThat(propertyNumberInfo.required).isEqualTo(true);
+//
+//        PropertyValueInfo<?> numberValueInfo = propertyNumberInfo.propertyValueInfo;
+//        assertThat(numberValueInfo.value).isEqualTo(13);
+//        assertThat(numberValueInfo.defaultValue).isEqualTo(null);
+//
+//        PropertyInfo propertyNullableBooleanInfo = propertyInfos.get(1);
+//        assertThat(propertyNullableBooleanInfo.key).isEqualTo("nullableboolean");
+//        assertThat(propertyNullableBooleanInfo.required).isEqualTo(true);
+//
+//        PropertyValueInfo<?> nullableBooleanValueInfo = propertyNullableBooleanInfo.propertyValueInfo;
+//        assertThat(nullableBooleanValueInfo.value).isEqualTo(true);
+//        assertThat(nullableBooleanValueInfo.defaultValue).isEqualTo(null);
+//
+//        PropertyInfo propertyBooleanInfo = propertyInfos.get(2);
+//        assertThat(propertyBooleanInfo.key).isEqualTo("boolean");
+//        assertThat(propertyBooleanInfo.required).isEqualTo(true);
+//
+//        PropertyValueInfo<?> booleanValueInfo = propertyBooleanInfo.propertyValueInfo;
+//        assertThat(booleanValueInfo.value).isEqualTo(false);
+//        assertThat(booleanValueInfo.defaultValue).isEqualTo(null);
+//
+//        PropertyInfo propertyTextInfo = propertyInfos.get(3);
+//        assertThat(propertyTextInfo.key).isEqualTo("text");
+//        assertThat(propertyTextInfo.required).isEqualTo(true);
+//
+//        PropertyValueInfo<?> textValueInfo = propertyTextInfo.propertyValueInfo;
+//        assertThat(textValueInfo.value).isEqualTo("string");
+//        assertThat(textValueInfo.defaultValue).isEqualTo(null);
+//
+//        PropertyInfo propertyListValueInfo = propertyInfos.get(4);
+//        assertThat(propertyListValueInfo.key).isEqualTo("listvalue");
+//        assertThat(propertyListValueInfo.required).isEqualTo(true);
+//
+//        PropertyValueInfo<?> listValueInfo = propertyListValueInfo.propertyValueInfo;
+//        assertThat(listValueInfo.defaultValue).isEqualTo(null);
+//
+//        List<?> listValue = (List<?>) listValueInfo.value;
+//        assertThat(listValue).hasSize(2);
+//
+//        assertThat(listValue.get(0)).isEqualTo("1");
+//        assertThat(listValue.get(1)).isEqualTo("2");
+//    }
+//
+//    @Test
+//    public void testGetValidatorsNoValidators() {
+//        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+//
+//        assertThat(validatorInfos.total).isEqualTo(0);
+//        assertThat(validatorInfos.validators).hasSize(0);
+//    }
+//
+//    @Test
+//    public void testGetValidators() {
+//        List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
+//        when(validationService.getAvailableValidators()).thenReturn(mockValidator);
+//
+//        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+//
+//        assertThat(validatorInfos.total).isEqualTo(2);
+//        List<ValidatorInfo> validators = validatorInfos.validators;
+//        assertThat(validators).hasSize(2);
+//
+//        ValidatorInfo validatorAInfo = validators.get(0);
+//        assertThat(validatorAInfo.displayName).isEqualTo("A Validator");
+//        assertThat(validatorAInfo.implementation).isNotNull();
+//
+//        ValidatorInfo validatorBInfo = validators.get(1);
+//        assertThat(validatorBInfo.displayName).isEqualTo("B Validator");
+//        assertThat(validatorBInfo.implementation).isNotNull();
+//
+//        List<PropertyInfo> propertyInfos = validatorAInfo.properties;
+//        assertThat(propertyInfos).hasSize(1);
+//
+//        PropertyInfo propertyInfo = propertyInfos.get(0);
+//        assertThat(propertyInfo.key).isEqualTo("listvalue");
+//        assertThat(propertyInfo.required).isEqualTo(false);
+//
+//        PropertyTypeInfo typeInfo = propertyInfo.propertyTypeInfo;
+//        PredefinedPropertyValuesInfo<?> predefinedValuesInfo = typeInfo.predefinedPropertyValuesInfo;
+//        assertThat(predefinedValuesInfo.selectionMode).isEqualTo(PropertySelectionMode.LIST);
+//
+//        Object[] possibleValuesInfo = predefinedValuesInfo.possibleValues;
+//        assertThat(possibleValuesInfo).hasSize(2);
+//
+//        Map<?, ?> possibleValue1 = (Map<?, ?>) possibleValuesInfo[0];
+//        assertThat(possibleValue1.get("id")).isEqualTo("1");
+//        assertThat(possibleValue1.get("name")).isEqualTo("first");
+//
+//        Map<?, ?> possibleValue2 = (Map<?, ?>) possibleValuesInfo[1];
+//        assertThat(possibleValue2.get("id")).isEqualTo("2");
+//        assertThat(possibleValue2.get("name")).isEqualTo("second");
+//    }
+//
+//    @Test
+//    public void testAddValidationRule() {
+//        final ValidationRuleInfo info = new ValidationRuleInfo();
+//        info.name = "MyRule";
+//        info.implementation = "com.blablabla.Validator";
+//        info.properties = createPropertyInfos();
+//
+//        Entity<ValidationRuleInfo> entity = Entity.json(info);
+//
+//        ValidationRuleSet ruleSet = mockValidationRuleSet(13, false);
+//        ValidationRule rule = mockValidationRuleInRuleSet(1L, ruleSet);
+//        when(ruleSet.addRule(Matchers.eq(ValidationAction.FAIL), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
+//
+//        Response response = target("/validation/13/rules").request().post(entity);
+//
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+//        ValidationRuleInfo resultInfo = response.readEntity(ValidationRuleInfo.class);
+//        assertThat(resultInfo.name).isEqualTo("MyRule");
+//
+//        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
+//        verify(rule).addProperty("nullableboolean", false);
+//        verify(rule).addProperty("boolean", true);
+//        verify(rule).addProperty("text", "string");
+//        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+//    }
+//
+//    @Test
+//    public void testAddValidationRuleWarnOnly() {
+//        final ValidationRuleInfo info = new ValidationRuleInfo();
+//        info.name = "MyRule";
+//        info.implementation = "com.blablabla.Validator";
+//        info.properties = createPropertyInfos();
+//        info.action = ValidationAction.WARN_ONLY;
+//
+//        Entity<ValidationRuleInfo> entity = Entity.json(info);
+//
+//        ValidationRuleSet ruleSet = mockValidationRuleSet(13, false);
+//        ValidationRule rule = mockValidationRuleInRuleSet(1L, ruleSet);
+//        when(rule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
+//        when(ruleSet.addRule(Matchers.eq(ValidationAction.WARN_ONLY), Matchers.eq(info.implementation), Matchers.eq(info.name))).thenReturn(rule);
+//
+//        Response response = target("/validation/13/rules").request().post(entity);
+//
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+//        ValidationRuleInfo resultInfo = response.readEntity(ValidationRuleInfo.class);
+//        assertThat(resultInfo.name).isEqualTo("MyRule");
+//        assertThat(resultInfo.action).isEqualTo(ValidationAction.WARN_ONLY);
+//
+//        verify(rule).addProperty("number", BigDecimal.valueOf(10.0));
+//        verify(rule).addProperty("nullableboolean", false);
+//        verify(rule).addProperty("boolean", true);
+//        verify(rule).addProperty("text", "string");
+//        verify(rule).addProperty(Matchers.eq("listvalue"), Matchers.any(ListValue.class));
+//    }
+//
+//    @Test
+//    public void testAddValidationRuleToNonExistingRuleSet() {
+//        final ValidationRuleInfo info = new ValidationRuleInfo();
+//        info.name = "MyRule";
+//        info.implementation = "com.blablabla.Validator";
+//        info.properties = createPropertyInfos();
+//
+//        Entity<ValidationRuleInfo> entity = Entity.json(info);
+//
+//        when(validationService.getValidationRuleSet(666)).thenReturn(Optional.empty());
+//        Response response = target("/validation/666/rules").request().post(entity);
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+//    }
+//
+//    @Test
+//    public void testUpdateValidationRuleSet() throws Exception {
+//        ValidationRuleSet ruleSet = mockValidationRuleSet(15, true);
+//
+//        final ValidationRuleSetInfo info = new ValidationRuleSetInfo();
+//        info.name = "MyRuleUpdated";
+//        info.description = "blablabla";
+//
+//        Response response = target("/validation/15").request().put(Entity.json(info));
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+//        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+//        verify(ruleSet).setName(stringArgumentCaptor.capture());
+//        assertThat(stringArgumentCaptor.getValue()).isEqualTo(info.name);
+//        verify(ruleSet).setDescription(stringArgumentCaptor.capture());
+//        assertThat(stringArgumentCaptor.getValue()).isEqualTo(info.description);
+//        verify(ruleSet, times(1)).save();
+//    }
+//
+//    @Test
+//    public void testCreateValidationRuleSetInfo() throws Exception {
+//        ValidationRuleSetInfo info = new ValidationRuleSetInfo();
+//        info.name="ruleset";
+//        info.description="desc";
+//
+//        ValidationRuleSet ruleSet = mockValidationRuleSet(12, false);
+//        when(validationService.createValidationRuleSet(info.name, info.description)).thenReturn(ruleSet);
+//        Response response = target("/validation").request().post(Entity.json(info));
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+//    }
+//
+//    @Test
+//    public void testGetValidationRuleInfo() throws Exception {
+//        ValidationRuleSet ruleSet = mockValidationRuleSet(12, false);
+//        ValidationRule validationRule = mockValidationRuleInRuleSet(13, ruleSet);
+//        doReturn(Arrays.asList(validationRule)).when(ruleSet).getRules();
+//        Response response = target("/validation/12/rules/13").request().get();
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+//        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+//        assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRule");
+//        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(13);
+//    }
+//
+//    @Test
+//    public void testDeleteRuleSet() throws Exception {
+//        ValidationRuleSet validationRuleSet = mockValidationRuleSet(99, false);
+//        Response response = target("/validation/99").request().delete();
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+//        verify(validationRuleSet).delete();
+//    }
+//
+//    @Test
+//    public void testGetRuleSetUsage() throws Exception {
+//        ValidationRuleSet validationRuleSet = mockValidationRuleSet(1, false);
+//        ValidationRuleSet validationRuleSet2 = mockValidationRuleSet(2, false);
+//        when(validationService.isValidationRuleSetInUse(validationRuleSet)).thenReturn(true);
+//        when(validationService.isValidationRuleSetInUse(validationRuleSet2)).thenReturn(false);
+//        Response response = target("/validation/1/usage").request().get();
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+//        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+//        assertThat(jsonModel.<Boolean>get("$.isInUse")).isEqualTo(true);
+//    }
+//
+//    @Test
+//    public void testEditValidationRule() {
+//        final ValidationRuleInfo info = new ValidationRuleInfo();
+//        info.name = "MyRuleUpdated";
+//        info.implementation = "com.blablabla.Validator";
+//        info.properties = new ArrayList<>();
+//        info.action = ValidationAction.FAIL;
+//
+//        ValidationRuleSet ruleSet = mockValidationRuleSet(13, true);
+//        ValidationRule rule = ruleSet.getRules().get(0);
+//        when(rule.getName()).thenReturn("MyRuleUpdated");
+//        when(ruleSet.updateRule(
+//                Matchers.eq(1L),
+//                Matchers.eq("MyRuleUpdated"),
+//                Matchers.eq(false),
+//                Matchers.eq(ValidationAction.FAIL),
+//                Matchers.eq(new ArrayList<>()),
+//                Matchers.eq(new HashMap<>()))).
+//                thenReturn(rule);
+//
+//        Entity<ValidationRuleInfo> entity = Entity.json(info);
+//        Response response = target("/validation/13/rules/1").request().put(entity);
+//
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+//
+//        ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
+//        assertThat(resultInfos.total).isEqualTo(1);
+//        assertThat(resultInfos.rules).hasSize(1);
+//        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRuleUpdated");
+//        assertThat(resultInfos.rules.get(0).action).isEqualTo(ValidationAction.FAIL);
+//    }
+//
+//    @Test
+//    public void testEditValidationRuleWarnOnly() {
+//        final ValidationRuleInfo info = new ValidationRuleInfo();
+//        info.name = "MyRuleUpdated";
+//        info.implementation = "com.blablabla.Validator";
+//        info.properties = new ArrayList<>();
+//        info.action = ValidationAction.WARN_ONLY;
+//
+//        ValidationRuleSet ruleSet = mockValidationRuleSet(13, true);
+//        ValidationRule rule = ruleSet.getRules().get(0);
+//        when(rule.getName()).thenReturn("MyRuleUpdated");
+//        when(rule.getAction()).thenReturn(ValidationAction.WARN_ONLY);
+//        when(ruleSet.updateRule(
+//                Matchers.eq(1L),
+//                Matchers.eq("MyRuleUpdated"),
+//                Matchers.eq(false),
+//                Matchers.eq(ValidationAction.WARN_ONLY),
+//                Matchers.eq(new ArrayList<>()),
+//                Matchers.eq(new HashMap<>()))).
+//                thenReturn(rule);
+//
+//        Entity<ValidationRuleInfo> entity = Entity.json(info);
+//        Response response = target("/validation/13/rules/1").request().put(entity);
+//
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+//
+//        ValidationRuleInfos resultInfos = response.readEntity(ValidationRuleInfos.class);
+//        assertThat(resultInfos.total).isEqualTo(1);
+//        assertThat(resultInfos.rules).hasSize(1);
+//        assertThat(resultInfos.rules.get(0).name).isEqualTo("MyRuleUpdated");
+//        assertThat(resultInfos.rules.get(0).action).isEqualTo(ValidationAction.WARN_ONLY);
+//    }
+//
+//    @Test
+//    public void testDeleteValidationRule() {
+//        mockValidationRuleSet(13, true);
+//        Response response = target("/validation/13/rules/1").request().delete();
+//
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+//    }
+//
+//    @Test
+//    public void testDeleteValidationRuleNoRuleSet() {
+//        when(validationService.getValidationRuleSet(13)).thenReturn(Optional.empty());
+//
+//        Response response = target("/validation/13/rules/12").request().delete();
+//
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+//    }
+//
+//    @Test
+//    public void testDeleteValidationRuleNoRule() {
+//        mockValidationRuleSet(13, false);
+//        when(validationService.getValidationRule(1)).thenReturn(Optional.empty());
+//
+//        Response response = target("/validation/13/rules/1").request().delete();
+//
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+//    }
+//
+//    @Test
+//    public void testGetReadingTypes() throws Exception {
+//        ValidationRuleSet validationRuleSet = mockValidationRuleSet(26, false);
+//        ValidationRule validationRule = mockValidationRuleInRuleSet(1, validationRuleSet);
+//        doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules();
+//        ReadingType readingType = mockReadingType();
+//        when(validationRule.getReadingTypes()).thenReturn(new HashSet<>(Arrays.asList(readingType)));
+//        Response response = target("/validation/26/rule/1/readingtypes").request().get();
+//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+//        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+//        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+//    }
+//
     private void mockValidationRuleSets(ValidationRuleSet... validationRuleSets) {
         Query<ValidationRuleSet> query = mock(Query.class);
         when(validationService.getRuleSetQuery()).thenReturn(query);
@@ -499,20 +503,30 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(restQuery.select(any(QueryParameters.class), any(Order.class))).thenReturn(Arrays.asList(validationRuleSets));
     }
 
-    private ValidationRuleSet mockValidationRuleSet(int id, boolean addRules) {
+    private ValidationRuleSet mockValidationRuleSet(int id, boolean version) {
         ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
         when(ruleSet.getId()).thenReturn(Long.valueOf(id));
         when(ruleSet.getName()).thenReturn("MyName");
         when(ruleSet.getDescription()).thenReturn("MyDescription");
 
-        if (addRules) {
-            List rules = Arrays.asList(mockValidationRuleInRuleSet(1L, ruleSet));
-            when(ruleSet.getRules()).thenReturn(rules);
+        if (version) {
+            List versions = Arrays.asList(mockValidationRuleSetVersion(1L));
+            when(ruleSet.getRules()).thenReturn(versions);
         }
 
         doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
 
         return ruleSet;
+    }
+
+    private ValidationRuleSetVersion mockValidationRuleSetVersion(long id){
+        final Instant date = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        ValidationRuleSetVersion ruleSetVersion = mock(ValidationRuleSetVersion.class);
+        when(ruleSetVersion.getDescription()).thenReturn("descriptionOfVersion");
+        when(ruleSetVersion.getId()).thenReturn(id);
+        when(ruleSetVersion.getName()).thenReturn("nameOfVersion");
+        when(ruleSetVersion.getStartDate()).thenReturn(date);
+        return ruleSetVersion;
     }
 
     private ValidationRule mockValidationRuleInRuleSet(long id, ValidationRuleSet ruleSet) {
