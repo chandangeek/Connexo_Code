@@ -152,9 +152,9 @@ public class Installer {
         try {
             Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
             if (!destinationSpecOptional.isPresent()) {
-                DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
-                destinationSpec.activate();
-                destinationSpec.subscribe(subscriberName);
+                DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+                queue.activate();
+                queue.subscribe(subscriberName);
             } else {
                 boolean alreadySubscribed = destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
                 if (!alreadySubscribed) {

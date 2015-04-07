@@ -7,12 +7,16 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This message handler will trigger connections to rerun.
  * Created by bvn on 3/25/15.
  */
 public class ConnectionTaskBatchMessageHandler implements MessageHandler {
+
+    private static final Logger LOGGER = Logger.getLogger(ConnectionTaskBatchMessageHandler.class.getSimpleName());
 
     private ConnectionTaskService connectionTaskService;
     private JsonService jsonService;
@@ -24,19 +28,20 @@ public class ConnectionTaskBatchMessageHandler implements MessageHandler {
         switch (connectionTaskQueueMessage.action) {
             case "scheduleNow": scheduleNow(connectionTask);
                 break;
-            default: // TODO log ("Not implemented: "+connectionTaskQueueMessage.action);
+            default: LOGGER.log(Level.WARNING, "Unknown action for ConnectionTask: "+connectionTaskQueueMessage.action);
         }
     }
 
     private void scheduleNow(ConnectionTask connectionTask) {
         if (!connectionTask.isObsolete()) {
             if (connectionTask instanceof ScheduledConnectionTask) {
+                LOGGER.info("Connection task '"+connectionTask.getName()+"': scheduleNow()");
                 ((ScheduledConnectionTask) connectionTask).scheduleNow();
             } else {
-                // TODO Only scheduled supported
+                LOGGER.info("Connection task '"+connectionTask.getName()+"' skipped: not a ScheduledConnectionTask");
             }
         } else {
-            // TODO LOG OBSOLETE
+            LOGGER.info("Connection task '"+connectionTask.getName()+"' skipped: it is obsolete");
         }
     }
 

@@ -6,13 +6,15 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This message handler will trigger connections to rerun.
  * Created by bvn on 3/25/15.
  */
 public class CommunicationTaskBatchMessageHandler implements MessageHandler {
-
+    private static final Logger LOGGER = Logger.getLogger(CommunicationTaskBatchMessageHandler.class.getSimpleName());
     private CommunicationTaskService communicationTaskService;
     private JsonService jsonService;
 
@@ -25,23 +27,25 @@ public class CommunicationTaskBatchMessageHandler implements MessageHandler {
                 break;
             case "runNow": runNow(comTaskExecution);
                 break;
-            default: // TODO log ("Not implemented: "+connectionTaskQueueMessage.action);
+            default: LOGGER.log(Level.WARNING, "Unknown action for ComTaskExecution: "+comTaskExecutionQueueMessage.action);
         }
     }
 
     private void runNow(ComTaskExecution comTaskExecution) {
         if (!comTaskExecution.isObsolete()) {
             comTaskExecution.runNow();
+            LOGGER.info("ComTaskExecution '" + comTaskExecution.getId() + "': runNow()");
         } else {
-            // TODO LOG OBSOLETE
+            LOGGER.info("ComTaskExecution '"+comTaskExecution.getId()+"' skipped: it is obsolete");
         }
     }
 
     private void scheduleNow(ComTaskExecution comTaskExecution) {
         if (!comTaskExecution.isObsolete()) {
             comTaskExecution.scheduleNow();
+            LOGGER.info("ComTaskExecution '" + comTaskExecution.getId() + "': scheduleNow()");
         } else {
-            // TODO LOG OBSOLETE
+            LOGGER.info("ComTaskExecution '"+comTaskExecution.getId()+"' skipped: it is obsolete");
         }
     }
 
