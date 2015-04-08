@@ -24,14 +24,10 @@ Ext.define('Cfg.store.ValidationRules', {
                 url += '/';
             }
 
-
             url += ruleSetId;
             url += '/versions/';
             url += versionId;
             url += '/rules';
-
-//            url += ruleSetId;
-  //          url += '/rules';
 
             if (format) {
                 if (!url.match(/\.$/)) {

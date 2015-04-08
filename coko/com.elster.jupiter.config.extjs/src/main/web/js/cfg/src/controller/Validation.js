@@ -285,7 +285,7 @@ Ext.define('Cfg.controller.Validation', {
                     messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
                 }
                 if (me.fromRulePreview) {
-                    router.getRoute('administration/validation/rulesets/overview/rules/overview').forward({ruleId: record.getId()});
+                    router.getRoute('administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/overview').forward({ruleId: record.getId()});
                 } else {
                     router.getRoute('administration/rulesets/overview/versions').forward();
                 }
@@ -617,7 +617,7 @@ Ext.define('Cfg.controller.Validation', {
                 readingTypesStore.removeAll();
 
                 if (me.validationRuleRecord) {
-                    me.modelToForm(null, me.validationRuleRecord, false);
+                    me.modelToForm(null, null, null, me.validationRuleRecord, false);
                 } else {
                     form = editRulePanel.down('#addRuleForm').getForm();
                     propertyForm = widget.down('property-form');
@@ -828,7 +828,7 @@ Ext.define('Cfg.controller.Validation', {
         Ext.resumeLayouts();
     },
 
-    showEditRuleOverview: function (id, ruleId) {
+    showEditRuleOverview: function (ruleSetId, versionId, ruleId) {
         var me = this,
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             widget,
@@ -840,12 +840,12 @@ Ext.define('Cfg.controller.Validation', {
                 if (me.fromRuleSet) {
                     cancelLink = '#/administration/validation/rulesets';
                 } else if (me.fromRulePreview) {
-                    cancelLink = '#/administration/validation/rulesets/' + id + '/rules/' + me.ruleId;
+                    cancelLink = '#/administration/validation/rulesets/' + ruleSetId + '/versions/' + versionId + '/rules/' + me.ruleId;
                 } else {
-                    cancelLink = '#/administration/validation/rulesets/' + id + '/rules';
+                    cancelLink = '#/administration/validation/rulesets/' + ruleSetId + '/versions/' + versionId;
                 }
 
-                me.ruleSetId = parseInt(id);
+                me.ruleSetId = parseInt(ruleSetId);
                 me.ruleId = parseInt(ruleId);
 
                 widget = Ext.widget('addRule', {
@@ -856,14 +856,14 @@ Ext.define('Cfg.controller.Validation', {
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 if (me.validationRuleRecord) {
-                    me.modelToForm(null, me.validationRuleRecord, true);
+                    me.modelToForm(null, null, null, me.validationRuleRecord, true);
                 } else {
-                    me.modelToForm(id, null, true);
+                    me.modelToForm(ruleSetId, versionId, ruleId, null, true);
                 }
 
                 ruleSetsStore.load({
                     callback: function () {
-                        ruleSet = this.getById(parseInt(id));
+                        ruleSet = this.getById(parseInt(ruleSetId));
                         me.getApplication().fireEvent('loadRuleSet', ruleSet);
                     }
                 });
@@ -871,7 +871,7 @@ Ext.define('Cfg.controller.Validation', {
         });
     },
 
-    modelToForm: function (id, record, isEdit) {
+    modelToForm: function (ruleSetId, versionId, ruleId, record, isEdit) {
         var me = this,
             rulesStore = me.getStore('Cfg.store.ValidationRules'),
             editRulePanel = me.getAddRule(),
@@ -911,7 +911,9 @@ Ext.define('Cfg.controller.Validation', {
             editRulePanel.setLoading();
             rulesStore.load({
                 params: {
-                    id: id
+                    ruleSetId: ruleSetId,
+                    versionId: versionId,
+                    ruleId: ruleId
                 },
                 callback: function () {
                     editRulePanel.setLoading(false);
@@ -941,7 +943,7 @@ Ext.define('Cfg.controller.Validation', {
 
         switch (item.action) {
             case 'view':
-                location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.get('id');
+                location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.get('id');
                 break;
             case 'activateRule':
                 me.deactivateRule(record);
@@ -950,7 +952,7 @@ Ext.define('Cfg.controller.Validation', {
                 me.deactivateRule(record);
                 break;
             case 'editRule':
-                location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/rules/' + record.get('id') + '/edit';
+                location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId')  + '/versions/' + record.get('ruleSetVersionId') +  '/rules/' + record.get('id') + '/edit';
                 break;
             case 'deleteRule':
                 me.showDeleteConfirmation(record);
@@ -968,7 +970,7 @@ Ext.define('Cfg.controller.Validation', {
             isActive = record.get('active');
 
         if (record) {
-            record.getProxy().setUrl(router.arguments.ruleSetId || record.get('ruleSetId'));
+            record.getProxy().setUrl(record.get('ruleSetId'), record.get('ruleSetVersionId'));
             record.readingTypes().removeAll();
             Ext.Array.each(record.get('readingTypes'), function (item) {
                 var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
@@ -989,7 +991,6 @@ Ext.define('Cfg.controller.Validation', {
 
         record.save({
             params: {
-                id: record.get('ruleSetId'),
                 ruleId: record.get('id')
             },
             success: function (record, operation) {
@@ -1273,8 +1274,6 @@ Ext.define('Cfg.controller.Validation', {
 
     },
 
-
-
     onVersionMenuShow: function (menu) {
 
        /* if (menu.record.get('active')) {
@@ -1459,72 +1458,7 @@ Ext.define('Cfg.controller.Validation', {
             newVersion.set('startDate', null);
             form.loadRecord(newVersion);
         }
-       /* view = me.getVersionsContainer();
-        if (view) {
-            versionsGrid = view.down('#versionsList');
-            versionsStore = versionsGrid.getStore();
-            selectedVersion = versionsStore.getByInternalId(versionId);
-        } else if (me.getVersionOverview()){
-            view = me.getVersionOverview();
-            selectedVersion = view.down('#versionActionMenu').record;
-        }
-*/
-        /*
-        me.getApplication().fireEvent('changecontentevent', widget);
 
-        editVersionPanel = me.getAddVersion();
-        form = editVersionPanel.down('#addVersionForm').getForm();
-        if (!isClone && (versionId!= null)){
-            editVersionPanel.down('#addVersionTitle').setTitle(Uni.I18n.translate('validation.editValidationRulesetVersion', 'CFG', 'Edit') + "'" + versionRecord.get('name') + "'");
-            me.getApplication().fireEvent('loadVersion', selectedVersion);
-            form.loadRecord(versionRecord);
-            var startDate = versionRecord.get('startDate');
-            editVersionPanel.down('#startPeriodTrigger').setValue({startPeriod: startDate && (startDate !== 0) && (startDate !== '')});
-        }
-        else if (isClone){
-            newVersion = Ext.create('Cfg.model.ValidationRuleSetVersion');
-            newVersion.set('name', versionRecord.get('name'));
-            newVersion.set('description', versionRecord.get('description'));
-            newVersion.set('startDate', versionRecord.get('startDate'));
-            editVersionPanel.down('#addVersionTitle').setTitle(Uni.I18n.translate('validation.addValidationRulesetVersion', 'CFG', 'Add validation rule set version'));
-            form.loadRecord(newVersion);
-        }
-        else { // create new version
-            newVersion = Ext.create('Cfg.model.ValidationRuleSetVersion');
-            editVersionPanel.down('#addVersionTitle').setTitle(Uni.I18n.translate('validation.addValidationRulesetVersion', 'CFG', 'Add validation rule set version'));
-            newVersion.set('startDate', null);
-            form.loadRecord(newVersion);
-        }
-        */
-
-
-        //me.ruleId = null;
-
-       /* me.getValidatorsStore().load({
-            callback: function () {
-                me.ruleSetId = ruleSetId;
-                me.getApplication().fireEvent('changecontentevent', widget);
-
-                if (me.versionRecord) {
-                    form = editVersionPanel.down('#addVersionForm').getForm();
-                    editVersionPanel.down('#addVersionTitle').setTitle(Uni.I18n.translate('validation.addValidationRulesetVersion', 'CFG', "Edit '" + me.versionRecord.get('name') + "'"));
-                    form.loadRecord(me.versionRecord);
-                } else {
-                    form = editVersionPanel.down('#addVersionForm').getForm();
-                    editVersionPanel.down('#addVersionTitle').setTitle(Uni.I18n.translate('validation.addValidationRulesetVersion', 'CFG', 'Add validation rule set version'));
-                    form.loadRecord(model);
-                }
-
-
-                //me.ruleModel = null;
-
-                versionsStore.load({
-                    params: {
-                        ruleSetId: ruleSetId
-                    }
-                });
-            }
-        });*/
     },
 
     createEditVersion: function (button) {
@@ -1544,12 +1478,6 @@ Ext.define('Cfg.controller.Validation', {
         record.set(values);
         record.set('startDate', startOnDate);
 
-       /* record.beginEdit();
-        record.set('name', form.down('#addVersionName').getValue());
-        record.set('description', form.down('#addVersionDescription').getValue());
-        record.set('startPeriod', startOnDate);
-        record.endEdit();
-*/
         form.down('#addVersionDescription').clearInvalid();
         formErrorsPanel.hide();
         record.set('ruleSet', {
@@ -1567,11 +1495,11 @@ Ext.define('Cfg.controller.Validation', {
                 } else {
                     messageText = Uni.I18n.translate('validation.addVersionSuccess.msg', 'CFG', 'Validation rule set version added');
                 }
-                if (me.fromRulePreview) {
-                    router.getRoute('administration/rulesets/overview/rules/overview').forward({ruleId: record.getId()});
-                } else {
+              //  if (me.fromRulePreview) {
+               //     router.getRoute('administration/rulesets/overview/rules/overview').forward({ruleId: record.getId()});
+               // } else {
                     router.getRoute('administration/rulesets/overview/versions').forward();
-                }
+              //  }
 
                 me.getApplication().fireEvent('acknowledge', messageText);
             },
@@ -1603,6 +1531,7 @@ Ext.define('Cfg.controller.Validation', {
             versionRecord;
 
         me.getApplication().fireEvent('changecontentevent', versionContainerWidget);
+        versionContainerWidget.setLoading(true);
         versionStore.load({
                 params: {
                     ruleSetId: ruleSetId,
@@ -1618,35 +1547,12 @@ Ext.define('Cfg.controller.Validation', {
                 itemForm.updateVersion(versionRecord);
 
                 versionContainerWidget.down('#versionActionMenu').record = versionRecord;
+                rulesContainerWidget.setLoading(false);
 
 
-            }
-    });
-
-        /*versionContainerWidget.setLoading(true);
-        Cfg.model.ValidationRuleSet.load(ruleSetId, {
-            success: function (ruleSet) {
-                me.getApplication().fireEvent('loadRuleSet', ruleSet);
             }
         });
-        var rulesStore = me.getValidationRulesStore();
-        rulesStore.load({
-            params: {
-                id: ruleSetId
-            },
-            callback: function (records, operation, success) {
-                var rule = rulesStore.getById(parseInt(ruleId));
-                var itemForm = rulesContainerWidget.down('validation-rule-preview');
-                itemForm.updateValidationRule(rule);
-                itemForm.down('#rulePreviewActionsButton').destroy();
-                itemForm.setTitle('');
 
-                me.getApplication().fireEvent('loadRule', rule);
-                rulesContainerWidget.down('validation-rule-action-menu').record = rule;
-                rulesContainerWidget.down('#stepsRuleMenu #ruleSetOverviewLink').setText(rule.get('name'));
-                rulesContainerWidget.setLoading(false);
-            }
-        });*/
     },
 
     showVersionRules: function (ruleSetId, versionId) {
@@ -1669,23 +1575,6 @@ Ext.define('Cfg.controller.Validation', {
             }
         });
 
-        /*
-        me.validationRuleRecord = null;
-        me.ruleSetId = id;
-        me.fromRulePreview = false;
-        ruleSetsStore.load({
-            params: {
-                id: id
-            },
-            callback: function () {
-                var selectedRuleSet = ruleSetsStore.getByInternalId(id),
-                    rulesContainerWidget = Ext.widget('rulePreviewContainer', {ruleSetId: id});
-                me.getApplication().fireEvent('changecontentevent', rulesContainerWidget);
-                rulesContainerWidget.down('#stepsMenu #ruleSetOverviewLink').setText(selectedRuleSet.get('name'));
-
-                me.getApplication().fireEvent('loadRuleSet', selectedRuleSet);
-            }
-        });*/
     }
 
 });

@@ -21,14 +21,22 @@ Ext.define('Cfg.model.ValidationRule', {
             name: 'ruleSetVersionId',
             persist: false,
             convert: function (value, record) {
-                return record.data.ruleSetVersion.id;
+                if (record.data.ruleSetVersion) {
+                    return record.data.ruleSetVersion.id;
+                }
+                return null;
+
             }
         },
         {
-            name: 'ruleSetVersionName',
+            name: 'ruleSetId',
             persist: false,
             convert: function (value, record) {
-                return record.data.ruleSetVersion.name;
+                if (record.data.ruleSetVersion && record.data.ruleSetVersion.ruleSet) {
+                    return record.data.ruleSetVersion.ruleSet.id;
+                }
+                return null;
+
             }
         },
         {
