@@ -252,6 +252,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var me = this;
         var record = Ext.create(Mdc.model.DeviceType),
             values = this.getDeviceTypeEditForm().getValues();
+        me.getDeviceTypeEditForm().getForm().clearInvalid();
         if (record) {
             record.set(values);
             record.save({
@@ -263,10 +264,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id.indexOf('deviceLifeCycle') !== -1) {
+                                me.getDeviceTypeEditForm().down('#device-life-cycle-combo').markInvalid(item.msg);
+                            }
+                        });
                     }
                 }
             });
-
         }
     },
 
