@@ -175,7 +175,6 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     }
 
     private void doPersist() {
-        //Save.CREATE.save(dataModel, this);
         Save.CREATE.validate(dataModel, this);
         eventService.postEvent(EventType.VALIDATIONRULESETVERSION_CREATED.topic(), this);
     }
