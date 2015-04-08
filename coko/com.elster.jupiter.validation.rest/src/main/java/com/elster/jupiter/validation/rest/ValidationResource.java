@@ -206,6 +206,26 @@ public class ValidationResource {
 
     }
 
+    @POST
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/clone")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    public Response cloneRuleSetVersion(@PathParam("ruleSetId") long ruleSetId,
+                                        @PathParam("ruleSetVersionId") final long ruleSetVersionId,
+                                        ValidationRuleSetVersionInfo info) {
+
+        ValidationRuleSetVersionInfo result =
+                transactionService.execute(() -> {
+                    ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
+                            ()-> new WebApplicationException(Response.Status.NOT_FOUND));
+
+                    ValidationRuleSetVersion version = ruleSet.cloneRuleSetVersion(ruleSetVersionId, info.description, info.startDate);
+                    return new ValidationRuleSetVersionInfo(version);
+                });
+        return Response.status(Response.Status.CREATED).entity(result).build();
+    }
+
 
     @PUT
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}")
