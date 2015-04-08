@@ -30,7 +30,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
         },
         {
             xtype: 'displayfield',
-            fieldLabel: Uni.I18n.translate('firmware.field.status', 'FWC', 'Status'),
+            fieldLabel: Uni.I18n.translate('firmware.field.status', 'FWC', 'Firmware status'),
             name: 'status'
         }
     ]
