@@ -61,7 +61,7 @@ public class KpiMemberImplTest {
         kpiMember.setTimeSeries(timeSeries);
         kpiMember.setStatictarget(TARGET);
 
-        when(idsService.createStorer(true)).thenReturn(storer);
+        when(idsService.createOverrulingStorer()).thenReturn(storer);
         when(timeSeries.getEntry(TIMESTAMP)).thenReturn(Optional.of(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(0)).thenReturn(SCORE);
         when(timeSeriesEntry.getBigDecimal(1)).thenReturn(TARGET);

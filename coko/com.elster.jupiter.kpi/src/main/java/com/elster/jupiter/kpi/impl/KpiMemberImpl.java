@@ -92,7 +92,7 @@ class KpiMemberImpl implements IKpiMember {
 
     @Override
     public void score(Instant date, BigDecimal bigDecimal) {
-        TimeSeriesDataStorer storer = idsService.createStorer(true);
+        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
         storer.add(getTimeSeries(), date, bigDecimal, getTarget(date));
         storer.execute();
         KpiEntry kpiEntry = getScore(date).get();
@@ -141,7 +141,7 @@ class KpiMemberImpl implements IKpiMember {
         }
         return new TargetStorer() {
 
-            private final TimeSeriesDataStorer storer = idsService.createStorer(true);
+            private final TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
 
             @Override
             public TargetStorer add(Instant timestamp, BigDecimal target) {
