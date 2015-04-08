@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>mdc.masterdata</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.masterdata [init MDS]</name>
     <description>
