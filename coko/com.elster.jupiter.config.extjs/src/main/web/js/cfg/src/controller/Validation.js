@@ -285,9 +285,11 @@ Ext.define('Cfg.controller.Validation', {
                     messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
                 }
                 if (me.fromRulePreview) {
-                    router.getRoute('administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/overview').forward({ruleId: record.getId()});
+                    router.getRoute('administration/rulesets/overview/versions/overview/rules/overview').forward({ruleSetId: record.get('ruleSetId'), versionId: record.get('ruleSetVersionId'), ruleId: record.getId()});
+                    //router.getRoute('administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/overview').forward({ruleId: record.getId()});
                 } else {
-                    router.getRoute('administration/rulesets/overview/versions').forward();
+                    router.getRoute('administration/rulesets/overview/versions').forward({ruleSetId: record.get('ruleSetId')});
+                    //router.getRoute('administration/rulesets/' + record.get('ruleSetId') + '/versions/').forward();
                 }
 
                 me.getApplication().fireEvent('acknowledge', messageText);
