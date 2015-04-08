@@ -508,10 +508,12 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(ruleSet.getId()).thenReturn(Long.valueOf(id));
         when(ruleSet.getName()).thenReturn("MyName");
         when(ruleSet.getDescription()).thenReturn("MyDescription");
-
         if (version) {
+            List rules = Arrays.asList(mockValidationRuleInRuleSet(221L, ruleSet));
+            when(ruleSet.getRules()).thenReturn(rules);
+
             List versions = Arrays.asList(mockValidationRuleSetVersion(1L));
-            when(ruleSet.getRules()).thenReturn(versions);
+            when(ruleSet.getRuleSetVersions()).thenReturn(versions);
         }
 
         doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
