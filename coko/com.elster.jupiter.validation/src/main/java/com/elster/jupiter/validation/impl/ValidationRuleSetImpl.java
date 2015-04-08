@@ -199,12 +199,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         List<IValidationRuleSetVersion> versions = doGetVersions()
                 .sorted(Comparator.comparing(ver -> ver.getNotNullStartDate()))
                 .collect(Collectors.toList());
-        versions.stream()
-                .sequential()
-                .reduce((a, b) -> {
-                    a.setEndDate(b.getStartDate()); // set End Date;
-                    return b;
-                });
+        updateVersionsEndDate(versions);
         return versions;
     }
 
@@ -221,6 +216,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
     
     private Stream<IValidationRule> doGetRules() {
+        updateVersionsEndDate(versions);
     	return versions.stream().filter(v -> !v.isObsolete())
                 .flatMap(v1 -> v1.getRules().stream().filter(r -> !r.isObsolete()));
     }
@@ -235,13 +231,17 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
                 new String[]{},
                 start + 1,
                 start + limit);
+        updateVersionsEndDate(versions);
+        return Collections.unmodifiableList(versions);
+    }
+
+    private void updateVersionsEndDate(List<IValidationRuleSetVersion> versions) {
         versions.stream()
             .sequential()
             .reduce((a, b) -> {
                 a.setEndDate(b.getStartDate()); // set End Date;
                 return b;
             });
-        return Collections.unmodifiableList(versions);
     }
 
     private QueryExecutor<IValidationRuleSetVersion> getRuleSetVersionQuery() {

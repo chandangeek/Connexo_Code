@@ -45,6 +45,6 @@ public interface ValidationRuleSetVersion {
 
     long getVersion();
 
-    boolean isCurrent();
+    ValidationVersionStatus getStatus();
 
 }

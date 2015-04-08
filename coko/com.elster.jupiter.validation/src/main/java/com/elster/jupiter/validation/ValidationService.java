@@ -39,7 +39,6 @@ public interface ValidationService {
 
     Optional<ValidationRuleSet> getValidationRuleSet(String name);
 
-    Optional<? extends ValidationRuleSetVersion> getValidationRuleSetVersion(long ruleSetVersionId);
 
     boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet);
 
@@ -48,8 +47,6 @@ public interface ValidationService {
     List<Validator> getAvailableValidators();
 
     Validator getValidator(String implementation);
-
-    Optional<ValidationRule> getValidationRule(long id);
 
     /**
      * Activation/Deactivation of validation on meters *

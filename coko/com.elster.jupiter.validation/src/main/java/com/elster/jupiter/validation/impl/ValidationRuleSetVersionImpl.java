@@ -123,8 +123,12 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     }
 
     @Override
-    public boolean isCurrent() {
-        return Range.openClosed(getNotNullStartDate(), getNotNullEndDate()).contains(Instant.now());
+    public ValidationVersionStatus getStatus() {
+        if(Instant.now().isBefore(getNotNullStartDate()))
+            return ValidationVersionStatus.FUTURE;
+        if(Instant.now().isAfter(getNotNullEndDate()))
+            return ValidationVersionStatus.PREVIOUS;
+        return ValidationVersionStatus.CURRENT;
     }
 
     Instant getCreateTime() {
