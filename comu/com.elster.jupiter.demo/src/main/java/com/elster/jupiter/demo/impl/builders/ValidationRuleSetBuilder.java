@@ -32,7 +32,7 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
     public ValidationRuleSet create() {
         ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName());
         ruleSet.setDescription(this.description);
-        ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("DEMO_VERSION", "Demo Default Version", Instant.EPOCH );
+        ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("Demo Default Version", Instant.EPOCH );
         addRegisterIncreaseValidationRule(ruleSetVersion);
         addDetectMissingValuesValidationRule(ruleSetVersion);
         addDetectThresholdViolationValidationRule(ruleSetVersion);
