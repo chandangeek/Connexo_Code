@@ -23,7 +23,9 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.controller.ConnectionOverview',
         'Dsh.controller.OperatorDashboard',
         'Dsh.controller.Connections',
-        'Dsh.controller.Communications'
+        'Dsh.controller.Communications',
+        'Dsh.controller.ConnectionsBulk',
+        'Dsh.controller.CommunicationsBulk'
     ],
 
     stores: [

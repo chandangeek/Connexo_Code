@@ -68,6 +68,9 @@ Ext.define('Dsh.controller.Communications', {
             },
             'communications-list #generate-report': {
                 click: this.onGenerateReport
+            },
+            'communications-list #btn-communications-bulk-action': {
+                click: this.forwardToBulk
             }
         });
 
@@ -268,5 +271,11 @@ Ext.define('Dsh.controller.Communications', {
             record.set('plannedDate', new Date());
             me.showOverview();
         });
+    },
+
+    forwardToBulk: function () {
+        var router = this.getController('Uni.controller.history.Router');
+
+        router.getRoute('workspace/communications/details/bulk').forward(null, router.queryParams);
     }
 });

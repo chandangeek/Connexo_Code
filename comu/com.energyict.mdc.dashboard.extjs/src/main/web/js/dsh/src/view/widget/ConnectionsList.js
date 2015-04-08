@@ -118,6 +118,12 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                     itemId:'generate-report',
                     hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
                     text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                },
+                {
+                    xtype:'button',
+                    itemId:'btn-connections-bulk-action',
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device']),
+                    text: Uni.I18n.translate('general.bulkAction', 'DSH', 'Bulk action')
                 }
             ]
         },

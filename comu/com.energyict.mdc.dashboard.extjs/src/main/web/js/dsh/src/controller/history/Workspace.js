@@ -30,7 +30,17 @@ Ext.define('Dsh.controller.history.Workspace', {
                             controller: 'Dsh.controller.Connections',
                             privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
                             action: 'showOverview',
-                            filter: 'Dsh.model.Filter'
+                            filter: 'Dsh.model.Filter',
+                            items: {
+                                bulk: {
+                                    title: Uni.I18n.translate('title.bulkAction', 'DSH', 'Bulk action'),
+                                    route: 'bulk',
+                                    controller: 'Dsh.controller.ConnectionsBulk',
+                                    privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                                    action: 'showOverview',
+                                    filter: 'Dsh.model.Filter'
+                                }
+                            }
                         }
                     }
                 },
@@ -48,7 +58,17 @@ Ext.define('Dsh.controller.history.Workspace', {
                             controller: 'Dsh.controller.Communications',
                             privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
                             action: 'showOverview',
-                            filter: 'Dsh.model.Filter'
+                            filter: 'Dsh.model.Filter',
+                            items: {
+                                bulk: {
+                                    title: Uni.I18n.translate('title.bulkAction', 'DSH', 'Bulk action'),
+                                    route: 'bulk',
+                                    controller: 'Dsh.controller.CommunicationsBulk',
+                                    privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                                    action: 'showOverview',
+                                    filter: 'Dsh.model.Filter'
+                                }
+                            }
                         }
                     }
                 }
