@@ -5,10 +5,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.2</version>
     </parent>
     <artifactId>metering.rest</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.metering.rest</name>
 
@@ -76,17 +76,17 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
