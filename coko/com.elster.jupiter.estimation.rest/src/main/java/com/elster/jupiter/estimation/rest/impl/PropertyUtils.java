@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.elster.jupiter.estimation.AdvanceReadingsSettings;
+import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.PropertySpec;
@@ -14,6 +17,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.time.RelativePeriod;
 
 public class PropertyUtils {
 
@@ -117,6 +121,20 @@ public class PropertyUtils {
                 }
                 return listValue;
             }
+        }
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), RelativePeriod.class)) {
+            return propertySpec.getValueFactory().fromStringValue("" + ((Map)value).get("id"));
+        }
+        if (Objects.equals(propertySpec.getValueFactory().getValueType(), AdvanceReadingsSettings.class))  {
+            Map map = (Map) value;
+            String advanceSettings = NoneAdvanceReadingsSettings.NONE_ADVANCE_READINGS_SETTINGS;
+            Object bulkProperty = map.get(BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS);
+            if ((bulkProperty != null) && ((Boolean) bulkProperty)) {
+                advanceSettings = BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS;
+            } else if (map.get("readingType") != null) {
+                advanceSettings = (String) ((Map) map.get("readingType")).get("mRID");
+            }
+            return propertySpec.getValueFactory().fromStringValue(advanceSettings);
         }
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), Boolean.class)) {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
