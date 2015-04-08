@@ -185,6 +185,7 @@ public class ValidationAddRemoveIT {
                 });
 
                 validationService.activateValidation(meter);
+				validationService.enableValidationOnStorage(meter);
                 return null;
             }
         });

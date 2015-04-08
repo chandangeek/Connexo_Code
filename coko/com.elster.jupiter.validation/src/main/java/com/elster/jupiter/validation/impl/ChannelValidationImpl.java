@@ -82,17 +82,23 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
 
     private List<IValidationRuleSetVersion> getUpdatedRuleSetVersions() {
-        Optional<IValidationRuleSetVersion> previousVersion = Optional.empty();
+        //Optional<IValidationRuleSetVersion> previousVersion = Optional.empty();
         List<IValidationRuleSetVersion> versions = getMeterActivationValidation().getRuleSet().getRuleSetVersions().stream()
                 .map(IValidationRuleSetVersion.class::cast)
                 .sorted(Comparator.comparing(ver -> ver.getNotNullStartDate()))
                 .collect(Collectors.toList());
-        versions.forEach((currentVersion) ->
+        Optional<IValidationRuleSetVersion> lastVersion = versions.stream()
+                .sequential()
+                .reduce((a,b) -> {
+                    b.setEndDate(a.getNotNullStartDate());
+                    return b;
+                });
+        /*versions.forEach((currentVersion) ->
         {
             if (previousVersion.isPresent()) {
                 previousVersion.get().setEndDate(currentVersion.getNotNullStartDate());
             }
-        });
+        });*/
         return versions;
     }
 
@@ -168,13 +174,13 @@ final class ChannelValidationImpl implements IChannelValidation {
         Instant newLastChecked = versions.stream()
                 .filter(cv -> dataRange.intersection(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())).isEmpty())
                 .flatMap(currentVersion ->
-                    {
-                        Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));
-                        Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
-                        ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
-                        return activeRulesOfVersion(currentVersion).stream()
-                                .map(validator::validateRule);
-                    })
+                {
+                    Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));
+                    Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
+                    ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
+                    return activeRulesOfVersion(currentVersion).stream()
+                            .map(validator::validateRule);
+                })
                 .min(Comparator.naturalOrder()).orElse(end);
 
         updateLastChecked(newLastChecked);
