@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -7,6 +8,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionChangeRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionRequestFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
@@ -27,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleActionResource {
@@ -72,6 +75,7 @@ public class DeviceLifeCycleActionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
     public Response addActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo newAction) {
+        validateInfo(newAction);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         AuthorizedActionRequestFactory factory = new AuthorizedActionRequestFactory(this.resourceHelper);
         AuthorizedActionChangeRequest creationRequest = factory.from(deviceLifeCycle, newAction, AuthorizedActionRequestFactory.Operation.CREATE);
@@ -84,11 +88,22 @@ public class DeviceLifeCycleActionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
     public Response editAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo actionForEdit) {
+        validateInfo(actionForEdit);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         AuthorizedActionRequestFactory factory = new AuthorizedActionRequestFactory(this.resourceHelper);
         AuthorizedActionChangeRequest editRequest = factory.from(deviceLifeCycle, actionForEdit, AuthorizedActionRequestFactory.Operation.MODIFY);
         AuthorizedAction authorizedAction = editRequest.perform();
         return Response.ok(authorizedActionInfoFactory.from(authorizedAction)).build();
+    }
+
+    private void validateInfo(AuthorizedActionInfo actionForEdit) {
+        Predicate<Long> check = id -> id != null && id > 0;
+        new RestValidationBuilder()
+                .notEmpty(actionForEdit.name, "name")
+                .notEmpty(actionForEdit.triggeredBy != null ? actionForEdit.triggeredBy.symbol : null, "triggeredBy")
+                .on(actionForEdit.fromState != null ? actionForEdit.fromState.id : null).field("fromState").check(check).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).test()
+                .on(actionForEdit.toState != null ? actionForEdit.toState.id : null).field("toState").check(check).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).test()
+                .validate();
     }
 
     @DELETE

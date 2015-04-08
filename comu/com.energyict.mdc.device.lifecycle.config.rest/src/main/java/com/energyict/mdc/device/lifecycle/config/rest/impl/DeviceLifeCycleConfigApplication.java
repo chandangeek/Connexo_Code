@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -64,6 +65,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
                 DeviceLifeCycleStateResource.class,
                 DeviceLifeCycleActionResource.class,
                 ConstraintViolationExceptionMapper.class,
+                RestValidationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
     }
 

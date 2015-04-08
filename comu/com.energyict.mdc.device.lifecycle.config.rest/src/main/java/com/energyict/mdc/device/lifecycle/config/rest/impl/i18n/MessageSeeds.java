@@ -15,6 +15,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_LIFECYCLE_STATE_NOT_FOUND(2, "device.lifecycle.state.not.found", "Device lifecycle state with id '{0}' doesn't exist", Level.SEVERE),
     DEVICE_LIFECYCLE_AUTH_ACTION_NOT_FOUND(3, "device.lifecycle.auth.action.not.found", "Authorized action with id '{0}' doesn't exist", Level.SEVERE),
     DEVICE_LIFECYCLE_EVENT_TYPE_NOT_FOUND(4, "device.lifecycle.event.type.not.found", "Event type with symbol '{0}' doesn't exist", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY(5, "field.cn.not.be.empty", "Field can not be empty", Level.SEVERE),
 
     TRANSITION_COMMISSIONED(1001, "#commissioned", "Commission a device", Level.INFO),
     TRANSITION_ACTIVATED(1002, "#activated", "Activate a device", Level.INFO),
