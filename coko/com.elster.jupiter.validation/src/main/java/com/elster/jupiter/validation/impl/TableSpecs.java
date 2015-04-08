@@ -57,6 +57,7 @@ public enum TableSpecs {
             table.column("ACTION").number().notNull().conversion(NUMBER2ENUM).map("action").add();
             table.column("IMPLEMENTATION").varChar(NAME_LENGTH).map("implementation").add();
             Column ruleSetVersionIdColumn = table.column("RULESETVERSIONID").number().notNull().conversion(NUMBER2LONG).add();
+            Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
@@ -64,6 +65,8 @@ public enum TableSpecs {
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
             table.foreignKey("VAL_FK_RULESETVERSION").references("VAL_VALIDATIONRULESETVERSION").on(ruleSetVersionIdColumn).onDelete(RESTRICT)
                     .map("ruleSetVersion").reverseMap("rules").composition().reverseMapOrder("position").add();
+            table.foreignKey("VAL_FK_RULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
+                    .map("ruleSet").reverseMap("rules").composition().add();
         }
     },
     VAL_VALIDATIONRULEPROPS {

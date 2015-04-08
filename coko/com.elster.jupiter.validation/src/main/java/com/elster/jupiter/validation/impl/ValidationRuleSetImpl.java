@@ -52,6 +52,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Valid
     private List<IValidationRuleSetVersion> versions = new ArrayList<>();
+    private List<IValidationRule> rules = new ArrayList<>();
     private List<IValidationRuleSetVersion> versionToSave = new ArrayList<>();
 
     private final EventService eventService;
