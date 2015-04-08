@@ -191,19 +191,18 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Override
-    public void activateValidation(Meter meter, boolean validateOnStorage) {
+    public void activateValidation(Meter meter) {
         Optional<MeterValidationImpl> meterValidation = getMeterValidation(meter);
         if (meterValidation.isPresent()) {
             if (!meterValidation.get().getActivationStatus()) {
                 meterValidation.get().setActivationStatus(true);
-                meterValidation.get().setValidateOnStorage(validateOnStorage);
                 meterValidation.get().save();
                 meter.getCurrentMeterActivation()
                 	.map(this::updatedMeterActivationValidationsFor)
                 	.ifPresent(MeterActivationValidationContainer::activate);
             } // else already active
         } else {
-            createMeterValidation(meter, true, validateOnStorage);
+            createMeterValidation(meter, true, false);
             meter.getCurrentMeterActivation().ifPresent(this::updatedMeterActivationValidationsFor);
         }
     }
@@ -211,28 +210,27 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Override
     public void deactivateValidation(Meter meter) {
         getMeterValidation(meter)
-        	.filter(MeterValidationImpl::getActivationStatus)
-        	.ifPresent( meterValidation -> {
-        		meterValidation.setActivationStatus(false);
-                meterValidation.setValidateOnStorage(false);
-        		meterValidation.save();
-        	}
+            .filter(MeterValidationImpl::getActivationStatus)
+            .ifPresent( meterValidation -> {
+                        meterValidation.setActivationStatus(false);
+                        meterValidation.save();
+                    }
             );
     }
 
     @Override
-    public void activateValidationOnStorage(Meter meter) {
+    public void enableValidationOnStorage(Meter meter) {
         getMeterValidation(meter)
-                .filter(MeterValidationImpl::getActivationStatus) // validation should be active
-                .filter(MeterValidationImpl::getValidateOnStorage)
-                .ifPresent(meterValidation -> {
-                    meterValidation.setValidateOnStorage(true);
-                    meterValidation.save();
-                });
+            .filter(MeterValidationImpl::getValidateOnStorage)
+            .ifPresent(meterValidation -> {
+                meterValidation.setValidateOnStorage(true);
+                meterValidation.save();
+            });
     }
 
+
     @Override
-    public void deactivateValidationOnStorage(Meter meter) {
+    public void disableValidationOnStorage(Meter meter) {
         getMeterValidation(meter)
                 .filter(MeterValidationImpl::getValidateOnStorage)
                 .ifPresent(meterValidation -> {

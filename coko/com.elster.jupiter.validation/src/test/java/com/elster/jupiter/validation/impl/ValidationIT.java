@@ -181,7 +181,8 @@ public class ValidationIT {
                     }
                 });
 
-                validationService.activateValidation(meter,true);
+                validationService.activateValidation(meter);
+				validationService.enableValidationOnStorage(meter);
                 return null;
             }
         });

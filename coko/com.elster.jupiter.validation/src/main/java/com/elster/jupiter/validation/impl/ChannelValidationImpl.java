@@ -88,8 +88,9 @@ final class ChannelValidationImpl implements IChannelValidation {
                 .sorted(Comparator.comparing(ver -> ver.getNotNullStartDate()))
                 .collect(Collectors.toList());
         Optional<IValidationRuleSetVersion> lastVersion = versions.stream()
-                .reduce((a, b) -> {
-                    a.setEndDate(b.getNotNullStartDate());
+                .sequential()
+                .reduce((a,b) -> {
+                    b.setEndDate(a.getNotNullStartDate());
                     return b;
                 });
         /*versions.forEach((currentVersion) ->
