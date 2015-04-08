@@ -12,10 +12,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-
-import java.time.Instant;
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +20,9 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -121,7 +119,7 @@ public class MeteringServiceImplTest {
         ReadingStorer storer = meteringService.createOverrulingStorer();
 
         assertThat(storer).isInstanceOf(ReadingStorerImpl.class); // implementation specific, but saves us verifying the contract of the returned instance
-        verify(idsService).createStorer(true);
+        verify(idsService).createOverrulingStorer();
     }
 
     @Test
@@ -129,7 +127,7 @@ public class MeteringServiceImplTest {
         ReadingStorer storer = meteringService.createNonOverrulingStorer();
 
         assertThat(storer).isInstanceOf(ReadingStorerImpl.class); // implementation specific, but saves us verifying the contract of the returned instance
-        verify(idsService).createStorer(false);
+        verify(idsService).createNonOverrulingStorer();
     }
 
     @Test

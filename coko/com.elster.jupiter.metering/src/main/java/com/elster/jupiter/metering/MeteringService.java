@@ -14,6 +14,8 @@ public interface MeteringService {
 
     ServiceLocation newServiceLocation();
 
+    ReadingStorer createUpdatingStorer();
+
     ReadingStorer createOverrulingStorer();
 
     ReadingStorer createNonOverrulingStorer();

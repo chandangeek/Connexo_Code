@@ -39,7 +39,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -145,6 +144,7 @@ public class ReadingQualityImplIT {
 
     }
 
+    @Test
     public void testDelete() {
         getTransactionService().execute(new VoidTransaction() {
             @Override
@@ -187,10 +187,10 @@ public class ReadingQualityImplIT {
         MeterActivation meterActivation = usagePoint.activate(date);
         Channel channel = meterActivation.createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();
-        regularStorer.addReading(channel, IntervalReadingImpl.of(date, BigDecimal.valueOf(561561, 2)));
+        regularStorer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(date, BigDecimal.valueOf(561561, 2)));
         regularStorer.execute();
         BaseReadingRecord reading = channel.getReading(date).get();
-        ReadingQualityRecord readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);
+        ReadingQualityRecord readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), readingType, reading);
         readingQuality.save();
         return readingQuality;
     }

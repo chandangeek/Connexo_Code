@@ -1,11 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 
-import static com.elster.jupiter.ids.FieldType.INSTANT;
-import static com.elster.jupiter.ids.FieldType.LONGINTEGER;
-import static com.elster.jupiter.ids.FieldType.NUMBER;
-import static com.elster.jupiter.ids.FieldType.TEXT;
-
 import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
@@ -21,8 +16,15 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Optional;
 
+import static com.elster.jupiter.ids.FieldType.*;
+
 
 public enum RecordSpecs {
+	/*
+		0 : process status
+		1 : profile status
+		2 : reading value
+	 */
 	SINGLEINTERVAL("Single Interval Data",true) {
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {			
@@ -41,8 +43,22 @@ public enum RecordSpecs {
 			result[2] = reading.getValue();
 			return result;
 		}
+
+		@Override
+		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+			if (slotIndex != 0) {
+				throw new IllegalArgumentException();
+			}
+			return toArray(reading, status);
+		}
 	},
-	BULKQUANTITYINTERVAL("Bulk Quantity Interval Data",true) {  
+	/*
+		0 : process status
+		1 : profile status
+		2 : delta reading value
+		3 : bulk reading value
+	 */
+	BULKQUANTITYINTERVAL("Bulk Quantity Interval Data",true) {
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {
 			recordSpec.addDerivedFieldSpec("Value", "Bulk", NUMBER, FieldDerivationRule.DELTAFROMPREVIOUS);
@@ -60,7 +76,28 @@ public enum RecordSpecs {
 			result[status.get(ProcessStatus.Flag.EDITED) ? 2 : 3] = reading.getValue();
 			return result;
 		}
+
+		@Override
+		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+			if (slotIndex != 0 && slotIndex != 1) {
+				throw new IllegalArgumentException();
+			}
+			Object[] result = new Object[4];
+			result[0] = status.getBits();
+			if (reading instanceof IntervalReading) {
+				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
+			} else {
+				result[1] = 0L;
+			}
+			result[2 + slotIndex] = reading.getValue();
+			return result;
+		}
 	},
+	/*
+		0 : process status
+		1 : profile status
+		2 - 7 : reading values
+	 */
 	MULTIINTERVAL("Multi Interval Data",true) {
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {
@@ -76,7 +113,28 @@ public enum RecordSpecs {
 		Object[] toArray(BaseReading reading, ProcessStatus status) {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+			if (slotIndex < 0 || slotIndex > 5) {
+				throw new IllegalArgumentException();
+			}
+			Object[] result = new Object[8];
+			result[0] = status.getBits();
+			if (reading instanceof IntervalReading) {
+				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
+			} else {
+				result[1] = 0L;
+			}
+			result[2 + slotIndex] = reading.getValue();
+			return result;
+		}
 	},
+	/*
+		0 : process status
+		1 : reading value
+		2 : text
+	 */
 	BASEREGISTER("Base Register",false) {
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {
@@ -92,7 +150,22 @@ public enum RecordSpecs {
 			result[2] = ((Reading) reading).getText();
 			return result;
 		}
+
+		@Override
+		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+			if (slotIndex != 0) {
+				throw new IllegalArgumentException();
+			}
+			return toArray(reading, status);
+		}
 	},
+	/*
+		0 : process status
+		1 : reading value
+		2 : text
+		3 : time period start
+		4 : time period end
+	 */
 	BILLINGPERIOD("Billing Period Register",false) {
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {
@@ -119,7 +192,15 @@ public enum RecordSpecs {
 			return result;
 		}
 
-        @Override
+		@Override
+		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+			if (slotIndex != 0) {
+				throw new IllegalArgumentException();
+			}
+			return toArray(reading, status);
+		}
+
+		@Override
         void validateValues(BaseReading reading, Object[] values) {
             reading.getTimePeriod().ifPresent(range -> {
                 // We can't set error to the timestamp field because it is inactive for edit register
@@ -177,7 +258,9 @@ public enum RecordSpecs {
 	
 	abstract Object[] toArray(BaseReading reading, ProcessStatus status);
 
-    public Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values) {
+	abstract Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status);
+
+	public Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values) {
         return Optional.empty();
     }
 

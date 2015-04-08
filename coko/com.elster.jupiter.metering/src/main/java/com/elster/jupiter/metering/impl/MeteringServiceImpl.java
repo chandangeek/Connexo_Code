@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -53,7 +52,6 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -172,12 +170,17 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Override
     public ReadingStorer createOverrulingStorer() {
-        return new ReadingStorerImpl(idsService, eventService, true);
+        return ReadingStorerImpl.createOverrulingStorer(idsService, eventService);
     }
 
     @Override
     public ReadingStorer createNonOverrulingStorer() {
-        return new ReadingStorerImpl(idsService, eventService, false);
+        return ReadingStorerImpl.createNonOverrulingStorer(idsService, eventService);
+    }
+
+    @Override
+    public ReadingStorer createUpdatingStorer() {
+        return ReadingStorerImpl.createUpdatingStorer(idsService, eventService);
     }
 
     @Override

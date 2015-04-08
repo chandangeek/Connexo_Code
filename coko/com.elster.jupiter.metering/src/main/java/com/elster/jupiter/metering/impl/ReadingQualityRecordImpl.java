@@ -5,10 +5,12 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -29,6 +31,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     private transient ReadingQualityType type;
     private transient Optional<BaseReadingRecord> baseReadingRecord;
     private Reference<Channel> channel = ValueReference.absent();
+    private Reference<ReadingType> readingType = ValueReference.absent();
 
     private long version;
     @SuppressWarnings("unused")
@@ -49,8 +52,9 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         this.actual = true;
     }
 
-    ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, BaseReading baseReading) {
-        this.channel.set(channel);
+    ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading) {
+        this.channel.set(cimChannel.getChannel());
+        this.readingType.set(cimChannel.getReadingType());
         if (baseReading instanceof BaseReadingRecord) {
         	this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
         }
@@ -60,20 +64,31 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         return this;
     }
 
-    ReadingQualityRecordImpl init(ReadingQualityType type, Channel channel, Instant timestamp) {
-        this.channel.set(channel);
+    ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, Instant timestamp) {
+        this.channel.set(cimChannel.getChannel());
+        this.readingType.set(cimChannel.getReadingType());
         readingTimestamp = timestamp;
         this.type = type;
         this.typeCode = type.getCode();
         return this;
     }
 
-    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, BaseReading baseReading) {
-        return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, channel, baseReading);
+    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading) {
+        return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, cimChannel, baseReading);
     }
 
-    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, Instant timestamp) {
-        return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, channel, timestamp);
+    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, CimChannel cimChannel, Instant timestamp) {
+        return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, cimChannel, timestamp);
+    }
+
+    @Override
+    public CimChannel getCimChannel() {
+        return getChannel().getCimChannel(getReadingType()).get();
+    }
+
+    @Override
+    public ReadingType getReadingType() {
+        return readingType.get();
     }
 
     @Override

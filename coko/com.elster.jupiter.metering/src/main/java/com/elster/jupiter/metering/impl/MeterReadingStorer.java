@@ -26,17 +26,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.google.common.collect.Range;
 
-import java.time.Instant;
-import java.util.Optional;
-
 import javax.inject.Provider;
-
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -199,7 +197,11 @@ public class MeterReadingStorer {
     private void store(Reading reading, MeterActivation meterActivation) {
         Channel channel = findOrCreateChannel(reading, meterActivation);
         if (channel != null) {
-            readingStorer.addReading(channel, reading);
+            ReadingType readingType = channel.getReadingTypes().stream()
+                    .filter(type -> type.getMRID().equals(reading.getReadingTypeCode()))
+                    .findFirst()
+                    .orElseThrow(IllegalArgumentException::new);
+            readingStorer.addReading(channel.getCimChannel(readingType).get(), reading);
             addedReading(channel, reading);
         }
     }
@@ -224,7 +226,7 @@ public class MeterReadingStorer {
     	}
         Channel channel = findOrCreateChannel(reading, readingType);
         if (channel != null) {
-            readingStorer.addReading(channel, reading);
+            readingStorer.addReading(channel.getCimChannel(readingType).get(), reading);
             addedReading(channel, reading);
         }
     }
@@ -296,7 +298,7 @@ public class MeterReadingStorer {
         dataModel.mapper(ReadingQualityRecord.class).persist(
                 channelReadings.entrySet().stream()
                         .flatMap(entry -> buildReadingQualities(entry.getKey(), entry.getValue().values()))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.<ReadingQualityRecord>toList()));
     }
 
     private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel, Collection<BaseReading> readings) {
@@ -308,7 +310,7 @@ public class MeterReadingStorer {
     }
 
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
-        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), channel, reading.getTimeStamp());
+        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), channel.getCimChannel(channel.getMainReadingType()).get(), reading.getTimeStamp());
         newReadingQuality.setComment(readingQuality.getComment());
         return newReadingQuality;
     }
