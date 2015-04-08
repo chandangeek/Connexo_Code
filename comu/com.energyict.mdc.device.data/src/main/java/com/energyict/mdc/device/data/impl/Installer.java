@@ -104,14 +104,8 @@ public class Installer {
     }
 
     private void createKpiCalculatorDestination() {
-
-        DestinationSpec destination =
-                this.messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get().
-                        createDestinationSpec(
-                                DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION,
-                                KPI_CALCULATOR_TASK_RETRY_DELAY);
-        destination.activate();
-        destination.subscribe(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER);
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        createMessageHandler(defaultQueueTableSpec, DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER);
     }
 
     private void addTranslation(String componentName, String subscriberName, String subscriberDisplayName) {
