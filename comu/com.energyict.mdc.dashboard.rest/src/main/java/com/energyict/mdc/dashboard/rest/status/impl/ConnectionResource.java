@@ -1,7 +1,12 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
@@ -9,12 +14,16 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.ConnectionTaskSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -47,6 +56,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.stream.Collectors.toSet;
 
 @Path("/connections")
 public class ConnectionResource {
@@ -63,9 +73,12 @@ public class ConnectionResource {
     private final ExceptionFactory exceptionFactory;
     private final MeteringGroupsService meteringGroupsService;
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
+    private final MessageService messageService;
+    private final JsonService jsonService;
+    private final AppService appService;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService, AppService appService) {
         super();
         this.connectionTaskService = connectionTaskService;
         this.engineConfigurationService = engineConfigurationService;
@@ -75,6 +88,9 @@ public class ConnectionResource {
         this.exceptionFactory = exceptionFactory;
         this.meteringGroupsService = meteringGroupsService;
         this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
+        this.messageService = messageService;
+        this.jsonService = jsonService;
+        this.appService = appService;
     }
 
     @GET
@@ -136,7 +152,7 @@ public class ConnectionResource {
                     .stream()
                     .map(protocolPluggableService::findConnectionTypePluggableClass)
                     .flatMap(asStream())
-                    .collect(Collectors.toSet());
+                    .collect(toSet());
         }
 
         filter.latestResults = new HashSet<>();
@@ -193,6 +209,22 @@ public class ConnectionResource {
         return filter;
     }
 
+    private ConnectionTaskFilterSpecificationMessage substituteRestToDomainEnums(ConnectionTaskFilterSpecificationMessage jsonQueryFilter) throws Exception {
+        if (jsonQueryFilter.currentStates!=null) {
+            jsonQueryFilter.currentStates=jsonQueryFilter.currentStates.stream().map(TASK_STATUS_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
+        }
+
+        if (jsonQueryFilter.latestResults!=null) {
+            jsonQueryFilter.latestResults=jsonQueryFilter.latestResults.stream().map(COM_SESSION_SUCCESS_INDICATOR_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
+        }
+
+        if (jsonQueryFilter.latestStates!=null) {
+            jsonQueryFilter.latestStates=jsonQueryFilter.latestStates.stream().map(CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
+        }
+
+        return jsonQueryFilter;
+    }
+
     @GET
     @Path("/{connectionId}/latestcommunications")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -216,6 +248,7 @@ public class ConnectionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    // TODO Would be better if this method moved to ConnectionResource in device.data.rest
     public Response runConnectionTask(@PathParam("connectionId") long connectionId, @Context UriInfo uriInfo) {
         ConnectionTask connectionTask =
                 connectionTaskService
@@ -228,6 +261,52 @@ public class ConnectionResource {
             throw exceptionFactory.newException(MessageSeeds.RUN_CONNECTIONTASK_IMPOSSIBLE);
         }
         return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/run")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response runConnectionTask(ConnectionsBulkRequestInfo connectionsBulkRequestInfo) throws Exception {
+        if (!verifyAppServerExists(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION)) {
+            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
+        }
+        if (connectionsBulkRequestInfo !=null && connectionsBulkRequestInfo.filter!=null) {
+            Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+            if (destinationSpec.isPresent()) {
+                return processMessagePost(new ItemizeConnectionFilterQueueMessage(substituteRestToDomainEnums(connectionsBulkRequestInfo.filter), "scheduleNow"), destinationSpec.get());
+            } else {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+            }
+
+        } else if (connectionsBulkRequestInfo !=null && connectionsBulkRequestInfo.connections!=null) {
+            Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
+            if (destinationSpec.isPresent()) {
+                connectionsBulkRequestInfo.connections.stream().forEach(c -> processMessagePost(new ConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec.get()));
+                return Response.status(Response.Status.OK).build();
+            } else {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+            }
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    private boolean verifyAppServerExists(String destinationName) {
+        return appService.findAppServers().stream().
+                filter(AppServer::isActive).
+                flatMap(server->server.getSubscriberExecutionSpecs().stream()).
+                map(execSpec->execSpec.getSubscriberSpec().getDestination()).
+                filter(DestinationSpec::isActive).
+                filter(spec->!spec.getSubscribers().isEmpty()).
+                anyMatch(spec -> destinationName.equals(spec.getName()));
+    }
+
+
+    private Response processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
+        String json = jsonService.serialize(message);
+        destinationSpec.message(json).send();
+        return Response.ok().entity("{\"success\":\"true\"}").build();
     }
 
 }

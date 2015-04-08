@@ -1,7 +1,9 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -14,6 +16,7 @@ import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -95,6 +98,10 @@ public class DashboardApplication extends Application implements TranslationKeyP
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile FavoritesService favoritesService;
     private volatile License license;
+    private volatile MessageService messageService;
+    private volatile JsonService jsonService;
+    private volatile AppService appService;
+
     private Clock clock = Clock.systemDefaultZone();
 
     @Reference
@@ -198,9 +205,24 @@ public class DashboardApplication extends Application implements TranslationKeyP
         this.favoritesService = favoritesService;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
     @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
         this.license = license;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
     }
 
     // Only for testing purposes
@@ -259,6 +281,7 @@ public class DashboardApplication extends Application implements TranslationKeyP
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(taskService).to(TaskService.class);
             bind(issueDataCollectionService).to(IssueDataCollectionService.class);
+            bind(messageService).to(MessageService.class);
             bind(issueService).to(IssueService.class);
             bind(BreakdownFactory.class).to(BreakdownFactory.class);
             bind(OverviewFactory.class).to(OverviewFactory.class);
@@ -274,6 +297,8 @@ public class DashboardApplication extends Application implements TranslationKeyP
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(clock).to(Clock.class);
+            bind(jsonService).to(JsonService.class);
+            bind(appService).to(AppService.class);
         }
     }
 

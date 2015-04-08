@@ -1,6 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -12,11 +14,15 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecificationMessage;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
+import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -30,22 +36,25 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-
-import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.dashboard.rest.status.ComServerStatusResource} component.
@@ -382,6 +391,52 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
         return connectionTask;
     }
+
+    @Test
+    public void testRunConnectionsWithFilter() throws Exception {
+        mockAppServers(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
+        when(jsonService.serialize(any())).thenReturn("json");
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(messageService.getDestinationSpec("ItemizeCommFilterQD")).thenReturn(Optional.of(destinationSpec));
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(destinationSpec.message("json")).thenReturn(messageBuilder);
+
+        ComTaskExecutionFilterSpecificationMessage message = new ComTaskExecutionFilterSpecificationMessage();
+        message.currentStates.add("OnHold");
+        message.deviceGroups.add(1003L);
+        message.latestResults.add("IoError");
+        message.deviceTypes.add(1004L);
+        message.deviceTypes.add(1005L);
+        Instant now = Instant.now();
+        message.startIntervalFrom = now;
+        message.startIntervalTo = now.plusSeconds(1);
+        message.finishIntervalFrom = now.plusSeconds(2);
+        message.finishIntervalTo = now.plusSeconds(3);
+        message.comTasks.add(1002L);
+        message.comSchedules.add(1001L);
+
+        CommunicationsBulkRequestInfo info = new CommunicationsBulkRequestInfo();
+        info.filter = message;
+        Response response = target("/communications/run").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(jsonService).serialize(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterQueueMessage);
+        ItemizeCommunicationsFilterQueueMessage itemizeConnectionFilterQueueMessage = (ItemizeCommunicationsFilterQueueMessage) argumentCaptor.getValue();
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.currentStates).containsOnly(TaskStatus.OnHold.name());
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.deviceGroups).containsOnly(1003L);
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.latestResults).containsOnly(CompletionCode.IOError.name());
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.deviceTypes).containsOnly(1004L, 1005L);
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.startIntervalFrom).isEqualTo(now);
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.startIntervalTo).isEqualTo(now.plusSeconds(1));
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.finishIntervalFrom).isEqualTo(now.plusSeconds(2));
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.finishIntervalTo).isEqualTo(now.plusSeconds(3));
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.comTasks).containsOnly(1002L);
+        assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.comSchedules).containsOnly(1001L);
+        assertThat(itemizeConnectionFilterQueueMessage.action).isEqualTo("scheduleNow");
+    }
+
 
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);

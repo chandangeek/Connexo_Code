@@ -1,15 +1,24 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -24,30 +33,24 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
-
-import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.junit.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -159,6 +162,52 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().latestStatuses).contains(ConnectionTask.SuccessIndicator.SUCCESS).contains(ConnectionTask.SuccessIndicator.FAILURE).contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE).hasSize(3);
+    }
+
+    @Test
+    public void testRunConnectionsWithFilter() throws Exception {
+        mockAppServers(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
+        when(jsonService.serialize(any())).thenReturn("json");
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(messageService.getDestinationSpec("ItemizeConnFilterQD")).thenReturn(Optional.of(destinationSpec));
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(destinationSpec.message("json")).thenReturn(messageBuilder);
+
+        ConnectionTaskFilterSpecificationMessage message = new ConnectionTaskFilterSpecificationMessage();
+        message.comPortPools.add(1001L);
+        message.currentStates.add("OnHold");
+        message.connectionTypes.add(1002L);
+        message.deviceGroups.add(1003L);
+        message.latestResults.add("Broken");
+        message.latestStates.add("Failure");
+        message.deviceTypes.add(1004L);
+        message.deviceTypes.add(1005L);
+        Instant now = Instant.now();
+        message.startIntervalFrom = now;
+        message.startIntervalTo = now;
+        message.finishIntervalFrom = now;
+        message.finishIntervalTo = now;
+
+        ConnectionsBulkRequestInfo info = new ConnectionsBulkRequestInfo();
+        info.filter = message;
+        Response response = target("/connections/run").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(jsonService).serialize(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterQueueMessage);
+        ItemizeConnectionFilterQueueMessage itemizeConnectionFilterQueueMessage = (ItemizeConnectionFilterQueueMessage) argumentCaptor.getValue();
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.comPortPools).containsOnly(1001L);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.currentStates).containsOnly(TaskStatus.OnHold.name());
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.connectionTypes).containsOnly(1002L);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.deviceGroups).containsOnly(1003L);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.latestResults).containsOnly(ComSession.SuccessIndicator.Broken.name());
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.latestStates).containsOnly( ConnectionTask.SuccessIndicator.FAILURE.name());
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.deviceTypes).containsOnly(1004L, 1005L);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.startIntervalFrom).isEqualTo(now);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.startIntervalTo).isEqualTo(now);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalFrom).isEqualTo(now);
+        assertThat(itemizeConnectionFilterQueueMessage.connectionTaskFilterSpecification.finishIntervalTo).isEqualTo(now);
     }
 
     @Test
@@ -501,5 +550,6 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS), new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
         return comSchedule;
     }
+
 
 }
