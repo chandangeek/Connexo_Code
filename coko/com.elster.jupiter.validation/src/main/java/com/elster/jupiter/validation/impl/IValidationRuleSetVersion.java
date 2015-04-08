@@ -5,10 +5,13 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface IValidationRuleSetVersion extends ValidationRuleSetVersion{
 
     List<IValidationRule> getRules();
     Instant getNotNullStartDate();
     Instant getNotNullEndDate();
+
+    IValidationRule cloneRule(IValidationRule iValidationRule);
 }

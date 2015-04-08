@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -72,6 +73,8 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
         this.startDate = startDate;
         return this;
     }
+
+
 
     @Override
     public String getDescription() {
@@ -238,6 +241,16 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     public IValidationRule updateRule(long id, String name, boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
         IValidationRule rule = getExistingRule(id);
         return doUpdateRule(rule, name, activeStatus, action,  mRIDs, properties);
+    }
+
+    @Override
+    public IValidationRule cloneRule(IValidationRule iValidationRule){
+        IValidationRule newRule = addRule(iValidationRule.getAction(), iValidationRule.getImplementation(), iValidationRule.getName());
+        List<String> mRIDs = iValidationRule.getReadingTypes().stream().map(readingTypeInfo -> readingTypeInfo.getMRID()).collect(Collectors.toList());
+        updateReadingTypes(newRule, mRIDs);
+        Map<String, Object> properties = iValidationRule.getProperties().stream().collect(Collectors.toMap(ValidationRuleProperties::getName, ValidationRuleProperties::getValue));
+        newRule.setProperties(properties);
+        return newRule;
     }
 
     private IValidationRule doUpdateRule(IValidationRule rule, String name, boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {

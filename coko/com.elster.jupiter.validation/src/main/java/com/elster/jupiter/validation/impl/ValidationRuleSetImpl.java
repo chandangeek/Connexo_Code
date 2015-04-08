@@ -253,9 +253,9 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public IValidationRuleSetVersion addRuleSetVersion(String description, Instant startDate) {
-        ValidationRuleSetVersionImpl newRule = validationRuleSetVersionProvider.get().init(this, description, startDate);
-        versionToSave.add(newRule);
-        return newRule;
+        ValidationRuleSetVersionImpl newRuleSetVersion = validationRuleSetVersionProvider.get().init(this, description, startDate);
+        versionToSave.add(newRuleSetVersion);
+        return newRuleSetVersion;
     }
 
     @Override
@@ -270,9 +270,24 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         if (doGetVersions().anyMatch( candidate -> candidate.equals(iVersion))) {
             iVersion.delete();
         } else {
-            throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided rule set version Id: " + version.getId());
+            throw new IllegalArgumentException("The ruleset " + this.getId() + " doesn't contain provided rule set version Id: " + version.getId());
         }
     }
+    @Override
+    public ValidationRuleSetVersion cloneRuleSetVersion(long ruleSetVersionId, String description, Instant startDate){
+
+        IValidationRuleSetVersion existingVersion = doGetVersions()
+                .filter(v -> v.getId() == ruleSetVersionId)
+                .findFirst().orElseThrow(() ->
+                        new IllegalArgumentException("The ruleset " + this.getId() + " doesn't contain provided rule set version Id: " + ruleSetVersionId));
+
+        IValidationRuleSetVersion clonedVersion = addRuleSetVersion(description, startDate);
+        existingVersion
+                .getRules()
+                .stream().map(clonedVersion::cloneRule);
+        return clonedVersion;
+    }
+
 
     private IValidationRuleSetVersion doUpdateVersion(IValidationRuleSetVersion version, String description, Instant startDate) {
         version.setDescription(description);
