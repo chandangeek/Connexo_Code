@@ -170,7 +170,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
-        //doGetVersions().forEach(version -> Save.UPDATE.save(dataModel, version));
         doGetVersions().forEach( version -> version.save());
         eventService.postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
