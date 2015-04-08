@@ -12,6 +12,8 @@ public class ValidationRuleSetVersionInfo{
     public long id;
     public String description;
     public Instant startDate;
+    public Instant endDate;
+    public boolean current;
     public ValidationRuleSetInfo ruleSet;
 
     public ValidationRuleSetVersionInfo() {
@@ -27,8 +29,10 @@ public class ValidationRuleSetVersionInfo{
 
     private void doPopulate(ValidationRuleSetVersion validationRuleSetVersion){
         id = validationRuleSetVersion.getId();
+        current = validationRuleSetVersion.isCurrent();
         description = validationRuleSetVersion.getDescription();
         startDate = validationRuleSetVersion.getStartDate();
+        endDate = validationRuleSetVersion.getEndDate();
         ruleSet = new ValidationRuleSetInfo(validationRuleSetVersion.getRuleSet());
     }
 }
