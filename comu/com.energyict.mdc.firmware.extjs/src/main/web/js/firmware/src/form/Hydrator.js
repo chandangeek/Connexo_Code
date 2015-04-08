@@ -17,6 +17,13 @@ Ext.define('Fwc.form.Hydrator', {
      */
     hydrate: function (data, object) {
         object.set(_.pick(data, object.fields.keys));
+
+        //clean up on stores
+        object.associations.each(function (item) {
+            if (item.type === 'hasMany') {
+                object[item.storeName].removeAll();
+            }
+        });
         object.getProxy().getReader().readAssociated(object, data);
     }
 });
