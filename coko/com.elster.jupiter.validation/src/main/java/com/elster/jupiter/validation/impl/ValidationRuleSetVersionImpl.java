@@ -28,6 +28,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
+import com.google.common.collect.Range;
 
 public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
     private long id;
@@ -87,6 +88,10 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
         return startDate;
     }
 
+    @Override
+    public Instant getEndDate() {
+        return endDate;
+    }
 
     @Override
     public Instant getNotNullStartDate() {
@@ -115,6 +120,11 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     @Override
     public long getVersion() {
         return version;
+    }
+
+    @Override
+    public boolean isCurrent() {
+        return Range.openClosed(getNotNullStartDate(), getNotNullEndDate()).contains(Instant.now());
     }
 
     Instant getCreateTime() {

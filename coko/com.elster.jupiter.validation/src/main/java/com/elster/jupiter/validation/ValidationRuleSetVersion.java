@@ -16,7 +16,10 @@ public interface ValidationRuleSetVersion {
 
     Instant getStartDate();
 
+    Instant getEndDate();
+
     void setStartDate(Instant startDate);
+    void setEndDate(Instant endDate);
 
     void save();
 
@@ -41,5 +44,7 @@ public interface ValidationRuleSetVersion {
     boolean isObsolete();
 
     long getVersion();
+
+    boolean isCurrent();
 
 }

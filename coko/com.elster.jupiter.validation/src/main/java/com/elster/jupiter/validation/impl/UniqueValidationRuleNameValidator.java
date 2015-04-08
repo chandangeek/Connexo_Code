@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -22,11 +23,11 @@ public class UniqueValidationRuleNameValidator implements ConstraintValidator<Un
 
     @Override
     public boolean isValid(ValidationRule rule, ConstraintValidatorContext context) {
-        return rule == null || !(hasEquallyNamedRule(rule.getRuleSet(), rule, context));
+        return rule == null || !(hasEquallyNamedRule(rule.getRuleSetVersion(), rule, context));
     }
 
-    private boolean hasEquallyNamedRule(ValidationRuleSet ruleSet, ValidationRule rule, ConstraintValidatorContext context) {
-        for (ValidationRule existingRule : ruleSet.getRules()) {
+    private boolean hasEquallyNamedRule(ValidationRuleSetVersion ruleSetVersion, ValidationRule rule, ConstraintValidatorContext context) {
+        for (ValidationRule existingRule : ruleSetVersion.getRules()) {
             if (!rule.isObsolete() && areDifferentWithSameName(rule, existingRule)) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();

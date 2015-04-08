@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.google.common.collect.Range;
 
 final class ChannelValidationImpl implements IChannelValidation {
@@ -79,27 +80,6 @@ final class ChannelValidationImpl implements IChannelValidation {
     			.map(IValidationRule.class::cast)
     			.filter(rule -> rule.appliesTo(getChannel()))    			
                 .collect(Collectors.toList());
-    }
-
-    private List<IValidationRuleSetVersion> getUpdatedRuleSetVersions() {
-        //Optional<IValidationRuleSetVersion> previousVersion = Optional.empty();
-        List<IValidationRuleSetVersion> versions = getMeterActivationValidation().getRuleSet().getRuleSetVersions().stream()
-                .map(IValidationRuleSetVersion.class::cast)
-                .sorted(Comparator.comparing(ver -> ver.getNotNullStartDate()))
-                .collect(Collectors.toList());
-        Optional<IValidationRuleSetVersion> lastVersion = versions.stream()
-                .sequential()
-                .reduce((a,b) -> {
-                    b.setEndDate(a.getNotNullStartDate());
-                    return b;
-                });
-        /*versions.forEach((currentVersion) ->
-        {
-            if (previousVersion.isPresent()) {
-                previousVersion.get().setEndDate(currentVersion.getNotNullStartDate());
-            }
-        });*/
-        return versions;
     }
 
     private List<IValidationRule> activeRulesOfVersion(IValidationRuleSetVersion version) {
@@ -169,10 +149,11 @@ final class ChannelValidationImpl implements IChannelValidation {
     		return;
     	}
     	Range<Instant> dataRange = Range.openClosed(lastChecked, end);
-        List<IValidationRuleSetVersion> versions = getUpdatedRuleSetVersions();
+        List<? extends ValidationRuleSetVersion>  versions = getMeterActivationValidation().getRuleSet().getRuleSetVersions();
 
         Instant newLastChecked = versions.stream()
-                .filter(cv -> dataRange.intersection(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())).isEmpty())
+                .map(IValidationRuleSetVersion.class::cast)
+                .filter(cv -> !dataRange.intersection(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())).isEmpty())
                 .flatMap(currentVersion ->
                 {
                     Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));

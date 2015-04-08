@@ -197,9 +197,16 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public List<IValidationRuleSetVersion> getRuleSetVersions() {
-        return doGetVersions()
-                .sorted(Comparator.comparing(ver -> Optional.ofNullable(ver.getStartDate()).orElse(Instant.EPOCH)))
+        List<IValidationRuleSetVersion> versions = doGetVersions()
+                .sorted(Comparator.comparing(ver -> ver.getNotNullStartDate()))
                 .collect(Collectors.toList());
+        versions.stream()
+                .sequential()
+                .reduce((a, b) -> {
+                    a.setEndDate(b.getStartDate()); // set End Date;
+                    return b;
+                });
+        return versions;
     }
 
     private Stream<IValidationRuleSetVersion> doGetVersions() {
@@ -222,14 +229,20 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public List<IValidationRuleSetVersion> getRuleSetVersions(int start, int limit) {
-        return Collections.unmodifiableList(
-                getRuleSetVersionQuery().select(
-                        Where.where("ruleSet").isEqualTo(this),
-                        new Order[]{Order.ascending("startDate").toUpperCase()},
-                        false,
-                        new String[]{},
-                        start + 1,
-                        start + limit));
+        List<IValidationRuleSetVersion> versions = getRuleSetVersionQuery().select(
+                Where.where("ruleSet").isEqualTo(this),
+                new Order[]{Order.ascending("startDate").toUpperCase().nullsFirst()},
+                false,
+                new String[]{},
+                start + 1,
+                start + limit);
+        versions.stream()
+            .sequential()
+            .reduce((a, b) -> {
+                a.setEndDate(b.getStartDate()); // set End Date;
+                return b;
+            });
+        return Collections.unmodifiableList(versions);
     }
 
     private QueryExecutor<IValidationRuleSetVersion> getRuleSetVersionQuery() {

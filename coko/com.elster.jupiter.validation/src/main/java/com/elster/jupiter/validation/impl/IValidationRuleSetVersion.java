@@ -9,8 +9,6 @@ import java.util.List;
 public interface IValidationRuleSetVersion extends ValidationRuleSetVersion{
 
     List<IValidationRule> getRules();
-
     Instant getNotNullStartDate();
-    void setEndDate(Instant endDate);
     Instant getNotNullEndDate();
 }
