@@ -260,9 +260,9 @@ public class AuthorizedActionRequestFactoryIT {
         StateTransitionEventTypeInfo eventTypeInfo = new StateTransitionEventTypeInfo();
         eventTypeInfo.symbol = AuthorizedActionRequestFactoryIT.EVENT_TYPE_TOPIC;
         DeviceLifeCycleStateInfo fromState = new DeviceLifeCycleStateInfo();
-        fromState.id = finiteStateMachine.getState("A").get().getId();
+        fromState.id = finiteStateMachine.getState("C").get().getId();
         DeviceLifeCycleStateInfo toState = new DeviceLifeCycleStateInfo();
-        toState.id = finiteStateMachine.getState("C").get().getId();
+        toState.id = finiteStateMachine.getState("A").get().getId();
         AuthorizedActionInfo info = new AuthorizedActionInfo();
         info.name = "A new transition";
         info.fromState = fromState;
