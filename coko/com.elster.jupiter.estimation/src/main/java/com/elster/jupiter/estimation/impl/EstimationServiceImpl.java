@@ -64,6 +64,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     static final String SUBSCRIBER_NAME = "EstimationTask";
     private final List<EstimatorFactory> estimatorFactories = new CopyOnWriteArrayList<>();
     private final List<EstimationResolver> resolvers = new CopyOnWriteArrayList<>();
+    private final EstimationEngine estimationEngine = new EstimationEngine();
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
@@ -206,7 +207,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public EstimationReport estimate(MeterActivation meterActivation) {
         EstimationReportImpl report = previewEstimate(meterActivation);
-        new EstimationEngine().applyEstimations(report);
+        estimationEngine.applyEstimations(report);
         return report;
     }
 
@@ -371,7 +372,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     private List<EstimationBlock> getBlocksToEstimate(MeterActivation meterActivation, ReadingType readingType) {
-        return new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+        return estimationEngine.findBlocksToEstimate(meterActivation, readingType);
     }
 
     @Reference

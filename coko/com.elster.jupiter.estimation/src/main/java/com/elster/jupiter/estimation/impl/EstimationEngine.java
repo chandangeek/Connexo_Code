@@ -52,7 +52,7 @@ class EstimationEngine {
                 .orElseGet(() -> new MissingReadingRecordEstimatable(readingQualityRecord.getReadingTimestamp()));
     }
 
-    public void applyEstimations(EstimationReportImpl report) {
+    void applyEstimations(EstimationReportImpl report) {
         Map<CimChannelKey, List<EstimationBlock>> map = report.getResults().values().stream()
                 .flatMap(estimationResult -> estimationResult.estimated().stream())
                 .collect(Collectors.groupingBy(CimChannelKey::of));
@@ -102,9 +102,10 @@ class EstimationEngine {
             this.estimationBlock = estimationBlock;
         }
 
-        private Stream<BaseReading> getReadings() {
+        private Stream<? extends BaseReading> getReadings() {
             return estimationBlock.estimatables().stream()
-                    .map(estimatable -> ReadingImpl.of(null, estimatable.getEstimation(), estimatable.getTimestamp()));
+                    .map(estimatable -> ReadingImpl.of(null, estimatable.getEstimation(), estimatable.getTimestamp()))
+                    .peek(reading -> reading.addQuality(estimationBlock.getReadingQualityType().getCode()));
         }
     }
 
