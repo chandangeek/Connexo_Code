@@ -283,8 +283,9 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
         IValidationRuleSetVersion clonedVersion = addRuleSetVersion(description, startDate);
         existingVersion
-                .getRules()
-                .stream().map(clonedVersion::cloneRule);
+            .getRules()
+            .stream()
+            .forEach(clonedVersion::cloneRule);
         return clonedVersion;
     }
 
