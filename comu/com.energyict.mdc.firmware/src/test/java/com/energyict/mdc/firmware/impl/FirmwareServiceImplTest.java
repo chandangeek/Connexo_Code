@@ -25,7 +25,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds();
 
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
-        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
         assertThat(options).isEmpty();
     }
@@ -35,7 +35,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
 
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
-        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
         assertThat(options).hasSize(1);
@@ -47,7 +47,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER);
 
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
-        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
         assertThat(options).hasSize(1);
@@ -59,7 +59,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE);
 
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
-        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
         assertThat(options).hasSize(1);
@@ -74,7 +74,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         );
 
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
-        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
         assertThat(options).hasSize(2);
@@ -92,7 +92,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         );
 
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
-        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
         assertThat(options).hasSize(3);
@@ -116,7 +116,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
         );
 
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
-        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
         assertThat(options).isNotEmpty();
         assertThat(options).hasSize(3);
