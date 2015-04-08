@@ -78,10 +78,10 @@ public class DeviceLifeCycleStateResource {
     public Response addDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, DeviceLifeCycleStateInfo stateInfo) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
-        fsmUpdater.newCustomState(stateInfo.name).complete();
-        FiniteStateMachine fsm = fsmUpdater.complete();
-        Optional<State> newState = fsm.getState(stateInfo.name);
-        return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(newState.get())).build();
+        State newState = fsmUpdater.newCustomState(stateInfo.name).complete();
+        boolean firstState = deviceLifeCycle.getFiniteStateMachine().getStates().isEmpty();
+        FiniteStateMachine fsm = firstState ? fsmUpdater.complete(newState) : fsmUpdater.complete();
+        return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(newState)).build();
     }
 
     @PUT
