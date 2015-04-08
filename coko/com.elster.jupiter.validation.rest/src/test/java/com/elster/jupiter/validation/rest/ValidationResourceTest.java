@@ -564,7 +564,6 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         props.put("listvalue", listValue);
         when(rule.getProps()).thenReturn(props);
 
-        when(validationService.getValidationRule(1)).thenReturn(Optional.of(rule));
         return rule;
     }
 
