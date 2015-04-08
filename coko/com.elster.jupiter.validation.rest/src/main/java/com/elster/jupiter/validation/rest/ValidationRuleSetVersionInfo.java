@@ -10,7 +10,6 @@ import java.time.Instant;
 public class ValidationRuleSetVersionInfo{
 
     public long id;
-    public String name;
     public String description;
     public Instant startDate;
     public ValidationRuleSetInfo ruleSet;
@@ -28,7 +27,6 @@ public class ValidationRuleSetVersionInfo{
 
     private void doPopulate(ValidationRuleSetVersion validationRuleSetVersion){
         id = validationRuleSetVersion.getId();
-        name = validationRuleSetVersion.getName();
         description = validationRuleSetVersion.getDescription();
         startDate = validationRuleSetVersion.getStartDate();
         ruleSet = new ValidationRuleSetInfo(validationRuleSetVersion.getRuleSet());

@@ -526,7 +526,6 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         ValidationRuleSetVersion ruleSetVersion = mock(ValidationRuleSetVersion.class);
         when(ruleSetVersion.getDescription()).thenReturn("descriptionOfVersion");
         when(ruleSetVersion.getId()).thenReturn(id);
-        when(ruleSetVersion.getName()).thenReturn("nameOfVersion");
         when(ruleSetVersion.getStartDate()).thenReturn(date);
         return ruleSetVersion;
     }

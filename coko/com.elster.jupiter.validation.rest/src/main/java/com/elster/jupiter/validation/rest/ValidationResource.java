@@ -177,7 +177,7 @@ public class ValidationResource {
                     ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
                             ()-> new WebApplicationException(Response.Status.NOT_FOUND));
 
-                    ValidationRuleSetVersion version = ruleSet.addRuleSetVersion(info.name, info.description, info.startDate);
+                    ValidationRuleSetVersion version = ruleSet.addRuleSetVersion(info.description, info.startDate);
                     ruleSet.save();
                     return new ValidationRuleSetVersionInfo(version);
                 });
@@ -230,7 +230,7 @@ public class ValidationResource {
                     throw new WebApplicationException(Response.Status.NOT_FOUND);
                 }
 
-                ruleSetRef.get().updateRuleSetVersion(info.id,info.name, info.description, info.startDate);
+                ruleSetRef.get().updateRuleSetVersion(info.id, info.description, info.startDate);
                 ruleSetRef.get().save();
                 return null;
             }
