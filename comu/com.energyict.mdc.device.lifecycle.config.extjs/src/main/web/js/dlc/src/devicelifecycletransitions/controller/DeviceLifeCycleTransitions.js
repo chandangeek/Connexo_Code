@@ -47,6 +47,9 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             },
             'device-life-cycle-transitions-add #no-states button': {
                 click: this.redirectToAddStatePage
+            },
+            'device-life-cycle-transitions-add #transition-triggered-by-combo': {
+                change: this.proposeTransitionName
             }
         });
     },
@@ -199,6 +202,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             privilegesArray = [];
 
         if (!formErrorsPanel.isHidden()) {
+            formErrorsPanel.setText(formErrorsPanel.defaultText);
             form.getForm().clearInvalid();
             formErrorsPanel.hide();
         }
@@ -229,6 +233,12 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
                 if (json && json.errors) {
                     form.getForm().markInvalid(json.errors);
                     formErrorsPanel.show();
+                    Ext.Array.each(json.errors, function (item) {
+                        if (item.id.indexOf('duplicate') !== -1) {
+                            formErrorsPanel.setText(item.msg);
+                            formErrorsPanel.doLayout();
+                        }
+                    });
                 }
             }
         })
@@ -288,6 +298,32 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
 
         if (token.search(addStateRegexp) == -1) {
             me.getStore('Dlc.main.store.Clipboard').clear('addTransitionValues');
+        }
+    },
+
+    proposeTransitionName: function (combo) {
+        var me = this,
+            page = me.getAddPage(),
+            numberOfEventTypes = combo.getStore().getCount(),
+            found = false,
+            nameField = page.down('#transition-name'),
+            oldNameValue = nameField.getValue();
+
+        if (!page.edit) {
+            if (oldNameValue == '') {
+                nameField.setValue(combo.getRawValue());
+            } else {
+                var i = 0;
+                while ((i < numberOfEventTypes) && (!found)) {
+                    if (oldNameValue == combo.getStore().data.items[i].data.name) {
+                        found = true;
+                    }
+                    i++;
+                }
+                if (found) {
+                    nameField.setValue(combo.getRawValue());
+                }
+            }
         }
     }
 });

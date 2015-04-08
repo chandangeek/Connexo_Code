@@ -38,6 +38,20 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                         width: 800
                     },
                     {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.triggeredBy', 'DLC', 'Triggered by'),
+                        itemId: 'transition-triggered-by-combo',
+                        name: 'triggeredBy',
+                        width: 500,
+                        required: true,
+                        store: 'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionEventTypes',
+                        editable: false,
+                        emptyText: Uni.I18n.translate('deviceLifeCycleTransitions.add.triggerDefaultMsg', 'DLC', 'Select a trigger event...'),
+                        queryMode: 'local',
+                        displayField: 'name',
+                        valueField: 'symbol'
+                    },
+                    {
                         xtype: 'textfield',
                         name: 'name',
                         itemId: 'transition-name',
@@ -150,20 +164,6 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                 ]
                             }
                         ]
-                    },
-                    {
-                        xtype: 'combobox',
-                        fieldLabel: Uni.I18n.translate('general.triggeredBy', 'DLC', 'Triggered by'),
-                        itemId: 'transition-triggered-by-combo',
-                        name: 'triggeredBy',
-                        width: 500,
-                        required: true,
-                        store: 'Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionEventTypes',
-                        editable: false,
-                        emptyText: Uni.I18n.translate('deviceLifeCycleTransitions.add.triggerDefaultMsg', 'DLC', 'Select a trigger event...'),
-                        queryMode: 'local',
-                        displayField: 'name',
-                        valueField: 'symbol'
                     },
                     {
                         xtype: 'checkboxgroup',
