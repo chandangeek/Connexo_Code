@@ -160,8 +160,8 @@ public class EstimationServiceImplTest {
     }
 
     @Test
-    public void testEstimate() {
-        EstimationReport report = estimationService.estimate(meterActivation);
+    public void testPreviewEstimate() {
+        EstimationReport report = estimationService.previewEstimate(meterActivation);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
