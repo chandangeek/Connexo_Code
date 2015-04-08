@@ -17,6 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -42,6 +43,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toMap;
 
@@ -220,6 +222,24 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
+    public Optional<StateTransitionEventType> findStateTransitionEventTypeBySymbol(String symbol) {
+        Condition custom = where("class").isEqualTo(StateTransitionEventTypeImpl.CUSTOM)
+                .and(where(StateTransitionEventTypeImpl.Fields.SYMBOL.fieldName()).isEqualTo(symbol));
+        Condition standard = where("class").isEqualTo(StateTransitionEventTypeImpl.STANDARD)
+                .and(where(StateTransitionEventTypeImpl.Fields.EVENT_TYPE.fieldName() + ".topic").isEqualTo(symbol));
+        List<StateTransitionEventType> eventTypes = this.dataModel.query(StateTransitionEventType.class, com.elster.jupiter.events.EventType.class).select(custom.or(standard));
+        if (eventTypes.isEmpty()) {
+            return Optional.empty();
+        }
+        else if (eventTypes.size() > 1) {
+            throw new NotUniqueException(symbol);
+        }
+        else {
+            return Optional.of(eventTypes.get(0));
+        }
+    }
+
+    @Override
     public List<StateTransitionEventType> getStateTransitionEventTypes() {
         return this.dataModel.query(StateTransitionEventType.class).select(Condition.TRUE);
     }
@@ -334,7 +354,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     @Override
     public List<FiniteStateMachine> findFiniteStateMachinesUsing(StateTransitionEventType eventType) {
-        Condition eventTypeMatches = Where.where(FiniteStateMachineImpl.Fields.TRANSITIONS.fieldName() + "." + StateTransitionImpl.Fields.EVENT_TYPE.fieldName()).isEqualTo(eventType);
+        Condition eventTypeMatches = where(FiniteStateMachineImpl.Fields.TRANSITIONS.fieldName() + "." + StateTransitionImpl.Fields.EVENT_TYPE.fieldName()).isEqualTo(eventType);
         return this.dataModel
                 .query(FiniteStateMachine.class, StateTransition.class)
                 .select(eventTypeMatches);

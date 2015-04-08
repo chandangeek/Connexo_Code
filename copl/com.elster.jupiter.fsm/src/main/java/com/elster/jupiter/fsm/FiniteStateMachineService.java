@@ -61,6 +61,15 @@ public interface FiniteStateMachineService {
     public Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType);
 
     /**
+     * Finds the {@link StateTransitionEventType} with the specified unique symbolic representation.
+     *
+     * @param symbol The symbolic representation
+     * @see StateTransitionEventType#getSymbol()
+     * @return The StateTransitionEventType
+     */
+    public Optional<StateTransitionEventType> findStateTransitionEventTypeBySymbol(String symbol);
+
+    /**
      * Gets all the {@link StateTransitionEventType} that have been defined in the system.
      *
      * @return The List of StateTransitionEventType

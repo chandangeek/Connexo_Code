@@ -2,13 +2,16 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.junit.*;
 
@@ -105,6 +108,71 @@ public class FiniteStateMachineServiceImplIT {
             // Asserts
             assertThat(service.getStateTransitionEventTypes()).hasSize(
                     inMemoryPersistence.getService(EventService.class).getEventTypes().size());
+        }
+        finally {
+            this.deleteAllStandardStateTransitionEventTypesIfAny();
+        }
+    }
+
+    @Test
+    public void findBySymbolThatDoesNotExist() {
+        TransactionService transactionService = inMemoryPersistence.getService(TransactionService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            FiniteStateMachineServiceImpl service = this.getTestService();
+
+            // Business method
+            Optional<StateTransitionEventType> eventType = service.findStateTransitionEventTypeBySymbol("#findBySymbolThatDoesNotExist");
+            context.commit();
+
+            // Asserts
+            assertThat(eventType.isPresent()).isFalse();
+
+        }
+        finally {
+            this.deleteAllStandardStateTransitionEventTypesIfAny();
+        }
+    }
+
+    @Test
+    public void findBySymbolForCustomEventType() {
+        TransactionService transactionService = inMemoryPersistence.getService(TransactionService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            FiniteStateMachineServiceImpl service = this.getTestService();
+            String symbol = "#findBySymbolForCustomEventType";
+            CustomStateTransitionEventType custom = service.newCustomStateTransitionEventType(symbol);
+            custom.save();
+
+            // Business method
+            Optional<StateTransitionEventType> eventType = service.findStateTransitionEventTypeBySymbol(symbol);
+            context.commit();
+
+            // Asserts
+            assertThat(eventType.isPresent()).isTrue();
+            assertThat(eventType.get().getSymbol()).isEqualTo(symbol);
+        }
+        finally {
+            this.deleteAllStandardStateTransitionEventTypesIfAny();
+        }
+    }
+
+    @Test
+    public void findBySymbolForStandardEventType() {
+        TransactionService transactionService = inMemoryPersistence.getService(TransactionService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            FiniteStateMachineServiceImpl service = this.getTestService();
+            String symbol = com.elster.jupiter.fsm.impl.EventType.TRIGGER_EVENT.topic();
+            EventService eventService = inMemoryPersistence.getService(EventService.class);
+            EventType standardEventType = eventService.getEventType(symbol).get();
+            StandardStateTransitionEventType standard = service.newStandardStateTransitionEventType(standardEventType);
+            standard.save();
+
+            // Business method
+            Optional<StateTransitionEventType> eventType = service.findStateTransitionEventTypeBySymbol(symbol);
+            context.commit();
+
+            // Asserts
+            assertThat(eventType.isPresent()).isTrue();
+            assertThat(eventType.get().getSymbol()).isEqualTo(symbol);
         }
         finally {
             this.deleteAllStandardStateTransitionEventTypesIfAny();
