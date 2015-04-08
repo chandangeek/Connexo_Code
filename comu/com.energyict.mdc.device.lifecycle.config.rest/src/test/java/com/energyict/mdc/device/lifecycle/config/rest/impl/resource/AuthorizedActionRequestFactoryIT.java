@@ -52,7 +52,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizedActionRequestFactoryIT {
 
-    private static final String EVENT_TYPE_TOPIC = "#whatever";
+    private static final String EVENT_TYPE_1 = "#whatever";
+    private static final String EVENT_TYPE_2 = "#more";
     private static InMemoryPersistence inMemoryPersistence;
 
     @Rule
@@ -77,8 +78,7 @@ public class AuthorizedActionRequestFactoryIT {
 
     private static FiniteStateMachine createFiniteStateMachine() {
         FiniteStateMachineService service = inMemoryPersistence.getService(FiniteStateMachineService.class);
-        CustomStateTransitionEventType eventType = service.newCustomStateTransitionEventType(EVENT_TYPE_TOPIC);
-        eventType.save();
+        CustomStateTransitionEventType eventType = createEventTypes();
         FiniteStateMachineBuilder builder = service.newFiniteStateMachine("ABC");
         State b = builder.newCustomState("B").complete();
         State a = builder.newCustomState("A").on(eventType).transitionTo(b).complete();
@@ -88,15 +88,24 @@ public class AuthorizedActionRequestFactoryIT {
         return stateMachine;
     }
 
+    private static CustomStateTransitionEventType createEventTypes() {
+        FiniteStateMachineService service = inMemoryPersistence.getService(FiniteStateMachineService.class);
+        CustomStateTransitionEventType eventType1 = service.newCustomStateTransitionEventType(EVENT_TYPE_1);
+        eventType1.save();
+        CustomStateTransitionEventType eventType2 = service.newCustomStateTransitionEventType(EVENT_TYPE_2);
+        eventType2.save();
+        return eventType1;
+    }
+
     private static DeviceLifeCycle createDeviceLifeCycle(FiniteStateMachine stateMachine) {
         DeviceLifeCycleBuilder builder = getDeviceLifeCycleConfigurationService().newDeviceLifeCycleUsing("ABC", stateMachine);
         stateMachine.getTransitions()
                 .stream()
                 .forEach(t ->
                         builder
-                                .newTransitionAction(t)
-                                .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO)
-                                .complete());
+                            .newTransitionAction(t)
+                            .addLevel(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO)
+                            .complete());
         DeviceLifeCycle deviceLifeCycle = builder.complete();
         deviceLifeCycle.save();
         return deviceLifeCycle;
@@ -258,7 +267,7 @@ public class AuthorizedActionRequestFactoryIT {
         DeviceLifeCyclePrivilegeInfo privilegeInfo = new DeviceLifeCyclePrivilegeInfo();
         privilegeInfo.privilege = "ONE";
         StateTransitionEventTypeInfo eventTypeInfo = new StateTransitionEventTypeInfo();
-        eventTypeInfo.symbol = AuthorizedActionRequestFactoryIT.EVENT_TYPE_TOPIC;
+        eventTypeInfo.symbol = EVENT_TYPE_2;
         DeviceLifeCycleStateInfo fromState = new DeviceLifeCycleStateInfo();
         fromState.id = finiteStateMachine.getState("A").get().getId();
         DeviceLifeCycleStateInfo toState = new DeviceLifeCycleStateInfo();
