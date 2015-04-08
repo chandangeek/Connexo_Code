@@ -145,7 +145,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithVersion() {
-        validationRuleSet.addRuleSetVersion("versionName", "description", Instant.now());
+        validationRuleSet.addRuleSetVersion("description", Instant.now());
 
         validationRuleSet.save();
 
@@ -154,8 +154,8 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithVersions() {
-        validationRuleSet.addRuleSetVersion("versionName", "description", Instant.now());
-        validationRuleSet.addRuleSetVersion("versionName2", "description", Instant.now());
+        validationRuleSet.addRuleSetVersion("description1", Instant.now());
+        validationRuleSet.addRuleSetVersion("description2", Instant.now());
 
         validationRuleSet.save();
 
@@ -164,7 +164,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testDeleteWithVersions() {
-        IValidationRuleSetVersion version1 = validationRuleSet.addRuleSetVersion("versionName", "description", Instant.now());
+        IValidationRuleSetVersion version1 = validationRuleSet.addRuleSetVersion("description1", Instant.now());
         validationRuleSet.save();
         setId(validationRuleSet, ID);
         setId(version1, 1001L);
@@ -180,8 +180,8 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testUpdateWithVersionsPerformsNecessaryDBOperations() {
-        IValidationRuleSetVersion version1 = validationRuleSet.addRuleSetVersion("versionName1", "description", Instant.now());
-        IValidationRuleSetVersion version2 = validationRuleSet.addRuleSetVersion("versionName2", "description", Instant.now());
+        IValidationRuleSetVersion version1 = validationRuleSet.addRuleSetVersion("description1", Instant.now());
+        IValidationRuleSetVersion version2 = validationRuleSet.addRuleSetVersion("description2", Instant.now());
         validationRuleSet.save();
         setId(validationRuleSet, ID);
 
@@ -190,7 +190,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(ruleSetVersionFactory.find()).thenReturn(Arrays.asList(version1, version2));
 
         validationRuleSet.deleteRuleSetVersion(version1);
-        IValidationRuleSetVersion version3 = validationRuleSet.addRuleSetVersion("versionName3", "description", Instant.now());
+        IValidationRuleSetVersion version3 = validationRuleSet.addRuleSetVersion("description3", Instant.now());
 
         validationRuleSet.save();
 
@@ -201,7 +201,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testUpdateVersionAction() {
-        IValidationRuleSetVersion version1 = validationRuleSet.addRuleSetVersion("versionName1", "description", Instant.EPOCH);
+        IValidationRuleSetVersion version1 = validationRuleSet.addRuleSetVersion("description1", Instant.EPOCH);
         validationRuleSet.save();
         setId(validationRuleSet, ID);
         setId(version1, 1001L);
@@ -209,11 +209,10 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         validationRuleSet.save();
         assertThat(version1.getStartDate()).isEqualTo(Instant.EPOCH);
 
-        version1 = validationRuleSet.updateRuleSetVersion(1001L, "versionName2", "description2", Instant.now());
+        version1 = validationRuleSet.updateRuleSetVersion(1001L, "description2", Instant.now());
         validationRuleSet.save();
 
         assertThat(validationRuleSet.getRuleSetVersions()).hasSize(1).contains(version1);
-        assertThat(version1.getName()).isEqualTo("versionName2");
         assertThat(version1.getDescription()).isEqualTo("description2");
 
     }

@@ -238,16 +238,16 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
 
     @Override
-    public IValidationRuleSetVersion addRuleSetVersion(String name, String description, Instant startDate) {
-        ValidationRuleSetVersionImpl newRule = validationRuleSetVersionProvider.get().init(this, name, description, startDate);
+    public IValidationRuleSetVersion addRuleSetVersion(String description, Instant startDate) {
+        ValidationRuleSetVersionImpl newRule = validationRuleSetVersionProvider.get().init(this, description, startDate);
         versionToSave.add(newRule);
         return newRule;
     }
 
     @Override
-    public IValidationRuleSetVersion updateRuleSetVersion(long id, String name, String description, Instant startDate) {
+    public IValidationRuleSetVersion updateRuleSetVersion(long id, String description, Instant startDate) {
         IValidationRuleSetVersion version = getExistingVersion(id);
-        return doUpdateVersion(version, name, description, startDate);
+        return doUpdateVersion(version, description, startDate);
     }
 
     @Override
@@ -260,8 +260,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         }
     }
 
-    private IValidationRuleSetVersion doUpdateVersion(IValidationRuleSetVersion version, String name, String description, Instant startDate) {
-        version.setName(name);
+    private IValidationRuleSetVersion doUpdateVersion(IValidationRuleSetVersion version, String description, Instant startDate) {
         version.setDescription(description);
         version.setStartDate(startDate);
         return version;

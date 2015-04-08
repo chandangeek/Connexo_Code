@@ -10,11 +10,7 @@ public interface ValidationRuleSetVersion {
 
     long getId();
 
-    String getName();
-
     String getDescription();
-
-    void setName(String name);
 
     void setDescription(String description);
 

@@ -32,7 +32,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     private static final long ID = 651L;
     private static final long OTHER_ID = 426294L;
     private static final String NAME = "name";
-    private static final String VERSION_NAME = "versionName";
     private ValidationRuleSetImpl validationRuleSet;
     private ValidationRuleSetVersionImpl validationRuleSetVersion;
 
@@ -77,7 +76,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
         validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, null);
-        validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, VERSION_NAME);
+        validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet);
     }
     @After
     public void tearDown() {
@@ -86,7 +85,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationRuleSetVersion == null) {
-            validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, VERSION_NAME);
+            validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet);
             setId(validationRuleSetVersion, ID);
         }
         return validationRuleSetVersion;
@@ -98,14 +97,14 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ValidationRuleSetVersionImpl set = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, VERSION_NAME);
+        ValidationRuleSetVersionImpl set = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet);
         setId(set, ID);
         return set;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ValidationRuleSetVersionImpl set = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, VERSION_NAME);
+        ValidationRuleSetVersionImpl set = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet);
         setId(set, OTHER_ID);
         return ImmutableList.of(set);
     }
@@ -122,7 +121,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Test
     public void testGetNameAfterCreation() {
-        assertThat(validationRuleSetVersion.getName()).isEqualTo(VERSION_NAME);
+        assertThat(validationRuleSetVersion.getDescription()).isNullOrEmpty();
     }
 
     @Test

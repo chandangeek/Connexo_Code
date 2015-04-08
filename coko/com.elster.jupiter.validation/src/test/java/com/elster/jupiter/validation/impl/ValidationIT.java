@@ -64,7 +64,6 @@ public class ValidationIT {
     private static final String MIN_MAX = "minMax";
     private static final String CONSECUTIVE_ZEROES = "consecutiveZeroes";
     private static final String MY_RULE_SET = "MyRuleSet";
-    private static final String MY_RULE_SET_VERSION = "MyRuleSet";
     private static final String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
     private static final String MIN = "min";
     private static final String MAX = "max";
@@ -155,7 +154,7 @@ public class ValidationIT {
                 validationService.addResource(validatorFactory);
 
                 final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
-                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion(MY_RULE_SET_VERSION, "description", Instant.now());
+                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.now());
                 ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros");
                 zeroesRule.addReadingType(readingType1);
                 zeroesRule.addReadingType(readingType2);

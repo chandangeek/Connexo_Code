@@ -76,7 +76,6 @@ public class ValidationAddRemoveIT {
 
     private static final String MIN_MAX = "minMax";
     private static final String MY_RULE_SET = "MyRuleSet";
-    private static final String MY_RULE_SET_VERSION = "MyRuleSetVersion";
     private static final String MIN = "min";
     private static final String MAX = "max";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -165,7 +164,7 @@ public class ValidationAddRemoveIT {
                 validationService.addResource(validatorFactory);
                 
                 final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
-                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion(MY_RULE_SET_VERSION, "description", Instant.now());
+                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.now());
                 ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
                 minMaxRule.addReadingType(readingType1);
                 minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));

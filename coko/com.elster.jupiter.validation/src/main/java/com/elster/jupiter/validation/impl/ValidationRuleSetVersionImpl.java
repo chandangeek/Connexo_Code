@@ -29,18 +29,9 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
 
-//@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_RULE_SET_VERSION + "}")
-//@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
-    static final String OBSOLETE_TIME_FIELD = "obsoleteTime";
-
     private long id;
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    private String name;
-    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    private String aliasName;
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant startDate;
@@ -70,13 +61,12 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
         this.validationRuleProvider = validationRuleProvider;
     }
 
-    ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet, String name) {
-        return init(validationRuleSet, name, null, null);
+    ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet) {
+        return init(validationRuleSet, null, null);
     }
 
-    ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet, String name, String description, Instant startDate) {
+    ValidationRuleSetVersionImpl init(ValidationRuleSet validationRuleSet, String description, Instant startDate) {
         this.ruleSet.set(validationRuleSet);
-        this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
         this.description = description;
         this.startDate = startDate;
         return this;
@@ -85,11 +75,6 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     @Override
     public String getDescription() {
         return description;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -111,11 +96,6 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
     @Override
     public Instant getNotNullEndDate() {
         return Optional.ofNullable(endDate).orElse(Instant.MAX);
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name != null ? name.trim() : name;
     }
 
     @Override
@@ -204,7 +184,6 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
                 .collect(Collectors.toList());
     }
 
-
     private void addNewRules() {
         rulesToSave.forEach( newRule -> {
             Save.CREATE.validate(dataModel, newRule);
@@ -247,7 +226,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
         return doUpdateRule(rule, name, activeStatus, action,  mRIDs, properties);
     }
 
-    private IValidationRule doUpdateRule(IValidationRule rule, String name,  boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
+    private IValidationRule doUpdateRule(IValidationRule rule, String name, boolean activeStatus, ValidationAction action, List<String> mRIDs, Map<String, Object> properties) {
         rule.rename(name);
         rule.setAction(action);
 
@@ -286,7 +265,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder(getName());
+        StringBuilder builder = new StringBuilder();
         builder.append('\n');
         doGetRules().forEach(rule -> builder.append(rule.toString()).append('\n'));
         return builder.toString();

@@ -36,7 +36,6 @@ public enum TableSpecs {
             table.map(ValidationRuleSetVersionImpl.class);
             table.setJournalTableName("VAL_VALIDRULESETVERSIONJRNL");
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("START_DATE").map("startDate").number().conversion(NUMBER2INSTANT).add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
