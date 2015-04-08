@@ -105,6 +105,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 store: me.store,
                 isFullTotalCount: true,
                 displayMsg: '{2} reading(s)',
+                exportButton: false,
                 items: [
                     {
                         xtype: 'button',
@@ -113,7 +114,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceData'),
                         href: typeof me.router.getRoute('devices/device/channels/channeltableData/editreadings') !== 'undefined'
                             ? me.router.getRoute('devices/device/channels/channeltableData/editreadings').buildUrl(me.router.arguments, me.router.queryParams) : null
-
 
                     }
                 ]
