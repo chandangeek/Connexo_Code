@@ -4,6 +4,7 @@ Ext.define('Fwc.controller.Firmware', {
     views: [
         'Fwc.view.firmware.FirmwareVersions',
         'Fwc.view.firmware.FirmwareOptions',
+        'Fwc.view.firmware.FirmwareOptionsEdit',
         'Fwc.view.firmware.FirmwareAdd',
         'Fwc.view.firmware.FirmwareEdit',
         'Fwc.view.devicetype.SideMenu'
@@ -11,6 +12,7 @@ Ext.define('Fwc.controller.Firmware', {
 
     requires: [
         'Mdc.model.DeviceType',
+        'Fwc.model.FirmwareUpgradeOptions',
         'Fwc.form.Hydrator'
     ],
 
@@ -24,7 +26,8 @@ Ext.define('Fwc.controller.Firmware', {
         {ref: 'firmwareForm', selector: '#firmwareForm'},
         {ref: 'container', selector: 'viewport > #contentPanel'},
         {ref: 'sideFilterForm', selector: 'firmware-versions firmware-side-filter'},
-        {ref: 'filterPanel', selector: 'firmware-versions filter-top-panel'}
+        {ref: 'filterPanel', selector: 'firmware-versions filter-top-panel'},
+        {ref: 'firmwareOptionsEditForm', selector: '#firmwareOptionsEditForm'}
     ],
 
     init: function () {
@@ -60,6 +63,16 @@ Ext.define('Fwc.controller.Firmware', {
             },
             'firmware-versions firmware-side-filter button[action=clearfilter]': {
                 click: this.clearFilter
+            },
+            'firmware-options [action=editFirmwareOptions]': {
+                click: function () {
+                    this.getController('Uni.controller.history.Router')
+                        .getRoute('administration/devicetypes/view/firmwareoptions/edit')
+                        .forward();
+                }
+            },
+            'firmware-options-edit [action=saveOptionsAction]': {
+                click: this.saveOptionsAction
             }
         });
     },
@@ -97,7 +110,9 @@ Ext.define('Fwc.controller.Firmware', {
                 me.getFilterPanel().setFilter(
                     'firmwareStatus',
                     Uni.I18n.translate('firmware.filter.status', 'FWC', 'Status'),
-                    checked.map(function (ch) {return ch.boxLabel; }).join(', ')
+                    checked.map(function (ch) {
+                        return ch.boxLabel;
+                    }).join(', ')
                 );
             }
         }, this, {single: true});
@@ -108,7 +123,9 @@ Ext.define('Fwc.controller.Firmware', {
                 me.getFilterPanel().setFilter(
                     'firmwareType',
                     Uni.I18n.translate('firmware.filter.type', 'FWC', 'Type'),
-                    checked.map(function (ch) {return ch.boxLabel; }).join(', ')
+                    checked.map(function (ch) {
+                        return ch.boxLabel;
+                    }).join(', ')
                 );
             }
         }, this, {single: true});
@@ -163,16 +180,20 @@ Ext.define('Fwc.controller.Firmware', {
 
     addFirmware: function (deviceTypeId) {
         var me = this;
-
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             var firmwareStore = Ext.getStore('Fwc.store.Firmwares'),
                 record = new firmwareStore.model;
 
             record.getProxy().setUrl(deviceType.getId());
             firmwareStore.getProxy().setUrl(deviceType.getId());
-            Ext.getStore('Fwc.store.FirmwareStatuses').addFilter(function (rec) {return ['test', 'final'].indexOf(rec.getId()) >= 0; }, false);
+            Ext.getStore('Fwc.store.FirmwareStatuses').addFilter(function (rec) {
+                return ['test', 'final'].indexOf(rec.getId()) >= 0;
+            }, false);
 
-            me.getApplication().fireEvent('changecontentevent', 'firmware-add', {deviceType: deviceType, record: record});
+            me.getApplication().fireEvent('changecontentevent', 'firmware-add', {
+                deviceType: deviceType,
+                record: record
+            });
         });
     },
 
@@ -183,7 +204,9 @@ Ext.define('Fwc.controller.Firmware', {
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             var firmwareStore = Ext.getStore('Fwc.store.Firmwares');
             container.setLoading();
-            Ext.getStore('Fwc.store.FirmwareStatuses').addFilter(function (rec) {return ['test', 'final'].indexOf(rec.getId()) >= 0; }, false);
+            Ext.getStore('Fwc.store.FirmwareStatuses').addFilter(function (rec) {
+                return ['test', 'final'].indexOf(rec.getId()) >= 0;
+            }, false);
 
             firmwareStore.model.getProxy().setUrl(deviceType.getId());
             firmwareStore.model.load(firmwareId, {
@@ -202,7 +225,7 @@ Ext.define('Fwc.controller.Firmware', {
     },
 
     saveFirmware: function () {
-        var me  = this,
+        var me = this,
             form = me.getFirmwareForm(),
             record;
 
@@ -294,11 +317,72 @@ Ext.define('Fwc.controller.Firmware', {
     },
 
     showFirmwareOptions: function (deviceTypeId) {
-        var me = this;
+        var me = this,
+            container = this.getContainer(),
+            model = me.getModel('Fwc.model.FirmwareUpgradeOptions');
 
         me.loadDeviceType(deviceTypeId, function (deviceType) {
-            me.getApplication().fireEvent('loadDeviceType', deviceType);
             me.getApplication().fireEvent('changecontentevent', 'firmware-options', {deviceType: deviceType});
+            container.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+            var widget = container.down('firmware-options');
+            widget.setLoading();
+
+            model.getProxy().setUrl(deviceTypeId);
+            model.load(1, {
+                success: function (record) {
+                    widget.down('form').loadRecord(record);
+                    widget.down('grid').getStore().loadData(record.get('allowedOptions'));
+                    if (record.get('supportedOptions').length === 0) {
+                        widget.down('button').disable();
+                        widget.down('grid').getStore().loadData([]);
+                    }
+                },
+                callback: function () {
+                    widget.setLoading(false);
+                }
+            });
+        });
+    },
+
+    editFirmwareOptions: function (deviceTypeId) {
+        var me = this,
+            container = this.getContainer(),
+            model = me.getModel('Fwc.model.FirmwareUpgradeOptions');
+
+        model.getProxy().setUrl(deviceTypeId);
+        me.loadDeviceType(deviceTypeId, function (deviceType) {
+            me.getApplication().fireEvent('changecontentevent', 'firmware-options-edit', {deviceType: deviceType});
+            var widget = container.down('firmware-options-edit');
+            widget.setLoading();
+
+            model.load(1, {
+                success: function (record) {
+                    widget.down('form').loadRecord(record);
+                },
+                callback: function () {
+                    widget.setLoading(false);
+                }
+            });
+        });
+    },
+
+    saveOptionsAction: function () {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            form = me.getFirmwareOptionsEditForm();
+
+        form.updateRecord();
+        form.getRecord().save({
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.save.success', 'FWC', 'The firmware upgrade options has been updated'));
+                router.getRoute('administration/devicetypes/view/firmwareoptions').forward();
+            },
+            failure: function (record, operation) {
+                me.setFormErrors(operation.response, form);
+            },
+            callback: function () {
+                form.setLoading(false);
+            }
         });
     }
 });
