@@ -3,13 +3,9 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
-import com.google.common.collect.Range;
 
-import java.time.Instant;
 import java.util.List;
 
 /**
@@ -26,8 +22,8 @@ class ReadingQualityTypedEstimator implements Estimator {
     }
 
     @Override
-    public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-        decorated.init(channel, readingType, interval);
+    public void init() {
+        decorated.init();
     }
 
     @Override
