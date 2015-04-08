@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.rest;
 
 
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationVersionStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
@@ -13,7 +14,7 @@ public class ValidationRuleSetVersionInfo{
     public String description;
     public Instant startDate;
     public Instant endDate;
-    public boolean current;
+    public ValidationVersionStatus status;
     public ValidationRuleSetInfo ruleSet;
 
     public ValidationRuleSetVersionInfo() {
@@ -29,7 +30,7 @@ public class ValidationRuleSetVersionInfo{
 
     private void doPopulate(ValidationRuleSetVersion validationRuleSetVersion){
         id = validationRuleSetVersion.getId();
-        current = validationRuleSetVersion.isCurrent();
+        status = validationRuleSetVersion.getStatus();
         description = validationRuleSetVersion.getDescription();
         startDate = validationRuleSetVersion.getStartDate();
         endDate = validationRuleSetVersion.getEndDate();
