@@ -9,7 +9,7 @@
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
     <artifactId>mdc.dashboard.rest</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.dashboard.rest [init DSR]</name>
 
