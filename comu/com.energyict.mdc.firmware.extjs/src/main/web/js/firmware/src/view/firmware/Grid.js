@@ -15,15 +15,11 @@ Ext.define('Fwc.view.firmware.Grid', {
         {
             text: Uni.I18n.translate('firmware.field.type', 'FWC', 'Type'),
             flex: 1,
-            renderer: function (value, meta, record) {
-                return record.getAssociatedData().firmwareType ? record.getAssociatedData().firmwareType.displayValue : null;
-            }
+            dataIndex: 'type'
         },
         {
             text: Uni.I18n.translate('firmware.field.status', 'FWC', 'Status'),
-            renderer: function (value, meta, record) {
-                return record.getAssociatedData().firmwareStatus ? record.getAssociatedData().firmwareStatus.displayValue : null;
-            }
+            dataIndex: 'status'
         },
         {
             xtype: 'uni-actioncolumn',

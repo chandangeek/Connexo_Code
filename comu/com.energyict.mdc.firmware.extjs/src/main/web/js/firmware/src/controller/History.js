@@ -30,7 +30,15 @@ Ext.define('Fwc.controller.History', {
                     route: '{firmwareId}/edit',
                     controller: 'Fwc.controller.Firmware',
                     privileges: ['privilege.administrate.deviceType'],
-                    action: 'editFirmware'
+                    action: 'editFirmware',
+                    callback: function (route) {
+                        this.getApplication().on('loadFirmware', function (record) {
+                            route.setTitle('Edit \'' + record.get('type') + '-' + record.get('firmwareVersion') + '\'');
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    }
                 }
             }
         },

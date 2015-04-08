@@ -156,7 +156,7 @@ Ext.define('Fwc.controller.Firmware', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'This firmware version will no longer be available.'),
-            title: Uni.I18n.translate('firmware.deprecate.title', 'FWC', 'Deprecate') + " '" + firmware.get('firmwareVersion') + "'?",
+            title: Uni.I18n.translate('firmware.deprecate.title', 'FWC', 'Deprecate') + " '" + firmware.get('type') + '-' + firmware.get('firmwareVersion') + "'?",
             confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate'),
             icon: 'icon-question',
             fn: function (btn) {
@@ -211,6 +211,7 @@ Ext.define('Fwc.controller.Firmware', {
             firmwareStore.model.getProxy().setUrl(deviceType.getId());
             firmwareStore.model.load(firmwareId, {
                 success: function (firmware) {
+                    me.getApplication().fireEvent('loadFirmware', firmware);
                     me.getApplication().fireEvent(
                         'changecontentevent',
                         'firmware-edit',

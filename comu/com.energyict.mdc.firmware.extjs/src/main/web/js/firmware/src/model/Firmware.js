@@ -4,7 +4,23 @@ Ext.define('Fwc.model.Firmware', {
         {name: 'id', type: 'number', useNull: true},
         {name: 'firmwareVersion', type: 'string', useNull: true},
         {name: 'firmwareFile', useNull: true},
-        {name: 'fileSize', type: 'number', useNull: true}
+        {name: 'fileSize', type: 'number', useNull: true},
+        {
+            name: 'type',
+            type: 'string',
+            persist: false,
+            mapping: function (data) {
+                return data.firmwareType ? data.firmwareType.displayValue : '';
+            }
+        },
+        {
+            name: 'status',
+            type: 'string',
+            persist: false,
+            mapping: function (data) {
+                return data.firmwareStatus ? data.firmwareStatus.displayValue : '';
+            }
+        }
     ],
 
     requires: [
@@ -28,7 +44,7 @@ Ext.define('Fwc.model.Firmware', {
     ],
 
     doValidate: function (callback) {
-        var data = this.getData(true);
+        var data = this.getProxy().getWriter().getRecordData(this);
         delete data.firmwareFile;
 
         Ext.Ajax.request({
