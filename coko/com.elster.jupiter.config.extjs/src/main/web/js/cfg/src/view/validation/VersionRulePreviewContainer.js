@@ -12,7 +12,7 @@ Ext.define('Cfg.view.validation.VersionRulePreviewContainer', {
         this.content = [
             {
                 xtype: 'rule-preview-container-panel',
-                ruleSetId: me.ruleSetId,
+                ruleSetId: this.ruleSetId,
 				versionId: this.versionId
             }
         ];

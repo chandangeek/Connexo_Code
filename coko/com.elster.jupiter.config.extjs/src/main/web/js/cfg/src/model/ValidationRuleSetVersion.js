@@ -3,15 +3,26 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
 
     fields: [
         'id',
-        'name',
+     //   'name',
 		'description',
-        'startDate',
+        {
+            name: 'startDate',
+            mapping: function (data) {
+                var result;
+                if (data.startDate && (data.startDate !== 0) && (data.startDate !== '')) {
+                    result = data.startDate;
+                } else {
+                    result = null;
+                }
+                return result;
+            }
+        },
         {
             name: 'startDateFormatted',
             persist: false,
             mapping: function (data) {
                 var result;
-                if (data.startDate && (data.startDate !== 0)) {
+                if (data.startDate && (data.startDate !== 0) && (data.startDate !== '')) {
                     result = moment(data.startDate).format('ddd, DD MMM YYYY HH:mm:ss');
                     result = Uni.DateTime.formatDateTimeLong(new Date(data.startDate));
                 } else {
@@ -23,6 +34,13 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
         {
             name: 'action',
             persist: false
+        },
+        {
+            name: 'ruleSetId',
+            persist: false,
+            mapping: function (data) {
+                return data.ruleSet.id;
+            }
         },
         {
             name: 'versionName',

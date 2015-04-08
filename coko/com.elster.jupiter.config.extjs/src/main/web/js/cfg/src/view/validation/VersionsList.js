@@ -11,9 +11,10 @@ Ext.define('Cfg.view.validation.VersionsList', {
         'Cfg.view.validation.VersionsActionMenu'
     ],
     ruleSetId: null,
+	versionId: null,
     columns: {
         items: [
-            {
+         /*   {
                 header: Uni.I18n.translate('validation.validationRuleSetVersionName', 'CFG', 'Name'),
                 dataIndex: 'versionName',
                 flex: 0.3,
@@ -24,10 +25,18 @@ Ext.define('Cfg.view.validation.VersionsList', {
                     return value;
                     //return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
                 }
+            },*/
+            {
+                header: Uni.I18n.translate('validation.versionStartOn', 'CFG', 'Start on'),
+                dataIndex: 'startDateFormatted',
+                flex: 0.3,
+                align: 'left',
+                sortable: false,
+                fixed: true
             },
             {
-                header: Uni.I18n.translate('validation.versionStartPeriod', 'CFG', 'Start period'),
-                dataIndex: 'startDateFormatted',
+                header: Uni.I18n.translate('validation.versionStartPeriod', 'CFG', 'Description'),
+                dataIndex: 'description',
                 flex: 0.3,
                 align: 'left',
                 sortable: false,

@@ -6,6 +6,7 @@ Ext.define('Cfg.view.validation.VersionsPreviewContainerPanel', {
     ui: 'medium',
     padding: 0,
     ruleSetId: null,
+	versionId: null,
     isSecondPagination: false,
     requires: [
         'Cfg.view.validation.VersionsList',
@@ -24,6 +25,7 @@ Ext.define('Cfg.view.validation.VersionsPreviewContainerPanel', {
                 grid: {
                     xtype: 'versionsList',
                     ruleSetId: me.ruleSetId,
+					versionId: me.versionId,
                     isSecondPagination: me.isSecondPagination
                 },
                 emptyComponent: {
