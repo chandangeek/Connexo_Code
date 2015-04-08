@@ -6,6 +6,8 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
@@ -33,6 +35,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -104,7 +107,9 @@ public class InMemoryPersistence {
                 new OrmModule(),
                 new DataVaultModule(),
                 new InMemoryMessagingModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
+                new DeviceLifeCycleConfigurationModule(),
                 new ValidationModule(),
                 new MeteringGroupsModule(),
                 new TaskModule(),
@@ -127,6 +132,7 @@ public class InMemoryPersistence {
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.userService = injector.getInstance(UserService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.queryService = injector.getInstance(QueryService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
