@@ -42,7 +42,7 @@ public enum TableSpecs {
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDRULESETVERS").on(idColumn).add();
-            table.foreignKey("VAL_FK_RULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
+            table.foreignKey("VAL_FK_VALIDRULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
                     .map("ruleSet").reverseMap("versions").composition().add();
         }
     },
