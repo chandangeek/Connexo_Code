@@ -61,7 +61,8 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('firmware.empty.title', 'MDC', 'No firmware versions found'),
                             reasons: [
-                                Uni.I18n.translate('firmware.empty.list.item1', 'MDC', 'No firmware versions have been added yet.')
+                                Uni.I18n.translate('firmware.empty.list.item1', 'MDC', 'No firmware versions have been added yet.'),
+                                Uni.I18n.translate('firmware.empty.list.item2', 'MDC', 'The filter is too narrow.')
                             ],
                             stepItems: [
                                 {
