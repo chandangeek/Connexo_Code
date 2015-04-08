@@ -10,7 +10,7 @@ Ext.define('Fwc.form.OptionsHydrator', {
         data.allowedOptions = data.allowedOptions.map(function (item) {
             return item.id;
         });
-        data.isAllowed = +data.isAllowed
+        data.isAllowed = +data.isAllowed;
         return data;
     },
 
