@@ -315,7 +315,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private void updateNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int priority) {
         Condition condition = where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp));
+                .and(where(ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName()).isLessThan(nextExecutionTimestamp))
+                .and(where("obsoleteDate").isNull());
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition);
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
@@ -436,6 +437,20 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public Instant scheduleNow() {
+        this.getScheduledComTasks().stream().
+                filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus())).
+                filter(comTaskExecution -> !comTaskExecution.isObsolete()).
+                forEach(ComTaskExecution::runNow);
+        return scheduleConnectionNow();
+    }
+
+    /**
+     * Updates the next execution of this ConnectionTask so that it will get picked up as soon as possible.
+     * ComTaskExecutions linked to this connection will remain unaltered
+     *
+     * @return The timestamp on which this ScheduledConnectionTask is scheduled.
+     */
+    public Instant scheduleConnectionNow() {
         return this.schedule(this.now());
     }
 

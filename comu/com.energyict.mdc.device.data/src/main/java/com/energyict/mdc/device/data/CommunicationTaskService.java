@@ -36,6 +36,12 @@ import java.util.Set;
  * @since 2014-10-01 (13:30)
  */
 public interface CommunicationTaskService {
+    public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeCommFilterQD";
+    public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeCommFilterQS";
+    public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize communications from filter";
+    public String COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION = "ReschCommQD";
+    public String COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschCommQS";
+    public String COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME = "Reschedule communications message handler";
 
     /**
      * Gets all {@link ComTaskExecution}s of the specified {@link Device}

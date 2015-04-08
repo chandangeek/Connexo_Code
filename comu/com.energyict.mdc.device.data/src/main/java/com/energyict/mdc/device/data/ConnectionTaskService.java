@@ -31,6 +31,13 @@ import java.util.Set;
  */
 public interface ConnectionTaskService {
 
+    public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeConnFilterQD";
+    public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeConnFilterQS";
+    public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize connections from filter";
+    public String CONNECTION_RESCHEDULER_QUEUE_DESTINATION = "ReschConnQD";
+    public String CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschConnQS";
+    public String CONNECTION_RESCHEDULER_QUEUE_DISPLAYNAME = "Reschedule connection message handler";
+
     public Optional<ConnectionTask> findConnectionTask(long id);
 
     public Optional<OutboundConnectionTask> findOutboundConnectionTask(long id);
