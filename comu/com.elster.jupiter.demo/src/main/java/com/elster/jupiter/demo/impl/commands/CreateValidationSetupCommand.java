@@ -72,7 +72,8 @@ public class CreateValidationSetupCommand {
         List<Meter> meters = meteringService.getMeterQuery().select(devicesForActivation);
         System.out.println("==> Validation will be activated for " + meters.size() + " devices");
         for (Meter meter : meters) {
-            validationService.activateValidation(meter, true);
+            validationService.activateValidation(meter);
+            validationService.enableValidationOnStorage(meter);
         }
     }
 }

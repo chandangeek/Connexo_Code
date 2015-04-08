@@ -34,6 +34,7 @@ public class CreateValidationDeviceCommand extends CreateDeviceCommand {
         if (!meter.isPresent()){
             throw new UnableToCreate("Unable to find meter with mrid" + mrid);
         }
-        validationService.activateValidation(meter.get(), true);
+        validationService.activateValidation(meter.get());
+		validationService.enableValidationOnStorage(meter.get());
     }
 }

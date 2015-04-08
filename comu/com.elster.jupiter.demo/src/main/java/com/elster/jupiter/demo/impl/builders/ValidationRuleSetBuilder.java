@@ -1,12 +1,10 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.*;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 
 public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, ValidationRuleSetBuilder> {
@@ -34,16 +32,17 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
     public ValidationRuleSet create() {
         ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName());
         ruleSet.setDescription(this.description);
-        addRegisterIncreaseValidationRule(ruleSet);
-        addDetectMissingValuesValidationRule(ruleSet);
-        addDetectThresholdViolationValidationRule(ruleSet);
+        ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("DEMO_VERSION", "Demo Default Version", Instant.EPOCH );
+        addRegisterIncreaseValidationRule(ruleSetVersion);
+        addDetectMissingValuesValidationRule(ruleSetVersion);
+        addDetectThresholdViolationValidationRule(ruleSetVersion);
         ruleSet.save();
         return ruleSet;
     }
 
-    private void addDetectThresholdViolationValidationRule(ValidationRuleSet ruleSet) {
+    private void addDetectThresholdViolationValidationRule(ValidationRuleSetVersion ruleSetVersion) {
         ValidationRule rule;
-        rule = ruleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.ThresholdValidator", "Detect threshold violation");
+        rule = ruleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.ThresholdValidator", "Detect threshold violation");
         rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addProperty("minimum", new BigDecimal(0));
@@ -51,9 +50,9 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
         rule.activate();
     }
 
-    private void addDetectMissingValuesValidationRule(ValidationRuleSet ruleSet) {
+    private void addDetectMissingValuesValidationRule(ValidationRuleSetVersion ruleSetVersion) {
         ValidationRule rule;
-        rule = ruleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.MissingValuesValidator", "Detect missing values");
+        rule = ruleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.MissingValuesValidator", "Detect missing values");
         // 15min Electricity
         rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
@@ -70,8 +69,8 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
         rule.activate();
     }
 
-    private void addRegisterIncreaseValidationRule(ValidationRuleSet ruleSet) {
-        ValidationRule rule = ruleSet.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.RegisterIncreaseValidator", "Register increase");
+    private void addRegisterIncreaseValidationRule(ValidationRuleSetVersion ruleSetVersion) {
+        ValidationRule rule = ruleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.RegisterIncreaseValidator", "Register increase");
         rule.addReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addReadingType("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
         rule.addReadingType("0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
