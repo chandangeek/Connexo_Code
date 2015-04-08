@@ -154,15 +154,16 @@ Ext.define('Fwc.controller.Firmware', {
             router = me.getController('Uni.controller.history.Router'),
             container = me.getContainer();
 
-        Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'This firmware version will no longer be available.'),
-            title: Uni.I18n.translate('firmware.deprecate.title', 'FWC', 'Deprecate') + " '" + firmware.get('type') + '-' + firmware.get('firmwareVersion') + "'?",
+        var data = firmware.getAssociatedData().firmwareType;
+        Ext.create('Uni.view.window.Confirmation',{
             confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate'),
-            icon: 'icon-question',
+        }).show({
+            msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'It will not be possible to upoad this firmware version on devices.'),
+            title: Uni.I18n.translate('firmware.deprecate.title.' + data.id, 'FWC', 'Deprecate') + " '" + firmware.get('firmwareVersion') + "'?",
+            //icon: 'icon-question',
             fn: function (btn) {
                 if (btn === 'confirm') {
                     container.setLoading();
-
                     firmware.getProxy().setUrl(router.arguments.deviceTypeId);
                     firmware.deprecate({
                         success: function () {
