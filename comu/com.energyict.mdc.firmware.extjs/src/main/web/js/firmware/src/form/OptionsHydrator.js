@@ -7,13 +7,11 @@ Ext.define('Fwc.form.OptionsHydrator', {
      */
     extract: function () {
         var data = this.callParent(arguments);
-
-        return {
-            supportedOptions: !!data.supportedOptions.length,
-            allowedOptions: data.allowedOptions.map(function (item) {
-                return item.id;
-            })
-        };
+        data.allowedOptions = data.allowedOptions.map(function (item) {
+            return item.id;
+        });
+        data.isAllowed = +data.isAllowed
+        return data;
     },
 
     /**
@@ -23,11 +21,15 @@ Ext.define('Fwc.form.OptionsHydrator', {
      * @param object
      */
     hydrate: function (data, object) {
-        if (data.allowedOptions) {
-            data.allowedOptions = data.allowedOptions.map(function (item) {
-                return {id: item};
-            });
+        if (!data.allowedOptions) {
+            data.allowedOptions = [];
         }
+        if (!Ext.isArray(data.allowedOptions)) {
+            data.allowedOptions = [data.allowedOptions]
+        }
+        data.allowedOptions = data.allowedOptions.map(function (item) {
+            return {id: item};
+        });
         delete data.supportedOptions;
         delete data.id;
 

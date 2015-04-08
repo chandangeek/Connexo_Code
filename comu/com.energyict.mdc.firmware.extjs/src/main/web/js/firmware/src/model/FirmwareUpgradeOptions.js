@@ -2,6 +2,11 @@ Ext.define('Fwc.model.FirmwareUpgradeOptions', {
     extend: 'Ext.data.Model',
     fields: [
         {
+            name: 'isAllowed',
+            type: 'boolean',
+            useNull: true
+        },
+        {
             name: 'supportedOptions',
             type: 'auto',
             useNull: true

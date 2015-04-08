@@ -45,11 +45,10 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                name: 'supportedOptions',
-                                store: me.store,
+                                name: 'isAllowed',
                                 fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.allowed', 'FWC', 'Firmware upgrade allowed'),
                                 renderer: function (value) {
-                                    return value.length > 0 ? Uni.I18n.translate('general.yes', 'FWC', 'Yes') : Uni.I18n.translate('general.no', 'FWC', 'No');
+                                    return value ? Uni.I18n.translate('general.yes', 'FWC', 'Yes') : Uni.I18n.translate('general.no', 'FWC', 'No');
                                 }
                             },
                             {

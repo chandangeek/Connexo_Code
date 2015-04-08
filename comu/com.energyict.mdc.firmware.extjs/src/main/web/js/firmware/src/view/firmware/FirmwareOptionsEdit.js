@@ -24,6 +24,15 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                 defaults: {
                     labelWidth: 250
                 },
+                loadRecord: function (record) {
+                    var options = this.down('#firmwareUpgradeOptions');
+                    options.items.each(function (item) {
+                        if (record.get('supportedOptions')
+                            .map(function (item) {return item.id; })
+                            .indexOf(item.inputValue) < 0) {options.remove(item); }
+                    });
+                    this.getForm().loadRecord(record);
+                },
                 items: [
                     {
 
@@ -38,7 +47,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 var form = radiogroup.up('form'),
                                     checkboxgroup = form.down('#firmwareUpgradeOptions');
 
-                                if (!newValue.supportedOptions) {
+                                if (!newValue.isAllowed) {
                                     checkboxgroup.disable();
                                     checkboxgroup.setValue([]);
                                 } else {
@@ -46,19 +55,19 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 }
                             }
                         },
+                        defaults: {
+                            name: 'isAllowed'
+                        },
                         items: [
                             {
-                                name: 'supportedOptions',
                                 itemId: 'rbtn-is-allowed-yes',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
-                                inputValue: true
+                                inputValue: 1
                             },
                             {
-                                name: 'supportedOptions',
                                 itemId: 'rbtn-is-allowed-no',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.no', 'FWC', 'No') + '</b>',
-                                inputValue: false
-
+                                inputValue: 0
                             }
                         ]
                     },
