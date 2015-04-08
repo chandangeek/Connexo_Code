@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -816,7 +817,8 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     Meter createKoreMeter(AmrSystem amrSystem) {
-        Meter meter = amrSystem.newMeter(String.valueOf(getId()), getmRID());
+        FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
+        Meter meter = amrSystem.newMeter(stateMachine, String.valueOf(getId()), getmRID());
         meter.setSerialNumber(getSerialNumber());
         meter.save();
         return meter;
