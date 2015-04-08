@@ -167,7 +167,8 @@ public class ValidationEvaluatorIT {
                     return false;
                 }
             });
-            validationService.activateValidation(meter, true);
+            validationService.activateValidation(meter);
+			validationService.enableValidationOnStorage(meter);
             return null;
         });
     }

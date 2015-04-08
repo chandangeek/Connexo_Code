@@ -1,6 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import static com.elster.jupiter.validation.ValidationResult.NOT_VALIDATED;
 import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
 import static com.elster.jupiter.validation.ValidationResult.VALID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,9 +9,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -30,10 +27,8 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -159,7 +154,8 @@ public class RegisterValidationEvaluatorIT {
                     return false;
                 }
             });
-            validationService.activateValidation(meter, true);
+            validationService.activateValidation(meter);
+			validationService.enableValidationOnStorage(meter);
             return null;
         });
     }
