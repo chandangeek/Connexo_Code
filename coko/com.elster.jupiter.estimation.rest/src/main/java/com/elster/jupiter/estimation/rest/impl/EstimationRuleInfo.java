@@ -15,7 +15,6 @@ public class EstimationRuleInfo {
     public String implementation; //estimator classname
     public String displayName; // readable name
     public String name;
-    public int position;
     public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
     public EstimationRuleSetInfo ruleSet;
