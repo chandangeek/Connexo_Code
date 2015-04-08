@@ -68,6 +68,11 @@ public class ConstraintViolationInfo {
         return this;
     }
 
+    public ConstraintViolationInfo from(RestValidationBuilder.RestValidationException exception){
+        exception.getErrors().stream().forEach(this::from);
+        return this;
+    }
+
     private String getPathAsSingleProperty(JsonMappingException exception) {
         String property="";
         for (JsonMappingException.Reference reference : exception.getPath()) {
