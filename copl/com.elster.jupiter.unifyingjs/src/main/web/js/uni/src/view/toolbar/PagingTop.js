@@ -61,6 +61,8 @@ Ext.define('Uni.view.toolbar.PagingTop', {
 
     defaultButtonUI: 'default',
 
+    exportButton: true,
+
     initComponent: function () {
         this.callParent(arguments);
     },
@@ -77,7 +79,8 @@ Ext.define('Uni.view.toolbar.PagingTop', {
                 ui: 'icon',
                 iconCls: 'icon-file-download',
                 text: '',
-                component: this.up('grid')
+                component: this.up('grid'),
+                hidden: !this.exportButton
             }
         ];
     },
