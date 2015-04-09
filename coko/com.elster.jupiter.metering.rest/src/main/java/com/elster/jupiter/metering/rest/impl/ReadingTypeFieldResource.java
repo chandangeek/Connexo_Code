@@ -6,12 +6,12 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.util.streams.DecoratedStream;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -19,6 +19,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -102,7 +106,7 @@ public class ReadingTypeFieldResource {
                 filter=filter.and(rt->rt.getMeasuringPeriod().getId() == queryFilter.getInteger("time"));
             }
             if (queryFilter.hasProperty("macro")) {
-                filter=filter.and(rt->rt.getMacroPeriod().getId() == queryFilter.getInteger("macro"));
+                filter = filter.and(rt -> rt.getMacroPeriod().getId() == queryFilter.getInteger("macro"));
             }
             if (queryFilter.hasProperty("multiplier")) {
                 filter=filter.and(rt->rt.getMultiplier().getMultiplier()==queryFilter.getInteger("multiplier"));
