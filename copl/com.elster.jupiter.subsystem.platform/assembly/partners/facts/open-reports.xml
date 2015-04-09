@@ -5433,7 +5433,7 @@ end</SQLClause>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
-      </reportFormat>	  
+      </reportFormat>
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78723</entityId>
@@ -7599,7 +7599,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78724</entityId>
@@ -7956,7 +7956,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
-      
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78724</entityId>
@@ -9801,7 +9801,7 @@ end</SQLClause>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
-      </reportFormat>	  
+      </reportFormat>
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78819</entityId>
@@ -10021,7 +10021,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
- 
+
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78818</entityId>
@@ -11273,7 +11273,7 @@ end</SQLClause>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
       </reportFormat>
- 
+
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
         <entityId>10</entityId>
@@ -16422,7 +16422,7 @@ end</SQLClause>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
-      </reportFormat>	  
+      </reportFormat>
       <reportFormat>
         <entityCode>FILTER</entityCode>
         <entityId>78981</entityId>
@@ -19614,7 +19614,7 @@ end</SQLClause>
         <fieldId>0</fieldId>
         <chartId>0</chartId>
         <seriesId>0</seriesId>
-      </reportFormat>      
+      </reportFormat>
       <reportFormat>
         <entityCode>REPORTFIELD</entityCode>
         <entityId>1</entityId>
