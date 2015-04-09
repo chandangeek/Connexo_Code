@@ -67,7 +67,7 @@ public class Installer {
     private void createPrivileges() {
         this.logger.fine(() -> "Creating privileges");
         this.userService.createResourceWithPrivileges(
-                DeviceLifeCycleConfigurationService.COMPONENT_NAME,
+                "MDC",
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations",
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
                 new String[]{
