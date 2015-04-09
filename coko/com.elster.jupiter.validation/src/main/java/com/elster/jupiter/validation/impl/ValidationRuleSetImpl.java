@@ -232,7 +232,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
                 start + 1,
                 start + limit);
         updateVersionsEndDate(versions);
-        return Collections.unmodifiableList(versions);
+
+        return Collections.unmodifiableList(
+                versions.stream()
+                        .sorted(Comparator.comparing(IValidationRuleSetVersion::getNotNullStartDate).reversed())
+                        .collect(Collectors.toList()));
     }
 
     private void updateVersionsEndDate(List<IValidationRuleSetVersion> versions) {
