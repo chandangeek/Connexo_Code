@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -34,7 +35,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -51,12 +51,6 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -68,6 +62,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -86,7 +85,7 @@ public class ValidationAddRemoveIT {
     private static final String MIN = "min";
     private static final String MAX = "max";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    
+
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -125,6 +124,7 @@ public class ValidationAddRemoveIT {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
                 new TaskModule(),
@@ -150,51 +150,48 @@ public class ValidationAddRemoveIT {
         when(min.getValueFactory()).thenReturn(valueFactory);
         when(max.getName()).thenReturn(MAX);
         when(max.getValueFactory()).thenReturn(valueFactory);
-        
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                MeteringService meteringService = injector.getInstance(MeteringService.class);
-                readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                	.measure(MeasurementKind.ENERGY)
-                	.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
-                	.flow(FlowDirection.FORWARD)
-                	.period(TimeAttribute.MINUTE15)
-                	.accumulate(Accumulation.DELTADELTA)
-                	.code();
-                ReadingType readingType1 = meteringService.getReadingType(readingType).get();
-                AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                meter = amrSystem.newMeter("2331");
-                meter.save();
-                meterActivation = meter.activate(date1);
-                meterActivation.createChannel(readingType1);
 
-                ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
-                validationService.addResource(validatorFactory);
-                
-                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
-                ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
-                minMaxRule.addReadingType(readingType1);
-                minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
-                minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
-                minMaxRule.activate();
-                validationRuleSet.save();
+        injector.getInstance(TransactionService.class).execute(() -> {
+            MeteringService meteringService = injector.getInstance(MeteringService.class);
+            readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .measure(MeasurementKind.ENERGY)
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
+                .flow(FlowDirection.FORWARD)
+                .period(TimeAttribute.MINUTE15)
+                .accumulate(Accumulation.DELTADELTA)
+                .code();
+            ReadingType readingType1 = meteringService.getReadingType(readingType).get();
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            meter = amrSystem.newMeter("2331");
+            meter.save();
+            meterActivation = meter.activate(date1);
+            meterActivation.createChannel(readingType1);
 
-                validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
-                    @Override
-                    public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
-                        return Arrays.asList(validationRuleSet);
-                    }
+            ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
+            validationService.addResource(validatorFactory);
 
-                    @Override
-                    public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
-                        return false;
-                    }
-                });
+            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
+            ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
+            minMaxRule.addReadingType(readingType1);
+            minMaxRule.addProperty(MIN, BigDecimal.valueOf(1));
+            minMaxRule.addProperty(MAX, BigDecimal.valueOf(100));
+            minMaxRule.activate();
+            validationRuleSet.save();
 
-                validationService.activateValidation(meter, true);
-                return null;
-            }
+            validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
+                @Override
+                public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
+                    return Arrays.asList(validationRuleSet);
+                }
+
+                @Override
+                public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
+                    return false;
+                }
+            });
+
+            validationService.activateValidation(meter, true);
+            return null;
         });
     }
 
