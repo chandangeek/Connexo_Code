@@ -49,7 +49,6 @@ Ext.define('Dlc.devicelifecycletransitions.view.Grid', {
                 displayMoreMsg: Uni.I18n.translate('deviceLifeCycleTransitions.pagingtoolbartop.displayMoreMsg', 'DLC', '{0} - {1} of more than {2} transitions'),
                 emptyMsg: Uni.I18n.translate('deviceLifeCycleTransitions.pagingtoolbartop.emptyMsg', 'DLC', 'There are no transitions to display'),
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         itemId: 'toolbar-button',

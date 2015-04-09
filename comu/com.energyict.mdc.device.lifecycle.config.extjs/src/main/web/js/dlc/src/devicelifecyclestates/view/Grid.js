@@ -43,10 +43,6 @@ Ext.define('Dlc.devicelifecyclestates.view.Grid', {
                 emptyMsg: Uni.I18n.translate('deviceLifeCycleStates.pagingtoolbartop.emptyMsg', 'DLC', 'There are no states to display'),
                 items: [
                     {
-                        xtype: 'component',
-                        flex: 1
-                    },
-                    {
                         xtype: 'button',
                         text: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
                         action: 'addState'

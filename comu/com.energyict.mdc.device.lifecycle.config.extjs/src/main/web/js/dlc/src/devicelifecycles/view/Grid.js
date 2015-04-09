@@ -42,7 +42,6 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
                 emptyMsg: Uni.I18n.translate('deviceLifeCycles.pagingtoolbartop.emptyMsg', 'DLC', 'There are no device life cycles to display'),
                 dock: 'top',
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         itemId: 'add-device-life-cycle-button',
