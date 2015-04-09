@@ -74,7 +74,6 @@ public class DataExportTaskHistoryInfo {
                         .orElseGet(dataExportOccurrence::getTask));
         task = new DataExportTaskInfo();
         task.populate(version, thesaurus, timeService);
-
         for (ReadingType readingType : version.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
             task.readingTypes.add(new ReadingTypeInfo(readingType));
         }
@@ -88,8 +87,8 @@ public class DataExportTaskHistoryInfo {
             } else {
                 task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
+            task.properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
-        task.properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
 
     }
 
