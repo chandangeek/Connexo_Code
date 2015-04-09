@@ -32,6 +32,10 @@ Ext.onReady(function () {
             path: '../../apps/yfn/src'
         },
         {
+            name: 'Fwc',
+            path: '../../apps/fwc/src'
+        },
+        {
             name: 'Dlc',
             path: '../../apps/dlc/src'
         }
