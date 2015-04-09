@@ -298,7 +298,7 @@ public enum TableSpecs {
             table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();
             table.foreignKey("MTR_FK_RQ_CHANNEL").references(MTR_CHANNEL.name()).onDelete(DeleteRule.RESTRICT).map("channel").on(channelColumn).add();
             table.foreignKey("MTR_FK_RQ_READINGTYPE").references(MTR_READINGTYPE.name()).onDelete(DeleteRule.RESTRICT).map("readingType").on(readingTypeColumn).add();
-            table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn).add();
+            table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn, readingTypeColumn).add();
         }
     },
     MTR_ENDDEVICEEVENTTYPE {
