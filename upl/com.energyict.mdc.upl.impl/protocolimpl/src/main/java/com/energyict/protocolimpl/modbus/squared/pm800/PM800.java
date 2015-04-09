@@ -60,7 +60,10 @@ public class PM800 extends Modbus  {
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","50").trim()));
     }
-    
+
+    /**
+     * The protocol version
+     */
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         //return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getSlaveId()+", "+getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
         return getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification().toString();

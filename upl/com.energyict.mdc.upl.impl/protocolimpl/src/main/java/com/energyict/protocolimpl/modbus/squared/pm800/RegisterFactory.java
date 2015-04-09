@@ -10,14 +10,17 @@
 
 package com.energyict.protocolimpl.modbus.squared.pm800;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
 
 /**
  *
@@ -58,12 +61,20 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1100,1,ObisCode.fromString("1.1.31.7.0.255")).setParser("scale A"));
         getRegisters().add(new HoldingRegister(1101,1,ObisCode.fromString("1.1.51.7.0.255")).setParser("scale A"));
         getRegisters().add(new HoldingRegister(1102,1,ObisCode.fromString("1.1.71.7.0.255")).setParser("scale A"));
-        //getRegisters().add(new HoldingRegister(1122,1,ObisCode.fromString("1.1.1.4.0.255")));
         getRegisters().add(new HoldingRegister(1373,1,ObisCode.fromString("1.1.1.3.0.255")));
         getRegisters().add(new HoldingRegister(1378,1,ObisCode.fromString("1.1.1.6.0.255")));
         
         // Time&Date
         getRegisters().add(new HoldingRegister(3034,3,"present datetime"));
+
+        // Metering Configuration and Status
+        getRegisters().add(new HoldingRegister(3200,1,ObisCode.fromString("0.0.96.1.1.255"), "Metering System Type"));
+        getRegisters().add(new HoldingRegister(3201,1,ObisCode.fromString("1.1.0.4.2.255"), "CT Ratio, 3-Phase Primary"));
+        getRegisters().add(new HoldingRegister(3202,1,ObisCode.fromString("1.1.0.4.5.255"), "CT Ratio, 3-Phase Secondary"));
+        getRegisters().add(new HoldingRegister(3205,1,ObisCode.fromString("1.1.0.4.3.255"), "PT Ratio, 3-Phase Primary"));
+        getRegisters().add(new HoldingRegister(3206,1,ObisCode.fromString("1.1.0.4.8.255"), "PT Ratio, 3-Phase Primary Scale Factor").setParser("scalefactor"));
+        getRegisters().add(new HoldingRegister(3207,1,ObisCode.fromString("1.1.0.4.6.255"), "PT Ratio, 3-Phase Secondary"));
+        getRegisters().add(new HoldingRegister(3208,1,ObisCode.fromString("1.1.0.6.2.255"), " Nominal System Frequency"));
 
         getRegisters().add(new HoldingRegister(3209,1,"scale A").setParser("scalefactor"));
         getRegisters().add(new HoldingRegister(3210,1,"scale B").setParser("scalefactor"));
@@ -76,33 +87,22 @@ public class RegisterFactory extends AbstractRegisterFactory {
         // BigDecimal parser
         getParserFactory().addBigDecimalParser(new Parser() {
             public Object val(int[] values, AbstractRegister register) {
-                long val=0;
-                for (int i=0;i<values.length;i++) {
-                    val += values[i]*(long)Math.pow(10, i*4);
+                long val = 0;
+                for (int i = 0; i < values.length; i++) {
+                    val += values[i] * (long) Math.pow(10, i * 4);
                 }
                 return BigDecimal.valueOf(val);
-                
-//                long val=0;
-//                long multiplier=1;
-//                for (int i=0;i<values.length;i++) {
-//                    val += values[i]*multiplier;
-//                    if (val != 0) {
-//                       int exp = (int)(Math.log(val) / Math.log(10))+1;
-//                       multiplier = (long)Math.pow(10, exp);
-//                    }                       
-//                }
-//                return BigDecimal.valueOf(val);
             }
         });
         getParserFactory().addDateParser(new Parser() {
             public Object val(int[] values, AbstractRegister register) {
                 Calendar cal = ProtocolUtils.getCleanCalendar(getModBus().getTimeZone());
-                cal.set(Calendar.MONTH,((values[0]>>8)&0xFF)-1);
-                cal.set(Calendar.DAY_OF_MONTH,(values[0]&0xFF));
-                cal.set(Calendar.YEAR,((values[1]>>8)&0xFF)+1900);
-                cal.set(Calendar.HOUR_OF_DAY,values[1]&0xFF);
-                cal.set(Calendar.MINUTE,((values[2]>>8)&0xFF));
-                cal.set(Calendar.SECOND,values[2]&0xFF);
+                cal.set(Calendar.MONTH, ((values[0] >> 8) & 0xFF) - 1);
+                cal.set(Calendar.DAY_OF_MONTH, (values[0] & 0xFF));
+                cal.set(Calendar.YEAR, ((values[1] >> 8) & 0xFF) + 1900);
+                cal.set(Calendar.HOUR_OF_DAY, values[1] & 0xFF);
+                cal.set(Calendar.MINUTE, ((values[2] >> 8) & 0xFF));
+                cal.set(Calendar.SECOND, values[2] & 0xFF);
                 return cal.getTime();
             }
         });
@@ -117,7 +117,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         });
         getParserFactory().addParser("scalefactor",new Parser() {
             public Object val(int[] values, AbstractRegister register) {
-                return BigDecimal.valueOf((short)values[0]);
+                return BigDecimal.valueOf((short) values[0]);
             }
         });
         getParserFactory().addParser("scale A",new Parser() {
