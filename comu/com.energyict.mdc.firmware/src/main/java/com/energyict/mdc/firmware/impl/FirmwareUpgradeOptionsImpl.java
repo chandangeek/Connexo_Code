@@ -53,7 +53,7 @@ public class FirmwareUpgradeOptionsImpl implements FirmwareUpgradeOptions {
         if (install) {
             allowedOptions.add(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
-        if(activate) {
+        if (activate) {
             allowedOptions.add(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
         if (activateOnDate) {
@@ -80,11 +80,11 @@ public class FirmwareUpgradeOptionsImpl implements FirmwareUpgradeOptions {
     }
 
     public void save() {
-        if (firmwareService.getAllowedFirmwareUpgradeOptionsFor(this.deviceType.get()).isEmpty()) {
+        if (dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType.get()).isPresent()) {
+            doUpdate();
+        } else {
             doPersist();
-            return;
         }
-        doUpdate();
     }
 
     private void doPersist() {
