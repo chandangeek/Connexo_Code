@@ -75,8 +75,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
     extend: 'Uni.view.grid.SelectionGrid',
     xtype: 'bulk-selection-grid',
 
-    loadMask: true,
-    autoScroll: true,
     maxHeight: 600,
 
     /**
@@ -223,6 +221,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
             dock: 'bottom',
             itemId: 'bottomToolbar',
             layout: 'hbox',
+            hidden: me.bottomToolbarHidden,
             items: [
                 {
                     xtype: 'button',
@@ -246,30 +245,17 @@ Ext.define('Uni.view.grid.BulkSelection', {
         me.getAddButton().on('click', me.onClickAddButton, me);
         me.on('selectionchange', me.onBulkSelectionChange, me);
 
-        if (me.bottomToolbarHidden) {
-            me.hideBottomToolbar();
-        }
-
-        me.store.on('afterrender', me.onChangeSelectionGroupType, me, {
-            single: true
-        });
-
         me.store.on('load', me.onSelectDefaultGroupType, me, {
             single: true
         });
     },
 
     onSelectDefaultGroupType: function () {
-        var me = this,
-            value = {};
+        var me = this;
 
         if (me.rendered) {
-            value[me.radioGroupName] = me.allChosenByDefault ? me.allInputValue : me.selectedInputValue;
-            me.getSelectionGroupType().setValue(value);
-            me.getSelectionGroupType().fireEvent('change');
+            me.onChangeSelectionGroupType();
         }
-
-        me.onChangeSelectionGroupType();
     },
 
     onChangeSelectionGroupType: function (radiogroup, value) {
@@ -277,8 +263,10 @@ Ext.define('Uni.view.grid.BulkSelection', {
         if (me.view) {
             var selection = me.view.getSelectionModel().getSelection();
 
+            Ext.suspendLayouts();
             me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
             me.setGridVisible(!me.isAllSelected());
+            Ext.resumeLayouts(true);
         }
     },
 
@@ -324,7 +312,6 @@ Ext.define('Uni.view.grid.BulkSelection', {
 
             me.getView().height = gridHeight;
             me.headerCt.height = gridHeaderHeight;
-            me.setOverflowXY(undefined, undefined);
             me.doLayout();
         }
     },
