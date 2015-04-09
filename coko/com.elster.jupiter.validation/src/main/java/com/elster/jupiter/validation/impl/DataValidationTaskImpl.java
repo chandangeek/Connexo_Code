@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -38,6 +39,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public final class DataValidationTaskImpl implements DataValidationTask {
 
     private long id;
+    private final String uuid = UUID.randomUUID().toString().replaceAll("-", "");
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.validation.MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.elster.jupiter.validation.MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
@@ -91,8 +93,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public DataValidationStatus execute(DataValidationOccurrence taskOccurence) {
-        return null;
+    public DataValidationTaskStatus execute(DataValidationOccurrence taskOccurence) {
+        return taskOccurence.getStatus();
     }
 
     @Override
@@ -277,7 +279,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private void persistRecurrentTask() {
         RecurrentTaskBuilder builder = taskService.newBuilder()
-                .setName(getName())
+                .setName(uuid)
                 .setDestination(dataValidationService.getDestination())
                 .setScheduleExpression(scheduleExpression)
                 .setPayLoad(getName());

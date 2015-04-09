@@ -30,18 +30,11 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorFactory;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.*;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -114,6 +107,8 @@ public class ValidationServiceImplTest {
     @Mock
     private TaskService taskService;
     @Mock
+    private TaskOccurrence taskOccurence;
+    @Mock
     private Meter meter;
     @Mock
     private Channel channel1, channel2;
@@ -147,6 +142,8 @@ public class ValidationServiceImplTest {
     @Mock
     private QueryExecutor<IValidationRule> validationRuleQueryExecutor;
     @Mock
+    private QueryExecutor<DataValidationOccurrence> taskOccurrenceQueryExecutor;
+    @Mock
     private ValidationRuleSetResolver validationRuleSetResolver;
     @Mock
     private QueryExecutor<IMeterActivationValidation> queryExecutor;
@@ -172,6 +169,15 @@ public class ValidationServiceImplTest {
     private SubscriberSpec subscriberSpec;
     @Mock
     private RecurrentTask recurrentTask;
+    @Mock
+    private Query<DataValidationOccurrence> dataValidationOccurrenceQuery;
+    @Mock
+    private DataValidationOccurrence dataValidationOccurrence;
+    @Mock
+    private QueryExecutor<DataValidationTask> dataValidationTaskQueryExecutor;
+    @Mock
+    private Query<DataValidationTask> dataValidationTaskQuery;
+
 
     @Before
     public void setUp() {
@@ -734,13 +740,31 @@ public class ValidationServiceImplTest {
         assertThat(validationService.findValidationTask(ID).isPresent()).isFalse();
     }
 
-//    @Test
-//    public void testFindDataValidationTasks(){
-//        when(dataValidationTaskFactory2.getOptional()).thenReturn(Optional.of(iDataTask));
-//        assertThat(validationService.findValidationTasks().
-//
-//    }
+    @Test
+    public void testGetDataValidationTaskForRecurrentTask(){
+        when(dataModel.query(DataValidationOccurrence.class, DataValidationTask.class)).thenReturn(taskOccurrenceQueryExecutor);
+        when(taskOccurrenceQueryExecutor.select(any())).thenReturn(new ArrayList<DataValidationOccurrence>());
+        assertThat(validationService.findDataValidationOccurrence(taskOccurence).isPresent());
+    }
 
+    @Test
+    public void testFindValidationTasks(){
+        when(dataModel.query(DataValidationTask.class)).thenReturn(dataValidationTaskQueryExecutor);
+        when(queryService.wrap(eq(dataValidationTaskQueryExecutor))).thenReturn(dataValidationTaskQuery);
+        when(dataValidationTaskQueryExecutor.select(any())).thenReturn(new ArrayList<DataValidationTask>());
+        assertThat(validationService.findValidationTasks());
+    }
 
+    @Test
+    public void testCreateValidationOccurrence(){
+        when(taskOccurence.getRecurrentTask()).thenReturn(recurrentTask);
+        when(dataValidationTaskFactory2.getUnique("recurrentTask", recurrentTask)).thenReturn(Optional.of(iDataTask));
+        DataValidationOccurrenceImpl dataValidationOcc = new DataValidationOccurrenceImpl(dataModel,clock);
+        when(dataModel.getInstance(DataValidationOccurrenceImpl.class)).thenReturn(dataValidationOcc);
+        when(taskOccurence.getTriggerTime()).thenReturn(ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant());
+        assertThat(validationService.createValidationOccurrence(taskOccurence)).isEqualTo(dataValidationOcc);
+        assertThat(dataValidationOcc.getTask()).isEqualTo(iDataTask);
+        assertThat(dataValidationOcc.getTaskOccurrence()).isEqualTo(taskOccurence);
+    }
 
 }
