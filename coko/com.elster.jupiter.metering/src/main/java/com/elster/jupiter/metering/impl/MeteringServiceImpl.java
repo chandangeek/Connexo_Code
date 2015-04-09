@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.AmrSystem;
@@ -68,6 +69,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     private volatile EventService eventService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile FiniteStateMachineService finiteStateMachineService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -77,7 +79,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Inject
-    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService,
+    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, FiniteStateMachineService finiteStateMachineService,
                                @Named("createReadingTypes") boolean createAllReadingTypes,@Named("requiredReadingTypes") String requiredReadingTypes) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
@@ -89,10 +91,16 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         setQueryService(queryService);
         setUserService(userService);
         setNlsService(nlsService);
+        setFiniteStateMachineService(finiteStateMachineService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
         }
+    }
+
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @Override
