@@ -14,6 +14,10 @@ public interface EventTypeBuilder {
 
     EventTypeBuilder shouldNotPublish();
 
+    EventTypeBuilder enableForUseInStateMachines();
+
+    EventTypeBuilder disableForUseInStateMachines();
+
     EventTypeBuilder withProperty(String name, ValueType valueType, String accessPath);
 
     EventType create();

@@ -86,7 +86,7 @@ public class EventTypeBuilderImplTest {
                 .shouldPublish()
                 .create();
 
-        assertThat(eventType.shouldPublish()).isEqualTo(true);
+        assertThat(eventType.shouldPublish()).isTrue();
     }
 
     @Test
@@ -96,7 +96,27 @@ public class EventTypeBuilderImplTest {
                 .shouldNotPublish()
                 .create();
 
-        assertThat(eventType.shouldPublish()).isEqualTo(false);
+        assertThat(eventType.shouldPublish()).isFalse();
+    }
+
+    @Test
+    public void testCreatedEventTypeIsEnabledForStateMachines() {
+
+        EventType eventType = eventTypeBuilder
+                .enableForUseInStateMachines()
+                .create();
+
+        assertThat(eventType.isEnabledForUseInStateMachines()).isTrue();
+    }
+
+    @Test
+    public void testCreatedEventTypeIsDisabledForStateMachines() {
+
+        EventType eventType = eventTypeBuilder
+                .disableForUseInStateMachines()
+                .create();
+
+        assertThat(eventType.isEnabledForUseInStateMachines()).isFalse();
     }
 
     @Test
@@ -118,6 +138,5 @@ public class EventTypeBuilderImplTest {
 
         assertThat(eventType.getPropertyTypes()).hasSize(1);
     }
-
 
 }

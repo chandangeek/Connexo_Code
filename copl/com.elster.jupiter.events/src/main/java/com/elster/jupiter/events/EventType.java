@@ -16,15 +16,22 @@ public interface EventType {
 
     boolean shouldPublish();
 
-    List<EventPropertyType> getPropertyTypes();
+    void setPublish(boolean publish);
+
+    boolean isEnabledForUseInStateMachines();
+
+    void enableForUseInStateMachines();
+
+    void disableForUseInStateMachines();
 
     LocalEvent create(Object source);
 
-    void setPublish(boolean publish);
-
     EventPropertyType addProperty(String name, ValueType valueType, String accessPath);
+
+    List<EventPropertyType> getPropertyTypes();
 
     void removePropertyType(EventPropertyType eventPropertyType);
 
     void save();
+
 }

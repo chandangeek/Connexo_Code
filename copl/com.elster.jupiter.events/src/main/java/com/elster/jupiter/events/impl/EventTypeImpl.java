@@ -25,6 +25,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private String category;
     private String name;
     private boolean publish = false;
+    private boolean fsmEnabled = false;
     private final List<EventPropertyType> eventPropertyTypes = new ArrayList<>();
     private transient boolean fromDB = true;
     private final DataModel dataModel;
@@ -88,6 +89,26 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     }
 
     @Override
+    public void setPublish(boolean publish) {
+        this.publish = publish;
+    }
+
+    @Override
+    public boolean isEnabledForUseInStateMachines() {
+        return this.fsmEnabled;
+    }
+
+    @Override
+    public void enableForUseInStateMachines() {
+        this.fsmEnabled = true;
+    }
+
+    @Override
+    public void disableForUseInStateMachines() {
+        this.fsmEnabled = false;
+    }
+
+    @Override
     public List<EventPropertyType> getPropertyTypes() {
         return ImmutableList.copyOf(propertyTypes());
     }
@@ -119,11 +140,6 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     @Override
     public LocalEvent create(Object source) {
         return new LocalEventImpl(clock.instant(), jsonService, eventConfiguration, messageService, beanService, this, source, thesaurus);
-    }
-
-    @Override
-    public void setPublish(boolean publish) {
-        this.publish = publish;
     }
 
     @Override
