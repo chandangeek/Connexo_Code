@@ -37,6 +37,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
@@ -75,8 +76,8 @@ public class CreateA3DeviceCommand {
 
     public void run(){
         String a3mrid = Constants.Device.A3_DEVICE + Constants.Device.A3_SERIAL_NUMBER;
-        Device device = deviceService.findByUniqueMrid(a3mrid);
-        if (device != null){
+        Optional<Device> device = deviceService.findByUniqueMrid(a3mrid);
+        if (device.isPresent()){
             System.out.println("Device with mrid '" + a3mrid + "' already exists!");
             return;
         }
