@@ -240,7 +240,7 @@ public class ValidationResource {
             if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
-            getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetId);
+            getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
             ruleSetRef.get().updateRuleSetVersion(info.id, info.description, info.startDate);
             ruleSetRef.get().save();
             return null;
