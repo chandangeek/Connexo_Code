@@ -20,7 +20,7 @@ Ext.define('Fwc.form.Hydrator', {
 
         //clean up on stores
         object.associations.each(function (item) {
-            if (item.type === 'hasMany') {
+            if (item.type === 'hasMany' && object[item.storeName]) {
                 object[item.storeName].removeAll();
             }
         });
