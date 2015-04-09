@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,15 +27,15 @@ public class UniqueValidationRuleNameValidatorTest {
     @Mock
     private ValidationRule rule, rule1, rule2;
     @Mock
-    private ValidationRuleSet ruleSet;
+    private ValidationRuleSetVersion ruleSetVersion;
 
     @Before
     public void setUp() {
-        when(rule.getRuleSet()).thenReturn(ruleSet);
+        when(rule.getRuleSetVersion()).thenReturn(ruleSetVersion);
         when(rule.getName()).thenReturn(NAME);
         when(rule1.getName()).thenReturn("anotherName");
         when(rule2.getName()).thenReturn("yetAnotherName");
-        doReturn(Arrays.asList(rule1, rule, rule2)).when(ruleSet).getRules();
+        doReturn(Arrays.asList(rule1, rule, rule2)).when(ruleSetVersion).getRules();
         when(rule.getId()).thenReturn(0L);
         when(rule1.getId()).thenReturn(1L);
         when(rule2.getId()).thenReturn(2L);

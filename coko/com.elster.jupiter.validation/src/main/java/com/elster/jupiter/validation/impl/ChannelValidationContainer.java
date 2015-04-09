@@ -4,16 +4,18 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class ChannelValidationContainer {
 
-	private final List<IChannelValidation> channelValidations;
+	private final List<? extends IChannelValidation> channelValidations;
 	
-	private ChannelValidationContainer(List<IChannelValidation> channelValidations) {
+	private ChannelValidationContainer(List<? extends IChannelValidation> channelValidations) {
 		this.channelValidations = channelValidations;
 	}
 	
-	static ChannelValidationContainer of(List<IChannelValidation> channelValidations) {
+	static ChannelValidationContainer of(List<? extends IChannelValidation> channelValidations) {
 		return new ChannelValidationContainer(channelValidations);
 	}
 	
@@ -31,12 +33,19 @@ public class ChannelValidationContainer {
     }
 	
 	Optional<Instant> getLastChecked() {
+		// if any is null, then we should return Optional.empty()
 		return channelValidations.stream()
-			.map(IChannelValidation::getLastChecked)	
-			.min(Comparator.naturalOrder());
+			.map(IChannelValidation::getLastChecked)
+			.map(instant -> instant == null ? Instant.MIN : instant)
+			.min(Comparator.<Instant>naturalOrder())
+			.flatMap(instant -> Instant.MIN.equals(instant) ? Optional.empty() : Optional.of(instant));
 	}
 	
 	boolean isEmpty() {
 		return channelValidations.isEmpty();
+	}
+
+	public Stream<IChannelValidation> stream() {
+		return channelValidations.stream().map(Function.<IChannelValidation>identity());
 	}
 }

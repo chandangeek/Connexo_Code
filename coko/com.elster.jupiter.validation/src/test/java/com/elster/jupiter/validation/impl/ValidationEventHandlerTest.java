@@ -1,7 +1,21 @@
 package com.elster.jupiter.validation.impl;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.ReadingType;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -10,22 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.metering.ReadingType;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Range;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationEventHandlerTest {
@@ -46,6 +45,8 @@ public class ValidationEventHandlerTest {
     @Mock
     private Channel channel1, channel2, channel3;
     @Mock
+    private CimChannel cimChannel1, cimChannel2, cimChannel3;
+    @Mock
     private MeterActivation meterActivation1, meterActivation2;
     @Mock
     private ValidationServiceImpl validationService;
@@ -63,10 +64,10 @@ public class ValidationEventHandlerTest {
         handler.setValidationService(validationService);
 
         when(eventType.getTopic()).thenReturn("com/elster/jupiter/metering/reading/CREATED");
-        Map<Channel, Range<Instant>> map = new HashMap<>();
-        map.put(channel1, interval(date1, date2));
-        map.put(channel2, interval(date3, date5));
-        map.put(channel3, interval(date4, date5));
+        Map<CimChannel, Range<Instant>> map = new HashMap<>();
+        map.put(cimChannel1, interval(date1, date2));
+        map.put(cimChannel2, interval(date3, date5));
+        map.put(cimChannel3, interval(date4, date5));
         when(channel1.getMeterActivation()).thenReturn(meterActivation1);
         when(channel2.getMeterActivation()).thenReturn(meterActivation1);
         when(channel3.getMeterActivation()).thenReturn(meterActivation2);
@@ -74,6 +75,9 @@ public class ValidationEventHandlerTest {
         when(channel2.getMainReadingType()).thenReturn(readingType);
         when(channel3.getMainReadingType()).thenReturn(readingType);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        doReturn(channel1).when(cimChannel1).getChannel();
+        doReturn(channel2).when(cimChannel2).getChannel();
+        doReturn(channel3).when(cimChannel3).getChannel();
 
         when(localEvent.getSource()).thenReturn(readingStorer);
         when(localEvent.getType()).thenReturn(eventType);

@@ -124,12 +124,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         assertThat(validationRuleSetVersion.getDescription()).isNullOrEmpty();
     }
 
-    @Test
-    public void testPersist() {
-        validationRuleSetVersion.save();
-
-        verify(dataModel).persist(validationRuleSetVersion);
-    }
 
     @Test
     public void testUpdate() {
@@ -139,25 +133,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
         verify(dataModel).update(validationRuleSetVersion);
 
-    }
-
-    @Test
-    public void testPersistWithRules() {
-        validationRuleSetVersion.addRule(ValidationAction.FAIL, "A", "rulename");
-
-        validationRuleSetVersion.save();
-
-        verify(dataModel).persist(validationRuleSetVersion);
-    }
-
-    @Test
-    public void testPersistWithRulesWarnOnly() {
-        validationRuleSetVersion.addRule(ValidationAction.FAIL, "A", "rulename");
-        validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, "B", "rulename2");
-
-        validationRuleSetVersion.save();
-
-        verify(dataModel).persist(validationRuleSetVersion);
     }
 
     @Test

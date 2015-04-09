@@ -1,12 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -26,6 +19,13 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
  
 class ChannelValidator {
 
@@ -54,7 +54,7 @@ class ChannelValidator {
     	this.rule = rule;
         return channel.getReadingTypes().stream()
                 .filter(r -> rule.getReadingTypes().contains(r))
-                .map(r -> validateReadings(r))                
+                .map(this::validateReadings)
                 .max(Comparator.naturalOrder())
                 .orElse(range.upperEndpoint());
     }
@@ -74,7 +74,7 @@ class ChannelValidator {
                 .forEach(validatedResultHandler);
 
         validator.finish().entrySet().stream()
-                .map(entry -> new MissingTarget(entry.getKey(), entry.getValue()))
+                .map(entry -> new MissingTarget(entry.getKey(), entry.getValue(), readingType))
                 .forEach(validatedResultHandler);
 
         return lastChecked.getAccumulated();
@@ -83,10 +83,10 @@ class ChannelValidator {
     private Stream<ValidatedResult> validatedResults(Validator validator, ReadingType channelReadingType) {
         if (channel.isRegular()) {
             return intervalReadings.stream()
-    			.map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading)));
+    			.map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading), channelReadingType));
         }
         return registerReadings.stream()
-                .map(readingRecord -> new ReadingTarget(readingRecord, validator.validate(readingRecord)));
+                .map(readingRecord -> new ReadingTarget(readingRecord, validator.validate(readingRecord), channelReadingType));
     }
 
     private final ListMultimap<Instant, ReadingQualityRecord> getExistingReadingQualities() {
@@ -103,7 +103,7 @@ class ChannelValidator {
     }
 
     private void handleRulePassed(ValidatedResult target) {
-        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp());
+        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp(), target.getReadingType());
         if (existingQualityForType.isPresent() && existingQualityForType.get().isActual()) {
             existingQualityForType.get().makePast();
         }
@@ -131,7 +131,7 @@ class ChannelValidator {
     }
 
     private void setValidationQuality(ValidatedResult target) {
-        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp());
+        Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp(), target.getReadingType());
         if (existingQualityForType.isPresent()) {
             if (!existingQualityForType.get().isActual()) {
                 existingQualityForType.get().makeActual();
@@ -144,8 +144,9 @@ class ChannelValidator {
     }
 
 
-    private Optional<ReadingQualityRecord> getExistingReadingQualityForType(Instant timeStamp) {
+    private Optional<ReadingQualityRecord> getExistingReadingQualityForType(Instant timeStamp, ReadingType readingType) {
         return existingReadingQualities.get(timeStamp).stream()
+                .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(readingType))
                 .filter(input -> rule.getReadingQualityType().equals(input.getType()))
                 .findFirst();
     }
@@ -158,8 +159,8 @@ class ChannelValidator {
     }
 
     private ReadingQualityRecord saveNewReadingQuality(Channel channel, ValidatedResult target, ReadingQualityType readingQualityType) {
-        ReadingQualityRecord readingQuality = target.getReadingRecord().map(r -> channel.createReadingQuality(readingQualityType, r))
-                .orElseGet(() -> channel.createReadingQuality(readingQualityType, target.getTimestamp()));
+        ReadingQualityRecord readingQuality = target.getReadingRecord().map(r -> channel.createReadingQuality(readingQualityType, target.getReadingType(), r))
+                .orElseGet(() -> channel.createReadingQuality(readingQualityType, target.getReadingType(), target.getTimestamp()));
         readingQuality.save();
         existingReadingQualities.put(readingQuality.getReadingTimestamp(),  readingQuality);
         return readingQuality;
@@ -168,6 +169,8 @@ class ChannelValidator {
     private interface ValidatedResult {
 
         Optional<BaseReadingRecord> getReadingRecord();
+
+        ReadingType getReadingType();
 
         Instant getTimestamp();
 
@@ -181,10 +184,12 @@ class ChannelValidator {
     private static class ReadingTarget implements ValidatedResult {
         private final BaseReadingRecord readingRecord;
         private final ValidationResult validationResult;
+        private final ReadingType readingType;
 
-        private ReadingTarget(BaseReadingRecord readingRecord, ValidationResult validationResult) {
+        private ReadingTarget(BaseReadingRecord readingRecord, ValidationResult validationResult, ReadingType readingType) {
             this.readingRecord = readingRecord;
             this.validationResult = validationResult;
+            this.readingType = readingType;
         }
 
         @Override
@@ -201,15 +206,27 @@ class ChannelValidator {
         public ValidationResult getResult() {
             return validationResult;
         }
+
+        @Override
+        public ReadingType getReadingType() {
+            return readingType;
+        }
     }
 
     private static class MissingTarget implements ValidatedResult {
         private final Instant timestamp;
         private final ValidationResult validationResult;
+        private final ReadingType readingType;
 
-        private MissingTarget(Instant timestamp, ValidationResult validationResult) {
+        private MissingTarget(Instant timestamp, ValidationResult validationResult, ReadingType readingType) {
             this.timestamp = timestamp;
             this.validationResult = validationResult;
+            this.readingType = readingType;
+        }
+
+        @Override
+        public ReadingType getReadingType() {
+            return readingType;
         }
 
         @Override
