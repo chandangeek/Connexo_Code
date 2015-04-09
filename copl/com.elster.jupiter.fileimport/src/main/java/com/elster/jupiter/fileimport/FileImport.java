@@ -17,11 +17,6 @@ import java.io.InputStream;
 public interface FileImport {
 
     /**
-     * @return the importSchedule that caused this FileImport
-     */
-    ImportSchedule getImportSchedule();
-
-    /**
      * Opens a new inputStream of the contents of the file.
      * @return
      */

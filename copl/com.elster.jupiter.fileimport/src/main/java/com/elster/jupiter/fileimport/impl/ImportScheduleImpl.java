@@ -1,6 +1,5 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -102,7 +101,7 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public FileImport createFileImport(File file) {
+    public FileImportImpl createFileImport(File file) {
         if (!file.exists()) {
             throw new IllegalArgumentException();
         }

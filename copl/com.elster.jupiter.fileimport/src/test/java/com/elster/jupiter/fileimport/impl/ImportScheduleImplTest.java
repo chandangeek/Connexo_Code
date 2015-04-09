@@ -1,6 +1,5 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -96,7 +95,7 @@ public class ImportScheduleImplTest {
     public void testCreateFileImport() {
         when(file.exists()).thenReturn(true);
 
-        FileImport fileImport = importSchedule.createFileImport(file);
+        FileImportImpl fileImport = importSchedule.createFileImport(file);
 
         assertThat(fileImport.getImportSchedule()).isEqualTo(importSchedule);
     }

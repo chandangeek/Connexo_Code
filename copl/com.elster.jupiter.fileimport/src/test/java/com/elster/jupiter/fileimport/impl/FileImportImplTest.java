@@ -94,7 +94,7 @@ public class FileImportImplTest {
 
     @Test
     public void testCreateKeepsReferenceToImportSchedule() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
+        FileImportImpl fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
 
         assertThat(fileImport.getImportSchedule()).isEqualTo(importSchedule);

@@ -33,7 +33,7 @@ final class FileImportImpl implements FileImport {
         this.thesaurus = thesaurus;
     }
 
-    public static FileImport create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, ImportSchedule importSchedule, File file) {
+    public static FileImportImpl create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, ImportSchedule importSchedule, File file) {
         return new FileImportImpl(fileSystem, dataModel, fileNameCollisionResolver, thesaurus).init(importSchedule, file);
     }
 
@@ -68,8 +68,7 @@ final class FileImportImpl implements FileImport {
         return inputStream;
     }
 
-    @Override
-    public ImportSchedule getImportSchedule() {
+    ImportSchedule getImportSchedule() {
         if (importSchedule == null) {
             importSchedule = importScheduleFactory().getExisting(importScheduleId);
         }
