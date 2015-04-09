@@ -5,5 +5,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class IntervalFieldInfo {
     public String name;
-    public int time;
+    public Integer time;
+    public Integer macro;
 }

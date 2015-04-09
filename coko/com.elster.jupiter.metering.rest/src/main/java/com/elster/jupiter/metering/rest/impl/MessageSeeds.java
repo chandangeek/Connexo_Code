@@ -10,7 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
-    NO_INTERVAL(1, Keys.TIME_ATTRIBUTE_KEY_PREFIX + "0", "No interval", Level.INFO);
+    NO_INTERVAL(1, Keys.TIME_ATTRIBUTE_KEY_PREFIX + "0", "No interval", Level.INFO),
+    NO_MACRO_PERIOD(2, Keys.MACRO_PERIOD_KEY_PREFIX + "0", "No interval", Level.INFO),
     ;
 
     private final int number;
@@ -73,5 +74,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         }
 
         public static final String TIME_ATTRIBUTE_KEY_PREFIX = "TimeAttributeId.";
+        public static final String MACRO_PERIOD_KEY_PREFIX = "MacroPeriodId.";
     }
 }
