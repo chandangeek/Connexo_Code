@@ -87,7 +87,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetConnectionMethodsJsonBindings() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -134,7 +134,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
@@ -172,7 +172,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
@@ -211,7 +211,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
@@ -246,7 +246,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
@@ -284,7 +284,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
@@ -321,8 +321,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getmRID()).thenReturn("mrid1");
         when(device.getName()).thenReturn("Device with mrid1");
         when(device.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device);
-        when(deviceService.findByUniqueMrid("unexisting")).thenReturn(null);
+        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device));
+        when(deviceService.findByUniqueMrid("unexisting")).thenReturn(Optional.<Device>empty());
 
         ComSchedule schedule = mock(ComSchedule.class);
         when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(schedule));
@@ -357,7 +357,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device1.getDeviceType()).thenReturn(deviceType);
         when(device1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device1.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
 
         Device device2 = mock(Device.class);
@@ -367,7 +367,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device2.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
         doThrow(new ConstraintViolationException("already exists", null)).when(device2).save();
-        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(device2);
+        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device2));
 
         ComSchedule schedule = mock(ComSchedule.class);
         when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(schedule));
@@ -388,7 +388,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
         when(channel1.getReadingType()).thenReturn(readingType);
 
@@ -410,7 +410,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
     }
 
@@ -423,7 +423,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
         when(clock.instant()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device1);
@@ -466,7 +466,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
+        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
 
         Response response = target("/devices/mrid1/loadprofiles/7").request().get();
@@ -480,7 +480,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Channel channel2 = mockChannel("channel2", "1.2", 1);
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1, channel2);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(device1);
+        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device1));
         when(channel1.getDevice()).thenReturn(device1);
         when(channel2.getDevice()).thenReturn(device1);
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
@@ -532,7 +532,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1);
         when(channel1.getLoadProfile()).thenReturn(loadProfile3);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(device1);
+        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device1));
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
         final long startTime = 1388534400000L;
         long start = startTime;
@@ -565,7 +565,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetAllLogBooksReturnsEmptyList() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(response)
@@ -584,7 +584,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         logBooks.add(mockLogBook("B_LogBook", 2L, "0.0.0.0.0.3", "0.0.0.0.0.4", lastLogBook, lastReading));
         logBooks.add(mockLogBook("A_LogBook", 3L, "0.0.0.0.0.5", "0.0.0.0.0.6", lastLogBook, lastReading));
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(logBooks);
 
         Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 2).request().get(Map.class);
@@ -624,7 +624,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         EndDeviceEventRecord endDeviceEvent = mock(EndDeviceEventRecord.class);
         EndDeviceEventType endDeviceEventType = mock(EndDeviceEventType.class);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         when(logBook.getEndDeviceEvents(Matchers.any(Range.class))).thenReturn(Arrays.asList(endDeviceEvent));
         when(endDeviceEvent.getEventType()).thenReturn(endDeviceEventType);
@@ -662,7 +662,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
         Response response = target("/devices/mrid/logbooks/134").request().get();
@@ -675,7 +675,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
         Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]").request().get();
@@ -688,7 +688,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
         Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22domain%22,%22value%22:%22100500%22%7D]").request().get();
@@ -701,7 +701,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
         Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22subDomain%22,%22value%22:%22100500%22%7D]").request().get();
@@ -714,7 +714,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
         Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22eventOrAction%22,%22value%22:%22100500%22%7D]").request().get();
@@ -740,7 +740,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         EndDeviceEventRecord endDeviceEventRecord = mock(EndDeviceEventRecord.class);
         EndDeviceEventType endDeviceType = mock(EndDeviceEventType.class);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         List<EndDeviceEventRecord> records = new ArrayList<>();
         records.add(endDeviceEventRecord);
@@ -873,7 +873,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave6)).thenReturn(Optional.of(Instant.ofEpochMilli(60L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
 
-        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
     }
 
@@ -890,7 +890,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
 
-        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
 
@@ -951,7 +951,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
 
-        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
 
@@ -1038,8 +1038,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testUpdateMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
         Device gateway = mockDeviceForTopologyTest("gateway");
-        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
-        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
@@ -1060,7 +1060,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mockDeviceForTopologyTest("device");
         DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
         when(deviceConfig.isDirectlyAddressable()).thenReturn(true);
-        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
 
         DeviceInfo info = new DeviceInfo();
         info.masterDeviceId = 1L;
@@ -1074,7 +1074,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testDeleteMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
-        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);

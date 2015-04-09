@@ -53,7 +53,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testGetAllcomTaskExecutionsOneEnablementOneExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
@@ -77,7 +77,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testGetAllcomTaskExecutionsTwoEnablementsOneExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
@@ -112,7 +112,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunComTaskFromEnablement() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -141,7 +141,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunNowComTaskFromEnablement() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -170,7 +170,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunComTaskFromExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -198,7 +198,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testRunNowComTaskFromExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -229,7 +229,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         comTaskUrgencyInfo.urgency = 50;
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -267,7 +267,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         comTaskUrgencyInfo.urgency = 50;
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -305,7 +305,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -349,7 +349,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -392,7 +392,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -432,7 +432,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -471,7 +471,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         comTaskProtocolDialectInfo.protocolDialect = "protocolDialect";
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -513,7 +513,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         Device device = mock(Device.class);
         when(device.getName()).thenReturn("device name");
         when(device.getmRID()).thenReturn("X9");
-        when(deviceService.findByUniqueMrid("X9")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("X9")).thenReturn(Optional.of(device));
 
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(19L);

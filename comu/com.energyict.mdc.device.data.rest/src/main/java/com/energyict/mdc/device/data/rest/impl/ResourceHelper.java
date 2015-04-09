@@ -39,11 +39,7 @@ public class ResourceHelper {
     }
 
     public Device findDeviceByMrIdOrThrowException(String mRID) {
-        Device device = deviceService.findByUniqueMrid(mRID);
-        if (device == null) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mRID);
-        }
-        return device;
+        return deviceService.findByUniqueMrid(mRID).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mRID));
     }
 
     public Register findRegisterOrThrowException(Device device, long registerSpecId) {

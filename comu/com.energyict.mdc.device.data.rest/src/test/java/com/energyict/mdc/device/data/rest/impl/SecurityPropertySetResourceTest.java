@@ -37,7 +37,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Test
     public void testPasswordPropertyWithViewAndEditPrivilege() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("AX1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("AX1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");
@@ -73,7 +73,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         String devicemRID = "AX1";
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(device);
+        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getId()).thenReturn(deviceConfigId);
@@ -117,7 +117,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         String devicemRID = "AX1";
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(device);
+        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getId()).thenReturn(deviceConfigId);
@@ -142,7 +142,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         String devicemRID = "AX1";
 
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(device);
+        when(deviceService.findByUniqueMrid(devicemRID)).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.empty());
 
         Response response = target("/devices/"+devicemRID+"/securityproperties/"+sps1Id).request().get();
@@ -152,7 +152,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Test
     public void testStatusIncompleteForMissingRequiredProperty() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("AX1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("AX1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");
@@ -173,7 +173,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Test
     public void testPasswordPropertyWithEditWithoutViewPrivilege() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("AX1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("AX1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");
@@ -204,7 +204,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
     @Test
     public void testPasswordPropertyWithoutEditWithoutViewPrivilege() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("AX1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("AX1")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationDeviceAccessLevel(1, "DlmsSecuritySupportPerClient.authenticationlevel.1");

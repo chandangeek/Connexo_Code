@@ -78,7 +78,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
     @Before
     public void setUpStubs() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(loadProfile.getId()).thenReturn(1L);
         Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
