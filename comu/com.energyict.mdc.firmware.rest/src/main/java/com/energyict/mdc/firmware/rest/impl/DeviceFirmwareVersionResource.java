@@ -45,11 +45,11 @@ public class DeviceFirmwareVersionResource {
     }
 
     public Device findDeviceByMrIdOrThrowException(String mRID) {
-        Device device = deviceService.findByUniqueMrid(mRID);
-        if (device == null) {
+        Optional<Device> deviceRef = deviceService.findByUniqueMrid(mRID);
+        if (!deviceRef.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return device;
+        return deviceRef.get();
     }
 
 }
