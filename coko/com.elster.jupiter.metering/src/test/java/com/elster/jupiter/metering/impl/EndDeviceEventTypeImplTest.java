@@ -12,6 +12,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -96,11 +99,13 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
                 new TransactionModule(),
+                new FiniteStateMachineModule(),
                 new NlsModule());
         when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
             public Void perform() {
+                injector.getInstance(FiniteStateMachineService.class);
                 injector.getInstance(MeteringService.class);
                 return null;
             }
@@ -144,7 +149,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     private EndDeviceEventTypeImpl createEndDeviceEventType() {
     	return new EndDeviceEventTypeImpl(dataModel, thesaurus);
     }
-    
+
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {

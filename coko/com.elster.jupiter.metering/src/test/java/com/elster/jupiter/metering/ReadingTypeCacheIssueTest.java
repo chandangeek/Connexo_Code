@@ -15,6 +15,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -52,7 +55,7 @@ import com.google.inject.Injector;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeCacheIssueTest {
-  
+
 	private Injector injector;
 
     @Mock
@@ -89,14 +92,13 @@ public class ReadingTypeCacheIssueTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(),
+                new FiniteStateMachineModule(),
                 new NlsModule()
         );
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(MeteringService.class);
-                return null;
-            }
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringService.class);
+            return null;
         });
     }
 
@@ -127,7 +129,7 @@ public class ReadingTypeCacheIssueTest {
         	Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
         	meter.store(MeterReadingImpl.of(reading));
         	//rollback
-        }	
+        }
         assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isFalse();
         meter = meteringService.findMeter(meter.getId()).get(); // get fresh copy from DB
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

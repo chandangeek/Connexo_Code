@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -48,9 +49,9 @@ public class AmrSystemImpl implements AmrSystem {
 		this.name = name;
         return this;
 	}
-	
+
 	@Override
-	public int getId() {	
+	public int getId() {
 		return id;
 	}
 
@@ -58,12 +59,12 @@ public class AmrSystemImpl implements AmrSystem {
 	public String getName() {
 		return name;
 	}
-	
+
 	void save() {
 		dataModel.persist(this);
 	}
 
-	@Override 
+	@Override
 	public Meter newMeter(String amrId) {
 		return newMeter(amrId, null);
 	}
@@ -72,7 +73,19 @@ public class AmrSystemImpl implements AmrSystem {
 		return meterFactory.get().init(this, amrId, mRID);
 	}
 
-	@Override 
+    @Override
+    public Meter newMeter(FiniteStateMachine stateMachine, String amrId) {
+        return this.newMeter(stateMachine, amrId, null);
+    }
+
+    @Override
+    public Meter newMeter(FiniteStateMachine stateMachine, String amrId, String mRID) {
+        MeterImpl meter = meterFactory.get().init(this, amrId, mRID);
+        meter.setFiniteStateMachine(stateMachine);
+        return meter;
+    }
+
+    @Override
 	public EndDevice newEndDevice(String amrId) {
 		return newEndDevice(amrId, null);
 	}
@@ -80,7 +93,19 @@ public class AmrSystemImpl implements AmrSystem {
 	public EndDevice newEndDevice(String amrId, String mRID) {
 		return endDeviceFactory.get().init(this, amrId, mRID);
 	}
-	
+
+    @Override
+	public EndDevice newEndDevice(FiniteStateMachine stateMachine, String amrId) {
+		return this.newEndDevice(stateMachine, amrId, null);
+	}
+
+	@Override
+	public EndDevice newEndDevice(FiniteStateMachine stateMachine, String amrId, String mRID) {
+        EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, mRID);
+        endDevice.setFiniteStateMachine(stateMachine);
+        return endDevice;
+	}
+
 	@Override
 	public Optional<Meter> findMeter(String amrId) {
 		Condition condition = Operator.EQUAL.compare("amrSystemId", getId());
@@ -102,7 +127,8 @@ public class AmrSystemImpl implements AmrSystem {
     }
 
 	@Override
-	public Optional<Meter> lockMeter(String amrId) {	
+	public Optional<Meter> lockMeter(String amrId) {
 		return findMeter(amrId).map(meter -> dataModel.mapper(Meter.class).lock(meter.getId()));
 	}
+
 }

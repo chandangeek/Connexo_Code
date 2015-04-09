@@ -6,12 +6,13 @@ import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Clock;
 
 public class EndDeviceImpl extends AbstractEndDeviceImpl<EndDeviceImpl> implements EndDevice {
-	
+
     @Inject
-	EndDeviceImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {
-		super(dataModel, eventService, deviceEventFactory, EndDeviceImpl.class);
+	EndDeviceImpl(Clock clock, DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {
+		super(clock, dataModel, eventService, deviceEventFactory, EndDeviceImpl.class);
 	}
-	
+
 }

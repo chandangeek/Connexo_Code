@@ -28,6 +28,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +47,9 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
 
     @Inject
-    MeterImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory,
+    MeterImpl(Clock clock, DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory,
               MeteringService meteringService, Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory) {
-        super(dataModel, eventService, deviceEventFactory, MeterImpl.class);
+        super(clock, dataModel, eventService, deviceEventFactory, MeterImpl.class);
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.meterActivationFactory = meterActivationFactory;

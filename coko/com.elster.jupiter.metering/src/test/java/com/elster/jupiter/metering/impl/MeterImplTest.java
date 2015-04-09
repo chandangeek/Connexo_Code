@@ -61,7 +61,7 @@ public class MeterImplTest {
 
     @Test
     public void testNoOverlapOnActivate() {
-        MeterImpl meter = new MeterImpl(dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory);
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory);
 
         MeterActivationImpl meterActivation = meter.activate(START.toInstant());
 
@@ -73,7 +73,7 @@ public class MeterImplTest {
 
     @Test
     public void testActivateWithUsagePoint() {
-        MeterImpl meter = new MeterImpl(dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory);
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory);
 
         MeterActivationImpl meterActivation = meter.activate(usagePoint, START.toInstant());
 
@@ -85,9 +85,9 @@ public class MeterImplTest {
 
     @Test(expected = MeterAlreadyActive.class)
     public void testOverlapOnActivate() {
-        MeterImpl meter = new MeterImpl(dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory);
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory);
 
-        MeterActivationImpl meterActivation = meter.activate(START.toInstant());
+        meter.activate(START.toInstant());
         meter.activate(START.minusMonths(1).toInstant());
 
     }

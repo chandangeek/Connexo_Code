@@ -12,6 +12,8 @@ import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -89,14 +91,13 @@ public class ReadingEditTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(false),
+                new FiniteStateMachineModule(),
                 new NlsModule()
         );
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(MeteringService.class);
-                return null;
-            }
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringService.class);
+            return null;
         });
     }
 
