@@ -9,6 +9,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -35,6 +36,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -128,7 +130,8 @@ public class InMemoryPersistence {
                 new TasksModule(),
                 new MasterDataModule(),
                 new DeviceDataModule(),
-                new FirmwareModule());
+                new FirmwareModule(),
+                new KpiModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
@@ -140,8 +143,9 @@ public class InMemoryPersistence {
             this.queryService = injector.getInstance(QueryService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
-            this.dataModel = this.createFirmwareService();
+            injector.getInstance(DeviceDataModelServiceImpl.class);
             this.deviceService = injector.getInstance(DeviceService.class);
+            this.dataModel = this.createFirmwareService();
             ctx.commit();
         }
     }
