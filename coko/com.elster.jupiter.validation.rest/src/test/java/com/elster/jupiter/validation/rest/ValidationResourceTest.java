@@ -145,7 +145,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testGetValidationRulesVersionsRules(){
         mockValidationRuleSets(mockValidationRuleSet(13, true));
-        ValidationRuleInfos ruleInfos = target("/validation/13/versions/11/rules/22").request().get(ValidationRuleInfos.class);
+        ValidationRuleInfos ruleInfos = target("/validation/13/versions/11/rules").request().get(ValidationRuleInfos.class);
         assertThat(ruleInfos.total).isEqualTo(1);
         List<ValidationRuleInfo> rules = ruleInfos.rules;
         assertThat(rules).hasSize(1);
@@ -212,7 +212,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     public void testGetNoRules() {
         mockValidationRuleSet(13, true);
         Response response  = target("/validation/13/versions/11/rules/122").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
 //    @Test
@@ -592,11 +592,15 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(ruleSet.getName()).thenReturn("MyName");
         when(ruleSet.getDescription()).thenReturn("MyDescription");
         if (version) {
-            List rules = Arrays.asList(mockValidationRuleInRuleSet(22l, ruleSet));
+
+            ValidationRuleSetVersion ruleSetVersion = mockValidationRuleSetVersion(11, ruleSet);
+            List versions = Arrays.asList(ruleSetVersion);
+            when(ruleSet.getRuleSetVersions()).thenReturn(versions);
+
+            List rules = Arrays.asList(mockValidationRuleInRuleSetVersion(20, ruleSet, ruleSetVersion));
+            when(ruleSetVersion.getRules()).thenReturn(rules);
             when(ruleSet.getRules()).thenReturn(rules);
 
-            List versions = Arrays.asList(mockValidationRuleSetVersion(11));
-            when(ruleSet.getRuleSetVersions()).thenReturn(versions);
         }
 
         doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
@@ -604,17 +608,17 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return ruleSet;
     }
 
-    private ValidationRuleSetVersion mockValidationRuleSetVersion(long id){
+    private ValidationRuleSetVersion mockValidationRuleSetVersion(long id, ValidationRuleSet ruleSet){
         final Instant date = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         ValidationRuleSetVersion ruleSetVersion = mock(ValidationRuleSetVersion.class);
         when(ruleSetVersion.getDescription()).thenReturn("descriptionOfVersion");
         when(ruleSetVersion.getId()).thenReturn(id);
         when(ruleSetVersion.getStartDate()).thenReturn(date);
-        doReturn(Optional.of(ruleSetVersion)).when(validationService).getValidationRuleSetVersion(id);
+        when(ruleSetVersion.getRuleSet()).thenReturn(ruleSet);
         return ruleSetVersion;
     }
 
-    private ValidationRule mockValidationRuleInRuleSet(long id, ValidationRuleSet ruleSet) {
+    private ValidationRule mockValidationRuleInRuleSetVersion(long id, ValidationRuleSet ruleSet, ValidationRuleSetVersion ruleSetVersion) {
         ValidationRule rule = mock(ValidationRule.class);
         when(rule.getName()).thenReturn("MyRule");
         when(rule.getId()).thenReturn(id);
@@ -622,7 +626,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(rule.getImplementation()).thenReturn("com.blablabla.Validator");
         when(rule.getDisplayName()).thenReturn("My rule");
         when(rule.isActive()).thenReturn(true);
+        when(rule.getRuleSetVersion()).thenReturn(ruleSetVersion);
         when(rule.getRuleSet()).thenReturn(ruleSet);
+
 
         ReadingType readingType = mockReadingType();
         Set<ReadingType> readingTypes = new HashSet<>();
