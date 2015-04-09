@@ -14,6 +14,7 @@ import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
 import com.elster.jupiter.export.processor.impl.StandardCsvDataProcessorFactory;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -57,6 +58,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -177,6 +179,7 @@ public class DemoTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new DataVaultModule(),
                 new PartyModule(),
@@ -208,6 +211,7 @@ public class DemoTest {
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
+                new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new DeviceDataModule(),
                 new MasterDataModule(),
