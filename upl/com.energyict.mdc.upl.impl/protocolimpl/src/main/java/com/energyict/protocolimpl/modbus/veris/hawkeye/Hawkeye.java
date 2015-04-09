@@ -13,9 +13,11 @@ package com.energyict.protocolimpl.modbus.veris.hawkeye;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -75,6 +77,16 @@ public class Hawkeye extends Modbus  {
         return new Date();
     }
     
+    @Override
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        if (obisCode.equals(ObisCode.fromString("0.0.96.1.0.255"))) {
+            String slaveId = getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
+            return new RegisterValue(obisCode, slaveId);
+        } else {
+            return super.readRegister(obisCode);
+        }
+    }
+
     public DiscoverResult discover(DiscoverTools discoverTools) {
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMODBUS();

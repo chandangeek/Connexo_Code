@@ -10,14 +10,16 @@
 
 package com.energyict.protocolimpl.modbus.veris.hawkeye;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.modbus.core.ReportSlaveIDRegister;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.math.BigDecimal;
 
 /**
  *
@@ -34,6 +36,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
         // options
         setZeroBased(true); // this means that reg2read = reg-1
         
+        getRegisters().add(new ReportSlaveIDRegister(-1, -1, ObisCode.fromString("0.0.96.1.0.255"), Unit.getUndefined())); // Dummy register for the SlaveID
+
         getRegisters().add(new HoldingRegister(257,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh"))); // energy
         getRegisters().add(new HoldingRegister(261,2,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW"))); // demand power
         getRegisters().add(new HoldingRegister(263,2,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("var"))); // reactive power 
