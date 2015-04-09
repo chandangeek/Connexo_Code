@@ -106,6 +106,21 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     }
 
     @Test
+    public void testDeleteRuleSet() throws Exception {
+        ValidationRuleSet validationRuleSet = mockValidationRuleSet(99, false);
+        Response response = target("/validation/99").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        verify(validationRuleSet).delete();
+    }
+
+    @Test
+    public void testDeleteVersion() throws Exception{
+        ValidationRuleSet validationRuleSet = mockValidationRuleSet(99, true);
+        List<? extends ValidationRuleSetVersion> versions = validationRuleSet.getRuleSetVersions();
+        Response response = target("/validation/99/versions/11").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+    }
+    @Test
     public void testGetValidationRuleSet() {
         mockValidationRuleSet(13, true);
 
@@ -128,8 +143,76 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     }
 
     @Test
-    public void testGetValidationRulesVersions(){
+    public void testGetValidationRulesVersionsRules(){
+        mockValidationRuleSets(mockValidationRuleSet(13, true));
+        ValidationRuleInfos ruleInfos = target("/validation/13/versions/11/rules/22").request().get(ValidationRuleInfos.class);
+        assertThat(ruleInfos.total).isEqualTo(1);
+        List<ValidationRuleInfo> rules = ruleInfos.rules;
+        assertThat(rules).hasSize(1);
+        ValidationRuleInfo ruleInfo = rules.get(0);
+        assertThat(ruleInfo.id).isEqualTo(1);
+        assertThat(ruleInfo.name).isEqualTo("MyRule");
+        assertThat(ruleInfo.implementation).isEqualTo("com.blablabla.Validator");
+        assertThat(ruleInfo.displayName).isEqualTo("My rule");
+        assertThat(ruleInfo.active).isEqualTo(true);
+    }
 
+        @Test
+    public void testGetValidatorsNoValidators() {
+        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+
+        assertThat(validatorInfos.total).isEqualTo(0);
+        assertThat(validatorInfos.validators).hasSize(0);
+    }
+
+
+    @Test
+    public void testGetValidators() {
+        List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
+        when(validationService.getAvailableValidators()).thenReturn(mockValidator);
+
+        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+
+        assertThat(validatorInfos.total).isEqualTo(2);
+        List<ValidatorInfo> validators = validatorInfos.validators;
+        assertThat(validators).hasSize(2);
+
+        ValidatorInfo validatorAInfo = validators.get(0);
+        assertThat(validatorAInfo.displayName).isEqualTo("A Validator");
+        assertThat(validatorAInfo.implementation).isNotNull();
+
+        ValidatorInfo validatorBInfo = validators.get(1);
+        assertThat(validatorBInfo.displayName).isEqualTo("B Validator");
+        assertThat(validatorBInfo.implementation).isNotNull();
+
+        List<PropertyInfo> propertyInfos = validatorAInfo.properties;
+        assertThat(propertyInfos).hasSize(1);
+
+        PropertyInfo propertyInfo = propertyInfos.get(0);
+        assertThat(propertyInfo.key).isEqualTo("listvalue");
+        assertThat(propertyInfo.required).isEqualTo(false);
+
+        PropertyTypeInfo typeInfo = propertyInfo.propertyTypeInfo;
+        PredefinedPropertyValuesInfo<?> predefinedValuesInfo = typeInfo.predefinedPropertyValuesInfo;
+        assertThat(predefinedValuesInfo.selectionMode).isEqualTo(PropertySelectionMode.LIST);
+
+        Object[] possibleValuesInfo = predefinedValuesInfo.possibleValues;
+        assertThat(possibleValuesInfo).hasSize(2);
+
+        Map<?, ?> possibleValue1 = (Map<?, ?>) possibleValuesInfo[0];
+        assertThat(possibleValue1.get("id")).isEqualTo("1");
+        assertThat(possibleValue1.get("name")).isEqualTo("first");
+
+        Map<?, ?> possibleValue2 = (Map<?, ?>) possibleValuesInfo[1];
+        assertThat(possibleValue2.get("id")).isEqualTo("2");
+        assertThat(possibleValue2.get("name")).isEqualTo("second");
+    }
+
+    @Test
+    public void testGetNoRules() {
+        mockValidationRuleSet(13, true);
+        Response response  = target("/validation/13/versions/11/rules/122").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
     }
 
 //    @Test
@@ -509,10 +592,10 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(ruleSet.getName()).thenReturn("MyName");
         when(ruleSet.getDescription()).thenReturn("MyDescription");
         if (version) {
-            List rules = Arrays.asList(mockValidationRuleInRuleSet(221L, ruleSet));
+            List rules = Arrays.asList(mockValidationRuleInRuleSet(22l, ruleSet));
             when(ruleSet.getRules()).thenReturn(rules);
 
-            List versions = Arrays.asList(mockValidationRuleSetVersion(1L));
+            List versions = Arrays.asList(mockValidationRuleSetVersion(11));
             when(ruleSet.getRuleSetVersions()).thenReturn(versions);
         }
 
@@ -527,6 +610,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(ruleSetVersion.getDescription()).thenReturn("descriptionOfVersion");
         when(ruleSetVersion.getId()).thenReturn(id);
         when(ruleSetVersion.getStartDate()).thenReturn(date);
+        doReturn(Optional.of(ruleSetVersion)).when(validationService).getValidationRuleSetVersion(id);
         return ruleSetVersion;
     }
 
