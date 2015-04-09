@@ -2,6 +2,11 @@ Ext.define('Mdc.store.DeviceLifeCycles', {
     extend: 'Ext.data.Store',
     model: 'Mdc.model.DeviceLifeCycle',
     autoLoad: false,
+    sorters: [{
+        property: 'name',
+        direction: 'ASC'
+    }],
+    remoteSort: true,
     proxy: {
         type: 'rest',
         url: '/api/dld/devicelifecycles',
