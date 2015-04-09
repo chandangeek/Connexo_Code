@@ -11,23 +11,28 @@ Ext.define('Dlc.devicelifecycletransitions.view.PreviewForm', {
         me.items = [
             {
                 fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
-                name: 'name'
+                name: 'name',
+                itemId: 'name-field'
             },
             {
                 fieldLabel: Uni.I18n.translate('general.from', 'DLC', 'From'),
-                name: 'fromState_name'
+                name: 'fromState_name',
+                itemId: 'from-field'
             },
             {
                 fieldLabel: Uni.I18n.translate('general.to', 'DLC', 'To'),
-                name: 'toState_name'
+                name: 'toState_name',
+                itemId: 'to-field'
             },
             {
                 fieldLabel: Uni.I18n.translate('general.triggeredBy', 'DLC', 'Triggered by'),
-                name: 'triggeredBy_name'
+                name: 'triggeredBy_name',
+                itemId: 'triggered-by-field'
             },
             {
                 fieldLabel: Uni.I18n.translate('general.privileges', 'DLC', 'Privileges'),
                 name: 'privileges',
+                itemId: 'privileges-field',
                 renderer: function (privileges) {
                     var str = '';
                     if (privileges) {

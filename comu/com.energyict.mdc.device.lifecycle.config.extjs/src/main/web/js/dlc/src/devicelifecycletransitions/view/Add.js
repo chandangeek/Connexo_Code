@@ -101,11 +101,13 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
+                                        itemId: 'from-no-states-field',
                                         value: Uni.I18n.translate('deviceLifeCycleTransitions.add.noStates', 'DLC', 'There are no states available.')
                                     },
                                     {
                                         xtype: 'button',
                                         margin: '0 0 0 20',
+                                        itemId: 'from-add-state-link',
                                         text: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
                                         ui: 'link'
                                     }
@@ -153,10 +155,12 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
+                                        itemId: 'to-no-states-field',
                                         value: Uni.I18n.translate('deviceLifeCycleTransitions.add.noStates', 'DLC', 'There are no states available.')
                                     },
                                     {
                                         xtype: 'button',
+                                        itemId: 'to-add-state-link',
                                         margin: '0 0 0 20',
                                         text: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
                                         ui: 'link'

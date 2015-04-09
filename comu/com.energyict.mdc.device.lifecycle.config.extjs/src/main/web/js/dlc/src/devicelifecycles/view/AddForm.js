@@ -18,6 +18,7 @@ Ext.define('Dlc.devicelifecycles.view.AddForm', {
         me.items = [
             {
                 xtype: 'uni-form-info-message',
+                itemId: 'info-message',
                 text: me.infoText,
                 margin: '0 0 20 20',
                 width: 800

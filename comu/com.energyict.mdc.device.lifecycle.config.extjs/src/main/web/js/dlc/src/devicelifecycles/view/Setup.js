@@ -21,10 +21,12 @@ Ext.define('Dlc.devicelifecycles.view.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'device-life-cycles-grid',
+                        itemId: 'device-life-cycles-grid',
                         router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'device-life-cycles-empty-panel',
                         title: Uni.I18n.translate('deviceLifeCycles.empty.title', 'DLC', 'No device life cycles found'),
                         reasons: [
                             Uni.I18n.translate('deviceLifeCycles.empty.list.item1', 'DLC', 'No device life cycles have been defined yet.'),
@@ -33,12 +35,14 @@ Ext.define('Dlc.devicelifecycles.view.Setup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Add device life cycle'),
-                                href: me.router.getRoute('administration/devicelifecycles/add').buildUrl()
+                                href: me.router.getRoute('administration/devicelifecycles/add').buildUrl(),
+                                itemId: 'add-device-life-cycle-button'
                             }
                         ]
                     },
                     previewComponent: {
-                        xtype: 'device-life-cycles-preview'
+                        xtype: 'device-life-cycles-preview',
+                        itemId: 'device-life-cycles-preview'
                     }
                 }
             ]

@@ -17,6 +17,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Setup', {
 
         me.side = {
             xtype: 'device-life-cycles-side-menu',
+            itemId: 'device-life-cycles-transitions-side-menu',
             router: me.router
         };
 
@@ -28,10 +29,12 @@ Ext.define('Dlc.devicelifecycletransitions.view.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'device-life-cycle-transitions-grid',
+                        itemId: 'device-life-cycles-transitions-grid',
                         router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'no-items-found-panel',
                         title: Uni.I18n.translate('deviceLifeCycleTransitions.empty.title', 'DLC', 'No transitions found'),
                         reasons: [
                             Uni.I18n.translate('deviceLifeCycleTransitions.empty.list.item1', 'DLC', 'No transitions have been added yet')
@@ -39,12 +42,14 @@ Ext.define('Dlc.devicelifecycletransitions.view.Setup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('general.addTransition', 'DLC', 'Add transition'),
-                                href: me.router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add').buildUrl()
+                                href: me.router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add').buildUrl(),
+                                itemId: 'add-transition-button'
                             }
                         ]
                     },
                     previewComponent: {
-                        xtype: 'device-life-cycle-transitions-preview'
+                        xtype: 'device-life-cycle-transitions-preview',
+                        itemId: 'device-life-cycle-transitions-preview'
                     }
                 }
             ]

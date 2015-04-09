@@ -8,6 +8,7 @@ Ext.define('Dlc.devicelifecycles.view.PreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
+                itemId: 'cycle-name',
                 fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
                 name: 'name',
                 labelWidth: 250

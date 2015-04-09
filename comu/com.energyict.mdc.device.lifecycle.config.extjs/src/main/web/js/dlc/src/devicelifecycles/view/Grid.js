@@ -45,7 +45,7 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
                     '->',
                     {
                         xtype: 'button',
-                        itemId: 'toolbar-button',
+                        itemId: 'add-device-life-cycle-button',
                         text: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Add device life cycle'),
                         href: me.router.getRoute('administration/devicelifecycles/add').buildUrl()
                     }
