@@ -87,6 +87,9 @@ public class A40 extends Modbus {
         return result;
     }
 
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }
@@ -213,7 +216,7 @@ public class A40 extends Modbus {
     protected void setModbusConnection(ModbusConnection modbusConnection){
     	this.modbusConnection = modbusConnection;
     }
-    
+
     /**
      * Setter for the {@link Logger}
      * 

@@ -1,12 +1,18 @@
 package com.energyict.protocolimpl.modbus.multilin.epm2200;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,7 +51,7 @@ public class EPM2200 extends Modbus {
     }
 
     /**
-     * The protocol version
+     * The protocol version date
      */
     public String getProtocolVersion() {
         return "$Date$";
@@ -58,6 +64,21 @@ public class EPM2200 extends Modbus {
 
     public Date getTime() throws IOException {
         return new Date();
+    }
+
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        try {
+            Object value = getRegisterFactory().findRegister(obisCode).value();
+            if (value instanceof BigDecimal) {
+                return new RegisterValue(obisCode, new Quantity((BigDecimal) value, getRegisterFactory().findRegister(obisCode).getUnit()));
+            } else if (value instanceof String) {
+                return new RegisterValue(obisCode, (String) value);
+            }
+            throw new NoSuchRegisterException();
+        } catch (ModbusException e) {
+            getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+        }
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {

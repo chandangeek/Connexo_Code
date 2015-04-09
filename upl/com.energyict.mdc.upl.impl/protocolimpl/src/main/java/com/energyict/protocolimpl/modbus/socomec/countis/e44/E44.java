@@ -26,7 +26,7 @@ import java.util.Properties;
  * ProtocolImplementation for the Socomec Countis E44 protocol
  * <p/>
  * <b>Manufacturor description:</b>
- * The COUNTIS E44 is a thi-phase energy meter (both active and reactive)
+ * The COUNTIS E44 is a three-phase energy meter (both active and reactive)
  * communicating via an RS485 link using JBUS/MODBUS protocol.
  *
  * @author sva

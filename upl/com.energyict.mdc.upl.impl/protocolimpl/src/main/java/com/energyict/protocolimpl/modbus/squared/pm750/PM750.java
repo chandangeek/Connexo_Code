@@ -74,6 +74,9 @@ public class PM750 extends Modbus  {
 		return result;
 	}
 
+	/**
+	 * The protocol version
+	 */
     public String getProtocolVersion() {
 		return "$Date$";
 	}

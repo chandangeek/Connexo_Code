@@ -3,6 +3,7 @@
  */
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -14,6 +15,7 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -58,7 +60,7 @@ public class CompactNSX extends Modbus {
 	}
 
     /**
-     * The protocol version
+     * The protocol version date
      */
     public String getProtocolVersion() {
         return "$Date$";
@@ -95,13 +97,18 @@ public class CompactNSX extends Modbus {
     R e g i s t e r P r o t o c o l  i n t e r f a c e 
     *******************************************************************************************/
    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-       try {
-           return new RegisterValue(obisCode,getRegisterFactory().findRegister(obisCode).quantityValue());
-       }
-       catch(ModbusException e) {
-           getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
-           throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
-       }
+	   try {
+		   Object value = getRegisterFactory().findRegister(obisCode).value();
+		   if (value instanceof BigDecimal) {
+			   return new RegisterValue(obisCode, new Quantity((BigDecimal) value, getRegisterFactory().findRegister(obisCode).getUnit()));
+		   } else if (value instanceof String) {
+			   return new RegisterValue(obisCode, (String) value);
+		   }
+		   throw new NoSuchRegisterException();
+	   } catch (ModbusException e) {
+		   getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
+		   throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+	   }
    }
     
 	/**

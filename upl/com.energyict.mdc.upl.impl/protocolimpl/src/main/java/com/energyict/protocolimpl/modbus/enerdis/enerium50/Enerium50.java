@@ -26,6 +26,9 @@ public class Enerium50 extends Enerium200 {
         return "Enerium 50 " + getMeterInfo().getVersion();
     }
 
+    /**
+   	 * The version date
+   	 */
     @Override
     public String getProtocolVersion() {
         return "$Date: 2013-05-02 09:42:35 +0200 (do, 02 mei 2013) $";

@@ -31,7 +31,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         // Fixed Data Section
         // + Identification block
         getRegisters().add(new HoldingRegister(1, 8, "MeterName").setParser("ASCII"));
-        getRegisters().add(new HoldingRegister(9, 8, "MeterSerial").setParser("ASCII"));
+        getRegisters().add(new HoldingRegister(9, 8, ObisCode.fromString("0.0.96.1.0.255"), "MeterSerial").setParser("ASCII"));
         getRegisters().add(new HoldingRegister(17, 1, "MeterType").setParser("UINT16"));
         getRegisters().add(new HoldingRegister(18, 2, "FirmwareVersion").setParser("ASCII"));
 
@@ -121,6 +121,14 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(4103, 1, ObisCode.fromString("1.0.81.7.10.255")).setParser("SINT16"));   // RMS voltage, Phase angle U1-U2
         getRegisters().add(new HoldingRegister(4104, 1, ObisCode.fromString("1.0.81.7.21.255")).setParser("SINT16"));   // RMS voltage, Phase angle U2-U3
         getRegisters().add(new HoldingRegister(4105, 1, ObisCode.fromString("1.0.81.7.02.255")).setParser("SINT16"));   // RMS voltage, Phase angle U3-U1
+
+        // + Basic Setup Block
+        getRegisters().add(new HoldingRegister(40016, 1, ObisCode.fromString("1.1.0.4.2.255")).setParser("UINT16"));   // CT numerator
+        getRegisters().add(new HoldingRegister(40017, 1, ObisCode.fromString("1.1.0.4.8.255")).setParser("UINT16"));   // CT multiplier
+        getRegisters().add(new HoldingRegister(40018, 1, ObisCode.fromString("1.1.0.4.5.255")).setParser("UINT16"));   // CT denominator
+        getRegisters().add(new HoldingRegister(40019, 1, ObisCode.fromString("1.1.0.4.3.255")).setParser("UINT16"));   // PT numerator
+        getRegisters().add(new HoldingRegister(40020, 1, ObisCode.fromString("1.1.0.4.9.255")).setParser("UINT16"));   // PT multiplier
+        getRegisters().add(new HoldingRegister(40021, 1, ObisCode.fromString("1.1.0.4.6.255")).setParser("UINT16"));   // PT denominator
     }
 
     protected void initParsers() {

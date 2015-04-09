@@ -10,15 +10,19 @@
 
 package com.energyict.protocolimpl.modbus.socomec.a20;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
 
 /**
  *
@@ -39,7 +43,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1835,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh")).setParser("decimal10000"));
         getRegisters().add(new HoldingRegister(1803,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW")).setParser("power"));
         getRegisters().add(new HoldingRegister(1804,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("power"));
-        getRegisters().add(new HoldingRegister(1805,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("kVA")).setParser("power"));
+        getRegisters().add(new HoldingRegister(1805, 1, ObisCode.fromString("1.1.9.7.0.255"), Unit.get("kVA")).setParser("power"));
         getRegisters().add(new HoldingRegister(1806,1,ObisCode.fromString("1.1.13.7.0.255")).setParser("powerfactor"));
         getRegisters().add(new HoldingRegister(1858,1,ObisCode.fromString("1.1.12.7.0.255")).setParser("voltage"));// A40
         getRegisters().add(new HoldingRegister(1859,1,ObisCode.fromString("1.1.112.7.0.255")).setParser("voltage")); // A40
@@ -66,9 +70,11 @@ public class RegisterFactory extends AbstractRegisterFactory {
 
         getRegisters().add(new HoldingRegister(258,2,"slotinfo"));
         getRegisters().add(new HoldingRegister(257,1,"productcode"));
-        
-        getRegisters().add(new HoldingRegister(513,1,"ctSec"));
-        getRegisters().add(new HoldingRegister(514,1,"ctPrim"));
+
+        getRegisters().add(new HoldingRegister(513,1,ObisCode.fromString("1.1.0.4.5.255"),"ctSec"));
+        getRegisters().add(new HoldingRegister(514,1,ObisCode.fromString("1.1.0.4.2.255"),"ctPrim"));
+        getRegisters().add(new HoldingRegister(516,2,ObisCode.fromString("1.1.0.4.3.255"),"ptPrim"));
+        getRegisters().add(new HoldingRegister(518,1,ObisCode.fromString("1.1.0.4.6.255"),"ptSec"));
         
         // mMINT modbus <-> INCOM interface  does allow reading the registerconfiguration registers for the word order by using address 247 or 248.
         // we use a custom property to change the order because this reading of interface configuration registers is not possible within the framework.

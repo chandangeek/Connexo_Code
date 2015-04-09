@@ -107,7 +107,10 @@ public class Enerium200 extends Modbus {
 	public RegisterFactory getRegFactory() {
 		return (RegisterFactory)getRegisterFactory();
 	}
-	
+
+	/**
+	 * The version date
+	 */
 	public Profile getProfile() throws IOException {
 		if (this.profile == null) this.profile = new Profile(this);
 		return this.profile;

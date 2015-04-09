@@ -10,15 +10,19 @@
 
 package com.energyict.protocolimpl.modbus.squared.pm750;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
 
 /**
  *
@@ -62,7 +66,15 @@ public class RegisterFactory extends AbstractRegisterFactory {
         //getRegisters().add(new HoldingRegister(1122,1,ObisCode.fromString("1.1.1.4.0.255")));
         getRegisters().add(new HoldingRegister(1104,2,ObisCode.fromString("1.1.1.3.0.255"),Unit.get("kW")));
         getRegisters().add(new HoldingRegister(1154,2,ObisCode.fromString("1.1.1.6.0.255"),Unit.get("kW")));
-        
+
+        // Register Listing—Setup and Status
+        getRegisters().add(new HoldingRegister(4120,1,ObisCode.fromString("1.1.0.4.2.255"), "CT Ratio - Primary").setParser("integer"));
+        getRegisters().add(new HoldingRegister(4121,1,ObisCode.fromString("1.1.0.4.5.255"), "CT Ratio - Secondary").setParser("integer"));
+        getRegisters().add(new HoldingRegister(4122,1,ObisCode.fromString("1.1.0.4.3.255"), "PT Ratio - Primary").setParser("integer"));
+        getRegisters().add(new HoldingRegister(4123,1,ObisCode.fromString("1.1.0.4.8.255"), "PT Ratio - Scale").setParser("integer"));
+        getRegisters().add(new HoldingRegister(4124,1,ObisCode.fromString("1.1.0.4.6.255"), "PT Ratio - Secondary").setParser("integer"));
+        getRegisters().add(new HoldingRegister(4125,1,ObisCode.fromString("1.1.0.6.2.255"), "Service Frequency").setParser("integer"));
+
 //        getRegisters().add(new HoldingRegister(4000,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh")).setParser("scale E"));
 //        getRegisters().add(new HoldingRegister(4006,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW")).setParser("scale W"));
 //        getRegisters().add(new HoldingRegister(4008,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("scale W"));
@@ -103,16 +115,25 @@ public class RegisterFactory extends AbstractRegisterFactory {
         // BigDecimal parser
         getParserFactory().addBigDecimalParser(new Parser() {
             public Object val(int[] values, AbstractRegister register) {
-                int val=0;
-                for (int i=0;i<values.length;i++) {
-                    val += (values[i]<<((values.length-1-i)*16));
+                int val = 0;
+                for (int i = 0; i < values.length; i++) {
+                    val += (values[i] << ((values.length - 1 - i) * 16));
                 }
                 try {
-                    return new BigDecimal(""+Float.intBitsToFloat(val));
-                }
-                catch(NumberFormatException e) {
+                    return new BigDecimal("" + Float.intBitsToFloat(val));
+                } catch (NumberFormatException e) {
                     return BigDecimal.valueOf(0);
                 }
+            }
+        });
+
+        getParserFactory().addParser("integer", new Parser() {
+            public Object val(int[] values, AbstractRegister register) {
+                int val = 0;
+                for (int i = 0; i < values.length; i++) {
+                    val += (values[i] << ((values.length - 1 - i) * 16));
+                }
+                return val;
             }
         });
         

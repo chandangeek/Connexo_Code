@@ -65,7 +65,10 @@ public class A20 extends Modbus {
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "unknown";
     }
-    
+
+    /**
+     * The protocol version
+     */
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         result.add("SocomecType");

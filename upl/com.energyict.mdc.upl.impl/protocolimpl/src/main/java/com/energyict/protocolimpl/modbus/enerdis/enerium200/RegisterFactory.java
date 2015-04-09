@@ -10,12 +10,6 @@
 
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -35,6 +29,12 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Non_Signed_1
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.SignedParser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Signed_1_10000_Parser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Signed_1_100_Parser;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
@@ -155,6 +155,11 @@ public class RegisterFactory extends AbstractRegisterFactory {
 
     	addReg(0x094E, 1, "1.1.14.4.0.255", "Hz", "Frequency (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
 
+		// Configuration of measurements
+    	addReg(0x6800, 2, "1.1.0.4.3.255", "", "Primary VT", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x6802, 2, "1.1.0.4.6.255", "", "Secondary VT", 1, Enerium200Register.NON_SIGNED);
+		addReg(0x6804, 2, "1.1.0.4.2.255", "", "Primary CT", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x6806, 2, "1.1.0.4.5.255", "", "Secondary CT", 1, Enerium200Register.NON_SIGNED);
 	}
 	
 	
@@ -223,12 +228,12 @@ public class RegisterFactory extends AbstractRegisterFactory {
     protected void initParsers() {
         // BigDecimal parser
         getParserFactory().addBigDecimalParser(new Parser() {
-            public Object val(int[] values, AbstractRegister register) throws IOException {
-                BigDecimal bd = new BigDecimal(""+values[0]);
-                return bd;
+			public Object val(int[] values, AbstractRegister register) throws IOException {
+				BigDecimal bd = new BigDecimal("" + values[0]);
+				return bd;
 //                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
-            }
-        });
+			}
+		});
         
         getParserFactory().addParser("EnergyParser",new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
@@ -259,7 +264,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getParserFactory().addParser(Non_SignedParser.PARSER_NAME, new Non_SignedParser());
         getParserFactory().addParser(Signed_1_10000_Parser.PARSER_NAME, new Signed_1_10000_Parser());
         getParserFactory().addParser(Signed_1_100_Parser.PARSER_NAME, new Signed_1_100_Parser());
-        
+
     } //private void initParsers()
     
 } // public class RegisterFactory extends AbstractRegisterFactory
