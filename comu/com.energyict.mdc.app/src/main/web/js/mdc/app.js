@@ -34,6 +34,10 @@ Ext.onReady(function () {
         {
             name: 'Fwc',
             path: '../../apps/fwc/src'
+        },
+        {
+            name: 'Dlc',
+            path: '../../apps/dlc/src'
         }
     ];
 

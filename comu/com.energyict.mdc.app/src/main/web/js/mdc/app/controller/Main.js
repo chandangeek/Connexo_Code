@@ -24,6 +24,7 @@ Ext.define('MdcApp.controller.Main', {
         'Dvi.controller.Main',
         'Dsh.controller.Main',
         'Yfn.controller.Main',
+        'Dlc.main.controller.Main',
         'Fwc.controller.Main'
     ],
 
