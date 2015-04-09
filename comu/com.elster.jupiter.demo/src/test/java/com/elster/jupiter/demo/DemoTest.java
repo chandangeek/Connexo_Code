@@ -3,7 +3,6 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.datavault.impl.DataVaultProvider;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -100,6 +99,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+import javax.validation.MessageInterpolator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,16 +117,6 @@ import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
-
-import javax.validation.MessageInterpolator;
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -250,8 +248,8 @@ public class DemoTest {
             fail("The demo command shouldn't produce errors");
         }
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Device spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
-        assertThat(spe010000010156.getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
+        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
     }
 
     @Test
@@ -263,8 +261,8 @@ public class DemoTest {
             fail("The demo command shouldn't produce errors");
         }
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Device spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
-        assertThat(spe010000010156.getDeviceProtocolProperties().getProperty("TimeZone")).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
+        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("TimeZone")).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
     }
 
     @Test
