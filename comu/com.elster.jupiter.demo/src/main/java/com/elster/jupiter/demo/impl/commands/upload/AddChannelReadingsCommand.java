@@ -66,7 +66,7 @@ public abstract class AddChannelReadingsCommand extends ReadDataFromFileCommand 
     protected abstract Instant getTimeForReading(ReadingType readingType, Instant startDate, String controlValue);
 
     private void setLastReadingTypeForLoadProfile(final String mrid) {
-        Device device = deviceService.findByUniqueMrid(mrid);
+        Device device = deviceService.findByUniqueMrid(mrid).orElse(null);
         List<LoadProfile> loadProfiles = device.getLoadProfiles();
         for (LoadProfile loadProfile : loadProfiles) {
             LoadProfile.LoadProfileUpdater updater = device.getLoadProfileUpdaterFor(loadProfile);

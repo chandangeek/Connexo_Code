@@ -64,7 +64,7 @@ public class DeviceBuilder implements Builder<Device> {
 
     @Override
     public Optional<Device> find() {
-        return Optional.ofNullable(deviceService.findByUniqueMrid(this.mrid));
+        return deviceService.findByUniqueMrid(this.mrid);
     }
 
     @Override
