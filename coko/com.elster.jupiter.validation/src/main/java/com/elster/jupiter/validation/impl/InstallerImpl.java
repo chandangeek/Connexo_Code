@@ -88,11 +88,16 @@ public class InstallerImpl {
     }
 
     private void createDestinationAndSubscriber() {
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-        destinationSpec.save();
-        destinationSpec.activate();
-        destinationSpec.subscribe(SUBSCRIBER_NAME);
+        try
+        {
+            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
+            destinationSpec.save();
+            destinationSpec.activate();
+            destinationSpec.subscribe(SUBSCRIBER_NAME);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
     }
 
     private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
