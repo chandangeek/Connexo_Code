@@ -17,7 +17,7 @@ public class AssignIssueTransaction  implements Transaction<ActionInfo> {
     private final User performer;
     private final Function<ActionInfo, List<? extends Issue>> issueProvider;
 
-    public AssignIssueTransaction(AssignIssueRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider){
+    public AssignIssueTransaction(AssignIssueRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         this.request = request;
         this.performer = performer;
         this.issueProvider = issueProvider;
