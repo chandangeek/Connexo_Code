@@ -37,13 +37,16 @@ public class FirmwareUpgradeOptionsResource {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareUpgradeOptionsInfo firmwareUpgradeOptionsInfo = new FirmwareUpgradeOptionsInfo();
-        Set<ProtocolSupportedFirmwareOptions> supportedFirmwareUpgradeOptions = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> supportedFirmwareUpgradeOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
         Set<ProtocolSupportedFirmwareOptions> allowedFirmwareUpgradeOptions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(deviceType);
 
         supportedFirmwareUpgradeOptions.stream().forEach(op -> firmwareUpgradeOptionsInfo.supportedOptions.add(new UpgradeOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
 
         allowedFirmwareUpgradeOptions.stream().forEach(op ->
                 firmwareUpgradeOptionsInfo.allowedOptions.add(new UpgradeOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        if (!allowedFirmwareUpgradeOptions.isEmpty()) {
+            firmwareUpgradeOptionsInfo.isAllowed = true;
+        }
         return firmwareUpgradeOptionsInfo;
     }
 
@@ -55,7 +58,7 @@ public class FirmwareUpgradeOptionsResource {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareUpgradeOptionsInfo firmwareUpgradeOptionsInfo = new FirmwareUpgradeOptionsInfo();
-        Set<ProtocolSupportedFirmwareOptions> supportedFirmwareUpgradeOptions = firmwareService.getFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> supportedFirmwareUpgradeOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
         Set<ProtocolSupportedFirmwareOptions> allowedFirmwareUpgradeOptions = new LinkedHashSet<>();
         inputOptions.allowedOptions.stream().forEach(op ->
@@ -65,7 +68,7 @@ public class FirmwareUpgradeOptionsResource {
                     allowedFirmwareUpgradeOptions.add(optionRef.get());
                 }
             });
-        if (allowedFirmwareUpgradeOptions.isEmpty()) {
+        if (allowedFirmwareUpgradeOptions.isEmpty() && inputOptions.isAllowed) {
             throw new FirmwareUpgradeOptionsRequiredException(thesaurus);
         }
         FirmwareUpgradeOptions options = firmwareService.getFirmwareUpgradeOptions(deviceType);

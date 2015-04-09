@@ -5,6 +5,7 @@ import java.util.List;
 
 public class FirmwareUpgradeOptionsInfo {
     public Long id;
+    public Boolean isAllowed = false;
     public List<UpgradeOptionInfo> supportedOptions;
     public List<UpgradeOptionInfo> allowedOptions;
 
