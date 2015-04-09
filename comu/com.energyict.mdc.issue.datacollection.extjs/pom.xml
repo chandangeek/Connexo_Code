@@ -11,7 +11,7 @@
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
     <artifactId>mdc.issue.datacollection.extjs</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.issue.datacollection.extjs</name>
 
