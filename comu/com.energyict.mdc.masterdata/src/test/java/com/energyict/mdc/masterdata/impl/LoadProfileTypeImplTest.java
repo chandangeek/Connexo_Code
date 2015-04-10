@@ -13,7 +13,6 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
@@ -24,7 +23,6 @@ import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -42,8 +40,8 @@ import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link LoadProfileTypeImpl} component.

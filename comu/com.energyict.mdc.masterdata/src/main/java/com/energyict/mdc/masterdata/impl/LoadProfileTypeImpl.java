@@ -14,21 +14,20 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
-import com.energyict.mdc.masterdata.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Copyrights EnergyICT
