@@ -41,10 +41,9 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
 
     @Test
     public void testIntervalsList() throws Exception {
-        when(thesaurus.getString(Matchers.<String>anyObject(), Matchers.<String>anyObject())).thenReturn("%s minute");
         List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
-        assertThat(intervals).hasSize(11);
-        assertThat(((Map)intervals.get(0)).get("name")).isEqualTo("1 minute");
+        assertThat(intervals).hasSize(7);
+        assertThat(((Map)intervals.get(0)).get("name")).isEqualTo("5 minutes");
     }
 
     @Test
@@ -134,7 +133,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     }
 
     private TimeDuration getRandomTimeDuration(){
-        return LocalizedTimeDuration.intervals.get(getRandomInt(10)).getTimeDuration();
+        return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size()-1)).getTimeDuration();
     }
 
     private ObisCode mockObisCode(String code) {
