@@ -76,7 +76,7 @@ public interface DeviceCommunicationConfiguration {
      * @param securityPropertySet The SecurityPropertySet
      * @return The ComTaskEnablementBuilder that builds the enablement
      */
-    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet);
+    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties);
 
     /**
      * Disables the execution of the specified {@link ComTask}

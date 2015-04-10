@@ -60,11 +60,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         }
     }
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_COM_TASK_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<ComTask> comTask = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_CONFIGURATION_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<SecurityPropertySet> securityPropertySet = ValueReference.absent();
     private SaveStrategy saveStrategy = new NoopAtCreationTime();
     private boolean ignoreNextExecutionSpecsForInbound;
@@ -74,6 +74,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @Valid
     private Reference<PartialConnectionTask> partialConnectionTask = ValueReference.absent();
     private boolean suspended;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
     private String userName;
     private long version;
@@ -85,10 +86,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         super(ComTaskEnablement.class, dataModel, eventService, thesaurus);
     }
 
-    ComTaskEnablementImpl initialize(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet) {
+    ComTaskEnablementImpl initialize(DeviceConfiguration deviceConfiguration, ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties) {
         this.deviceConfiguration.set(deviceConfiguration);
         this.comTask.set(comTask);
         this.securityPropertySet.set(securityPropertySet);
+        this.protocolDialectConfigurationProperties.set(configurationProperties);
         return this;
     }
 
@@ -182,7 +184,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     @Override
     public ComTask getComTask () {
-        return this.comTask.get();
+        return this.comTask.isPresent() ? this.comTask.get() : null;
     }
 
     @Override
@@ -192,7 +194,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
 
     @Override
     public SecurityPropertySet getSecurityPropertySet () {
-        return this.securityPropertySet.get();
+        return this.securityPropertySet.isPresent() ? this.securityPropertySet.get() : null;
     }
 
     @Override
