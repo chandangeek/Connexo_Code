@@ -127,7 +127,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceMessageResource.class,
                 DeviceLabelResource.class,
                 ConnectionResource.class,
-                CommunicationResource.class,
                 DeviceProtocolPropertyResource.class,
                 KpiResource.class,
                 AdhocGroupResource.class

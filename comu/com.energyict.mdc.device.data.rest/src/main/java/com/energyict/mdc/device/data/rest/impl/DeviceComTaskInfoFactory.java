@@ -4,6 +4,7 @@ import com.energyict.mdc.common.rest.CollectionUtil;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -73,6 +74,9 @@ public class DeviceComTaskInfoFactory {
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
+        deviceComTasksInfo.latestResult = comTaskExecution.getLastSession().map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus)).orElse(null);
+        deviceComTasksInfo.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
+        deviceComTasksInfo.isOnHold = comTaskExecution.isOnHold();
         deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(comTaskExecution.getStatus()),taskStatusAdapter.marshal(comTaskExecution.getStatus()));
         if (comTaskExecution.usesDefaultConnectionTask()) {
             if(comTaskExecution.getConnectionTask()!=null){
@@ -111,6 +115,9 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.SHARED.name();
         deviceComTasksInfo.scheduleType = thesaurus.getString("masterSchedule","Shared schedule");
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
+        deviceComTasksInfo.latestResult = comTaskExecution.getLastSession().map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus)).orElse(null);
+        deviceComTasksInfo.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
+        deviceComTasksInfo.isOnHold = comTaskExecution.isOnHold();
         deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(comTaskExecution.getStatus()),taskStatusAdapter.marshal(comTaskExecution.getStatus()));
         if (comTaskExecution.usesDefaultConnectionTask()) {
             if(comTaskExecution.getConnectionTask()!=null){
