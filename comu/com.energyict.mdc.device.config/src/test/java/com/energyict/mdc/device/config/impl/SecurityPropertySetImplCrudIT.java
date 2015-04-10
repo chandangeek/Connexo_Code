@@ -1,7 +1,36 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -27,39 +56,18 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -68,20 +76,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4;
+import static com.energyict.mdc.device.config.DeviceSecurityUserAction.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -134,43 +129,48 @@ public class SecurityPropertySetImplCrudIT {
         User principal = mock(User.class);
         when(principal.getName()).thenReturn(SecurityPropertySetImplCrudIT.class.getSimpleName());
         when(principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
-        Injector injector = Guice.createInjector(
-                new MockModule(),
-                bootstrapModule,
-                new ThreadSecurityModule(principal),
-                new EventsModule(),
-                new PubSubModule(),
-                new TransactionModule(false),
-                new UtilModule(),
-                new NlsModule(),
-                new DomainUtilModule(),
-                new PartyModule(),
-                new UserModule(),
-                new IdsModule(),
-                new MeteringModule(false),
-                new InMemoryMessagingModule(),
-                new EventsModule(),
-                new OrmModule(),
-                new DataVaultModule(),
-                new MdcReadingTypeUtilServiceModule(),
-                new MasterDataModule(),
-                new BasicPropertiesModule(),
-                new MdcDynamicModule(),
-                new ProtocolApiModule(),
-                new TasksModule(),
-                new ValidationModule(),
-                new FiniteStateMachineModule(),
-                new DeviceLifeCycleConfigurationModule(),
-                new MeteringGroupsModule(),
-                new TaskModule(),
-                new DeviceConfigurationModule(),
-                new MdcIOModule(),
-                new EngineModelModule(),
-                new IssuesModule(),
-                new BasicPropertiesModule(),
-                new MdcDynamicModule(),
-                new PluggableModule(),
-                new SchedulingModule());
+        Injector injector = null;
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    bootstrapModule,
+                    new ThreadSecurityModule(principal),
+                    new EventsModule(),
+                    new PubSubModule(),
+                    new TransactionModule(false),
+                    new UtilModule(),
+                    new NlsModule(),
+                    new DomainUtilModule(),
+                    new PartyModule(),
+                    new UserModule(),
+                    new IdsModule(),
+                    new MeteringModule(false),
+                    new InMemoryMessagingModule(),
+                    new EventsModule(),
+                    new OrmModule(),
+                    new DataVaultModule(),
+                    new MdcReadingTypeUtilServiceModule(),
+                    new MasterDataModule(),
+                    new BasicPropertiesModule(),
+                    new MdcDynamicModule(),
+                    new ProtocolApiModule(),
+                    new TasksModule(),
+                    new ValidationModule(),
+                    new FiniteStateMachineModule(),
+                    new DeviceLifeCycleConfigurationModule(),
+                    new MeteringGroupsModule(),
+                    new TaskModule(),
+                    new DeviceConfigurationModule(),
+                    new MdcIOModule(),
+                    new EngineModelModule(),
+                    new IssuesModule(),
+                    new BasicPropertiesModule(),
+                    new MdcDynamicModule(),
+                    new PluggableModule(),
+                    new SchedulingModule());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(FiniteStateMachineService.class);
