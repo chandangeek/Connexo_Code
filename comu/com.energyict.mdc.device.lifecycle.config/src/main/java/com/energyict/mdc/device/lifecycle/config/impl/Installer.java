@@ -71,7 +71,7 @@ public class Installer {
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations",
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
                 new String[]{
-                        Privileges.CONFIGURE_DEVICE_LIFE_CYCLES,
+                        Privileges.CONFIGURE_DEVICE_LIFE_CYCLE,
                         Privileges.VIEW_DEVICE_LIFE_CYCLES});
     }
 
