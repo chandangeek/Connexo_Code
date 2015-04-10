@@ -77,7 +77,8 @@ Ext.define('Dsh.view.widget.Summary', {
                             });
                             bar.render(node.querySelector('.bar-' + pos));
                         });
-                        Ext.resumeLayouts();
+                        view.updateLayout();
+                        Ext.resumeLayouts(true);
                     }
                 }
             }
@@ -150,6 +151,6 @@ Ext.define('Dsh.view.widget.Summary', {
                 html: Uni.I18n.translatePlural('overview.widget.' + me.parent + '.label.' + direction, Math.abs(diff), 'DSH', '<b>{0}%</b> ' + direction)
             }
         ]);
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     }
 });

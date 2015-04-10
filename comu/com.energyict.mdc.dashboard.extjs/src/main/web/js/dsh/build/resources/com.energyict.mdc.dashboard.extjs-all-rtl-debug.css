@@ -2520,108 +2520,159 @@
   display: inline;
 }
 /* line 8, ../../sass/etc/all.scss */
+.x-bar .threshold {
+  position: absolute;
+  border-style: solid;
+  border-width: 6px 6px 0 6px;
+  margin-left: -3px;
+  top: -6px;
+  border-color: #007bff transparent transparent transparent;
+}
+/* line 17, ../../sass/etc/all.scss */
 .x-bar .x-bar-label {
   position: absolute;
   right: 100%;
   text-align: right;
-  line-height: 10px;
+  line-height: 15px;
   margin-right: 8px;
   width: 80px;
 }
-/* line 17, ../../sass/etc/all.scss */
+/* line 26, ../../sass/etc/all.scss */
 .x-bar .x-bar-container, .x-bar .x-bar-fill, .x-bar .x-bar-track {
-  height: 10px;
+  height: 15px;
   display: block;
   position: relative;
 }
-/* line 22, ../../sass/etc/all.scss */
+/* line 31, ../../sass/etc/all.scss */
 .x-bar .x-bar-container {
   background: transparent;
 }
-/* line 24, ../../sass/etc/all.scss */
+/* line 33, ../../sass/etc/all.scss */
 .x-bar .x-bar-container .x-bar-fill {
-  background: #d3d3d3;
+  background: #CBCBCB;
 }
-/* line 27, ../../sass/etc/all.scss */
+/* line 36, ../../sass/etc/all.scss */
 .x-bar .x-bar-container .x-bar-track {
-  background: #a9a9a9;
+  background: #686868;
 }
 
-/* line 35, ../../sass/etc/all.scss */
+/* line 44, ../../sass/etc/all.scss */
 .x-bar .x-bar-container .x-bar-track-stacked {
   float: left;
 }
 
-/* line 42, ../../sass/etc/all.scss */
+/* line 51, ../../sass/etc/all.scss */
 .breakdown .failed, .breakdown .x-bar-track-stacked.failed {
-  background-color: #393939;
+  background-color: #EB5642;
 }
-/* line 43, ../../sass/etc/all.scss */
+/* line 54, ../../sass/etc/all.scss */
 .breakdown .success, .breakdown .x-bar-track-stacked.success {
-  background-color: #d1cfd0;
+  background-color: #70BB52;
 }
-/* line 44, ../../sass/etc/all.scss */
-.breakdown .pending, .breakdown .x-bar-track-stacked.pending {
-  background-color: #8b8f92;
+/* line 57, ../../sass/etc/all.scss */
+.breakdown .ongoing, .breakdown .x-bar-track-stacked.ongoing {
+  background-color: #71ADC6;
 }
-/* line 46, ../../sass/etc/all.scss */
+/* line 61, ../../sass/etc/all.scss */
 .breakdown .legend ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-/* line 51, ../../sass/etc/all.scss */
+/* line 66, ../../sass/etc/all.scss */
 .breakdown .legend ul li {
   float: left;
   margin-right: 16px;
 }
-/* line 55, ../../sass/etc/all.scss */
+/* line 70, ../../sass/etc/all.scss */
 .breakdown .legend ul li .color {
   width: 16px;
   height: 16px;
   display: inline-block;
 }
+/* line 78, ../../sass/etc/all.scss */
+.breakdown .x-panel-tile {
+  padding: 20px;
+}
+/* line 81, ../../sass/etc/all.scss */
+.breakdown .x-panel-tile .x-toolbar-footer {
+  padding: 15px 0 0 0;
+}
 
-/* line 64, ../../sass/etc/all.scss */
+/* line 88, ../../sass/etc/all.scss */
+.x-panel-tile table {
+  border-spacing: 0;
+}
+/* line 91, ../../sass/etc/all.scss */
+.x-panel-tile table tr {
+  padding: 0;
+}
+/* line 93, ../../sass/etc/all.scss */
+.x-panel-tile table tr td {
+  padding: 3px 0;
+}
+/* line 98, ../../sass/etc/all.scss */
+.x-panel-tile h3 {
+  margin-bottom: 10px;
+}
+
+/* line 103, ../../sass/etc/all.scss */
+.x-panel .below .x-panel-body {
+  color: #EB5642;
+}
+
+/* line 106, ../../sass/etc/all.scss */
+.x-bar.bar-success .x-bar-container .x-bar-track {
+  background-color: #70BB52;
+}
+
+/* line 109, ../../sass/etc/all.scss */
+.x-bar.bar-ongoing .x-bar-container .x-bar-track {
+  background-color: #71ADC6;
+}
+
+/* line 112, ../../sass/etc/all.scss */
+.x-bar.bar-failed .x-bar-container .x-bar-track {
+  background-color: #EB5642;
+}
+
+/* line 116, ../../sass/etc/all.scss */
 .summary {
   min-width: 300px;
 }
-/* line 65, ../../sass/etc/all.scss */
+/* line 117, ../../sass/etc/all.scss */
 .summary td.label {
   min-width: 250px;
 }
-/* line 68, ../../sass/etc/all.scss */
+/* line 120, ../../sass/etc/all.scss */
 .summary tr {
   height: 25px;
 }
-/* line 72, ../../sass/etc/all.scss */
+/* line 124, ../../sass/etc/all.scss */
 .summary .bar-success .x-bar-track {
-  background-color: #41aa4c;
+  background-color: #70BB52;
 }
-/* line 75, ../../sass/etc/all.scss */
-.summary .bar-success-all .x-bar-track {
-  background-color: #2caa4b;
+/* line 127, ../../sass/etc/all.scss */
+.summary .bar-ongoing .x-bar-track {
+  background-color: #71ADC6;
 }
-/* line 78, ../../sass/etc/all.scss */
-.summary .bar-success-one .x-bar-track {
-  background-color: #71aa3b;
-}
-/* line 81, ../../sass/etc/all.scss */
-.summary .bar-pending .x-bar-track {
-  background-color: #2f2f2f;
-}
-/* line 84, ../../sass/etc/all.scss */
+/* line 130, ../../sass/etc/all.scss */
 .summary .bar-failed .x-bar-track {
-  background-color: #b05044;
-}
-/* line 90, ../../sass/etc/all.scss */
-.summary .x-bar .x-bar-track {
-  height: 18px;
-  top: -5px;
-  border-right: 1px solid white;
+  background-color: #EB5642;
 }
 
-/* line 100, ../../sass/etc/all.scss */
+/* line 137, ../../sass/etc/all.scss */
 .fa-lg {
   line-height: 1;
+}
+
+/* line 142, ../../sass/etc/all.scss */
+.quick-links ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+}
+/* line 147, ../../sass/etc/all.scss */
+.quick-links ul li {
+  line-height: 25px;
 }

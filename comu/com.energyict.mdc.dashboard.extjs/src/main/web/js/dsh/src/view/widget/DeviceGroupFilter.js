@@ -75,6 +75,6 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
             button.setValue(me.router.filter.get('deviceGroup'));
         });
 
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     }
 });

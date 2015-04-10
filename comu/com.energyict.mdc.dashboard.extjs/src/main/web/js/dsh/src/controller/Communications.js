@@ -165,7 +165,7 @@ Ext.define('Dsh.controller.Communications', {
             this.getConnectionsPreviewActionBtn().menu.add(connectionMenuItem);
         }
 
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     },
 
     onSelectionChange: function (grid, selected) {

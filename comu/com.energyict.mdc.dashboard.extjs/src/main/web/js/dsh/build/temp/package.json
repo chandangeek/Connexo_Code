@@ -7,6 +7,8 @@
   "detailedDescription": "Long description of package",
   "type": "code",
   "requires": [
-    "com.elster.jupiter.unifyingjs"
-  ]
+    "com.elster.jupiter.unifyingjs@1.0.2",
+    "com.energyict.comserver.comserver.core.extjs@1.0.0"
+  ],
+  "local": true
 }
