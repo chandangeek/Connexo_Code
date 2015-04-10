@@ -75,25 +75,29 @@ public class DynamicDeviceGroupImplIT {
 
     @Before
     public void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(false),
-                new MeteringGroupsModule(),
-                new YellowfinGroupsModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new NlsModule(),
-                new TaskModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new MeteringModule(false),
+                    new MeteringGroupsModule(),
+                    new YellowfinGroupsModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new NlsModule(),
+                    new TaskModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
