@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -24,21 +25,31 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.firmware.*;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.google.inject.AbstractModule;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -200,6 +211,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     @Override
     public void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion) {
         PassiveFirmwareVersionImpl.class.cast(passiveFirmwareVersion).save();
+    }
+
+    @Override
+    public RefAny findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType) {
+        return null; // fix build
     }
 
     @Activate
