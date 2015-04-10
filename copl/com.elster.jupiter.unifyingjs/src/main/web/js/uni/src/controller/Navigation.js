@@ -13,8 +13,7 @@ Ext.define('Uni.controller.Navigation', {
         'Uni.controller.history.Router'
     ],
 
-    views: [
-    ],
+    views: [],
 
     refs: [
         {
@@ -143,8 +142,8 @@ Ext.define('Uni.controller.Navigation', {
 
     initSearch: function () {
         var me = this;
-            me.getSearchButton().setVisible(me.searchEnabled &&
-                Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']));
+        me.getSearchButton().setVisible(me.searchEnabled &&
+        Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']));
     },
 
     initOnlineHelp: function () {
