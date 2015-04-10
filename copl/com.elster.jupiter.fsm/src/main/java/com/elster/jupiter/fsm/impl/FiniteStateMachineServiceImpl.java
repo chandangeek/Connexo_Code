@@ -107,7 +107,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR");
+        return Arrays.asList("ORM", "USR", "EVT");
     }
 
     @Activate
