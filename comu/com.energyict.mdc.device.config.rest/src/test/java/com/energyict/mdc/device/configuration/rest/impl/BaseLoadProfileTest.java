@@ -28,13 +28,14 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import org.junit.Ignore;
+import org.mockito.Matchers;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Random;
-import org.junit.Ignore;
-import org.mockito.Matchers;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -79,7 +80,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
     }
 
     protected TimeDuration getRandomTimeDuration(){
-        return LocalizedTimeDuration.intervals.get(getRandomInt(10)).getTimeDuration();
+        return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size() - 1)).getTimeDuration();
     }
 
 
