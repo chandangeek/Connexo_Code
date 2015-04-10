@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+
 import java.util.logging.Level;
 
 import static java.util.logging.Level.SEVERE;

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.SecurityPropertySet;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -26,7 +27,7 @@ public class SecurityPropertySetMustBeFromSameConfigurationValidator implements 
             context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                .addPropertyNode(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).addConstraintViolation();
+                    .addPropertyNode(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).addConstraintViolation();
             return false;
         }
         return true;

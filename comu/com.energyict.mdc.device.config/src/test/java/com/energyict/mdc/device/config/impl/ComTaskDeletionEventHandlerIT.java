@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Optional;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

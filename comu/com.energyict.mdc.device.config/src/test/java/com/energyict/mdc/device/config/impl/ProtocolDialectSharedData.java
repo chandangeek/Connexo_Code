@@ -19,7 +19,9 @@ public class ProtocolDialectSharedData {
 
     private static interface State {
         PropertySpec getPropertySpec();
+
         DeviceProtocolDialect getProtocolDialect();
+
         ValueFactory getValueFactory();
     }
 
