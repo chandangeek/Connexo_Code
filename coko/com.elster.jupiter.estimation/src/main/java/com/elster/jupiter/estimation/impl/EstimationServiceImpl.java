@@ -254,8 +254,8 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
-    public EstimationRuleSet createEstimationRuleSet(String name, String descrption) {
-        EstimationRuleSet set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, descrption);
+    public EstimationRuleSet createEstimationRuleSet(String name, String description) {
+        EstimationRuleSet set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, description);
         set.save();
         return set;
     }
@@ -308,7 +308,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("MTR");
+        return Arrays.asList("MTR", "TSK", "MTG");
     }
 
     @Override
