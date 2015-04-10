@@ -64,7 +64,13 @@ public class VDEWTimeStamp {
 
 			if (getMode() == MODE_UTCTIME) {
 				tz = TimeZone.getTimeZone("GMT");
-				// The other two modes, we use the java timezone. We suppose the configurator has correctly
+			}  else if (getMode() == MODE_WINTERTIME) {
+				if (tz.useDaylightTime()) {	// In EIServer timezone is configured with DST switching, make sure to convert to timezone without dst switching
+					tz = TimeZone.getTimeZone("GMT");
+					tz.setRawOffset(getTimeZone().getRawOffset());
+				}
+			} else {
+				// In case of summer time MODE, we use the java timezone. We suppose the configurator has correctly
 				// set the device timezone.
 			}
 		}
@@ -117,7 +123,13 @@ public class VDEWTimeStamp {
 
 			if (getMode() == MODE_UTCTIME) {
 				tz = TimeZone.getTimeZone("GMT");
-				// The other two modes, we use the java timezone. We suppose the configurator has correctly
+			}  else if (getMode() == MODE_WINTERTIME) {
+				if (tz.useDaylightTime()) {	// In EIServer timezone is configured with DST switching, make sure to convert to timezone without dst switching
+					tz = TimeZone.getTimeZone("GMT");
+					tz.setRawOffset(getTimeZone().getRawOffset());
+				}
+			} else {
+				// In case of summer time MODE, we use the java timezone. We suppose the configurator has correctly
 				// set the device timezone.
 			}
 		}

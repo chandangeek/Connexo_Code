@@ -350,7 +350,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     }
 
     /**
-     * The protocol version
+     * The protocol version date
      */
     public String getProtocolVersion() {
         return "$Date$";
