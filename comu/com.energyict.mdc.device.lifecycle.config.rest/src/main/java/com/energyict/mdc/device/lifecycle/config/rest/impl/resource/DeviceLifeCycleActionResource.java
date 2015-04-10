@@ -73,7 +73,7 @@ public class DeviceLifeCycleActionResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo newAction) {
         validateInfo(newAction);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -86,7 +86,7 @@ public class DeviceLifeCycleActionResource {
     @PUT
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response editAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo actionForEdit) {
         validateInfo(actionForEdit);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -109,7 +109,7 @@ public class DeviceLifeCycleActionResource {
     @DELETE
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response deleteAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("actionId") Long actionId, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         AuthorizedActionRequestFactory factory = new AuthorizedActionRequestFactory(this.resourceHelper);
