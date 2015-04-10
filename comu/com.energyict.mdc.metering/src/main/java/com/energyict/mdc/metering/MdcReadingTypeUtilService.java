@@ -54,7 +54,19 @@ public interface MdcReadingTypeUtilService {
     public String getReadingTypeFrom(ObisCode obisCode, Unit unit, TimeDuration interval);
 
     /**
+     * Gets a readingType from the given ReadingType with the given interval applied.
+     *
+     * @param readingType the ReadingType to start from
+     * @param interval the Interval to apply
+     * @param registerObisCode the ObisCode of the register for the ReadingType
+     *
+     * @return an optional ReadingType
+     */
+    public Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
+
+    /**
      * Creates a readingType from the given ReadingType with the given interval applied.
+     * A new ReadingType will be created if it doesnt exits yet
      *
      * @param readingType the ReadingType to start from
      * @param interval the Interval to apply
@@ -62,7 +74,7 @@ public interface MdcReadingTypeUtilService {
      *
      * @return the interval applied ReadingType
      */
-    public Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
+    public ReadingType getOrCreateIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
 
     /**
      * Gets the MDC unit according to the CIM ReadingType.
