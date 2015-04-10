@@ -178,7 +178,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 
         this.setBulkActionListActiveItem(wizard);
 
-        if(record.get('allIssues')) {
+        if (record.get('allIssues')) {
             allIssues = record.data.allIssues;
             params = record.data.params;
         } else {
@@ -202,7 +202,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             url: requestUrl,
             method: 'PUT',
             params: params,
-                jsonData: requestData,
+            jsonData: requestData,
             success: function (response) {
                 var obj = Ext.decode(response.responseText).data,
                     successCount = obj.success.length,
@@ -447,7 +447,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             record.set('allIssues', false);
             record.set('params', []);
         }
-        
+
         record.commit();
     },
 
