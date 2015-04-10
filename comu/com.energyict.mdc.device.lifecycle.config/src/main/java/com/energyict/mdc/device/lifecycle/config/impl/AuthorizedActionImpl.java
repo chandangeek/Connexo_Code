@@ -4,13 +4,14 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.google.common.collect.ImmutableMap;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -62,8 +63,6 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
                     CUSTOM_TRANSITION, AuthorizedCustomTransitionActionImpl.class,
                     CUSTOM, AuthorizedBusinessProcessActionImpl.class);
 
-    private final DataModel dataModel;
-
     @SuppressWarnings("unused")
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
@@ -82,11 +81,6 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     @Override
     public DeviceLifeCycle getDeviceLifeCycle() {
         return deviceLifeCycle.get();
-    }
-
-    protected AuthorizedActionImpl(DataModel dataModel) {
-        super();
-        this.dataModel = dataModel;
     }
 
     protected void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle) {

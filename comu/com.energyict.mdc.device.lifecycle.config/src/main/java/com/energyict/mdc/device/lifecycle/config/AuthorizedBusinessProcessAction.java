@@ -9,6 +9,24 @@ package com.energyict.mdc.device.lifecycle.config;
  */
 public interface AuthorizedBusinessProcessAction extends AuthorizedAction {
 
+    /**
+     * Models the parameters that will be passed to
+     * the custom business process.
+     */
+    public enum ProcessParameterKey {
+        DEVICE("device");
+
+        private String name;
+
+        ProcessParameterKey(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
     public String getName();
 
     public String getDeploymentId();

@@ -7,7 +7,6 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -32,10 +31,6 @@ public abstract class AuthorizedTransitionActionImpl extends AuthorizedActionImp
     @SuppressWarnings("unused")
     private long actionBits;
     private EnumSet<MicroAction> actions = EnumSet.noneOf(MicroAction.class);
-
-    protected AuthorizedTransitionActionImpl(DataModel dataModel) {
-        super(dataModel);
-    }
 
     @Override
     public void postLoad() {

@@ -38,6 +38,9 @@ import java.util.stream.Stream;
  * @since 2015-03-11 (10:56)
  */
 public class Installer {
+
+    public static final String PRIVILEGES_COMPONENT = "MDC";
+
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
@@ -67,7 +70,7 @@ public class Installer {
     private void createPrivileges() {
         this.logger.fine(() -> "Creating privileges");
         this.userService.createResourceWithPrivileges(
-                "MDC",
+                PRIVILEGES_COMPONENT,
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations",
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
                 new String[]{

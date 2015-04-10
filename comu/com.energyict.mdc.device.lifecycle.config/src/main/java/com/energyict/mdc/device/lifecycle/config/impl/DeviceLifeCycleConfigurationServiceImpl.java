@@ -24,7 +24,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -36,8 +36,10 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -55,6 +57,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private volatile UserService userService;
     private volatile FiniteStateMachineService stateMachineService;
     private Thesaurus thesaurus;
+    private final Set<Privilege> privileges = new HashSet<>();
 
     // For OSGi purposes
     public DeviceLifeCycleConfigurationServiceImpl() {
@@ -147,6 +150,20 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+        this.initializePrivileges();
+    }
+
+    private void initializePrivileges() {
+        this.privileges.clear();
+        this.userService
+            .getResources(Installer.PRIVILEGES_COMPONENT)
+            .stream()
+            .flatMap(r -> r.getPrivileges().stream())
+            .forEach(this::addPrivilegeIfFound);
+    }
+
+    private void addPrivilegeIfFound(Privilege privilege) {
+        AuthorizedAction.Level.forPrivilege(privilege.getName()).ifPresent(level -> this.privileges.add(privilege));
     }
 
     @Reference
@@ -230,6 +247,14 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 AuthorizedAction.class, // join actions and finite state machine details
                 FiniteStateMachine.class, State.class, StateTransition.class,
                 StateTransitionEventType.class, ProcessReference.class);
+    }
+
+    @Override
+    public Optional<Privilege> findPrivilege(String privilegeName) {
+        return this.privileges
+                .stream()
+                .filter(p -> p.getName().equals(privilegeName))
+                .findAny();
     }
 
 }

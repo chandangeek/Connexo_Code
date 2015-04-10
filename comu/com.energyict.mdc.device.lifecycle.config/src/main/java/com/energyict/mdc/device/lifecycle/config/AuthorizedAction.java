@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.elster.jupiter.fsm.State;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -28,7 +29,29 @@ import java.util.Set;
 public interface AuthorizedAction {
 
     public enum Level {
-        ONE, TWO, THREE, FOUR;
+        ONE(Privileges.INITIATE_ACTION_1),
+        TWO(Privileges.INITIATE_ACTION_2),
+        THREE(Privileges.INITIATE_ACTION_3),
+        FOUR(Privileges.INITIATE_ACTION_4);
+
+        public String getPrivilege() {
+            return privilege;
+        }
+
+        private String privilege;
+
+        Level (String privilege) {
+            this.privilege = privilege;
+        }
+
+        public static Optional<Level> forPrivilege(String privilege) {
+            for (Level level : values()) {
+                if (level.getPrivilege().equals(privilege)) {
+                    return Optional.of(level);
+                }
+            }
+            return Optional.empty();
+        }
 
     }
 

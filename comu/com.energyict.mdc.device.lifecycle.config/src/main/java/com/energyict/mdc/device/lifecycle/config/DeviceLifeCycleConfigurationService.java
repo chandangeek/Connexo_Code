@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.energyict.mdc.common.services.Finder;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.users.Privilege;
 
 import java.util.Optional;
 
@@ -15,6 +16,8 @@ import java.util.Optional;
 public interface DeviceLifeCycleConfigurationService {
 
     String COMPONENT_NAME = "DLD";
+
+    public Optional<Privilege> findPrivilege(String userActionPrivilege);
 
     /**
      * Starts the building process of a new {@link DeviceLifeCycle}.

@@ -20,7 +20,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field cannot be empty"),
 
     // DeviceLifeCycle
-    UNIQUE_DEVICE_LIFE_CYCLE_NAME(102, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "The name of a device life cycle must be unique");
+    UNIQUE_DEVICE_LIFE_CYCLE_NAME(202, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "The name of a device life cycle must be unique");
 
     private final int number;
     private final String key;

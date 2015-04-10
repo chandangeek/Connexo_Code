@@ -5,15 +5,12 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.inject.Inject;
 import javax.validation.constraints.Size;
 
 /**
@@ -35,11 +32,6 @@ public class AuthorizedBusinessProcessActionImpl extends AuthorizedActionImpl im
     private String processId;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private Reference<State> state = ValueReference.absent();
-
-    @Inject
-    public AuthorizedBusinessProcessActionImpl(DataModel dataModel) {
-        super(dataModel);
-    }
 
     AuthorizedBusinessProcessActionImpl initialize(DeviceLifeCycle deviceLifeCycle, State state, String name, String deploymentId, String processId) {
         this.setDeviceLifeCycle(deviceLifeCycle);
