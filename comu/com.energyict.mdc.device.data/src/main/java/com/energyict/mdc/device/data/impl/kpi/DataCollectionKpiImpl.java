@@ -28,6 +28,9 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEnd
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -38,8 +41,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 
 /**
  * Provides an implementation for the {@link DataCollectionKpi} interface.
