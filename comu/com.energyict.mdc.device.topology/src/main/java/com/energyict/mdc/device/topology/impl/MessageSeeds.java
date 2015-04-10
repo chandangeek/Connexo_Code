@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.topology.TopologyService;
-
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import java.util.logging.Level;
 
