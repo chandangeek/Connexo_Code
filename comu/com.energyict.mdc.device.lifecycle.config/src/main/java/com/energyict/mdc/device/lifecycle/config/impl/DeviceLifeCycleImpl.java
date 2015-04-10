@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -52,6 +53,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
     @SuppressWarnings("unused")
     private long id;
@@ -72,8 +74,9 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private Instant modTime;
 
     @Inject
-    public DeviceLifeCycleImpl(DataModel dataModel) {
+    public DeviceLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     public DeviceLifeCycleImpl initialize(String name, FiniteStateMachine stateMachine) {
@@ -89,7 +92,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     @Override
     public String getName() {
-        return this.name;
+        return this.thesaurus.getString(this.name, this.name);
     }
 
     void setName(String name) {
