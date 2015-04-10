@@ -144,7 +144,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     
     @Override
     public void validate() {
-    	Instant end = getChannel().getLastDateTime();
+        Instant end = getChannel().getLastDateTime();
     	if (end == null || !lastChecked.isBefore(end)) {
     		return;
     	}

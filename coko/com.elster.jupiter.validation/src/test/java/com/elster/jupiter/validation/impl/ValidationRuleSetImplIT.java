@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -93,6 +94,7 @@ public class ValidationRuleSetImplIT {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
                 new TaskModule(),
@@ -140,7 +142,7 @@ public class ValidationRuleSetImplIT {
             protected void doPerform() {
                 readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.now());
+                ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
                 ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
                 zeroesRule.addReadingType(readingType);
                 zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
@@ -166,7 +168,7 @@ public class ValidationRuleSetImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.now());
+            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
             zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
@@ -199,7 +201,7 @@ public class ValidationRuleSetImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
-            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.now());
+            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
             zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
