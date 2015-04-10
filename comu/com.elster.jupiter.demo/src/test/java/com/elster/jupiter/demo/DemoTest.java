@@ -250,8 +250,8 @@ public class DemoTest {
             fail("The demo command shouldn't produce errors");
         }
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Device spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
-        assertThat(spe010000010156.getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
+        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
     }
 
     @Test
@@ -263,8 +263,8 @@ public class DemoTest {
             fail("The demo command shouldn't produce errors");
         }
         DeviceService deviceService = injector.getInstance(DeviceService.class);
-        Device spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
-        assertThat(spe010000010156.getDeviceProtocolProperties().getProperty("TimeZone")).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
+        Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
+        assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("TimeZone")).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
     }
 
     @Test
