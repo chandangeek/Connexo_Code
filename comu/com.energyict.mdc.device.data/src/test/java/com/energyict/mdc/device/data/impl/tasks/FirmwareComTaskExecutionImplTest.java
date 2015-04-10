@@ -130,8 +130,7 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
     private ComTaskEnablement enableFirmwareComTask() {
         ComTask firmwareComTask = inMemoryPersistence.getTaskService().findFirmwareComTask().get();
         ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(firmwareComTask, this.securityPropertySet);
-        builder.setProtocolDialectConfigurationProperties(configDialect);
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(firmwareComTask, this.securityPropertySet, configDialect);
         builder.useDefaultConnectionTask(true);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();

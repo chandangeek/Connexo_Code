@@ -304,18 +304,6 @@ public class DataCollectionKpiImplTest {
         assertThat(found.get().getDisplayRange()).isEqualTo(TimeDuration.days(1));
     }
 
-    @Test(expected = ConstraintViolationException.class)
-    @Transactional
-    public void testCreateKpiWithoutEndDeviceGroup() {
-        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(null);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
-        DataCollectionKpi kpi = builder.save();
-
-        // Business method
-        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId());
-
-    }
-
     @Test
     @Transactional
     public void testNonExistingKpiIsNotReturnedByFindById() {
@@ -442,7 +430,7 @@ public class DataCollectionKpiImplTest {
     @Transactional
     public void testCreateWithConnectionKpiAndAddCommunicationKpi() {
         DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
-        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        builder.frequency(Duration.ofHours(1)).displayPeriod(TimeDuration.days(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
         DataCollectionKpi kpi = builder.save();
