@@ -50,7 +50,7 @@ public class DeviceLifeCycleStateResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getStatesForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam QueryParameters queryParams) {
         List<DeviceLifeCycleStateInfo> states = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId).getFiniteStateMachine().getStates()
                 .stream()
@@ -63,7 +63,7 @@ public class DeviceLifeCycleStateResource {
     @GET
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public Response getStateById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, @BeanParam QueryParameters queryParams) {
         State state = resourceHelper.findStateByIdOrThrowException(resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId), stateId);
         return Response.ok(deviceLifeCycleStateFactory.from(state)).build();

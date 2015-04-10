@@ -55,7 +55,7 @@ public class DeviceLifeCycleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getDeviceLifeCycles(@BeanParam QueryParameters queryParams) {
         List<DeviceLifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
                 .map(DeviceLifeCycleInfo::new).collect(Collectors.toList());
@@ -65,7 +65,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public Response getDeviceLifeCycleById(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle lifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         return Response.ok(new DeviceLifeCycleInfo(lifeCycle)).build();
@@ -116,7 +116,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/privileges")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getPrivilegesList(@BeanParam QueryParameters queryParams) {
         List<DeviceLifeCyclePrivilegeInfo> privileges = EnumSet.allOf(AuthorizedAction.Level.class)
                 .stream()
@@ -128,7 +128,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/eventtypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getEventTypesList(@BeanParam QueryParameters queryParams) {
         List<StateTransitionEventTypeInfo> eventTypes = finiteStateMachineService.getStateTransitionEventTypes().stream()
                 .map(stateTransitionEventTypeFactory::from)

@@ -49,7 +49,7 @@ public class DeviceLifeCycleActionResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         List<AuthorizedActionInfo> transitions = deviceLifeCycle.getAuthorizedActions()
@@ -63,7 +63,7 @@ public class DeviceLifeCycleActionResource {
     @GET
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public Response getAuthorizedActionById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("actionId") Long actionId, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         AuthorizedAction action = resourceHelper.findAuthorizedActionByIdOrThrowException(deviceLifeCycle, actionId);
