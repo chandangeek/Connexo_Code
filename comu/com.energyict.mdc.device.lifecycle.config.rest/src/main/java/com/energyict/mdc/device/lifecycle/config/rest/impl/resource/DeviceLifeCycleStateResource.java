@@ -26,9 +26,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleStateResource {
@@ -56,7 +54,7 @@ public class DeviceLifeCycleStateResource {
         List<DeviceLifeCycleStateInfo> states = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId).getFiniteStateMachine().getStates()
                 .stream()
                 .map(deviceLifeCycleStateFactory::from)
-                .sorted(Comparator.comparing(state -> state.name)) // alphabetical sort
+                .sorted((st1, st2) -> st1.name.compareToIgnoreCase(st2.name)) // alphabetical sort
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycleStates", ListPager.of(states).from(queryParams).find(), queryParams);
     }
