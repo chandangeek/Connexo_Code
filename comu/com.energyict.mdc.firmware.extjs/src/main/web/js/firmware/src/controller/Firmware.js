@@ -13,6 +13,7 @@ Ext.define('Fwc.controller.Firmware', {
     requires: [
         'Mdc.model.DeviceType',
         'Fwc.model.FirmwareUpgradeOptions',
+        'Fwc.form.OptionsHydrator',
         'Fwc.form.Hydrator'
     ],
 
