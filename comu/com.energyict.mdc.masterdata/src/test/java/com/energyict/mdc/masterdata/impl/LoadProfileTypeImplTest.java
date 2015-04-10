@@ -13,6 +13,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
@@ -41,8 +42,8 @@ import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link LoadProfileTypeImpl} component.
@@ -152,13 +153,14 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         // Asserts: see ExpectedConstraintViolation rule
     }
 
-    @Test(expected = RegisterTypesNotMappableToLoadProfileTypeIntervalException.class)
+    @Test
     @Transactional
-    public void testCreateWithRegisterTypeThatCannotBeMappedToInterval() {
+    public void testCreateWithRegisterTypeThatDoestHaveCorrespondingIntervalReadingType() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         TimeDuration interval = INTERVAL_15_MINUTES;
         Currency currency = Currency.getInstance("XXX");    // No currency
-        ObisCode badObisCode = null;
+        ObisCode badObisCode = ObisCode.fromString("1.1.1.1.1.1");
+        String myBadReadingTypeAlias = "myBadReadingTypeAlias";
         ReadingType badReadingType = mock(ReadingType.class);
         when(badReadingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
         when(badReadingType.getAccumulation()).thenReturn(Accumulation.NOTAPPLICABLE);
@@ -174,6 +176,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         when(badReadingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
         when(badReadingType.getConsumptionTier()).thenReturn(0);
         when(badReadingType.getTou()).thenReturn(0);
+        when(badReadingType.getAliasName()).thenReturn(myBadReadingTypeAlias);
+        String intervalAppliedBadReadingTypeMRID = "0.0.2.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0";
         RegisterType badRegisterType = mock(RegisterType.class);
         /* Mock bad register type (with bad reading type and obis code) for which:
          * MasterDataService#findChannelTypeByTemplateRegisterAndInterval(RegisterType, TimeDuration) returns empty Optional
@@ -185,18 +189,13 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         when(badRegisterType.getObisCode()).thenReturn(badObisCode);
         // Now setup a proper reading type
         setupReadingTypeInExistingTransaction();
-        RegisterType goodRregisterType = masterDataService.findRegisterTypeByReadingType(readingType).get();
+        RegisterType goodRegisterType = masterDataService.findRegisterTypeByReadingType(readingType).get();
 
-        try {
-            // Business method
-            masterDataService.newLoadProfileType("Test", OBIS_CODE, interval, Arrays.asList(goodRregisterType, badRegisterType));
-        }
-        catch (RegisterTypesNotMappableToLoadProfileTypeIntervalException e) {
-            // Asserts: see expected exception rule
-            assertThat(e.getFailedRegisterTypes().contains(badRegisterType));
-            throw e;
-        }
+        // Business method
+        masterDataService.newLoadProfileType("Test", OBIS_CODE, interval, Arrays.asList(goodRegisterType, badRegisterType));
 
+        Optional<ReadingType> newReadingType = PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(intervalAppliedBadReadingTypeMRID);
+        assertThat(newReadingType.isPresent()).isTrue();
     }
 
     @Test

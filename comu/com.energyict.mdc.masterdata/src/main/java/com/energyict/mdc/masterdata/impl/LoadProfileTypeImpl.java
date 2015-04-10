@@ -274,12 +274,11 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     private Optional<ChannelType> findOrCreateCorrespondingChannelType(RegisterType measurementTypeWithoutInterval) {
         Optional<ChannelType> channelType = this.masterDataService.findChannelTypeByTemplateRegisterAndInterval(measurementTypeWithoutInterval, getInterval());
         if (!channelType.isPresent()) {
-            return this.mdcReadingTypeUtilService
-                    .getIntervalAppliedReadingType(
-                            measurementTypeWithoutInterval.getReadingType(),
-                            Optional.ofNullable(getInterval()),
-                            measurementTypeWithoutInterval.getObisCode())
-                    .map(rt -> this.newChannelType(measurementTypeWithoutInterval, rt));
+            return Optional.of(this.newChannelType(measurementTypeWithoutInterval, this.mdcReadingTypeUtilService.getOrCreateIntervalAppliedReadingType(
+                    measurementTypeWithoutInterval.getReadingType(),
+                    Optional.ofNullable(getInterval()),
+                    measurementTypeWithoutInterval.getObisCode()
+            )));
         } else {
             return channelType;
         }
