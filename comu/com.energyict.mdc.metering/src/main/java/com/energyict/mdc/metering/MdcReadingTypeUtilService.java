@@ -1,8 +1,8 @@
 package com.energyict.mdc.metering;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 
 import java.util.Optional;

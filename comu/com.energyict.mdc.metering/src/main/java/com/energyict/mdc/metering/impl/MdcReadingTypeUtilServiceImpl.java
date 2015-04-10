@@ -4,8 +4,8 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.ReadingTypeInformation;
@@ -133,7 +133,7 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     public ReadingType getOrCreateIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode) {
         ReadingTypeCodeBuilder readingTypeCodeBuilder = getReadingTypeCodeBuilderWithInterval(readingType, interval, registerObisCode);
         Optional<ReadingType> intervalAppliedReadingType = this.meteringService.getReadingType(readingTypeCodeBuilder.code());
-        if(intervalAppliedReadingType.isPresent()){
+        if (intervalAppliedReadingType.isPresent()) {
             return intervalAppliedReadingType.get();
         } else {
             return this.meteringService.createReadingType(readingTypeCodeBuilder.code(), readingType.getAliasName());
