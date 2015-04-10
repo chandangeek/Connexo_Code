@@ -17,15 +17,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -42,6 +34,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -149,7 +150,7 @@ public class LoadProfileTypeResource {
 
     @GET
     @Path("/measurementtypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam QueryParameters queryParameters) {
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
@@ -166,7 +167,7 @@ public class LoadProfileTypeResource {
 
     @GET
     @Path("{id}/measurementtypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam QueryParameters queryParameters, @PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = this.findLoadProfileTypeByIdOrThrowException(loadProfileId);

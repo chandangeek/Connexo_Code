@@ -13,25 +13,26 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
-import java.util.Optional;
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
-import javax.ws.rs.core.Response;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,7 +44,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     public void testIntervalsList() throws Exception {
         List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
         assertThat(intervals).hasSize(7);
-        assertThat(((Map)intervals.get(0)).get("name")).isEqualTo("5 minutes");
+        assertThat(((Map) intervals.get(0)).get("name")).isEqualTo("5 minutes");
     }
 
     @Test
@@ -133,7 +134,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     }
 
     private TimeDuration getRandomTimeDuration(){
-        return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size()-1)).getTimeDuration();
+        return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size() - 1)).getTimeDuration();
     }
 
     private ObisCode mockObisCode(String code) {
