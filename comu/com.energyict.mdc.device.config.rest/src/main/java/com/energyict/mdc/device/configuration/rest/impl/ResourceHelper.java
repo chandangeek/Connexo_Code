@@ -5,6 +5,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -16,7 +17,6 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class ResourceHelper {
@@ -43,25 +43,24 @@ public class ResourceHelper {
         return masterDataService
                 .findRegisterType(id)
                 .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
-     }
+    }
 
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
         return masterDataService
                 .findChannelTypeById(id)
                 .orElseThrow(() -> new WebApplicationException("No channel type with id " + id, Response.Status.NOT_FOUND));
-     }
-
+    }
 
 
     public DeviceType findDeviceTypeByIdOrThrowException(long id) {
         return deviceConfigurationService
                 .findDeviceType(id)
                 .orElseThrow(() -> new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND));
-     }
+    }
 
     public DeviceConfiguration findDeviceConfigurationForDeviceTypeOrThrowException(DeviceType deviceType, long deviceConfigurationId) {
         for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
-            if (deviceConfiguration.getId()==deviceConfigurationId) {
+            if (deviceConfiguration.getId() == deviceConfigurationId) {
                 return deviceConfiguration;
             }
         }
@@ -82,32 +81,33 @@ public class ResourceHelper {
 
     public ChannelSpec findChannelSpec(long channelSpecId) {
         return deviceConfigurationService
-                    .findChannelSpec(channelSpecId)
-                    .orElseThrow(() -> new WebApplicationException("No channel spec with id " + channelSpecId, Response.Status.NOT_FOUND));
+                .findChannelSpec(channelSpecId)
+                .orElseThrow(() -> new WebApplicationException("No channel spec with id " + channelSpecId, Response.Status.NOT_FOUND));
     }
 
     public SecurityPropertySet findSecurityPropertySetByIdOrThrowException(DeviceConfiguration deviceConfiguration, long securityPropertySetId) {
         return deviceConfiguration
                 .getSecurityPropertySets().stream().filter(sps -> sps.getId() == securityPropertySetId)
                 .findAny()
-                    .map(Function.identity())
-                    .orElseThrow(() -> new WebApplicationException("No such security property set for the device configuration", Response.status(Response.Status.NOT_FOUND)
-                            .entity("No such security property set for the device configuration")
-                            .build()));
+                .map(Function.identity())
+                .orElseThrow(() -> new WebApplicationException("No such security property set for the device configuration", Response.status(Response.Status.NOT_FOUND)
+                        .entity("No such security property set for the device configuration")
+                        .build()));
     }
 
     public SecurityPropertySet findAnySecurityPropertySetByIdOrThrowException(long securityPropertySetId) {
         return deviceConfigurationService.findSecurityPropertySet(securityPropertySetId).orElseThrow(() -> new WebApplicationException("Required security set is missing",
-                        Response.status(Response.Status.NOT_FOUND).entity("Required security set doesn't exist").build()));
+                Response.status(Response.Status.NOT_FOUND).entity("Required security set doesn't exist").build()));
     }
 
-    public ProtocolDialectConfigurationProperties findAnyProtocolDialectConfigurationPropertiesByIdOrThrowException(long protocolDialectId) {
+    public ProtocolDialectConfigurationProperties
+    findAnyProtocolDialectConfigurationPropertiesByIdOrThrowException(long protocolDialectId) {
         return deviceConfigurationService.getProtocolDialectConfigurationProperties(protocolDialectId)
                 .orElseThrow(() -> new WebApplicationException("Required protocol dialect connection properties are missing",
-                Response.status(Response.Status.NOT_FOUND).entity("Required protocol dialect connection properties are missing").build()));
+                        Response.status(Response.Status.NOT_FOUND).entity("Required protocol dialect connection properties are missing").build()));
     }
 
-    public DeviceLifeCycle findDeviceLifeCycle(long id){
+    public DeviceLifeCycle findDeviceLifeCycle(long id) {
         return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id).orElse(null);
     }
 }

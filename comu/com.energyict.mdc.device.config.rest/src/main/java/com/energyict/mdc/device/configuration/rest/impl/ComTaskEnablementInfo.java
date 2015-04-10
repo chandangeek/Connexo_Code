@@ -119,7 +119,7 @@ public class ComTaskEnablementInfo {
             }
             return partialConnectionTaskInfo;
         }
-        
+
         public static PartialConnectionTaskInfo defaultPartialConnectionTaskInfo(Thesaurus thesaurus) {
             PartialConnectionTaskInfo partialConnectionTaskInfo = new PartialConnectionTaskInfo();
             partialConnectionTaskInfo.id = DEFAULT_PARTIAL_CONNECTION_TASK_ID;

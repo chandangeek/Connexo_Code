@@ -82,7 +82,7 @@ public class ComTaskEnablementResource {
 
         ComTask comTask = comTaskEnablementInfo.comTask != null && comTaskEnablementInfo.comTask.id != null ?
                 this.findComTaskOrThrowException(comTaskEnablementInfo.comTask.id) : null;
-        SecurityPropertySet securityPropertySet = comTaskEnablementInfo.securityPropertySet != null && comTaskEnablementInfo.securityPropertySet.id != null  ?
+        SecurityPropertySet securityPropertySet = comTaskEnablementInfo.securityPropertySet != null && comTaskEnablementInfo.securityPropertySet.id != null ?
                 resourceHelper.findAnySecurityPropertySetByIdOrThrowException(comTaskEnablementInfo.securityPropertySet.id) : null;
 
         ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = comTaskEnablementInfo.partialConnectionTask;
