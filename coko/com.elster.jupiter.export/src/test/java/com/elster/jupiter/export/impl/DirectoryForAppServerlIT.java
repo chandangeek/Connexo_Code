@@ -117,27 +117,31 @@ public class DirectoryForAppServerlIT {
 
     @Before
     public void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(false),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(Clock.fixed(NOW.toInstant(), ZoneId.systemDefault())),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new NlsModule(),
-                new ExportModule(),
-                new TimeModule(),
-                new TaskModule(),
-                new MeteringGroupsModule(),
-                new AppServiceModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new MeteringModule(false),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(Clock.fixed(NOW.toInstant(), ZoneId.systemDefault())),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new NlsModule(),
+                    new ExportModule(),
+                    new TimeModule(),
+                    new TaskModule(),
+                    new MeteringGroupsModule(),
+                    new AppServiceModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         when(userService.createUser(any(), any())).thenReturn(user);
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {

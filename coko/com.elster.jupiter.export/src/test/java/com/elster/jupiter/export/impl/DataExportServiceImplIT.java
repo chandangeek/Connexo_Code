@@ -51,7 +51,6 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import javax.validation.ConstraintViolationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,6 +63,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -168,27 +168,31 @@ public class DataExportServiceImplIT {
     @Before
     public void setUp() throws SQLException {
         when(userService.createUser(any(), any())).thenReturn(user);
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(Clock.fixed(NOW.toInstant(), ZoneId.systemDefault())),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new NlsModule(),
-                new ExportModule(),
-                new TimeModule(),
-                new TaskModule(),
-                new MeteringGroupsModule(),
-                new AppServiceModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new MeteringModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(Clock.fixed(NOW.toInstant(), ZoneId.systemDefault())),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new NlsModule(),
+                    new ExportModule(),
+                    new TimeModule(),
+                    new TaskModule(),
+                    new MeteringGroupsModule(),
+                    new AppServiceModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             dataExportService = (DataExportServiceImpl) injector.getInstance(DataExportService.class);
