@@ -8,12 +8,14 @@ Ext.define('Dlc.devicelifecyclestates.view.PreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
+                itemId: 'state-name-field',
                 fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
                 name: 'name',
                 labelWidth: 250
             },
             {
                 xtype: 'displayfield',
+                itemId: 'is-initial-field',
                 fieldLabel: Uni.I18n.translate('deviceLifeCycleStates.initialState', 'DLC', 'Initial state'),
                 name: 'isInitial',
                 labelWidth: 250,

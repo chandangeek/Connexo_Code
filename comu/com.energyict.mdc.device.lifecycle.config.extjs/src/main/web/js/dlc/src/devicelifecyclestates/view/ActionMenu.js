@@ -7,6 +7,7 @@ Ext.define('Dlc.devicelifecyclestates.view.ActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
+            itemId: 'edit-action',
             action: 'edit'
         },
         {

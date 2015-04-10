@@ -21,6 +21,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Setup', {
             items: [
                 {
                     xtype: 'device-life-cycles-side-menu',
+                    itemId: 'states-side-menu',
                     router: me.router
                 }
             ]
@@ -34,10 +35,12 @@ Ext.define('Dlc.devicelifecyclestates.view.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'device-life-cycle-states-grid',
+                        itemId: 'states-grid',
                         router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'no-states-panel',
                         title: Uni.I18n.translate('deviceLifeCycleStates.empty.title', 'DLC', 'No states found'),
                         reasons: [
                             Uni.I18n.translate('deviceLifeCycleStates.empty.list.item1', 'DLC', 'No states have been added yet')
@@ -45,13 +48,15 @@ Ext.define('Dlc.devicelifecyclestates.view.Setup', {
                         stepItems: [
                             {
                                 xtype: 'button',
+                                itemId: 'add-state-button',
                                 text: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
                                 action: 'addState'
                             }
                         ]
                     },
                     previewComponent: {
-                        xtype: 'device-life-cycle-states-preview'
+                        xtype: 'device-life-cycle-states-preview',
+                        itemId: 'device-life-cycle-states-preview'
                     }
                 }
             ]

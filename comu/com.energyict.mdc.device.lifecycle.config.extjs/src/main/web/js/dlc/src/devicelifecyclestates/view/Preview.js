@@ -21,6 +21,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Preview', {
     ],
 
     items: {
-        xtype: 'device-life-cycle-states-preview-form'
+        xtype: 'device-life-cycle-states-preview-form',
+        itemId: 'device-life-cycle-states-preview-form'
     }
 });

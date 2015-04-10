@@ -44,6 +44,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Grid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'add-state-button',
                         text: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
                         action: 'addState'
                     }
