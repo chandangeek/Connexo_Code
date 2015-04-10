@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -11,6 +12,8 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import java.util.List;
+import java.util.List;
+import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -51,12 +54,21 @@ public class RegisterTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public PagedInfoList getRegisterTypes(@BeanParam QueryParameters queryParameters) {
-        List<RegisterTypeInfo> registerTypeInfos = this.masterDataService.
-                findAllRegisterTypes().
-                from(queryParameters).stream().
-                map(registerType->new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false)).
-                collect(toList());
+    public PagedInfoList getRegisterTypes(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        Stream<RegisterType> registerTypeStream = null;
+        if (filter.hasProperty("ids")){
+            // case for remote filtering for buffered store
+            List<Long> registerTypesAlreadyInUse = filter.getLongList("ids");
+            registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
+                    .filter(regType -> !registerTypesAlreadyInUse.contains(regType.getId()))
+                    .skip(queryParameters.getStart())
+                    .limit(queryParameters.getLimit() + 1);
+        } else {
+            registerTypeStream = this.masterDataService.findAllRegisterTypes().from(queryParameters).stream();
+        }
+        List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
+                .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
+                .collect(toList());
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 

@@ -16,6 +16,7 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class ResourceHelper {
@@ -93,6 +94,17 @@ public class ResourceHelper {
                     .orElseThrow(() -> new WebApplicationException("No such security property set for the device configuration", Response.status(Response.Status.NOT_FOUND)
                             .entity("No such security property set for the device configuration")
                             .build()));
+    }
+
+    public SecurityPropertySet findAnySecurityPropertySetByIdOrThrowException(long securityPropertySetId) {
+        return deviceConfigurationService.findSecurityPropertySet(securityPropertySetId).orElseThrow(() -> new WebApplicationException("Required security set is missing",
+                        Response.status(Response.Status.NOT_FOUND).entity("Required security set doesn't exist").build()));
+    }
+
+    public ProtocolDialectConfigurationProperties findAnyProtocolDialectConfigurationPropertiesByIdOrThrowException(long protocolDialectId) {
+        return deviceConfigurationService.getProtocolDialectConfigurationProperties(protocolDialectId)
+                .orElseThrow(() -> new WebApplicationException("Required protocol dialect connection properties are missing",
+                Response.status(Response.Status.NOT_FOUND).entity("Required protocol dialect connection properties are missing").build()));
     }
 
     public DeviceLifeCycle findDeviceLifeCycle(long id){
