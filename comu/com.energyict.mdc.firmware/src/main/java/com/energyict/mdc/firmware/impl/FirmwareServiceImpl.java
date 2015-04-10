@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -214,8 +213,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public RefAny findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType) {
-        return null; // fix build
+    public Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType) {
+        return Optional.empty(); // fix build
     }
 
     @Activate

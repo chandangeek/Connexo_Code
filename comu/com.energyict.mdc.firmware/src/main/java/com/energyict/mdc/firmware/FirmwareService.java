@@ -1,7 +1,6 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.Finder;
@@ -77,5 +76,5 @@ import java.util.Set;
 
     void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion);
 
-    RefAny findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
+    Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
 }
