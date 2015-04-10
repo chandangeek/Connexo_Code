@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.firmware;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -22,18 +23,6 @@ public enum ProtocolSupportedFirmwareOptions {
     }
 
     public static Optional<ProtocolSupportedFirmwareOptions> from(String id) {
-        Optional<ProtocolSupportedFirmwareOptions> optional = Optional.empty();
-        switch (id) {
-            case "install":
-                optional = Optional.of(UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
-                break;
-            case "activate":
-                optional = Optional.of(UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
-                break;
-            case "activateOnDate":
-                optional = Optional.of(UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
-                break;
-        }
-        return optional;
+        return Arrays.stream(values()).filter(option -> option.getId().equals(id)).findFirst();
     }
 }
