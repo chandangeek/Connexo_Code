@@ -85,21 +85,25 @@ public class KpiServiceImplIT {
 
     @Before
     public void setUp() {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new NlsModule(),
-                new KpiModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new NlsModule(),
+                    new KpiModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(new Transaction<Void>() {
