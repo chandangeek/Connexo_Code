@@ -21,7 +21,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(101, Keys.DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY, "You can not remove device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
     DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF(102, Keys.DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF, "A device cannot be its own gateway", Level.SEVERE),
     @SuppressWarnings("unused")
-    COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(103, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently execution on comserver {2}", Level.SEVERE),
+    COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(103, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comserver {2}", Level.SEVERE),
     INVALID_IPV6_ADDRESS(104, Keys.INVALID_IPV6_ADDRESS, "Invalid IPv6 address", Level.SEVERE),
     ;
 
