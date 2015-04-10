@@ -108,20 +108,24 @@ public class RecurrentTaskIT {
     public void setUp() {
         when(clock.instant()).thenReturn(now);
 
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(clock),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new NlsModule(),
-                new TaskModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(clock),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new NlsModule(),
+                    new TaskModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(new Transaction<Void>() {
 
