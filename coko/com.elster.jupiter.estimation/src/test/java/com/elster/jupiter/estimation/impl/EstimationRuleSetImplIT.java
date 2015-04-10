@@ -8,6 +8,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -94,26 +95,31 @@ public class EstimationRuleSetImplIT {
 
     @Before
     public void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new MeteringGroupsModule(),
-                new TaskModule(),
-                new TimeModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new EstimationModule(),
-                new NlsModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new MeteringModule(),
+                    new MeteringGroupsModule(),
+                    new TaskModule(),
+                    new TimeModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new EstimationModule(),
+                    new NlsModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         when(estimatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, ZERO_FILL));
         when(estimatorFactory.createTemplate(eq(ZERO_FILL))).thenReturn(zeroFill);
         when(minMax.getPropertySpecs()).thenReturn(Collections.emptyList());

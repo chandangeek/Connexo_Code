@@ -10,6 +10,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -143,27 +144,32 @@ public class EstimationTaskImplIT {
 
     @Before
     public void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(clock),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new NlsModule(),
-                new EstimationModule(),
-                new TimeModule(),
-                new TaskModule(),
-                new MeteringGroupsModule(),
-                new AppServiceModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new MeteringModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(clock),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new NlsModule(),
+                    new EstimationModule(),
+                    new TimeModule(),
+                    new TaskModule(),
+                    new MeteringGroupsModule(),
+                    new AppServiceModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             estimationService = (EstimationService) injector.getInstance(EstimationService.class);
