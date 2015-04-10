@@ -8060,23 +8060,32 @@ a.x-datepicker-date:hover {
   height: 48px;
   background-color: transparent;
 }
-/* line 29, ../../sass/src/menu/NavigationMenu.scss */
+/* line 28, ../../sass/src/menu/NavigationMenu.scss */
+.x-navigation-menu .x-menu-item.not-a-clickable {
+  cursor: default;
+}
+/* line 32, ../../sass/src/menu/NavigationMenu.scss */
+.x-navigation-menu .x-menu-item.not-a-clickable a,
+.x-navigation-menu .x-menu-item.not-a-clickable .x-menu-item-text {
+  cursor: default;
+}
+/* line 38, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:first-child {
   padding-top: 0 !important;
 }
-/* line 31, ../../sass/src/menu/NavigationMenu.scss */
+/* line 40, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:first-child .x-menu-item-text {
   border-top: none !important;
 }
-/* line 36, ../../sass/src/menu/NavigationMenu.scss */
+/* line 45, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:last-child {
   padding-bottom: 0 !important;
 }
-/* line 40, ../../sass/src/menu/NavigationMenu.scss */
+/* line 49, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item + .x-menu-item .x-menu-item-link {
   border-top: none !important;
 }
-/* line 44, ../../sass/src/menu/NavigationMenu.scss */
+/* line 53, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item .x-menu-item-text {
   border-top: 1px solid #a6a6a6;
   display: block;
@@ -8084,54 +8093,55 @@ a.x-datepicker-date:hover {
   line-height: 48px;
   overflow: hidden;
 }
-/* line 52, ../../sass/src/menu/NavigationMenu.scss */
+/* line 61, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item .x-menu-item-link {
   padding: 0 !important;
 }
-/* line 56, ../../sass/src/menu/NavigationMenu.scss */
+/* line 65, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .navigation-item-number {
   border: 1px solid transparent;
   border-radius: 50%;
   display: block;
   float: left;
   height: 32px;
-  line-height: 32px;
+  line-height: 31px;
   margin: 9px 16px 0 0;
   text-align: center;
   width: 32px;
+  letter-spacing: 1px;
 }
-/* line 68, ../../sass/src/menu/NavigationMenu.scss */
+/* line 78, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-completed .navigation-item-number {
   border-color: #a0a0a0;
   background-color: #ebebeb;
   color: #a0a0a0;
   font-weight: bold;
 }
-/* line 75, ../../sass/src/menu/NavigationMenu.scss */
+/* line 85, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-completed .x-menu-item-text {
   color: #a0a0a0 !important;
   font-weight: bold;
 }
-/* line 80, ../../sass/src/menu/NavigationMenu.scss */
+/* line 90, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-active .navigation-item-number {
   background-color: #70bb51;
   border-color: #70bb51;
   color: white;
   font-weight: bold;
 }
-/* line 87, ../../sass/src/menu/NavigationMenu.scss */
+/* line 97, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-active .x-menu-item-text {
   color: #70bb51 !important;
   font-weight: bold;
 }
-/* line 92, ../../sass/src/menu/NavigationMenu.scss */
+/* line 102, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-non-completed .navigation-item-number {
   background-color: #686868;
   border-color: #686868;
   color: white;
   font-weight: bold;
 }
-/* line 99, ../../sass/src/menu/NavigationMenu.scss */
+/* line 109, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-non-completed .x-menu-item-text {
   color: #686868 !important;
   font-weight: bold;
