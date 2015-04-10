@@ -19,7 +19,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         'ComTasks',
         'SecuritySettingsOfDeviceConfiguration',
         'ConnectionMethodsOfDeviceConfiguration',
-        'ProtocolDialectsOfDeviceConfiguration'
+        'ProtocolDialectsOfDeviceConfiguration',
+        'ConnectionMethodsOfDeviceConfigurationCombo'
     ],
 
     refs: [
@@ -184,7 +185,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
-            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationStore(),
+            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
             protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore();
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
@@ -266,7 +267,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
-            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationStore(),
+            connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
             protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore(),
             model = Ext.ModelManager.getModel('Mdc.model.CommunicationTaskConfig');
         me.deviceTypeId = deviceTypeId;
@@ -399,13 +400,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     updateCommunicationTask: function(operation) {
         var me = this,
             form = me.getCommunicationTaskEditForm();
-        if (form.isValid()) {
+        if (!me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors').isHidden()) {
             me.hideErrorPanel();
-            me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation : operation});
-        } else {
-            me.clearPreLoader();
-            me.showErrorPanel();
+            me.getCommunicationTaskEditForm().down('#comTaskComboBox').clearInvalid();
+            me.getCommunicationTaskEditForm().down('#securityPropertySetComboBox').clearInvalid();
+            me.getCommunicationTaskEditForm().down('#protocolDialectConfigurationPropertiesComboBox').clearInvalid();
         }
+        me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation : operation});
     },
 
     editCommunicationTaskRecord: function(values, cfg) {
@@ -478,13 +479,17 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                             if (json && json.errors) {
                                 me.showErrorPanel();
                                 me.getCommunicationTaskEditForm().getForm().markInvalid(json.errors);
+                                Ext.Array.each(json.errors, function (item) {
+                                    item.id.indexOf('comTask') !== -1 && me.getCommunicationTaskEditForm().down('#comTaskComboBox').markInvalid(item.msg);
+                                    item.id.indexOf('securityPropertySet') !== -1 && me.getCommunicationTaskEditForm().down('#securityPropertySetComboBox').markInvalid(item.msg);
+                                    item.id.indexOf('protocolDialectConfigurationProperties') !== -1 && me.getCommunicationTaskEditForm().down('#protocolDialectConfigurationPropertiesComboBox').markInvalid(item.msg);
+                                });
                                 return;
                             }
                             if (json && json.error) {
                                 errorText = json.error;
                             }
                         }
-
                         var titleKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'communicationtasks.edit.operation.failed'),
                             titleValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
 

@@ -140,32 +140,28 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             layout: {
                                                 type: 'vbox'
                                             },
+                                            defaults: {
+                                                xtype: 'button',
+                                                ui: 'link',
+                                                href: 'javascript:void(0)'
+                                            },
                                             items: [
                                                 {
-                                                    xtype: 'button',
                                                     name: 'registerCount',
                                                     text: Uni.I18n.translate('devicetype.registers', 'MDC', 'Register types'),
-                                                    ui: 'link',
-                                                    itemId: 'deviceTypeDetailRegistersLink',
-                                                    href: '#'
+                                                    itemId: 'deviceTypeDetailRegistersLink'
                                                 },
 
                                                 {
-                                                    xtype: 'button',
                                                     name: 'loadProfileCount',
                                                     text: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'Loadprofile types'),
-                                                    ui: 'link',
-                                                    itemId: 'deviceTypeDetailLoadProfilesLink',
-                                                    href: '#'
+                                                    itemId: 'deviceTypeDetailLoadProfilesLink'
                                                 },
 
                                                 {
-                                                    xtype: 'button',
                                                     name: 'logBookCount',
                                                     text: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbook types'),
-                                                    ui: 'link',
-                                                    itemId: 'deviceTypeDetailLogBooksLink',
-                                                    href: '#'
+                                                    itemId: 'deviceTypeDetailLogBooksLink'
                                                 }
                                             ]
                                         },
@@ -176,14 +172,16 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             layout: {
                                                 type: 'vbox'
                                             },
+                                            defaults: {
+                                                xtype: 'button',
+                                                ui: 'link',
+                                                href: 'javascript:void(0)'
+                                            },
                                             items: [
                                                 {
-                                                    xtype: 'button',
                                                     name: 'deviceConfigurationCount',
                                                     text: Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'),
-                                                    ui: 'link',
-                                                    itemId: 'deviceConfigurationsDetailLink',
-                                                    href: '#'
+                                                    itemId: 'deviceConfigurationsDetailLink'
                                                 }
                                             ]
                                         }

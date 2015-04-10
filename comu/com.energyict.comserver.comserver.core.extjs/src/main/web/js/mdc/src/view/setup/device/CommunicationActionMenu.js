@@ -7,16 +7,14 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             text: 'Run',
             action: 'run',
             visible: function() {
-                var r = this.record;
-                return r.get('connectionStrategy') && r.get('connectionStrategy').id == 'minimizeConnections'
+                return this.record.get('connectionStrategyKey') === 'minimizeConnections';
             }
         },
         {
             text: 'Run now',
             action: 'runNow',
             visible: function() {
-                var r = this.record;
-                return r.get('connectionStrategy') && r.get('connectionStrategy').id
+                return !!this.record.get('connectionStrategyKey');
             }
         },
         {

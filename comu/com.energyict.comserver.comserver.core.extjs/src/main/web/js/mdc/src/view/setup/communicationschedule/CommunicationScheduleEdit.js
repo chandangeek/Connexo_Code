@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     requires: [
         'Mdc.widget.ScheduleField',
         'Mdc.widget.DateTimeField',
-        'Uni.grid.column.Action',
         'Uni.util.FormInfoMessage'
     ],
     isEdit: function () {
@@ -171,7 +170,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 name: 'startDate',
                                 itemId: 'startDate',
                                 required: true,
-                                fieldLabel: Uni.I18n.translate('communicationschedule.startOn', 'MDC', 'Start on'),
+                                fieldLabel: Uni.I18n.translate('communicationschedule.startFrom', 'MDC', 'Start from'),
                                 dateCfg: {
                                     editable: false,
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
@@ -265,9 +264,6 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
             }
         ];
         this.callParent(arguments);
-
-//        this.down('#communicationSchedulePreviewGrid').view.el.dom.style.overflowX = 'hidden';
-//        debugger;
 
         if (this.isEdit()) {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));

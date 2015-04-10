@@ -64,18 +64,28 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
 
                         listConfig: {
                             cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                            emptyText: Uni.I18n.translate('general.readingtype.startTypingToSelect', 'MDC', 'Start typing to select a reading type...')
+                        },
+
+                        listeners: {
+                            blur: function (combo) {
+                                if (combo.store.loading) {
+                                    Ext.Ajax.suspendEvent('requestexception');
+                                    Ext.Ajax.abortAll();
+                                    combo.reset();
+                                    Ext.Ajax.resumeEvent('requestexception');
+                                }
+                            }
                         },
 
                         queryMode: 'remote',
                         queryParam: 'like',
-                        queryDelay: 100,
+                        queryDelay: 500,
                         queryCaching: false,
                         minChars: 1,
                         required: true,
-                        editable:true,
-                        typeAhead:true,
-                        // anchor: '100%',
+                        editable: true,
+                        typeAhead: true,
                         emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
                     },
                     {

@@ -66,9 +66,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             'menu menuitem[action=deleteloadprofileconfigurationdetailchannel]': {
                 click: this.showConfirmationPanel
             },
-            'button[action=removeloadprofileconfigurationdetailchannelconfirm]': {
-                click: this.deleteRecord
-            },
             '#loadProfileConfigurationDetailRulesGrid': {
                 selectionchange: this.previewValidationRule
             },
@@ -98,52 +95,37 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     },
 
     showConfirmationPanel: function () {
-        var grid = this.getChannelsGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        Ext.widget('messagebox', {
-            buttons: [
-                {
-                    xtype: 'button',
-                    text: 'Remove',
-                    action: 'removeloadprofileconfigurationdetailchannelconfirm',
-                    name: 'delete',
-                    ui: 'remove'
-                },
-                {
-                    xtype: 'button',
-                    text: 'Cancel',
-                    handler: function (button, event) {
-                        this.up('messagebox').hide();
-                    },
-                    ui: 'link'
-                }
-            ]
-        }).show({
-            title: "Remove '" + lastSelected.getData().name + "'?",
-            msg: 'This channel will be removed from load profile configuration.',
-            icon: Ext.MessageBox.WARNING
-        })
+        var me = this, lastSelected = me.getChannelsGrid().getSelectionModel().getLastSelected();
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('loadProfileConfiguration.confirmWindow.removeChannelConfiguration', 'MDC', 'This channel will be removed from load profile configuration.'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('readingType')['fullAliasName'] + "'?",
+            config: { me: me },
+            fn: me.confirmationPanelHandler
+        });
     },
 
-    deleteRecord: function (btn) {
-        var grid = this.getChannelsGrid(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
-            me = this;
-        btn.up('messagebox').hide();
-        Ext.Ajax.request({
-            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + lastSelected.getData().id,
-            method: 'DELETE',
-            waitMsg: 'Removing...',
-            success: function () {
-                me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.removeSuccessMsg', 'MDC', 'Channel configuration removed'));
-                me.store.load(function () {
-                    if (this.getCount() === 0) {
-                        me.getPage().down('#rulesForChannelPreviewContainer').destroy();
-                        me.getPage().down('#rulesForChannelConfig').destroy();
-                    }
-                });
-            }
-        });
+    confirmationPanelHandler: function (state, text, conf) {
+        var me = conf.config.me, lastSelected = me.getChannelsGrid().getSelectionModel().getLastSelected();
+
+        if (state === 'confirm') {
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + lastSelected.get('id'),
+                method: 'DELETE',
+                waitMsg: 'Removing...',
+                success: function () {
+                    me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.removeSuccessMsg', 'MDC', 'Channel configuration removed'));
+                    me.store.load(function () {
+                        if (this.getCount() === 0) {
+                            me.getPage().down('#rulesForChannelPreviewContainer').destroy();
+                            me.getPage().down('#rulesForChannelConfig').destroy();
+                        }
+                    });
+                }
+            });
+        }
+
+
     },
 
     getAssociatedMeasurementType: function (readingType) {
@@ -218,8 +200,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             preloader, jsonValues,
             router = this.getController('Uni.controller.history.Router');
 
-        formValue.measurementType = {id: this.getAssociatedMeasurementType(selectedReadingType).get('id') || null};
         if (form.isValid()) {
+            formValue.measurementType = {id: this.getAssociatedMeasurementType(selectedReadingType).get('id') || null};
             jsonValues = Ext.JSON.encode(formValue);
             formErrorsPanel.hide();
             switch (btn.action) {
@@ -299,11 +281,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 }
             ]
         }).show({
-            ui: 'notification-error',
-            title: headerText,
-            msg: errormsgs,
-            icon: Ext.MessageBox.ERROR
-        })
+                ui: 'notification-error',
+                title: headerText,
+                msg: errormsgs,
+                icon: Ext.MessageBox.ERROR
+            })
     },
 
 
@@ -352,7 +334,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 calculatedReadingTypeField.labelEl.update(Uni.I18n.translate('deviceloadprofiles.channels.calculatedReadingType', 'MDC', 'Calculated reading type'));
                 calculatedReadingTypeField.setVisible(true)
             }
-			
+
             this.getPage().down('#rulesForChannelConfig').setTitle(
                 Uni.I18n.translate('channelConfig.validationRules.list', 'MDC', '{0} validation rules', [recordData.readingType.fullAliasName])
             );

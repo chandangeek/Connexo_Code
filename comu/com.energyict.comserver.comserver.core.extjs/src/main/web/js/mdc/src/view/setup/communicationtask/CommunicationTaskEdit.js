@@ -159,7 +159,8 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         editable: false,
                         msgTarget: 'under',
                         width: 600,
-                        required: true
+                        required: true,
+                        allowBlank: false
                     },
                     {
                         xtype: 'numberfield',

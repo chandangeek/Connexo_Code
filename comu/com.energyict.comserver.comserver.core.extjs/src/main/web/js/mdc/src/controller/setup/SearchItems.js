@@ -68,6 +68,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
     showBulkAction: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
+        me.getSearchItems().up().setLoading(true);
         me.saveState();
         router.getRoute('search/bulkAction').forward();
     },
@@ -119,15 +120,12 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         }
 
         this.applySort();
-        Ext.suspendLayouts();
-        searchItems.down('#resultsPanel').removeAll();
-        searchItems.down('#resultsPanel').add(Ext.create('Mdc.view.setup.searchitems.SearchResults', {store: store}));
-        Ext.resumeLayouts();
+        store.load();
         var isFilterSet = this.isFilterFilled(searchItems);
         this.showSearchContentContainer(isFilterSet);
 
         if (isFilterSet) {
-            searchItems.down('#searchResults').store.on('load', function showResults() {
+            store.on('load', function showResults() {
                 searchItems.down('#contentLayout').getLayout().setActiveItem(1);
                 this.removeListener('load', showResults);
             });
@@ -248,16 +246,20 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             var me = this,
                 searchItems = me.getSearchItems(),
                 sortContainer = searchItems.down('container[name=sortitemspanel]').getContainer();
-            searchItems.down('#mrid').setValue(me.state.mrid);
-            searchItems.down('#sn').setValue(me.state.sn);
-            searchItems.down('#type').setValue(me.state.type);
-            searchItems.down('#configuration').setValue(me.state.conf);
-            me.state.sort.forEach(function(sort){
-                var button = sortContainer.down('button[name=' + sort.name + ']');
-                me.createSortButton(button, sortContainer, sort.name, sort.property, sort.text, sort.direction);
+            searchItems.setLoading();
+            searchItems.down('#type').getStore().load(function () {
+                searchItems.down('#mrid').setValue(me.state.mrid);
+                searchItems.down('#sn').setValue(me.state.sn);
+                searchItems.down('#type').setValue(me.state.type);
+                searchItems.down('#configuration').setValue(me.state.conf);
+                me.state.sort.forEach(function(sort){
+                    var button = sortContainer.down('button[name=' + sort.name + ']');
+                    me.createSortButton(button, sortContainer, sort.name, sort.property, sort.text, sort.direction);
+                });
+                delete me.state;
+                me.searchClick(me.getSearchButton());
+                searchItems.setLoading(false);
             });
-            delete me.state;
-            me.searchClick(me.getSearchButton());
         }
     },
 

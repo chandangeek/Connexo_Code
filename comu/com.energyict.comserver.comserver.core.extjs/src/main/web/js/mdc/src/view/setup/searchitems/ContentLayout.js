@@ -21,13 +21,21 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 html: '<H3>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</H3>'
             },
             {
-                xtype: 'container',
+                xtype: 'preview-container',
                 itemId: 'resultsPanel',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+                grid: {
+                    xtype: 'searchResults',
+                    store: 'Mdc.store.Devices'
                 },
-                items: []
+                emptyComponent: {
+                    xtype: 'no-items-found-panel',
+                    itemId: 'no-devices',
+                    title: Uni.I18n.translate('searchItems.empty.title', 'MDC', 'No devices found'),
+                    reasons: [
+                        Uni.I18n.translate('searchItems.empty.list.item1', 'MDC', 'No devices have been defined yet.'),
+                        Uni.I18n.translate('searchItems.empty.list.item2', 'MDC', 'The search criteria are too narrow.')
+                    ]
+                }
             },
             {
                 xtype: 'container',

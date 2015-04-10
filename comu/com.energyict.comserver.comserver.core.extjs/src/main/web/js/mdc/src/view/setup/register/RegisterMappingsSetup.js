@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('registerMapping.empty.title', 'MDC', 'No register type found'),
+                            title: Uni.I18n.translate('registerMapping.empty.title', 'MDC', 'No register types found'),
                             reasons: [
                                 Uni.I18n.translate('registerMapping.empty.list.item1', 'MDC', 'No register types have been defined yet.')
                             ],

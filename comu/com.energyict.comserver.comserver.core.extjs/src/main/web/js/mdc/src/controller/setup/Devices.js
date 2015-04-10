@@ -129,7 +129,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/devices/{mRID}/communications/activate'.replace('{mRID}', encodeURIComponent(router.arguments.mRID)),
+            url: '/api/ddr/devices/{mRID}/comtasks/activate'.replace('{mRID}', encodeURIComponent(router.arguments.mRID)),
             success: function () {
                 me.refreshCommunications();
                 me.getApplication().fireEvent('acknowledge',
@@ -145,7 +145,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/devices/{mRID}/communications/deactivate'.replace('{mRID}', encodeURIComponent(router.arguments.mRID)),
+            url: '/api/ddr/devices/{mRID}/comtasks/deactivate'.replace('{mRID}', encodeURIComponent(router.arguments.mRID)),
             success: function () {
                 me.refreshCommunications();
                 me.getApplication().fireEvent('acknowledge',
@@ -257,6 +257,10 @@ Ext.define('Mdc.controller.setup.Devices', {
         var widget = Ext.widget('deviceAdd');
         widget.down('form').loadRecord(Ext.create('Mdc.model.Device'));
         this.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading();
+        widget.down('#deviceAddType').getStore().load(function () {
+            widget.setLoading(false);
+        });
     },
 
     saveDevice: function (button) {
@@ -265,6 +269,12 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         form.getForm().isValid();
         form.updateRecord();
+        if (!form.down('#deviceAddType').getValue()) {
+            form.getRecord().set('deviceTypeId', null);
+        }
+        if (!form.down('#deviceAddConfig').getValue()) {
+            form.getRecord().set('deviceConfigurationId', null);
+        }
         form.getRecord().save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge',
@@ -274,8 +284,18 @@ Ext.define('Mdc.controller.setup.Devices', {
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    var errorsToShow = [];
+                    Ext.each(json.errors, function(item) {
+                        if(item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
+                            errorsToShow.push(item)
+                        } else {
+                            if (!form.down('#deviceAddType').getValue()) {
+                                errorsToShow.push(item)
+                            }
+                        }
+                    });
                     me.showErrorPanel(form);
-                    form.getForm().markInvalid(json.errors);
+                    form.getForm().markInvalid(errorsToShow);
                 }
             }
         });

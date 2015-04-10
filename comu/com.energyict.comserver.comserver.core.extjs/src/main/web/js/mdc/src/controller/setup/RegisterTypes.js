@@ -33,31 +33,31 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'readingTypeCombo', selector: '#registerTypeEditForm #readingTypeCombo'}
     ],
 
-  /*  loadReadingTypes: function (combo) {
-        var me = this,
-            editView = me.getRegisterTypeEditView(),
-            readingTypeCombo = me.getReadingTypeCombo(),
-            readingTypeStore = readingTypeCombo.getStore(),
-            readingHiddenDisplayField = editView.down('#noReadingAvailable');
+    /*  loadReadingTypes: function (combo) {
+     var me = this,
+     editView = me.getRegisterTypeEditView(),
+     readingTypeCombo = me.getReadingTypeCombo(),
+     readingTypeStore = readingTypeCombo.getStore(),
+     readingHiddenDisplayField = editView.down('#noReadingAvailable');
 
-        readingTypeCombo.disable();
-        readingTypeCombo.setValue(null);
+     readingTypeCombo.disable();
+     readingTypeCombo.setValue(null);
 
-        readingTypeStore.load({
-            callback: function () {
-                if (this.getCount()) {
-                    readingTypeCombo.show();
-                    readingHiddenDisplayField.hide();
-                } else {
-                    readingTypeCombo.hide();
-                    readingHiddenDisplayField.show();
-                }
-                editView.setLoading(false);
-                readingTypeCombo.enable();
-            }
-        });
+     readingTypeStore.load({
+     callback: function () {
+     if (this.getCount()) {
+     readingTypeCombo.show();
+     readingHiddenDisplayField.hide();
+     } else {
+     readingTypeCombo.hide();
+     readingHiddenDisplayField.show();
+     }
+     editView.setLoading(false);
+     readingTypeCombo.enable();
+     }
+     });
 
-    },*/
+     },*/
 
 
     init: function () {
@@ -231,7 +231,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         if (record) {
             editView.setLoading();
             record.set(values);
-            if (me.getReadingTypeCombo().valueModels[0]) {
+            if (me.getReadingTypeCombo().valueModels && me.getReadingTypeCombo().valueModels[0]) {
                 record.setReadingType(Ext.create(Mdc.model.ReadingType, me.getReadingTypeCombo().valueModels[0].getData()));
             }
             record.save({

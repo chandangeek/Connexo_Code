@@ -69,6 +69,8 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             msgTarget: 'under',
                             itemId: 'deviceAddType',
                             name: 'deviceType',
+                            queryMode: 'local',
+                            typeAhead: true,
                             autoSelect: true,
                             labelAlign: 'right',
                             fieldLabel: Uni.I18n.translate('deviceAdd.type.label', 'MDC', 'Device type'),
@@ -85,9 +87,15 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 },
                             listeners: {
                                 select: function (field, value) {
-                                    var configCombo = field.nextSibling();
+                                    var configCombo = field.nextSibling(),
+                                        valueId;
 
-                                    configCombo.getStore().getProxy().setExtraParam('deviceType', value[0].data.id);
+                                    if (Ext.isArray(value)) {
+                                        valueId = value[0].data.id;
+                                    } else {
+                                        valueId = value.data.id;
+                                    }
+                                    configCombo.getStore().getProxy().setExtraParam('deviceType', valueId);
                                     if (configCombo.isDisabled()) {
                                         configCombo.enable();
                                     }
@@ -96,7 +104,26 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                         configCombo.getStore().reload();
                                     }
 
-                                    field.up('form').getRecord().set('deviceTypeId', value[0].data.id);
+                                    field.up('form').getRecord().set('deviceTypeId', valueId);
+                                },
+                                change: function (field, value) {
+                                    var configCombo = field.nextSibling();
+                                    if (value == '') {
+                                        configCombo.reset();
+                                        configCombo.disable();
+                                    }
+                                },
+                                blur: function (field) {
+                                    if (!field.getValue()) {
+                                        field.nextSibling().reset();
+                                        field.nextSibling().disable();
+                                    } else {
+                                        Ext.Array.each(field.getStore().getRange(), function (item) {
+                                            if (field.getValue() == item.get('name')) {
+                                                field.fireEvent('select', field, item);
+                                            }
+                                        });
+                                    }
                                 }
                             }
                         },

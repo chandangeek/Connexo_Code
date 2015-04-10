@@ -25,12 +25,12 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationPrevie
     },
     items: [
         {
-            fieldLabel: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
-            name: 'config_name'
-        },
-        {
             fieldLabel: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),
             name: 'deviceType_name'
+        },
+        {
+            fieldLabel: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
+            name: 'config_name'
         },
         {
             name: 'config_active',

@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             items: [
                 {
                     xtype: 'panel',
-                    width: 700,
+                    width: 670,
                     items: [
                         {
                             xtype: 'gridpanel',
@@ -70,6 +70,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                             hideHeaders: true,
                             store: 'Mdc.store.SelectedRegisterTypesForLoadProfileType',
                             padding: 0,
+                            overflowY: 'hidden',
+                            autoHeight: true,
                             columns: [
                                 {
                                     xtype: 'reading-type-column',
@@ -88,8 +90,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                                         }
                                     ]
                                 }
-                            ],
-                            height: 220
+                            ]
                         },
                         {
                             xtype: 'displayfield',
@@ -229,7 +230,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         Ext.iterate(obj, function (key, value) {
             record.set(key, value);
         });
-        if (!me.down('#timeDuration').getValue()) {
+        if (me.down('#timeDuration').getValue() === null) {
             record.set('timeDuration', null);
         } else {
             record.set('timeDuration', {id: obj.timeDuration});
