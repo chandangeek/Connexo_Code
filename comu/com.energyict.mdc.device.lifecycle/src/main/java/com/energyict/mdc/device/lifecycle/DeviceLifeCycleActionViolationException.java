@@ -8,5 +8,14 @@ package com.energyict.mdc.device.lifecycle;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-20 (16:23)
  */
-public class DeviceLifeCycleActionViolationException extends RuntimeException {
+public abstract class DeviceLifeCycleActionViolationException extends RuntimeException {
+
+    public DeviceLifeCycleActionViolationException() {
+        super();
+    }
+
+    public DeviceLifeCycleActionViolationException(String message) {
+        super(message);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -9,7 +10,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made to execute
- * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}
+ * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedAction}
  * against a {@link com.energyict.mdc.device.data.Device}
  * that is actually not part of the Device's
  * {@link com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle life cycle}.
@@ -21,23 +22,33 @@ public class ActionNotPartOfDeviceLifeCycleException extends DeviceLifeCycleActi
 
     private final MessageSeed messageSeed;
     private final Thesaurus thesaurus;
-    private final String actionName;
-    private final long deviceId;
+    private final Object[] messageParameters;
 
     public ActionNotPartOfDeviceLifeCycleException(AuthorizedTransitionAction action, Device device, Thesaurus thesaurus, MessageSeed messageSeed) {
-        super();
+        super(messageSeed.getKey());
         this.messageSeed = messageSeed;
         this.thesaurus = thesaurus;
-        this.deviceId = device.getId();
-        this.actionName = action.getStateTransition().getEventType().getSymbol();
+        this.messageParameters = new Object[2];
+        this.messageParameters[0] = action.getStateTransition().getEventType().getSymbol();
+        this.messageParameters[1] = device.getId();
+    }
+
+    public ActionNotPartOfDeviceLifeCycleException(AuthorizedBusinessProcessAction action, Device device, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(messageSeed.getKey());
+        this.messageSeed = messageSeed;
+        this.thesaurus = thesaurus;
+        this.messageParameters = new Object[3];
+        this.messageParameters[0] = action.getDeploymentId();
+        this.messageParameters[1] = action.getProcessId();
+        this.messageParameters[2] = device.getId();
     }
 
     @Override
     public String getLocalizedMessage() {
-        return getFormat().format(this.actionName, this.deviceId);
+        return getFormat().format(this.messageParameters);
     }
 
-    private final NlsMessageFormat getFormat() {
+    private NlsMessageFormat getFormat() {
         return this.thesaurus.getFormat(this.messageSeed);
     }
 
