@@ -8,8 +8,8 @@ package com.energyict.mdc.device.lifecycle.config;
  */
 public interface Privileges {
 
-    public String VIEW_DEVICE_LIFE_CYCLES = "privilege.view.deviceLifeCycles";
-    public String CONFIGURE_DEVICE_LIFE_CYCLES = "privilege.configure.deviceLifeCycles";
+    public String VIEW_DEVICE_LIFE_CYCLE = "privilege.view.deviceLifeCycle";
+    public String CONFIGURE_DEVICE_LIFE_CYCLE = "privilege.configure.deviceLifeCycle";
 
     public String INITIATE_ACTION_1 = "device.lifecycle.initiate.action.level1";
     public String INITIATE_ACTION_2 = "device.lifecycle.initiate.action.level2";
