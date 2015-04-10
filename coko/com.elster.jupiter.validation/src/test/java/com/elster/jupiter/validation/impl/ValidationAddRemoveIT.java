@@ -120,27 +120,31 @@ public class ValidationAddRemoveIT {
 
     @Before
     public void setUp() {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new MeteringGroupsModule(),
-                new TaskModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new ValidationModule(),
-                new NlsModule(),
-                new EventsModule(),
-                new UserModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new MeteringModule(),
+                    new MeteringGroupsModule(),
+                    new TaskModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new ValidationModule(),
+                    new NlsModule(),
+                    new EventsModule(),
+                    new UserModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
