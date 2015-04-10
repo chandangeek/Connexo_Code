@@ -94,6 +94,10 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             issuesStoreProxy = issuesStore.getProxy(),
             widget;
 
+        issuesStoreProxy.extraParams = {};
+        issuesStoreProxy.setExtraParam('status', 'status.open');
+        issuesStoreProxy.setExtraParam('sort', 'dueDate');
+
         widget = Ext.widget('bulk-browse');
         me.getApplication().fireEvent('changecontentevent', widget);
         issuesStore.data.clear();
@@ -168,9 +172,19 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             operation = record.get('operation'),
             requestUrl = '/api/idc/issue/' + operation,
             warnIssues = [],
-            failedIssues = [];
+            failedIssues = [],
+            params = [],
+            allIssues = false;
 
         this.setBulkActionListActiveItem(wizard);
+
+        if(record.get('allIssues')) {
+            allIssues = record.data.allIssues;
+            params = record.data.params;
+        } else {
+            params = [];
+            allIssues = false;
+        }
 
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
         Ext.suspendLayouts();
@@ -187,7 +201,8 @@ Ext.define('Idc.controller.BulkChangeIssues', {
         Ext.Ajax.request({
             url: requestUrl,
             method: 'PUT',
-            jsonData: requestData,
+            params: params,
+                jsonData: requestData,
             success: function (response) {
                 var obj = Ext.decode(response.responseText).data,
                     successCount = obj.success.length,
@@ -322,16 +337,26 @@ Ext.define('Idc.controller.BulkChangeIssues', {
     getRequestData: function (bulkStoreRecord) {
         var requestData = {issues: []},
             operation = bulkStoreRecord.get('operation'),
-            issues = bulkStoreRecord.get('issues');
+            issues = bulkStoreRecord.get('issues'),
+            allIssues = bulkStoreRecord.get('allIssues'),
+            params = bulkStoreRecord.get('params');
 
-        Ext.iterate(issues, function (issue) {
-            requestData.issues.push(
-                {
-                    id: issue.get('id'),
-                    version: issue.get('version')
-                }
-            );
-        });
+        if (!allIssues) {
+            Ext.iterate(issues, function (issue) {
+                requestData.issues.push(
+                    {
+                        id: issue.get('id'),
+                        version: issue.get('version')
+                    }
+                );
+            });
+            requestData.params = [];
+            requestData.allIssues = false;
+        } else {
+            requestData.params = params;
+            requestData.allIssues = allIssues;
+            requestData.issues = [];
+        }
 
         switch (operation) {
             case 'assign':
@@ -412,10 +437,17 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             selection = grid.getSelectionModel().getSelection();
 
         if (grid.isAllSelected()) {
-            selection = grid.store.data.first.value;
+            var allIssues = true;
+            var params = Ext.ComponentQuery.query('grid')[0].getStore().getProxy().extraParams;
+            record.set('allIssues', allIssues);
+            record.set('params', params);
+            record.set('issues', []);
+        } else {
+            record.set('issues', selection);
+            record.set('allIssues', false);
+            record.set('params', []);
         }
-
-        record.set('issues', selection);
+        
         record.commit();
     },
 
@@ -467,7 +499,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                         type: "User",
                         title: activeCombo.rawValue
                     });
-                    if (record.get('issues')) {
+                    if (!record.get('allIssues')) {
                         message = '<h3>Assign ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + ' to ' + record.get('assignee').title + '?</h3><br>'
                         + 'The selected issue(s) will be assigned to ' + record.get('assignee').title;
                     } else {
@@ -477,7 +509,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
                     break;
 
                 case 'close':
-                    if (record.get('issues')) {
+                    if (!record.get('allIssues')) {
                         message = '<h3>Close ' + record.get('issues').length + (record.get('issues').length > 1 ? ' issues' : ' issue') + '?</h3><br>'
                         + 'The selected issue(s) will be closed with status "<b>' + record.get('statusName') + '</b>"';
                     } else {
