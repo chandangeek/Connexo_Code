@@ -97,10 +97,36 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             case 'editTransition':
                 route = 'administration/devicelifecycles/devicelifecycle/transitions/edit';
                 break;
+            case 'removeTransition':
+                me.removeTransition(menu.record);
+                break;
         }
 
         route && (route = router.getRoute(route));
         route && route.forward({transitionId: menu.record.getId()});
+    },
+
+    removeTransition: function (record) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('deviceLifeCycleTransitions.remove.msg', 'DLC', 'This transition will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'DLC', 'Remove') + ' \'' + record.get('name') + '\'?',
+            fn: function (state) {
+                if (state === 'confirm') {
+                    record.getProxy().setUrl(router.arguments);
+                    me.getPage().setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
+                    record.destroy({
+                        success: function () {
+                            me.getPage().setLoading(false);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleTransitions.remove.success.msg', 'DLC', 'Transition removed'));
+                            router.getRoute().forward();
+                        }
+                    });
+                }
+            }
+        });
     },
 
     showAddDeviceLifeCycleTransition: function (deviceLifeCycleId, transitionId) {
