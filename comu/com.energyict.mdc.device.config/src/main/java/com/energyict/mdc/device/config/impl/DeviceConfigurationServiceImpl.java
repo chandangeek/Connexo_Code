@@ -394,11 +394,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     Optional<Privilege> findPrivilege(String userActionPrivilege) {
-        java.util.Optional<Privilege> privilegeOptional = privileges.stream().filter(privilege -> privilege.getName().equals(userActionPrivilege)).findAny();
-        if(privilegeOptional.isPresent()) {
-            return Optional.of(privilegeOptional.get());
-        }
-        return Optional.empty();
+        return this.privileges
+                .stream()
+                .filter(privilege -> privilege.getName().equals(userActionPrivilege))
+                .findAny();
     }
 
     private Module getModule() {
