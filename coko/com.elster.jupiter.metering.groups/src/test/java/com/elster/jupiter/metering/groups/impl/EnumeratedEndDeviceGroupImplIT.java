@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.groups.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -84,6 +85,7 @@ public class EnumeratedEndDeviceGroupImplIT {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(false),
                 new MeteringGroupsModule(),
                 new PartyModule(),
@@ -212,10 +214,10 @@ public class EnumeratedEndDeviceGroupImplIT {
             enumeratedEndDeviceGroup.save();
             ctx.commit();
         }
-        
+
         Optional<EndDeviceGroup> optDeviceGroup = meteringGroupsService.findEndDeviceGroup("STATIC DEVICE GROUP");
         assertThat(optDeviceGroup.isPresent()).isTrue();
-        
+
         EndDeviceGroup group = optDeviceGroup.get();
         assertThat(group.isMember(endDevices.get(1), Instant.now())).isTrue();
         assertThat(group.isMember(endDevices.get(23), Instant.now())).isFalse();
