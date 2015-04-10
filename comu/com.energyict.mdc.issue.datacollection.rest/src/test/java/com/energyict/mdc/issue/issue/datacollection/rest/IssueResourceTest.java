@@ -19,7 +19,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
@@ -41,7 +40,6 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

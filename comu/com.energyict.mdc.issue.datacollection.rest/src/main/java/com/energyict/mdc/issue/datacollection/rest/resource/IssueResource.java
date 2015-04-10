@@ -218,7 +218,7 @@ public class IssueResource extends BaseResource {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider = null;
-        if (request.allIssues){
+        if (request.allIssues) {
             issueProvider = bulkResults -> getIssuesForBulk(params);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
@@ -231,7 +231,7 @@ public class IssueResource extends BaseResource {
         List<Issue> issuesForBulk = new ArrayList<>(request.issues.size());
         for (EntityReference issueRef : request.issues) {
             Issue issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId()).orElse(null);
-            if (issue == null){
+            if (issue == null) {
                 issue = getIssueDataCollectionService().findHistoricalIssue(issueRef.getId()).orElse(null);
             }
             if (issue == null) {
@@ -253,7 +253,7 @@ public class IssueResource extends BaseResource {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider = null;
-        if (request.allIssues){
+        if (request.allIssues) {
             issueProvider = bulkResults -> getIssuesForBulk(params);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
@@ -271,12 +271,12 @@ public class IssueResource extends BaseResource {
                         response.addFail(getString(MessageSeeds.ISSUE_ALREADY_CLOSED, getThesaurus()), issue.getId(), issue.getTitle());
                     } else {
                         issue.addComment(request.comment, performer);
-                        if (issue instanceof OpenIssue){
+                        if (issue instanceof OpenIssue) {
                             ((OpenIssue) issue).close(status.get());
                         } else {
                             // user set both open and close statuses in filter
                             getIssueDataCollectionService().findOpenIssue(issue.getId()).ifPresent(
-                                 openIssue -> openIssue.close(status.get())
+                                    openIssue -> openIssue.close(status.get())
                             );
                         }
                         response.addSuccess(issue.getId());
