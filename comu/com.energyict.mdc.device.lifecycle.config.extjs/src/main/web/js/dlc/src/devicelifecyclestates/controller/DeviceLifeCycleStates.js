@@ -183,7 +183,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
                 view.down('#device-life-cycle-link').setText(deviceLifeCycleRecord.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
-                view.down('device-life-cycle-states-grid').getSelectionModel().select(0);
             }
         });
 
