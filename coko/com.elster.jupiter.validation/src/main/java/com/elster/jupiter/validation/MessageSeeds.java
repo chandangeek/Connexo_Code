@@ -28,7 +28,9 @@ public enum MessageSeeds implements MessageSeed {
 
     VALIDATOR_PROPERTY_NOT_IN_SPEC(1005, Constants.VALIDATOR_PROPERTY_NOT_IN_SPEC_KEY, "The validator ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     VALIDATOR_PROPERTY_INVALID_VALUE(1006, Constants.VALIDATOR_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of validator ''{2}''", Level.SEVERE),
-    VALIDATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of validator ''{1}''", Level.SEVERE);
+    VALIDATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of validator ''{1}''", Level.SEVERE),
+
+    OVERLAPPED_VALIDATION_RULE_SET_VERSION(1008, Constants.OVERLAPPED_PERIOD, "Validation rule set version start date overlapped", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -96,6 +98,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_DELETE_WHILE_RUNNING = "CannotDeleteValidationTask";
         public static final String NAME_WITH_SYMBOLS = "CannotAddNameWithSymbols";
         public static final String TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
+        public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
 
     }
 }

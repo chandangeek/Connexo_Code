@@ -31,6 +31,7 @@ import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
 import com.google.common.collect.Range;
 
+@UniqueStartDate(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.OVERLAPPED_PERIOD + "}")
 public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
     private long id;
 
