@@ -74,7 +74,7 @@ public class DeviceLifeCycleResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addDeviceLifeCycle(DeviceLifeCycleInfo deviceLifeCycleInfo) {
         DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(deviceLifeCycleInfo.name);
         return Response.status(Response.Status.CREATED).entity(new DeviceLifeCycleInfo(newLifeCycle)).build();
@@ -84,7 +84,7 @@ public class DeviceLifeCycleResource {
     @Path("/{id}/clone")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response cloneDeviceLifeCycle(@PathParam("id") Long id, DeviceLifeCycleInfo deviceLifeCycleInfo) {
         DeviceLifeCycle sourceDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         DeviceLifeCycle clonedLifeCycle = deviceLifeCycleConfigurationService.cloneDeviceLifeCycle(sourceDeviceLifeCycle, deviceLifeCycleInfo.name);
@@ -94,7 +94,7 @@ public class DeviceLifeCycleResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLES})
+    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response deleteDeviceLifeCycle(@PathParam("id") Long id) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
