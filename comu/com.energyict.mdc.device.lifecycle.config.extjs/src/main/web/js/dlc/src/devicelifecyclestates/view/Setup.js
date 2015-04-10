@@ -15,10 +15,15 @@ Ext.define('Dlc.devicelifecyclestates.view.Setup', {
     initComponent: function () {
         var me = this;
 
-
         me.side = {
-            xtype: 'device-life-cycles-side-menu',
-            router: me.router
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'device-life-cycles-side-menu',
+                    router: me.router
+                }
+            ]
         };
 
         me.content = {

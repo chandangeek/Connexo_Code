@@ -16,9 +16,15 @@ Ext.define('Dlc.devicelifecycletransitions.view.Setup', {
         var me = this;
 
         me.side = {
-            xtype: 'device-life-cycles-side-menu',
-            itemId: 'device-life-cycles-transitions-side-menu',
-            router: me.router
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'device-life-cycles-side-menu',
+                    itemId: 'device-life-cycles-transitions-side-menu',
+                    router: me.router
+                }
+            ]
         };
 
         me.content = {
