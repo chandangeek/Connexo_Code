@@ -2528,6 +2528,7 @@
   top: -6px;
   border-color: #007bff transparent transparent transparent;
 }
+
 /* line 17, ../../sass/etc/all.scss */
 .x-bar .x-bar-label {
   position: absolute;
@@ -2537,20 +2538,24 @@
   margin-right: 8px;
   width: 80px;
 }
+
 /* line 26, ../../sass/etc/all.scss */
 .x-bar .x-bar-container, .x-bar .x-bar-fill, .x-bar .x-bar-track {
   height: 15px;
   display: block;
   position: relative;
 }
+
 /* line 31, ../../sass/etc/all.scss */
 .x-bar .x-bar-container {
   background: transparent;
 }
+
 /* line 33, ../../sass/etc/all.scss */
 .x-bar .x-bar-container .x-bar-fill {
   background: #CBCBCB;
 }
+
 /* line 36, ../../sass/etc/all.scss */
 .x-bar .x-bar-container .x-bar-track {
   background: #686868;
@@ -2565,35 +2570,42 @@
 .breakdown .failed, .breakdown .x-bar-track-stacked.failed {
   background-color: #EB5642;
 }
+
 /* line 54, ../../sass/etc/all.scss */
 .breakdown .success, .breakdown .x-bar-track-stacked.success {
   background-color: #70BB52;
 }
+
 /* line 57, ../../sass/etc/all.scss */
 .breakdown .ongoing, .breakdown .x-bar-track-stacked.ongoing {
   background-color: #71ADC6;
 }
+
 /* line 61, ../../sass/etc/all.scss */
 .breakdown .legend ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
+
 /* line 66, ../../sass/etc/all.scss */
 .breakdown .legend ul li {
   float: left;
   margin-right: 16px;
 }
+
 /* line 70, ../../sass/etc/all.scss */
 .breakdown .legend ul li .color {
   width: 16px;
   height: 16px;
   display: inline-block;
 }
+
 /* line 78, ../../sass/etc/all.scss */
 .breakdown .x-panel-tile {
   padding: 20px;
 }
+
 /* line 81, ../../sass/etc/all.scss */
 .breakdown .x-panel-tile .x-toolbar-footer {
   padding: 15px 0 0 0;
@@ -2603,14 +2615,17 @@
 .x-panel-tile table {
   border-spacing: 0;
 }
+
 /* line 91, ../../sass/etc/all.scss */
 .x-panel-tile table tr {
   padding: 0;
 }
+
 /* line 93, ../../sass/etc/all.scss */
 .x-panel-tile table tr td {
   padding: 3px 0;
 }
+
 /* line 98, ../../sass/etc/all.scss */
 .x-panel-tile h3 {
   margin-bottom: 10px;
@@ -2640,22 +2655,27 @@
 .summary {
   min-width: 300px;
 }
+
 /* line 117, ../../sass/etc/all.scss */
 .summary td.label {
   min-width: 250px;
 }
+
 /* line 120, ../../sass/etc/all.scss */
 .summary tr {
   height: 25px;
 }
+
 /* line 124, ../../sass/etc/all.scss */
 .summary .bar-success .x-bar-track {
   background-color: #70BB52;
 }
+
 /* line 127, ../../sass/etc/all.scss */
 .summary .bar-ongoing .x-bar-track {
   background-color: #71ADC6;
 }
+
 /* line 130, ../../sass/etc/all.scss */
 .summary .bar-failed .x-bar-track {
   background-color: #EB5642;
@@ -2672,6 +2692,7 @@
   padding: 0;
   margin-top: 5px;
 }
+
 /* line 147, ../../sass/etc/all.scss */
 .quick-links ul li {
   line-height: 25px;

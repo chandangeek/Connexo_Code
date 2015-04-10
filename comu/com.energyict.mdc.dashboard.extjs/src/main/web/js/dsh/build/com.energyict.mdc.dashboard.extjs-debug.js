@@ -163,9 +163,9 @@ Ext.define('Dsh.view.widget.common.Bar', {
                 '<div class="{baseCls}-fill" style="width: {limit}%;">',
                     '{track}',
                 '</div>',
-                '<tpl if="threshold">',
-                '<div class="threshold" style="left: {threshold}%;">',
-                '</tpl>',
+        '<tpl if="threshold">',
+        '<div class="threshold" style="left: {threshold}%;">',
+        '</tpl>',
             '<div>',
         '</tpl>'
     ],
@@ -222,24 +222,24 @@ Ext.define('Dsh.view.widget.Summary', {
                 cls: 'summary',
                 total: 0,
                 tpl: '<table>' +
-                    '<tpl for=".">' +
-                    '<tbody class="item item-{#}">' +
-                    '{% var parentIndex = xindex; %}' +
-                    '<tr>' +
-                    '<td class="label">' +
-                    '<tpl if="href">' +
-                    '<a id="label-{displayName}" href="{href}">{displayName}</a><tpl else>{displayName}</tpl>' +
-                    '</td>' +
-                    '<td width="100%" id="bar-{[parentIndex]}" class="bar-{[parentIndex]} bar-{name}"></td>' +
-                    '</tr>' +
-                    '<tpl for="counters">' +
-                    '<tr class="child">' +
-                    '<td class="label">{displayName}</td>' +
-                    '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{[parentIndex]}-{#} bar-{name}"></td>' +
-                    '</tr>' +
-                    '</tpl>' +
-                    '</tbody>' +
-                    '</tpl>' +
+                '<tpl for=".">' +
+                '<tbody class="item item-{#}">' +
+                '{% var parentIndex = xindex; %}' +
+                '<tr>' +
+                '<td class="label">' +
+                '<tpl if="href">' +
+                '<a id="label-{displayName}" href="{href}">{displayName}</a><tpl else>{displayName}</tpl>' +
+                '</td>' +
+                '<td width="100%" id="bar-{[parentIndex]}" class="bar-{[parentIndex]} bar-{name}"></td>' +
+                '</tr>' +
+                '<tpl for="counters">' +
+                '<tr class="child">' +
+                '<td class="label">{displayName}</td>' +
+                '<td width="100%" id="bar-{[parentIndex]}-{#}" class="bar-{[parentIndex]}-{#} bar-{name}"></td>' +
+                '</tr>' +
+                '</tpl>' +
+                '</tbody>' +
+                '</tpl>' +
                     '</table>',
                 listeners: {
                     refresh: function (view) {
@@ -314,7 +314,9 @@ Ext.define('Dsh.view.widget.Summary', {
             target = record.get('target'),
             counters = record.counters();
 
-        var success = counters.getAt(counters.findBy(function(r){return r.get('name') === 'success'}));
+        var success = counters.getAt(counters.findBy(function (r) {
+            return r.get('name') === 'success'
+        }));
         var successRate = Math.round(!total ? 0 : success.get('count') * 100 / total);
         var diff = successRate - target;
         var direction = diff >= 0 ? 'above' : 'below';
@@ -365,33 +367,33 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             emptyText: Uni.I18n.translate('overview.widget.communicationServers.noServersFound', 'DSH', 'No communication servers found'),
             tpl: new Ext.XTemplate(
                 '<table  style="margin: 5px 0 10px 0">',
-                    '<tpl for=".">',
-                        '<tbody class="comserver">',
-                            '<tpl if="!values.expand">',
-                                '<tpl if="children">',
-                                    '<tr>',
-                                        '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
-                                        '<td>{children.length} {title}</td>',
-                                        '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
+                '<tpl for=".">',
+                '<tbody class="comserver">',
+                '<tpl if="!values.expand">',
+                '<tpl if="children">',
+                '<tr>',
+                '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
+                '<td>{children.length} {title}</td>',
+                '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
                                     '</tr>',
-                                '<tpl else>',
-                                    '<tr>',
-                                        '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
-                                        '<td>{title}</td>',
-                                        '<td style="padding-left: 15px;"></td>',
-                                    '</tr>',
+                '<tpl else>',
+                '<tr>',
+                '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
+                '<td>{title}</td>',
+                '<td style="padding-left: 15px;"></td>',
+                '</tr>',
                                 '</tpl>',
-                            '<tpl else>',
-                                '<tpl for="values.children">',
-                                    '<tr id="{comServerId}">',
-                                        '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{[parent.name]}.png" /></td>',
-                                        '<td><a href="{href}">{title}</a></td>',
-                                        '<td style="padding-left: 15px;"><img data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
-                                    '</tr>',
-                                '</tpl>',
+                '<tpl else>',
+                '<tpl for="values.children">',
+                '<tr id="{comServerId}">',
+                '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{[parent.name]}.png" /></td>',
+                '<td><a href="{href}">{title}</a></td>',
+                '<td style="padding-left: 15px;"><img data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
+                '</tr>',
+                '</tpl>',
                             '</tpl>',
-                        '</tbody>',
-                    '</tpl>',
+                '</tbody>',
+                '</tpl>',
                 '</table>'
             )
         },
@@ -402,27 +404,26 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             style: {
                 marginRight: '20px'
             },
-            items: [
-            ]
+            items: []
         }
     ],
 
     serverTpl: new Ext.XTemplate(
         '<table>',
-            '<tr>',
-                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.server.name', 'DSH', 'Name') + '</td>',
-                '<td>{comServerName}</td>',
-            '</tr>',
-            '<tr>',
-                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.server.type', 'DSH', 'Type') + '</td>',
-                '<td>{comServerType}</td>',
-            '</tr>',
-            '<tpl if="blockedSince">',
-                '<tr>',
-                    '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Not responding since') + '</td>',
-                    '<td>{[Ext.util.Format.date(new Date(values.blockedSince), "D M j, Y G:i")]}</td>',
-                '</tr>',
-            '</tpl>',
+        '<tr>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.server.name', 'DSH', 'Name') + '</td>',
+        '<td>{comServerName}</td>',
+        '</tr>',
+        '<tr>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.server.type', 'DSH', 'Type') + '</td>',
+        '<td>{comServerType}</td>',
+        '</tr>',
+        '<tpl if="blockedSince">',
+        '<tr>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.tt.downSince', 'DSH', 'Not responding since') + '</td>',
+        '<td>{[Ext.util.Format.date(new Date(values.blockedSince), "D M j, Y G:i")]}</td>',
+        '</tr>',
+        '</tpl>',
         '</table>'
     ),
 
@@ -436,7 +437,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
         targetContainer.removeAll();
         store.load(function () {
             var title = '<h3>' + Uni.I18n.translatePlural('overview.widget.communicationServers.header', store.count(), 'DSH', 'Active communication servers ({0})') + '</h3>';
-            if(me.down('#connection-summary-title-panel')){
+            if (me.down('#connection-summary-title-panel')) {
                 me.down('#connection-summary-title-panel').update(title);
             }
 
@@ -491,15 +492,15 @@ Ext.define('Dsh.view.widget.QuickLinks', {
             tpl: new Ext.XTemplate(
                 '<div class="quick-links">',
                     '<h3>' + Uni.I18n.translate('overview.widget.quicklinks.title', 'DSH', 'Quick links') + '</h3>',
-                    '<ul>',
+                '<ul>',
                         '<tpl for=".">',
-                            '<tpl if="href">',
-                                '<li><a href="{href}"',
-                                    '<tpl if="target">', // yellowfin reports are shown in a new tab.
-                                        ' target="{target}"',
-                                    '</tpl>',
-                                '>{link}</a></li>',
-                            '</tpl>',
+                '<tpl if="href">',
+                '<li><a href="{href}"',
+                '<tpl if="target">', // yellowfin reports are shown in a new tab.
+                ' target="{target}"',
+                '</tpl>',
+                '>{link}</a></li>',
+                '</tpl>',
                         '</tpl>',
                     '</ul>',
                 '</div>'
@@ -522,7 +523,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
 
     initComponent: function () {
         var me = this;
-        this.tbar =  [
+        this.tbar = [
             {
                 xtype: 'container',
                 itemId: 'readOutsTitle',
@@ -619,7 +620,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     zoomType: 'x',
                     renderTo: container.el.dom,
                     reflow: false,
-                    width: Ext.getBody().getViewSize().width-100,
+                    width: Ext.getBody().getViewSize().width - 100,
                     height: 400,
                     events: {
                         load: function () {
@@ -644,7 +645,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     enabled: false
                 },
                 tooltip: {
-                    positioner: function (labelWidth, labelHeight, point){
+                    positioner: function (labelWidth, labelHeight, point) {
                         var yValue,
                             additionalY;
 
@@ -654,7 +655,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                             additionalY = point.plotY;
                         }
 
-                        yValue = point.plotY > labelHeight ? point.plotY - labelHeight: additionalY + labelHeight/2;
+                        yValue = point.plotY > labelHeight ? point.plotY - labelHeight : additionalY + labelHeight / 2;
                         return {x: point.plotX, y: yValue}
                     },
                     valueSuffix: '%'
@@ -771,22 +772,22 @@ Ext.define('Dsh.view.widget.Overview', {
                     total: item.get('total') || me.total,
                     store: item.counters(),
                     tpl: '<table width="100%">' +
-                        '<tpl for=".">' +
-                        '<tbody class="item item-{#}">' +
-                        '<tr>' +
-                        '<td width="50%">' +
-                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
-                        '<tpl if="href">' +
-                        '<a href="{href}">{displayName}</a>' +
-                        '<tpl else>' +
-                        '{displayName}' +
-                        '</tpl>' +
-                        '</div>' +
-                        '</td>' +
-                        '<td width="50%" id="bar-{#}"></td>' +
-                        '</tr>' +
-                        '</tbody>' +
-                        '</tpl>' +
+                    '<tpl for=".">' +
+                    '<tbody class="item item-{#}">' +
+                    '<tr>' +
+                    '<td width="50%">' +
+                    '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
+                    '<tpl if="href">' +
+                    '<a href="{href}">{displayName}</a>' +
+                    '<tpl else>' +
+                    '{displayName}' +
+                    '</tpl>' +
+                    '</div>' +
+                    '</td>' +
+                    '<td width="50%" id="bar-{#}"></td>' +
+                    '</tr>' +
+                    '</tbody>' +
+                    '</tpl>' +
                         '</table>',
                     listeners: {
                         refresh: function (view) {
@@ -888,7 +889,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
             y = 0;
             ++x;
         });
-        return { max: max, total: totalCount};
+        return {max: max, total: totalCount};
     },
 
     storeToHighchartData: function (store) {
@@ -1000,7 +1001,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
             callback: function () {
                 var cmp = me.down('#heatmapchart');
                 if (store.count() && cmp) {
-                    chartHeight =  80 + store.count() * 50
+                    chartHeight = 80 + store.count() * 50
                     cmp.setHeight(chartHeight);
                     me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store), chartHeight);
                     me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
@@ -1165,12 +1166,12 @@ Ext.define('Dsh.view.widget.Breakdown', {
                 {
                     xtype: 'container',
                     html: '<div class="legend">' +
-                        '<ul>' +
+                    '<ul>' +
                         '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
                         '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
-                        '<li><span class="color ongoing"></span> ' + Uni.I18n.translate('overview.widget.breakdown.ongoing', 'DSH', 'Ongoing') + '</li>' +
-                        '</ul>' +
-                        '</div>'
+                    '<li><span class="color ongoing"></span> ' + Uni.I18n.translate('overview.widget.breakdown.ongoing', 'DSH', 'Ongoing') + '</li>' +
+                    '</ul>' +
+                    '</div>'
                 }
             ]
         }
@@ -1237,18 +1238,18 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     total: item.get('total'),
                     store: item.counters(),
                     tpl: '<table width="100%">' +
-                        '<tpl for=".">' +
-                        '<tbody class="item item-{#}">' +
-                        '<tr>' +
-                        '<td width="50%"> ' +
-                        '<a>' +
-                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
-                        '</a>' +
-                        '</td>' +
-                        '<td width="50%" id="bar-{#}"></td>' +
-                        '</tr>' +
-                        '</tbody>' +
-                        '</tpl>' +
+                    '<tpl for=".">' +
+                    '<tbody class="item item-{#}">' +
+                    '<tr>' +
+                    '<td width="50%"> ' +
+                    '<a>' +
+                    '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">{displayName}</div>' +
+                    '</a>' +
+                    '</td>' +
+                    '<td width="50%" id="bar-{#}"></td>' +
+                    '</tr>' +
+                    '</tbody>' +
+                    '</tpl>' +
                         '</table>',
                     listeners: {
                         refresh: function (view) {
@@ -1368,8 +1369,8 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     {
                         xtype: 'quick-links',
                         itemId: 'quick-links',
-                        maxHeight:256,
-                        overflowY:'auto',
+                        maxHeight: 256,
+                        overflowY: 'auto',
                         style: {
                             marginRight: '0',
                             padding: '20px'
@@ -1436,7 +1437,9 @@ Ext.define('Dsh.model.Filterable', {
                 return {property: key, value: value};
             });
 
-            proxy.setExtraParam('filter', Ext.encode(_.filter(data, function(item) {return !!item.value})));
+            proxy.setExtraParam('filter', Ext.encode(_.filter(data, function (item) {
+                return !!item.value
+            })));
         }
     }
 });
@@ -1444,13 +1447,15 @@ Ext.define('Dsh.model.Filterable', {
 Ext.define('Dsh.model.Counter', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'count', type: 'int' },
-        { name: 'alias', type: 'string' },
-        { name: 'displayName', type: 'string' },
-        { name: 'name', type: 'string', mapping: function (data) {
-           return Ext.isString(data.name) ? data.name.toLowerCase() : ''}
+        {name: 'count', type: 'int'},
+        {name: 'alias', type: 'string'},
+        {name: 'displayName', type: 'string'},
+        {
+            name: 'name', type: 'string', mapping: function (data) {
+            return Ext.isString(data.name) ? data.name.toLowerCase() : ''
+        }
         },
-        { name: 'total', type: 'int' }
+        {name: 'total', type: 'int'}
     ],
 
     hasMany: {
@@ -1465,9 +1470,9 @@ Ext.define('Dsh.model.Summary', {
         'Dsh.model.Counter'
     ],
     fields: [
-        { name: 'total', type: 'int' },
-        { name: 'target', type: 'int' },
-        { name: 'alias', type: 'string' }
+        {name: 'total', type: 'int'},
+        {name: 'target', type: 'int'},
+        {name: 'alias', type: 'string'}
     ],
     hasMany: {
         model: 'Dsh.model.Counter',
@@ -1478,11 +1483,11 @@ Ext.define('Dsh.model.Summary', {
 Ext.define('Dsh.model.BreakdownCounter', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'id', type: 'int' },
-        { name: 'displayName', type: 'string' },
-        { name: 'successCount', type: 'int' },
-        { name: 'failedCount', type: 'int' },
-        { name: 'pendingCount', type: 'int' },
+        {name: 'id', type: 'int'},
+        {name: 'displayName', type: 'string'},
+        {name: 'successCount', type: 'int'},
+        {name: 'failedCount', type: 'int'},
+        {name: 'pendingCount', type: 'int'},
         {
             name: 'total',
             type: 'int',
@@ -1500,12 +1505,12 @@ Ext.define('Dsh.model.Breakdown', {
         'Dsh.model.BreakdownCounter'
     ],
     fields: [
-        { name: 'displayName', type: 'string' },
-        { name: 'alias', type: 'string' },
-        { name: 'total', type: 'int'},
-        { name: 'totalSuccessCount', type: 'int'},
-        { name: 'totalPendingCount', type: 'int'},
-        { name: 'totalFailedCount', type: 'int'}
+        {name: 'displayName', type: 'string'},
+        {name: 'alias', type: 'string'},
+        {name: 'total', type: 'int'},
+        {name: 'totalSuccessCount', type: 'int'},
+        {name: 'totalPendingCount', type: 'int'},
+        {name: 'totalFailedCount', type: 'int'}
     ],
     hasMany: {
         model: 'Dsh.model.BreakdownCounter',
@@ -1516,8 +1521,8 @@ Ext.define('Dsh.model.Breakdown', {
 Ext.define('Dsh.model.Series', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'name', type: 'string' },
-        { name: 'data' }
+        {name: 'name', type: 'string'},
+        {name: 'data'}
     ]
 });
 
@@ -1525,7 +1530,7 @@ Ext.define('Dsh.model.Kpi', {
     extend: 'Ext.data.Model',
     requires: ['Dsh.model.Series'],
     fields: [
-        { name: 'time'}
+        {name: 'time'}
     ],
     hasMany: {
         model: 'Dsh.model.Series',
@@ -1581,8 +1586,9 @@ Ext.define('Dsh.model.CommunicationServerInfo', {
         { name: 'comServerType', type: 'string' },
         { name: 'running', type: 'boolean' },
         { name: 'blocked', type: 'boolean' },
-        { name: 'blockTime', type: 'auto' },
-        { name: 'status', type: 'string', convert: function (v, record) {
+        {name: 'blockTime', type: 'auto'},
+        {
+            name: 'status', type: 'string', convert: function (v, record) {
             //Blocked: All communication servers with attributes "running:true" and "blocked:true"
             //Stopped: All communication servers with attribute "running:false"
             //Running: All communication servers with attributes "running:true" and "blocked:false"
@@ -1591,7 +1597,8 @@ Ext.define('Dsh.model.CommunicationServerInfo', {
             } else {
                 return 'stopped';
             }
-        }}
+        }
+        }
     ],
     associations: [
         { name: 'blockTime', type: 'hasOne', model: 'Dsh.model.TimeInfo', associationKey: 'blockTime' }
@@ -1638,9 +1645,9 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         { ref: 'summary', selector: '#summary' },
         { ref: 'communicationServers', selector: '#communication-servers' },
         { ref: 'overview', selector: '#overview' },
-        { ref: 'breakdown', selector: '#breakdown' },
-        { ref: 'kpi', selector: '#communication-overview read-outs-over-time' },
-        { ref: 'quickLinks', selector: '#communication-overview #quick-links' }
+        {ref: 'breakdown', selector: '#breakdown'},
+        {ref: 'kpi', selector: '#communication-overview read-outs-over-time'},
+        {ref: 'quickLinks', selector: '#communication-overview #quick-links'}
     ],
 
     init: function () {
@@ -1689,7 +1696,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         );
         },
 
-    updateQuickLinks: function(){
+    updateQuickLinks: function () {
         if (Uni.Auth.hasAnyPrivilege(['privilege.view.reports'])) {
             var me = this;
             var deviceGroupField = me.getHeader().down('#device-group');
@@ -1714,7 +1721,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
 
                         quickLinks.push({
                             link: reportName,
-                            href: '#/administration/generatereport?reportUUID=' + reportUUID +'&subCategory=Device%20Communication' +(filter ? '&filter=' + filter : '')
+                            href: '#/administration/generatereport?reportUUID=' + reportUUID + '&subCategory=Device%20Communication' + (filter ? '&filter=' + filter : '')
                         });
                     });
 
@@ -1824,12 +1831,12 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 displayMsg: Uni.I18n.translate('communication.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} communications'),
                 displayMoreMsg: Uni.I18n.translate('communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communications'),
                 emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display'),
-                items:[
+                items: [
                     {
-                        xtype:'button',
-                        itemId:'generate-report',
+                        xtype: 'button',
+                        itemId: 'generate-report',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
-                        text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                        text: Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                     }
                 ]
             },
@@ -1881,16 +1888,16 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.commTasks', 'DSH', 'Communication task(s)'),
                     name: 'comTasks',
-                        renderer: function(value){
-                            if(value!==''){
-                                var result = '';
-                                Ext.each(value, function(item){
-                                    result = result + '<li>'+ item.name+'</li>'
-                                });
-                                return result;
-                            } else {
-                                return '';
-                            }
+                    renderer: function (value) {
+                        if (value !== '') {
+                            var result = '';
+                            Ext.each(value, function (item) {
+                                result = result + '<li>' + item.name + '</li>'
+                            });
+                            return result;
+                        } else {
+                            return '';
+                        }
                     }
                 },
                 {
@@ -1899,7 +1906,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceData'])
+                            Uni.Auth.hasAnyPrivilege(['privilege.view.device', 'privilege.administrate.deviceData'])
                                 ? res = '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -1911,7 +1918,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])
+                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType'])
                                 ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -1928,7 +1935,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                             '">' +
                             val.config.name +
                             '</a>');
-                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])) {
+                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType'])) {
                             res = val.config.name;
                         }
                         return res
@@ -2218,8 +2225,14 @@ Ext.define('Dsh.util.FilterHydrator', {
         delete data.startedBetween;
         delete data.finishedBetween;
         record.set(data);
-        record.setStartedBetween(Ext.create('Dsh.model.DateRange', { from: startedBetweenFromDate, to: startedBetweenToDate }));
-        record.setFinishedBetween(Ext.create('Dsh.model.DateRange', { from: finishedBetweenFromDate, to: finishedBetweenToDate }));
+        record.setStartedBetween(Ext.create('Dsh.model.DateRange', {
+            from: startedBetweenFromDate,
+            to: startedBetweenToDate
+        }));
+        record.setFinishedBetween(Ext.create('Dsh.model.DateRange', {
+            from: finishedBetweenFromDate,
+            to: finishedBetweenToDate
+        }));
     },
 
     parseDate: function (date, hours, minutes) {
@@ -2395,7 +2408,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceData'])
+                            Uni.Auth.hasAnyPrivilege(['privilege.view.device', 'privilege.administrate.deviceData'])
                                 ? res = '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -2407,7 +2420,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])
+                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType'])
                                 ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -2419,12 +2432,12 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     renderer: function (val) {
                         var res = '';
                         val && (res = '<a href="#/administration/devicetypes/' +
-                            val.devType.id + '/deviceconfigurations/' +
-                            val.config.id +
-                            '">' +
-                            val.config.name +
-                            '</a>');
-                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])) {
+                        val.devType.id + '/deviceconfigurations/' +
+                        val.config.id +
+                        '">' +
+                        val.config.name +
+                        '</a>');
+                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType'])) {
                             res = val.config.name;
                         }
                         return res
@@ -2596,13 +2609,13 @@ Ext.define('Dsh.model.CommunicationTask', {
         }
     ],
     hasOne: {
-        model:'Dsh.model.ConnectionTask',
+        model: 'Dsh.model.ConnectionTask',
         associationKey: 'connectionTask',
         name: 'connectionTask',
         getterName: 'getConnectionTask'
     },
 
-    run: function(callback) {
+    run: function (callback) {
         Ext.Ajax.request({
             method: 'PUT',
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
@@ -2610,7 +2623,7 @@ Ext.define('Dsh.model.CommunicationTask', {
         });
     },
 
-    runNow: function(callback) {
+    runNow: function (callback) {
         Ext.Ajax.request({
             method: 'PUT',
             url: this.proxy.url + '/{id}/runnow'.replace('{id}', this.getId()),
@@ -2632,13 +2645,8 @@ Ext.define('Dsh.model.CommunicationTask', {
 });
 
 
-
-
-
-
-
 Ext.define('Dsh.util.FilterStoreHydrator', {
-    extract: function(filter) {
+    extract: function (filter) {
         var data = filter.getData();
         data.deviceGroups = data.deviceGroup;
         delete data.deviceGroup;
@@ -2646,18 +2654,20 @@ Ext.define('Dsh.util.FilterStoreHydrator', {
         // transform all single items int array
         _.map(data, function (item, key) {
             if (item) {
-                if (!_.isArray(item)) {data[key] = [item]}
+                if (!_.isArray(item)) {
+                    data[key] = [item]
+                }
             }
             return item;
         });
         if (filter.startedBetween) {
-            var start =  filter.getStartedBetween();
+            var start = filter.getStartedBetween();
             if (start.get('from')) {
                 data.startIntervalFrom = start.get('from').getTime();
             }
 
             if (start.get('to')) {
-                data.startIntervalTo =  start.get('to').getTime();
+                data.startIntervalTo = start.get('to').getTime();
             }
         }
 
@@ -2697,7 +2707,6 @@ Ext.define('Dsh.store.CommunicationTasks', {
         }
     }
 });
-
 
 
 Ext.define('Dsh.view.Communications', {
@@ -2769,10 +2778,10 @@ Ext.define('Dsh.view.Communications', {
 Ext.define('Dsh.model.ConnectionTask', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'id', type: 'auto'},
-        { name: 'device', type: 'auto' },
-        { name: 'deviceConfiguration', type: 'auto' },
-        { name: 'deviceType', type: 'auto' },
+        {name: 'id', type: 'auto'},
+        {name: 'device', type: 'auto'},
+        {name: 'deviceConfiguration', type: 'auto'},
+        {name: 'deviceType', type: 'auto'},
         {
             name: 'devConfig',
             persist: false,
@@ -2790,26 +2799,26 @@ Ext.define('Dsh.model.ConnectionTask', {
                 return data.connectionMethod.name + ' on ' + data.device.name
             }
         },
-        { name: 'currentState', type: 'auto' },
-        { name: 'latestStatus', type: 'auto' },
-        { name: 'latestResult', type: 'auto' },
-        { name: 'taskCount', type: 'auto' },
-        { name: 'startDateTime', type: 'date', dateFormat: 'time'},
-        { name: 'endDateTime', type: 'date', dateFormat: 'time'},
-        { name: 'duration', type: 'auto' },
-        { name: 'comPortPool', type: 'auto' },
-        { name: 'direction', type: 'auto' },
-        { name: 'connectionType', type: 'auto' },
-        { name: 'comServer', type: 'auto' },
-        { name: 'connectionMethod', type: 'auto' },
-        { name: 'window', type: 'auto' },
-        { name: 'connectionStrategy', type: 'auto' },
-        { name: 'nextExecution', type: 'date', dateFormat: 'time'},
-        { name: 'comPort', type: 'auto'},
-        { name: 'comSessionId', type: 'auto'}
+        {name: 'currentState', type: 'auto'},
+        {name: 'latestStatus', type: 'auto'},
+        {name: 'latestResult', type: 'auto'},
+        {name: 'taskCount', type: 'auto'},
+        {name: 'startDateTime', type: 'date', dateFormat: 'time'},
+        {name: 'endDateTime', type: 'date', dateFormat: 'time'},
+        {name: 'duration', type: 'auto'},
+        {name: 'comPortPool', type: 'auto'},
+        {name: 'direction', type: 'auto'},
+        {name: 'connectionType', type: 'auto'},
+        {name: 'comServer', type: 'auto'},
+        {name: 'connectionMethod', type: 'auto'},
+        {name: 'window', type: 'auto'},
+        {name: 'connectionStrategy', type: 'auto'},
+        {name: 'nextExecution', type: 'date', dateFormat: 'time'},
+        {name: 'comPort', type: 'auto'},
+        {name: 'comSessionId', type: 'auto'}
     ],
 
-    run: function(callback) {
+    run: function (callback) {
         Ext.Ajax.request({
             method: 'PUT',
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
@@ -2832,7 +2841,7 @@ Ext.define('Dsh.model.ConnectionTask', {
 Ext.define('Dsh.model.CommTasks', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'count', type: 'auto' },
+        {name: 'count', type: 'auto'},
         'communicationTasks'
     ],
     hasMany: [
@@ -2847,8 +2856,8 @@ Ext.define('Dsh.model.DateRange', {
     extend: 'Ext.data.Model',
     proxy: 'memory',
     fields: [
-        { name: 'from', type: 'date', dateFormat: 'Y-m-dTH:i:s' },
-        { name: 'to', type: 'date', dateFormat: 'Y-m-dTH:i:s' }
+        {name: 'from', type: 'date', dateFormat: 'Y-m-dTH:i:s'},
+        {name: 'to', type: 'date', dateFormat: 'Y-m-dTH:i:s'}
     ]
 });
 
@@ -2863,15 +2872,15 @@ Ext.define('Dsh.model.Filter', {
         root: 'filter'
     },
     fields: [
-        { name: 'currentStates', type: 'auto' },
-        { name: 'latestStates', type: 'auto' },
-        { name: 'latestResults', type: 'auto' },
-        { name: 'comPortPools', type: 'auto' },
-        { name: 'comSchedules', type: 'auto' },
-        { name: 'comTasks', type: 'auto' },
-        { name: 'connectionTypes', type: 'auto' },
-        { name: 'deviceGroup', type: 'auto' },
-        { name: 'deviceTypes', type: 'auto' }
+        {name: 'currentStates', type: 'auto'},
+        {name: 'latestStates', type: 'auto'},
+        {name: 'latestResults', type: 'auto'},
+        {name: 'comPortPools', type: 'auto'},
+        {name: 'comSchedules', type: 'auto'},
+        {name: 'comTasks', type: 'auto'},
+        {name: 'connectionTypes', type: 'auto'},
+        {name: 'deviceGroup', type: 'auto'},
+        {name: 'deviceTypes', type: 'auto'}
     ],
     associations: [
         {
@@ -3173,15 +3182,15 @@ Ext.define('Dsh.controller.Communications', {
 
     viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' + item.action.comTask.comTaskId
-            + '/history/' + item.action.comTask.sessionId
-            + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+        + '/communicationtasks/' + item.action.comTask.comTaskId
+        + '/history/' + item.action.comTask.sessionId
+        + '/viewlog' +
+        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
 
     viewConnectionLog: function (item) {
         location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
+        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
     },
 
     onGenerateReport: function () {
@@ -3215,12 +3224,12 @@ Ext.define('Dsh.controller.Communications', {
         //router.filter.startedBetween
         //router.filter.finishBetween
 
-        if(router.filter && router.filter.startedBetween){
+        if (router.filter && router.filter.startedBetween) {
             var from = router.filter.startedBetween.get('from');
             var to = router.filter.startedBetween.get('to');
-            reportFilter['CONNECTIONDATE'] ={
-                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
-                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
+            reportFilter['CONNECTIONDATE'] = {
+                'from': from && Ext.Date.format(from, "Y-m-d H:i:s"),
+                'to': to && Ext.Date.format(to, "Y-m-d H:i:s")
             };
         }
 
@@ -3320,8 +3329,8 @@ Ext.define('Dsh.view.ConnectionOverview', {
                     {
                         xtype: 'quick-links',
                         itemId: 'quick-links',
-                        maxHeight:256,
-                        overflowY:'auto',
+                        maxHeight: 256,
+                        overflowY: 'auto',
                         style: {
                             marginRight: '0',
                             padding: '20px'
@@ -3489,9 +3498,9 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         { ref: 'summary', selector: '#summary' },
         { ref: 'communicationServers', selector: '#communication-servers' },
         { ref: 'overview', selector: '#overview' },
-        { ref: 'breakdown', selector: '#breakdown' },
-        { ref: 'kpi', selector: '#connection-overview read-outs-over-time' },
-        { ref: 'quickLinks', selector: '#connection-overview #quick-links' }
+        {ref: 'breakdown', selector: '#breakdown'},
+        {ref: 'kpi', selector: '#connection-overview read-outs-over-time'},
+        {ref: 'quickLinks', selector: '#connection-overview #quick-links'}
     ],
 
     init: function () {
@@ -3536,7 +3545,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         );
     },
 
-    updateQuickLinks: function(){
+    updateQuickLinks: function () {
         if (Uni.Auth.hasAnyPrivilege(['privilege.view.reports'])) {
             var me = this;
             var deviceGroupField = me.getHeader().down('#device-group');
@@ -3560,7 +3569,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
                         var reportUUID = record.get('reportUUID');
                         quickLinks.push({
                             link: reportName,
-                            href: '#/administration/generatereport?reportUUID=' +'&subCategory=Device%Connections' + reportUUID + (filter ? '&filter=' + filter : ''),
+                            href: '#/administration/generatereport?reportUUID=' + '&subCategory=Device%Connections' + reportUUID + (filter ? '&filter=' + filter : ''),
                             target: '_blank'
                         });
                     });
@@ -3599,7 +3608,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
-                    return  Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceData'])
+                    return Uni.Auth.hasAnyPrivilege(['privilege.view.device', 'privilege.administrate.deviceData'])
                         ? '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : val.name
                 }
             },
@@ -3644,7 +3653,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             {
                 dataIndex: 'taskCount',
                 itemId: 'taskCount',
-                renderer: function (val,metaData) {
+                renderer: function (val, metaData) {
                     metaData.tdCls = 'communication-tasks-status';
                     var template = '';
                     if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
@@ -3687,12 +3696,12 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
             displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
             emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display'),
-            items:[
+            items: [
                 {
-                    xtype:'button',
-                    itemId:'generate-report',
+                    xtype: 'button',
+                    itemId: 'generate-report',
                     hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
-                    text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                    text: Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                 }
             ]
         },
@@ -4010,12 +4019,12 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 displayMsg: Uni.I18n.translate('connection.communication.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} communication tasks'),
                 displayMoreMsg: Uni.I18n.translate('connection.communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communication tasks'),
                 emptyMsg: Uni.I18n.translate('connection.communication.widget.details.emptyMsg', 'DSH', 'There are no communication task to display'),
-                items:[
+                items: [
                     {
-                        xtype:'button',
-                        itemId:'generate-report',
+                        xtype: 'button',
+                        itemId: 'generate-report',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
-                        text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                        text: Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                     }
                 ]
             },
@@ -4073,7 +4082,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceData'])
+                            Uni.Auth.hasAnyPrivilege(['privilege.view.device', 'privilege.administrate.deviceData'])
                                 ? res = '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -4085,7 +4094,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])
+                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType'])
                                 ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -4102,7 +4111,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                         '">' +
                         val.config.name +
                         '</a>');
-                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])) {
+                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType'])) {
                             res = val.config.name;
                         }
                         return res
@@ -4321,9 +4330,9 @@ Ext.define('Dsh.model.connection.CommunicationTask', {
         "connectionTask",
         "sessionId",
         "comTask",
-        { name: 'startTime', type: 'date', dateFormat: 'time'},
-        { name: 'stopTime', type: 'date', dateFormat: 'time'},
-        { name: 'nextCommunication', type: 'date', dateFormat: 'time'},
+        {name: 'startTime', type: 'date', dateFormat: 'time'},
+        {name: 'stopTime', type: 'date', dateFormat: 'time'},
+        {name: 'nextCommunication', type: 'date', dateFormat: 'time'},
         {
             name: 'title',
             persist: false,
@@ -4343,13 +4352,13 @@ Ext.define('Dsh.model.connection.CommunicationTask', {
         }
     ],
     hasOne: {
-        model:'Dsh.model.ConnectionTask',
+        model: 'Dsh.model.ConnectionTask',
         associationKey: 'connectionTask',
         name: 'connectionTask',
         getterName: 'getConnectionTask'
     },
 
-    run: function(callback) {
+    run: function (callback) {
         Ext.Ajax.request({
             method: 'PUT',
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
@@ -4357,7 +4366,7 @@ Ext.define('Dsh.model.connection.CommunicationTask', {
         });
     },
 
-    runNow: function(callback) {
+    runNow: function (callback) {
         Ext.Ajax.request({
             method: 'PUT',
             url: this.proxy.url + '/{id}/runnow'.replace('{id}', this.getId()),
@@ -4377,11 +4386,6 @@ Ext.define('Dsh.model.connection.CommunicationTask', {
 
 
 });
-
-
-
-
-
 
 
 Ext.define('Dsh.store.Communications', {
@@ -4406,8 +4410,6 @@ Ext.define('Dsh.store.Communications', {
         this.getProxy().url = this.url + id + this.communicationsPostfix
     }
 });
-
-
 
 
 Ext.define('Dsh.controller.Connections', {
@@ -4544,22 +4546,22 @@ Ext.define('Dsh.controller.Connections', {
         gridActionMenu.removeAll();
         previewActionMenu.removeAll();
 
-            if (record.get('sessionId') !== 0) {
-                menuItems.push({
-                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), record.get('comTask').name),
-                    action: {
-                        action: 'viewlog',
-                        comTask: {
-                            mRID: record.get('device').id,
-                            sessionId: record.get('id'),
-                            comTaskId: record.get('comTask').id
-                        }
-                    },
-                    listeners: {
-                        click: me.viewCommunicationLog
+        if (record.get('sessionId') !== 0) {
+            menuItems.push({
+                text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), record.get('comTask').name),
+                action: {
+                    action: 'viewlog',
+                    comTask: {
+                        mRID: record.get('device').id,
+                        sessionId: record.get('id'),
+                        comTaskId: record.get('comTask').id
                     }
-                });
-            }
+                },
+                listeners: {
+                    click: me.viewCommunicationLog
+                }
+            });
+        }
 
         gridActionMenu.add(menuItems);
         previewActionMenu.add(menuItems);
@@ -4603,10 +4605,10 @@ Ext.define('Dsh.controller.Connections', {
 
     viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' + item.action.comTask.comTaskId
-            + '/history/' + item.action.comTask.sessionId
-            + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+        + '/communicationtasks/' + item.action.comTask.comTaskId
+        + '/history/' + item.action.comTask.sessionId
+        + '/viewlog' +
+        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
     onGenerateReport: function () {
         var me = this;
@@ -4639,15 +4641,14 @@ Ext.define('Dsh.controller.Connections', {
 
         //handle special startBetween and finishBetween;
 
-        if(router.filter && router.filter.startedBetween){
+        if (router.filter && router.filter.startedBetween) {
             var from = router.filter.startedBetween.get('from');
             var to = router.filter.startedBetween.get('to');
-            reportFilter['CONNECTIONDATE'] ={
-                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
-                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
+            reportFilter['CONNECTIONDATE'] = {
+                'from': from && Ext.Date.format(from, "Y-m-d H:i:s"),
+                'to': to && Ext.Date.format(to, "Y-m-d H:i:s")
             };
         }
-
 
 
         //handle special startBetween and finishBetween;
@@ -4722,7 +4723,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             issuesCount = store.getCount();
 
 
-        var title = Uni.I18n.translatePlural('overview.widget.openDataCollectionIssues.header', assigned.get('total'), 'DSH',  '<h3>' + 'Open data collection issues ({0})' + '</h3>');
+        var title = Uni.I18n.translatePlural('overview.widget.openDataCollectionIssues.header', assigned.get('total'), 'DSH', '<h3>' + 'Open data collection issues ({0})' + '</h3>');
         me.setTitle(title);
 
         store.each(function (item) {
@@ -4734,7 +4735,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                     item.set('tooltip', Uni.I18n.translate('overview.widget.openDataCollectionIssues.overdue', 'DSH', 'Overdue'));
                     item.set('icon', '/apps/dsh/resources/images/widget/blocked.png');
                 } else {
-                    if(moment().endOf('day').isAfter(moment(dueDate))) {
+                    if (moment().endOf('day').isAfter(moment(dueDate))) {
                         item.set('tooltip', Uni.I18n.translate('overview.widget.openDataCollectionIssues.dueToday', 'DSH', 'Due today'));
                         item.set('icon', '/apps/dsh/resources/images/widget/blocked.png');
                     } else {
@@ -4853,7 +4854,7 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                 itemId: 'device-group',
                 label: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'Device group') + ': ',
                 arrowAlign: 'right',
-                groupName:null, // yellowfin reports use names instead of id
+                groupName: null, // yellowfin reports use names instead of id
                 menuAlign: 'tl-bl',
                 menu: {
                     enableScrolling: true,
@@ -4864,16 +4865,18 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                         click: function (cmp, item) {
                             this.router.filter.set('deviceGroup', item.value);
                             this.router.filter.save();
-                            this.groupName = Ext.isNumber(item.value) ? item.text: null;
+                            this.groupName = Ext.isNumber(item.value) ? item.text : null;
                         }
                     }
                 },
-                setValue: function(value) {
-                    var item = this.menu.items.findBy(function(item){return item.value == value});
+                setValue: function (value) {
+                    var item = this.menu.items.findBy(function (item) {
+                        return item.value == value
+                    });
                     if (item) {
                         item.setActive();
                         this.setText(this.label + item.text);
-                        this.groupName = Ext.isNumber(item.value) ? item.text: null;
+                        this.groupName = Ext.isNumber(item.value) ? item.text : null;
                         this.fireEvent('change', this); // the event is handled by CommOverview and ConnOverview controllers to update quick links.
                     }
 
@@ -4927,8 +4930,8 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                             margin: '0 0 10px 0'
                         },
                         html: store.count() > 0 ?
-                            '<h3>' + Ext.String.format(Uni.I18n.translate('overview.widget.favoriteDeviceGroups.header', 'DSH', 'My favorite device groups ({0})'), store.count()) + '</h3>' :
-                            '<h3>' + Uni.I18n.translate('overview.widget.favoriteDeviceGroups.headerNoItemsFound', 'DSH', 'My favorite device groups') + '</h3>'
+                        '<h3>' + Ext.String.format(Uni.I18n.translate('overview.widget.favoriteDeviceGroups.header', 'DSH', 'My favorite device groups ({0})'), store.count()) + '</h3>' :
+                        '<h3>' + Uni.I18n.translate('overview.widget.favoriteDeviceGroups.headerNoItemsFound', 'DSH', 'My favorite device groups') + '</h3>'
                     },
                     {
                         xtype: 'dataview',
@@ -4939,22 +4942,22 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                         style: 'max-height: 120px',
                         tpl: new Ext.XTemplate(
                             '<table style="margin-top: 5px">',
-                                '<tpl for=".">',
-                                    '<tr>',
-                                        '<td style="height: 20px">',
-                                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'])
-                                                ? '<a href="#/devices/devicegroups/{id}">{name}</a>' :
-                                                (
-                                                    Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup']) ?
-                                                        (
-                                                            '<tpl if="dynamic==true"{dynamic}>{name}<tpl else><a href="#/devices/devicegroups/{id}">{name}</a></tpl>'
-                                                        )
-                                                         :
-                                                        '{name}'
-                                                ),
-                                        '</td>',
-                                    '</tr>',
-                                '</tpl>',
+                            '<tpl for=".">',
+                            '<tr>',
+                            '<td style="height: 20px">',
+                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup', 'privilege.view.deviceGroupDetail'])
+                                ? '<a href="#/devices/devicegroups/{id}">{name}</a>' :
+                                (
+                                    Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup']) ?
+                                        (
+                                            '<tpl if="dynamic==true"{dynamic}>{name}<tpl else><a href="#/devices/devicegroups/{id}">{name}</a></tpl>'
+                                        )
+                                        :
+                                        '{name}'
+                                ),
+                            '</td>',
+                            '</tr>',
+                            '</tpl>',
                             '</table>'
                         )
                     },
@@ -4970,7 +4973,6 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
         });
     }
 });
-
 
 
 Ext.define('Dsh.view.widget.FlaggedDevices', {
@@ -5022,15 +5024,15 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
         tpl: new Ext.XTemplate(
             '<table  style="margin: 5px 0 10px 0">',
             '<tpl for=".">',
-                '<tr id="{mRID}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
-                    '<td width="100%"><a href="{href}">{mRID}</a></td>',
-                    '<td>',
-                    '<a data-qtip="'+
-                    Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices') +
-                    '" class="flag-toggle x-btn x-btn-plain-small">',
-                        '<span style="width: 16px; height: 16px; font-size: 16px" class="x-btn-button"><span class="x-btn-icon-el icon-star6"></span></span></a>',
-                    '</td>',
-                '</tr>',
+            '<tr id="{mRID}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
+            '<td width="100%"><a href="{href}">{mRID}</a></td>',
+            '<td>',
+            '<a data-qtip="' +
+            Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices') +
+            '" class="flag-toggle x-btn x-btn-plain-small">',
+            '<span style="width: 16px; height: 16px; font-size: 16px" class="x-btn-button"><span class="x-btn-icon-el icon-star6"></span></span></a>',
+            '</td>',
+            '</tr>',
             '</tpl>',
             '</table>'
         ),
@@ -5043,12 +5045,13 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
                 var flag = record.getLabel();
                 flag.proxy.setUrl(record.getId());
 
-                var callback = function() {
+                var callback = function () {
                     icon.toggleCls('icon-star6');
                     icon.toggleCls('icon-star4');
-                    elm.set({'data-qtip': pressed
-                        ? Uni.I18n.translate('overview.widget.flaggedDevices.flag', 'DSH', 'Click to flag the device')
-                        : Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices')
+                    elm.set({
+                        'data-qtip': pressed
+                            ? Uni.I18n.translate('overview.widget.flaggedDevices.flag', 'DSH', 'Click to flag the device')
+                            : Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices')
                     });
                 };
 
@@ -5056,14 +5059,14 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             }
         },
 
-        flag: function(record, callback) {
+        flag: function (record, callback) {
             var clone = new record.self();
             var data = record.getWriteData(false, true);
             clone.set(data);
             clone.save({callback: callback});
         },
 
-        unflag: function(record, callback) {
+        unflag: function (record, callback) {
             record.destroy({callback: callback});
         }
     },
@@ -5074,10 +5077,10 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             store = elm.getStore();
 
         store.load(function () {
-            var title = Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', store.count(), 'DSH',  '<h3>' + 'My flagged devices ({0})' + '</h3>');
+            var title = Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', store.count(), 'DSH', '<h3>' + 'My flagged devices ({0})' + '</h3>');
             me.setTitle(title);
 
-            store.each(function(item) {
+            store.each(function (item) {
                 item.set('href', me.router.getRoute('devices/device').buildUrl({mRID: item.getId()}));
                 item.set('tooltip', me.tooltipTpl.apply(item.getData(true)));
             });
@@ -5227,7 +5230,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title:  me.router.getRoute().title,
+                title: me.router.getRoute().title,
                 tools: [
                     {
                         xtype: 'toolbar',
@@ -5273,7 +5276,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                 margin: '50 0 0 0',
                 items: {
                     xtype: 'device-group-filter',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
                     router: me.router
                 }
             },
@@ -5297,7 +5300,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     xtype: 'communication-servers',
                     width: 300,
                     dock: 'right',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
                     itemId: 'communication-servers',
                     router: me.router,
                     style: 'border-width: 1px !important'   // Andrea: Should be fixed with CSS
@@ -5305,7 +5308,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
             }
         ];
 
-        if(Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
             me.items[0].items.push(
                 {
                     xtype: 'open-data-collection-issues',
@@ -5313,7 +5316,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     router: me.router
                 });
         }
-        if(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'])) {
             me.items[0].items.push(
                 {
                     xtype: 'flagged-devices',
@@ -5322,13 +5325,13 @@ Ext.define('Dsh.view.OperatorDashboard', {
                 });
         }
         //if(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'])) {
-            me.items[0].items.push(
-                {
-                    xtype: 'favorite-device-groups',
-                    itemId: 'favorite-device-groups'
-                });
+        me.items[0].items.push(
+            {
+                xtype: 'favorite-device-groups',
+                itemId: 'favorite-device-groups'
+            });
         //}
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'])) {
             me.items[2].items.push(
                 {
                     xtype: 'summary',
@@ -5384,9 +5387,9 @@ Ext.define('Dsh.model.communication.OverviewDashboard', {
 Ext.define('Dsh.model.TopMyIssue', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'id', type: 'int' },
-        { name: 'title', type: 'string' },
-        { name: 'dueDate', type: 'auto' }
+        {name: 'id', type: 'int'},
+        {name: 'title', type: 'string'},
+        {name: 'dueDate', type: 'auto'}
     ]
 });
 
@@ -5397,8 +5400,8 @@ Ext.define('Dsh.model.AssignedToMeIssues', {
     ],
 
     fields: [
-        { name: 'total', type: 'int' },
-        { name: 'filter', type: 'auto' }
+        {name: 'total', type: 'int'},
+        {name: 'filter', type: 'auto'}
     ],
     hasMany: [
         {
@@ -5411,8 +5414,8 @@ Ext.define('Dsh.model.AssignedToMeIssues', {
 Ext.define('Dsh.model.UnassignedIssues', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'total', type: 'int' },
-        { name: 'filter', type: 'auto' }
+        {name: 'total', type: 'int'},
+        {name: 'filter', type: 'auto'}
     ]
 });
 
@@ -5449,12 +5452,12 @@ Ext.define('Dsh.model.DeviceGroup', {
     extend: 'Ext.data.Model',
     proxy: 'memory',
     fields: [
-        { name: 'id', type: 'int'},
-        { name: 'mRID', type: 'string'},
-        { name: 'name', type: 'string'},
-        { name: 'dynamic', type: 'boolean'},
-        { name: 'favorite', type: 'boolean'},
-        { name: 'criteria'}
+        {name: 'id', type: 'int'},
+        {name: 'mRID', type: 'string'},
+        {name: 'name', type: 'string'},
+        {name: 'dynamic', type: 'boolean'},
+        {name: 'favorite', type: 'boolean'},
+        {name: 'criteria'}
     ]
 });
 
@@ -5483,9 +5486,9 @@ Ext.define('Dsh.model.FlaggedDevice', {
     requires: ['Mdc.model.DeviceLabel'],
 
     fields: [
-        { name: 'mRID', type: 'string'},
-        { name: 'serialNumber', type: 'string'},
-        { name: 'deviceTypeName', type: 'string'}
+        {name: 'mRID', type: 'string'},
+        {name: 'serialNumber', type: 'string'},
+        {name: 'deviceTypeName', type: 'string'}
     ],
 
     hasOne: {
@@ -5532,22 +5535,22 @@ Ext.define('Dsh.controller.OperatorDashboard', {
         'Dsh.store.FavoriteDeviceGroups',
         'Dsh.store.FlaggedDevices'
     ],
-    views: [ 'Dsh.view.OperatorDashboard' ],
+    views: ['Dsh.view.OperatorDashboard'],
 
     refs: [
-        { ref: 'dashboard', selector: '#operator-dashboard' },
-        { ref: 'header', selector: 'operator-dashboard #header-section' },
-        { ref: 'connectionSummary', selector: 'operator-dashboard #connection-summary' },
-        { ref: 'communicationSummary', selector: 'operator-dashboard #communication-summary' },
-        { ref: 'summary', selector: ' operator-dashboard #summary' },
-        { ref: 'communicationServers', selector: 'operator-dashboard #communication-servers' },
-        { ref: 'flaggedDevices', selector: 'operator-dashboard #flagged-devices' },
-        { ref: 'issuesWidget', selector: 'operator-dashboard #open-data-collection-issues'},
-        { ref: 'favoriteDeviceGroupsView', selector: 'operator-dashboard #favorite-device-groups dataview'},
-        { ref: 'favoriteDeviceGroups', selector: '#my-favorite-device-groups'},
-        { ref: 'favoriteDeviceGroupsGrid', selector: '#my-favorite-device-groups-grid'},
-        { ref: 'summaryOfSelected', selector: '#selected-groups-summary'},
-        { ref: 'uncheckAllBtn', selector: '#my-favorite-device-groups button[action=uncheckall]'}
+        {ref: 'dashboard', selector: '#operator-dashboard'},
+        {ref: 'header', selector: 'operator-dashboard #header-section'},
+        {ref: 'connectionSummary', selector: 'operator-dashboard #connection-summary'},
+        {ref: 'communicationSummary', selector: 'operator-dashboard #communication-summary'},
+        {ref: 'summary', selector: ' operator-dashboard #summary'},
+        {ref: 'communicationServers', selector: 'operator-dashboard #communication-servers'},
+        {ref: 'flaggedDevices', selector: 'operator-dashboard #flagged-devices'},
+        {ref: 'issuesWidget', selector: 'operator-dashboard #open-data-collection-issues'},
+        {ref: 'favoriteDeviceGroupsView', selector: 'operator-dashboard #favorite-device-groups dataview'},
+        {ref: 'favoriteDeviceGroups', selector: '#my-favorite-device-groups'},
+        {ref: 'favoriteDeviceGroupsGrid', selector: '#my-favorite-device-groups-grid'},
+        {ref: 'summaryOfSelected', selector: '#selected-groups-summary'},
+        {ref: 'uncheckAllBtn', selector: '#my-favorite-device-groups button[action=uncheckall]'}
     ],
 
     init: function () {
@@ -5653,8 +5656,8 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             dashboard = me.getDashboard(),
             lastUpdateField = dashboard.down('#last-updated-field');
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device',
-            'privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication', 'privilege.view.device',
+                'privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
             var connectionModel = me.getModel('Dsh.model.connection.OverviewDashboard'),
                 communicationModel = me.getModel('Dsh.model.communication.OverviewDashboard'),
                 myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
@@ -5717,8 +5720,8 @@ Ext.define('Dsh.model.OverviewFilter', {
         root: 'filter'
     },
     fields: [
-        { name: 'id', persist: false},
-        { name: 'deviceGroup', type: 'auto' }
+        {name: 'id', persist: false},
+        {name: 'deviceGroup', type: 'auto'}
     ]
 });
 
@@ -5744,7 +5747,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     title: Uni.I18n.translate('title.connections.overview', 'DSH', 'Connections overview'),
                     route: 'connections',
                     controller: 'Dsh.controller.ConnectionOverview',
-                    privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                    privileges: ['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication', 'privilege.view.device'],
                     action: 'showOverview',
                     filter: 'Dsh.model.OverviewFilter',
                     items: {
@@ -5752,7 +5755,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                             title: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
                             route: 'details',
                             controller: 'Dsh.controller.Connections',
-                            privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                            privileges: ['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication', 'privilege.view.device'],
                             action: 'showOverview',
                             filter: 'Dsh.model.Filter'
                         }
@@ -5762,7 +5765,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     title: Uni.I18n.translate('title.communications.overview', 'DSH', 'Communications overview'),
                     route: 'communications',
                     controller: 'Dsh.controller.CommunicationOverview',
-                    privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                    privileges: ['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication', 'privilege.view.device'],
                     action: 'showOverview',
                     filter: 'Dsh.model.OverviewFilter',
                     items: {
@@ -5770,7 +5773,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                             title: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
                             route: 'details',
                             controller: 'Dsh.controller.Communications',
-                            privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                            privileges: ['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication', 'privilege.view.device'],
                             action: 'showOverview',
                             filter: 'Dsh.model.Filter'
                         }
@@ -5912,7 +5915,7 @@ Ext.define('Dsh.controller.Main', {
             })
         );
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication', 'privilege.view.device'])) {
             Uni.store.MenuItems.add(
                 Ext.create('Uni.model.MenuItem', {
                     text: 'Workspace',
