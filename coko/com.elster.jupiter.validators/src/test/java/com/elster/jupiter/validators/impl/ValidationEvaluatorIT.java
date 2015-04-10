@@ -12,6 +12,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -20,6 +21,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -29,6 +31,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
@@ -82,7 +85,7 @@ public class ValidationEvaluatorIT {
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
@@ -90,7 +93,7 @@ public class ValidationEvaluatorIT {
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
-    
+
     private MeterActivation meterActivation;
     private Meter meter;
     private String readingType;
@@ -112,6 +115,9 @@ public class ValidationEvaluatorIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new MeteringGroupsModule(),
+                    new TaskModule(),
                     new MeteringModule(),
                     new PartyModule(),
                     new EventsModule(),
@@ -199,7 +205,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(4);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
@@ -231,7 +237,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
@@ -250,7 +256,7 @@ public class ValidationEvaluatorIT {
         assertThat(qualityCodes).contains(QualityCodeIndex.KNOWNMISSINGREAD);
         assertThat(qualityCodes).contains(QualityCodeIndex.REJECTED);
     }
-    
+
     @Test
     public void testEditDeactivateValidation() {
     	ValidationService validationService = injector.getInstance(ValidationService.class);
@@ -271,7 +277,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(4);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType,BigDecimal.valueOf(70L),date1.plusSeconds(900*2))));
@@ -304,7 +310,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType,BigDecimal.valueOf(70L),date1.plusSeconds(900*2))));
@@ -337,7 +343,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
         	MeterReadingImpl meterReading = MeterReadingImpl.newInstance();

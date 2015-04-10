@@ -21,6 +21,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -83,7 +87,7 @@ public class RegisterValidationEvaluatorIT {
     private static final String FAILEQUALDATA = "failEqualData";
     private static final String MY_RULE_SET = "MyRuleSet";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
@@ -91,7 +95,7 @@ public class RegisterValidationEvaluatorIT {
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
-    
+
     private MeterActivation meterActivation;
     private Meter meter;
     private String readingType;
@@ -112,7 +116,10 @@ public class RegisterValidationEvaluatorIT {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new FiniteStateMachineModule(),
                 new MeteringModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
@@ -188,7 +195,7 @@ public class RegisterValidationEvaluatorIT {
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,VALID,VALID));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType,BigDecimal.valueOf(10L),date1.plusSeconds(900*3))));

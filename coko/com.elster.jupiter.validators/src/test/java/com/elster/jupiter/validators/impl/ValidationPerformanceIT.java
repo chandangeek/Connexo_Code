@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -18,6 +19,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -27,6 +29,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -72,7 +75,7 @@ public class ValidationPerformanceIT {
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
@@ -80,7 +83,7 @@ public class ValidationPerformanceIT {
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
-    
+
     private MeterActivation meterActivation;
     private Meter meter;
     private String readingType;
@@ -102,6 +105,9 @@ public class ValidationPerformanceIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new MeteringGroupsModule(),
+                    new TaskModule(),
                     new MeteringModule(),
                     new PartyModule(),
                     new EventsModule(),
@@ -123,7 +129,7 @@ public class ValidationPerformanceIT {
         injector.getInstance(TransactionService.class).execute(() -> {
         	MeteringService meteringService = injector.getInstance(MeteringService.class);
         	ValidationService validationService = injector.getInstance(ValidationService.class);
-            validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));       
+            validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
             readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
             	.measure(MeasurementKind.ENERGY)
             	.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
@@ -199,7 +205,7 @@ public class ValidationPerformanceIT {
         	}
         	meter.store(meterReading);
         	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);        	
+        	assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);
         }
     }
  }
