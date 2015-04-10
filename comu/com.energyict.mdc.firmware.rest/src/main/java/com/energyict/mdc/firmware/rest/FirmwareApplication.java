@@ -8,7 +8,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.impl.*;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
@@ -18,7 +17,7 @@ import javax.ws.rs.core.Application;
 import java.util.*;
 
 @Component(name = "com.energyict.mdc.firmware.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/fwc", "app=MDC", "name=" + FirmwareApplication.COMPONENT_NAME})
-public class FirmwareApplication extends Application implements BinderProvider, TranslationKeyProvider {
+public class FirmwareApplication extends Application implements TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "FWR";
 
@@ -47,20 +46,25 @@ public class FirmwareApplication extends Application implements BinderProvider, 
     }
 
     @Override
-    public Binder getBinder() {
-        return new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(restQueryService).to(RestQueryService.class);
-                bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-                bind(firmwareService).to(FirmwareService.class);
-                bind(deviceService).to(DeviceService.class);
-            }
-        };
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
+    }
+
+    class HK2Binder extends AbstractBinder {
+        @Override
+        protected void configure() {
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(transactionService).to(TransactionService.class);
+            bind(nlsService).to(NlsService.class);
+            bind(thesaurus).to(Thesaurus.class);
+            bind(restQueryService).to(RestQueryService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(firmwareService).to(FirmwareService.class);
+            bind(deviceService).to(DeviceService.class);
+        }
     }
 
     @Override
