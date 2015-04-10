@@ -31,7 +31,7 @@ Ext.define('Cfg.view.validation.VersionPreview', {
         },
 		{
             name: 'startDateFormatted',
-            fieldLabel: Uni.I18n.translate('validation.versionDescription', 'CFG', 'Start')
+            fieldLabel: Uni.I18n.translate('validation.versionStart', 'CFG', 'Start')
         }       
     ],
 

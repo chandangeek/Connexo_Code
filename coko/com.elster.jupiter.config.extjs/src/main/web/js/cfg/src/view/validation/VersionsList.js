@@ -27,7 +27,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
                 }
             },         
             {
-                header: Uni.I18n.translate('validation.versionStartPeriod', 'CFG', 'Description'),
+                header: Uni.I18n.translate('validation.versionDescription', 'CFG', 'Description'),
                 dataIndex: 'description',
                 flex: 0.3,
                 align: 'left',

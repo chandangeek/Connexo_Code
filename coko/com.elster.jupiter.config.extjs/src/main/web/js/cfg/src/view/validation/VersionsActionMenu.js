@@ -17,7 +17,7 @@ Ext.define('Cfg.view.validation.VersionsActionMenu', {
         {
             itemId: 'cloneVersion',
             text: Uni.I18n.translate('validation.clone', 'CFG', 'Clone'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.versions.administrate.validationConfiguration'),
             action: 'cloneVersion'
         },
         {

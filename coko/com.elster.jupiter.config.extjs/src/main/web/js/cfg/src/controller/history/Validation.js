@@ -106,14 +106,14 @@ Ext.define('Cfg.controller.history.Validation', {
                                                     action: 'editVersion'
                                                 },
                                                 clone: {
-                                                    title: Uni.I18n.translate('validation.CloneVersion', 'CFG', 'Clone version'),
+                                                    title: Uni.I18n.translate('validation.cloneVersion', 'CFG', 'Clone version'),
                                                     route: 'clone',
                                                     controller: 'Cfg.controller.Validation',
                                                     privileges: ['privilege.administrate.validationConfiguration'],
                                                     action: 'cloneVersion'
                                                 },
                                                 rules: {
-                                                    title: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rule'),
+                                                    title: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
                                                     route: 'rules',
                                                     controller: 'Cfg.controller.Validation',
                                                     privileges: ['privilege.administrate.validationConfiguration'],

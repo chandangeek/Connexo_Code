@@ -12,14 +12,14 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                 startDate = data.startDate;
                 endDate = data.endDate;
                 if (startDate && endDate) {
-                    result = Uni.I18n.translate('validationTasks.general.from', 'CFG', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
-                    Uni.I18n.translate('validationTasks.general.until', 'CFG', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
+                    result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
+                    Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
                 } else if (data.startDate) {
-                    result = Uni.I18n.translate('validationTasks.general.from', 'CFG', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
+                    result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
                 } else if (data.endDate) {
-                    result = Uni.I18n.translate('validationTasks.general.until', 'CFG', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
+                    result = Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
                 }else {
-                    result = Uni.I18n.translate('validationTasks.general.notStart', 'CFG', 'Always')
+                    result = Uni.I18n.translate('validation.version.notStart', 'CFG', 'Always')
                 }
 
                 return '<a href="#/administration/validation/rulesets/' + data.ruleSet.id + '/versions/' + data.id + '">' + result + '</a>';
@@ -34,14 +34,14 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                 startDate = data.startDate;
                 endDate = data.endDate;
                 if (startDate && endDate) {
-                    result = Uni.I18n.translate('validationTasks.general.from', 'CFG', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
-                             Uni.I18n.translate('validationTasks.general.until', 'CFG', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
+                    result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
+                             Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
                 } else if (data.startDate) {
-                    result = Uni.I18n.translate('validationTasks.general.from', 'CFG', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
+                    result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
                 } else if (data.endDate) {
-                    result = Uni.I18n.translate('validationTasks.general.until', 'CFG', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
+                    result = Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
                 }else {
-                    result = Uni.I18n.translate('validationTasks.general.notStart', 'CFG', 'Always')
+                    result = Uni.I18n.translate('validation.version.notStart', 'CFG', 'Always')
                 }
                 return result;
             }
@@ -68,7 +68,7 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                     result = moment(data.startDate).format('ddd, DD MMM YYYY HH:mm:ss');
                     result = Uni.DateTime.formatDateTimeLong(new Date(data.startDate));
                 } else {
-                    result = Uni.I18n.translate('validationTasks.general.notStart', 'CFG', '-')
+                    result = Uni.I18n.translate('validation.version.none', 'CFG', '-')
                 }
                 return result;
             }

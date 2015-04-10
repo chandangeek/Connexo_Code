@@ -287,7 +287,7 @@ Ext.define('Cfg.controller.Validation', {
                     messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
                 }
                 if (me.fromRulePreview) {
-                    router.getRoute('administration/rulesets/overview/versions/overview/rules/overview').forward({ruleSetId: router.arguments.ruleSetId, versionId: router.arguments.versionId, ruleId: record.getId()});
+                    router.getRoute('administration/rulesets/overview/versions/overview/rules').forward({ruleSetId: router.arguments.ruleSetId, versionId: router.arguments.versionId});
                 } else {
                     router.getRoute('administration/rulesets/overview/versions').forward({ruleSetId: router.arguments.ruleSetId});
                 }
@@ -1028,11 +1028,9 @@ Ext.define('Cfg.controller.Validation', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        //this.close();
                         self.deleteRule(rule);
                         break;
                     case 'cancel':
-                        //this.close();
                         break;
                 }
             }
@@ -1324,7 +1322,7 @@ Ext.define('Cfg.controller.Validation', {
                     if (me.getVersionOverview()) {
                         router.getRoute('administration/rulesets/overview/versions').forward({ruleSetId: version.get('ruleSetId')});
                     }
-                    
+
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeVersionSuccess.msg', 'CFG', 'Validation rule set version removed'));
                 }
 
@@ -1382,7 +1380,7 @@ Ext.define('Cfg.controller.Validation', {
                         editVersionPanel = me.getAddVersion();
                         form = editVersionPanel.down('#addVersionForm').getForm();
                         if (!isClone && (versionId!= null)){
-                            editVersionPanel.down('#addVersionTitle').setTitle(Uni.I18n.translate('validation.editValidationRulesetVersion', 'CFG', 'Edit') + " '" + versionRecord.get('name') + "'");
+                            editVersionPanel.down('#addVersionTitle').setTitle(Ext.String.format(Uni.I18n.translate('validation.editValidationRulesetVersion', 'CFG', "Edit '{0}'?"), versionRecord.get('name')));
                             me.getApplication().fireEvent('loadVersion', versionRecord);
                             form.loadRecord(versionRecord);
                             var startDate = versionRecord.get('startDate');
@@ -1451,11 +1449,7 @@ Ext.define('Cfg.controller.Validation', {
                 } else {
                     messageText = Uni.I18n.translate('validation.addVersionSuccess.msg', 'CFG', 'Validation rule set version added');
                 }
-              //  if (me.fromRulePreview) {
-               //     router.getRoute('administration/rulesets/overview/rules/overview').forward({ruleId: record.getId()});
-               // } else {
                     router.getRoute('administration/rulesets/overview/versions').forward();
-              //  }
 
                 me.getApplication().fireEvent('acknowledge', messageText);
             },
