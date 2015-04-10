@@ -303,6 +303,18 @@ public class DataCollectionKpiImplTest {
         assertThat(found.get().getDisplayRange()).isEqualTo(TimeDuration.days(1));
     }
 
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testCreateKpiWithoutEndDeviceGroup() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(null);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+        DataCollectionKpi kpi = builder.save();
+
+        // Business method
+        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId());
+
+    }
+
     @Test
     @Transactional
     public void testNonExistingKpiIsNotReturnedByFindById() {
@@ -423,6 +435,26 @@ public class DataCollectionKpiImplTest {
         assertThat(kpi.connectionSetupKpiCalculationIntervalLength().isPresent()).isTrue();
         assertThat(kpi.calculatesComTaskExecutionKpi()).isFalse();
         assertThat(kpi.comTaskExecutionKpiCalculationIntervalLength().isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithConnectionKpiAndAddCommunicationKpi() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.calculateConnectionSetupKpi(Duration.ofHours(1)).expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpi kpi = builder.save();
+
+        kpi = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
+        kpi.calculateComTaskExecutionKpi(BigDecimal.valueOf(99.9));
+
+        // Asserts
+        assertThat(kpi).isNotNull();
+        assertThat(kpi.getDeviceGroup()).isNotNull();
+        assertThat(kpi.getDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
+        assertThat(kpi.calculatesConnectionSetupKpi()).isTrue();
+        assertThat(kpi.calculatesComTaskExecutionKpi()).isTrue();
     }
 
     @Test

@@ -309,7 +309,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 this.deviceDataModelService.engineConfigurationService()
                     .findAllComPortPools()
                     .stream()
-                    .filter(ComPortPool::isActive)
                     .collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(statusBreakdown, comPortPools);
     }

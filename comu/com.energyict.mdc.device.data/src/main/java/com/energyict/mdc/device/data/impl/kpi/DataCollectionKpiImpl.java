@@ -346,7 +346,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
             map(RecurrentTask::getLastOccurrence).
             flatMap(Functions.asStream()).
             map(TaskOccurrence::getTriggerTime).
-            max(Comparator.nullsLast(Comparator.<Instant>naturalOrder()));
+                max(Comparator.nullsLast(Comparator.<Instant>naturalOrder()));
     }
 
     private void deleteCommunicationKpi() {
