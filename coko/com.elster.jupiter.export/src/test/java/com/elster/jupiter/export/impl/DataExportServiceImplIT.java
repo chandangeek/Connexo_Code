@@ -12,6 +12,7 @@ import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -174,6 +175,7 @@ public class DataExportServiceImplIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
+                    new FiniteStateMachineModule(),
                     new MeteringModule(),
                     new PartyModule(),
                     new EventsModule(),
