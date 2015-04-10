@@ -14,22 +14,7 @@ Ext.define('Cfg.view.validation.VersionPreview', {
     layout: {
         type: 'vbox'
     },
-/*
-    tools: [
-        {
-            xtype: 'button',
-            itemId: 'versionPreviewActionsButton',
-            //text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-			text: 'Actions2',
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                itemId: 'versionActionMenu',
-                xtype: 'version-action-menu'
-            }
-        }
-    ],
-*/
+
     defaults: {
         xtype: 'displayfield',
         labelWidth: 260
@@ -54,10 +39,8 @@ Ext.define('Cfg.view.validation.VersionPreview', {
         this.callParent(arguments);
     },
 
-    updateVersion: function (version) {
-      //  this.setTitle(version.get('name'));
-        this.loadRecord(version);
-       // this.destroy();
+    updateVersion: function (version) {      
+        this.loadRecord(version);       
     }
 
 });

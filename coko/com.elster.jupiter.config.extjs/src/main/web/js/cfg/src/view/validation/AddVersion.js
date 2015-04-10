@@ -50,20 +50,7 @@ Ext.define('Cfg.view.validation.AddVersion', {
                             width: 400,
                             margin: '0 0 10 0',
                             hidden: true
-                        },/*
-                        {
-                            xtype: 'textfield',
-                            fieldLabel: Uni.I18n.translate('validation.validationRuleSetVersion', 'CFG', 'Validation rule set version'),
-                            itemId: 'addVersionName',
-                            required: true,
-                            labelAlign: 'right',
-                            msgTarget: 'under',
-                            maxLength: 80,
-                            enforceMaxLength: true,
-                            labelWidth: 260,
-                            name: 'name',
-                            width: 600
-                        },*/
+                        },
                         {
                             xtype: 'textarea',
                             name: 'description',

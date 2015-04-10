@@ -3,7 +3,6 @@ Ext.define('Cfg.view.validation.VersionOverview', {
     alias: 'widget.versionOverview',
     itemId: 'versionOverview',
     requires: [
-       // 'Cfg.model.ValidationRule',
         'Cfg.view.validation.VersionSubMenu',
         'Cfg.view.validation.VersionActionMenu',
         'Cfg.view.validation.VersionPreview'

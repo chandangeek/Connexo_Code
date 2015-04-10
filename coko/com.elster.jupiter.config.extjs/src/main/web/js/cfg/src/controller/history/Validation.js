@@ -50,58 +50,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                     controller: 'Cfg.controller.Validation',
                                     privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
                                         'privilege.view.fineTuneValidationConfiguration.onDevice', 'privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
-                                    action: 'showRules'/*,
-                                     items: {
-                                     add: {
-                                     title: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
-                                     route: 'add',
-                                     controller: 'Cfg.controller.Validation',
-                                     privileges: ['privilege.administrate.validationConfiguration'],
-                                     action: 'addRule',
-                                     items: {
-                                     readingtypes: {
-                                     title: 'Add reading types',
-                                     route: 'readingtypes',
-                                     controller: 'Cfg.controller.Validation',
-                                     privileges: ['privilege.administrate.validationConfiguration'],
-                                     action: 'addReadingTypes'
-                                     }
-                                     }
-                                     },
-                                     overview: {
-                                     title: 'Overview',
-                                     route: '{ruleId}',
-                                     controller: 'Cfg.controller.Validation',
-                                     privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
-                                     'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
-                                     action: 'showRuleOverview',
-                                     callback: function (route) {
-                                     this.getApplication().on('loadRule', function (record) {
-                                     route.setTitle(record.get('name'));
-                                     return true;
-                                     }, {single: true});
-                                     return this;
-                                     },
-                                     items: {
-                                     edit: {
-                                     title: 'Edit',
-                                     route: 'edit',
-                                     controller: 'Cfg.controller.Validation',
-                                     privileges: ['privilege.administrate.validationConfiguration'],
-                                     action: 'showEditRuleOverview',
-                                     items: {
-                                     readingtypes: {
-                                     title: 'Add reading types',
-                                     route: 'readingtypes',
-                                     controller: 'Cfg.controller.Validation',
-                                     privileges: ['privilege.administrate.validationConfiguration'],
-                                     action: 'addReadingTypes'
-                                     }
-                                     }
-                                     }
-                                     }
-                                     }
-                                     }*/
+                                    action: 'showRules'
                                 },
                                 deviceconfigurations: {
                                     title: 'Device configurations',
@@ -219,8 +168,6 @@ Ext.define('Cfg.controller.history.Validation', {
                                                                 }
                                                             }
                                                         }
-
-
                                                     }
                                                 }
                                             }

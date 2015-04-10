@@ -293,7 +293,7 @@ Ext.define('Cfg.controller.Validation', {
                 }
 
                 me.getApplication().fireEvent('acknowledge', messageText);
-                this.validationRuleRecord = null;
+                me.validationRuleRecord = null;
             },
             failure: function (record, operation) {
                 me.getAddRule().setLoading(false);
@@ -315,7 +315,7 @@ Ext.define('Cfg.controller.Validation', {
                     });
                     form.getForm().markInvalid(json.errors);
                     formErrorsPanel.show();
-                    this.validationRuleRecord = null;
+                    me.validationRuleRecord = null;
                 }
             }
         });
@@ -1042,15 +1042,8 @@ Ext.define('Cfg.controller.Validation', {
     deleteRule: function (rule) {
         var self = this,
             router = this.getController('Uni.controller.history.Router'),
-            view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || self.getVersionsContainer() || self.getRulePreviewContainerPanel();/*
-            grid = view.down('#validationruleList'),
-            gridRuleSet = view.down('#validationrulesetList');
+            view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || self.getVersionsContainer() || self.getRulePreviewContainerPanel();
 
-        if (gridRuleSet) {
-            var ruleSetSelModel = gridRuleSet.getSelectionModel(),
-                ruleSet = ruleSetSelModel.getLastSelected();
-        }
-*/
         view.setLoading();
 
         rule.getProxy().setUrl(rule.get('ruleSetVersion').ruleSet.id, rule.get('ruleSetVersionId'));
@@ -1062,26 +1055,11 @@ Ext.define('Cfg.controller.Validation', {
                     } else if (self.getRuleSetBrowsePanel()) {
                         view.down('#rulesTopPagingToolbar').totalCount = 0;
                     }
-                    if (self.getRuleSetBrowsePanel()) {
-                        gridRuleSet.getStore().load({
-                            callback: function () {
-                                ruleSetSelModel.select(ruleSet);
-                                self.getRuleSetBrowsePanel().setLoading(false);
-                            }
-                        });
-                    } else if (self.getRuleOverview()) {
+
+                    if (self.getRuleOverview()) {
                         router.getRoute('administration/rulesets/overview/versions/overview/rules').forward({ruleSetId: rule.get('ruleSetVersion').ruleSet.id, versionId: rule.get('ruleSetVersionId')});
                     } else if (self.getVersionOverview()) {
                         router.getRoute('administration/rulesets/overview/versions').forward({ruleSetId: rule.get('ruleSetVersion').ruleSet.id});
-                    } else if (self.getRulePreviewContainerPanel()){
-                        router.getRoute('administration/rulesets/overview/versions').forward({ruleSetId: rule.get('ruleSetVersion').ruleSet.id});
-                    }
-                    else {
-                        grid.getStore().load({
-                            params: {
-                                id: rule.get('ruleSetId')
-                            }
-                        });
                     }
                     self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeRuleSuccess.msg', 'CFG', 'Validation rule removed'));
                 }
@@ -1282,13 +1260,7 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     onVersionMenuShow: function (menu) {
-       /* if (menu.record.get('active')) {
-            menu.down('#editVersion').hide();
-            menu.down('#deleteVersion').hide();
-        } else {
-            menu.down('#editVersion').show();
-            menu.down('#deleteVersion').show();
-        }*/
+
     },
 
     chooseRuleSetVersionAction: function(menu, item) {
@@ -1347,26 +1319,12 @@ Ext.define('Cfg.controller.Validation', {
                     }
                     if (me.getRulePreviewContainer()) {
                         view.down('pagingtoolbartop').totalCount = 0;
-                    } /*else if (me.getRuleSetBrowsePanel()) {
-                        view.down('#rulesTopPagingToolbar').totalCount = 0;
                     }
 
-                    if (me.getRuleSetBrowsePanel()) {
-                        gridRuleSet.getStore().load({
-                            callback: function () {
-                                ruleSetSelModel.select(ruleSet);
-                                self.getRuleSetBrowsePanel().setLoading(false);
-                            }
-                        });
-                    } else */if (me.getVersionOverview()) {
+                    if (me.getVersionOverview()) {
                         router.getRoute('administration/rulesets/overview/versions').forward({ruleSetId: version.get('ruleSetId')});
-                    } /*else {
-                        grid.getStore().load({
-                            params: {
-                                ruleSetId: version.get('id')
-                            }
-                        });
-                    }*/
+                    }
+                    
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeVersionSuccess.msg', 'CFG', 'Validation rule set version removed'));
                 }
 
@@ -1476,7 +1434,7 @@ Ext.define('Cfg.controller.Validation', {
         record.set(values);
         record.set('startDate', startOnDate);
 
-        form.down('#startPeriodContainer').clearInvalid();
+        form.down('#startPeriodOn').clearInvalid();
         formErrorsPanel.hide();
         record.set('ruleSet', {
             id: router.arguments.ruleSetId
@@ -1507,7 +1465,7 @@ Ext.define('Cfg.controller.Validation', {
                 if (json && json.errors) {
                     Ext.Array.each(json.errors, function (item) {
                         if (item.id.indexOf("name") !== -1) {
-                            form.down('#startPeriodContainer').setActiveError(item.msg);
+                            form.down('#startPeriodOn').setActiveError(item.msg);
                         }
                     });
                     form.getForm().markInvalid(json.errors);

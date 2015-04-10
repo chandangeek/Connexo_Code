@@ -14,12 +14,7 @@ Ext.define('Cfg.view.validation.RuleSetSubMenu', {
                 text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
                 itemId: 'ruleSetOverviewLink',
                 href: '#/administration/validation/rulesets/' + me.ruleSetId
-            },
-           /* {
-                text: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
-                itemId: 'rulesLink',
-                href: '#/administration/validation/rulesets/' + me.ruleSetId + '/rules'
-            },*/
+            },           
             {
                 text: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
                 itemId: 'versionsLink',

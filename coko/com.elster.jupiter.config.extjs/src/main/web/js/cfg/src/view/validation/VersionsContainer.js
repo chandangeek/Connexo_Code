@@ -4,8 +4,6 @@ Ext.define('Cfg.view.validation.VersionsContainer', {
     ruleSetId: null,
     requires: [
         'Cfg.view.validation.VersionsPreviewContainerPanel',
-      //  'Cfg.view.validation.RulePreview',
-     //   'Cfg.view.validation.VersionsActionMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
