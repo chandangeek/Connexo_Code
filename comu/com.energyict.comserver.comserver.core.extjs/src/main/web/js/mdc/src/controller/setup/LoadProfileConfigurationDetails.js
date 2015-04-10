@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('loadProfileConfiguration.confirmWindow.removeChannelConfiguration', 'MDC', 'This channel will be removed from load profile configuration.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('readingType')['fullAliasName'] + "'?",
-            config: { me: me },
+            config: {me: me},
             fn: me.confirmationPanelHandler
         });
     },
@@ -281,11 +281,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 }
             ]
         }).show({
-                ui: 'notification-error',
-                title: headerText,
-                msg: errormsgs,
-                icon: Ext.MessageBox.ERROR
-            })
+            ui: 'notification-error',
+            title: headerText,
+            msg: errormsgs,
+            icon: Ext.MessageBox.ERROR
+        })
     },
 
 

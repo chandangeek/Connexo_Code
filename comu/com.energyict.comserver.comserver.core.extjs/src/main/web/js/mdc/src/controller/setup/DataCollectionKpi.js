@@ -111,7 +111,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             kpiMessageContainer = me.getKpiErrorContainer();
 
         kpiMessageContainer.hide();
-       
+
         me.showErrorPanel(false);
         editForm.setLoading();
         record.beginEdit();

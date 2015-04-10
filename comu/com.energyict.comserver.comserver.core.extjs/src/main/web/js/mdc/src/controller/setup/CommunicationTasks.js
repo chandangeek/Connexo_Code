@@ -406,7 +406,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             me.getCommunicationTaskEditForm().down('#securityPropertySetComboBox').clearInvalid();
             me.getCommunicationTaskEditForm().down('#protocolDialectConfigurationPropertiesComboBox').clearInvalid();
         }
-        me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation : operation});
+        me[operation + 'CommunicationTaskRecord'](form.getValues(), {operation: operation});
     },
 
     editCommunicationTaskRecord: function(values, cfg) {

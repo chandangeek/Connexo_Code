@@ -285,8 +285,8 @@ Ext.define('Mdc.controller.setup.Devices', {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
                     var errorsToShow = [];
-                    Ext.each(json.errors, function(item) {
-                        if(item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
+                    Ext.each(json.errors, function (item) {
+                        if (item.id != 'deviceType') { // JP-6865 #hide device type error returned from backend
                             errorsToShow.push(item)
                         } else {
                             if (!form.down('#deviceAddType').getValue()) {

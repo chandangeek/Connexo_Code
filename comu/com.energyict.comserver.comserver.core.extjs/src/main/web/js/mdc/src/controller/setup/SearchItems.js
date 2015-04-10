@@ -252,7 +252,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
                 searchItems.down('#sn').setValue(me.state.sn);
                 searchItems.down('#type').setValue(me.state.type);
                 searchItems.down('#configuration').setValue(me.state.conf);
-                me.state.sort.forEach(function(sort){
+                me.state.sort.forEach(function (sort) {
                     var button = sortContainer.down('button[name=' + sort.name + ']');
                     me.createSortButton(button, sortContainer, sort.name, sort.property, sort.text, sort.direction);
                 });
