@@ -14,8 +14,8 @@ Ext.define('Cfg.view.validation.VersionsList', {
 	versionId: null,
     columns: {
         items: [
-         /*   {
-                header: Uni.I18n.translate('validation.validationRuleSetVersionName', 'CFG', 'Name'),
+            {
+                header: Uni.I18n.translate('validation.period', 'CFG', 'Period'),
                 dataIndex: 'versionName',
                 flex: 0.3,
                 sortable: false,
@@ -25,15 +25,15 @@ Ext.define('Cfg.view.validation.VersionsList', {
                     return value;
                     //return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
                 }
-            },*/
-            {
+            },
+         /*   {
                 header: Uni.I18n.translate('validation.versionStartOn', 'CFG', 'Start on'),
                 dataIndex: 'startDateFormatted',
                 flex: 0.3,
                 align: 'left',
                 sortable: false,
                 fixed: true
-            },
+            },*/
             {
                 header: Uni.I18n.translate('validation.versionStartPeriod', 'CFG', 'Description'),
                 dataIndex: 'description',
@@ -86,6 +86,20 @@ Ext.define('Cfg.view.validation.VersionsList', {
 
             }
         ];
+
+        me.listeners = {
+            'afterrender': function (component) {
+                component.getStore().on('load', function(store, records, success) {
+                    var rec = store.find('status', 'CURRENT');
+                    if (rec) {
+                        this.getView().getSelectionModel().select(rec);
+                    }
+
+                }, this, {
+                    single: true
+                });
+            }
+        };
 
         me.callParent(arguments);
     }
