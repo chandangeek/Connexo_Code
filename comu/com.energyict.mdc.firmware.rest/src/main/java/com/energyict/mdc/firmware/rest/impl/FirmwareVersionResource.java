@@ -7,7 +7,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -18,8 +17,15 @@ import org.glassfish.jersey.internal.util.Base64;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -31,17 +37,17 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class FirmwareVersionResource {
     private final FirmwareService firmwareService;
     private final RestQueryService restQueryService;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
 
     private static final String FILTER_STATUS_PARAMETER = "firmwareStatus";
     private static final String FILTER_TYPE_PARAMETER = "firmwareType";
 
     @Inject
-    public FirmwareVersionResource(FirmwareService firmwareService, RestQueryService restQueryService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+    public FirmwareVersionResource(FirmwareService firmwareService, RestQueryService restQueryService, ResourceHelper resourceHelper, Thesaurus thesaurus) {
         this.firmwareService = firmwareService;
         this.restQueryService = restQueryService;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
     }
 
@@ -49,7 +55,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
     public PagedInfoList getFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryFilter filter, @BeanParam QueryParameters queryParameters) {
-        DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
+        DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
         Finder<FirmwareVersion> allFirmwaresFinder = firmwareService.findAllFirmwareVersions(getFirmwareVersionConditions(filter, deviceType));
         List<FirmwareVersion> allFirmwares = allFirmwaresFinder.from(queryParameters).find();
@@ -62,8 +68,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response getFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam QueryParameters queryParameters) {
-        FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-
+        FirmwareVersion firmwareVersion = resourceHelper.getFirmwareVersionByIdOrThrowException(id);
         return Response.status(Response.Status.OK).entity(FirmwareVersionInfo.from(firmwareVersion, thesaurus)).build();
     }
 
@@ -73,7 +78,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response validateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
-        DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
+        DeviceType deviceType =  resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareVersion versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
                 firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
@@ -90,7 +95,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response saveFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
-        DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
+        DeviceType deviceType =  resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareVersion versionToSave = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
                 firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
@@ -109,7 +114,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response validateEditFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
-        FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        FirmwareVersion firmwareVersion = resourceHelper.getFirmwareVersionByIdOrThrowException(id);
         checkIfEditableOrThrowException(firmwareVersion);
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
         firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
@@ -126,7 +131,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response editFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
-        FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        FirmwareVersion firmwareVersion = resourceHelper.getFirmwareVersionByIdOrThrowException(id);
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
         firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
         if (firmwareVersionInfo.fileSize != null && firmwareVersionInfo.firmwareFile != null) {
@@ -142,7 +147,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response deprecateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id) {
-        FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        FirmwareVersion firmwareVersion = resourceHelper.getFirmwareVersionByIdOrThrowException(id);
         firmwareService.deprecateFirmwareVersion(firmwareVersion);
         return Response.status(Response.Status.OK).build();
     }
@@ -175,10 +180,6 @@ public class FirmwareVersionResource {
             condition = condition.or(where(conditionField).isEqualTo(value));
         }
         return condition;
-    }
-
-    private DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
-        return deviceConfigurationService.findDeviceType(deviceTypeId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private void checkIfEditableOrThrowException(FirmwareVersion firmwareVersion) {

@@ -1,7 +1,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -10,22 +9,26 @@ import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
 @Path("/devicetypes/{deviceTypeId}/firmwareupgradeoptions/{id}")
 public class FirmwareUpgradeOptionsResource {
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final ResourceHelper resourceHelper;
     private final FirmwareService firmwareService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public FirmwareUpgradeOptionsResource(DeviceConfigurationService deviceConfigurationService, FirmwareService firmwareService, Thesaurus thesaurus) {
-        this.deviceConfigurationService = deviceConfigurationService;
+    public FirmwareUpgradeOptionsResource(ResourceHelper resourceHelper, FirmwareService firmwareService, Thesaurus thesaurus) {
+        this.resourceHelper = resourceHelper;
         this.firmwareService = firmwareService;
         this.thesaurus = thesaurus;
     }
@@ -34,7 +37,7 @@ public class FirmwareUpgradeOptionsResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareUpgradeOptionsInfo getFirmwareUpgradeOptions(@PathParam("deviceTypeId") long deviceTypeId) {
-        DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
+        DeviceType deviceType =  resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareUpgradeOptionsInfo firmwareUpgradeOptionsInfo = new FirmwareUpgradeOptionsInfo();
         Set<ProtocolSupportedFirmwareOptions> supportedFirmwareUpgradeOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
@@ -55,7 +58,7 @@ public class FirmwareUpgradeOptionsResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareUpgradeOptionsInfo editFirmwareUpgradeOptions(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareUpgradeOptionsInfo inputOptions) {
-        DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
+        DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareUpgradeOptionsInfo firmwareUpgradeOptionsInfo = new FirmwareUpgradeOptionsInfo();
         Set<ProtocolSupportedFirmwareOptions> supportedFirmwareUpgradeOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
@@ -79,10 +82,5 @@ public class FirmwareUpgradeOptionsResource {
         allowedFirmwareUpgradeOptions.stream().forEach(op -> firmwareUpgradeOptionsInfo.allowedOptions.add(new UpgradeOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
 
         return firmwareUpgradeOptionsInfo;
-    }
-
-
-    private DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
-        return deviceConfigurationService.findDeviceType(deviceTypeId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 }

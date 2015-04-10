@@ -1,20 +1,39 @@
 package com.energyict.mdc.firmware.rest;
 
-import com.elster.jupiter.nls.*;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.rest.impl.*;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareUpgradeOptionsResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
+import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
+import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.energyict.mdc.firmware.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/fwc", "app=MDC", "name=" + FirmwareApplication.COMPONENT_NAME})
 public class FirmwareApplication extends Application implements TranslationKeyProvider {
@@ -57,6 +76,8 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
         @Override
         protected void configure() {
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
