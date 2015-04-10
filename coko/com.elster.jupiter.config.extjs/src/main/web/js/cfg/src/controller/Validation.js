@@ -259,9 +259,9 @@ Ext.define('Cfg.controller.Validation', {
             id: router.arguments.versionId
         });
 
-        if (button.action === 'editRuleAction') {
-            record.readingTypes().removeAll();
-        }
+        //if (button.action === 'editRuleAction') {
+        record.readingTypes().removeAll();
+        //}
 
         Ext.each(record.get('readingTypes'), function (record) {
             var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
