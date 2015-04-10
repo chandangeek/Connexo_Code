@@ -1,33 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.internal.verification.VerificationModeFactory;
-
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -36,9 +16,25 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.internal.verification.VerificationModeFactory;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTest {
@@ -242,9 +238,9 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     }
 
     @Test
-    public void testAdditionalComTaskFields(){
+    public void testAdditionalComTaskFields() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -274,10 +270,11 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Instant>get("$.comTasks[0].successfulFinishTime")).isNotNull();
         assertThat(jsonModel.<String>get("$.comTasks[0].latestResult.id")).isEqualTo("IoError");
     }
+
     @Test
-    public void testActivateComTask(){
+    public void testActivateComTask() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
