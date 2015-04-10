@@ -3,6 +3,7 @@ package com.elster.jupiter.yellowfin.groups.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
@@ -82,6 +83,8 @@ public class DynamicDeviceGroupImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new MeteringModule(false),
+                    new TaskModule(),
+                    new FiniteStateMachineModule(),
                     new MeteringGroupsModule(),
                     new YellowfinGroupsModule(),
                     new PartyModule(),

@@ -79,6 +79,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.0-beta5</version>
+        </dependency>
 
     </dependencies>
 
