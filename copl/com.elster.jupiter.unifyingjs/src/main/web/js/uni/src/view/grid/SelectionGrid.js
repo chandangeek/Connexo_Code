@@ -65,10 +65,13 @@ Ext.define('Uni.view.grid.SelectionGrid', {
                 },
                 items: [
                     {
-                        xtype: 'text',
+                        xtype: 'component',
                         itemId: 'selectionCounter',
-                        text: me.counterTextFn(0),
-                        margin: '0 8 0 0'
+                        html: me.counterTextFn(0),
+                        margin: '0 8 0 0',
+                        setText: function (text) {
+                            this.update(text);
+                        }
                     },
                     {
                         xtype: 'container',
@@ -108,7 +111,6 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);
-        me.doLayout();
     },
 
     getSelectionCounter: function () {
@@ -125,8 +127,11 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
     addComponentInToolbar: function () {
         var me = this;
-        me.getTopToolbarContainer().add(
-            me.extraTopToolbarComponent
-        )
+
+        if (me.extraTopToolbarComponent) {
+            me.getTopToolbarContainer().add(
+                me.extraTopToolbarComponent
+            )
+        }
     }
 });

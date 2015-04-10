@@ -13,7 +13,8 @@ Ext.define('Uni.controller.Navigation', {
         'Uni.controller.history.Router'
     ],
 
-    views: [],
+    views: [
+    ],
 
     refs: [
         {
@@ -142,7 +143,8 @@ Ext.define('Uni.controller.Navigation', {
 
     initSearch: function () {
         var me = this;
-        me.getSearchButton().setVisible(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']));
+            me.getSearchButton().setVisible(me.searchEnabled &&
+                Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']));
     },
 
     initOnlineHelp: function () {
@@ -218,8 +220,7 @@ Ext.define('Uni.controller.Navigation', {
     },
 
     refreshNavigationMenu: function () {
-        var me = this,
-            menu = this.getNavigationMenu(),
+        var menu = this.getNavigationMenu(),
             store = Uni.store.MenuItems;
 
         this.removeDuplicatesFromStore(store);
@@ -238,8 +239,6 @@ Ext.define('Uni.controller.Navigation', {
                 Ext.resumeLayouts(true);
             }
         }
-
-        //me.selectMenuItemByActiveToken();
     },
 
     removeDuplicatesFromStore: function (store) {
@@ -283,8 +282,10 @@ Ext.define('Uni.controller.Navigation', {
         Uni.store.MenuItems.each(function (model) {
             modelTokens = me.stripAndSplitToken(model.get('href'));
             if (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal')) {
+                var text = '';
+
                 me.getNavigationMenu().selectMenuItem(model);
-                var text = model.get('text');
+                text = model.get('text');
 
                 if (!Ext.isEmpty(text)) {
                     Ext.getDoc().dom.title = text + ' '
@@ -317,7 +318,6 @@ Ext.define('Uni.controller.Navigation', {
     showContent: function (content, side) {
         var panel = this.getContentWrapper();
 
-        //Ext.suspendLayouts();
         panel.removeAll();
 
         if (content instanceof Uni.view.container.ContentContainer) {

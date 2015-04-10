@@ -70,6 +70,7 @@ Ext.define('Uni.form.field.DateTime', {
                 itemId: 'date-time-field-date',
                 submitValue: false,
                 allowBlank: false,
+                format: 'd M \'y',
                 width: '100%',
                 listeners: {
                     change: {
