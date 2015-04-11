@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration, DeviceConfigurationBuilder>{
+public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration, DeviceConfigurationBuilder> {
     private DeviceType deviceType;
     private GatewayType gatewayType;
     private List<RegisterType> registerTypes;
@@ -33,37 +33,37 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         super(DeviceConfigurationBuilder.class);
     }
 
-    public DeviceConfigurationBuilder withDeviceType(DeviceType deviceType){
+    public DeviceConfigurationBuilder withDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
         return this;
     }
 
-    public DeviceConfigurationBuilder withGatewayType(GatewayType gatewayType){
+    public DeviceConfigurationBuilder withGatewayType(GatewayType gatewayType) {
         this.gatewayType = gatewayType;
         return this;
     }
 
-    public DeviceConfigurationBuilder withRegisterTypes(List<RegisterType> registerTypes){
+    public DeviceConfigurationBuilder withRegisterTypes(List<RegisterType> registerTypes) {
         this.registerTypes = registerTypes;
         return this;
     }
 
-    public DeviceConfigurationBuilder withLoadProfileTypes(List<LoadProfileType> loadProfileTypes){
+    public DeviceConfigurationBuilder withLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
         this.loadProfileTypes = loadProfileTypes;
         return this;
     }
 
-    public DeviceConfigurationBuilder withLogBookTypes(List<LogBookType> logBookTypes){
+    public DeviceConfigurationBuilder withLogBookTypes(List<LogBookType> logBookTypes) {
         this.logBookTypes = logBookTypes;
         return this;
     }
 
-    public DeviceConfigurationBuilder withComTasks(List<ComTask> comTasks){
+    public DeviceConfigurationBuilder withComTasks(List<ComTask> comTasks) {
         this.comTasks = comTasks;
         return this;
     }
 
-    public DeviceConfigurationBuilder withPostBuilder(Consumer<DeviceConfiguration> postBuilder){
+    public DeviceConfigurationBuilder withPostBuilder(Consumer<DeviceConfiguration> postBuilder) {
         if (this.postBuilders == null) {
             this.postBuilders = new ArrayList<>();
         }
@@ -71,7 +71,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         return this;
     }
 
-    public DeviceConfigurationBuilder withSecurityPropertySetBuilders(List<SecurityPropertySetBuilder> securityPropertySetBuilders){
+    public DeviceConfigurationBuilder withSecurityPropertySetBuilders(List<SecurityPropertySetBuilder> securityPropertySetBuilders) {
         this.securityPropertySetBuilders = securityPropertySetBuilders;
         return this;
     }
@@ -103,7 +103,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     }
 
     private void addRegisters(DeviceType.DeviceConfigurationBuilder builder) {
-        if (this.registerTypes != null){
+        if (this.registerTypes != null) {
             for (RegisterType registerType : registerTypes) {
                 builder.newNumericalRegisterSpec(registerType)
                         .setOverflowValue(new BigDecimal(99999999))
@@ -114,7 +114,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     }
 
     private void addLoadProfiles(DeviceType.DeviceConfigurationBuilder builder) {
-        if (this.loadProfileTypes != null){
+        if (this.loadProfileTypes != null) {
             for (LoadProfileType loadProfileType : loadProfileTypes) {
                 builder.newLoadProfileSpec(loadProfileType);
             }
@@ -137,7 +137,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         }
     }
 
-    private void applyPostBuilders(DeviceConfiguration configuration){
+    private void applyPostBuilders(DeviceConfiguration configuration) {
         if (postBuilders != null) {
             for (Consumer<DeviceConfiguration> postBuilder : postBuilders) {
                 postBuilder.accept(configuration);
@@ -145,9 +145,9 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         }
     }
 
-    private void addComTasks(DeviceConfiguration configuration){
+    private void addComTasks(DeviceConfiguration configuration) {
         if (comTasks != null) {
-            if (configuration.getSecurityPropertySets().isEmpty()){
+            if (configuration.getSecurityPropertySets().isEmpty()) {
                 throw new UnableToCreate("Please specify at least one security set");
             }
             for (ComTask comTask : comTasks) {
