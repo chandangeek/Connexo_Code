@@ -8,6 +8,10 @@ Ext.onReady(function () {
             path: '../../apps/cfg/src'
         },
         {
+            name: 'Tme',
+            path: '../../apps/tme/src'
+        },
+        {
             name: 'Mdc',
             path: '../../apps/mdc/src'
         },
@@ -39,6 +43,7 @@ Ext.onReady(function () {
             name: 'Dlc',
             path: '../../apps/dlc/src'
         }
+
     ];
 
     loader.initPackages(packages);
