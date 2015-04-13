@@ -1,6 +1,6 @@
 Ext.define('Uni.property.store.RelativePeriods', {
     extend: 'Ext.data.Store',
-    model: 'Tme.model.RelativePeriod',
+    model: 'Uni.property.model.RelativePeriod',
     autoLoad: false,
     //storeId: 'timeUnits',
     proxy: {
