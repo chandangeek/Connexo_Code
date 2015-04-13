@@ -4,7 +4,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     views: [
         'Fwc.devicefirmware.view.Setup',
         'Fwc.devicefirmware.view.Upload',
-        'Fwc.devicefirmware.view.DeviceSideMenu'
+        'Fwc.devicefirmware.view.DeviceSideMenu',
+        'Fwc.devicefirmware.view.FirmwareForm'
     ],
 
     requires: [
@@ -12,11 +13,12 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     ],
 
     stores: [
-//        'Fwc.store.Firmwares',
-
+        'Fwc.devicefirmware.store.Firmwares',
+        'Fwc.devicefirmware.store.FirmwareActions'
     ],
 
     refs: [
+        {ref: 'container', selector: 'viewport > #contentPanel'},
         {ref: 'setupPage', selector: 'device-firmware-setup'},
         {ref: 'uploadPage', selector: 'device-firmware-upload'}
     ],
@@ -64,18 +66,55 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         router.getRoute('devices/device/firmware/upload').forward(null, {activate: 'inDate'});
     },
 
-    showDeviceFirmware: function (mRID) {
+    loadDevice: function (deviceId, callback) {
         var me = this,
-            router = this.getController('Uni.controller.history.Router');
+            model = Ext.ModelManager.getModel('Mdc.model.Device'),
+            container = this.getContainer();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        container.setLoading();
+        model.load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', 'device-firmware-setup', {router: router, device: device});
+                if (callback) {
+                    callback(device);
+                }
+            },
+            callback: function () {
+                container.setLoading(false);
             }
         });
+    },
 
+    showDeviceFirmware: function (mRID) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            store = me.getStore('Fwc.devicefirmware.store.Firmwares'),
+            actionsStore = me.getStore('Fwc.devicefirmware.store.FirmwareActions'),
+            widget;
 
+        me.loadDevice(mRID, function (device) {
+            me.getApplication().fireEvent('loadDevice', device);
+            me.getApplication().fireEvent('changecontentevent', 'device-firmware-setup', {
+                router: router,
+                device: device
+            });
+            widget = me.getSetupPage();
+            widget.setLoading();
+            store.getProxy().setUrl(device.get('mRID'));
+            actionsStore.getProxy().setUrl(device.get('mRID'));
+            actionsStore.load();
+            store.load({
+                callback: function (records, operation, success) {
+                    if (success) {
+                        records.map(function (record) {
+                            var form = Ext.create('Fwc.devicefirmware.view.FirmwareForm', {record: record, router: router});
+                            widget.getCenterContainer().add(form);
+                        });
+                    }
+                    widget.setLoading(false);
+                }
+            });
+        });
     },
 
     showDeviceFirmwareUpload: function (mRID) {
@@ -102,11 +141,13 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', 'device-firmware-upload', {device: device, title: title, router: router});
+                me.getApplication().fireEvent('changecontentevent', 'device-firmware-upload', {
+                    device: device,
+                    title: title,
+                    router: router
+                });
             }
         });
-
-
 
 
     }
