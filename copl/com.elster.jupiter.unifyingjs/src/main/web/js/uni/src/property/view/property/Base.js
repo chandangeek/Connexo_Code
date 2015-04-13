@@ -112,7 +112,6 @@ Ext.define('Uni.property.view.property.Base', {
      * Updates the reset button state and tooltip
      */
     updateResetButton: function () {
-        debugger;
         var button = this.getResetButton();
 
         if (this.isEdit) {
@@ -330,7 +329,6 @@ Ext.define('Uni.property.view.property.Base', {
      * Restores default field value
      */
     restoreDefault: function () {
-        debugger;
         var property = this.getProperty();
         var restoreValue = property.get('default');
         property.set('hasValue', false);

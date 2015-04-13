@@ -143,9 +143,6 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
     },
 
     initComponent: function(){
-        //debugger;
-        //var periods = Ext.getStore('Uni.property.store.RelativePeriods');
-        //periods.load();
         this.readingTypes = Ext.create('Uni.property.store.PropertyReadingTypes');
         this.callParent(arguments);
     }
