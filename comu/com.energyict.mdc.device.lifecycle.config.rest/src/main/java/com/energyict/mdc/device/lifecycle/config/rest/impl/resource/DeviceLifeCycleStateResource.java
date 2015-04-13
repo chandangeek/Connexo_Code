@@ -10,6 +10,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
@@ -152,9 +153,15 @@ public class DeviceLifeCycleStateResource {
     }
 
     private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {
-        List<AuthorizedAction> authorizedActionsForState = deviceLifeCycle.getAuthorizedActions(stateForDeletion);
-        if (!authorizedActionsForState.isEmpty()){
-            String transitionNames = authorizedActionsForState.stream()
+        List<Long> transitionIds = deviceLifeCycle.getFiniteStateMachine().getTransitions().stream()
+                .filter(transition -> transition.getFrom().getId() == stateForDeletion.getId()
+                                      || transition.getTo().getId() == stateForDeletion.getId())
+                .map(transition -> transition.getId())
+                .collect(Collectors.toList());
+        if (!transitionIds.isEmpty()){
+            String transitionNames = deviceLifeCycle.getAuthorizedActions().stream()
+                    .filter(aa -> aa instanceof AuthorizedTransitionAction)
+                    .filter(aa -> transitionIds.contains(((AuthorizedTransitionAction) aa).getStateTransition().getId()))
                     .map(authorizedActionInfoFactory::from)
                     .map(aai -> aai.name)
                     .filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace())
