@@ -4,6 +4,8 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
@@ -13,6 +15,7 @@ import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -175,5 +178,84 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         Response response = target("/devicelifecycles/1/states/1/status").request().put(Entity.json(entity));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(fsmUpdater, times(1)).complete(stateForEdit);
+    }
+
+    @Test
+    public void testDeleteStateDeviceLifeCycleIsInUse(){
+        State stateForDelete = mockSimpleState(1L, "Custom state");
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForDelete));
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(dlc)).thenReturn(Collections.singletonList(deviceType));
+
+        Response response = target("/devicelifecycles/1/states/1").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(deviceConfigurationService, times(1)).findDeviceTypesUsingDeviceLifeCycle(dlc);
+        verify(dlc, times(0)).getAuthorizedActions(stateForDelete);
+        verify(stateMachine, times(1)).getStates();
+        verify(stateForDelete, times(0)).isInitial();
+    }
+
+    @Test
+    public void testDeleteStateHasTransitions(){
+        State stateForDelete = mockSimpleState(1L, "Custom state");
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForDelete));
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+        when(deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(dlc)).thenReturn(Collections.emptyList());
+        List<AuthorizedAction> actions = mockDefaultActions();
+        when(dlc.getAuthorizedActions(stateForDelete)).thenReturn(actions);
+
+        Response response = target("/devicelifecycles/1/states/1").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(deviceConfigurationService, times(1)).findDeviceTypesUsingDeviceLifeCycle(dlc);
+        verify(dlc, times(1)).getAuthorizedActions(stateForDelete);
+        verify(stateMachine, times(1)).getStates();
+    }
+
+    @Test
+    public void testDeleteStateTheLastState(){
+        State stateForDelete = mockSimpleState(1L, "Custom state");
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(Collections.singletonList(stateForDelete));
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+        when(dlc.getAuthorizedActions(stateForDelete)).thenReturn(Collections.emptyList());
+        when(deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(dlc)).thenReturn(Collections.emptyList());
+
+        Response response = target("/devicelifecycles/1/states/1").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(deviceConfigurationService, times(1)).findDeviceTypesUsingDeviceLifeCycle(dlc);
+        verify(dlc, times(1)).getAuthorizedActions(stateForDelete);
+        verify(stateMachine, times(2)).getStates();
+        verify(stateForDelete, times(0)).isInitial();
+    }
+
+    @Test
+    public void testDeleteStateInitial(){
+        State stateForDelete = mockSimpleState(1L, "Custom state");
+        State anotherOneState = mockSimpleState(2L, "Another one state");
+        when(stateForDelete.isInitial()).thenReturn(true);
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(Arrays.asList(stateForDelete, anotherOneState));
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+        when(dlc.getAuthorizedActions(stateForDelete)).thenReturn(Collections.emptyList());
+        when(deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(dlc)).thenReturn(Collections.emptyList());
+
+        Response response = target("/devicelifecycles/1/states/1").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(deviceConfigurationService, times(1)).findDeviceTypesUsingDeviceLifeCycle(dlc);
+        verify(dlc, times(1)).getAuthorizedActions(stateForDelete);
+        verify(stateMachine, times(2)).getStates();
+        verify(stateForDelete, times(1)).isInitial();
     }
 }

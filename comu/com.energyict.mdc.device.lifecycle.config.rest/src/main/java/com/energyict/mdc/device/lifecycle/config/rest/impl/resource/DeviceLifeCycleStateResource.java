@@ -3,13 +3,19 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 
@@ -27,23 +33,30 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleStateResource {
     private final ExceptionFactory exceptionFactory;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleStateFactory deviceLifeCycleStateFactory;
+    private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
     public DeviceLifeCycleStateResource(
             ExceptionFactory exceptionFactory,
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+            DeviceConfigurationService deviceConfigurationService,
             DeviceLifeCycleStateFactory deviceLifeCycleStateFactory,
+            AuthorizedActionInfoFactory authorizedActionInfoFactory,
             ResourceHelper resourceHelper) {
         this.exceptionFactory = exceptionFactory;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleStateFactory = deviceLifeCycleStateFactory;
+        this.authorizedActionInfoFactory = authorizedActionInfoFactory;
         this.resourceHelper = resourceHelper;
     }
 
@@ -123,8 +136,43 @@ public class DeviceLifeCycleStateResource {
     public Response deleteDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         State stateForDeletion = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
+        checkDeviceLifeCycleUsages(deviceLifeCycle);
+        checkStateHasTransitions(deviceLifeCycle, stateForDeletion);
+        checkStateIsTheLatest(deviceLifeCycle);
+        checkStateIsInitial(stateForDeletion);
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
         fsmUpdater.removeState(stateForDeletion).complete();
         return Response.ok(deviceLifeCycleStateFactory.from(stateForDeletion)).build();
     }
+
+    private void checkDeviceLifeCycleUsages(DeviceLifeCycle deviceLifeCycle) {
+        if (!deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle).isEmpty()){
+            throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE);
+        }
+    }
+
+    private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {
+        List<AuthorizedAction> authorizedActionsForState = deviceLifeCycle.getAuthorizedActions(stateForDeletion);
+        if (!authorizedActionsForState.isEmpty()){
+            String transitionNames = authorizedActionsForState.stream()
+                    .map(authorizedActionInfoFactory::from)
+                    .map(aai -> aai.name)
+                    .filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace())
+                    .collect(Collectors.joining(", "));
+            throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_IS_STILL_USED_BY_TRANSITIONS, transitionNames);
+        }
+    }
+
+    private void checkStateIsTheLatest(DeviceLifeCycle deviceLifeCycle) {
+        if (deviceLifeCycle.getFiniteStateMachine().getStates().size() == 1){
+            throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_IS_THE_LATEST_STATE);
+        }
+    }
+
+    private void checkStateIsInitial(State stateForDeletion) {
+        if (stateForDeletion.isInitial()){
+            throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_IS_THE_INITIAL_STATE);
+        }
+    }
+
 }
