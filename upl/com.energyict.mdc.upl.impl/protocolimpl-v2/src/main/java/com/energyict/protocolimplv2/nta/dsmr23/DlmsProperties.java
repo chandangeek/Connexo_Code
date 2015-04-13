@@ -2,7 +2,11 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
@@ -256,5 +260,15 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     protected int parseBigDecimalProperty(String key, BigDecimal defaultValue) {
         return properties.<BigDecimal>getTypedProperty(key, defaultValue).intValue();
+    }
+
+    @Override
+    public boolean useGeneralBlockTransfer() {
+        return properties.<Boolean>getTypedProperty(USE_GBT, DEFAULT_ENABLE_GBT);
+    }
+
+    @Override
+    public int getGeneralBlockTransferWindowSize() {
+        return properties.getTypedProperty(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE);
     }
 }

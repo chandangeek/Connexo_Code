@@ -33,6 +33,9 @@ public class AM130 extends AM500 {
     private AM130RegisterFactory registerFactory = null;
     private long initialFrameCounter = -1;
 
+    /**
+     * The version date
+     */
     @Override
     public String getVersion() {
         return "$Date$";

@@ -22,8 +22,11 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class AM130ConfigurationSupport implements ConfigurationSupport {
 
-    private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
     public static final String LIMIT_MAX_NR_OF_DAYS_PROPERTY = "LimitMaxNrOfDays";
+
+    public static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
+    public static final BigDecimal DEFAULT_GBT_WINDOW_SIZE = BigDecimal.valueOf(5);
+    public static final boolean USE_GBT_DEFAULT_VALUE = true;
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
@@ -41,7 +44,18 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
                 this.validateInvokeIdPropertySpec(),
                 this.roundTripCorrectionPropertySpec(),
                 this.limitMaxNrOfDaysPropertySpec(),
-                this.readCachePropertySpec());
+                this.readCachePropertySpec(),
+                this.useGeneralBlockTransferPropertySpec(),
+                this.generalBlockTransferWindowSizePropertySpec());
+    }
+
+    private PropertySpec useGeneralBlockTransferPropertySpec() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(USE_GBT, USE_GBT_DEFAULT_VALUE);
+    }
+
+    private PropertySpec generalBlockTransferWindowSizePropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE);
+
     }
 
     protected PropertySpec limitMaxNrOfDaysPropertySpec() {

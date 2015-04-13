@@ -65,4 +65,25 @@ public interface DlmsV2Connection extends DlmsConnection {
      */
     byte[] sendRawBytes(byte[] data);
 
+    /**
+     * Getter for boolean indicating whether or not general-blcok-transfer should be used or not
+     */
+    boolean useGeneralBlockTransfer();
+
+    /**
+     * Getter for the preferred general-block-transfer window size<br/>
+     * If -1 is returned, then general-block-transfer is disabled
+     */
+    int getGeneralBlockTransferWindowSize();
+
+    /**
+     * Prepare the underlying ComChannel for the receive of a next packet<br/>
+     * This method should be executed between receive of multiple packets (e.g. as used in general-block-transfer process)<br/>
+     * <br/>
+     * During this process the ComChannel will toggle from reading mode to witting mode;
+     * the 'sessionCounters' will also be toggled. By doing so, we ensure when the next packet is read,
+     * its logging is correctly interpreted (or in other words: the bytes will be logged as a separate 'Rx' entry and the 'Number of packets received' will get incremented)
+     */
+    void prepareComChannelForReceiveOfNextPacket();
+
 }

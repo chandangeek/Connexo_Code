@@ -1,8 +1,16 @@
 package com.energyict.dlms.common;
 
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.ConnectionMode;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.DlmsSessionProperties;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
@@ -49,6 +57,8 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
     public static final String DEVICE_ID = "DevideId";
+    public static final String USE_GBT = "Use-GBT";
+    public static final String GBT_WINDOW_SIZE = "GBT-windowSize";
 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final String DEFAULT_TIMEZONE = "GMT";
@@ -89,6 +99,8 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final BigDecimal DEFAULT_DEVICE_BUFFER_SIZE = new BigDecimal(-1);
     public static final boolean DEFAULT_FIX_MBUS_HEX_SHORT_ID = false;
     public static final String DEFAULT_DEVICE_ID = "";
+    public static final boolean DEFAULT_ENABLE_GBT = false;
+    public static final int DEFAULT_GBT_WINDOW_SIZE = -1;
 
     private TypedProperties typedProperties;
 

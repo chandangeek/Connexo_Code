@@ -47,7 +47,7 @@ public class ConformanceBlock{
 
 //    public static final int BIT_RESERVED_ZERO = 0;
 //    public static final int BIT_RESERVED_ONE = 1;
-//    public static final int BIT_RESERVED_TWO = 2;
+    public static final int BIT_GENERAL_BLOCK_TRANSFER = 2;
 	public static final int BIT_READ = 3;
 	public static final int BIT_WRITE = 4;
 	public static final int BIT_UNCONFIRMED_WRITE = 5;
@@ -248,13 +248,20 @@ public class ConformanceBlock{
         return block[BIT_READ];
     }
 
-
     public void setRead(boolean value) {
         setBit(BIT_READ, value);
     }
 
     public void setWrite(boolean value) {
         setBit(BIT_WRITE, value);
+    }
+
+    public boolean isGeneralBlockTransfer(){
+        return block[BIT_GENERAL_BLOCK_TRANSFER];
+    }
+
+    public void setGeneralBlockTransfer(boolean value) {
+        setBit(BIT_GENERAL_BLOCK_TRANSFER, value);
     }
 
     public void setUnconfirmedWrite(boolean value) {

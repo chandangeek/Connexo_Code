@@ -270,4 +270,19 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
     public int getMaxTries() {
         return getMaxRetries() + 1;
     }
+
+    @Override
+    public boolean useGeneralBlockTransfer() {
+        return getTransportConnection().useGeneralBlockTransfer();
+    }
+
+    @Override
+    public int getGeneralBlockTransferWindowSize() {
+        return getTransportConnection().getGeneralBlockTransferWindowSize();
+    }
+
+    @Override
+    public void prepareComChannelForReceiveOfNextPacket() {
+        getTransportConnection().prepareComChannelForReceiveOfNextPacket();
+    }
 }

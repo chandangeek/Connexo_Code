@@ -84,4 +84,15 @@ public interface CommunicationSessionProperties {
      * The initial baud rate to start the IEC1107 signon with
      */
     public int getHHUSignonBaudRateCode();
+
+    /**
+     * Boolean indicating whether or not the protocol supports (and can use) general block transfer
+     */
+    public boolean useGeneralBlockTransfer();
+
+    /**
+     * Getter for the general block transfer window size<br/>
+     * This is the preferred window size of our head-end (ComServer) and should match the devices capabilities.
+     */
+    public int getGeneralBlockTransferWindowSize();
 }

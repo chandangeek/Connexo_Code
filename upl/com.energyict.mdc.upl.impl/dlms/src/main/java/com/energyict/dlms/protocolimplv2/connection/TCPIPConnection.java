@@ -6,6 +6,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
+import com.energyict.mdc.protocol.AbstractComChannel;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
@@ -33,6 +34,8 @@ public class TCPIPConnection implements DlmsV2Connection {
     private long timeout;
     private long forceDelay;
     private boolean switchAddresses = false;
+    private boolean useGeneralBlockTransfer;
+    private int generalBlockTransferWindowSize;
 
     /**
      * The current retry count - 0 = first try / 1 = first retry / ...
@@ -51,7 +54,8 @@ public class TCPIPConnection implements DlmsV2Connection {
         setSwitchAddresses(properties.isSwitchAddresses());
         this.boolTCPIPConnected = false;
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
-
+        this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
+        this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
     }
 
     public long getForceDelay() {
@@ -495,5 +499,23 @@ public class TCPIPConnection implements DlmsV2Connection {
     @Override
     public int getMaxTries() {
         return getMaxRetries() + 1;
+    }
+
+    @Override
+    public boolean useGeneralBlockTransfer() {
+        return useGeneralBlockTransfer;
+    }
+
+    @Override
+    public int getGeneralBlockTransferWindowSize() {
+        return generalBlockTransferWindowSize;
+    }
+
+    @Override
+    public void prepareComChannelForReceiveOfNextPacket() {
+        comChannel.startWriting();
+        if (comChannel instanceof AbstractComChannel) {
+            ((AbstractComChannel) comChannel).getComChannelSessionCounters((AbstractComChannel) comChannel).writing();
+        }
     }
 }
