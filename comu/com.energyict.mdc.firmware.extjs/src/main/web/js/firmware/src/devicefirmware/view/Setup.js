@@ -30,6 +30,12 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
                 },
                 {
                     xtype: 'button',
+                    ui: 'link',
+                    text: 'View log',
+                    action: 'viewFirmwareUpgradeLog'
+                },
+                {
+                    xtype: 'button',
                     text: Uni.I18n.translate('general.actions', 'FWC', Uni.I18n.translate('general.actions', 'FWC', 'Actions')),
                     iconCls: 'x-uni-action-iconD',
                     menu: {

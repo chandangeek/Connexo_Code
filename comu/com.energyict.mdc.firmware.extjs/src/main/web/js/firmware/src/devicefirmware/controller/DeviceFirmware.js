@@ -31,8 +31,18 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             },
             'device-firmware-setup device-firmware-action-menu #uploadActivateInDate': {
                 click: this.moveToUploadActivateInDate
+            },
+            'device-firmware-setup button[action=viewFirmwareUpgradeLog]': {
+                click: this.viewUpgradeLog
             }
         });
+    },
+
+    viewUpgradeLog: function() {
+        var router = this.getController('Uni.controller.history.Router'),
+            logUrl = router.getRoute('devices/device/firmware/log').buildUrl();
+
+        window.open(logUrl);
     },
 
 
