@@ -170,6 +170,8 @@ public interface DeviceConfigurationService {
 
     public List<DeviceType> findDeviceTypesUsingRegisterType(MeasurementType measurementType);
 
+    List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
+
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType);

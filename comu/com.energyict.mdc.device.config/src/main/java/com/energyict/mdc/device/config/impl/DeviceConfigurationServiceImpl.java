@@ -289,6 +289,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle) {
+        return this.getDataModel().
+                query(DeviceType.class, DeviceLifeCycle.class).
+                select(where("deviceLifeCycle").isEqualTo(deviceLifeCycle));
+    }
+
+    @Override
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType) {
         return this.getDataModel().
                 query(DeviceConfiguration.class, LogBookSpec.class).
