@@ -10,7 +10,11 @@ Ext.define('Fwc.devicefirmware.store.Firmwares', {
     proxy: {
         type: 'rest',
         urlTpl: '/api/fwc/device/{deviceId}/firmwares',
-        reader: 'json',
+        reader: {
+            type: 'json',
+            root: 'firmwares',
+            totalProperty: 'total'
+        },
         setUrl: function (deviceId) {
             this.url = this.urlTpl.replace('{deviceId}', deviceId);
         }

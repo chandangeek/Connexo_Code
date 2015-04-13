@@ -1,4 +1,4 @@
-Ext.define('Fwc.devicefirmware.store.Firmwares', {
+Ext.define('Fwc.devicefirmware.store.FirmwareActions', {
     extend: 'Ext.data.Store',
     requires: [
         'Fwc.devicefirmware.model.FirmwareAction'

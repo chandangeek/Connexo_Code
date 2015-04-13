@@ -15,7 +15,7 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.activeVersion ? data.activeVersion.firmwareVersion : '';
+                return data.activeVersion ? data.activeVersion.firmwareVersion : Uni.I18n.translate('device.firmware.version.unknown', 'FWC', 'Unknown');
             }
         }
     ],
@@ -36,7 +36,8 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
             type: 'hasOne',
             model: 'Fwc.devicefirmware.model.FirmwareVersion',
             name: 'activeVersion',
-            associationKey: 'activeVersion'
+            associationKey: 'activeVersion',
+            getterName: 'getActiveVersion'
         },
         {
             type: 'hasOne',
