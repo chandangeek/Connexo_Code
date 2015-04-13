@@ -65,12 +65,17 @@ Ext.define('Uni.property.controller.Registry', {
         EAN18: 'Uni.property.view.property.Text',
         ENCRYPTED_STRING: 'Uni.property.view.property.Password',
         UNKNOWN: 'Uni.property.view.property.Text',
-        LISTVALUE: 'Uni.property.view.property.Multiselect'
+        LISTVALUE: 'Uni.property.view.property.Multiselect',
+        RELATIVEPERIOD: 'Uni.property.view.property.Relativeperiod',
+        ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
+        ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
     stores: [
-        'Uni.property.store.TimeUnits'
+        'Uni.property.store.TimeUnits',
+        'Uni.property.store.RelativePeriods',
+        'Uni.property.store.PropertyReadingTypes'
     ],
 
     /**

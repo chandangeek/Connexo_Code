@@ -112,6 +112,7 @@ Ext.define('Uni.property.view.property.Base', {
      * Updates the reset button state and tooltip
      */
     updateResetButton: function () {
+        debugger;
         var button = this.getResetButton();
 
         if (this.isEdit) {
@@ -305,6 +306,7 @@ Ext.define('Uni.property.view.property.Base', {
                     me.getProperty().set('hasValue', false);
                     me.getProperty().set('propertyHasValue', false);
                 }
+                me.customHandlerLogic();
             });
             field.on('blur', function () {
                 if (!field.hasNotValueSameAsDefaultMessage && field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
@@ -314,16 +316,21 @@ Ext.define('Uni.property.view.property.Base', {
                     me.getProperty().set('isInheritedOrDefaultValue', true);
                     me.updateResetButton();
                 }
-
+                me.customHandlerLogic();
             })
         }
         this.getResetButton().setHandler(this.restoreDefault, this);
+    },
+
+    customHandlerLogic: function(){
+        //implement in propertycomponents that need custom logic on change;
     },
 
     /**
      * Restores default field value
      */
     restoreDefault: function () {
+        debugger;
         var property = this.getProperty();
         var restoreValue = property.get('default');
         property.set('hasValue', false);
