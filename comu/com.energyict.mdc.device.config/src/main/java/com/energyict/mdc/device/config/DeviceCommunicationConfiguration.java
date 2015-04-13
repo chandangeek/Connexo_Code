@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.time.TimeDuration;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +75,7 @@ public interface DeviceCommunicationConfiguration {
      * @param securityPropertySet The SecurityPropertySet
      * @return The ComTaskEnablementBuilder that builds the enablement
      */
-    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet);
+    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties);
 
     /**
      * Disables the execution of the specified {@link ComTask}

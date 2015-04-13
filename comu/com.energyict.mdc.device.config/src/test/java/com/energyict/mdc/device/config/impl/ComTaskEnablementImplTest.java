@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -8,22 +12,19 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.*;
-import org.mockito.ArgumentCaptor;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -63,6 +64,9 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     private SecurityPropertySet securityPropertySet2;
     private PartialScheduledConnectionTask partialConnectionTask1;
 
+    private ProtocolDialectSharedData sharedData;
+    ProtocolDialectConfigurationProperties properties;
+
     @Before
     public void setup () {
         this.registerNoParamsConnectionType();
@@ -71,6 +75,8 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         this.createConfigurations();
         this.createSecurityPropertySets();
         this.createPartialConnectionTasks();
+        sharedData = new ProtocolDialectSharedData();
+        properties = deviceConfiguration1.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
     }
 
     private void createDeviceType() {
@@ -143,12 +149,13 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         if (this.topicHandler != null) {
             inMemoryPersistence.unregisterSubscriber(this.topicHandler);
         }
+        sharedData.invalidate();
     }
 
     @Test(expected = IllegalStateException.class)
     @Transactional
     public void testModifyAfterBuild () {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
 
         ComTaskEnablementBuilder builder = comTaskEnablementBuilder.setIgnoreNextExecutionSpecsForInbound(true);
         builder.add();
@@ -162,7 +169,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test(expected = IllegalStateException.class)
     @Transactional
     public void testCompleteBuilderTwice () {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
 
         ComTaskEnablementBuilder builder = comTaskEnablementBuilder.setIgnoreNextExecutionSpecsForInbound(true);
         builder.add();
@@ -176,7 +183,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void testCreate () {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
 
         // Business method
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.setIgnoreNextExecutionSpecsForInbound(true).add();
@@ -195,7 +202,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void testCreateWithNextExecutionSpecs () {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
 
         // Business method
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.setIgnoreNextExecutionSpecsForInbound(true).add();
@@ -214,7 +221,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void testUpdateNextExecutionSpecs() {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
         // Business method
@@ -230,7 +237,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void testRemoveNextExecutionSpecs() {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
 
@@ -245,7 +252,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Transactional
     public void testCreateWithPriority() {
         int expectedPriority = ComTaskEnablement.HIGHEST_PRIORITY + 100;
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.setPriority(expectedPriority);
 
         // Business method
@@ -265,7 +272,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_PRIORITY_RANGE + "}")
     public void testCreateWithInvalidPriority() {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.setPriority(ComTaskEnablement.LOWEST_PRIORITY + 100);
 
         // Business method
@@ -278,7 +285,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Transactional
     public void testUpdatePriority() {
         int initialPriority = ComTaskEnablement.HIGHEST_PRIORITY + 100;
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.setPriority(initialPriority).add();
 
         // Business method
@@ -297,16 +304,29 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     }
 
     /**
+     * Tests that saving a {@link ComTask} without protocol dialect properties, produces a constraint violation.
+     */
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    public void testEnableWithoutProtocolDialect() {
+        // Business method
+        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, null).add();
+
+        // Asserts: see ExpectedConstraintViolation
+    }
+
+    /**
      * Tests that enabling the same {@link ComTask} twice, produces a constraint violation.
      */
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COM_TASK_CAN_ONLY_BE_ENABLED_ONCE + "}")
     public void testEnableTwice () {
-        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1).add();
 
+        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties).add();
         // Business method
-        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1).add();
+        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties).add();
 
         // Asserts: see ExpectedConstraintViolation
     }
@@ -319,11 +339,11 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COM_TASK_CAN_ONLY_BE_ENABLED_ONCE + "}")
     public void testEnableTwiceWithAnotherSecuritySet () {
-        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1).add();
+        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties).add();
         SecurityPropertySet anotherSecurityPropertySet = this.createSecurityPropertySet(this.deviceConfiguration1, "SPPS-Config-1 Bis");
 
         // Business method
-        this.deviceConfiguration1.enableComTask(this.comTask1, anotherSecurityPropertySet).add();
+        this.deviceConfiguration1.enableComTask(this.comTask1, anotherSecurityPropertySet, properties).add();
 
         // Asserts: see ExpectedConstraintViolation
     }
@@ -333,7 +353,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_SECURITY_PROPERTY_SET_MUST_BE_FROM_SAME_CONFIGURATION + "}")
     public void testCreateWithASecurityPropertySetFromAnotherConfiguration() {
         // Business method
-        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet2).add();
+        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet2, properties).add();
 
         // Asserts: see ExpectedConstraintViolation
     }
@@ -343,7 +363,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COM_TASK_ENABLEMENT_CANNOT_USE_DEFAULT_AND_PARTIAL_CONNECTION_TASK + "}")
     public void testCreateWithPartialConnectionTaskAndWithDefault() {
         // Business method
-        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1).
+        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties).
                 setPartialConnectionTask(this.partialConnectionTask1).
                 useDefaultConnectionTask(true).
                 add();
@@ -354,7 +374,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void testRemoveScheduling() {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
         comTaskEnablement.save();
@@ -371,7 +391,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     public void testSwitchFromDefaultToConnectionTask() {
         this.registerSubscriber();
 
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(true);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -401,7 +421,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     public void testSwitchFromDefaultToNoDefaultWithoutConnectionTask() {
         this.registerSubscriber();
 
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(true);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -429,7 +449,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     public void testSwitchOnDefaultWithoutPriorConnectionTask() {
         this.registerSubscriber();
 
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(false);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -455,7 +475,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void testSwitchFromConnectionTaskToDefault() {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.setPartialConnectionTask(this.partialConnectionTask1);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -485,7 +505,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void testRemoveConnectionTaskWithoutSwitchingToDefault() {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.setPartialConnectionTask(this.partialConnectionTask1);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -515,7 +535,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void testSwitchFromOneConnectionTaskToAnother() {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.setPartialConnectionTask(this.partialConnectionTask1);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -563,7 +583,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     public void testSuspend() {
         this.registerSubscriber();
 
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(true).setPriority(ComTaskEnablement.LOWEST_PRIORITY);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -583,7 +603,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     public void testResume() {
         this.registerSubscriber();
 
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(true).setPriority(ComTaskEnablement.LOWEST_PRIORITY);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -603,7 +623,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     public void testDisable () {
         this.registerSubscriber();
 
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(true).setPriority(ComTaskEnablement.LOWEST_PRIORITY);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -630,7 +650,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test(expected = CannotDisableComTaskThatWasNotEnabledException.class)
     @Transactional
     public void testDisableWhenNotEnabled () {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(true).setPriority(ComTaskEnablement.LOWEST_PRIORITY).add();
 
         // Business method
@@ -643,7 +663,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Test
     @Transactional
     public void setDefaultConnectionTaskUpdatesComTaskEnablementsTest() {
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(true);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
@@ -663,7 +683,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         this.partialConnectionTask1.setDefault(true);
         this.partialConnectionTask1.save();
 
-        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties);
         comTaskEnablementBuilder.useDefaultConnectionTask(true);
         ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
 
