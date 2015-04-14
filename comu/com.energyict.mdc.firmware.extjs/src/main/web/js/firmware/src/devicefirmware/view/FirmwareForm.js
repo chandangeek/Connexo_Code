@@ -10,10 +10,11 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     minButtonWidth: 50,
     requires: [
         'Uni.util.FormErrorMessage',
-        'Fwc.devicefirmware.view.ActionMenu'
+        'Fwc.devicefirmware.view.ActionMenu',
+        'Uni.form.field.DisplayFieldWithInfoIcon'
     ],
     record: null,
-
+    hydrator: 'Fwc.form.Hydrator',
     header: {
         titlePosition: 0,
         layout: {
@@ -52,9 +53,15 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             name: 'firmwareVersion'
         },
         {
-            xtype: 'displayfield',
+            xtype: 'displayfield-with-info-icon',
             fieldLabel: Uni.I18n.translate('device.firmware.field.status', 'FWC', 'Firmware version status'),
-            name: 'status'
+            beforeRenderer: function (value) {
+                if (value && value.id === 'deprecated') {
+                    this.infoTooltip = Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Active firmware version is deprecated. Consider firmware upgrade');
+                }
+                return value.displayValue || null;
+            },
+            name: 'firmwareVersionStatus'
         },
         {
             xtype: 'displayfield',
