@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.*;
@@ -100,28 +101,32 @@ public class ValidationAddRemoveIT {
 
     @Before
     public void setUp() {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new FiniteStateMachineModule(),
-                new MeteringModule(),
-                new MeteringGroupsModule(),
-                new TaskModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new ValidationModule(),
-                new NlsModule(),
-                new EventsModule(),
-                new UserModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new MeteringModule(),
+                    new MeteringGroupsModule(),
+                    new TaskModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new ValidationModule(),
+                    new NlsModule(),
+                    new EventsModule(),
+                    new UserModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
