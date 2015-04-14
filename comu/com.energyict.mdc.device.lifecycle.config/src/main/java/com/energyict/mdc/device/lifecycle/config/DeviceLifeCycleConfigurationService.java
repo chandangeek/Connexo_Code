@@ -17,7 +17,13 @@ public interface DeviceLifeCycleConfigurationService {
 
     String COMPONENT_NAME = "DLD";
 
-    public Optional<Privilege> findPrivilege(String userActionPrivilege);
+    /**
+     * Finds one of the privileges that allows a user to initiate an {@link AuthorizedAction}.
+     *
+     * @param initiateActionPrivilegeName The name of the privilege
+     * @return The Privilege
+     */
+    public Optional<Privilege> findInitiateActionPrivilege(String initiateActionPrivilegeName);
 
     /**
      * Starts the building process of a new {@link DeviceLifeCycle}.

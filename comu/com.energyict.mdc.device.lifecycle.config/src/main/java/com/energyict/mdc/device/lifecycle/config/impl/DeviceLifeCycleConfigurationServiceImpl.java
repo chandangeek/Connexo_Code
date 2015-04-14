@@ -74,6 +74,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         this.setStateMachineService(stateMachineService);
         this.activate();
         this.install();
+        this.initializePrivileges();
     }
 
     @Override
@@ -250,7 +251,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    public Optional<Privilege> findPrivilege(String privilegeName) {
+    public Optional<Privilege> findInitiateActionPrivilege(String privilegeName) {
         return this.privileges
                 .stream()
                 .filter(p -> p.getName().equals(privilegeName))

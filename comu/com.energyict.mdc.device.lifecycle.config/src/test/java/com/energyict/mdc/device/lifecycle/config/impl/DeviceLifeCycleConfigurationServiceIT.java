@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -15,6 +16,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -153,6 +155,54 @@ public class DeviceLifeCycleConfigurationServiceIT {
         assertThat(finder).isNotNull();
         List<DeviceLifeCycle> deviceLifeCycles = finder.find();
         assertThat(deviceLifeCycles).hasSize(4);
+    }
+
+    @Transactional
+    @Test
+    public void findPrivilegeThatDoesNotExist() {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        Optional<com.elster.jupiter.users.Privilege> doesNotExist = service.findInitiateActionPrivilege("findPrivilegeThatDoesNotExist");
+
+        // Asserts
+        assertThat(doesNotExist.isPresent()).isFalse();
+    }
+
+    @Transactional
+    @Test
+    public void findInitiateActionsPrivilege() {
+        Stream
+            .of(Privileges.INITIATE_ACTION_1, Privileges.INITIATE_ACTION_2, Privileges.INITIATE_ACTION_3, Privileges.INITIATE_ACTION_4)
+            .forEach(this::testFindInitiateActionPrivilege);
+    }
+
+    @Transactional
+    @Test
+    public void findOtherPrivilege() {
+        Stream
+            .of(Privileges.CONFIGURE_DEVICE_LIFE_CYCLE, Privileges.VIEW_DEVICE_LIFE_CYCLE)
+            .forEach(this::testShouldNotFindInitiateActionPrivilege);
+    }
+
+    private void testFindInitiateActionPrivilege(String privilegeName) {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        Optional<com.elster.jupiter.users.Privilege> privilege = service.findInitiateActionPrivilege(privilegeName);
+
+        // Asserts
+        assertThat(privilege.isPresent()).as("Expecting privilege " + privilegeName + " to exists").isTrue();
+    }
+
+    private void testShouldNotFindInitiateActionPrivilege(String privilegeName) {
+        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
+
+        // Business method
+        Optional<com.elster.jupiter.users.Privilege> privilege = service.findInitiateActionPrivilege(privilegeName);
+
+        // Asserts
+        assertThat(privilege.isPresent()).as("Not expecting privilege " + privilegeName + " to exist").isFalse();
     }
 
     private FiniteStateMachine findDefaultFiniteStateMachine() {

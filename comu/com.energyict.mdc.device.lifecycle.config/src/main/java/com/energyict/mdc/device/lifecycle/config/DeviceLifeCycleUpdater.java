@@ -2,8 +2,6 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.StateTransition;
 
-import java.util.Set;
-
 /**
  * Extends the building services of {@link DeviceLifeCycleBuilder}
  * to support updates to existing {@link DeviceLifeCycle}s.
