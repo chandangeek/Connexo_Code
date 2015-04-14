@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.lifecycle;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Models the exceptional situation that occurs when
@@ -13,12 +17,27 @@ import java.util.List;
  */
 public class MultipleMicroCheckViolationsException extends DeviceLifeCycleActionViolationException {
 
+    private final Thesaurus thesaurus;
+    private final MessageSeed messageSeed;
     private final List<DeviceLifeCycleActionViolation> violations;
 
-    private MultipleMicroCheckViolationsException(List<DeviceLifeCycleActionViolation> violations) {
+    public MultipleMicroCheckViolationsException(Thesaurus thesaurus, MessageSeed messageSeed, List<DeviceLifeCycleActionViolation> violations) {
         super();
+        this.thesaurus = thesaurus;
+        this.messageSeed = messageSeed;
         this.violations = violations;
     }
 
-    // Todo: override getLocalizedMessage and format all violations
+    @Override
+    public String getLocalizedMessage() {
+        return this.thesaurus.getFormat(this.messageSeed).format(this.violationMessagesAsCommaSeparatedList());
+    }
+
+    private String violationMessagesAsCommaSeparatedList() {
+        return this.violations
+                .stream()
+                .map(DeviceLifeCycleActionViolation::getLocalizedMessage)
+                .collect(Collectors.joining(", "));
+    }
+
 }

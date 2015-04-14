@@ -2,9 +2,11 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
@@ -21,6 +23,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,7 +38,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link DeviceLifeCycleService} interace.
+ * Provides an implementation for the {@link DeviceLifeCycleService} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-20 (15:57)
@@ -223,14 +226,29 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void executeMicroChecks(AuthorizedTransitionAction check, Device device) throws DeviceLifeCycleActionViolationException {
-        check.getChecks()
-            .stream()
-            .map(this.microCheckFactory::from)
-            .forEach(a -> this.execute(a, device));
+        List<DeviceLifeCycleActionViolation> violations =
+            check.getChecks()
+                .stream()
+                .map(this.microCheckFactory::from)
+                .map(a -> this.execute(a, device))
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toList());
+        if (!violations.isEmpty()) {
+            throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
+        }
     }
 
-    private void execute(ServerMicroCheck check, Device device) throws DeviceLifeCycleActionViolationException {
-
+    /**
+     * Executes the {@link ServerMicroCheck} against the {@link Device}
+     * and returns a {@link DeviceLifeCycleActionViolation}
+     * when the ServerMicroCheck fails.
+     *
+     * @param check The ServerMicroCheck
+     * @param device The Device
+     * @return The violation or an empty Optional if the ServerMicroCheck succeeds
+     */
+    private Optional<DeviceLifeCycleActionViolation> execute(ServerMicroCheck check, Device device) {
+        return check.evaluate(device);
     }
 
     private void executeMicroActions(AuthorizedTransitionAction action, Device device) {

@@ -3,7 +3,10 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
@@ -21,6 +24,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -47,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -106,6 +111,9 @@ public class DeviceLifeCycleServiceImplTest {
     public void initializeMocks() {
         // Mock thesaurus such that it returns the key as the translation
         when(this.thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+        when(this.thesaurus.getFormat(MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED)).thenReturn(messageFormat);
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.lifeCycle.getId()).thenReturn(DEVICE_LIFE_CYCLE_ID);
         when(this.lifeCycle.getFiniteStateMachine()).thenReturn(this.finiteStateMachine);
@@ -122,6 +130,11 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
         when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), anyMap())).thenReturn(this.event);
+        for (MicroCheck microCheck : MicroCheck.values()) {
+            ServerMicroCheck serverMicroCheck = mock(ServerMicroCheck.class);
+            when(serverMicroCheck.evaluate(any(Device.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+            when(this.microCheckFactory.from(microCheck)).thenReturn(serverMicroCheck);
+        }
     }
 
     @Test
@@ -275,6 +288,70 @@ public class DeviceLifeCycleServiceImplTest {
         // Asserts
         for (MicroCheck microCheck : MicroCheck.values()) {
             verify(this.microCheckFactory).from(microCheck);
+        }
+    }
+
+    @Test
+    public void allChecksAreEvaluatedAgainstTheDevice() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
+        MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED;
+        ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);
+        when(serverMicroCheck1.evaluate(any(Device.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+        ServerMicroCheck serverMicroCheck2 = mock(ServerMicroCheck.class);
+        when(serverMicroCheck2.evaluate(any(Device.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+        when(this.microCheckFactory.from(microCheck1)).thenReturn(serverMicroCheck1);
+        when(this.microCheckFactory.from(microCheck2)).thenReturn(serverMicroCheck2);
+        when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(microCheck1, microCheck2)));
+
+        // Business method
+        service.execute(this.action, this.device);
+
+        // Asserts
+        verify(serverMicroCheck1).evaluate(this.device);
+        verify(serverMicroCheck2).evaluate(this.device);
+    }
+
+    @Test(expected = MultipleMicroCheckViolationsException.class)
+    public void allFailingChecksAreReported() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
+        MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED;
+        MicroCheck microCheck3 = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID;
+        MicroCheck microCheck4 = MicroCheck.DEFAULT_CONNECTION_AVAILABLE;
+        ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);
+        when(serverMicroCheck1.evaluate(any(Device.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+        ServerMicroCheck serverMicroCheck2 = mock(ServerMicroCheck.class);
+        when(serverMicroCheck2.evaluate(any(Device.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+        ServerMicroCheck failingServerMicroCheck1 = mock(ServerMicroCheck.class);
+        DeviceLifeCycleActionViolation violation1 = mock(DeviceLifeCycleActionViolation.class);
+        when(violation1.getCheck()).thenReturn(microCheck3);
+        when(violation1.getLocalizedMessage()).thenReturn("Violation 1");
+        when(failingServerMicroCheck1.evaluate(any(Device.class))).thenReturn(Optional.of(violation1));
+        ServerMicroCheck failingServerMicroCheck2 = mock(ServerMicroCheck.class);
+        DeviceLifeCycleActionViolation violation2 = mock(DeviceLifeCycleActionViolation.class);
+        when(violation2.getCheck()).thenReturn(microCheck4);
+        when(violation2.getLocalizedMessage()).thenReturn("Violation 2");
+        when(failingServerMicroCheck2.evaluate(any(Device.class))).thenReturn(Optional.of(violation2));
+        when(this.microCheckFactory.from(microCheck1)).thenReturn(serverMicroCheck1);
+        when(this.microCheckFactory.from(microCheck2)).thenReturn(serverMicroCheck2);
+        when(this.microCheckFactory.from(microCheck3)).thenReturn(failingServerMicroCheck1);
+        when(this.microCheckFactory.from(microCheck4)).thenReturn(failingServerMicroCheck2);
+        when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(microCheck1, microCheck3, microCheck2, microCheck4)));
+
+        try {
+            // Business method
+            service.execute(this.action, this.device);
+        }
+        catch (MultipleMicroCheckViolationsException e) {
+            // Asserts
+            assertThat(e.getLocalizedMessage()).contains("Violation 1");
+            assertThat(e.getLocalizedMessage()).contains("Violation 2");
+            throw e;
         }
     }
 

@@ -13,4 +13,6 @@ public interface DeviceLifeCycleActionViolation {
 
     public MicroCheck getCheck();
 
+    public String getLocalizedMessage();
+
 }
