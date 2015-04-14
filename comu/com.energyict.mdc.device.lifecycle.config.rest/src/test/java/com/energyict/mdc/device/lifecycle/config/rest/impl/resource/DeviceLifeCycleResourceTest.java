@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
@@ -26,6 +29,12 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     public void testDeviceLifeCycleJsonModel(){
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         Finder<DeviceLifeCycle> finder = mock(Finder.class);
+        List<AuthorizedAction> authorizedActions = mockDefaultActions();
+        List<State> states = mockDefaultStates();
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(states);
+        when(dlc.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(dlc.getAuthorizedActions()).thenReturn(authorizedActions);
         when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
         when(finder.stream()).thenReturn(Collections.singletonList(dlc).stream());
         when(deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()).thenReturn(finder);
@@ -38,6 +47,8 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         assertThat(model.<List<?>>get("$.deviceLifeCycles")).hasSize(1);
         assertThat(model.<Number>get("$.deviceLifeCycles[0].id")).isEqualTo(1);
         assertThat(model.<String>get("$.deviceLifeCycles[0].name")).isEqualTo("Standard");
+        assertThat(model.<Number>get("$.deviceLifeCycles[0].statesCount")).isEqualTo(3);
+        assertThat(model.<Number>get("$.deviceLifeCycles[0].actionsCount")).isEqualTo(2);
     }
 
     @Test
@@ -58,6 +69,12 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     @Test
     public void testGetDeviceLifeCycleById(){
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        List<AuthorizedAction> authorizedActions = mockDefaultActions();
+        List<State> states = mockDefaultStates();
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(states);
+        when(dlc.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(dlc.getAuthorizedActions()).thenReturn(authorizedActions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
         String stringResponse = target("/devicelifecycles/1").request().get(String.class);
@@ -77,6 +94,12 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     @Test
     public void testAddNewDeviceLifeCycle(){
         DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "New life cycle");
+        List<AuthorizedAction> authorizedActions = mockDefaultActions();
+        List<State> states = mockDefaultStates();
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(states);
+        when(lifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(lifeCycle.getAuthorizedActions()).thenReturn(authorizedActions);
         when(deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(Matchers.anyString())).thenReturn(lifeCycle);
 
         DeviceLifeCycleInfo newLifeCycle = new DeviceLifeCycleInfo();
@@ -88,6 +111,12 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     @Test
     public void testCloneDeviceLifeCycle(){
         DeviceLifeCycle lifeCycle = mockSimpleDeviceLifeCycle(1L, "Cloned life cycle");
+        List<AuthorizedAction> authorizedActions = mockDefaultActions();
+        List<State> states = mockDefaultStates();
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(states);
+        when(lifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(lifeCycle.getAuthorizedActions()).thenReturn(authorizedActions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(1L)).thenReturn(Optional.of(lifeCycle));
         when(deviceLifeCycleConfigurationService.cloneDeviceLifeCycle(eq(lifeCycle), Matchers.anyString())).thenReturn(lifeCycle);
 
