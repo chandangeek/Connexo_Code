@@ -74,7 +74,7 @@ public class FirmwareUpgradeOptionsResource {
         if (allowedFirmwareUpgradeOptions.isEmpty() && inputOptions.isAllowed) {
             throw new FirmwareUpgradeOptionsRequiredException(thesaurus);
         }
-        FirmwareUpgradeOptions options = firmwareService.getFirmwareUpgradeOptions(deviceType);
+        FirmwareUpgradeOptions options = firmwareService.findOrCreateFirmwareUpgradeOptions(deviceType);
         options.setOptions(allowedFirmwareUpgradeOptions);
         firmwareService.saveFirmwareUpgradeOptions(options);
 

@@ -17,12 +17,17 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareMessagesResource;
 import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.FirmwareUpgradeOptionsResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -47,7 +52,8 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile FirmwareService firmwareService;
-
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile TaskService taskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -56,6 +62,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 FirmwareFieldResource.class,
                 FirmwareUpgradeOptionsResource.class,
                 DeviceFirmwareVersionResource.class,
+                DeviceFirmwareMessagesResource.class,
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
@@ -78,6 +85,8 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
@@ -85,6 +94,8 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(deviceService).to(DeviceService.class);
+            bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
+            bind(taskService).to(TaskService.class);
         }
     }
 
@@ -136,5 +147,15 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 }

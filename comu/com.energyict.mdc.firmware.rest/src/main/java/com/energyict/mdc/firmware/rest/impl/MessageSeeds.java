@@ -29,6 +29,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware with activation date"),
     // firmware upgrade options
     UPGRADE_OPTIONS_REQUIRED(12, Keys.UPGRADE_OPTIONS_REQUIRED, "At least one option should be selected"),
+
+    SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND(1001, "SupportedFirmwareUpgradeOptionsNotFound", "There is no such supported firmware upgrade option"),
+    FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE(1002, "FirmwareUpgradeOptionsAreDisabledForDeviceType", "Firmware upgrade options are disabled for device type"),
+    DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND(1003, "DefaultFirmwareManagementTaskCanNotBeFound", "The default firmware management communication task cannot be found"),
+    DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE(1004, "DefaultFirmwareManagementTaskIsNotActive", "Firmware version cannot be changed because Firmware management communication task is not active on device configuration"),
     ;
     private final int number;
     private final String key;

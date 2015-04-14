@@ -68,7 +68,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response getFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam QueryParameters queryParameters) {
-        FirmwareVersion firmwareVersion = resourceHelper.getFirmwareVersionByIdOrThrowException(id);
+        FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
         return Response.status(Response.Status.OK).entity(FirmwareVersionInfo.from(firmwareVersion, thesaurus)).build();
     }
 
@@ -114,7 +114,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response validateEditFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
-        FirmwareVersion firmwareVersion = resourceHelper.getFirmwareVersionByIdOrThrowException(id);
+        FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
         checkIfEditableOrThrowException(firmwareVersion);
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
         firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
@@ -131,7 +131,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response editFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
-        FirmwareVersion firmwareVersion = resourceHelper.getFirmwareVersionByIdOrThrowException(id);
+        FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
         firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
         if (firmwareVersionInfo.fileSize != null && firmwareVersionInfo.firmwareFile != null) {
@@ -147,7 +147,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response deprecateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id) {
-        FirmwareVersion firmwareVersion = resourceHelper.getFirmwareVersionByIdOrThrowException(id);
+        FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
         firmwareService.deprecateFirmwareVersion(firmwareVersion);
         return Response.status(Response.Status.OK).build();
     }

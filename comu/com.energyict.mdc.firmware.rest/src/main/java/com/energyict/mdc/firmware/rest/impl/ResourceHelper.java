@@ -34,7 +34,7 @@ public class ResourceHelper {
         return deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    public FirmwareVersion getFirmwareVersionByIdOrThrowException(Long id) {
+    public FirmwareVersion findFirmwareVersionByIdOrThrowException(Long id) {
         return firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 }
