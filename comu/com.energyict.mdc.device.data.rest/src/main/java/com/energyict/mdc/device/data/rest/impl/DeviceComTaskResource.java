@@ -295,6 +295,76 @@ public class DeviceComTaskResource {
 
     }
 
+    @PUT
+    @Path("{comTaskId}/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response activateComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") long comTaskId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        activateComTaskOnDevice(device, comTaskId);
+        return Response.ok().build();
+    }
+
+    private void activateComTaskOnDevice(Device device, long comTaskId) {
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        if (comTaskExecutions.isEmpty()) {
+            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
+            for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+            }
+        }
+        comTaskExecutions.stream().filter(cte -> cte.isOnHold()).forEach(cte -> cte.updateNextExecutionTimestamp());
+    }
+
+    @PUT
+    @Path("{comTaskId}/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response deactivateComTask(@PathParam("mRID") String mrid, @PathParam("comTaskId") long comTaskId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        deactivateComTaskOnDevice(device, comTaskId);
+        return Response.ok().build();
+    }
+
+    private void deactivateComTaskOnDevice(Device device, long comTaskId) {
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        if (comTaskExecutions.isEmpty()) {
+            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
+            for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+            }
+        }
+        comTaskExecutions.stream().filter(cte -> !cte.isOnHold()).forEach(cte -> cte.putOnHold());
+    }
+
+    @PUT
+    @Path("/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response activateAllComTasks(@PathParam("mRID") String mrid) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .map(comTaskEnablement -> comTaskEnablement.getComTask().getId())
+                .forEach(comTaskId -> activateComTaskOnDevice(device, comTaskId));
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response deactivateAllComTasks(@PathParam("mRID") String mrid) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .map(comTaskEnablement -> comTaskEnablement.getComTask().getId())
+                .forEach(comTaskId -> deactivateComTaskOnDevice(device, comTaskId));
+        return Response.ok().build();
+    }
+
     private ComTaskExecutionSession findComTaskExecutionSessionOrThrowException(long sessionId, ComTask comTask) {
         Optional<ComTaskExecutionSession> session = this.communicationTaskService.findSession(sessionId);
         if (session.isPresent() && session.get().getComTask().getId() == comTask.getId()) {
