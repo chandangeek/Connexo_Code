@@ -76,6 +76,15 @@ public class Installer {
                 new String[]{
                         Privileges.CONFIGURE_DEVICE_LIFE_CYCLE,
                         Privileges.VIEW_DEVICE_LIFE_CYCLE});
+        this.userService.createResourceWithPrivileges(
+                PRIVILEGES_COMPONENT,
+                "deviceLifeCycle.deviceLifeCycle",
+                "deviceLifeCycle.deviceLifeCycle.description",
+                new String[]{
+                        Privileges.INITIATE_ACTION_1,
+                        Privileges.INITIATE_ACTION_2,
+                        Privileges.INITIATE_ACTION_3,
+                        Privileges.INITIATE_ACTION_4});
     }
 
     private DeviceLifeCycle installDefaultLifeCycle() {
