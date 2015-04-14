@@ -20,6 +20,7 @@ public class DeviceLifeCycleFactory {
         info.deviceTypes = deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle)
                 .stream()
                 .map(IdWithNameInfo::new)
+                .sorted((dt1, dt2) -> dt1.name.compareToIgnoreCase(dt2.name))
                 .collect(Collectors.toList());
         return info;
     }
