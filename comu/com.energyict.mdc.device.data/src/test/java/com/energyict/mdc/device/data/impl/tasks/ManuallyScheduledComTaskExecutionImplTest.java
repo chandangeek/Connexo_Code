@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -19,7 +20,6 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpda
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import org.junit.Test;
 
@@ -415,7 +415,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{field.required}", property = "protocolDialectConfigurationProperties")
     @Transactional
     public void setNullProtocolDialectTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));

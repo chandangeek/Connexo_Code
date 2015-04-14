@@ -29,7 +29,6 @@ import org.junit.Before;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -76,8 +75,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
 
     protected ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
-        builder.setProtocolDialectConfigurationProperties(configDialect);
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet, configDialect);
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();

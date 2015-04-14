@@ -90,19 +90,9 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.security.Principal;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -115,6 +105,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
+
+import java.security.Principal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -208,44 +208,48 @@ public class ComSessionCrudIT {
 
     public void initializeDatabase(boolean showSqlLogging) {
         bootstrapModule = new InMemoryBootstrapModule();
-        injector = Guice.createInjector(
-                new MockModule(),
-                bootstrapModule,
-                new ThreadSecurityModule(principal),
-                new EventsModule(),
-                new PubSubModule(),
-                new TransactionModule(showSqlLogging),
-                new UtilModule(),
-                new NlsModule(),
-                new DomainUtilModule(),
-                new PartyModule(),
-                new UserModule(),
-                new IdsModule(),
-                new FiniteStateMachineModule(),
-                new MeteringModule(false),
-                new MeteringGroupsModule(),
-                new InMemoryMessagingModule(),
-                new EventsModule(),
-                new OrmModule(),
-                new DataVaultModule(),
-                new MdcReadingTypeUtilServiceModule(),
-                new MasterDataModule(),
-                new ProtocolApiModule(),
-                new KpiModule(),
-                new TasksModule(),
-                new MdcIOModule(),
-                new EngineModelModule(),
-                new ProtocolPluggableModule(),
-                new ValidationModule(),
-                new DeviceLifeCycleConfigurationModule(),
-                new DeviceConfigurationModule(),
-                new DeviceDataModule(),
-                new IssuesModule(),
-                new BasicPropertiesModule(),
-                new MdcDynamicModule(),
-                new PluggableModule(),
-                new SchedulingModule(),
-                new TaskModule());
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    bootstrapModule,
+                    new ThreadSecurityModule(principal),
+                    new EventsModule(),
+                    new PubSubModule(),
+                    new TransactionModule(showSqlLogging),
+                    new UtilModule(),
+                    new NlsModule(),
+                    new DomainUtilModule(),
+                    new PartyModule(),
+                    new UserModule(),
+                    new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new MeteringModule(false),
+                    new MeteringGroupsModule(),
+                    new InMemoryMessagingModule(),
+                    new EventsModule(),
+                    new OrmModule(),
+                    new DataVaultModule(),
+                    new MdcReadingTypeUtilServiceModule(),
+                    new MasterDataModule(),
+                    new ProtocolApiModule(),
+                    new KpiModule(),
+                    new TasksModule(),
+                    new MdcIOModule(),
+                    new EngineModelModule(),
+                    new ProtocolPluggableModule(),
+                    new ValidationModule(),
+                    new DeviceLifeCycleConfigurationModule(),
+                    new DeviceConfigurationModule(),
+                    new DeviceDataModule(),
+                    new IssuesModule(),
+                    new BasicPropertiesModule(),
+                    new MdcDynamicModule(),
+                    new PluggableModule(),
+                    new SchedulingModule(),
+                    new TaskModule());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             ormService = injector.getInstance(OrmService.class);
@@ -333,7 +337,7 @@ public class ComSessionCrudIT {
 
             SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet("sec").encryptionLevel(0).authenticationLevel(0).build();
 
-            ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(comTask, securityPropertySet)
+            ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(comTask, securityPropertySet, configDialectProps)
                     .useDefaultConnectionTask(true)
                     .setProtocolDialectConfigurationProperties(configDialectProps)
                     .add();

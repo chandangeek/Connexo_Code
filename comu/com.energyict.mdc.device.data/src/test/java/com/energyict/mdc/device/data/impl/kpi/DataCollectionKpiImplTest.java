@@ -78,18 +78,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-import java.math.BigDecimal;
-import java.security.Principal;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.validation.ConstraintViolationException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -101,6 +89,19 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
+
+import javax.validation.ConstraintViolationException;
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -423,6 +424,26 @@ public class DataCollectionKpiImplTest {
         assertThat(kpi.connectionSetupKpiCalculationIntervalLength().isPresent()).isTrue();
         assertThat(kpi.calculatesComTaskExecutionKpi()).isFalse();
         assertThat(kpi.comTaskExecutionKpiCalculationIntervalLength().isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithConnectionKpiAndAddCommunicationKpi() {
+        DataCollectionKpiService.DataCollectionKpiBuilder builder = deviceDataModelService.dataCollectionKpiService().newDataCollectionKpi(endDeviceGroup);
+        builder.frequency(Duration.ofHours(1)).displayPeriod(TimeDuration.days(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
+
+        // Business method
+        DataCollectionKpi kpi = builder.save();
+
+        kpi = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
+        kpi.calculateComTaskExecutionKpi(BigDecimal.valueOf(99.9));
+
+        // Asserts
+        assertThat(kpi).isNotNull();
+        assertThat(kpi.getDeviceGroup()).isNotNull();
+        assertThat(kpi.getDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
+        assertThat(kpi.calculatesConnectionSetupKpi()).isTrue();
+        assertThat(kpi.calculatesComTaskExecutionKpi()).isTrue();
     }
 
     @Test
