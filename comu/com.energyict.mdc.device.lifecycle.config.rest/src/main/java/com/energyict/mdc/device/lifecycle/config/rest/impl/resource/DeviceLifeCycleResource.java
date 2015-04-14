@@ -7,6 +7,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
@@ -23,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -70,8 +72,8 @@ public class DeviceLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public Response getDeviceLifeCycleById(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
-        DeviceLifeCycle lifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
-        return Response.ok(deviceLifeCycleFactory.from(lifeCycle)).build();
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
+        return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
     @POST
@@ -81,6 +83,17 @@ public class DeviceLifeCycleResource {
     public Response addDeviceLifeCycle(DeviceLifeCycleInfo deviceLifeCycleInfo) {
         DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(deviceLifeCycleInfo.name);
         return Response.status(Response.Status.CREATED).entity(deviceLifeCycleFactory.from(newLifeCycle)).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    public Response editDeviceLifeCycleById(@PathParam("id") Long id, DeviceLifeCycleInfo deviceLifeCycleInfo) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
+        DeviceLifeCycleUpdater deviceLifeCycleUpdater = deviceLifeCycle.startUpdate();
+        deviceLifeCycleUpdater.setName(deviceLifeCycleInfo.name).complete().save();
+        return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
     @POST
