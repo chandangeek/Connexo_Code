@@ -24,6 +24,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCy
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.ResourceHelper;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
@@ -152,6 +153,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceLifeCyclePrivilegeFactory.class).to(DeviceLifeCyclePrivilegeFactory.class);
             bind(StateTransitionEventTypeFactory.class).to(StateTransitionEventTypeFactory.class);
+            bind(DeviceLifeCycleFactory.class).to(DeviceLifeCycleFactory.class);
 
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);

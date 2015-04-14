@@ -49,6 +49,9 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         assertThat(model.<String>get("$.deviceLifeCycles[0].name")).isEqualTo("Standard");
         assertThat(model.<Number>get("$.deviceLifeCycles[0].statesCount")).isEqualTo(3);
         assertThat(model.<Number>get("$.deviceLifeCycles[0].actionsCount")).isEqualTo(2);
+        assertThat(model.<List>get("$.deviceLifeCycles[0].deviceTypes")).hasSize(1);
+        assertThat(model.<Number>get("$.deviceLifeCycles[0].deviceTypes[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.deviceLifeCycles[0].deviceTypes[0].name")).isEqualTo("Device Type");
     }
 
     @Test

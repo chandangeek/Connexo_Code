@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -57,6 +58,11 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         application.setEventService(eventService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         when(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)).thenReturn(thesaurus);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getId()).thenReturn(1L);
+        when(deviceType.getName()).thenReturn("Device Type");
+        when(deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(Matchers.any(DeviceLifeCycle.class)))
+                .thenReturn(Collections.singletonList(deviceType));
         return application;
     }
 

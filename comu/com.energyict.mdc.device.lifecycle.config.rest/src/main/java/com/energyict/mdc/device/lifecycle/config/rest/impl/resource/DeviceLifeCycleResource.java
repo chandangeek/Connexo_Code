@@ -8,6 +8,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeInfo;
@@ -39,14 +40,16 @@ public class DeviceLifeCycleResource {
     private final ResourceHelper resourceHelper;
     private final Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider;
     private final Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider;
+    private final DeviceLifeCycleFactory deviceLifeCycleFactory;
     private final DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory;
     private final StateTransitionEventTypeFactory stateTransitionEventTypeFactory;
 
     @Inject
-    public DeviceLifeCycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, FiniteStateMachineService finiteStateMachineService, ResourceHelper resourceHelper, Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider, Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider, DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory, StateTransitionEventTypeFactory stateTransitionEventTypeFactory) {
+    public DeviceLifeCycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, FiniteStateMachineService finiteStateMachineService, ResourceHelper resourceHelper, Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider, Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider, DeviceLifeCycleFactory deviceLifeCycleFactory, DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory, StateTransitionEventTypeFactory stateTransitionEventTypeFactory) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.resourceHelper = resourceHelper;
+        this.deviceLifeCycleFactory = deviceLifeCycleFactory;
         this.stateTransitionEventTypeFactory = stateTransitionEventTypeFactory;
         this.lifeCycleStateResourceProvider = lifeCycleStateResourceProvider;
         this.lifeCycleStateTransitionsResourceProvider = lifeCycleStateTransitionsResourceProvider;
@@ -58,7 +61,7 @@ public class DeviceLifeCycleResource {
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getDeviceLifeCycles(@BeanParam QueryParameters queryParams) {
         List<DeviceLifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
-                .map(DeviceLifeCycleInfo::new).collect(Collectors.toList());
+                .map(deviceLifeCycleFactory::from).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycles", lifecycles, queryParams);
     }
 
@@ -68,7 +71,7 @@ public class DeviceLifeCycleResource {
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public Response getDeviceLifeCycleById(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
         DeviceLifeCycle lifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
-        return Response.ok(new DeviceLifeCycleInfo(lifeCycle)).build();
+        return Response.ok(deviceLifeCycleFactory.from(lifeCycle)).build();
     }
 
     @POST
@@ -77,7 +80,7 @@ public class DeviceLifeCycleResource {
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addDeviceLifeCycle(DeviceLifeCycleInfo deviceLifeCycleInfo) {
         DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(deviceLifeCycleInfo.name);
-        return Response.status(Response.Status.CREATED).entity(new DeviceLifeCycleInfo(newLifeCycle)).build();
+        return Response.status(Response.Status.CREATED).entity(deviceLifeCycleFactory.from(newLifeCycle)).build();
     }
 
     @POST
@@ -88,7 +91,7 @@ public class DeviceLifeCycleResource {
     public Response cloneDeviceLifeCycle(@PathParam("id") Long id, DeviceLifeCycleInfo deviceLifeCycleInfo) {
         DeviceLifeCycle sourceDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         DeviceLifeCycle clonedLifeCycle = deviceLifeCycleConfigurationService.cloneDeviceLifeCycle(sourceDeviceLifeCycle, deviceLifeCycleInfo.name);
-        return Response.status(Response.Status.CREATED).entity(new DeviceLifeCycleInfo(clonedLifeCycle)).build();
+        return Response.status(Response.Status.CREATED).entity(deviceLifeCycleFactory.from(clonedLifeCycle)).build();
     }
 
     @DELETE
@@ -100,7 +103,7 @@ public class DeviceLifeCycleResource {
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         deviceLifeCycle.delete();
         finiteStateMachine.delete();
-        return Response.ok(new DeviceLifeCycleInfo(deviceLifeCycle)).build();
+        return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
     @Path("/{deviceLifeCycleId}/states")
