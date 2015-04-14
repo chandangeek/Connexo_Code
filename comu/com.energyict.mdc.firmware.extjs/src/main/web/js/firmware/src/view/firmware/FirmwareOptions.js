@@ -61,7 +61,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                             xtype: 'options-grid',
                                             name: 'allowedOptions',
                                             store: Ext.create('Ext.data.Store', {
-                                                fields: ['displayValue']
+                                                fields: ['localizedValue']
                                             }),
                                             emptyText: Uni.I18n.translate('deviceType.firmwareupgradeoptions.notsupported', 'FWC', 'No options supported by current device type')
                                         }
