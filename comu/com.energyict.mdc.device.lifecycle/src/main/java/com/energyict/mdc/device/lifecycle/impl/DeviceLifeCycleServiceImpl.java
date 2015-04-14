@@ -1,15 +1,18 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.ActionNotPartOfDeviceLifeCycleException;
+import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -24,10 +27,12 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycleService} interace.
@@ -109,10 +114,27 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     @Override
-    public void triggerExecution(AuthorizedAction action, Device device) throws SecurityException, DeviceLifeCycleActionViolationException {
+    public List<ExecutableAction> getExecutableActions(Device device) {
+        return device
+            .getDeviceType()
+            .getDeviceLifeCycle()
+            .getAuthorizedActions(device.getState())
+            .stream()
+            .filter(this::isExecutable)
+            .filter(this::userHasExecutePrivilege)
+            .map(a -> this.toExecutableAction(a, device))
+            .collect(Collectors.toList());
+    }
+
+    private ExecutableAction toExecutableAction(AuthorizedAction authorizedAction, Device device) {
+        return new ExecutableActionImpl(device, authorizedAction, this);
+    }
+
+    @Override
+    public void execute(AuthorizedAction action, Device device) throws SecurityException, DeviceLifeCycleActionViolationException {
         this.validateTriggerExecution(action, device);
-        if (action instanceof AuthorizedTransitionAction) {
-            AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) action;
+        if (action instanceof AuthorizedStandardTransitionAction) {
+            AuthorizedStandardTransitionAction transitionAction = (AuthorizedStandardTransitionAction) action;
             this.triggerExecution(transitionAction, device);
         }
         else {
@@ -122,25 +144,21 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void validateTriggerExecution(AuthorizedAction action, Device device) {
-        this.validateActionIsPartOfDeviceLifeCycle(action, device);
+        this.validateActionSourceIsDeviceCurrentState(action, device);
         this.validateUserHasExecutePrivilege(action);
     }
 
-    private void validateActionIsPartOfDeviceLifeCycle(AuthorizedAction action, Device device) {
-        if (!this.actionIsPartOfDeviceLifeCycle(action, device)) {
+    private void validateActionSourceIsDeviceCurrentState(AuthorizedAction action, Device device) {
+        if (action.getState().getId() != device.getState().getId()) {
             if (action instanceof AuthorizedTransitionAction) {
                 AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) action;
-                throw new ActionNotPartOfDeviceLifeCycleException(transitionAction, device, this.thesaurus, MessageSeeds.TRANSITION_ACTION_NOT_PART_OF_DLC);
+                throw new ActionDoesNotRelateToDeviceStateException(transitionAction, device, this.thesaurus, MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
             }
             else {
                 AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) action;
-                throw new ActionNotPartOfDeviceLifeCycleException(businessProcessAction, device, this.thesaurus, MessageSeeds.BPM_ACTION_NOT_PART_OF_DLC);
+                throw new ActionDoesNotRelateToDeviceStateException(businessProcessAction, device, this.thesaurus, MessageSeeds.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
             }
         }
-    }
-
-    private boolean actionIsPartOfDeviceLifeCycle(AuthorizedAction action, Device device) {
-        return device.getDeviceType().getDeviceLifeCycle().getId() == action.getDeviceLifeCycle().getId();
     }
 
     /**
@@ -151,17 +169,35 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      */
     private void validateUserHasExecutePrivilege(AuthorizedAction action) throws SecurityException {
         MessageSeeds messageSeed = MessageSeeds.NOT_ALLOWED_2_EXECUTE;
+        if (!this.userHasExecutePrivilege(action)) {
+            throw newSecurityException(messageSeed);
+        }
+    }
+
+    /**
+     * Tests if the {@link AuthorizedAction} is executable,
+     * i.e. if it can be passed to one of the triggerAction method.
+     *
+     * @param action The AuthorizedAction
+     * @return A flag that indicates if the AuthorizedAction is compatible with one of the triggerExecution methods
+     */
+    private boolean isExecutable(AuthorizedAction action) {
+        return action instanceof AuthorizedStandardTransitionAction
+            || action instanceof AuthorizedBusinessProcessAction;
+    }
+
+    private boolean userHasExecutePrivilege(AuthorizedAction action) throws SecurityException {
         Principal principal = this.threadPrincipalService.getPrincipal();
         if (principal instanceof User) {
             User user = (User) principal;
-            action.getLevels()
+            Optional<AuthorizedAction.Level> any = action.getLevels()
                     .stream()
                     .filter(level -> this.isAuthorized(level, user))
-                    .findFirst()
-                    .orElseThrow(() -> newSecurityException(messageSeed));
+                    .findAny();
+            return any.isPresent();
         }
         else {
-            throw newSecurityException(messageSeed);
+            return false;
         }
     }
 
@@ -174,9 +210,10 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return new SecurityException(this.thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat()));
     }
 
-    private void triggerExecution(AuthorizedTransitionAction action, Device device) throws DeviceLifeCycleActionViolationException {
+    private void triggerExecution(AuthorizedStandardTransitionAction action, Device device) throws DeviceLifeCycleActionViolationException {
         this.executeMicroChecks(action, device);
         this.executeMicroActions(action, device);
+        this.triggerEvent((CustomStateTransitionEventType) action.getStateTransition().getEventType(), device);
     }
 
     private void triggerExecution(AuthorizedBusinessProcessAction action, Device device) {
@@ -205,6 +242,17 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private void execute(ServerMicroAction action, Device device) {
 
+    }
+
+    @Override
+    public void triggerEvent(CustomStateTransitionEventType eventType, Device device) {
+        eventType
+            .newInstance(
+                    device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
+                    String.valueOf(device.getId()),
+                    device.getState().getName(),
+                    Collections.emptyMap())
+            .publish();
     }
 
 }

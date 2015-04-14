@@ -15,8 +15,8 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
-    TRANSITION_ACTION_NOT_PART_OF_DLC(100, Keys.TRANSITION_ACTION_NOT_PART_OF_DLC, "Action '{0}' cannot be executed against the device (id={1}) because it is not part of the device's life cycle"),
-    BPM_ACTION_NOT_PART_OF_DLC(101, Keys.BPM_ACTION_NOT_PART_OF_DLC, "Business process with deployment id '{0}' and process id '{1}' cannot be executed against the device (id={2}) because it is not part of the device's life cycle"),
+    TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE(100, Keys.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE, "Action '{0}' cannot be executed against the device (id={1}) because the device's life cycle does not support that action in its current state"),
+    BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE(101, Keys.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE, "Business process with deployment id '{0}' and process id '{1}' cannot be executed against the device (id={2}) because the device's life cycle does not support that action in its current state"),
     NOT_ALLOWED_2_EXECUTE(102, Keys.NOT_ALLOWED_2_EXECUTE, "The current user is not allowed to execute this action");
 
     private final int number;
@@ -61,8 +61,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     }
 
     public static final class Keys {
-        public static final String TRANSITION_ACTION_NOT_PART_OF_DLC = "transitionAction.not.part.of.device.life.cycle";
-        public static final String BPM_ACTION_NOT_PART_OF_DLC = "bpmAction.not.part.of.device.life.cycle";
+        public static final String TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE = "transitionAction.not.device.current.state";
+        public static final String BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE = "bpmAction.not.device.current.state";
         public static final String NOT_ALLOWED_2_EXECUTE = "authorizedAction.notAllowed2Execute";
     }
 
