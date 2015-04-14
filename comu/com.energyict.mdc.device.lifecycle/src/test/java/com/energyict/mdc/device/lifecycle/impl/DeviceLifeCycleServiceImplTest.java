@@ -120,7 +120,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.stateTransition.getEventType()).thenReturn(this.eventType);
         when(this.user.getName()).thenReturn(DeviceLifeCycleServiceImplTest.class.getSimpleName());
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
-        when(this.deviceLifeCycleConfigurationService.findPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
         when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), anyMap())).thenReturn(this.event);
     }
 
@@ -365,9 +365,9 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         AuthorizedBusinessProcessAction businessProcessAction = mock(AuthorizedBusinessProcessAction.class);
         when(businessProcessAction.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.THREE));
-        when(this.deviceLifeCycleConfigurationService.findPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(this.privilege));
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(this.privilege));
         Privilege allowed = mock(Privilege.class);
-        when(this.deviceLifeCycleConfigurationService.findPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
         when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(Arrays.asList(this.action, businessProcessAction));
         when(this.user.hasPrivilege(this.privilege)).thenReturn(false);
         when(this.user.hasPrivilege(allowed)).thenReturn(true);
