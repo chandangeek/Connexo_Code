@@ -42,7 +42,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeDetailForm', selector: '#deviceTypeDetailForm'},
         {ref: 'editDeviceTypeNameField', selector: '#editDeviceTypeNameField'},
         {ref: 'deviceTypeLogbookPanel', selector: '#deviceTypeLogbookPanel'},
-        {ref: 'addLogbookPanel', selector: '#addLogbookPanel'}
+        {ref: 'addLogbookPanel', selector: '#addLogbookPanel'},
+        {ref: 'deviceLifeCycleLink', selector: '#device-life-cycle-link'}
     ],
 
     init: function () {
@@ -87,7 +88,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             registerLink,
             logBookLink,
             loadProfilesLink,
-            deviceConfigurationsLink;
+            deviceConfigurationsLink,
+            deviceLifeCycleLink;
 
         if (deviceTypes.length == 1) {
             Ext.suspendLayouts();
@@ -96,6 +98,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             logBookLink = this.getDeviceTypeLogBookLink();
             loadProfilesLink = this.getDeviceTypeLoadProfilesLink();
             deviceConfigurationsLink = this.getDeviceConfigurationsLink();
+            deviceLifeCycleLink = this.getDeviceLifeCycleLink();
+
+            deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + record[0].get('deviceLifeCycleId'));
+            deviceLifeCycleLink.setText(record[0].get('deviceLifeCycleName'));
 
             registerLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/registertypes');
             registerLink.setText(deviceTypes[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'register types'));
@@ -129,13 +135,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     registersLink = me.getDeviceTypeDetailRegistersLink(),
                     logBookLink = me.getDeviceTypeDetailLogBookLink(),
                     loadProfilesLink = me.getDeviceTypeDetailLoadProfilesLink(),
-                    deviceConfigurationsLink = me.getDeviceConfigurationsDetailLink();
+                    deviceConfigurationsLink = me.getDeviceConfigurationsDetailLink(),
+                    deviceLifeCycleLink = widget.down('#details-device-life-cycle-link');
 
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 Ext.suspendLayouts();
 
                 widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+
+                deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + deviceType.get('deviceLifeCycleId'));
+                deviceLifeCycleLink.setText(deviceType.get('deviceLifeCycleName'));
 
                 registersLink.setHref('#/administration/devicetypes/' + deviceTypeId + '/registertypes');
                 registersLink.setText(deviceType.get('registerCount') + ' ' + Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC', 'register types'));
