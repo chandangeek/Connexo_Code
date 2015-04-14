@@ -2,12 +2,11 @@ Ext.define('Cfg.model.ValidationTask', {
     extend: 'Ext.data.Model',
     fields: [
 			'id', 'name', 'deviceGroup', 'schedule', 'nextRun', 'lastRun',
-
         {
             name: 'lastValidationOccurence',
             persist: false
         },
-      {
+        {
             name: 'lastRun_formatted',
             persist: false,
             mapping: function (data) {

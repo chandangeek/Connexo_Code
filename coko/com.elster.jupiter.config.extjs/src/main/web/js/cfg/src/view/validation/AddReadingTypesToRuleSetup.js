@@ -49,7 +49,8 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
                             text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             name: 'add',
                             itemId: 'btn-add-reading-types',
-                            ui: 'action'
+                            ui: 'action',
+                            disabled: true
                         },
                         {
                             name: 'cancel',

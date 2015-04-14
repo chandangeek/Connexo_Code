@@ -162,6 +162,9 @@ Ext.define('Cfg.controller.Validation', {
             '#addReadingTypesToRuleSetup #buttonsContainer button[name=add]': {
                 click: this.addReadingTypesToGrid
             },
+            'addReadingTypesBulk': {
+                selectionchange: this.setAddReadingTypesAddBtnState
+            },
             'ruleSetSubMenu': {
                 beforerender: this.onRuleSetMenuBeforeRender
             },
@@ -505,12 +508,20 @@ Ext.define('Cfg.controller.Validation', {
             filter.setFilter('unitOfMeasure', 'Unit of measure', unitOfMeasureRecord.get('name'), false);
         }
 
-        if (!Ext.isEmpty(intervalsCombo.getValue())) {
-            intervalsRecord = intervalsCombo.findRecord(intervalsCombo.valueField, intervalsCombo.getValue());
-            properties.push({
-                property: 'time',
-                value: intervalsCombo.getValue()
-            });
+        if (!Ext.isEmpty(intervalsCombo.getRawValue())) {
+            intervalsRecord = intervalsCombo.findRecordByDisplay(intervalsCombo.getRawValue());
+            if (intervalsRecord.get('time') !== null) {
+                properties.push({
+                    property: 'time',
+                    value: intervalsCombo.getValue()
+                });
+            }
+            if (intervalsRecord.get('macro') !== null) {
+                properties.push({
+                    property: 'macro',
+                    value: intervalsRecord.get('macro')
+                });
+            }
             filter.setFilter('time', 'Interval', intervalsRecord.get('name'), false);
         }
 
@@ -574,18 +585,11 @@ Ext.define('Cfg.controller.Validation', {
 
         bulkGridContainer.add(previewContainer);
 
-        //<debug>
-        Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
-        //</debug>
-
-        readingTypeStore.on('load', function (store, records) {
-            if (!records || !records.length) {
-                widget.down('#buttonsContainer button[name=add]').setDisabled(true);
-            }
-        }, me, {
-            single: true
+        readingTypeStore.on('beforeload', function () {
+            widget.down('#buttonsContainer button[name=add]').setDisabled(true);
         });
 
+        Ext.override(Ext.data.proxy.Ajax, {timeout: 120000});
         readingTypeStore.load();
     },
 
@@ -1524,7 +1528,10 @@ Ext.define('Cfg.controller.Validation', {
                 //rulesContainerWidget.down('#versionMenu #versionValidationRulesLink').setText(selectedRuleSet.get('name'));
             }
         });
+    },
 
+    setAddReadingTypesAddBtnState: function (cm, selection) {
+        this.getAddReadingTypesSetup().down('#buttonsContainer button[name=add]').setDisabled(Ext.isEmpty(selection));
     }
 
 });

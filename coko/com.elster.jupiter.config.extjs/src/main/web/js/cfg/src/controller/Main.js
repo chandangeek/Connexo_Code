@@ -26,6 +26,7 @@ Ext.define('Cfg.controller.Main', {
     init: function () {
         this.initHistorians();
         this.initMenu();
+        this.callParent();
     },
 
     /**
