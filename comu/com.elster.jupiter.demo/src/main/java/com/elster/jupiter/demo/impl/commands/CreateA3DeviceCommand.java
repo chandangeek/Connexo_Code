@@ -37,13 +37,13 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 //TODO reuse code
 public class CreateA3DeviceCommand {
@@ -62,11 +62,11 @@ public class CreateA3DeviceCommand {
 
     @Inject
     public CreateA3DeviceCommand(
-             ProtocolPluggableService protocolPluggableService,
-             DeviceConfigurationService deviceConfigurationService,
-             ConnectionTaskService connectionTaskService,
-             Provider<DeviceBuilder> deviceBuilderProvider,
-             DeviceService deviceService) {
+            ProtocolPluggableService protocolPluggableService,
+            DeviceConfigurationService deviceConfigurationService,
+            ConnectionTaskService connectionTaskService,
+            Provider<DeviceBuilder> deviceBuilderProvider,
+            DeviceService deviceService) {
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.connectionTaskService = connectionTaskService;
@@ -74,10 +74,10 @@ public class CreateA3DeviceCommand {
         this.deviceService = deviceService;
     }
 
-    public void run(){
+    public void run() {
         String a3mrid = Constants.Device.A3_DEVICE + Constants.Device.A3_SERIAL_NUMBER;
         Optional<Device> device = deviceService.findByUniqueMrid(a3mrid);
-        if (device.isPresent()){
+        if (device.isPresent()) {
             System.out.println("Device with mrid '" + a3mrid + "' already exists!");
             return;
         }
@@ -85,20 +85,20 @@ public class CreateA3DeviceCommand {
         DeviceType a3DeviceType = Builders.from(DeviceTypeTpl.Alpha_A3).get();
 
         String a3DeviceConfName = "Extended config";
-        DeviceConfiguration configuration =  a3DeviceType.getConfigurations().stream().filter(dc -> a3DeviceConfName.equals(dc.getName())).findFirst()
+        DeviceConfiguration configuration = a3DeviceType.getConfigurations().stream().filter(dc -> a3DeviceConfName.equals(dc.getName())).findFirst()
                 .orElseGet(() -> createA3DeviceConfiguration(a3DeviceType, a3DeviceConfName));
 
         createA3Device(a3mrid, configuration);
     }
 
-    private void findRequiredObjects(){
+    private void findRequiredObjects() {
         findRegisterTypes();
         findLogBooks();
         findComTasks();
         findLoadProfiles();
     }
 
-    private void findRegisterTypes(){
+    private void findRegisterTypes() {
         registerTypes = new HashMap<>();
         registerTypes.put(RegisterTypeTpl.DELTA_A_PLUS_ALL_PHASES, Builders.from(RegisterTypeTpl.DELTA_A_PLUS_ALL_PHASES).get());
         registerTypes.put(RegisterTypeTpl.DELTA_A_MINUS_ALL_PHASES, Builders.from(RegisterTypeTpl.DELTA_A_MINUS_ALL_PHASES).get());
@@ -111,13 +111,13 @@ public class CreateA3DeviceCommand {
         registerTypes.put(RegisterTypeTpl.BULK_REACTIVE_ENERGY_MINUS, Builders.from(RegisterTypeTpl.BULK_REACTIVE_ENERGY_MINUS).get());
     }
 
-    private void findLogBooks(){
+    private void findLogBooks() {
         logBookTypes = new HashMap<>();
         LogBookTypeTpl logBookTypeTpl = LogBookTypeTpl.GENERIC;
         logBookTypes.put(logBookTypeTpl, Builders.from(logBookTypeTpl).get());
     }
 
-    private void findComTasks(){
+    private void findComTasks() {
         comTasks = new HashMap<>();
         findComTask(ComTaskTpl.READ_ALL);
         findComTask(ComTaskTpl.READ_LOAD_PROFILE_DATA);
@@ -129,7 +129,7 @@ public class CreateA3DeviceCommand {
         return comTasks.put(comTaskTpl, Builders.from(comTaskTpl).get());
     }
 
-    private void findLoadProfiles(){
+    private void findLoadProfiles() {
         this.loadProfileTypes = new HashMap<>();
         this.loadProfileTypes.put(LoadProfileTypeTpl.ELSTER_A3_GENERIC, Builders.from(LoadProfileTypeTpl.ELSTER_A3_GENERIC).get());
     }
@@ -163,7 +163,7 @@ public class CreateA3DeviceCommand {
         }
         securityPropertySet.update();
         addComTasksToDeviceConfiguration(configuration,
-               ComTaskTpl.READ_LOAD_PROFILE_DATA,
+                ComTaskTpl.READ_LOAD_PROFILE_DATA,
                 ComTaskTpl.READ_LOG_BOOK_DATA,
                 ComTaskTpl.READ_REGISTER_DATA);
         configuration.activate();
@@ -172,11 +172,11 @@ public class CreateA3DeviceCommand {
     }
 
     private void addNumericRegistersToDeviceConfiguration(DeviceType.DeviceConfigurationBuilder configurationBuilder, RegisterTypeTpl... registerTypeTpls) {
-        if (registerTypeTpls != null){
+        if (registerTypeTpls != null) {
             for (RegisterTypeTpl registerTypeName : registerTypeTpls) {
                 RegisterType registerType = registerTypes.get(registerTypeName);
                 configurationBuilder.newNumericalRegisterSpec(registerType).setOverflowValue(new BigDecimal(100000000)).setNumberOfFractionDigits(3).setNumberOfDigits(8)
-                    .setOverruledObisCode(new ObisCode(registerType.getObisCode().getA(), 1, registerType.getObisCode().getC(), registerType.getObisCode().getD(), registerType.getObisCode().getE(), registerType.getObisCode().getF()));
+                        .setOverruledObisCode(new ObisCode(registerType.getObisCode().getA(), 1, registerType.getObisCode().getC(), registerType.getObisCode().getD(), registerType.getObisCode().getE(), registerType.getObisCode().getF()));
             }
         }
     }
@@ -186,7 +186,7 @@ public class CreateA3DeviceCommand {
             List<ChannelType> availableChannelTypes = loadProfileSpec.getLoadProfileType().getChannelTypes();
             for (ChannelType channelType : availableChannelTypes) {
                 String mrid = channelType.getTemplateRegister().getReadingType().getMRID();
-                if (channels.containsKey(mrid)){
+                if (channels.containsKey(mrid)) {
                     configuration.createChannelSpec(channelType, loadProfileSpec)
                             .setOverflow(new BigDecimal(100000000))
                             .setNbrOfFractionDigits(3)
@@ -197,13 +197,12 @@ public class CreateA3DeviceCommand {
         }
     }
 
-    private void addComTasksToDeviceConfiguration(DeviceConfiguration configuration, ComTaskTpl... names){
+    private void addComTasksToDeviceConfiguration(DeviceConfiguration configuration, ComTaskTpl... names) {
         if (names != null) {
             for (ComTaskTpl comTaskTpl : names) {
-                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0))
+                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0), configuration.getProtocolDialectConfigurationPropertiesList().get(0))
                         .setIgnoreNextExecutionSpecsForInbound(true)
-                        .setPriority(100)
-                        .setProtocolDialectConfigurationProperties(configuration.getProtocolDialectConfigurationPropertiesList().get(0)).add().save();
+                        .setPriority(100).add().save();
             }
         }
     }

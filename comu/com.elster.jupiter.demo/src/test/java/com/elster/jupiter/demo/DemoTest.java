@@ -101,15 +101,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-import javax.validation.MessageInterpolator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -120,11 +111,19 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import javax.validation.MessageInterpolator;
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DemoTest {
     private static final Logger LOG = Logger.getLogger(DemoTest.class.getName());
@@ -173,7 +172,7 @@ public class DemoTest {
     }
 
     @Before
-    public void setEnvironment(){
+    public void setEnvironment() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -229,14 +228,14 @@ public class DemoTest {
     }
 
     @After
-    public void deactivateEnvironment(){
+    public void deactivateEnvironment() {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
     public void testDemoSetup() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try{
+        try {
             demoService.createDemoData("DemoServ", "host", "2014-12-01");
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
@@ -246,7 +245,7 @@ public class DemoTest {
     @Test
     public void testNtaSimulationToolPropertyOnDeviceTest() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try{
+        try {
             demoService.createDemoData("DemoServ", "host", "2014-12-01");
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
@@ -259,7 +258,7 @@ public class DemoTest {
     @Test
     public void testTimeZonePropertyOnDeviceTest() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try{
+        try {
             demoService.createDemoData("DemoServ", "host", "2014-12-01");
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
@@ -272,7 +271,7 @@ public class DemoTest {
     @Test
     public void testA3Device() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try{
+        try {
             demoService.createA3Device();
         } catch (Exception e) {
             fail("The demo command shouldn't produce errors");
@@ -282,7 +281,7 @@ public class DemoTest {
     @Test
     public void testReExecute() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try{
+        try {
             demoService.createDemoData("DemoServ", "host", "2014-12-01");
             demoService.createDemoData("DemoServ", "host", "2014-12-01");
         } catch (Exception e) {
@@ -293,7 +292,7 @@ public class DemoTest {
     @Test
     public void testStartDate() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try{
+        try {
             demoService.createDemoData("DemoServ", "host", "2020-12-01");
         } catch (UnableToCreate e) {
             assertThat(e.getMessage()).contains("Incorrect start date parameter");
@@ -313,7 +312,7 @@ public class DemoTest {
 
     private void createOracleTablesSubstitutes() {
         OrmServiceImpl ormService = (OrmServiceImpl) injector.getInstance(OrmService.class);
-        try (Connection connection = ormService.getConnection(true)){
+        try (Connection connection = ormService.getConnection(true)) {
             SqlBuilder sqlBuilder = new SqlBuilder("CREATE VIEW USER_TABLES AS (select * from INFORMATION_SCHEMA.TABLES)");
             sqlBuilder.prepare(connection).execute();
             sqlBuilder = new SqlBuilder("CREATE VIEW USER_SEQUENCES AS (select * from INFORMATION_SCHEMA.SEQUENCES)");
@@ -348,16 +347,16 @@ public class DemoTest {
         protocolPluggableService.addLicensedProtocolService(injector.getInstance(LicensedProtocolService.class));
 
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
-        propertySpecService.addFactoryProvider((DeviceServiceImpl)injector.getInstance(DeviceService.class));
-        propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl)injector.getInstance(ConnectionTaskService.class));
+        propertySpecService.addFactoryProvider((DeviceServiceImpl) injector.getInstance(DeviceService.class));
+        propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl) injector.getInstance(ConnectionTaskService.class));
 
         DefaultValidatorFactory defaultValidatorFactory = new DefaultValidatorFactory();
         defaultValidatorFactory.setPropertySpecService(propertySpecService);
         defaultValidatorFactory.setNlsService(injector.getInstance(NlsService.class));
-        ((ValidationServiceImpl)injector.getInstance(ValidationService.class)).addResource(defaultValidatorFactory);
+        ((ValidationServiceImpl) injector.getInstance(ValidationService.class)).addResource(defaultValidatorFactory);
 
-        ((DeviceConfigurationServiceImpl)injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
-        ((DataExportServiceImpl)injector.getInstance(DataExportService.class)).addResource(injector.getInstance(StandardCsvDataProcessorFactory.class));
+        ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
+        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addResource(injector.getInstance(StandardCsvDataProcessorFactory.class));
 
         injector.getInstance(IssueDataCollectionService.class);
         fixIssueTemplates();
@@ -369,13 +368,13 @@ public class DemoTest {
         issueService.addCreationRuleTemplate(template);
     }
 
-    private void createDefaultStuff(){
+    private void createDefaultStuff() {
         MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
         mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
         mdcAppInstaller.install();
     }
 
-    private void tuneDeviceCountForSpeedTest(){
+    private void tuneDeviceCountForSpeedTest() {
         try {
             Field deviceCount = DeviceTypeTpl.class.getDeclaredField("deviceCount");
             deviceCount.setAccessible(true);
