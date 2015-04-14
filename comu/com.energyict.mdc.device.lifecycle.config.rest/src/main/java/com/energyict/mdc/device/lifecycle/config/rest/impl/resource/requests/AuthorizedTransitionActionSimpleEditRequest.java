@@ -40,7 +40,8 @@ public class AuthorizedTransitionActionSimpleEditRequest implements AuthorizedAc
                 .clearActions()
                 .addAllChecks(Collections.<MicroCheck>emptySet()) // TODO Add checks for state transition
                 .addAllActions(Collections.<MicroAction>emptySet()) // TODO Add actions for state transition
-                .addAllLevels(this.infoForEdit.getPrivilegeLevels());
+                .addAllLevels(this.infoForEdit.getPrivilegeLevels())
+                .complete();
         deviceLifeCycleUpdater.complete();
         this.deviceLifeCycle.save();
         return this.action;

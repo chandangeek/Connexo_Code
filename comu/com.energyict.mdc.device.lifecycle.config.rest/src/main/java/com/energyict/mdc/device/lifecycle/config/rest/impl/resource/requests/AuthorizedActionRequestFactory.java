@@ -27,7 +27,7 @@ public class AuthorizedActionRequestFactory {
 
     private boolean isComplexChanges(AuthorizedTransitionAction transitionAction, AuthorizedActionInfo info){
         Optional<String> specialTransitionName = transitionAction.getStateTransition().getName();
-        return (specialTransitionName.isPresent() && !specialTransitionName.get().equals(info.name))
+        return (!specialTransitionName.isPresent() || !specialTransitionName.get().equals(info.name))
                 || fromStateChanged(transitionAction, info)
                 || toStateChanged(transitionAction, info)
                 || triggerByChanged(transitionAction, info);
