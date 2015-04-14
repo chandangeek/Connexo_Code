@@ -44,6 +44,9 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             'device-life-cycle-states-action-menu menuitem[action=setAsInitial]': {
                 click: this.setAsInitial
             },
+            'device-life-cycle-states-action-menu menuitem[action=removeState]': {
+                click: this.removeState
+            },
             'device-life-cycle-state-edit button[action=cancelAction]': {
                 click: this.cancelAction
             },
@@ -245,5 +248,32 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             form.setTitle(Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'));
             widget.setLoading(false);
         }
+    },
+
+    removeState: function () {
+        var me = this,
+            grid = me.getPage().down('#states-grid'),
+            record = grid.getSelectionModel().getLastSelected(),
+            router = me.getController('Uni.controller.history.Router');
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('deviceLifeCycleStates.remove.msg', 'DLC', 'This state will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'DLC', 'Remove') + ' \'' + record.get('name') + '\'?',
+            fn: function (state) {
+                if (state === 'confirm') {
+                    record.getProxy().setUrl(router.arguments);
+                    me.getPage().setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
+                    record.destroy({
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleStates.remove.success.msg', 'DLC', 'State removed'));
+                            router.getRoute().forward();
+                        },
+                        callback: function () {
+                            me.getPage().setLoading(false);
+                        }
+                    });
+                }
+            }
+        });
     }
 });
