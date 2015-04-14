@@ -1,42 +1,14 @@
 package com.elster.jupiter.validators.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import com.elster.jupiter.validation.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -46,15 +18,34 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests integration of all internal components involved in validation.
@@ -69,7 +60,7 @@ public class ValidationPerformanceIT {
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
@@ -77,7 +68,7 @@ public class ValidationPerformanceIT {
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
-    
+
     private MeterActivation meterActivation;
     private Meter meter;
     private String readingType;
@@ -93,30 +84,37 @@ public class ValidationPerformanceIT {
 
     @Before
     public void setUp() {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new ValidationModule(),
-                new NlsModule(),
-                new EventsModule(),
-                new UserModule(),
-                new BasicPropertiesModule()
-        );        
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new MeteringGroupsModule(),
+                    new TaskModule(),
+                    new MeteringModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new ValidationModule(),
+                    new NlsModule(),
+                    new EventsModule(),
+                    new UserModule(),
+                    new BasicPropertiesModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         injector.getInstance(TransactionService.class).execute(() -> {
         	MeteringService meteringService = injector.getInstance(MeteringService.class);
         	ValidationService validationService = injector.getInstance(ValidationService.class);
-            validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));       
+            validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
             readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
             	.measure(MeasurementKind.ENERGY)
             	.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
@@ -194,7 +192,7 @@ public class ValidationPerformanceIT {
         	}
         	meter.store(meterReading);
         	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);        	
+        	assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);
         }
     }
  }

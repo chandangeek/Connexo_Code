@@ -1,9 +1,43 @@
 package com.elster.jupiter.validators.impl;
 
-import static com.elster.jupiter.validation.ValidationResult.NOT_VALIDATED;
-import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
-import static com.elster.jupiter.validation.ValidationResult.VALID;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.impl.ValidationModule;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,55 +49,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.elster.jupiter.validation.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.impl.ValidationModule;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Range;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import static com.elster.jupiter.validation.ValidationResult.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests integration of all internal components involved in validation.
@@ -78,7 +65,7 @@ public class ValidationEvaluatorIT {
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
@@ -86,7 +73,7 @@ public class ValidationEvaluatorIT {
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
-    
+
     private MeterActivation meterActivation;
     private Meter meter;
     private String readingType;
@@ -102,26 +89,33 @@ public class ValidationEvaluatorIT {
 
     @Before
     public void setUp() {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new ValidationModule(),
-                new NlsModule(),
-                new EventsModule(),
-                new UserModule(),
-                new BasicPropertiesModule()
-        );
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new MeteringGroupsModule(),
+                    new TaskModule(),
+                    new MeteringModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new ValidationModule(),
+                    new NlsModule(),
+                    new EventsModule(),
+                    new UserModule(),
+                    new BasicPropertiesModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         injector.getInstance(TransactionService.class).execute(() -> {
         	MeteringService meteringService = injector.getInstance(MeteringService.class);
             readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
@@ -193,7 +187,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(4);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
@@ -225,7 +219,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
@@ -244,7 +238,7 @@ public class ValidationEvaluatorIT {
         assertThat(qualityCodes).contains(QualityCodeIndex.KNOWNMISSINGREAD);
         assertThat(qualityCodes).contains(QualityCodeIndex.REJECTED);
     }
-    
+
     @Test
     public void testEditDeactivateValidation() {
     	ValidationService validationService = injector.getInstance(ValidationService.class);
@@ -265,7 +259,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(4);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType,BigDecimal.valueOf(70L),date1.plusSeconds(900*2))));
@@ -298,7 +292,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType,BigDecimal.valueOf(70L),date1.plusSeconds(900*2))));
@@ -331,7 +325,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
-        		.collect(Collectors.toList());        
+        		.collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
         	MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
