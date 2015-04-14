@@ -652,7 +652,7 @@ public class ValidationServiceImplTest {
         when(meter.getId()).thenReturn(ID);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
-        when(meterValidation.getValidateOnStorage()).thenReturn(true);
+        when(meterValidation.getValidateOnStorage()).thenReturn(false);
 
         validationService.enableValidationOnStorage(meter);
 

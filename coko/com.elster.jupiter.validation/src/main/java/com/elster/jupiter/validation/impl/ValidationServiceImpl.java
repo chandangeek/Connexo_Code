@@ -223,10 +223,10 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Override
     public void enableValidationOnStorage(Meter meter) {
         getMeterValidation(meter)
-            .filter(MeterValidationImpl::getValidateOnStorage)
-            .ifPresent(meterValidation -> {
-                meterValidation.setValidateOnStorage(true);
-                meterValidation.save();
+            .filter(meterValidation -> !meterValidation.getValidateOnStorage())
+                .ifPresent(meterValidation -> {
+                    meterValidation.setValidateOnStorage(true);
+                    meterValidation.save();
             });
     }
 
