@@ -12,19 +12,22 @@ Ext.define('Fwc.devicefirmware.view.LogPreviewForm', {
 
         me.items = [
             {
-                fieldLabel: Uni.I18n.translate('deviceFirmware.log.timestamp', 'DLC', 'Timestamp'),
-                name: 'timestamp'
+                fieldLabel: Uni.I18n.translate('deviceFirmware.log.timestamp', 'FWC', 'Timestamp'),
+                name: 'timestamp',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                }
             },
             {
-                fieldLabel: Uni.I18n.translate('deviceFirmware.log.description', 'DLC', 'Description'),
+                fieldLabel: Uni.I18n.translate('deviceFirmware.log.description', 'FWC', 'Description'),
                 name: 'description'
             },
             {
-                fieldLabel: Uni.I18n.translate('deviceFirmware.log.details', 'DLC', 'Details'),
+                fieldLabel: Uni.I18n.translate('deviceFirmware.log.details', 'FWC', 'Details'),
                 name: 'details'
             },
             {
-                fieldLabel:  Uni.I18n.translate('deviceFirmware.log.level', 'DLC', 'Log level'),
+                fieldLabel:  Uni.I18n.translate('deviceFirmware.log.level', 'FWC', 'Log level'),
                 name: 'level'
             }
         ];

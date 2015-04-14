@@ -33,7 +33,7 @@ Ext.define('Fwc.devicefirmware.controller.FirmwareLog', {
             previewForm = page.down('device-firmware-log-preview-form');
 
         Ext.suspendLayouts();
-        preview.setTitle(record.get('timestamp'));
+        preview.setTitle(Uni.DateTime.formatDateTimeLong(record.get('timestamp')));
         previewForm.loadRecord(record);
         Ext.resumeLayouts(true);
     },

@@ -31,9 +31,9 @@ Ext.define('Fwc.devicefirmware.view.Log', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('deviceLifeCycleStates.empty.title', 'DLC', 'No states found'),
+                        title: Uni.I18n.translate('deviceFirmware.empty.title', 'FWC', 'No log lines found'),
                         reasons: [
-                            Uni.I18n.translate('deviceLifeCycleStates.empty.list.item1', 'DLC', 'No states have been added yet')
+                            Uni.I18n.translate('deviceFirmware.empty.list.item1', 'FWC', 'No log lines have been added yet')
                         ]
                     },
                     previewComponent: {
