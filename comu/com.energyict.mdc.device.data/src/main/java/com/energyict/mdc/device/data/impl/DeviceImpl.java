@@ -1560,12 +1560,17 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public State getState() {
+        return this.getState(this.clock.instant()).get();
+    }
+
+    @Override
+    public Optional<State> getState(Instant instant) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             if (this.id > 1) {
                 Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
                 if (meter.isPresent()) {
-                    return meter.get().getState().get();
+                    return meter.get().getState(instant);
                 }
                 else {
                     // Kore meter was not created yet
@@ -1573,20 +1578,12 @@ public class DeviceImpl implements Device, CanLock {
                 }
             }
             else {
-                /* Todo: implement this as follows once FiniteStateMachine is integrated in DeviceType
-                         return this.getDeviceType().getFinateStateMachine().getInitialState();
-                 */
-                return null;
+                return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
             }
         }
         else {
             throw new IllegalStateException("MDC AMR system does not exist");
         }
-    }
-
-    @Override
-    public Optional<State> getState(Instant instant) {
-        return null;
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{
