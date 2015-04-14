@@ -9,6 +9,7 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.impl.*;
 import com.energyict.mdc.protocol.api.UserFile;
@@ -59,6 +60,8 @@ public class MdcPropertyReferenceInfoFactory {
                 info = new RegisterInfo((Register) property);
             } else if (LogBook.class.isAssignableFrom(property.getClass())) {
                 info = new LogBookInfo((LogBook) property);
+            } else if (FirmwareVersion.class.isAssignableFrom(property.getClass())){
+                info = new FirmwareVersionInfo((FirmwareVersion) property);
             }
         }
         return info;
