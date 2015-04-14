@@ -16,6 +16,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleActionResource;
@@ -56,6 +57,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile EventService eventService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -106,6 +108,11 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
         this.eventService = eventService;
     }
 
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
     @Override
     public String getComponentName() {
         return DEVICE_CONFIG_LIFECYCLE_COMPONENT;
@@ -149,6 +156,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(eventService).to(EventService.class);
+            bind(deviceConfigurationService).to(DeviceConfigurationService.class);
         }
     }
 }
