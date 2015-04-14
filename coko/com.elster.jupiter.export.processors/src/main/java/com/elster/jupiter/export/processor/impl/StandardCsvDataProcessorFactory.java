@@ -111,18 +111,26 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
 
     @Override
     public void validateProperties(List<DataExportProperty> properties) {
+        String prefix = null;
+        String extension = null;
+        String path = null;
         for (DataExportProperty property : properties) {
+            String stringValue = (String) property.getValue();
             if (property.getName().equals(FormatterProperties.FILENAME_PREFIX.getKey())) {
-                String string = (String) property.getValue();
-                checkInvalidChars(string, FormatterProperties.FILENAME_PREFIX.getKey(), NON_PATH_INVALID);
-                checkIsRelativeChildPath(string, FormatterProperties.FILENAME_PREFIX.getKey());
+                 prefix = stringValue;
+                checkInvalidChars(stringValue, FormatterProperties.FILENAME_PREFIX.getKey(), NON_PATH_INVALID);
+                checkIsRelativeChildPath(stringValue, FormatterProperties.FILENAME_PREFIX.getKey());
             } else if (property.getName().equals(FormatterProperties.FILE_EXTENSION.getKey())) {
-                checkInvalidChars((String) property.getValue(), FormatterProperties.FILE_EXTENSION.getKey(), NON_PATH_INVALID);
+                extension = stringValue;
+                checkInvalidChars(stringValue, FormatterProperties.FILE_EXTENSION.getKey(), NON_PATH_INVALID);
+                checkIsRelativeChildPath(stringValue, FormatterProperties.FILE_EXTENSION.getKey());
             } else if (property.getName().equals(FormatterProperties.FILE_PATH.getKey())) {
-                checkInvalidChars((String) property.getValue(), FormatterProperties.FILE_PATH.getKey(), PATH_INVALID);
-                checkIsRelativeChildPath((String) property.getValue(), FormatterProperties.FILE_PATH.getKey());
+                path = stringValue;
+                checkInvalidChars(stringValue, FormatterProperties.FILE_PATH.getKey(), PATH_INVALID);
+                checkIsRelativeChildPath(stringValue, FormatterProperties.FILE_PATH.getKey());
             }
         }
+        checkIsRelativeChildPath(path+"/"+prefix+"X"+extension, FormatterProperties.FILE_EXTENSION.getKey());
     }
 
     private void checkIsRelativeChildPath(String value, String fieldName) {
