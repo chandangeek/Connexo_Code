@@ -4,13 +4,11 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.google.common.collect.ImmutableMap;
 
 import java.time.Instant;
@@ -52,9 +50,10 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
         public String fieldName() {
             return javaFieldName;
         }
-    }
 
+    }
     public static final String STANDARD_TRANSITION = "0";
+
     public static final String CUSTOM_TRANSITION = "1";
     public static final String CUSTOM = "2";
     public static final Map<String, Class<? extends AuthorizedAction>> IMPLEMENTERS =
@@ -63,10 +62,13 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
                     CUSTOM_TRANSITION, AuthorizedCustomTransitionActionImpl.class,
                     CUSTOM, AuthorizedBusinessProcessActionImpl.class);
 
+    private final DataModel dataModel;
+
     @SuppressWarnings("unused")
     private long id;
+
     @IsPresent(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", groups = { Save.Create.class, Save.Update.class })
-    private Reference<DeviceLifeCycle> deviceLifeCycle = ValueReference.absent();
+    private Reference<DeviceLifeCycleImpl> deviceLifeCycle = ValueReference.absent();
     private int levelBits;
     private EnumSet<Level> levels = EnumSet.noneOf(Level.class);
     @SuppressWarnings("unused")
@@ -78,12 +80,17 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     @SuppressWarnings("unused")
     private Instant modTime;
 
+    protected AuthorizedActionImpl(DataModel dataModel) {
+        super();
+        this.dataModel = dataModel;
+    }
+
     @Override
-    public DeviceLifeCycle getDeviceLifeCycle() {
+    public DeviceLifeCycleImpl getDeviceLifeCycle() {
         return deviceLifeCycle.get();
     }
 
-    protected void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle) {
+    protected void setDeviceLifeCycle(DeviceLifeCycleImpl deviceLifeCycle) {
         this.deviceLifeCycle.set(deviceLifeCycle);
     }
 
@@ -136,6 +143,14 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     void add(Level level) {
         this.levelBits |= (1L << level.ordinal());
         this.levels.add(level);
+    }
+
+    void notifyUpdated() {
+        this.deviceLifeCycle.get().updated(this);
+    }
+
+    protected void save() {
+        Save.action(this.id).save(this.dataModel, this);
     }
 
 }

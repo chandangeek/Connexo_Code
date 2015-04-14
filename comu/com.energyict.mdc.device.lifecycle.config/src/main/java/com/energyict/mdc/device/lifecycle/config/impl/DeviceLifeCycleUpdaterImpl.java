@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 
 import com.elster.jupiter.fsm.StateTransition;
@@ -57,6 +59,14 @@ public class DeviceLifeCycleUpdaterImpl extends DeviceLifeCycleBuilderImpl imple
             this.getUnderConstruction().clearActions();
             return this;
         }
+
+        @Override
+        public AuthorizedTransitionAction complete() {
+            AuthorizedTransitionActionImpl action = this.getUnderConstruction();
+            action.notifyUpdated();
+            return action;
+        }
+
     }
 
 }

@@ -6,7 +6,9 @@ import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -20,7 +22,12 @@ public class AuthorizedStandardTransitionActionImpl extends AuthorizedTransition
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private TransitionType type;
 
-    public AuthorizedTransitionActionImpl initialize(DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition) {
+    @Inject
+    public AuthorizedStandardTransitionActionImpl(DataModel dataModel) {
+        super(dataModel);
+    }
+
+    public AuthorizedTransitionActionImpl initialize(DeviceLifeCycleImpl deviceLifeCycle, StateTransition stateTransition) {
         this.setDeviceLifeCycle(deviceLifeCycle);
         this.setStateTransition(stateTransition);
         this.type = TransitionType.from(stateTransition).get();

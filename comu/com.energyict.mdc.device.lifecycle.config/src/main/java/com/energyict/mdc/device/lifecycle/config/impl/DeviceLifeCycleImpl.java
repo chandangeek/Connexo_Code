@@ -64,6 +64,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     @Valid
     private List<AuthorizedAction> actions = new ArrayList<>();
+    private List<AuthorizedActionImpl> updated = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -136,9 +137,19 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
         return modTime;
     }
 
+    void updated(AuthorizedActionImpl action) {
+        this.updated.add(action);
+    }
+
     @Override
     public void save() {
-        Save.action(this.id).save(this.dataModel, this);
+        try {
+            this.updated.stream().forEach(AuthorizedActionImpl::save);
+            Save.action(this.id).save(this.dataModel, this);
+        }
+        finally {
+            this.updated = new ArrayList<>();
+        }
     }
 
     @Override

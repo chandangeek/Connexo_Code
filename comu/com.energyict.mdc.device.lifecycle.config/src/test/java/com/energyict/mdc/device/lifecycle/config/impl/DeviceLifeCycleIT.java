@@ -8,6 +8,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
@@ -123,9 +124,9 @@ public class DeviceLifeCycleIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME + "}")
     @Test
-    public void createDeviceLifeCycleWithDuplicategName() {
+    public void createDeviceLifeCycleWithDuplicateName() {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
-        String duplicateName = "createDeviceLifeCycleWithDuplicategName";
+        String duplicateName = "createDeviceLifeCycleWithDuplicateName";
         this.getTestService().newDeviceLifeCycleUsing(duplicateName, stateMachine).complete().save();
 
         // Business method
@@ -214,7 +215,7 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycle deviceLifeCycle = builder.complete();
         deviceLifeCycle.save();
 
-        // Asserts: see expected contraint violation rule
+        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
@@ -233,7 +234,7 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycle deviceLifeCycle = builder.complete();
         deviceLifeCycle.save();
 
-        // Asserts: see expected contraint violation rule
+        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
@@ -252,7 +253,7 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycle deviceLifeCycle = builder.complete();
         deviceLifeCycle.save();
 
-        // Asserts: see expected contraint violation rule
+        // Asserts: see expected constraint violation rule
     }
 
     @Transactional
@@ -707,6 +708,45 @@ public class DeviceLifeCycleIT {
                 .map(AuthorizedStandardTransitionAction::getType)
                 .forEach(transitionTypes::add);
         assertThat(transitionTypes).containsOnly(TransitionType.values());
+    }
+
+    @Transactional
+    @Test
+    public void clearLevelsOfStandardTransitionAction() {
+        FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
+        StateTransition stateTransition = stateMachine.getTransitions().get(0);
+        DeviceLifeCycleBuilder builder = this.getTestService().newDeviceLifeCycleUsing("Test", stateMachine);
+        builder
+            .newTransitionAction(stateTransition)
+            .addAction(MicroAction.ENABLE_VALIDATION)
+            .addCheck(MicroCheck.DEFAULT_CONNECTION_AVAILABLE)
+            .addAllLevels(EnumSet.of(AuthorizedAction.Level.ONE, AuthorizedAction.Level.TWO))
+            .complete();
+        DeviceLifeCycle deviceLifeCycle = builder.complete();
+        deviceLifeCycle.save();
+
+        // Business method
+        DeviceLifeCycleUpdater deviceLifeCycleUpdater = deviceLifeCycle.startUpdate();
+        deviceLifeCycleUpdater.transitionAction(stateTransition).clearLevels().complete();
+        deviceLifeCycleUpdater.complete().save();
+
+        // Asserts
+        List<AuthorizedAction> authorizedActions = deviceLifeCycle.getAuthorizedActions();
+        assertThat(authorizedActions).hasSize(1);
+        AuthorizedAction authorizedAction = authorizedActions.get(0);
+        assertThat(authorizedAction.getLevels()).isEmpty();
+        assertThat(authorizedAction.getModifiedTimestamp()).isNotNull();
+        assertThat(authorizedAction.getModifiedTimestamp()).isNotEqualTo(authorizedAction.getCreationTimestamp());
+        // Assert that all other attributes have not changed
+        assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(deviceLifeCycle.getId());
+        assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
+        assertThat(authorizedAction.getState().getId()).isEqualTo(stateTransition.getFrom().getId());
+        assertThat(authorizedAction.getVersion()).isNotNull();
+        assertThat(authorizedAction).isInstanceOf(AuthorizedStandardTransitionAction.class);
+        AuthorizedStandardTransitionAction transitionAction = (AuthorizedStandardTransitionAction) authorizedAction;
+        assertThat(transitionAction.getType()).isEqualTo(TransitionType.from(stateTransition).get());
+        assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
+        assertThat(transitionAction.getActions()).containsOnly(MicroAction.ENABLE_VALIDATION);
     }
 
     private FiniteStateMachine findDefaultFiniteStateMachine() {
