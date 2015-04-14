@@ -127,6 +127,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 bind(DataModel.class).toInstance(dataModel);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(UserService.class).toInstance(userService);
+                bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
 
