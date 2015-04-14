@@ -203,7 +203,7 @@ public class ComTaskEnablementResource {
     }
 
     private boolean deviceTypeAllowsFirmwareUpgrade(DeviceType deviceType) {
-        return this.firmwareService.findFirmwareUpgradeOptionsByDeviceType(deviceType).isPresent();
+        return this.firmwareService.isFirmwareUpgradeAllowedFor(deviceType);
     }
 
     private void setComTaskEnablementActive(long deviceTypeId, long deviceConfigurationId, long comTaskEnablementId, boolean setActive) {
