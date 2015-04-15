@@ -10,6 +10,7 @@ public class FirmwareMessageInfo {
     public String id;
     public String displayValue;
     public List<PropertyInfo> properties;
+    public Long releaseDate;
 
     public FirmwareMessageInfo() {}
 }

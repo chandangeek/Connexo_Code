@@ -34,6 +34,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,6 +55,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     private volatile FirmwareService firmwareService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile TaskService taskService;
+    private volatile Clock clock;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -96,6 +98,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
             bind(deviceService).to(DeviceService.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(taskService).to(TaskService.class);
+            bind(clock).to(Clock.class);
         }
     }
 
@@ -157,5 +160,10 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }

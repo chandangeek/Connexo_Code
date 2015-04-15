@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 
 public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
 
@@ -35,6 +36,8 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     TaskService taskService;
+    @Mock
+    Clock clock;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -52,6 +55,7 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setFirmwareService(firmwareService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setTaskService(taskService);
+        application.setClock(clock);
 
         return application;
     }
