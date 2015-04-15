@@ -6,26 +6,20 @@ Ext.define('Fwc.devicefirmware.store.FirmwareLogs', {
     model: 'Fwc.devicefirmware.model.FirmwareLog',
     autoLoad: false,
 
-    data: [
-        {
-            id: '1',
-            description: 'Desc',
-            timestamp: '1428922620000',
-            details: 'details',
-            level: 'level'
+    proxy: {
+        type: 'rest',
+        url: '/apps/fwc/src/devicefirmware/fakedata/logs.json',
+        urlTpl: '/api/ddr/devices/{mRID}/comtasks/{firmwareComTaskId}/comtaskexecutionsessions/{firmwareComTaskSessionId}/journals',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
+        reader: {
+            type: 'json',
+            root: 'firmwarelogs',
+            totalProperty: 'total'
+        },
+        setUrl: function (mRID, firmwareComTaskId, firmwareComTaskSessionId  ) {
+            this.url = this.urlTpl.replace('{mRID}', mRID).replace('{firmwareComTaskId}', firmwareComTaskId).replace('{firmwareComTaskSessionId}', firmwareComTaskSessionId);
         }
-    ]
-
-//    proxy: {
-//        type: 'rest',
-//        urlTpl: '/api/fwc/device/{mRID}/firmwareslogs',
-//        reader: {
-//            type: 'json',
-//            root: 'firmwarelogs',
-//            totalProperty: 'total'
-//        },
-//        setUrl: function (mRID) {
-//            this.url = this.urlTpl.replace('{mRID}', mRID);
-//        }
-//    }
+    }
 });

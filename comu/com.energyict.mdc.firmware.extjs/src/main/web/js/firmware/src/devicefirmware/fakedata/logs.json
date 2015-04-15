@@ -1,0 +1,12 @@
+{
+    "total": 1,
+    "firmwarelogs": [
+        {
+            "id": 1,
+            "description": "Desc",
+            "timestamp": 1428922620000,
+            "details": "details",
+            "level": "level"
+        }
+    ]
+}

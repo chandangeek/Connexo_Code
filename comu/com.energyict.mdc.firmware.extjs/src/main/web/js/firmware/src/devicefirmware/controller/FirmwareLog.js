@@ -42,11 +42,15 @@ Ext.define('Fwc.devicefirmware.controller.FirmwareLog', {
         var me = this,
             router = this.getController('Uni.controller.history.Router');
 
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', 'device-firmware-log', {router: router, device: device});
-                me.getLogsGrid().getSelectionModel().select(0);
+//                me.getLogsGrid().getStore().setUrl(mRID);
+                me.getLogsGrid().getStore().load(function() {
+                    me.getLogsGrid().getSelectionModel().select(0);
+                });
             }
         });
 
