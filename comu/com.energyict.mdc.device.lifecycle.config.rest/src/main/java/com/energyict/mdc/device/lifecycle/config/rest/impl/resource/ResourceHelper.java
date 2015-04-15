@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class ResourceHelper {
 
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final FiniteStateMachineService finiteStateMachineService;
     private final ExceptionFactory exceptionFactory;
     private final EventService eventService;
@@ -25,10 +27,12 @@ public class ResourceHelper {
     @Inject
     public ResourceHelper(
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+            DeviceConfigurationService deviceConfigurationService,
             FiniteStateMachineService finiteStateMachineService,
             ExceptionFactory exceptionFactory,
             EventService eventService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.deviceConfigurationService = deviceConfigurationService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.exceptionFactory = exceptionFactory;
         this.eventService = eventService;
@@ -76,5 +80,11 @@ public class ResourceHelper {
             stateTransitionEventType = finiteStateMachineService.findCustomStateTransitionEventType(symbol);
         }
         return Optional.ofNullable(stateTransitionEventType.orElse(null));
+    }
+
+    public void checkDeviceLifeCycleUsages(DeviceLifeCycle deviceLifeCycle) {
+        if (!deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle).isEmpty()){
+            throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE);
+        }
     }
 }

@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 public class DeviceLifeCycleStateResource {
     private final ExceptionFactory exceptionFactory;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleStateFactory deviceLifeCycleStateFactory;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
     private final ResourceHelper resourceHelper;
@@ -46,13 +45,11 @@ public class DeviceLifeCycleStateResource {
     public DeviceLifeCycleStateResource(
             ExceptionFactory exceptionFactory,
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
-            DeviceConfigurationService deviceConfigurationService,
             DeviceLifeCycleStateFactory deviceLifeCycleStateFactory,
             AuthorizedActionInfoFactory authorizedActionInfoFactory,
             ResourceHelper resourceHelper) {
         this.exceptionFactory = exceptionFactory;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleStateFactory = deviceLifeCycleStateFactory;
         this.authorizedActionInfoFactory = authorizedActionInfoFactory;
         this.resourceHelper = resourceHelper;
@@ -134,7 +131,7 @@ public class DeviceLifeCycleStateResource {
     public Response deleteDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         State stateForDeletion = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
-        checkDeviceLifeCycleUsages(deviceLifeCycle);
+        resourceHelper.checkDeviceLifeCycleUsages(deviceLifeCycle);
         checkStateHasTransitions(deviceLifeCycle, stateForDeletion);
         checkStateIsTheLatest(deviceLifeCycle);
         checkStateIsInitial(stateForDeletion);
@@ -143,11 +140,7 @@ public class DeviceLifeCycleStateResource {
         return Response.ok(deviceLifeCycleStateFactory.from(stateForDeletion)).build();
     }
 
-    private void checkDeviceLifeCycleUsages(DeviceLifeCycle deviceLifeCycle) {
-        if (!deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle).isEmpty()){
-            throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE);
-        }
-    }
+
 
     private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {
         List<Long> transitionIds = deviceLifeCycle.getFiniteStateMachine().getTransitions().stream()

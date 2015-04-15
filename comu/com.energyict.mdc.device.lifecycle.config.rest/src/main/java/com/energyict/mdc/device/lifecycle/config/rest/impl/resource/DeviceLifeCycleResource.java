@@ -113,6 +113,7 @@ public class DeviceLifeCycleResource {
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response deleteDeviceLifeCycle(@PathParam("id") Long id) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
+        resourceHelper.checkDeviceLifeCycleUsages(deviceLifeCycle);
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         deviceLifeCycle.delete();
         finiteStateMachine.delete();

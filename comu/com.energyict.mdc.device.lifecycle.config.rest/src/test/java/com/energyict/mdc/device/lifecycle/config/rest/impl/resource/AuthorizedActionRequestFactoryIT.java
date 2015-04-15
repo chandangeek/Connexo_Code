@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -64,6 +65,8 @@ public class AuthorizedActionRequestFactoryIT {
     @Mock
     private Thesaurus thesaurus;
     private ResourceHelper resourceHelper;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     @BeforeClass
     public static void initialize() {
@@ -125,6 +128,7 @@ public class AuthorizedActionRequestFactoryIT {
         this.resourceHelper =
                 new ResourceHelper(
                         getDeviceLifeCycleConfigurationService(),
+                        deviceConfigurationService,
                         inMemoryPersistence.getService(FiniteStateMachineService.class),
                         new ExceptionFactory(this.thesaurus),
                         inMemoryPersistence.getService(EventService.class));
