@@ -2,7 +2,6 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
@@ -37,7 +36,9 @@ public class ScheduledCommunicationTaskAvailable implements ServerMicroCheck {
                             MessageSeeds.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED,
                             MicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED));
         }
-        return Optional.empty();
+        else {
+            return Optional.empty();
+        }
     }
 
     private Optional<ComTaskExecution> anyDefaultConnectionTask(Device device) {

@@ -36,7 +36,9 @@ public class DefaultConnectionTaskAvailable implements ServerMicroCheck {
                             MessageSeeds.DEFAULT_CONNECTION_AVAILABLE,
                             MicroCheck.DEFAULT_CONNECTION_AVAILABLE));
         }
-        return Optional.empty();
+        else {
+            return Optional.empty();
+        }
     }
 
     private Optional<ConnectionTask<?, ?>> anyDefaultConnectionTask(Device device) {
