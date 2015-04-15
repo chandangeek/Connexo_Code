@@ -6,6 +6,8 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.LastReadingTimestampSet;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.SlaveDeviceHasGateway;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.nls.Layer;
@@ -28,6 +30,7 @@ import javax.inject.Inject;
 public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     private Thesaurus thesaurus;
+    private TopologyService topologyService;
 
     // For OSGi purposes
     public MicroCheckFactoryImpl() {
@@ -36,7 +39,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     // For testing purposes
     @Inject
-    public MicroCheckFactoryImpl(NlsService nlsService, ThreadPrincipalService threadPrincipalService, BpmService bpmService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public MicroCheckFactoryImpl(NlsService nlsService, ThreadPrincipalService threadPrincipalService, BpmService bpmService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TopologyService topologyService) {
         this();
         this.setNlsService(nlsService);
     }
@@ -44,6 +47,11 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -57,6 +65,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case LAST_READING_TIMESTAMP_SET: {
                 return new LastReadingTimestampSet(this.thesaurus);
+            }
+            case SLAVE_DEVICE_HAS_GATEWAY: {
+                return new SlaveDeviceHasGateway(this.thesaurus, this.topologyService);
             }
             default: {
                 return null;
