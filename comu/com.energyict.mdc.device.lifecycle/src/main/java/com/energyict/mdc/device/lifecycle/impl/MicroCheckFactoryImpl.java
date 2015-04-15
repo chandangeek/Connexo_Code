@@ -4,6 +4,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.nls.Layer;
@@ -49,6 +50,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
         switch (check) {
             case DEFAULT_CONNECTION_AVAILABLE: {
                 return new DefaultConnectionTaskAvailable(this.thesaurus);
+            }
+            case AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED: {
+                return new ScheduledCommunicationTaskAvailable(this.thesaurus);
             }
             default: {
                 return null;
