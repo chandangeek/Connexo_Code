@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -14,33 +13,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.*;
-import com.elster.jupiter.validation.impl.IValidationRuleSetVersion;
 import com.elster.jupiter.validation.security.Privileges;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.time.Instant;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -174,7 +154,7 @@ public class ValidationResource {
                     ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
                             () -> new WebApplicationException(Response.Status.NOT_FOUND));
 
-                    ValidationRuleSetVersion version = ruleSet.addRuleSetVersion(info.description, info.startDate);
+                    ValidationRuleSetVersion version = ruleSet.addRuleSetVersion(info.description, makeInstant(info.startDate));
                     ruleSet.save();
                     return new ValidationRuleSetVersionInfo(version);
                 });
@@ -214,7 +194,7 @@ public class ValidationResource {
                     ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
                             ()-> new WebApplicationException(Response.Status.NOT_FOUND));
 
-                    ValidationRuleSetVersion version = ruleSet.cloneRuleSetVersion(ruleSetVersionId, info.description, info.startDate);
+                    ValidationRuleSetVersion version = ruleSet.cloneRuleSetVersion(ruleSetVersionId, info.description, makeInstant(info.startDate));
                     ruleSet.save();
                     return new ValidationRuleSetVersionInfo(version);
                 });
@@ -234,7 +214,7 @@ public class ValidationResource {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
             getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
-            ValidationRuleSetVersion ruleSetVersion = ruleSetRef.get().updateRuleSetVersion(info.id, info.description, info.startDate);
+            ValidationRuleSetVersion ruleSetVersion = ruleSetRef.get().updateRuleSetVersion(ruleSetVersionId, info.description, makeInstant(info.startDate));
             ruleSetRef.get().save();
             return new ValidationRuleSetVersionInfo(ruleSetVersion);
         });
@@ -421,7 +401,7 @@ public class ValidationResource {
     }
 
     @GET
-    @Path("/{ruleSetId}/rule/{ruleId}/readingtypes")
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") final long ruleSetId,
@@ -469,4 +449,9 @@ public class ValidationResource {
         }
     }
 
+    private Instant makeInstant(Long startDate) {
+        if(startDate!=null)
+            return Instant.ofEpochMilli(startDate);
+        return null;
+    }
 }

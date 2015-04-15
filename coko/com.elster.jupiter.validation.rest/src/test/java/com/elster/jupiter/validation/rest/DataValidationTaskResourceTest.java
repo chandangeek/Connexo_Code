@@ -51,9 +51,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     DataValidationTask dataValidationTask1;
 
     @Before
-
     public void setUp() throws Exception {
-
         super.setUp();
         dataValidationTask1 = mockDataValidationTask(TASK_ID);
         when(taskBuilder.setName(Matchers.any())).thenReturn(taskBuilder);
@@ -79,7 +77,6 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void getCreateTasksTest() {
-
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus);
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 1;
@@ -100,8 +97,6 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void updateTasksTest() {
-
-
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus);
         info.id = TASK_ID;
         info.deviceGroup = new MeterGroupInfo();
@@ -132,6 +127,5 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         doReturn(Optional.of(validationTask)).when(validationService).findValidationTask(id);
 
         return validationTask;
-
     }
 }
