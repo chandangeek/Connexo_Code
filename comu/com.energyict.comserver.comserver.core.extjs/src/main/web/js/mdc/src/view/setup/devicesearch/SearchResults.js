@@ -39,7 +39,8 @@ Ext.define('Mdc.view.setup.devicesearch.SearchResults', {
             grid: {
                 xtype: 'bulk-selection-mdc-search-results-grid',
                 itemId: 'static-grid',
-                visible: false
+                visible: false,
+                allChosenByDefault: true
             },
             emptyComponent: {
                 xtype: 'no-items-found-panel',

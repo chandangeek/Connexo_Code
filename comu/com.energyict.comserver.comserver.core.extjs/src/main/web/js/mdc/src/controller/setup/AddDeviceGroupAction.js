@@ -164,7 +164,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     this.getStaticGridContainer().setVisible(false);
                     this.getDynamicGridContainer().setVisible(true);
                 } else {
-                    this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilter();
                     this.getDynamicGridContainer().setVisible(false);
                     this.getStaticGridContainer().setVisible(true);
                 }
@@ -187,9 +186,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         var newName = this.getNameTextField().getValue();
         store.clearFilter();
         store.filter([
-            {filterFn: function (item) {
-                return item.get("name").toLowerCase() === newName.toLowerCase();
-            }}
+            {
+                filterFn: function (item) {
+                    return item.get("name").toLowerCase() === newName.toLowerCase();
+                }
+            }
         ]);
         var length = store.data.length;
         store.clearFilter();
@@ -222,19 +223,18 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         this.addDeviceGroupWidget = null;
         this.addDeviceGroup();
         this.getDeviceGroupsStore().load();
-        //var router = this.getController('Uni.controller.history.Router');
-        //router.getRoute('devices/devicegroups').forward();
     },
 
     addDeviceGroup: function () {
-        var me = this;
-        var record = Ext.create('Mdc.model.DeviceGroup');
-        var router = this.getController('Uni.controller.history.Router');
-        var preloader = Ext.create('Ext.LoadMask', {
-            msg: "Loading...",
-            target: this.getAddDeviceGroupWizard()
-        });
+        var me = this,
+            record = Ext.create('Mdc.model.DeviceGroup'),
+            preloader = Ext.create('Ext.LoadMask', {
+                msg: "Loading...",
+                target: this.getAddDeviceGroupWizard()
+            });
+
         preloader.show();
+
         if (record) {
             record.set('name', this.getNameTextField().getValue());
             var isDynamic = this.getDynamicRadioButton().checked;
@@ -249,7 +249,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 } else {
                     var selection = this.getStaticGrid().getSelectionModel().getSelection();
                     var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
-                    for (i = 0; i < numberOfDevices; i++) {
+                    for (var i = 0; i < numberOfDevices; i++) {
                         devicesList.push(this.getStaticGrid().getSelectionModel().getSelection()[i].data.id);
                     }
                 }
@@ -412,11 +412,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                                     };
                                 store = staticGrid.getStore();
                                 staticGrid.un('selectionchange', staticGrid.onSelectionChange);
-                                staticGrid.getUncheckAllButton().on('click', function() {
+                                staticGrid.getUncheckAllButton().on('click', function () {
                                     staticDevices.loadData([], false);
                                     staticGrid.getSelectionCounter().setText(staticGrid.counterTextFn(staticDevices.getCount()));
                                 });
-                                staticGrid.on('selectionchange', function(selModel, selectedRecords) {
+                                staticGrid.on('selectionchange', function (selModel, selectedRecords) {
                                     var idsOfUpdatedRecords = (previousArrayIds.length < modifyArray(selectedRecords).length) ? _.difference(modifyArray(selectedRecords), previousArrayIds) :
                                             _.difference(previousArrayIds, modifyArray(selectedRecords)),
                                         updatedRec;
