@@ -8,7 +8,10 @@ Ext.define('Cfg.view.validation.VersionsList', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Action',
-        'Cfg.view.validation.VersionsActionMenu'
+        'Cfg.view.validation.VersionsActionMenu',
+        'Uni.I18n',
+        'Uni.Auth',
+        'Ext.button.Button'
     ],
     ruleSetId: null,
 	versionId: null,
@@ -36,7 +39,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
                 menu: {
                     itemId: 'ruleSetVersionsGridMenu',
                     xtype: 'versions-action-menu'
@@ -60,7 +63,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
                 items: [
                     {
                         text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                        privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
                         itemId: 'newVersion',
                         xtype: 'button',
                         href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/add',

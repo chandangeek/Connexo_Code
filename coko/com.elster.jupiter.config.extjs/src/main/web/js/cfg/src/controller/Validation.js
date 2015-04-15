@@ -778,7 +778,9 @@ Ext.define('Cfg.controller.Validation', {
                 rulesContainerWidget.down('#stepsMenu #ruleSetOverviewLink').setText(ruleSet.get('name'));
 
                 me.getApplication().fireEvent('loadRuleSet', ruleSet);
-                rulesContainerWidget.down('ruleset-action-menu').record = ruleSet;
+                var actionMenu = rulesContainerWidget.down('ruleset-action-menu');
+                if(actionMenu)
+                    actionMenu.record = ruleSet;
             }
         });
     },
@@ -819,15 +821,18 @@ Ext.define('Cfg.controller.Validation', {
 
         itemForm.updateValidationRule(selectedRule);
 
+        var actionMenu = null;
         if (me.getRuleSetBrowsePanel()) {
-            me.getRulePreview().down('validation-rule-action-menu').record = record;
+            actionMenu = me.getRulePreview().down('validation-rule-action-menu');
         } else if (me.getRulePreviewContainer()) {
-            itemForm.down('validation-rule-action-menu').record = record;
+            actionMenu = itemForm.down('validation-rule-action-menu');
         } else if (me.getVersionsContainer()){
-            me.getRulePreview().down('validation-rule-action-menu').record = record;
+            actionMenu = me.getRulePreview().down('validation-rule-action-menu');
         } else if (me.getVersionRulePreviewContainer()) {
-            me.getRulePreview().down('validation-rule-action-menu').record = record;
+            actionMenu = me.getRulePreview().down('validation-rule-action-menu');
         }
+        if(actionMenu)
+            actionMenu.record = record;
 
         Ext.resumeLayouts();
     },
@@ -1189,11 +1194,15 @@ Ext.define('Cfg.controller.Validation', {
                 var rule = rulesStore.getById(parseInt(ruleId));
                 var itemForm = rulesContainerWidget.down('validation-rule-preview');
                 itemForm.updateValidationRule(rule);
-                itemForm.down('#rulePreviewActionsButton').destroy();
+                var actionButton = itemForm.down('#rulePreviewActionsButton');
+                if(actionButton)
+                    actionButton.destroy();
                 itemForm.setTitle('');
 
                 me.getApplication().fireEvent('loadRule', rule);
-                rulesContainerWidget.down('validation-rule-action-menu').record = rule;
+                actionButton = rulesContainerWidget.down('validation-rule-action-menu');
+                if(actionButton)
+                    actionButton.record = rule;
                 rulesContainerWidget.down('#stepsRuleMenu #ruleSetOverviewLink').setText(rule.get('name'));
                 rulesContainerWidget.setLoading(false);
             }
@@ -1453,7 +1462,7 @@ Ext.define('Cfg.controller.Validation', {
                 } else {
                     messageText = Uni.I18n.translate('validation.addVersionSuccess.msg', 'CFG', 'Validation rule set version added');
                 }
-                    router.getRoute('administration/rulesets/overview/versions').forward();
+                router.getRoute('administration/rulesets/overview/versions').forward();
 
                 me.getApplication().fireEvent('acknowledge', messageText);
             },
@@ -1487,10 +1496,10 @@ Ext.define('Cfg.controller.Validation', {
         me.getApplication().fireEvent('changecontentevent', versionContainerWidget);
         versionContainerWidget.setLoading(true);
         versionStore.load({
-                params: {
-                    ruleSetId: ruleSetId,
-                    versionId: versionId
-                },
+            params: {
+                ruleSetId: ruleSetId,
+                versionId: versionId
+            },
             callback: function (records, operation, success) {
 
                 versionRecord = this.getById(parseInt(versionId));
@@ -1500,7 +1509,9 @@ Ext.define('Cfg.controller.Validation', {
                 var itemForm = versionContainerWidget.down('version-preview');
                 itemForm.updateVersion(versionRecord);
 
-                versionContainerWidget.down('#versionActionMenu').record = versionRecord;
+                var actionMenu = versionContainerWidget.down('#versionActionMenu');
+                if(actionMenu)
+                    actionMenu.record = versionRecord;
                 versionContainerWidget.setLoading(false);
 
 

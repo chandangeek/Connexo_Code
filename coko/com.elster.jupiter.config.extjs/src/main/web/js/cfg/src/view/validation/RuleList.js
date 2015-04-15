@@ -46,7 +46,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
                 menu: {
                     itemId: 'ruleGridMenu',
                     xtype: 'validation-rule-action-menu'
@@ -68,7 +68,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                        privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
                         itemId: 'addRuleLink',                        
 						href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/'+ me.versionId + '/rules/add',
                         hrefTarget: '_self'

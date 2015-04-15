@@ -1,4 +1,8 @@
 Ext.define('Cfg.view.validationtask.ActionMenu', {
+    requires: [
+        'Uni.I18n',
+        'Uni.Auth'
+    ],
     extend: 'Ext.menu.Menu',
     alias: 'widget.tasks-action-menu',
     plain: true,
@@ -8,13 +12,13 @@ Ext.define('Cfg.view.validationtask.ActionMenu', {
         {
             itemId: 'edit-task',
             text: Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
             action: 'editValidationTask'
         },
         {
             itemId: 'remove-task',
             text: Uni.I18n.translate('validationTasks.general.remove', 'CFG', 'Remove'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
             action: 'removeTask'
         },
         {

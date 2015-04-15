@@ -9,13 +9,13 @@ Ext.define('Cfg.view.validation.VersionActionMenu', {
         {
             itemId: 'editVersion',
             text: Uni.I18n.translate('validation.edit', 'CFG', 'Edit'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
             action: 'editVersion'
         },     
         {
             itemId: 'deleteVersion',
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
             action: 'deleteVersion'
         }
     ]
