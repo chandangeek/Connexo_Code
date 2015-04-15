@@ -58,7 +58,7 @@ public class DeviceFirmwareMessagesResource {
         return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, device, uploadOption)).build();
     }
 
-    private DeviceMessageId getFirmwareUpgradeMessageId(Device device, @PathParam("uploadOption") String uploadOption) {
+    private DeviceMessageId getFirmwareUpgradeMessageId(Device device, String uploadOption) {
         ProtocolSupportedFirmwareOptions targetFirmwareOptions = ProtocolSupportedFirmwareOptions.from(uploadOption)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
         Set<DeviceMessageId> allSupportedMessageIds = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
