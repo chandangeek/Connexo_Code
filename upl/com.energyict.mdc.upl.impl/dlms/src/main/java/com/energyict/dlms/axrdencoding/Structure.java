@@ -16,7 +16,9 @@ import com.energyict.protocol.ProtocolException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -70,6 +72,13 @@ public class Structure extends AbstractDataType {
 
 	public AbstractDataType getNextDataType() {
 		return dataTypes.get(autoIndex++);
+	}
+
+	/**
+	 * Peek at the next datatype, without increasing the autoIndex
+	 */
+	public AbstractDataType peekAtNextDataType() {
+		return dataTypes.get(autoIndex);
 	}
 
 	public AbstractDataType getDataType() {

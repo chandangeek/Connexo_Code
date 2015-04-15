@@ -42,7 +42,17 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.transportTypeAttributeName, TransportType.getTypes()),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.messageTypeAttributeName, MessageType.getTypes())
-    ),;
+    ),
+    CONFIGURE_PUSH_EVENT_NOTIFICATION_OBJECT_DEFINITIONS(8,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName)
+    ),
+    CONFIGURE_PUSH_EVENT_NOTIFICATION_SEND_DESTINATION(9,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.typeAttributeName, PushType.getTypes()),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.transportTypeAttributeName, TransportType.getTypes()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.messageTypeAttributeName, MessageType.getTypes())
+    );
 
 
     public enum PushType {

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.am130;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.dlms.DLMSCache;
+import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -63,6 +64,7 @@ public class AM130 extends AM500 {
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
         result.add(new OutboundTcpIpConnectionType());
+        result.add(new InboundIpConnectionType());
         return result;
     }
 

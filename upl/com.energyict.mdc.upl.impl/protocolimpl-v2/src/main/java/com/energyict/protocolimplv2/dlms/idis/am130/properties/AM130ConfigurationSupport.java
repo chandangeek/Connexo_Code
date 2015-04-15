@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
@@ -46,14 +47,16 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
                 this.limitMaxNrOfDaysPropertySpec(),
                 this.readCachePropertySpec(),
                 this.useGeneralBlockTransferPropertySpec(),
-                this.generalBlockTransferWindowSizePropertySpec());
+                this.generalBlockTransferWindowSizePropertySpec(),
+                this.callHomeIdPropertySpec()
+        );
     }
 
-    private PropertySpec useGeneralBlockTransferPropertySpec() {
+    protected PropertySpec useGeneralBlockTransferPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(USE_GBT, USE_GBT_DEFAULT_VALUE);
     }
 
-    private PropertySpec generalBlockTransferWindowSizePropertySpec() {
+    protected PropertySpec generalBlockTransferWindowSizePropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE);
 
     }
@@ -95,4 +98,9 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     protected PropertySpec maxRecPduSizePropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
+
+    protected PropertySpec callHomeIdPropertySpec() {
+        return  PropertySpecFactory.stringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+    }
+
 }

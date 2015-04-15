@@ -11,6 +11,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.meterdata.CollectedLogBook;
@@ -36,6 +37,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayPr
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -52,7 +54,6 @@ public class EventPushNotificationParser {
 
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
     private static final int LAST_EVENT_ATTRIBUTE_NUMBER = 3;
-    private static final int EVENT_NOTIFICATION_CLASS_ID = 20012;
 
     private final ComChannel comChannel;
     private final InboundDAO inboundDAO;
@@ -76,12 +77,12 @@ public class EventPushNotificationParser {
         byte[] header = new byte[8];
         inboundFrame.get(header);
         byte tag = inboundFrame.get();
-        if (tag == DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST) {
+        if (tag == getCosemNotificationAPDUTag()) {
             parseAPDU(inboundFrame);
         } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
             parseEncryptedFrame(inboundFrame);
         } else {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
+            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
         }
     }
 
@@ -93,9 +94,7 @@ public class EventPushNotificationParser {
         int systemTitleLength = inboundFrame.get() & 0xFF;
         byte[] systemTitle = new byte[systemTitleLength];
         inboundFrame.get(systemTitle);
-        String serialNumber = new String(systemTitle);
-        serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
-        deviceIdentifier = new DeviceIdentifierLikeSerialNumber("%" + serialNumber + "%");
+        deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(systemTitle);
 
         int remainingLength = inboundFrame.get() & 0xFF;
         int securityPolicy = inboundFrame.get() & 0xFF;
@@ -123,15 +122,25 @@ public class EventPushNotificationParser {
         }
 
         byte plainTag = decryptedFrame.get();
-        if (plainTag != DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST));
+        if (plainTag != getCosemNotificationAPDUTag()) {
+            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemNotificationAPDUTag()));
         }
 
         parseAPDU(decryptedFrame);
     }
 
+    protected byte getCosemNotificationAPDUTag() {
+        return DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST;
+    }
+
+    protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
+        String serialNumber = new String(systemTitle);
+        serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
+        return new DeviceIdentifierLikeSerialNumber("%" + serialNumber + "%");
+    }
+
     private SecurityContext getSecurityContext() {
-        G3GatewayProperties securityProperties = new G3GatewayProperties();
+        DlmsProperties securityProperties = getNewInstanceOfProperties();
         securityProperties.setSecurityPropertySet(getSecurityPropertySet());
         securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
 
@@ -144,6 +153,10 @@ public class EventPushNotificationParser {
         SecurityContext securityContext = dlmsSession.getAso().getSecurityContext();
         securityContext.getSecurityProvider().setRespondingFrameCounterHandling(new DefaultRespondingFrameCounterHandler());
         return securityContext;
+    }
+
+    protected DlmsProperties getNewInstanceOfProperties() {
+        return new G3GatewayProperties();
     }
 
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
@@ -183,12 +196,12 @@ public class EventPushNotificationParser {
         return ByteBuffer.wrap(ProtocolTools.concatByteArrays(header, frame));
     }
 
-    private void parseAPDU(ByteBuffer inboundFrame) {
+    protected void parseAPDU(ByteBuffer inboundFrame) {
         byte optionalDate = inboundFrame.get(); //Should be 0x00, meaning there is no date.
 
         short classId = inboundFrame.getShort();
-        if (classId != EVENT_NOTIFICATION_CLASS_ID) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected push event notification from object with class ID '" + EVENT_NOTIFICATION_CLASS_ID + "' but was '" + classId + "'"));
+        if (classId != DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
+            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Expected push event notification from object with class ID '" + DLMSClassId.EVENT_NOTIFICATION.getClassId() + "' but was '" + classId + "'"));
         }
 
         byte[] obisCodeBytes = new byte[6];
@@ -259,5 +272,9 @@ public class EventPushNotificationParser {
         } catch (ProtocolException e) {
             throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
         }
+    }
+
+    protected InboundDAO getInboundDAO() {
+        return inboundDAO;
     }
 }

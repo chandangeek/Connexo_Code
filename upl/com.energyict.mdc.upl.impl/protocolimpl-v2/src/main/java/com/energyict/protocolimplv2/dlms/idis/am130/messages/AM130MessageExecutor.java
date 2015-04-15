@@ -1,6 +1,11 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.PPPSetup;
@@ -58,6 +63,10 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
             collectedMessage = writeFilterForAlarm1or2(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
             collectedMessage = configurePushSetup(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_OBJECT_DEFINITIONS)) {
+            collectedMessage = configurePushSetupObjectDefinitions(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_SEND_DESTINATION)) {
+            collectedMessage = configurePushSetupSendDestination(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetIPAddress)) {
             writeIpAddress(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetSubnetMask)) {
@@ -88,6 +97,46 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         return collectedMessage;
     }
 
+    private CollectedMessage configurePushSetupSendDestination(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
+        ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
+        pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
+        EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
+
+        String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getDeviceMessageAttributeValue();
+        int transportType = AlarmConfigurationMessage.TransportType.valueOf(transportTypeString).getId();
+
+        String destinationAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.destinationAddressAttributeName).getDeviceMessageAttributeValue();
+
+        String messageTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.messageTypeAttributeName).getDeviceMessageAttributeValue();
+        int messageType = AlarmConfigurationMessage.MessageType.valueOf(messageTypeString).getId();
+
+        eventPushNotificationConfig.writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
+        return collectedMessage;
+    }
+
+    private CollectedMessage configurePushSetupObjectDefinitions(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
+        ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
+        pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
+        EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
+
+        String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
+        List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions;
+        try {
+            objectDefinitions = composePushSetupObjectDefinitions(pushSetupObisCode, eventPushNotificationConfig, objectDefinitionsAttributeValue);
+        } catch (Throwable e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            String msg = "The object definition attribute has a wrong format: " + e.getMessage();
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
+            collectedMessage.setDeviceProtocolInformation(msg);
+            return collectedMessage;
+        }
+
+        eventPushNotificationConfig.writePushObjectList(objectDefinitions);
+        return collectedMessage;
+    }
+
     private CollectedMessage configurePushSetup(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getDeviceMessageAttributeValue();
         ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
@@ -95,22 +144,15 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
         String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getDeviceMessageAttributeValue();
-        List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions = new ArrayList<>();
-        for (String definition : objectDefinitionsAttributeValue.split(";")) {
-            try {
-                String[] definitionParts = definition.split(",");
-                int classId = Integer.parseInt(definitionParts[0]);
-                ObisCode obisCode = ObisCode.fromString(definitionParts[1]);
-                int attributeIndex = Integer.parseInt(definitionParts[2]);
-                int dataIndex = Integer.parseInt(definitionParts[3]);
-                objectDefinitions.add(eventPushNotificationConfig.new ObjectDefinition(classId, obisCode, attributeIndex, dataIndex));
-            } catch (Throwable e) {
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                String msg = "The object definition attribute has a wrong format: " + e.getMessage();
-                collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
-                collectedMessage.setDeviceProtocolInformation(msg);
-                return collectedMessage;
-            }
+        List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions;
+        try {
+            objectDefinitions = composePushSetupObjectDefinitions(pushSetupObisCode, eventPushNotificationConfig, objectDefinitionsAttributeValue);
+        } catch (Throwable e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            String msg = "The object definition attribute has a wrong format: " + e.getMessage();
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, msg));
+            collectedMessage.setDeviceProtocolInformation(msg);
+            return collectedMessage;
         }
 
         String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getDeviceMessageAttributeValue();
@@ -124,6 +166,37 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         eventPushNotificationConfig.writePushObjectList(objectDefinitions);
         eventPushNotificationConfig.writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
         return collectedMessage;
+    }
+
+    private List<EventPushNotificationConfig.ObjectDefinition> composePushSetupObjectDefinitions(ObisCode pushSetupObisCode, EventPushNotificationConfig eventPushNotificationConfig, String objectDefinitionsAttributeValue) throws ProtocolException {
+        List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions = new ArrayList<>();
+        addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, pushSetupObisCode, DLMSClassId.PUSH_EVENT_NOTIFICATION_SETUP.getClassId(), 1);
+        for (String definition : objectDefinitionsAttributeValue.split(";")) {
+            ObisCode obisCode = ObisCode.fromString(definition);
+            int classId = getCosemObjectFactory().getProtocolLink().getMeterConfig().getClassId(obisCode);
+            switch (classId) {
+                case 1:
+                    addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, obisCode, classId, 1, 2); // Logical name, value
+                    break;
+                case 3:
+                    addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, obisCode, classId, 1, 2, 3); // Logical name, valua, scaler_unit
+                    break;
+                case 4:
+                    addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, obisCode, classId, 1, 2, 3, 5); // Logical name, value, scaler_unit, capture_time
+                case 5:
+                    addObjectDefinitionsToConfig(eventPushNotificationConfig, objectDefinitions, obisCode, classId, 1, 2, 4, 6); // Logical name, value, scaler_unit, capture_time
+                    break;
+                default:
+                    throw new ProtocolException("Object " + obisCode + " is of class " + classId + ", only objects of classes 1, 3, 4 and 5 are supported.");
+            }
+        }
+        return objectDefinitions;
+    }
+
+    private void addObjectDefinitionsToConfig(EventPushNotificationConfig eventPushNotificationConfig, List<EventPushNotificationConfig.ObjectDefinition> objectDefinitions, ObisCode obisCode, int classId, int... attributes) {
+        for (int attribute : attributes) {
+            objectDefinitions.add(eventPushNotificationConfig.new ObjectDefinition(classId, obisCode, attribute, 0));
+        }
     }
 
     private void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {

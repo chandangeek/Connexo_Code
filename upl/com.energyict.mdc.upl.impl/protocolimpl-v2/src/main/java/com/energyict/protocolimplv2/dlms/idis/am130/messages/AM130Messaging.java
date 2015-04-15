@@ -6,7 +6,16 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +41,8 @@ public class AM130Messaging extends IDISMessaging {
         am130SupportedMessages.add(AlarmConfigurationMessage.RESET_BITS_IN_ALARM_REGISTER_1_OR_2);
         am130SupportedMessages.add(AlarmConfigurationMessage.WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2);
         am130SupportedMessages.add(AlarmConfigurationMessage.FULLY_CONFIGURE_PUSH_EVENT_NOTIFICATION);
+        am130SupportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_OBJECT_DEFINITIONS);
+        am130SupportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_SEND_DESTINATION);
 
         am130SupportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
         am130SupportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
