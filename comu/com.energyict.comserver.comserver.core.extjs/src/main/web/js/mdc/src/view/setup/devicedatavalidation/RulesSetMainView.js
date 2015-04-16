@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
     requires: [
         'Mdc.view.setup.devicedatavalidation.RulesSetGrid',
         'Mdc.view.setup.devicedatavalidation.RulesSetPreview',
+        'Mdc.view.setup.devicedatavalidation.RulesSetVersionPreview',
         'Uni.view.container.PreviewContainer'
     ],
     initComponent: function () {

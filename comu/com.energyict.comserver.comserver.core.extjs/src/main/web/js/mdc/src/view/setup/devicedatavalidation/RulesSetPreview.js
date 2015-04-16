@@ -7,8 +7,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetPreview', {
     ui: 'medium',
     padding: 0,
     requires: [
-        'Mdc.view.setup.devicedatavalidation.RulesGrid',
-        'Mdc.view.setup.devicedatavalidation.RulePreview'
+        'Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid',
+        'Mdc.view.setup.devicedatavalidation.RuleSetVersionPreview'
     ],
     initComponent: function () {
         var me = this;
@@ -17,26 +17,29 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetPreview', {
             {
                 xtype: 'preview-container',
                 grid: {
-                    xtype: 'deviceDataValidationRulesGrid',
+                    xtype: 'deviceDataValidationRuleSetVersionsGrid',
                     rulesSetId: me.rulesSetId
                 },
                 emptyComponent: {
+
+
                     xtype: 'no-items-found-panel',
-                    title: Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rules found'),
+                    itemId: 'ctr-no-validation-rule',
+                    title: Uni.I18n.translate('validation.empty.versions.title', 'CFG', 'No validation rule set versions found'),
                     reasons: [
-                        Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rules have been defined yet.')
+                        Uni.I18n.translate('validation.empty.versions.list.item1', 'CFG', 'No validation rule set versions have been added yet.')
                     ],
                     stepItems: [
                         {
-                            text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
-                            privileges:['privilege.view.fineTuneValidationConfiguration.onDevice'],
+                            text: Uni.I18n.translate('validation.addValidationRulesetVersion', 'CFG', 'Add validation rule set version'),
+                            privileges: ['privilege.administrate.validationConfiguration'],
                             ui: 'action',
-                            href: '#/administration/validation/rulesets/' + me.rulesSetId + '/rules/add'
+                            href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/add'
                         }
                     ]
                 },
                 previewComponent: {
-                    xtype: 'deviceDataValidationRulePreview'
+                    xtype: 'deviceDataValidationRulesSetVersionPreview'
                 }
             }
         ];
