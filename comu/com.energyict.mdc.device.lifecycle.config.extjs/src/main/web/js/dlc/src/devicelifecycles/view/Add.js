@@ -13,7 +13,8 @@ Ext.define('Dlc.devicelifecycles.view.Add', {
                 infoText: Uni.I18n.translate('deviceLifeCycles.add.templateMsg', 'DLC', 'The new device life cycle is based on the standard template and will use the same states and transitions.'),
                 router: me.router,
                 btnAction: 'add',
-                btnText: Uni.I18n.translate('general.add', 'DLC', 'Add')
+                btnText: Uni.I18n.translate('general.add', 'DLC', 'Add'),
+                hideInfoMsg: false
             }
         ];
         me.callParent(arguments);

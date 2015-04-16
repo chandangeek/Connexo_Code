@@ -9,6 +9,18 @@ Ext.define('Dlc.devicelifecycles.model.DeviceLifeCycle', {
             mapping: function (data) {
                 return data.name;
             }
+        },
+        {
+            name: 'statesCount',
+            persist: false
+        },
+        {
+            name: 'actionsCount',
+            persist: false
+        },
+        {
+            name: 'deviceTypes',
+            persist: false
         }
     ],
 

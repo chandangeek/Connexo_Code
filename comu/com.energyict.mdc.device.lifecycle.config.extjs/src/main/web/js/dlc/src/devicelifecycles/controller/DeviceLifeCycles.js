@@ -4,7 +4,9 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
     views: [
         'Dlc.devicelifecycles.view.Setup',
         'Dlc.devicelifecycles.view.Add',
-        'Dlc.devicelifecycles.view.Clone'
+        'Dlc.devicelifecycles.view.Clone',
+        'Dlc.devicelifecycles.view.Edit',
+        'Dlc.devicelifecycles.view.Overview'
     ],
 
     stores: [
@@ -31,8 +33,19 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
         {
             ref: 'clonePage',
             selector: 'device-life-cycles-clone'
+        },
+        {
+            ref: 'editPage',
+            selector: 'device-life-cycles-edit'
+        },
+        {
+            ref: 'overviewPage',
+            selector: 'device-life-cycles-overview'
         }
     ],
+
+    deviceLifeCycle: null,
+    fromOverview: false,
 
     init: function () {
         this.control({
@@ -42,6 +55,9 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             'device-life-cycles-add-form button[action=add]': {
                 click: this.createDeviceLifeCycle
             },
+            'device-life-cycles-add-form button[action=edit]': {
+                click: this.createDeviceLifeCycle
+            },
             'device-life-cycles-add-form button[action=clone]': {
                 click: this.cloneDeviceLifeCycle
             },
@@ -49,30 +65,37 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 click: this.showRemoveConfirmationPanel
             },
             'device-life-cycles-action-menu menuitem[action=clone]': {
-                click: this.moveToClone
+                click: this.moveTo
+            },
+            'device-life-cycles-action-menu menuitem[action=edit]': {
+                click: this.moveTo
             }
         });
     },
 
-    moveToClone: function () {
+    moveTo: function (btn) {
         var me = this,
-            grid = me.getLifeCyclesGrid(),
-            record = grid.getSelectionModel().getLastSelected(),
-            router = me.getController('Uni.controller.history.Router');
+            record = btn.up('device-life-cycles-action-menu').record,
+            router = me.getController('Uni.controller.history.Router'),
+            route;
 
-        router.getRoute('administration/devicelifecycles/clone').forward({deviceLifeCycleId: record.get('id')});
+        me.getOverviewPage() ? me.fromOverview = true : me.fromOverview = false;
+        route = btn.action == 'clone' ? 'administration/devicelifecycles/clone' : 'administration/devicelifecycles/devicelifecycle/edit';
+        router.getRoute(route).forward({deviceLifeCycleId: record.get('id')});
     },
 
-    showRemoveConfirmationPanel: function () {
+    showRemoveConfirmationPanel: function (btn) {
         var me = this,
-            grid = me.getLifeCyclesGrid(),
-            record = grid.getSelectionModel().getLastSelected();
+            record = btn.up('device-life-cycles-action-menu').record,
+            page = Ext.ComponentQuery.query('contentcontainer')[0];
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceLifeCycles.confirmWindow.removeMsg', 'DLC', 'This device life cycle will no longer be available.'),
             title: Uni.I18n.translate('general.remove', 'DLC', 'Remove') + " '" + record.get('name') + "'?",
             config: {
-                me: me
+                me: me,
+                record: record,
+                page: page
             },
             fn: me.removeConfirmationPanelHandler
         });
@@ -80,10 +103,9 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
     removeConfirmationPanelHandler: function (state, text, conf) {
         var me = conf.config.me,
-            grid = me.getLifeCyclesGrid(),
             router = me.getController('Uni.controller.history.Router'),
-            model = grid.getSelectionModel().getLastSelected(),
-            widget = me.getPage();
+            model = conf.config.record,
+            widget = conf.config.page;
 
         if (state === 'confirm') {
             widget.setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
@@ -91,7 +113,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 success: function () {
                     widget.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.removeSuccessMsg', 'DLC', 'Device life cycle removed'));
-                    router.getRoute().forward(null, router.queryParams);
+                    router.getRoute('administration/devicelifecycles').forward();
                 }
             });
         }
@@ -109,12 +131,24 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
     showDeviceLifeCyclePreview: function (selectionModel, record, index) {
         var me = this,
             page = me.getPage(),
+            router = me.getController('Uni.controller.history.Router'),
             preview = page.down('device-life-cycles-preview'),
-            previewForm = page.down('device-life-cycles-preview-form');
+            previewForm = page.down('device-life-cycles-preview-form'),
+            deviceTypesList = '';
 
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
+        previewForm.down('#used-by').removeAll();
+        Ext.Array.each(record.get('deviceTypes'), function (deviceType) {
+            var url = router.getRoute('administration/devicetypes/view').buildUrl({deviceTypeId: deviceType.id});
+            deviceTypesList += '- <a href="' + url + '">' + deviceType.name + '</a><br/>';
+        });
+        previewForm.down('#used-by').add({
+            xtype: 'displayfield',
+            value: deviceTypesList
+        });
+        preview.down('device-life-cycles-action-menu').record = record;
         Ext.resumeLayouts(true);
     },
 
@@ -124,7 +158,28 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 router: me.getController('Uni.controller.history.Router')
             });
 
+        me.deviceLifeCycle = null;
         me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showEditDeviceLifeCycle: function (deviceLifeCycleId) {
+        var me = this,
+            deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle');
+
+        deviceLifeCycleModel.load(deviceLifeCycleId, {
+            success: function (deviceLifeCycleRecord) {
+                var view = Ext.widget('device-life-cycles-edit', {
+                        router: me.getController('Uni.controller.history.Router')
+                    }),
+                    form = view.down('device-life-cycles-add-form');
+
+                me.deviceLifeCycle = deviceLifeCycleRecord;
+                me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
+                form.setTitle(Uni.I18n.translatePlural('deviceLifeCycles.edit.title', deviceLifeCycleRecord.get('name'), 'DLC', 'Edit \'{0}\''));
+                form.loadRecord(deviceLifeCycleRecord);
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
     },
 
     showCloneDeviceLifeCycle: function (deviceLifeCycleId) {
@@ -152,7 +207,8 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             form = page.down('#device-life-cycles-add-form'),
             formErrorsPanel = form.down('#form-errors'),
             router = me.getController('Uni.controller.history.Router'),
-            data = {};
+            data = {},
+            route;
 
         if (!formErrorsPanel.isHidden()) {
             formErrorsPanel.hide();
@@ -166,7 +222,8 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             method: 'POST',
             jsonData: data,
             success: function () {
-                router.getRoute('administration/devicelifecycles').forward();
+                route = me.fromOverview ? 'administration/devicelifecycles/devicelifecycle' : 'administration/devicelifecycles';
+                router.getRoute(route).forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.clone.successMsg', 'DLC', 'Device life cycle cloned'));
             },
             failure: function (response) {
@@ -181,12 +238,13 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
     },
 
-    createDeviceLifeCycle: function () {
+    createDeviceLifeCycle: function (btn) {
         var me = this,
-            page = me.getAddPage(),
-            form = page.down('#device-life-cycles-add-form'),
+            page = me.deviceLifeCycle ? me.getEditPage() : me.getAddPage(),
+            form = page.down('device-life-cycles-add-form'),
             formErrorsPanel = form.down('#form-errors'),
-            record = Ext.create('Dlc.devicelifecycles.model.DeviceLifeCycle');
+            record = me.deviceLifeCycle || Ext.create('Dlc.devicelifecycles.model.DeviceLifeCycle'),
+            route;
 
         if (!formErrorsPanel.isHidden()) {
             formErrorsPanel.hide();
@@ -196,8 +254,13 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
         page.setLoading();
         record.save({
             success: function () {
-                me.getController('Uni.controller.history.Router').getRoute('administration/devicelifecycles').forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.add.successMsg', 'DLC', 'Device life cycle added'));
+                route = me.fromOverview ? 'administration/devicelifecycles/devicelifecycle' : 'administration/devicelifecycles';
+                me.getController('Uni.controller.history.Router').getRoute(route).forward();
+                if (btn.action === 'edit') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.edit.successMsg', 'DLC', 'Device life cycle saved'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.add.successMsg', 'DLC', 'Device life cycle added'));
+                }
             },
             failure: function (record, operation) {
                 page.setLoading(false);
@@ -207,6 +270,37 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                     formErrorsPanel.show();
                 }
             }
-        })
+        });
+    },
+
+    showDeviceLifeCycleOverview: function (deviceLifeCycleId) {
+        var me = this,
+            deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
+            router = me.getController('Uni.controller.history.Router'),
+            deviceTypesList = '';
+
+        deviceLifeCycleModel.load(deviceLifeCycleId, {
+            success: function (deviceLifeCycleRecord) {
+                var view = Ext.widget('device-life-cycles-overview', {
+                        router: router
+                    }),
+                    form = view.down('device-life-cycles-preview-form');
+
+                me.deviceLifeCycle = deviceLifeCycleRecord;
+                form.loadRecord(deviceLifeCycleRecord);
+                view.down('#device-life-cycle-link').setText(deviceLifeCycleRecord.get('name'));
+                Ext.Array.each(deviceLifeCycleRecord.get('deviceTypes'), function (deviceType) {
+                    var url = router.getRoute('administration/devicetypes/view').buildUrl({deviceTypeId: deviceType.id});
+                    deviceTypesList += '- <a href="' + url + '">' + deviceType.name + '</a><br/>';
+                });
+                form.down('#used-by').add({
+                    xtype: 'displayfield',
+                    value: deviceTypesList
+                });
+                view.down('device-life-cycles-action-menu').record = deviceLifeCycleRecord;
+                me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
     }
 });

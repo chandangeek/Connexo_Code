@@ -1,8 +1,7 @@
-Ext.define('Dlc.devicelifecycles.view.Clone', {
+Ext.define('Dlc.devicelifecycles.view.Edit', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.device-life-cycles-clone',
+    alias: 'widget.device-life-cycles-edit',
     router: null,
-    title: null,
     requires: ['Dlc.devicelifecycles.view.AddForm'],
 
     initComponent: function () {
@@ -10,12 +9,10 @@ Ext.define('Dlc.devicelifecycles.view.Clone', {
         me.content = [
             {
                 xtype: 'device-life-cycles-add-form',
-                title: me.title,
                 router: me.router,
-                infoText: me.infoText,
-                btnAction: 'clone',
-                btnText: Uni.I18n.translate('general.clone', 'DLC', 'Clone'),
-                hideInfoMsg: false
+                btnAction: 'edit',
+                btnText: Uni.I18n.translate('general.save', 'DLC', 'Save'),
+                hideInfoMsg: true
             }
         ];
         me.callParent(arguments);

@@ -5,6 +5,7 @@ Ext.define('Dlc.devicelifecycles.view.AddForm', {
     infoText: null,
     btnAction: null,
     btnText: null,
+    hideInfoMsg: false,
     itemId: 'device-life-cycles-add-form',
     ui: 'large',
     width: '100%',
@@ -21,6 +22,7 @@ Ext.define('Dlc.devicelifecycles.view.AddForm', {
                 itemId: 'info-message',
                 text: me.infoText,
                 margin: '0 0 20 20',
+                hidden: me.hideInfoMsg,
                 width: 800
             },
             {

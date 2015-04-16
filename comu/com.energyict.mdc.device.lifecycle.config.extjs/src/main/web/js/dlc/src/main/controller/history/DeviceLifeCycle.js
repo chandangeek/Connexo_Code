@@ -34,7 +34,8 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                         },
                         devicelifecycle: {
                             route: '{deviceLifeCycleId}',
-                            redirect: 'administration/devicelifecycles/devicelifecycle/states',
+                            controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                            action: 'showDeviceLifeCycleOverview',
                             callback: function (route) {
                                 this.getApplication().on('devicelifecycleload', function (record) {
                                     route.setTitle(record.get('name'));
@@ -43,6 +44,12 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                 return this;
                             },
                             items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
+                                    route: 'edit',
+                                    controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                                    action: 'showEditDeviceLifeCycle'
+                                },
                                 states: {
                                     title: Uni.I18n.translate('general.states', 'DLC', 'States'),
                                     route: 'states',
