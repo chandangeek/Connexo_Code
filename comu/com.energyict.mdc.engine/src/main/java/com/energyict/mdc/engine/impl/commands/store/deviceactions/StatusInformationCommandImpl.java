@@ -1,16 +1,19 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.StatusInformationCommand;
-import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.meterdata.DeviceFirmwareVersion;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation for a {@link StatusInformationCommand}<br/>
@@ -20,7 +23,9 @@ import java.util.List;
  * @author gna
  * @since 18/06/12 - 8:39
  */
-public class StatusInformationCommandImpl extends CompositeComCommandImpl implements StatusInformationCommand {
+public class StatusInformationCommandImpl extends SimpleComCommand implements StatusInformationCommand {
+
+    private final DeviceIdentifier<?> deviceDeviceIdentifier;
 
     public StatusInformationCommandImpl(final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
@@ -30,16 +35,8 @@ public class StatusInformationCommandImpl extends CompositeComCommandImpl implem
         if (commandRoot == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot");
         }
-
-        //TODO depending on how the MDM team will implement the status:
-        // - either by a fixed RegisterGroup
-        // - or with a marker on each register, meaning this will be a status Register
-        List<OfflineRegister> registers = null;
-
-        ReadRegistersCommand readRegistersCommand = getCommandRoot().getReadRegistersCommand(this, comTaskExecution);
-        readRegistersCommand.addRegisters(registers);
+        this.deviceDeviceIdentifier = device.getDeviceIdentifier();
     }
-
 
     @Override
     public String getDescriptionTitle() {
@@ -51,4 +48,8 @@ public class StatusInformationCommandImpl extends CompositeComCommandImpl implem
         return ComCommandTypes.STATUS_INFORMATION_COMMAND;
     }
 
+    @Override
+    public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+        addCollectedDataItem(deviceProtocol.getFirmwareVersions());
+    }
 }
