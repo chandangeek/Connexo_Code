@@ -36,4 +36,6 @@ public class FirmwareUpgradeTaskImpl extends ProtocolTaskImpl implements Firmwar
     public boolean isValidFirmwareCommand(DeviceMessageSpec deviceMessageSpec) {
         return this.deviceMessageSpecificationService.getFirmwareCategory().getId() == deviceMessageSpec.getCategory().getId();
     }
+
+
 }
