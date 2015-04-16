@@ -12,37 +12,15 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.security.Privileges;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.time.Instant;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -64,49 +42,14 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
             Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public ValidationRuleSetInfos getValidationRuleSets(@Context UriInfo uriInfo) {
+    public Response getValidationRuleSets(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ValidationRuleSet> list = queryRuleSets(params);
 
         ValidationRuleSetInfos infos = new ValidationRuleSetInfos(params.clipToLimit(list));
         infos.total = params.determineTotal(list.size());
 
-        return infos;
-    }
-
-    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
-        Query<ValidationRuleSet> query = validationService.getRuleSetQuery();
-        query.setRestriction(where("obsoleteTime").isNull());
-        RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("upper(name)"));
-    }
-
-
-    @GET
-    @Path("/{ruleSetId}/rules")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public ValidationRuleInfos getValidationRules(@PathParam("ruleSetId") long ruleSetId, @Context UriInfo uriInfo) {
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        Optional<? extends ValidationRuleSet> optional = validationService.getValidationRuleSet(ruleSetId);
-        if (optional.isPresent()) {
-            ValidationRuleInfos infos = new ValidationRuleInfos();
-            ValidationRuleSet set = optional.get();
-            List<? extends ValidationRule> rules;
-            if (params.size() == 0) {
-                rules = set.getRules();
-            } else {
-                rules = set.getRules(params.getStart(), params.getLimit());
-            }
-            for (ValidationRule rule : rules) {
-                infos.add(rule);
-            }
-            infos.total = set.getRules().size();
-            return infos;
-        } else {
-            return new ValidationRuleInfos();
-        }
+        return Response.ok(infos).build();
     }
 
     @POST
@@ -114,12 +57,9 @@ public class ValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response createValidationRuleSet(final ValidationRuleSetInfo info) {
-        return Response.status(Response.Status.CREATED).entity(new ValidationRuleSetInfo(transactionService.execute(new Transaction<ValidationRuleSet>() {
-            @Override
-            public ValidationRuleSet perform() {
-                return validationService.createValidationRuleSet(info.name, info.description);
-            }
-        }))).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(new ValidationRuleSetInfo(transactionService.execute(
+                        () -> validationService.createValidationRuleSet(info.name, info.description)))).build();
     }
 
     @PUT
@@ -171,106 +111,263 @@ public class ValidationResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
+    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
+        Query<ValidationRuleSet> query = validationService.getRuleSetQuery();
+        query.setRestriction(where("obsoleteTime").isNull());
+        RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
+        return restQuery.select(queryParameters, Order.ascending("upper(name)"));
+    }
+    ////// VERSIONS
+    @GET
+    @Path("/{ruleSetId}/versions")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    public Response getRuleSetVersions(@PathParam("ruleSetId") long ruleSetId,@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
+
+        ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
+                () -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+
+        List<? extends ValidationRuleSetVersion> versions;
+        if (queryParameters.size() == 0) {
+            versions = ruleSet.getRuleSetVersions();
+        } else {
+            versions = ruleSet.getRuleSetVersions(queryParameters.getStart(), queryParameters.getLimit());
+        }
+        ValidationRuleSetVersionInfos infos = new ValidationRuleSetVersionInfos();
+        infos.addAll(versions);
+        return Response.ok(infos).build();
+    }
+
     @POST
-    @Path("/{ruleSetId}/rules")
+    @Path("/{ruleSetId}/versions")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    public Response createRuleSetVersion(@PathParam("ruleSetId") long ruleSetId,ValidationRuleSetVersionInfo info) {
+
+        ValidationRuleSetVersionInfo result =
+                transactionService.execute(() -> {
+                    ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
+                            () -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+                    ValidationRuleSetVersion version = ruleSet.addRuleSetVersion(info.description, makeInstant(info.startDate));
+                    ruleSet.save();
+                    return new ValidationRuleSetVersionInfo(version);
+                });
+        return Response.status(Response.Status.CREATED).entity(result).build();
+    }
+
+    @DELETE
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response addRule(@PathParam("ruleSetId") final long ruleSetId, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
-        ValidationRuleInfo result =
+    public Response deleteRuleSetVersion(@PathParam("ruleSetId") long ruleSetId,@PathParam("ruleSetVersionId") final long ruleSetVersionId, @Context final SecurityContext securityContext) {
+
         transactionService.execute(() -> {
-            ValidationRuleSet set = validationService.getValidationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-            ValidationRule rule = set.addRule(info.action, info.implementation, info.name);
-            for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                rule.addReadingType(readingTypeInfo.mRID);
-            }
-            PropertyUtils propertyUtils = new PropertyUtils();
-            try {
-                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                    rule.addProperty(propertySpec.getName(), value);
+                Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
+                if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
+                    throw new WebApplicationException(Response.Status.NOT_FOUND);
                 }
-            } catch (ValidatorNotFoundException ex) {
-            } finally {
-                set.save();
-            }
-            return new ValidationRuleInfo(rule);
+                ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
+                ruleSetRef.get().deleteRuleSetVersion(ruleSetVersion);
+                return null;
         });
+        return Response.status(Response.Status.NO_CONTENT).build();
+
+    }
+
+    @POST
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/clone")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    public Response cloneRuleSetVersion(@PathParam("ruleSetId") long ruleSetId,
+                                        @PathParam("ruleSetVersionId") final long ruleSetVersionId,
+                                        ValidationRuleSetVersionInfo info) {
+
+        ValidationRuleSetVersionInfo result =
+                transactionService.execute(() -> {
+                    ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
+                            ()-> new WebApplicationException(Response.Status.NOT_FOUND));
+
+                    ValidationRuleSetVersion version = ruleSet.cloneRuleSetVersion(ruleSetVersionId, info.description, makeInstant(info.startDate));
+                    ruleSet.save();
+                    return new ValidationRuleSetVersionInfo(version);
+                });
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
     @PUT
-    @Path("/{ruleSetId}/rules/{ruleId}")
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public ValidationRuleInfos editRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
-        ValidationRuleInfos result = new ValidationRuleInfos();
-        result.add(transactionService.execute(new Transaction<ValidationRule>() {
-            @Override
-            public ValidationRule perform() {
-                ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    public Response updateRuleSetVersion(@PathParam("ruleSetId")long ruleSetId,
+                                         @PathParam("ruleSetVersionId") long ruleSetVersionId, ValidationRuleSetVersionInfo info) {
 
-                ValidationRule rule = getValidationRuleFromSetOrThrowException(ruleSet, ruleId);
-
-                List<String> mRIDs = new ArrayList<>();
-                for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
-                    mRIDs.add(readingTypeInfo.mRID);
-                }
-                Map<String, Object> propertyMap = new HashMap<>();
-                PropertyUtils propertyUtils = new PropertyUtils();
-                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                    if (value != null) {
-                        propertyMap.put(propertySpec.getName(), value);
-                    }
-                }
-                rule = ruleSet.updateRule(ruleId, info.name, info.active, info.action, mRIDs, propertyMap);
-                ruleSet.save();
-                return rule;
+        ValidationRuleSetVersionInfo result = transactionService.execute(() -> {
+            Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
+            if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
-        }));
-        return result;
+            getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
+            ValidationRuleSetVersion ruleSetVersion = ruleSetRef.get().updateRuleSetVersion(ruleSetVersionId, info.description, makeInstant(info.startDate));
+            ruleSetRef.get().save();
+            return new ValidationRuleSetVersionInfo(ruleSetVersion);
+        });
+        return Response.ok(result).build();
     }
 
-    private ValidationRule getValidationRuleFromSetOrThrowException(ValidationRuleSet ruleSet, long ruleId) {
-        return ruleSet.getRules().stream()
+    ////// RULES
+    @GET
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    public Response getValidationRules(@PathParam("ruleSetId") long ruleSetId
+            , @PathParam("ruleSetVersionId") final long ruleSetVersionId, @Context UriInfo uriInfo) {
+
+
+        ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
+                ()-> new WebApplicationException(Response.Status.NOT_FOUND));
+        ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSet, ruleSetVersionId);
+
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+
+        List<? extends ValidationRule> rules;
+        if (queryParameters.size() == 0) {
+            rules = ruleSetVersion.getRules();
+        } else {
+            rules = ruleSetVersion.getRules(queryParameters.getStart(), queryParameters.getLimit());
+        }
+        ValidationRuleInfos infos = new ValidationRuleInfos();
+        infos.addAll(rules);
+        return Response.ok(infos).build();
+    }
+
+
+    @POST
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    public Response addRule(@PathParam("ruleSetId") final long ruleSetId,
+                            @PathParam("ruleSetVersionId") final long ruleSetVersionId,
+                            final ValidationRuleInfo info, @Context SecurityContext securityContext) {
+        ValidationRuleInfo result =
+            transactionService.execute(() -> {
+                ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
+                        () -> new WebApplicationException(Response.Status.NOT_FOUND));
+                ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSet, ruleSetVersionId);
+
+                ValidationRule rule = ruleSetVersion.addRule(info.action, info.implementation, info.name);
+                for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
+                    rule.addReadingType(readingTypeInfo.mRID);
+                }
+                PropertyUtils propertyUtils = new PropertyUtils();
+                try {
+                    for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                        Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                        rule.addProperty(propertySpec.getName(), value);
+                    }
+                } catch (ValidatorNotFoundException ex) {
+                } finally {
+                    ruleSetVersion.save();
+                }
+                return new ValidationRuleInfo(rule);
+            });
+        return Response.status(Response.Status.CREATED).entity(result).build();
+    }
+
+    @PUT
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    public Response editRule(@PathParam("ruleSetId") final long ruleSetId,
+                                        @PathParam("ruleSetVersionId") final long ruleSetVersionId,
+                                        @PathParam("ruleId") final long ruleId,
+                                        final ValidationRuleInfo info, @Context SecurityContext securityContext) {
+        ValidationRuleInfos result = new ValidationRuleInfos();
+        result.add(transactionService.execute(() -> {
+            ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
+                    () -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+            ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSet, ruleSetVersionId);
+            ValidationRule rule = getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
+
+            List<String> mRIDs = new ArrayList<>();
+            for (ReadingTypeInfo readingTypeInfo : info.readingTypes) {
+                mRIDs.add(readingTypeInfo.mRID);
+            }
+            Map<String, Object> propertyMap = new HashMap<>();
+            PropertyUtils propertyUtils = new PropertyUtils();
+            for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
+                if (value != null) {
+                    propertyMap.put(propertySpec.getName(), value);
+                }
+            }
+            rule = ruleSetVersion.updateRule(ruleId, info.name, info.active, info.action, mRIDs, propertyMap);
+            ruleSetVersion.save();
+            return rule;
+        }));
+        return Response.ok(result).build();
+    }
+
+    private ValidationRuleSetVersion getValidationRuleVersionFromSetOrThrowException(ValidationRuleSet ruleSet, long ruleSetVersionId) {
+        return ruleSet.getRuleSetVersions().stream()
+                .filter(input -> input.getId() == ruleSetVersionId)
+                .findAny()
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+
+    private ValidationRule getValidationRuleFromVersionOrThrowException(ValidationRuleSetVersion ruleSetVersion, long ruleId) {
+        return ruleSetVersion.getRules().stream()
                             .filter(input -> input.getId() == ruleId)
                             .findAny()
                             .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
-    @Path("/{ruleSetId}/rules/{ruleId}")
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
+    public Response getRule(@PathParam("ruleSetId") final long ruleSetId,
+                            @PathParam("ruleSetVersionId") final long ruleSetVersionId,
+                            @PathParam("ruleId") final long ruleId) {
         ValidationRule rule = transactionService.execute((Transaction<ValidationRule>) () -> {
-            ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
+            if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
 
-            return getValidationRuleFromSetOrThrowException(ruleSet, ruleId);
+            ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
+            return getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
         });
         return Response.ok(new ValidationRuleInfo(rule)).build();
     }
 
     @DELETE
-    @Path("/{ruleSetId}/rules/{ruleId}")
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response removeRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
-        transactionService.execute(new Transaction<ValidationRule>() {
-            @Override
-            public ValidationRule perform() {
-                Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
-                if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
-                    throw new WebApplicationException(Response.Status.NOT_FOUND);
-                }
-                Optional<ValidationRule> ruleRef = validationService.getValidationRule(ruleId);
-                if (!ruleRef.isPresent() || ruleRef.get().getObsoleteDate() != null) {
-                    throw new WebApplicationException(Response.Status.NOT_FOUND);
-                }
-
-                ruleSetRef.get().deleteRule(ruleRef.get());
-                return null;
+    public Response removeRule(@PathParam("ruleSetId") final long ruleSetId,
+                               @PathParam("ruleSetVersionId") final long ruleSetVersionId,
+                               @PathParam("ruleId") final long ruleId) {
+        transactionService.execute(() -> {
+            Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
+            if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
+
+            ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
+            ValidationRule validationRule = getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
+
+            ruleSetVersion.deleteRule(validationRule);
+            return null;
         });
         return Response.status(Response.Status.NO_CONTENT).build();
     }
@@ -304,13 +401,21 @@ public class ValidationResource {
     }
 
     @GET
-    @Path("/{ruleSetId}/rule/{ruleId}/readingtypes")
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
-    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
+    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") final long ruleSetId,
+                                                   @PathParam("ruleSetVersionId") final long ruleSetVersionId,
+                                                   @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
         ReadingTypeInfos infos = new ReadingTypeInfos();
-        ValidationRuleSet validationRuleSet = fetchValidationRuleSet(ruleSetId, securityContext);
-        ValidationRule validationRule = getValidationRuleFromSetOrThrowException(validationRuleSet, ruleId);
+
+        Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
+        if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
+        ValidationRule validationRule = getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
         Set<ReadingType> readingTypes = validationRule.getReadingTypes();
         for (ReadingType readingType : readingTypes) {
             infos.add(readingType);
@@ -342,5 +447,11 @@ public class ValidationResource {
         public int compare(Validator o1, Validator o2) {
             return o1.getDisplayName().compareTo(o2.getDisplayName());
         }
+    }
+
+    private Instant makeInstant(Long startDate) {
+        if(startDate!=null)
+            return Instant.ofEpochMilli(startDate);
+        return null;
     }
 }
