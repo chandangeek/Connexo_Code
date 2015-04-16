@@ -7,9 +7,9 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
     requires: [
         'Uni.view.toolbar.PagingBottom',
         'Uni.view.toolbar.PagingTop',
-        'Cfg.view.validation.VersionsActionMenu'
+        'Cfg.store.ValidationRuleSetVersions'
     ],
-    store: 'Cfg.store.ValidationRuleSetVersions',
+    store: 'ValidationRuleSetVersions',
     overflowY: 'auto',
     initComponent: function () {
         var me = this;
