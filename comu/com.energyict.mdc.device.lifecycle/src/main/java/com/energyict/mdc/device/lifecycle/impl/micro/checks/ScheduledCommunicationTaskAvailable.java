@@ -29,7 +29,7 @@ public class ScheduledCommunicationTaskAvailable implements ServerMicroCheck {
 
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device) {
-        if (!anyDefaultConnectionTask(device).isPresent()) {
+        if (!anyScheduledCommunicationTask(device).isPresent()) {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(
                             this.thesaurus,
@@ -41,7 +41,7 @@ public class ScheduledCommunicationTaskAvailable implements ServerMicroCheck {
         }
     }
 
-    private Optional<ComTaskExecution> anyDefaultConnectionTask(Device device) {
+    private Optional<ComTaskExecution> anyScheduledCommunicationTask(Device device) {
         return device
                 .getComTaskExecutions()
                 .stream()

@@ -13,9 +13,10 @@ import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ServerMicroCheck} interface
- * that checks a Device has valid security properties
+ * that checks that a Device has valid security properties
  * for all {@link SecurityPropertySet}s that are defined
  * at the configuration level.
+ * @see Device#securityPropertiesAreValid() 
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:48)

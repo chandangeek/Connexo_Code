@@ -3,7 +3,6 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.nls.Thesaurus;
 
