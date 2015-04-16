@@ -11,21 +11,20 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.validation.ValidationService;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
+import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
+import javax.inject.Inject;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Copyrights EnergyICT
@@ -121,16 +120,15 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
                 checkInvalidChars(stringValue, FormatterProperties.FILENAME_PREFIX.getKey(), NON_PATH_INVALID);
                 checkIsRelativeChildPath(stringValue, FormatterProperties.FILENAME_PREFIX.getKey());
             } else if (property.getName().equals(FormatterProperties.FILE_EXTENSION.getKey())) {
-                extension = stringValue;
+                extension = Checks.is(stringValue).emptyOrOnlyWhiteSpace()?"csv":stringValue;
                 checkInvalidChars(stringValue, FormatterProperties.FILE_EXTENSION.getKey(), NON_PATH_INVALID);
-                checkIsRelativeChildPath(stringValue, FormatterProperties.FILE_EXTENSION.getKey());
             } else if (property.getName().equals(FormatterProperties.FILE_PATH.getKey())) {
-                path = stringValue;
+                path = Checks.is(stringValue).emptyOrOnlyWhiteSpace()?".":stringValue;
                 checkInvalidChars(stringValue, FormatterProperties.FILE_PATH.getKey(), PATH_INVALID);
                 checkIsRelativeChildPath(stringValue, FormatterProperties.FILE_PATH.getKey());
             }
         }
-        checkIsRelativeChildPath(path+"/"+prefix+"X"+extension, FormatterProperties.FILE_EXTENSION.getKey());
+        checkIsRelativeChildPath(path + File.separatorChar+prefix+"A"+extension, FormatterProperties.FILE_EXTENSION.getKey());
     }
 
     private void checkIsRelativeChildPath(String value, String fieldName) {
@@ -145,12 +143,7 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
 
     private boolean resolvesToSubDirectory(Path path) {
         // construct imaginary root that can not be part of the given path
-        Path root = StreamSupport.stream(path.spliterator(), false)
-                .map(Path::toString)
-                .filter(s -> !"..".equals(s))
-                .max(Comparator.comparing(String::length))
-                .map(s -> Paths.get('/' + s + 'A'))
-                .orElse(Paths.get("/A"));
+        Path root = Paths.get("/A");
         Path normalize = root.resolve(path).normalize();
 
         return normalize.toString().startsWith(root.toString());
