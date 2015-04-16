@@ -318,6 +318,16 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		return Optional.empty();
 	}
 
+    @Override
+    public Optional<ReadingType> getBulkReadingType() {
+        if (isCumulative()){
+            ReadingTypeCodeBuilder builder = this.builder();
+            builder.accumulate(Accumulation.BULKQUANTITY);
+            return dataModel.mapper(ReadingType.class).getOptional(builder.code());
+        }
+        return Optional.empty();
+    }
+
 	@Override
 	public boolean isBulkQuantityReadingType(ReadingType readingType) {
 		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
