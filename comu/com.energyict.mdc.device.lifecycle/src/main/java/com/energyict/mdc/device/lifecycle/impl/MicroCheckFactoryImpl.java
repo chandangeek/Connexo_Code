@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConnectionPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.LastReadingTimestampSet;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
@@ -73,6 +74,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case SECURITY_PROPERTIES_ARE_ALL_VALID: {
                 return new SecurityPropertiesAreValid(this.thesaurus);
+            }
+            case CONNECTION_PROPERTIES_ARE_ALL_VALID: {
+                return new ConnectionPropertiesAreValid(this.thesaurus);
             }
             case SLAVE_DEVICE_HAS_GATEWAY: {
                 return new SlaveDeviceHasGateway(this.thesaurus, this.topologyService);
