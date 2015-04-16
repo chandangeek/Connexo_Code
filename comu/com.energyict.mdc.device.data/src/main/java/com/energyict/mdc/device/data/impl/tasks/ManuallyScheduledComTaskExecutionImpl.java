@@ -60,7 +60,7 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     public ManuallyScheduledComTaskExecutionImpl initialize(Device device, ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
         super.initializeFrom(device, comTaskEnablement);
         this.setComTask(comTaskEnablement.getComTask());
-        this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null));
+        this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties());
         if (temporalExpression != null) {
             this.setNextExecutionSpecsFrom(temporalExpression);
         }

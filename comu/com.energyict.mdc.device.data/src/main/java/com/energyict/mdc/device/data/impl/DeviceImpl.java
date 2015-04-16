@@ -21,7 +21,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
@@ -171,6 +170,8 @@ public class DeviceImpl implements Device, CanLock {
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
+
+    @SuppressWarnings("unused")
     private long id;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_TYPE_REQUIRED + "}")
@@ -190,9 +191,13 @@ public class DeviceImpl implements Device, CanLock {
     private String timeZoneId;
     private TimeZone timeZone;
     private Integer yearOfCertification;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Valid
@@ -274,11 +279,11 @@ public class DeviceImpl implements Device, CanLock {
     private void createLoadProfiles() {
         if (this.getDeviceConfiguration() != null) {
             this.loadProfiles.addAll(
-                this.getDeviceConfiguration()
-                    .getLoadProfileSpecs()
-                    .stream()
-                    .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
-                    .collect(Collectors.toList()));
+                    this.getDeviceConfiguration()
+                            .getLoadProfileSpecs()
+                            .stream()
+                            .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                            .collect(Collectors.toList()));
         }
     }
 
@@ -571,10 +576,7 @@ public class DeviceImpl implements Device, CanLock {
         try {
             try (PreparedStatement stmnt = getLockSqlBuilder().getStatement(dataModel.getConnection(true))) {
                 try (ResultSet rs = stmnt.executeQuery()) {
-                    if (rs.next()) {
-                        return;
-                    }
-                    else {
+                    if (!rs.next()) {
                         throw new ApplicationException("Tuple not found");
                     }
                 }
@@ -627,9 +629,9 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public ProtocolDialectProperties getProtocolDialectProperties(String dialectName) {
-        ProtocolDialectProperties dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
-        if (dialectProperties != null) {
+    public Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName) {
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
+        if (dialectProperties.isPresent()) {
             return dialectProperties;
         } else {
             // Attempt to find the dialect properties in the list of new ones that have not been saved yet
@@ -637,24 +639,25 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
-    private ProtocolDialectProperties getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectProperties> propertiesList) {
+    private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectProperties> propertiesList) {
         for (ProtocolDialectProperties properties : propertiesList) {
             if (properties.getDeviceProtocolDialectName().equals(dialectName)) {
-                return properties;
+                return Optional.of(properties);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public void setProtocolDialectProperty(String dialectName, String propertyName, Object value) {
-        ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
-        if (dialectProperties == null) {
-            dialectProperties = createNewLocalDialectProperties(dialectName);
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (!dialectProperties.isPresent()) {
+            ProtocolDialectProperties newDialectProperties = this.createNewLocalDialectProperties(dialectName);
+            newDialectProperties.setProperty(propertyName, value);
         } else {
-            this.dirtyDialectProperties.add(dialectProperties);
+            dialectProperties.get().setProperty(propertyName, value);
+            this.dirtyDialectProperties.add(dialectProperties.get());
         }
-        dialectProperties.setProperty(propertyName, value);
     }
 
     private ProtocolDialectProperties createNewLocalDialectProperties(String dialectName) {
@@ -682,14 +685,14 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeProtocolDialectProperty(String dialectName, String propertyName) {
-        ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
-        if (dialectProperties != null) {
-            dialectProperties.removeProperty(propertyName);
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (dialectProperties.isPresent()) {
+            dialectProperties.get().removeProperty(propertyName);
         } else {
             createNewLocalDialectProperties(dialectName);
         }
-        if ((dialectProperties != null) && !this.dirtyDialectProperties.contains(dialectProperties)) {
-            this.dirtyDialectProperties.add(dialectProperties);
+        if ((dialectProperties.isPresent()) && !this.dirtyDialectProperties.contains(dialectProperties.get())) {
+            this.dirtyDialectProperties.add(dialectProperties.get());
         }
     }
 
@@ -946,7 +949,10 @@ public class DeviceImpl implements Device, CanLock {
                             if (loadProfileReading != null) {
                                 loadProfileReading.setDataValidationStatus(mdcChannel, s);
                                 //code below is the processing of removed readings
-                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities().stream().filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED))).findAny();
+                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities()
+                                        .stream()
+                                        .filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)))
+                                        .findAny();
                                 if (readingQuality.isPresent()) {
                                     loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
                                 }
@@ -969,13 +975,13 @@ public class DeviceImpl implements Device, CanLock {
 
     /**
      * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value),
-     * just a list of placeholders for each reading interval within the requestedInterval for all datetimes
+     * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
      * @param loadProfile     The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
      * @param meter           The Meter
-     * @return
+     * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
         // TODO: what if there are gaps in the meter activations
@@ -1232,7 +1238,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?> register) {
-        return findKoreChannels(() -> register.getReadingType());
+        return findKoreChannels(register::getReadingType);
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier) {
@@ -1319,7 +1325,7 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<ConnectionTask<?, ?>> getConnectionTasks() {
-        return new ArrayList<ConnectionTask<?, ?>>(this.getConnectionTaskImpls());
+        return new ArrayList<>(this.getConnectionTaskImpls());
     }
 
     private List<ConnectionTaskImpl<?, ?>> getConnectionTaskImpls() {
@@ -1627,14 +1633,6 @@ public class DeviceImpl implements Device, CanLock {
 
     private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
-    }
-
-    private int countUniqueEndDeviceEvents(Meter slaveMeter, List<EndDeviceEventType> eventTypes, Interval interval) {
-        Set<String> deviceEventTypes = new HashSet<>();
-        for (EndDeviceEventRecord endDeviceEvent : slaveMeter.getDeviceEvents(interval.toClosedRange(), eventTypes)) {
-            deviceEventTypes.add(endDeviceEvent.getMRID());
-        }
-        return deviceEventTypes.size();
     }
 
     private class ConnectionInitiationTaskBuilderForDevice extends ConnectionInitiationTaskImpl.AbstractConnectionInitiationTaskBuilder {

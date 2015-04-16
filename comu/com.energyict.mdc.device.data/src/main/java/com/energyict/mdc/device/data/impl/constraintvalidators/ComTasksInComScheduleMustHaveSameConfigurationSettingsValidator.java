@@ -53,9 +53,7 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidator imp
                 if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
                     settings.partialConnectionTaskId = comTaskEnablement.getPartialConnectionTask().get().getId();
                 }
-                if (comTaskEnablement.getProtocolDialectConfigurationProperties().isPresent()) {
-                    settings.protocolDialectId = comTaskEnablement.getProtocolDialectConfigurationProperties().get().getId();
-                }
+                settings.protocolDialectId = comTaskEnablement.getProtocolDialectConfigurationProperties().getId();
                 settings.securitySetId = comTaskEnablement.getSecurityPropertySet().getId();
                 settings.priority = comTaskEnablement.getPriority();
                 settings.strategy = REST;
@@ -82,12 +80,7 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidator imp
             }
 
             private boolean sameProtocolDialect(Settings settings, ComTaskEnablement comTaskEnablement) {
-                if (comTaskEnablement.getProtocolDialectConfigurationProperties().isPresent()) {
-                    return is(settings.protocolDialectId).equalTo(comTaskEnablement.getProtocolDialectConfigurationProperties().get().getId());
-                }
-                else {
-                    return settings.protocolDialectId == null;
-                }
+                return is(settings.protocolDialectId).equalTo(comTaskEnablement.getProtocolDialectConfigurationProperties().getId());
             }
 
             private boolean sameSecurityPropertySet(Settings settings, ComTaskEnablement comTaskEnablement) {

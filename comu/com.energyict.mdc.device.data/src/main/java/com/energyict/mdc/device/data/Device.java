@@ -169,7 +169,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 
-    ProtocolDialectProperties getProtocolDialectProperties(String dialectName);
+    Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName);
 
     void setProtocolDialectProperty(String dialectName, String propertyName, Object value);
 
