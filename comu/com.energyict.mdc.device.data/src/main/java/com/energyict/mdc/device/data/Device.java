@@ -146,6 +146,21 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
 
+    /**
+     * Tests if all the security properties that are define in the configuration level
+     * are valid for this specified Device.
+     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
+     * <ul>
+     * <li>No properties have been defined</li>
+     * <li>Some or all of the required properties have not been specified yet</li>
+     * </ul>
+     *
+     * @return A flag that indicates if all security properties are valid for this Device
+     * @see DeviceConfiguration#getSecurityPropertySets()
+     * @see SecurityProperty#isComplete()
+     */
+    boolean securityPropertiesAreValid();
+
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
     List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet);

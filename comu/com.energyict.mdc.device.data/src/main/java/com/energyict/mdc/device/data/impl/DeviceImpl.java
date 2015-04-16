@@ -1520,12 +1520,17 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private List<SecurityProperty> getAllSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.getAllSecurityProperties(this, when, securityPropertySet);
+        return this.securityPropertyService.getSecurityPropertiesIgnoringPrivileges(this, when, securityPropertySet);
     }
 
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(clock.instant(), securityPropertySet);
+    }
+
+    @Override
+    public boolean securityPropertiesAreValid() {
+        return this.securityPropertyService.securityPropertiesAreValid(this);
     }
 
     @Override
