@@ -1,3 +1,4 @@
+
 Ext.define('Fwc.devicefirmware.model.FirmwareMessageSpec', {
     extend: 'Ext.data.Model',
     requires: [

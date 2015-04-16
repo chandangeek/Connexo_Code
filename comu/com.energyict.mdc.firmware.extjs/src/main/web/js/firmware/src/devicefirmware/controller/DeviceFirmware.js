@@ -14,6 +14,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
     models: [
         'Mdc.model.Device',
+        'Fwc.devicefirmware.model.FirmwareMessage',
         'Fwc.devicefirmware.model.FirmwareMessageSpec'
     ],
 
@@ -40,19 +41,40 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             'device-firmware-setup device-firmware-action-menu #uploadActivateInDate': {
                 click: this.moveToUploadActivateInDate
             },
-            'device-firmware-setup button[action=viewFirmwareUpgradeLog]': {
-                click: this.viewUpgradeLog
+            'device-firmware-setup button[action=cancelUpgrade]': {
+                click: this.cancelUpgrade
+            },
+            'device-firmware-setup button[action=cancel]': {
+                click: this.applyFilter
             }
         });
     },
 
-    viewUpgradeLog: function() {
+    cancelUpgrade: function (btn) {
+        var form = btn.up('form'),
+            record = form.getRecord(),
+            router = this.getController('Uni.controller.history.Router'),
+            model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
+            devicemessageId = 1; // todo: replace on assoceiated data
+
+        form.setLoading();
+        model.getProxy().setUrl(router.arguments.mRID);
+        model.load(devicemessageId, {
+            success: function (devicemessage) {
+                devicemessage.destroy();
+            },
+            callback: function () {
+                form.setLoading(false);
+            }
+        });
+    },
+
+    viewUpgradeLog: function () {
         var router = this.getController('Uni.controller.history.Router'),
             logUrl = router.getRoute('devices/device/firmware/log').buildUrl();
 
         window.open(logUrl);
     },
-
 
     moveToUploadFirmware: function () {
         var router = this.getController('Uni.controller.history.Router');

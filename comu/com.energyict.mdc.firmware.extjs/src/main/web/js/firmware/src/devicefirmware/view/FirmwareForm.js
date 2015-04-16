@@ -60,10 +60,10 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     },
                     buttons: [{
                         margin: '0 0 0 46',
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Save'),
+                        text: Uni.I18n.translate('device.firmware.pending.cancel', 'MDC', 'Cancel upload'),
                         ui: 'action',
-                        action: 'saveFirmware',
-                        itemId: 'createEditButton'
+                        action: 'cancelUpgrade',
+                        itemId: 'cancelBtn'
                     }]
                 }
             ]
@@ -102,12 +102,12 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         me.setTitle(me.record.get('type'));
         formInfo = me.down('#form-info');
 
-        var version = me.record.getAssociatedData().activeVersion;
-        if (version) {
+        var pendingVersion = me.record.getAssociatedData().activeVersion;
+        if (pendingVersion) {
             formInfo.show();
             formInfo.setText(Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version {0} will be uploaded to device on {1}', [
-                version.firmwareVersion,
-                Uni.DateTime.formatDateTimeShort(version.plannedDate)
+                pendingVersion.firmwareVersion,
+                Uni.DateTime.formatDateTimeShort(pendingVersion.plannedDate)
             ]));
         }
     }
