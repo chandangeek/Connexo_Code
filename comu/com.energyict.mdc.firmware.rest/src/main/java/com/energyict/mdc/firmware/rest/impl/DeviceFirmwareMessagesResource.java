@@ -1,10 +1,13 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -28,6 +31,7 @@ import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -39,9 +43,11 @@ import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/device/{mrid}")
 public class DeviceFirmwareMessagesResource {
@@ -53,9 +59,10 @@ public class DeviceFirmwareMessagesResource {
     private final TaskService taskService;
     private final Clock clock;
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils) {
+    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.firmwareService = firmwareService;
@@ -64,6 +71,7 @@ public class DeviceFirmwareMessagesResource {
         this.taskService = taskService;
         this.clock = clock;
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -202,4 +210,19 @@ public class DeviceFirmwareMessagesResource {
             }
         }
     }
+
+    @GET
+    @Path("/firmwaresactions")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
+    public Response getDynamicActions(@PathParam("mrid") String mrid, @BeanParam QueryParameters queryParameters){
+        Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
+        List<UpgradeOptionInfo> upgradeOptionActions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(device.getDeviceType())
+                .stream()
+                .map(option -> new UpgradeOptionInfo(option.getId(), thesaurus.getString(option.getId(), option.getId())))
+                .collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromPagedList("firmwareactions", upgradeOptionActions, queryParameters)).build();
+    }
+
+
 }
