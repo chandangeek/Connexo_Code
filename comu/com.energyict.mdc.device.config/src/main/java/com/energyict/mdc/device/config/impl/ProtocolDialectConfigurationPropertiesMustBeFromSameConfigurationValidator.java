@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import java.util.Optional;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -22,8 +21,8 @@ public class ProtocolDialectConfigurationPropertiesMustBeFromSameConfigurationVa
 
     @Override
     public boolean isValid(ComTaskEnablementImpl comTaskEnablement, ConstraintValidatorContext context) {
-        Optional<ProtocolDialectConfigurationProperties> dialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
-        if (dialectConfigurationProperties.isPresent() && this.notSameConfiguration(dialectConfigurationProperties.get(), comTaskEnablement)) {
+        ProtocolDialectConfigurationProperties dialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
+        if (dialectConfigurationProperties != null && this.notSameConfiguration(dialectConfigurationProperties, comTaskEnablement)) {
             context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())

@@ -152,8 +152,13 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
-    public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties() {
-        return this.protocolDialectConfigurationProperties.getOptional();
+    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
+        /* Since this is a required property,
+         * we could actually use get() but we
+         * want the javax.validation components
+         * to validate that this property is not null
+         * so we are using orElse(null) instead. */
+        return this.protocolDialectConfigurationProperties.orElse(null);
     }
 
     @Override
@@ -445,11 +450,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         }
 
         private void postEventWhenUsingDefaultBefore() {
-            if (this.useDefaultNow) {
-                // Still using the default, no changes, no event to post
-                return;
-            }
-            else {
+            if (!this.useDefaultNow) {
                 // Are we using a specific task or not?
                 if (this.newPartialConnectionTask.isPresent()) {
                     // Using default before but using a specific task now
@@ -459,6 +460,9 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
                     // Simply switching off using the default
                     this.postEvent(new SwitchOffUsingDefaultConnectionEventData(ComTaskEnablementImpl.this));
                 }
+            }
+            else {
+                // Still using the default, no changes, no event to post
             }
         }
 

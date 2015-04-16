@@ -113,11 +113,11 @@ public interface ComTaskEnablement extends HasId {
 
 
     /**
-     * Gets the referenced ProtocolDialectConfigurationProperties object or null if none is linked.
+     * Gets the ProtocolDialectConfigurationProperties.
      *
-     * @return the referenced ProtocolDialectConfigurationProperties object or null if none is linked.
+     * @return the ProtocolDialectConfigurationProperties
      */
-    public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties();
+    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
 
