@@ -206,8 +206,7 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<CollectedLoadProfile>
-    getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 

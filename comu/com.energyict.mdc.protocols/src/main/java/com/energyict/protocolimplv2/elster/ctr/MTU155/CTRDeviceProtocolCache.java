@@ -22,7 +22,7 @@ public class CTRDeviceProtocolCache implements DeviceProtocolCache, Serializable
     /** The last WriteDataBlock ID used in SMS communication. **/
     private int smsWriteDataBlockID = 0;
 
-    /** The id of the mending firmware upgrade message, or -1 if no firmware upgrade is pending **/
+    /** The id of the pending firmware upgrade message, or -1 if no firmware upgrade is pending **/
     private PendingFirmwareKey pendingFirmwareMessageID = NO_FIRMWARE_UPGRADE_PENDING;
 
     private boolean dirty;

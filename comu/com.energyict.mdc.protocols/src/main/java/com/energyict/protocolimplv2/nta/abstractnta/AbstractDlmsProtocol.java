@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -453,5 +454,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public IdentificationService getIdentificationService() {
         return identificationService;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(this.offlineDevice.getDeviceIdentifier());
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getMeterInfo().getFirmwareVersion());
+        return firmwareVersionsCollectedData;
     }
 }

@@ -16,14 +16,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -53,6 +46,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import static com.energyict.mdc.protocol.api.MessageSeeds.*;
 
 /**
  * @author sva
@@ -175,7 +170,7 @@ public class GarnetConcentrator implements DeviceProtocol {
                     ResultType.NotSupported,
                     this.issueService.newProblem(
                             loadProfileReader.getProfileObisCode(),
-                            com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED.getKey(),
+                            LOADPROFILE_NOT_SUPPORTED.getKey(),
                             loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
         }
@@ -371,5 +366,16 @@ public class GarnetConcentrator implements DeviceProtocol {
     @Override
     public PropertySpec getPropertySpec(String s) {
         return getGarnetProperties().getPropertySpec(s);
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = collectedDataFactory.createFirmwareVersionsCollectedData(getOfflineDevice().getDeviceIdentifier());
+        try {
+            firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getRegisterFactory().readFirmwareVersion());
+        } catch (GarnetException e) {
+            firmwareVersionsCollectedData.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem("FirmwareVersion", COULD_NOT_PARSE_REGISTER_DATA.getKey()));
+        }
+        return firmwareVersionsCollectedData;
     }
 }

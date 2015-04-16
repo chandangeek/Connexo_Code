@@ -76,6 +76,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private final Clock clock;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private String firmwareVersion;
 
     public RegisterFactory(GarnetConcentrator meterProtocol, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.meterProtocol = meterProtocol;
@@ -119,8 +120,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             ConcentratorVersionResponseStructure concentratorVersion = getRequestFactory().readConcentratorVersion();
             collectedRegister.setCollectedData(concentratorVersion.getSerialNumber().getSerialNumber());
         } else if (register.getObisCode().equals(ACTIVE_FIRMWARE_OBIS)) {
-            ConcentratorVersionResponseStructure concentratorVersion = getRequestFactory().readConcentratorVersion();
-            collectedRegister.setCollectedData(concentratorVersion.getFirmwareVersion().getFirmwareVersion());
+            collectedRegister.setCollectedData(readFirmwareVersion());
         } else if (register.getObisCode().equals(HARDWARE_MODEL_OBIS)) {
             ConcentratorVersionResponseStructure concentratorVersion = getRequestFactory().readConcentratorVersion();
             collectedRegister.setCollectedData(concentratorVersion.getConcentratorModel().getVersionInfo());
@@ -154,6 +154,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
         return collectedRegister;
     }
 
+    public String readFirmwareVersion() throws GarnetException {
+        if(this.firmwareVersion == null){
+            firmwareVersion = getRequestFactory().readConcentratorVersion().getFirmwareVersion().getFirmwareVersion();
+        }
+        return firmwareVersion;
+    }
 
     private CollectedRegister readEMeterRegister(OfflineRegister register) throws GarnetException {
         CollectedRegister collectedRegister = createDeviceRegister(register);
