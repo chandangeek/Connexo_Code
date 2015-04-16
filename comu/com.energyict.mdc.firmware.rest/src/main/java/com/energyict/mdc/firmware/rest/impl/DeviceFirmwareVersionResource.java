@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -10,7 +11,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 @Path("/device/{mRID}/firmwares")
@@ -18,12 +18,14 @@ public class DeviceFirmwareVersionResource {
     private final FirmwareService firmwareService;
     private final DeviceService deviceService;
     private final Thesaurus thesaurus;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceFirmwareVersionResource(FirmwareService firmwareService, DeviceService deviceService, Thesaurus thesaurus) {
+    public DeviceFirmwareVersionResource(FirmwareService firmwareService, DeviceService deviceService, Thesaurus thesaurus, ExceptionFactory exceptionFactory) {
         this.firmwareService = firmwareService;
         this.deviceService = deviceService;
         this.thesaurus = thesaurus;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -47,7 +49,7 @@ public class DeviceFirmwareVersionResource {
     public Device findDeviceByMrIdOrThrowException(String mRID) {
         Optional<Device> deviceRef = deviceService.findByUniqueMrid(mRID);
         if (!deviceRef.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, mRID);
         }
         return deviceRef.get();
     }

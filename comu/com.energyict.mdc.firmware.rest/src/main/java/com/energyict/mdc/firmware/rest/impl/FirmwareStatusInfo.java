@@ -7,15 +7,15 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class FirmwareStatusInfo {
     private static final FirmwareStatusFieldAdapter FIRMWARE_STATUS_ADAPTER = new FirmwareStatusFieldAdapter();
-    @XmlJavaTypeAdapter(FirmwareStatusAdapter.class)
+    @XmlJavaTypeAdapter(FirmwareStatusFieldAdapter.class)
     public FirmwareStatus id;
-    public String displayValue;
+    public String localizedValue;
 
     public FirmwareStatusInfo() {
     }
 
     public FirmwareStatusInfo(FirmwareStatus firmwareStatus, Thesaurus thesaurus) {
         this.id = firmwareStatus;
-        this.displayValue = thesaurus.getString(FIRMWARE_STATUS_ADAPTER.marshal(firmwareStatus), FIRMWARE_STATUS_ADAPTER.marshal(firmwareStatus));
+        this.localizedValue = thesaurus.getString(FIRMWARE_STATUS_ADAPTER.marshal(firmwareStatus), FIRMWARE_STATUS_ADAPTER.marshal(firmwareStatus));
     }
 }

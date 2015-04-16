@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware.rest;
 
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.*;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -10,6 +11,7 @@ import com.energyict.mdc.firmware.rest.impl.*;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import com.elster.jupiter.transaction.TransactionService;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,6 +40,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 FirmwareUpgradeOptionsResource.class,
                 DeviceFirmwareVersionResource.class,
                 TransactionWrapper.class,
+                MultiPartFeature.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
@@ -64,6 +67,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(deviceService).to(DeviceService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
 

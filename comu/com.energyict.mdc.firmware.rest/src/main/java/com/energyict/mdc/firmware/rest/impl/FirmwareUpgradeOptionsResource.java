@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -22,12 +23,14 @@ public class FirmwareUpgradeOptionsResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final FirmwareService firmwareService;
     private final Thesaurus thesaurus;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public FirmwareUpgradeOptionsResource(DeviceConfigurationService deviceConfigurationService, FirmwareService firmwareService, Thesaurus thesaurus) {
+    public FirmwareUpgradeOptionsResource(DeviceConfigurationService deviceConfigurationService, FirmwareService firmwareService, Thesaurus thesaurus, ExceptionFactory exceptionFactory) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.firmwareService = firmwareService;
         this.thesaurus = thesaurus;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -69,7 +72,7 @@ public class FirmwareUpgradeOptionsResource {
                 }
             });
         if (allowedFirmwareUpgradeOptions.isEmpty() && inputOptions.isAllowed) {
-            throw new FirmwareUpgradeOptionsRequiredException(thesaurus);
+            throw exceptionFactory.newException(MessageSeeds.UPGRADE_OPTIONS_REQUIRED);
         }
         FirmwareUpgradeOptions options = firmwareService.getFirmwareUpgradeOptions(deviceType);
         options.setOptions(allowedFirmwareUpgradeOptions);
@@ -83,6 +86,6 @@ public class FirmwareUpgradeOptionsResource {
 
 
     private DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
-        return deviceConfigurationService.findDeviceType(deviceTypeId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return deviceConfigurationService.findDeviceType(deviceTypeId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId));
     }
 }

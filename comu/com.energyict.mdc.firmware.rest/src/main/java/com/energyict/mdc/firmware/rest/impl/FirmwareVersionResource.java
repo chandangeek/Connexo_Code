@@ -2,47 +2,49 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.*;
 import org.glassfish.jersey.internal.util.Base64;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.servlet.annotation.MultipartConfig;
 import javax.ws.rs.*;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
 @Path("/devicetypes/{deviceTypeId}/firmwares")
+@MultipartConfig(maxFileSize=FirmwareService.MAX_FIRMWARE_FILE_SIZE)
 public class FirmwareVersionResource {
     private final FirmwareService firmwareService;
-    private final RestQueryService restQueryService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
+    private final ExceptionFactory exceptionFactory;
 
     private static final String FILTER_STATUS_PARAMETER = "firmwareStatus";
     private static final String FILTER_TYPE_PARAMETER = "firmwareType";
 
     @Inject
-    public FirmwareVersionResource(FirmwareService firmwareService, RestQueryService restQueryService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+    public FirmwareVersionResource(FirmwareService firmwareService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, ExceptionFactory exceptionFactory) {
         this.firmwareService = firmwareService;
-        this.restQueryService = restQueryService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -51,7 +53,7 @@ public class FirmwareVersionResource {
     public PagedInfoList getFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryFilter filter, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
-        Finder<FirmwareVersion> allFirmwaresFinder = firmwareService.findAllFirmwareVersions(getFirmwareVersionConditions(filter, deviceType));
+        Finder<FirmwareVersion> allFirmwaresFinder = firmwareService.findAllFirmwareVersions(getFirmwareFilter(filter, deviceType));
         List<FirmwareVersion> allFirmwares = allFirmwaresFinder.from(queryParameters).find();
         List<FirmwareVersionInfo> firmwareInfos = FirmwareVersionInfo.from(allFirmwares, thesaurus);
         return PagedInfoList.fromPagedList("firmwares", firmwareInfos, queryParameters);
@@ -86,18 +88,17 @@ public class FirmwareVersionResource {
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
-    public Response saveFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
+    public Response saveFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @FormDataParam("firmwareFile") InputStream fileInputStream,
+                                        @FormDataParam("firmwareFile") FormDataContentDisposition contentDispositionHeader, @FormDataParam("data") FirmwareVersionInfo firmwareVersionInfo, @FormDataParam("data") FormDataContentDisposition firmwareVersionContent) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareVersion versionToSave = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
                 firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
 
-        if (firmwareVersionInfo.fileSize != null && firmwareVersionInfo.firmwareFile != null) {
-            versionToSave.setFirmwareFile(Base64.decode(firmwareVersionInfo.firmwareFile.trim().getBytes()));
-        }
+        setFirmwareFile(versionToSave, fileInputStream, contentDispositionHeader);
 
         firmwareService.saveFirmwareVersion(versionToSave);
         return Response.status(Response.Status.CREATED).entity(FirmwareVersionInfo.from(versionToSave, thesaurus)).build();
@@ -109,7 +110,7 @@ public class FirmwareVersionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
     public Response validateEditFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
-        FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        FirmwareVersion firmwareVersion = findFirmwareVersionOrElseThrowException(id);
         checkIfEditableOrThrowException(firmwareVersion);
         firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
         firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
@@ -122,71 +123,84 @@ public class FirmwareVersionResource {
 
     @PUT
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
-    public Response editFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
-        FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
-        firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
-        if (firmwareVersionInfo.fileSize != null && firmwareVersionInfo.firmwareFile != null) {
-            firmwareVersion.setFirmwareFile(Base64.decode(firmwareVersionInfo.firmwareFile.trim().getBytes()));
+    public Response editFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @FormDataParam("firmwareFile") InputStream fileInputStream,
+                                        @FormDataParam("firmwareFile") FormDataContentDisposition contentDispositionHeader, @FormDataParam("data") FirmwareVersionInfo firmwareVersionInfo, @FormDataParam("data") FormDataContentDisposition firmwareVersionContent) {
+        FirmwareVersion firmwareVersion = findFirmwareVersionOrElseThrowException(id);
+
+        if(FirmwareStatus.DEPRECATED.equals(firmwareVersionInfo.firmwareStatus.id)) {
+            firmwareService.deprecateFirmwareVersion(firmwareVersion);
+        } else {
+            firmwareVersion.setFirmwareVersion(firmwareVersionInfo.firmwareVersion);
+
+            firmwareVersion.setFirmwareStatus(firmwareVersionInfo.firmwareStatus.id);
+            setFirmwareFile(firmwareVersion, fileInputStream, contentDispositionHeader);
+            firmwareService.saveFirmwareVersion(firmwareVersion);
         }
-        firmwareService.saveFirmwareVersion(firmwareVersion);
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.OK).entity(FirmwareVersionInfo.from(firmwareVersion, thesaurus)).build();
     }
 
-    @DELETE
-    @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
-    public Response deprecateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id) {
-        FirmwareVersion firmwareVersion = firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        firmwareService.deprecateFirmwareVersion(firmwareVersion);
-        return Response.status(Response.Status.OK).build();
-    }
-
-    private Condition getFirmwareVersionConditions(JsonQueryFilter filter, DeviceType deviceType) {
-        Condition condition = where("deviceType").isEqualTo(deviceType);
+    private FirmwareVersionFilter getFirmwareFilter(JsonQueryFilter filter, DeviceType deviceType) {
+        FirmwareVersionFilter firmwareVersionFilter = new FirmwareVersionFilter(deviceType);
 
         if (filter.hasFilters()) {
             if (filter.hasProperty(FILTER_STATUS_PARAMETER)) {
                 List<String> stringFirmwareStatuses = filter.getStringList(FILTER_STATUS_PARAMETER);
                 List<FirmwareStatus> firmwareStatuses = stringFirmwareStatuses.stream().map(FirmwareStatus::from).collect(Collectors.toList());
                 if (!firmwareStatuses.isEmpty()) {
-                    condition = condition.and(createMultipleConditions(firmwareStatuses, "firmwareStatus"));
+                    firmwareVersionFilter.setFirmwareStatuses(firmwareStatuses);
                 }
             }
             if (filter.hasProperty(FILTER_TYPE_PARAMETER)) {
                 List<String> stringFirmwareTypes = filter.getStringList(FILTER_TYPE_PARAMETER);
                 List<FirmwareType> firmwareTypes = stringFirmwareTypes.stream().map(FirmwareType::from).collect(Collectors.toList());
                 if (!firmwareTypes.isEmpty()) {
-                    condition = condition.and(createMultipleConditions(firmwareTypes, "firmwareType"));
+                    firmwareVersionFilter.setFirmwareTypes(firmwareTypes);
                 }
             }
         }
-        return condition;
-    }
-
-    private <T> Condition createMultipleConditions(List<T> params, String conditionField) {
-        Condition condition = Condition.FALSE;
-        for (T value : params) {
-            condition = condition.or(where(conditionField).isEqualTo(value));
-        }
-        return condition;
+        return firmwareVersionFilter;
     }
 
     private DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
-        return deviceConfigurationService.findDeviceType(deviceTypeId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return deviceConfigurationService.findDeviceType(deviceTypeId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId));
+    }
+
+    private FirmwareVersion findFirmwareVersionOrElseThrowException(long id) {
+        return firmwareService.getFirmwareVersionById(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.FIRMWARE_VERSION_NOT_FOUND, id));
     }
 
     private void checkIfEditableOrThrowException(FirmwareVersion firmwareVersion) {
         if (firmwareService.isFirmwareVersionInUse(firmwareVersion.getId())) {
-            throw new FirmwareVersionIsInUseException(thesaurus);
+            throw exceptionFactory.newException(MessageSeeds.VERSION_IN_USE);
         }
         if (firmwareVersion.getFirmwareStatus().equals(FirmwareStatus.DEPRECATED)) {
-            throw new FirmwareVersionIsDeprecatedException(thesaurus);
+            throw exceptionFactory.newException(MessageSeeds.VERSION_IS_DEPRECATED);
+        }
+    }
+
+    private void setFirmwareFile(FirmwareVersion firmwareVersion, InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader)  {
+        if (contentDispositionHeader != null) {
+            if (contentDispositionHeader.getSize() > Integer.MAX_VALUE) {
+                throw exceptionFactory.newException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED);
+            }
+            if (contentDispositionHeader.getSize() > 0) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                try {
+                    byte[] buffer = new byte[(int) contentDispositionHeader.getSize()];
+                    int length;
+                    while ((length = fileInputStream.read(buffer)) != -1) {
+                        out.write(buffer, 0, length);
+                    }
+                    fileInputStream.close();
+                    firmwareVersion.setFirmwareFile(Base64.decode(out.toByteArray()));
+                    out.close();
+                } catch(IOException ex) {
+                    throw exceptionFactory.newException(MessageSeeds.FILE_IO);
+                }
+            }
         }
     }
 }

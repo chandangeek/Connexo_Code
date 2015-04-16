@@ -3,6 +3,7 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.rest.FirmwareApplication;
@@ -29,6 +30,12 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware with activation date"),
     // firmware upgrade options
     UPGRADE_OPTIONS_REQUIRED(12, Keys.UPGRADE_OPTIONS_REQUIRED, "At least one option should be selected"),
+    // general masseges
+    DEVICE_TYPE_NOT_FOUND(13, Keys.DEVICE_TYPE_NOT_FOUND, "No device type with id {0} could be found"),
+    DEVICE_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No device with id {0} could be found"),
+    MAX_FILE_SIZE_EXCEEDED(15, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb"),
+    FILE_IO(16, Keys.FILE_IO, "Failure while doing IO on file"),
+    FIRMWARE_VERSION_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No firmware version with id {0} could be found"),
     ;
     private final int number;
     private final String key;
@@ -74,16 +81,21 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     public static class Keys {
         public static final String VERSION_IN_USE = "VersionInUse";
-        public static final String VERSION_IS_DEPRECATED = "VersionInDeprecated";
-        public static final String STATUS_GHOST = FirmwareStatus.GHOST.getStatus();
-        public static final String STATUS_TEST = FirmwareStatus.TEST.getStatus();
-        public static final String STATUS_FINAL = FirmwareStatus.FINAL.getStatus();
-        public static final String STATUS_DEPRECATED = FirmwareStatus.DEPRECATED.getStatus();
-        public static final String TYPE_METER = FirmwareType.METER.getType();
-        public static final String TYPE_COMMUNICATION = FirmwareType.COMMUNICATION.getType();
+        public static final String VERSION_IS_DEPRECATED = "VersionIsDeprecated";
+        public static final String STATUS_GHOST = "ghost";
+        public static final String STATUS_TEST = "test";
+        public static final String STATUS_FINAL = "final";
+        public static final String STATUS_DEPRECATED = "deprecated";
+        public static final String TYPE_METER = "meter";
+        public static final String TYPE_COMMUNICATION = "communication";
         public static final String UPGRADE_OPTION_INSTALL = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId();
         public static final String UPGRADE_OPTION_ACTIVATE = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId();
         public static final String UPGRADE_OPTION_ACTIVATE_ON_DATE = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId();
         public static final String UPGRADE_OPTIONS_REQUIRED = "FirmwareUpgradeOptionsRequired";
+        public static final String DEVICE_TYPE_NOT_FOUND = "deviceTypeNotFound";
+        public static final String DEVICE_NOT_FOUND = "deviceNotFound";
+        public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
+        public static final String FILE_IO = "FileIO";
+        public static final String FIRMWARE_VERSION_NOT_FOUND = "FirmwareVersionNotFound";
     }
 }
