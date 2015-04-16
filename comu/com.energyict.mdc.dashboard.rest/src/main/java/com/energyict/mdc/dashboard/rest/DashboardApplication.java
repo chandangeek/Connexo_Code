@@ -48,6 +48,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
@@ -309,6 +310,7 @@ public class DashboardApplication extends Application implements TranslationKeyP
             bind(appService).to(AppService.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(firmwareService).to(FirmwareService.class);
+            bind(FilterFactory.class).to(FilterFactory.class);
         }
     }
 
