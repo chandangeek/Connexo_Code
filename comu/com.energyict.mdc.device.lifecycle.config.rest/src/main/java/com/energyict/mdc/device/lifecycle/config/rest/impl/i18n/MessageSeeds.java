@@ -19,7 +19,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_LIFECYCLE_STATE_IS_STILL_USED_BY_TRANSITIONS(6, "unable.to.remove.state.with.transitions", "This state cannot be removed from this device life cycle because it's used on transitions: {0}", Level.SEVERE),
     DEVICE_LIFECYCLE_STATE_IS_THE_LATEST_STATE(7, "unable.to.remove.latest.state", "This state cannot be removed from this device life cycle because it's the latest state. Add another state first.", Level.SEVERE),
     DEVICE_LIFECYCLE_STATE_IS_THE_INITIAL_STATE(8, "unable.to.remove.initial.state", "This state cannot be removed from this device life cycle because it's the initial state. Set another state as initial state first", Level.SEVERE),
-    DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE(9, "device.lifecycle.is.used.by.device.type", "This state cannot be removed from this device life cycle because one or more devices types use this device life cycle.", Level.SEVERE),
+    DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE(9, "device.lifecycle.is.used.by.device.type", "This operation cannot be performed for this device life cycle because one or more devices types use this device life cycle.", Level.SEVERE),
 
     TRANSITION_COMMISSIONED(1001, "#commissioned", "Commission a device", Level.INFO),
     TRANSITION_ACTIVATED(1002, "#activated", "Activate a device", Level.INFO),
