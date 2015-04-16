@@ -43,8 +43,9 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             items: [
                 {
                     xtype: 'uni-form-error-message',
+                    margin: 0,
                     padding: 10,
-                    itemId: 'form-error',
+                    itemId: 'message-failed',
                     hidden: true,
                     layout: {
                         type: 'hbox',
@@ -66,13 +67,13 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 },
                 {
                     xtype: 'uni-form-error-message',
-                    itemId: 'form-info',
+                    itemId: 'message-pending',
+                    margin: 0,
                     padding: 10,
                     cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
                     defaultErrorIcon: 'x-message-box-warning',
                     hidden: true,
                     buttonAlign: 'left',
-                    margin: 0,
                     layout: {
                         type: 'hbox',
                         defaultMargins: '5 10 5 5'
@@ -84,6 +85,19 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                         action: 'cancelUpgrade',
                         itemId: 'cancelBtn'
                     }]
+                },
+                {
+                    xtype: 'uni-form-error-message',
+                    itemId: 'message-ongoing',
+                    margin: 0,
+                    padding: 10,
+                    cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
+                    defaultErrorIcon: 'x-message-box-warning',
+                    hidden: true,
+                    layout: {
+                        type: 'hbox',
+                        defaultMargins: '5 10 5 5'
+                    }
                 }
             ]
         }
@@ -115,30 +129,42 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
 
     initComponent: function () {
         var me = this,
-            formInfo,
-            formError;
+            associatedData = me.record.getAssociatedData(),
+            pendingVersion = associatedData.pendingVersion,
+            ongoingVersion = associatedData.ongoingVersion,
+            failedVersion = associatedData.failedVersion,
+            formPending,
+            formFailed,
+            formOngoing
+        ;
 
         me.callParent(arguments);
         me.loadRecord(me.record.getActiveVersion());
         me.setTitle(me.record.get('type'));
-        formInfo    = me.down('#form-info');
-        formError   = me.down('#form-error');
-
-        var pendingVersion = me.record.getAssociatedData().activeVersion; //todo: replace on pendingVersion
-        var failedVersion  = me.record.getAssociatedData().activeVersion; //todo: replace on failedVerion
+        formPending  = me.down('#message-pending');
+        formFailed   = me.down('#message-failed');
+        formOngoing  = me.down('#message-ongoing');
 
         if (pendingVersion) {
-            formInfo.show();
-            formInfo.setText(Uni.I18n.translate('device.firmware.deprecated.message', 'FWC', 'Firmware version {0} will be uploaded to device on {1}', [
+            formPending.show();
+            formPending.setText(Uni.I18n.translate('device.firmware.deprecated.message', 'FWC', 'Firmware version {0} will be uploaded to device on {1}', [
                 pendingVersion.firmwareVersion,
                 Uni.DateTime.formatDateTimeShort(pendingVersion.plannedDate)
             ]));
         }
 
         if (failedVersion) {
-            formError.show();
-            formError.setText(Uni.I18n.translate('device.firmware.failed.message', 'FWC', 'Failed to upload version {0} to the device', [
-                pendingVersion.firmwareVersion
+            formFailed.show();
+            formFailed.setText(Uni.I18n.translate('device.firmware.failed.message', 'FWC', 'Failed to upload version {0} to the device', [
+                failedVersion.firmwareVersion
+            ]));
+        }
+
+        if (ongoingVersion) {
+            formOngoing.show();
+            formOngoing.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Firmware version {0} has been uploaded to the device and will be activated on {1}', [
+                ongoingVersion.firmwareVersion,
+                Uni.DateTime.formatDateTimeShort(ongoingVersion.uploadStartDate)
             ]));
         }
     }

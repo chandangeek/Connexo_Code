@@ -42,7 +42,17 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                 click: this.moveToUploadActivateInDate
             },
             'device-firmware-setup button[action=cancelUpgrade]': {
-                click: this.cancelUpgrade
+                click: this.doCancelUpgrade
+            },
+            'device-firmware-setup button[action=retry]': {
+                click: this.doRetry
+            },
+            'device-firmware-setup button[action=viewLog]': {
+                click: function () {
+                    this.getController('Uni.controller.history.Router')
+                        .getRoute('devices/device/firmware/log')
+                        .forward();
+                }
             },
             'device-firmware-setup button[action=cancel]': {
                 click: this.applyFilter
@@ -50,7 +60,25 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         });
     },
 
-    cancelUpgrade: function (btn) {
+    doRetry: function (btn) {
+        var form = btn.up('form'),
+            record = form.getRecord(),
+            router = this.getController('Uni.controller.history.Router'),
+            model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
+            comTaskId = 1; // todo: replace on assoceiated data
+
+        form.setLoading();
+        record.retry(comTaskId, {
+            success: function (devicemessage) {
+                devicemessage.destroy();
+            },
+            callback: function () {
+                form.setLoading(false);
+            }
+        });
+    },
+
+    doCancelUpgrade: function (btn) {
         var form = btn.up('form'),
             record = form.getRecord(),
             router = this.getController('Uni.controller.history.Router'),
@@ -67,13 +95,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                 form.setLoading(false);
             }
         });
-    },
-
-    viewUpgradeLog: function () {
-        var router = this.getController('Uni.controller.history.Router'),
-            logUrl = router.getRoute('devices/device/firmware/log').buildUrl();
-
-        window.open(logUrl);
     },
 
     moveToUploadFirmware: function () {
