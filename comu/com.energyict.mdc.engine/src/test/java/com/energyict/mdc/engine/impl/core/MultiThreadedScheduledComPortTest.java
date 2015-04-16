@@ -272,6 +272,7 @@ public class MultiThreadedScheduledComPortTest {
         when(this.device.getDeviceType()).thenReturn(this.deviceType);
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.device.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(this.device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.deviceCommandExecutor.getLogLevel()).thenReturn(ComServer.LogLevel.ERROR);
         when(this.device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());

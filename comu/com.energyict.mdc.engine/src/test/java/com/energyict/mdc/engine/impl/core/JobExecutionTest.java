@@ -10,6 +10,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -204,6 +205,7 @@ public class JobExecutionTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(device.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(this.device));
