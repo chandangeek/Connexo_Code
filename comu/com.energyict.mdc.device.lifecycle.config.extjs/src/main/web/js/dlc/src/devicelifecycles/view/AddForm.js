@@ -5,6 +5,7 @@ Ext.define('Dlc.devicelifecycles.view.AddForm', {
     infoText: null,
     btnAction: null,
     btnText: null,
+    route: null,
     hideInfoMsg: false,
     itemId: 'device-life-cycles-add-form',
     ui: 'large',
@@ -62,7 +63,7 @@ Ext.define('Dlc.devicelifecycles.view.AddForm', {
                         itemId: 'cancel-link',
                         text: Uni.I18n.translate('general.cancel', 'DLC', 'Cancel'),
                         ui: 'link',
-                        href: me.router.getRoute('administration/devicelifecycles').buildUrl()
+                        href: me.router.getRoute(me.route).buildUrl()
                     }
                 ]
             }

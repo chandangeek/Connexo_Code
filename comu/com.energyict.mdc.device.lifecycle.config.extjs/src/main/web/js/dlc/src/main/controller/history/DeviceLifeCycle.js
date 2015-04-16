@@ -48,7 +48,14 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     title: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
                                     route: 'edit',
                                     controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
-                                    action: 'showEditDeviceLifeCycle'
+                                    action: 'showEditDeviceLifeCycle',
+                                    callback: function (route) {
+                                        this.getApplication().on('deviceLifeCycleEdit', function (record) {
+                                            route.setTitle(Uni.I18n.translatePlural('deviceLifeCycleTransitions.edit.title', record.get('name'), 'DLC', 'Edit \'{0}\''));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
                                 },
                                 states: {
                                     title: Uni.I18n.translate('general.states', 'DLC', 'States'),
@@ -95,7 +102,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                             controller: 'Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
                                             action: 'showAddDeviceLifeCycleTransition',
                                             callback: function (route) {
-                                                this.getApplication().on('deviceLifeCycleEdit', function (record) {
+                                                this.getApplication().on('deviceLifeCycleTransitionEdit', function (record) {
                                                     route.setTitle(Uni.I18n.translatePlural('deviceLifeCycleTransitions.edit.title', record.get('name'), 'DLC', 'Edit \'{0}\''));
                                                     return true;
                                                 }, {single: true});

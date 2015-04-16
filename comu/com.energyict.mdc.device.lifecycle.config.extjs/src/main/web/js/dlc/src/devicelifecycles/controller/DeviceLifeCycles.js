@@ -164,17 +164,21 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
     showEditDeviceLifeCycle: function (deviceLifeCycleId) {
         var me = this,
-            deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle');
+            deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
+            route;
 
         deviceLifeCycleModel.load(deviceLifeCycleId, {
             success: function (deviceLifeCycleRecord) {
+                route = me.fromOverview ? 'administration/devicelifecycles/devicelifecycle' : 'administration/devicelifecycles';
                 var view = Ext.widget('device-life-cycles-edit', {
-                        router: me.getController('Uni.controller.history.Router')
+                        router: me.getController('Uni.controller.history.Router'),
+                        route: route
                     }),
                     form = view.down('device-life-cycles-add-form');
 
                 me.deviceLifeCycle = deviceLifeCycleRecord;
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
+                me.getApplication().fireEvent('deviceLifeCycleEdit', deviceLifeCycleRecord);
                 form.setTitle(Uni.I18n.translatePlural('deviceLifeCycles.edit.title', deviceLifeCycleRecord.get('name'), 'DLC', 'Edit \'{0}\''));
                 form.loadRecord(deviceLifeCycleRecord);
                 me.getApplication().fireEvent('changecontentevent', view);
@@ -189,12 +193,16 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
         deviceLifeCycleModel.load(deviceLifeCycleId, {
             success: function (deviceLifeCycleRecord) {
-                var title = Uni.I18n.translate('general.clone', 'DLC', 'Clone') + " '" + deviceLifeCycleRecord.get('name') + "'";
+                var title = Uni.I18n.translate('general.clone', 'DLC', 'Clone') + " '" + deviceLifeCycleRecord.get('name') + "'",
+                    route;
+
                 me.getApplication().fireEvent('devicelifecyclecloneload', title);
+                route = me.fromOverview ? 'administration/devicelifecycles/devicelifecycle' : 'administration/devicelifecycles';
                 view = Ext.widget('device-life-cycles-clone', {
                     router: me.getController('Uni.controller.history.Router'),
                     title: title,
-                    infoText: Uni.I18n.translatePlural('deviceLifeCycles.clone.templateMsg', deviceLifeCycleRecord.get('name'), 'DLC', "The new device life cycle is based on the '{0}' and will use the same states and transitions.")
+                    infoText: Uni.I18n.translatePlural('deviceLifeCycles.clone.templateMsg', deviceLifeCycleRecord.get('name'), 'DLC', "The new device life cycle is based on the '{0}' and will use the same states and transitions."),
+                    route: route
                 });
                 me.getApplication().fireEvent('changecontentevent', view);
             }

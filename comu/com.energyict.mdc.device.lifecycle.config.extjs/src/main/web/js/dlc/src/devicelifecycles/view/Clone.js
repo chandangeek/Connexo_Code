@@ -2,6 +2,7 @@ Ext.define('Dlc.devicelifecycles.view.Clone', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-life-cycles-clone',
     router: null,
+    route: null,
     title: null,
     requires: ['Dlc.devicelifecycles.view.AddForm'],
 
@@ -13,6 +14,7 @@ Ext.define('Dlc.devicelifecycles.view.Clone', {
                 title: me.title,
                 router: me.router,
                 infoText: me.infoText,
+                route: me.route,
                 btnAction: 'clone',
                 btnText: Uni.I18n.translate('general.clone', 'DLC', 'Clone'),
                 hideInfoMsg: false
