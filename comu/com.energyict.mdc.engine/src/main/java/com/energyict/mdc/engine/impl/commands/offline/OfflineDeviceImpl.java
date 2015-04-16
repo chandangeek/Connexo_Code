@@ -166,7 +166,14 @@ public class OfflineDeviceImpl implements OfflineDevice {
         if (context.needsSentMessages()) {
             setAllSentMessages(createSentMessagesList());
         }
+        if(context.needsFirmwareVersions()){
+            setFirmwareVersions();
+        }
         setDeviceCache(serviceProvider);
+    }
+
+    private void setFirmwareVersions() {
+
     }
 
     /**

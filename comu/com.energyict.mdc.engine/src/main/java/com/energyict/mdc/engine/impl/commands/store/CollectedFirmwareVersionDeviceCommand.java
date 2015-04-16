@@ -30,7 +30,7 @@ public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl {
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
-        // TODO
+        //TODO comServerDOA.getOfflineFirmwareVersions(deviceIdentifier)
     }
 
     @Override

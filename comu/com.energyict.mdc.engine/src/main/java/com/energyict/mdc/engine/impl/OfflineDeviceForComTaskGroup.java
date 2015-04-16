@@ -41,6 +41,11 @@ public class OfflineDeviceForComTaskGroup implements OfflineDeviceContext {
     }
 
     @Override
+    public boolean needsFirmwareVersions() {
+        return flags.needsFirmwareVersions();
+    }
+
+    @Override
     public boolean needsRegisters() {
         return flags.needsRegisters();
     }
