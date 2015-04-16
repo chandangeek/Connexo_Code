@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
@@ -23,9 +24,11 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -134,12 +137,22 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     }
 
     private Optional<SecurityPropertySet> anySecurityPropertySetWithMissingOrIncompleteProperties(Device device) {
-        return device
-                .getDeviceConfiguration()
-                .getSecurityPropertySets()
+        return this.getSecurityPropertySets(device)
                 .stream()
                 .filter(each -> this.isMissingOrIncomplete(device, each))
                 .findAny();
+    }
+
+    private Collection<SecurityPropertySet> getSecurityPropertySets(Device device) {
+        return device
+                .getDeviceConfiguration()
+                .getComTaskEnablements()
+                .stream()
+                .map(ComTaskEnablement::getSecurityPropertySet)
+                .collect(Collectors.toMap(
+                    SecurityPropertySet::getId,
+                    Function.identity()))
+                .values();
     }
 
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
