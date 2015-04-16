@@ -16,6 +16,25 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class FirmwareUpgradeOptionsImpl implements FirmwareUpgradeOptions {
+
+    enum Fields {
+        DEVICETYPE("deviceType"),
+        INSTALL("install"),
+        ACTIVATE("activate"),
+        ACTIVATEONDATE("activateOnDate");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
+
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = ValueReference.absent();
     private boolean install;

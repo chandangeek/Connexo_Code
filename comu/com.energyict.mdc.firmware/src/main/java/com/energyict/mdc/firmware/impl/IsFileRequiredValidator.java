@@ -22,17 +22,17 @@ public class IsFileRequiredValidator implements ConstraintValidator<IsFileRequir
     }
 
     @Override
-    public boolean isValid(FirmwareVersionImpl in, ConstraintValidatorContext context) {
-        if(in.getOldFirmwareStatus() != null && in.getOldFirmwareStatus().equals(FirmwareStatus.GHOST)
-                && !in.getFirmwareStatus().equals(FirmwareStatus.DEPRECATED) && in.getFirmwareFile() == null) {
+    public boolean isValid(FirmwareVersionImpl firmwareVersion, ConstraintValidatorContext context) {
+        if(FirmwareStatus.GHOST.equals(firmwareVersion.getOldFirmwareStatus())
+                && !FirmwareStatus.DEPRECATED.equals(firmwareVersion.getFirmwareStatus()) && firmwareVersion.getFirmwareFile() == null) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("firmwareFile").addConstraintViolation();
             return false;
         }
 
-        if(!FirmwareStatus.GHOST.equals(in.getFirmwareStatus()) && in.getFirmwareFile() == null) {
-            if (in.getId() != 0) {
-                Optional<FirmwareVersion> versionOptional = firmwareService.getFirmwareVersionById(in.getId());
+        if(!FirmwareStatus.GHOST.equals(firmwareVersion.getFirmwareStatus()) && firmwareVersion.getFirmwareFile() == null) {
+            if (firmwareVersion.getId() != 0) {
+                Optional<FirmwareVersion> versionOptional = firmwareService.getFirmwareVersionById(firmwareVersion.getId());
                 if (versionOptional.isPresent() && versionOptional.get().getFirmwareFile() == null) {
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("firmwareFile").addConstraintViolation();

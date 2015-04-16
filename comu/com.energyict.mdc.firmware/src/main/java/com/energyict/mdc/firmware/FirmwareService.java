@@ -27,7 +27,7 @@ import java.util.Set;
 
     Query<? extends FirmwareVersion> getFirmwareVersionQuery();
 
-    Finder<FirmwareVersion> findAllFirmwareVersions(Condition condition);
+    Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter);
 
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
 
