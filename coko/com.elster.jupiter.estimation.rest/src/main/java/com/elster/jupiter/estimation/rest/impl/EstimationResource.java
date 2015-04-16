@@ -122,10 +122,10 @@ public class EstimationResource {
             EstimationRuleInfos infos = new EstimationRuleInfos();
             EstimationRuleSet set = optional.get();
             List<? extends EstimationRule> rules;
-            if (params.size() == 0) {
-                rules = set.getRules();
-            } else {
+            if ((params.getLimit() > 0) && (params.getStart() >= 0)) {
                 rules = set.getRules(params.getStart(), params.getLimit());
+            } else {
+                rules = set.getRules();
             }
             for (EstimationRule rule : rules) {
                 infos.add(rule);
