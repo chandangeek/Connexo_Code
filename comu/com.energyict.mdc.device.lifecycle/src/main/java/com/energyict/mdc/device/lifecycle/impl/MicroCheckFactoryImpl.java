@@ -6,6 +6,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.LastReadingTimestampSet;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SlaveDeviceHasGateway;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -65,6 +66,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case LAST_READING_TIMESTAMP_SET: {
                 return new LastReadingTimestampSet(this.thesaurus);
+            }
+            case SECURITY_PROPERTIES_ARE_ALL_VALID: {
+                return new SecurityPropertiesAreValid(this.thesaurus);
             }
             case SLAVE_DEVICE_HAS_GATEWAY: {
                 return new SlaveDeviceHasGateway(this.thesaurus, this.topologyService);
