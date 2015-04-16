@@ -11,7 +11,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Fwc.devicefirmware.view.ActionMenu',
-        'Uni.form.field.DisplayFieldWithInfoIcon'
+        'Uni.form.field.DisplayFieldWithInfoIcon',
+        'Uni.DateTime'
     ],
     record: null,
     hydrator: 'Fwc.form.Hydrator',
@@ -38,11 +39,34 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             xtype: 'toolbar',
             dock: 'top',
             border: true,
-            items: {
-                xtype: 'uni-form-error-message',
-                itemId: 'form-errors',
-                hidden: true
-            }
+            items: [
+                {
+                    xtype: 'uni-form-error-message',
+                    itemId: 'form-errors',
+                    hidden: true
+                },
+                {
+                    xtype: 'uni-form-error-message',
+                    itemId: 'form-info',
+                    padding: 10,
+                    cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
+                    defaultErrorIcon: 'x-message-box-warning',
+                    hidden: true,
+                    buttonAlign: 'left',
+                    margin: 0,
+                    layout: {
+                        type: 'hbox',
+                        defaultMargins: '5 10 5 5'
+                    },
+                    buttons: [{
+                        margin: '0 0 0 46',
+                        text: Uni.I18n.translate('general.edit', 'MDC', 'Save'),
+                        ui: 'action',
+                        action: 'saveFirmware',
+                        itemId: 'createEditButton'
+                    }]
+                }
+            ]
         }
     ],
 
@@ -71,9 +95,20 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     ],
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            formInfo;
         me.callParent(arguments);
         me.loadRecord(me.record.getActiveVersion());
         me.setTitle(me.record.get('type'));
+        formInfo = me.down('#form-info');
+
+        var version = me.record.getAssociatedData().activeVersion;
+        if (version) {
+            formInfo.show();
+            formInfo.setText(Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version {0} will be uploaded to device on {1}', [
+                version.firmwareVersion,
+                Uni.DateTime.formatDateTimeShort(version.plannedDate)
+            ]));
+        }
     }
 });
