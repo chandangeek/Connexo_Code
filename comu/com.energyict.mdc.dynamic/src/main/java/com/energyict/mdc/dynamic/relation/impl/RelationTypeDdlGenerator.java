@@ -106,22 +106,12 @@ public class RelationTypeDdlGenerator {
             executeDdl(getCreateDynamicAttributeTableSql());
             logger.info("Created table " + getDynamicAttributeTableName());
         }
-        else {
-            this.logTableAlreadyExists(this.getDynamicAttributeTableName());
-        }
-    }
-
-    private void logTableAlreadyExists(String tableName) {
-        logger.info("Table " + tableName + " already exists");
     }
 
     protected void createObsoleteAttributeTable() throws SQLException {
         if (dontCheckExistence || !tableExists(getObsoleteAttributeTableName())) {
             executeDdl(getCreateObsoleteAttributeTableSql());
             logger.info("Created table " + getObsoleteAttributeTableName());
-        }
-        else {
-            this.logTableAlreadyExists(this.getObsoleteAttributeTableName());
         }
     }
 
@@ -139,25 +129,15 @@ public class RelationTypeDdlGenerator {
                 executeDdl(getCreateDynamicAttributeIndexSql(attType));
                 this.logCreatedIndex(dynAttIdx);
             }
-            else {
-                this.logIndexAlreadyExists(dynAttIdx);
-            }
             if (tableExists(getObsoleteAttributeTableName()) && !indexExists(getObsoleteAttributeTableName(), attType.getName())) {
                 executeDdl(getCreateObsoleteAttributeIndexSql(attType));
                 this.logCreatedIndex(obsAttIdx);
-            }
-            else {
-                this.logIndexAlreadyExists(obsAttIdx);
             }
         }
     }
 
     private void logCreatedIndex(String indexName) {
         logger.info("Created index " + indexName);
-    }
-
-    private void logIndexAlreadyExists(String indexName) {
-        logger.info("Index " + indexName + " already exists");
     }
 
     protected void dropAttributeIndexes(RelationAttributeType attributeType) throws SQLException {
@@ -184,13 +164,6 @@ public class RelationTypeDdlGenerator {
             executeDdl(getCreateDynamicAttributeSequenceSql());
             logger.info("created sequence " + getDynamicAttributeSequenceName());
         }
-        else {
-            this.logSequenceAlreadyExists();
-        }
-    }
-
-    private void logSequenceAlreadyExists() {
-        logger.info("Sequence " + getDynamicAttributeSequenceName() + " already exists");
     }
 
     protected String getDropDynamicAttributeIndexSql(RelationAttributeType attributeType) {
