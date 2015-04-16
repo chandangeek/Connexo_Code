@@ -44,7 +44,6 @@ public class Installer {
     public static final String COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME = "Handle obsolete communication schedules";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
-    private static final int KPI_CALCULATOR_TASK_RETRY_DELAY = 60;
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
