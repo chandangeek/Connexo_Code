@@ -30,6 +30,8 @@ public class ValidationRuleSetVersionInfo{
     }
 
     private void doPopulate(ValidationRuleSetVersion validationRuleSetVersion){
+        if(validationRuleSetVersion==null)
+            return;
         id = validationRuleSetVersion.getId();
         status = validationRuleSetVersion.getStatus();
         description = validationRuleSetVersion.getDescription();
