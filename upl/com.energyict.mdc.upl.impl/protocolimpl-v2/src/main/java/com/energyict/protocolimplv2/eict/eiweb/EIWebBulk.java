@@ -31,57 +31,55 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     private ResponseWriter responseWriter;
 
     @Override
-    public void initializeDiscoveryContext (InboundDiscoveryContext context) {
+    public void initializeDiscoveryContext(InboundDiscoveryContext context) {
         this.context = context;
         this.context.setCryptographer(new EIWebCryptographer(context.getInboundDAO(), context.getComPort()));
     }
 
     @Override
-    public InboundDiscoveryContext getContext () {
+    public InboundDiscoveryContext getContext() {
         return this.context;
     }
 
     @Override
-    public void init (HttpServletRequest request, HttpServletResponse response) {
+    public void init(HttpServletRequest request, HttpServletResponse response) {
         this.request = request;
         this.response = response;
     }
 
     @Override
-    public String getVersion () {
+    public String getVersion() {
         return "$Date$";
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties () {
+    public List<PropertySpec> getRequiredProperties() {
         return new ArrayList<>(0);
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties () {
+    public List<PropertySpec> getOptionalProperties() {
         return new ArrayList<>(0);
     }
 
     @Override
-    public void addProperties (TypedProperties properties) {
+    public void addProperties(TypedProperties properties) {
         // No pluggable properties so ignore this call
     }
 
     @Override
-    public DiscoverResultType doDiscovery () {
+    public DiscoverResultType doDiscovery() {
         this.response.setContentType("text/html");
         try {
             this.responseWriter = new ResponseWriter(this.response);
             this.protocolHandler = new ProtocolHandler(this.responseWriter, this.context.getInboundDAO(), this.context.getCryptographer());
             try {
                 this.protocolHandler.handle(this.request, this.context.getLogger());
-            }
-            catch (RuntimeException e) {
+            } catch (RuntimeException e) {
                 this.responseWriter.failure();
                 throw e;
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new CommunicationException(e);
         }
         return DiscoverResultType.DATA;
@@ -89,7 +87,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        if(!this.response.isCommitted()){
+        if (!this.response.isCommitted()) {
             try {
                 switch (responseType) {
                     case SUCCESS:
@@ -97,6 +95,10 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                         break;
                     case FAILURE:
                         this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The inbound discovery failed. No data was processed nor stored!");
+                        break;
+                    case STORING_FAILURE:
+                        this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The data was received correctly but a problem occurred while storing it");
+                        break;
                     case DEVICE_DOES_NOT_EXPECT_INBOUND:
                         this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device is not configured for inbound communication, request refused!");
                         break;
@@ -117,12 +119,12 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     }
 
     @Override
-    public DeviceIdentifier getDeviceIdentifier () {
+    public DeviceIdentifier getDeviceIdentifier() {
         return this.protocolHandler.getDeviceIdentifier();
     }
 
     @Override
-    public List<CollectedData> getCollectedData () {
+    public List<CollectedData> getCollectedData() {
         return this.protocolHandler.getCollectedData();
     }
 
