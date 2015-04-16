@@ -49,7 +49,6 @@ public class Installer {
     private final EventService eventService;
     private final MessageService messageService;
     private final UserService userService;
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
     private final Thesaurus thesaurus;
 
     public Installer(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService, Thesaurus thesaurus) {
@@ -66,12 +65,12 @@ public class Installer {
         try {
             this.dataModel.install(executeDdl, true);
         } catch (Exception e) {
-            this.logger.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         try {
             this.createPrivileges();
         } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
         this.createEventTypes();
         this.createMessageHandlers();
@@ -140,7 +139,7 @@ public class Installer {
             this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER);
             this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER);
         } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
     }
 
@@ -163,7 +162,7 @@ public class Installer {
                 }
             }
         } catch (Exception e) {
-            this.logger.severe(e.getMessage());
+            LOGGER.severe(e.getMessage());
         }
     }
 
@@ -176,7 +175,7 @@ public class Installer {
             try {
                 eventType.createIfNotExists(this.eventService);
             } catch (Exception e) {
-                this.logger.log(Level.SEVERE, e.getMessage(), e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
