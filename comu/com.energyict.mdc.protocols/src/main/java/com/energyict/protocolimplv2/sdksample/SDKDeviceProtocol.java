@@ -17,13 +17,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -276,14 +271,18 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        //TODO
-        return null;
+        CollectedMessageList collectedMessageList = collectedDataFactory.createCollectedMessageList(pendingMessages);
+        pendingMessages.stream().forEach(offlineDeviceMessage -> {
+            CollectedMessage collectedMessage = collectedDataFactory.createCollectedMessage(offlineDeviceMessage.getIdentifier());
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+            collectedMessageList.addCollectedMessages(collectedMessage);
+        });
+        return collectedMessageList;
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        //TODO
-        return null;
+        return executePendingMessages(sentMessages);
     }
 
     @Override
@@ -297,7 +296,9 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 new SDKLoadProfileProtocolDialectProperties(propertySpecService),
                 new SDKStandardDeviceProtocolDialectProperties(propertySpecService),
                 new SDKTimeDeviceProtocolDialectProperties(propertySpecService),
-                new SDKTopologyTaskProtocolDialectProperties(propertySpecService));
+                new SDKTopologyTaskProtocolDialectProperties(propertySpecService),
+                new SDKFirmwareProtocolDialectProperties(propertySpecService)
+                );
     }
 
     @Override
@@ -413,6 +414,16 @@ public class SDKDeviceProtocol implements DeviceProtocol {
             }
         }
         return connectionTypes;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareProtocolDialectProperties.activeMeterFirmwarePropertyName, ""));
+        firmwareVersionsCollectedData.setPassiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareProtocolDialectProperties.passiveMeterFirmwarePropertyName, ""));
+        firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareProtocolDialectProperties.activeCommunicationFirmwarePropertyName, ""));
+        firmwareVersionsCollectedData.setPassiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareProtocolDialectProperties.passiveCommunicationFirmwarePropertyName, ""));
+        return firmwareVersionsCollectedData;
     }
 
 }

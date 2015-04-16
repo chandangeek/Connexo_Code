@@ -1,13 +1,10 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -725,12 +722,11 @@ public class ObjectFactory {
 
     /**
      * Request the firmware versions of the meter
-     *
-     * @throws java.io.IOException when the communication fails
      */
-    public void sendFirmwareRequest() throws IOException {
+    public void sendFirmwareRequest() {
         log(Level.INFO, "Sending firmware version request" + getRetryDescription());
         getFirmwareVersion().request();
+        addRequestToOverview(RequestType.FirmwareVersion);
     }
 
     public ACE4000 getAce4000() {
@@ -1087,4 +1083,16 @@ public class ObjectFactory {
         return allEvents;
     }
 
+    public CollectedFirmwareVersion createCollectedFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getFirmwareVersion().getMetrologyFirmwareVersion());
+        firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion(getFirmwareVersion().getAuxiliaryFirmwareVersion());
+        return firmwareVersionsCollectedData;
+    }
+
+    public CollectedFirmwareVersion createFailedFirmwareVersions(Issue issue) {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
+        firmwareVersionsCollectedData.setFailureInformation(ResultType.DataIncomplete, issue);
+        return firmwareVersionsCollectedData;
+    }
 }

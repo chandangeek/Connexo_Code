@@ -12,6 +12,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -23,13 +24,8 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -425,5 +421,26 @@ public class RtuPlusServer implements DeviceProtocol {
     @Override
     public PropertySpec getPropertySpec(String s) {
         return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(s)).findFirst().orElse(null);
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        DeviceIdentifier<?> deviceIdentifier = offlineDevice.getDeviceIdentifier();
+        CollectedFirmwareVersion firmwareVersionsCollectedData = collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier);
+
+        try {
+            firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getG3GatewayRegisters().getFirmwareVersionString(G3GatewayRegisters.FW_APPLICATION));
+        } catch (IOException e) {
+            Issue issue = issueService.newIssueCollector().addWarning(deviceIdentifier, "Could not read the active meter firmware version", e.getMessage());
+            firmwareVersionsCollectedData.setFailureInformation(ResultType.DataIncomplete, issue);
+        }
+
+        try {
+            firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion(getG3GatewayRegisters().getFirmwareVersionString(G3GatewayRegisters.FW_UPPER_MAC));
+        } catch (IOException e) {
+            Issue issue = issueService.newIssueCollector().addWarning(deviceIdentifier, "Could not read the active upper mac communication firmware version", e.getMessage());
+            firmwareVersionsCollectedData.setFailureInformation(ResultType.DataIncomplete, issue);        }
+
+        return firmwareVersionsCollectedData;
     }
 }

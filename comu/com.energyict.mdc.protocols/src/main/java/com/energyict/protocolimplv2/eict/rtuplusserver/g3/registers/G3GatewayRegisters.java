@@ -7,6 +7,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
@@ -23,6 +24,8 @@ import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCode
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -32,16 +35,21 @@ import java.io.IOException;
  */
 public class G3GatewayRegisters {
 
+    public static final ObisCode FW_APPLICATION = ObisCode.fromString("1.0.0.2.0.255");
+    public static final ObisCode FW_UPPER_MAC = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode FW_LOWER_MAC = ObisCode.fromString("1.2.0.2.0.255");
     private static final ObisCode GSM_FIELD_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
-    private static final ObisCode FW_APPLICATION = ObisCode.fromString("1.0.0.2.0.255");
-    private static final ObisCode FW_UPPER_MAC = ObisCode.fromString("1.1.0.2.0.255");
-    private static final ObisCode FW_LOWER_MAC = ObisCode.fromString("1.2.0.2.0.255");
 
     private final RegisterMapping[] registerMappings;
     private final CustomRegisterMapping[] customRegisterMappings;
     private final DlmsSession session;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+
+    /**
+     * Keeps track of the different FirmwareVersions so we don't fetch them mulitple times ...
+     */
+    private Map<ObisCode, String> firmwareVersions = new HashMap<>(3);
 
     public G3GatewayRegisters(DlmsSession dlmsSession, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         this.session = dlmsSession;
@@ -77,14 +85,9 @@ public class G3GatewayRegisters {
                 RegisterValue registerValue = new RegisterValue(obisCode, quantityValue);
                 return createCollectedRegister(registerValue, register);
             } else if (isFirmwareRegister(obisCode)) {
-                AbstractDataType valueAttr = session.getCosemObjectFactory().getData(obisCode).getValueAttr();
-                OctetString octetString = valueAttr.getOctetString();
-                if (octetString == null) {
-                    throw new IOException("Unexpected data type while reading out firmware version, expected OctetString");
-                } else {
-                    RegisterValue registerValue = new RegisterValue(obisCode, octetString.stringValue());
-                    return createCollectedRegister(registerValue, register);
-                }
+                String firmwareVersionString = getFirmwareVersionString(obisCode);
+                RegisterValue registerValue = new RegisterValue(obisCode, firmwareVersionString);
+                return createCollectedRegister(registerValue, register);
             }
 
             for (CustomRegisterMapping customRegisterMapping : customRegisterMappings) {
@@ -113,6 +116,21 @@ public class G3GatewayRegisters {
         }
 
         return createFailureCollectedRegister(register, ResultType.NotSupported);
+    }
+
+    public String getFirmwareVersionString(ObisCode firmwareObisCode) throws IOException {
+        String firmwareVersion = firmwareVersions.get(firmwareObisCode);
+        if(firmwareVersion == null){
+            AbstractDataType valueAttr = session.getCosemObjectFactory().getData(firmwareObisCode).getValueAttr();
+            OctetString octetString = valueAttr.getOctetString();
+            if (octetString != null) {
+                firmwareVersion = octetString.stringValue();
+                firmwareVersions.put(firmwareObisCode, firmwareVersion);
+            } else {
+                throw new IOException("Unexpected data type while reading out firmware version, expected OctetString");
+            }
+        }
+        return firmwareVersion;
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister register) {
