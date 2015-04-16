@@ -2,17 +2,25 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
@@ -30,10 +38,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-@Path("/device/{mrid}/firmwaremessages/")
+@Path("/device/{mrid}")
 public class DeviceFirmwareMessagesResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
@@ -57,7 +67,7 @@ public class DeviceFirmwareMessagesResource {
     }
 
     @GET
-    @Path("/specs/{uploadOption}")
+    @Path("/firmwaremessagespecs/{uploadOption}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
     public Response getMessageAttributes(@PathParam("mrid") String mrid, @PathParam("uploadOption") String uploadOption){
@@ -87,72 +97,109 @@ public class DeviceFirmwareMessagesResource {
     }
 
     @POST
+    @Path("/firmwaremessages")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response uploadFirmwareToDevice(@PathParam("mrid") String mrid, FirmwareMessageInfo info){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
-        Instant releaseDate = info.releaseDate == null ? this.clock.instant() : Instant.ofEpochMilli(info.releaseDate);
-        ProtocolSupportedFirmwareOptions requestedFUOption = ProtocolSupportedFirmwareOptions.from(info.id).orElse(null);
-        Set<ProtocolSupportedFirmwareOptions> deviceTypeFUAllowedOptions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(device.getDeviceType());
+        checkFirmwareUpgradeOption(device.getDeviceType(), info.id);
+        ComTaskEnablement comTaskEnablement = checkFUComTaskEnablement(device.getDeviceConfiguration());
 
-        // Check allowed firmware upgrade options for device type
+        DeviceMessageId fuMessageId = getFirmwareUpgradeMessageId(device, info.id);
+        Map<String, Object> convertedProperties = getConvertedProperties(fuMessageId, info);
+        Instant releaseDate = info.releaseDate == null ? this.clock.instant() : Instant.ofEpochMilli(info.releaseDate);
+
+        prepareCommunicationTask(device, comTaskEnablement, releaseDate, convertedProperties);
+        Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(fuMessageId).setReleaseDate(releaseDate);
+        for (Map.Entry<String, Object> property : convertedProperties.entrySet()) {
+            deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
+        }
+        deviceMessageBuilder.add();
+        return Response.ok().build();
+    }
+
+    /** Checks that device type allows the requested firmware upgrade option */
+    private void checkFirmwareUpgradeOption(DeviceType deviceType, String uploadOption) {
+        ProtocolSupportedFirmwareOptions requestedFUOption = ProtocolSupportedFirmwareOptions.from(uploadOption).orElse(null);
+        Set<ProtocolSupportedFirmwareOptions> deviceTypeFUAllowedOptions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(deviceType);
         if (deviceTypeFUAllowedOptions.isEmpty()){ // firmware upgrade is not allowed for the device type
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE);
         }
         if (!deviceTypeFUAllowedOptions.contains(requestedFUOption)){ // the requested firmware upgrade option is not allowed on device type
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPGRADE_OPTION_ARE_DISABLED_FOR_DEVICE_TYPE);
         }
+    }
 
+    /** Checks that device configuration has firmware upgrade support */
+    private ComTaskEnablement checkFUComTaskEnablement(DeviceConfiguration deviceConfiguration) {
         // Check firmware upgrade task
         ComTask fuComTask = taskService.findFirmwareComTask()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND));
-        ComTaskEnablement fuComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(fuComTask)
+        return deviceConfiguration.getComTaskEnablementFor(fuComTask)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE));
+    }
 
-        // Check firmware com task execution for current device
-        Optional<ComTaskExecution> fuComTaskExecutionRef = device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTaskExecution.getComTasks().stream().filter(comTask -> comTask.getId() == fuComTask.getId()).count() > 0)
-                .findFirst();
-        FirmwareComTaskExecution fuComTaskExecution = null;
-        if (!fuComTaskExecutionRef.isPresent()){
-            fuComTaskExecution = device.newFirmwareComTaskExecution(fuComTaskEnablement).add();
-            device.save();
-        } else {
-            // TODO cancel currently pending messages of the corresponding firmware type
-            /*
-            Cancelling a firmwareUpgrade can only be done when there is a pending FirmwareUpgradeComTaskExecution AND a
-            pending FirmwareUpgrade message. Once the firmware has been uploaded to the Device, then it is not possible
-            to cancel the upgrade anymore. The only 'workaround' is to upload a new Firmware object to the device (this
-            means starting a new Firmware upload process)
-            The cancel logic should first cancel the FirmwareUpgrade message, then check if there are other pending
-            FirmwareUpgrade related messages, if not, then cancel the FirmwareUpgradeComTaskExecution, if there are
-            other pending messages, then DON'T cancel the FirmwareUpgradeComTaskExecution
-            */
-            fuComTaskExecution = (FirmwareComTaskExecution) fuComTaskExecutionRef.get();
-
-        }
-        if (fuComTaskExecution.getNextExecutionTimestamp() == null ||
-                fuComTaskExecution.getNextExecutionTimestamp().isAfter(releaseDate)){
-            fuComTaskExecution.schedule(releaseDate);
-        }
-
-        // Create a corresponding device message
-        DeviceMessageId fuMessageId = getFirmwareUpgradeMessageId(device, info.id);
-        Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(fuMessageId).setReleaseDate(releaseDate);
-        DeviceMessageSpec fuMessageSpec = deviceMessageSpecificationService.findMessageSpecById(fuMessageId.dbValue())
+    /** This method converts the incoming info object to property-value map (according to the specified message id) */
+    private Map<String, Object> getConvertedProperties(DeviceMessageId messageId, FirmwareMessageInfo info) {
+        DeviceMessageSpec fuMessageSpec = deviceMessageSpecificationService.findMessageSpecById(messageId.dbValue())
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
+        Map<String, Object> convertedProperties = new HashMap<>();
         try {
             for (PropertySpec propertySpec : fuMessageSpec.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);
                 if (propertyValue != null) {
-                    deviceMessageBuilder.addProperty(propertySpec.getName(), propertyValue);
+                    convertedProperties.put(propertySpec.getName(), propertyValue);
                 }
             }
         } catch (LocalizedFieldValidationException e) {
             throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
         }
-        deviceMessageBuilder.add();
-        return Response.ok().build();
+        return convertedProperties;
+    }
+
+    private void prepareCommunicationTask(Device device, ComTaskEnablement comTaskEnablement, Instant releaseDate, Map<String, Object> convertedProperties) {
+        // Check firmware com task execution for current device
+        Optional<ComTaskExecution> fuComTaskExecutionRef = device.getComTaskExecutions().stream()
+                .filter(comTaskExecution -> comTaskExecution instanceof FirmwareComTaskExecution)
+                .findFirst();
+        FirmwareComTaskExecution fuComTaskExecution = null;
+        if (!fuComTaskExecutionRef.isPresent()){
+            // Create a new comTaskExecution
+            fuComTaskExecution = device.newFirmwareComTaskExecution(comTaskEnablement).add();
+            device.save();
+        } else {
+            // Cancel the previous firmware upgrades for the same firmware type
+            fuComTaskExecution = (FirmwareComTaskExecution) fuComTaskExecutionRef.get();
+            cancelOldFUMessages(device, convertedProperties, fuComTaskExecution);
+        }
+        if (fuComTaskExecution.getNextExecutionTimestamp() == null ||
+                fuComTaskExecution.getNextExecutionTimestamp().isAfter(releaseDate)){
+            fuComTaskExecution.schedule(releaseDate);
+        }
+    }
+
+    private void cancelOldFUMessages(Device device, Map<String, Object> convertedProperties, FirmwareComTaskExecution comTaskExecution) {
+        String firmwareVersionPropertyName = DeviceMessageConstants.firmwareUpdateFileAttributeName;
+        FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertyName);
+        if (requestedFirmwareVersion != null) {
+            int fuMessageCategoryId = deviceMessageSpecificationService.getFirmwareCategory().getId();
+            Counter pendingMsgCounter = Counters.newStrictCounter();
+            device.getMessages().stream()
+                    .filter(message -> message.getStatus().equals(DeviceMessageStatus.PENDING) || message.getStatus().equals(DeviceMessageStatus.WAITING)) // only pending messages
+                    .filter(message -> message.getSpecification().getCategory().getId() == fuMessageCategoryId) // only pending firmware upgrade messages
+                    .forEach(candidate -> {
+                        Optional<DeviceMessageAttribute> candidateFirmwareVersion = candidate.getAttributes().stream().filter(attr -> firmwareVersionPropertyName.equals(attr.getName())).findFirst();
+                        if (candidateFirmwareVersion.isPresent() && requestedFirmwareVersion.getFirmwareType().equals(((FirmwareVersion) candidateFirmwareVersion.get().getValue()).getFirmwareType())) {
+                            candidate.revoke();
+                            candidate.save();
+                        } else {
+                            pendingMsgCounter.increment();
+                        }
+                    });
+            if (pendingMsgCounter.getValue() == 0) {
+                comTaskExecution.putOnHold();
+            }
+        }
     }
 }
