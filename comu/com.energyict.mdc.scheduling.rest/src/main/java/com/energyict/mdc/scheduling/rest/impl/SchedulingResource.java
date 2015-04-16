@@ -146,9 +146,7 @@ public class SchedulingResource {
         } else {
             long protocolDialectConfigurationPropertiesId = 0;
             ComTaskEnablement firstComTaskEnablement = comTaskEnablementsToCheck.get(0);
-            if (firstComTaskEnablement.getProtocolDialectConfigurationProperties().isPresent()) {
-                protocolDialectConfigurationPropertiesId = firstComTaskEnablement.getProtocolDialectConfigurationProperties().get().getId();
-            }
+            protocolDialectConfigurationPropertiesId = firstComTaskEnablement.getProtocolDialectConfigurationProperties().getId();
             long securityPropertySetId = firstComTaskEnablement.getSecurityPropertySet().getId();
             long partialConnectionTaskId = 0;
             if (firstComTaskEnablement.getPartialConnectionTask().isPresent()) {
@@ -159,9 +157,7 @@ public class SchedulingResource {
 
                 long compareProtocolDialectConfigurationPropertiesId = 0;
                 ComTaskEnablement otherComTaskEnablement = comTaskEnablementsToCheck.get(i);
-                if (otherComTaskEnablement.getProtocolDialectConfigurationProperties().isPresent()) {
-                    compareProtocolDialectConfigurationPropertiesId = otherComTaskEnablement.getProtocolDialectConfigurationProperties().get().getId();
-                }
+                compareProtocolDialectConfigurationPropertiesId = otherComTaskEnablement.getProtocolDialectConfigurationProperties().getId();
                 long compareSecurityPropertySetId = otherComTaskEnablement.getSecurityPropertySet().getId();
                 long comparePartialConnectionTaskId = 0;
                 if (otherComTaskEnablement.getPartialConnectionTask().isPresent()) {
