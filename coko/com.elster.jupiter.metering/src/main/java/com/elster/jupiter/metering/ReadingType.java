@@ -34,7 +34,9 @@ public interface ReadingType extends IdentifiedObject {
 	ReadingTypeUnit getUnit();
 	Currency getCurrency();
 
-	boolean isBulkQuantityReadingType(ReadingType readingType);
+    Optional<ReadingType> getBulkReadingType();
+
+    boolean isBulkQuantityReadingType(ReadingType readingType);
 	Optional<ReadingType> getCalculatedReadingType();
 	boolean isRegular();
 	default boolean isCumulative() {
