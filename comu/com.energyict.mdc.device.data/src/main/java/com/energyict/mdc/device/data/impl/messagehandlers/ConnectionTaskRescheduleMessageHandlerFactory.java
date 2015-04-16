@@ -13,12 +13,12 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.mdc.connectiontask.message.handler.factory",
+@Component(name = "com.energyict.mdc.connectiontask.reschedule.message.handler.factory",
         service = MessageHandlerFactory.class,
         property = {"subscriber="+ ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER,
                 "destination="+ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION},
         immediate = true)
-public class ConnectionTaskBatchMessageHandlerFactory implements MessageHandlerFactory {
+public class ConnectionTaskRescheduleMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -27,7 +27,7 @@ public class ConnectionTaskBatchMessageHandlerFactory implements MessageHandlerF
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
-                getInstance(ConnectionTaskBatchMessageHandler.class).
+                getInstance(ConnectionTaskRescheduleMessageHandler.class).
                 init(connectionTaskService, jsonService);
     }
 

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Simple structure to hold all IDs so we can store the filter in the DB
+ * Simple structure to hold all IDs so we can store the filter in the DB (this is the actual message passed to the queue
  * Created by bvn on 3/27/15.
  */
 public class ConnectionTaskFilterSpecificationMessage {

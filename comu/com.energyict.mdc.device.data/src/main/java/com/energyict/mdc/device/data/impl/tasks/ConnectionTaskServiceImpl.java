@@ -433,6 +433,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
     }
 
+    @Override
+    public List<ConnectionTypePluggableClass> findConnectionTypeByFilter(ConnectionTaskFilterSpecification filter) {
+        return null;
+    }
+
     private List<ConnectionTask> fetchConnectionTasks(DataMapper<ConnectionTask> dataMapper, SqlBuilder sqlBuilder) {
         try (Fetcher<ConnectionTask> fetcher = dataMapper.fetcher(sqlBuilder)) {
             Iterator<ConnectionTask> connectionTaskIterator = fetcher.iterator();
