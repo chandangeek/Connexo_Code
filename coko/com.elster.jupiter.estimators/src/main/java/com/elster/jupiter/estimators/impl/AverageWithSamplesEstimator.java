@@ -8,6 +8,8 @@ import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -19,16 +21,22 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,6 +103,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         relativePeriod = (RelativePeriod) properties.get(RELATIVE_PERIOD);
 
         advanceReadingsSettings = (AdvanceReadingsSettings) properties.get(ADVANCE_READINGS_SETTINGS);
+        if (advanceReadingsSettings == null) {
+            advanceReadingsSettings = new NoneAdvanceReadingsSettings();
+        }
     }
 
     @Override
@@ -109,17 +120,196 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
-        estimationBlocks.forEach(this::estimate);
-        return SimpleEstimationResult.of(Collections.<EstimationBlock>emptyList(), estimationBlocks);
+        List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
+        List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
+        for (EstimationBlock block : estimationBlocks) {
+            boolean succes = estimate(block);
+            if (succes) {
+                estimated.add(block);
+            } else {
+                remain.add(block);
+            }
+        }
+        return SimpleEstimationResult.of(remain, estimated);
     }
 
-    public void estimate(EstimationBlock estimationBlock) {
-        estimationBlock.estimatables().forEach(estimatable -> estimate(estimatable));
+    private boolean estimate(EstimationBlock estimationBlock) {
+        if (advanceReadingsSettings.equals(new BulkAdvanceReadingsSettings())) {
+            return estimateWithBulk(estimationBlock);
+
+        } else if (advanceReadingsSettings instanceof ReadingTypeAdvanceReadingsSettings) {
+            return estimateWithDeltas(estimationBlock);
+        } else {
+            return estimateWithoutAdvances(estimationBlock);
+        }
     }
 
-    private void estimate(Estimatable estimatable) {
+    private boolean estimateWithBulk(EstimationBlock estimationBlock) {
+        boolean estimationWithoutAdvances = estimateWithoutAdvances(estimationBlock);
+        if (!estimationWithoutAdvances) {
+            return false;
+        }
+        List<? extends Estimatable> esimatables = estimationBlock.estimatables();
+        if (esimatables.size() == 1) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "block size should be more then 1 to use bulk advances");
+            return false;
+        }
+        Instant startInterval = esimatables.get(0).getTimestamp();
+        Instant endInterval = esimatables.get(esimatables.size() - 1).getTimestamp();
+        Optional<BaseReadingRecord> startBulkReading = estimationBlock.getChannel().getReading(startInterval);
+        Optional<BaseReadingRecord> endBulkReading = estimationBlock.getChannel().getReading(endInterval);
+        if ((!startBulkReading.isPresent()) || (!endBulkReading.isPresent())) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "no bulk reading available");
+            return false;
+        }
+        Optional<ReadingType> bulkReadingType = this.getBulkReadingType(estimationBlock.getReadingType());
+        if (!bulkReadingType.isPresent()) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "no bulk reading type found for delta reading type " + estimationBlock.getReadingType());
+            return false;
+        }
+        Quantity startQty = startBulkReading.get().getQuantity(bulkReadingType.get());
+        if (startQty == null) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "no bulk reading found on " + startInterval);
+            return false;
+        }
+        Quantity endQty = endBulkReading.get().getQuantity(bulkReadingType.get());
+        if (endQty == null) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "no bulk reading found on " + endInterval);
+            return false;
+        }
+        BigDecimal totalConsumption = endQty.getValue().add(startQty.getValue().negate());
+        rescaleEstimation(estimationBlock, totalConsumption);
+        return true;
+    }
+
+    private void rescaleEstimation(EstimationBlock estimationBlock, BigDecimal totalConsumption) {
+        BigDecimal totalEstimation = getTotalEstimatedConsumption(estimationBlock);
+        BigDecimal factor = totalConsumption.divide(totalEstimation, 10, BigDecimal.ROUND_HALF_UP);
+        for (Estimatable estimatable : estimationBlock.estimatables()) {
+            estimatable.setEstimation(estimatable.getEstimation().multiply(factor));
+        }
+    }
+
+    private BigDecimal getTotalEstimatedConsumption(EstimationBlock estimationBlock) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (Estimatable estimatable : estimationBlock.estimatables()) {
+            total.add(estimatable.getEstimation());
+        }
+        return total;
+    }
+
+    private BigDecimal getTotalConsumption(List<? extends BaseReadingRecord> readings, ReadingType readingType) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (BaseReadingRecord reading : readings) {
+            Quantity qty = reading.getQuantity(readingType);
+            if ((qty != null) && (qty.getValue() != null)) {
+                total.add(qty.getValue());
+            }
+        }
+        return total;
+    }
+
+    private boolean estimateWithDeltas(EstimationBlock estimationBlock) {
+        boolean estimationWithoutAdvances = estimateWithoutAdvances(estimationBlock);
+        if (!estimationWithoutAdvances) {
+            return false;
+        }
+        List<? extends Estimatable> esimatables = estimationBlock.estimatables();
+        Instant startInterval = esimatables.get(0).getTimestamp();
+        Instant endInterval = esimatables.get(esimatables.size() - 1).getTimestamp();
+
+        ReadingType registerReadingType =
+                ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType() ;
+        List<? extends BaseReadingRecord> readingsBefore =
+                estimationBlock.getChannel().getMeterActivation().getReadingsBefore(startInterval, registerReadingType, 1);
+        List<? extends BaseReadingRecord> readingsAfter =
+                estimationBlock.getChannel().getMeterActivation().getReadings(Range.atLeast(endInterval), registerReadingType);
+
+        if (readingsBefore.isEmpty()) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "no reading found before start of the block");
+            return false;
+        }
+        if (readingsAfter.isEmpty()) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "no reading found after end of the block");
+            return false;
+        }
+        BaseReadingRecord readingBefore = readingsBefore.get(0);
+        BaseReadingRecord readingAfter = readingsAfter.get(0);
+        BigDecimal consumptionBetweenRegisterReadings =
+                readingAfter.getQuantity(registerReadingType).getValue().add(readingBefore.getQuantity(registerReadingType).getValue().negate());
+
+        BigDecimal consumptionBetweenPreviousRegisterReadingAndStartOfBlock = getTotalConsumption(
+                estimationBlock.getChannel().getReadings(Range.open(readingBefore.getTimeStamp(), startInterval)), estimationBlock.getReadingType());
+
+        BigDecimal consumptionBetweenEndOfBlockAndNextRegisterReading = getTotalConsumption(
+                estimationBlock.getChannel().getReadings(Range.open(endInterval, readingAfter.getTimeStamp())), estimationBlock.getReadingType());
+
+        BigDecimal totalConsumption = consumptionBetweenRegisterReadings.add(
+                consumptionBetweenPreviousRegisterReadingAndStartOfBlock.negate()).add(
+                consumptionBetweenEndOfBlockAndNextRegisterReading.negate());
+        rescaleEstimation(estimationBlock, totalConsumption);
+        return true;
+    }
+
+    private boolean estimateWithoutAdvances(EstimationBlock estimationBlock) {
+        for (Estimatable estimatable : estimationBlock.estimatables()) {
+            boolean succes = estimateWithoutAdvances(estimationBlock, estimatable);
+            if (!succes) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean estimateWithBulk(EstimationBlock estimationBlock, Estimatable estimatable) {
         estimatable.setEstimation(null);
         Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+        return true;
+    }
+
+    private boolean estimateWithDeltas(EstimationBlock estimationBlock, Estimatable estimatable) {
+        estimatable.setEstimation(null);
+        Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+        return true;
+    }
+
+    private boolean estimateWithoutAdvances(EstimationBlock estimationBlock, Estimatable estimatable) {
+        Instant timeToEstimate = estimatable.getTimestamp();
+        Range<Instant> period = getPeriod(estimationBlock.getChannel(), timeToEstimate);
+        List<BaseReadingRecord> samples = getSamples(estimationBlock, timeToEstimate, period);
+        if (samples.size() < this.minNumberOfSamples.intValue()) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "Not enough samples to estimate " + estimatable.getTimestamp());
+            return false;
+        } else {
+            if (samples.size() >= this.maxNumberOfSamples.intValue()) {
+                samples = samples.subList(0, this.maxNumberOfSamples.intValue() - 1);
+            }
+            estimatable.setEstimation(avg(samples, estimationBlock.getReadingType()));
+            Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+        }
+        return true;
+    }
+
+    private List<BaseReadingRecord> getSamples(EstimationBlock estimationBlock, Instant estimatableTime, Range<Instant> period) {
+        Channel channel = estimationBlock.getChannel();
+        List<BaseReadingRecord> records = channel.getReadings(period);
+        List<BaseReadingRecord> samples = new ArrayList<BaseReadingRecord>();
+        for (BaseReadingRecord record : records) {
+            if ((sameTime(channel.getZoneId(), estimatableTime, record.getTimeStamp())) &&
+                (record.getQuantity(estimationBlock.getReadingType()) != null)) {
+                samples.add(record);
+            }
+        }
+        samples.sort(new SamplesComparator(estimatableTime));
+        return samples;
+    }
+
+    private boolean sameTime(ZoneId zoneId, Instant a, Instant b) {
+        LocalDateTime ldtA = LocalDateTime.ofInstant(a, zoneId);
+        LocalDateTime ldtB = LocalDateTime.ofInstant(b, zoneId);
+        return ((ldtA.getHour() == ldtB.getHour()) &&
+                (ldtA.getMinute() == ldtB.getMinute()) &&
+                (ldtA.getSecond() == ldtB.getSecond()));
     }
 
     private Range<Instant> getPeriod(Channel channel, Instant referenceTime) {
@@ -129,7 +319,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             Instant end = range.upperEndpoint().toInstant();
             return Range.open(start, end);
         } else {
-            return Range.all();
+            Instant start = channel.getMeterActivation().getStart();
+            Optional<Instant> end = validationService.getLastChecked(channel);
+            return (end.isPresent()) ? Range.open(start, end.get()) : Range.atLeast(start);
         }
     }
 
@@ -164,5 +356,39 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return builder.build();
     }
 
+    private Optional<ReadingType> getBulkReadingType(ReadingType deltaReadingType) {
+        return deltaReadingType.getBulkReadingType();
+    }
+
+    private BigDecimal avg(List<BaseReadingRecord> values, ReadingType readingType) {
+        int size = values.size();
+        BigDecimal value;
+        BigDecimal sum = new BigDecimal(0);
+        for (int i = 0; i < size; i++) {
+            value = ((BaseReadingRecord) values.get(i)).getQuantity(readingType).getValue();
+            sum = sum.add(value);
+        }
+        return sum.divide(new BigDecimal(size), BigDecimal.ROUND_HALF_UP);
+    }
+
+    class SamplesComparator implements Comparator<BaseReadingRecord> {
+
+        private Instant estimatableTime;
+
+        SamplesComparator(Instant estimatableTime) {
+            this.estimatableTime = estimatableTime;
+        }
+
+        @Override
+        public int compare(BaseReadingRecord a, BaseReadingRecord b) {
+            Instant timeA = a.getTimeStamp();
+            Instant timeB = b.getTimeStamp();
+
+            long dif1 = Math.abs(timeA.getEpochSecond() - estimatableTime.getEpochSecond());
+            long dif2 = Math.abs(timeB.getEpochSecond() - estimatableTime.getEpochSecond());
+
+            return new Long(dif1).compareTo(new Long(dif2));
+        }
+    }
 }
 
