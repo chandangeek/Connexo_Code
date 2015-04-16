@@ -22,7 +22,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecificationMe
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessage;
-import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterQueueMessage;
+import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterRescheduleQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -422,7 +422,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
         verify(jsonService).serialize(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterQueueMessage);
+        assertThat(argumentCaptor.getValue() instanceof ItemizeConnectionFilterRescheduleQueueMessage);
         ItemizeCommunicationsFilterQueueMessage itemizeConnectionFilterQueueMessage = (ItemizeCommunicationsFilterQueueMessage) argumentCaptor.getValue();
         assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.currentStates).containsOnly(TaskStatus.OnHold.name());
         assertThat(itemizeConnectionFilterQueueMessage.comTaskExecutionFilterSpecificationMessage.deviceGroups).containsOnly(1003L);

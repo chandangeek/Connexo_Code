@@ -63,7 +63,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     RUN_CONNECTIONTASK_IMPOSSIBLE(54,"runConTaskImpossible", "Running of this connection task is impossible"),
     NO_SUCH_COMMUNICATION_TASK(55, "NoSuchCommunicationTask", "No communication task with id {0}"),
     NO_SUCH_MESSAGE_QUEUE(56, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
-    NO_APPSERVER(57, "NoAppServer", "There is no active application server that can handle this request");
+    NO_APPSERVER(57, "NoAppServer", "There is no active application server that can handle this request"),
+    CONNECTION_TASK_NOT_UNIQUE(58, "NotUniqueConnectionTask", "Only a single connection type can be handled in connection task attributes update"),
+    ONE_CONNECTION_TYPE_REQUIRED(59, "OneConnetionTypeRequired", "No connection type could be identified");
 
     private final int number;
     private final String key;

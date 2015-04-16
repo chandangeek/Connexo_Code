@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -80,6 +81,8 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     JsonService jsonService;
     @Mock
     AppService appService;
+    @Mock
+    FirmwareService firmwareService;
 
 
     @Override
@@ -111,6 +114,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setMessageService(messageService);
         dashboardApplication.setJsonService(jsonService);
         dashboardApplication.setAppService(appService);
+        dashboardApplication.setFirmwareService(firmwareService);
         return dashboardApplication;
     }
 
