@@ -48,13 +48,6 @@ public enum MicroCheck {
     SECURITY_PROPERTIES_ARE_ALL_VALID,
 
     /**
-     * Checks that all VEE (validation/estimation/editing) property values are valid,
-     * i.e. will check that all required attributes are specified
-     * because the values itself are validated when saved.
-     */
-    VEE_PROPERTIES_ARE_ALL_VALID,
-
-    /**
      * Checks that all connection property values are valid,
      * i.e. will check that all required attributes are specified
      * because the values itself are validated when saved.
@@ -75,6 +68,13 @@ public enum MicroCheck {
      * Checks that all issues and alarms that were
      * registered against the device are closed.
      */
-    ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
+    ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
+
+    /**
+     * Checks that all VEE (validation/estimation/editing) property values are valid,
+     * i.e. will check that all required attributes are specified
+     * because the values itself are validated when saved.
+     */
+    VEE_PROPERTIES_ARE_ALL_VALID;
 
 }
