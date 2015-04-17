@@ -21,6 +21,7 @@ Ext.define('Uni.override.ApplicationOverride', {
     initControllers: function () {
         this.callParent(arguments);
         this.loadUnifyingControllers();
+        this.loadPluginControllers();
     },
 
     loadUnifyingControllers: function () {
@@ -29,6 +30,14 @@ Ext.define('Uni.override.ApplicationOverride', {
         for (var i = 0, ln = me.unifyingControllers.length; i < ln; i++) {
             me.getController(me.unifyingControllers[i]);
         }
-    }
+    },
 
+    loadPluginControllers: function() {
+        var me = this;
+        Ldr.store.Pluggable.each(function (pluginScript) {
+            Ext.require(pluginScript.get('mainController'),function(){
+                me.getController(pluginScript.get('mainController'));
+            });
+        });
+    }
 });
