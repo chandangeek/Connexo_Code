@@ -199,7 +199,7 @@ public class DataValidationTaskResource {
     }
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
-        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
     }
 
     private ScheduleExpression getScheduleExpression(DataValidationTaskInfo info) {

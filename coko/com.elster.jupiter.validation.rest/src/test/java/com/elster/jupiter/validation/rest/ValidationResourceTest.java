@@ -124,6 +124,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testGetValidatorsNoValidators() {
+        when(validationService.getAvailableValidators()).thenReturn(Arrays.asList());
+
         ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
 
         assertThat(validatorInfos.total).isEqualTo(0);
