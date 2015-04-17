@@ -6,8 +6,9 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 public class FirmwareStatusFieldAdapter extends MapBasedXmlAdapter<FirmwareStatus> {
 
     public FirmwareStatusFieldAdapter() {
-        for (FirmwareStatus status : FirmwareStatus.values()) {
-            register(status.getStatus(), status);
-        }
+        register(MessageSeeds.Keys.STATUS_GHOST, FirmwareStatus.GHOST);
+        register(MessageSeeds.Keys.STATUS_TEST, FirmwareStatus.TEST);
+        register(MessageSeeds.Keys.STATUS_FINAL, FirmwareStatus.FINAL);
+        register(MessageSeeds.Keys.STATUS_DEPRECATED, FirmwareStatus.DEPRECATED);
     }
 }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -24,12 +25,14 @@ import java.util.Set;
 public class FirmwareUpgradeOptionsResource {
     private final ResourceHelper resourceHelper;
     private final FirmwareService firmwareService;
+    private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
 
     @Inject
-    public FirmwareUpgradeOptionsResource(ResourceHelper resourceHelper, FirmwareService firmwareService, Thesaurus thesaurus) {
+    public FirmwareUpgradeOptionsResource(ResourceHelper resourceHelper, FirmwareService firmwareService, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.firmwareService = firmwareService;
+        this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
     }
 
@@ -72,7 +75,7 @@ public class FirmwareUpgradeOptionsResource {
                 }
             });
         if (allowedFirmwareUpgradeOptions.isEmpty() && inputOptions.isAllowed) {
-            throw new FirmwareUpgradeOptionsRequiredException(thesaurus);
+            throw exceptionFactory.newException(MessageSeeds.UPGRADE_OPTIONS_REQUIRED);
         }
         FirmwareUpgradeOptions options = firmwareService.findOrCreateFirmwareUpgradeOptions(deviceType);
         options.setOptions(allowedFirmwareUpgradeOptions);

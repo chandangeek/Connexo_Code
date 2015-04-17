@@ -9,8 +9,6 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 public class ResourceHelper {
     private final ExceptionFactory exceptionFactory;
@@ -27,14 +25,16 @@ public class ResourceHelper {
     }
 
     public DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
-        return deviceConfigurationService.findDeviceType(deviceTypeId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return deviceConfigurationService.findDeviceType(deviceTypeId)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId));
     }
 
     public Device findDeviceByMridOrThrowException(String mRID) {
-        return deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return deviceService.findByUniqueMrid(mRID)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, mRID));
     }
 
     public FirmwareVersion findFirmwareVersionByIdOrThrowException(Long id) {
-        return firmwareService.getFirmwareVersionById(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return firmwareService.getFirmwareVersionById(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.FIRMWARE_VERSION_NOT_FOUND, id));
     }
 }

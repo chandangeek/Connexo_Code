@@ -1,13 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class DeviceFirmwareVersionInfo {
     public FirmwareTypeInfo firmwareType;
