@@ -6,7 +6,8 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class FirmwareStatusInfo {
-    private static final FirmwareStatusFieldAdapter FIRMWARE_STATUS_ADAPTER = new FirmwareStatusFieldAdapter();
+    static final FirmwareStatusFieldAdapter FIRMWARE_STATUS_ADAPTER = new FirmwareStatusFieldAdapter();
+    
     @XmlJavaTypeAdapter(FirmwareStatusFieldAdapter.class)
     public FirmwareStatus id;
     public String localizedValue;

@@ -1,17 +1,12 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@XmlRootElement
+import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.firmware.FirmwareVersion;
+
 public class FirmwareVersionInfo {
     public Long id;
     public String firmwareVersion;

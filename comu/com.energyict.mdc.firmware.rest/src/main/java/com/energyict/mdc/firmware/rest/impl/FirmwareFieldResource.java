@@ -1,22 +1,21 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.FieldResource;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.rest.FieldResource;
 
 @Path("/field")
 public class FirmwareFieldResource extends FieldResource {
-
+    
     @Inject
-    public FirmwareFieldResource() {
-
+    public FirmwareFieldResource(Thesaurus thesaurus) {
+        super(thesaurus);
     }
 
     @GET

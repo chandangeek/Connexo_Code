@@ -1,12 +1,13 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.firmware.FirmwareType;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 public class FirmwareTypeInfo {
-    private static final FirmwareTypeFieldAdapter FIRMWARE_TYPE_ADAPTER = new FirmwareTypeFieldAdapter();
+    static final FirmwareTypeFieldAdapter FIRMWARE_TYPE_ADAPTER = new FirmwareTypeFieldAdapter();
+
     @XmlJavaTypeAdapter(FirmwareTypeFieldAdapter.class)
     public FirmwareType id;
     public String localizedValue;

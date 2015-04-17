@@ -1,29 +1,27 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import java.text.MessageFormat;
+import java.util.logging.Level;
+
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.rest.FirmwareApplication;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
-
-import java.text.MessageFormat;
-import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
     // firmware versions
     VERSION_IN_USE(1, Keys.VERSION_IN_USE, "This version is in use and can''t be modified"),
     VERSION_IS_DEPRECATED(2, Keys.VERSION_IS_DEPRECATED, "This version is deprecated and can''t be modified"),
     // firmware statuses translation
-    STATUS_GHOST(3, Keys.STATUS_GHOST, FirmwareStatus.GHOST.getDisplayValue()),
-    STATUS_TEST(4, Keys.STATUS_TEST, FirmwareStatus.TEST.getDisplayValue()),
-    STATUS_FINAL(5, Keys.STATUS_FINAL, FirmwareStatus.FINAL.getDisplayValue()),
-    STATUS_DEPRECATED(6, Keys.STATUS_DEPRECATED, FirmwareStatus.DEPRECATED.getDisplayValue()),
+    STATUS_GHOST(3, Keys.STATUS_GHOST, "Ghost"),
+    STATUS_TEST(4, Keys.STATUS_TEST, "Test"),
+    STATUS_FINAL(5, Keys.STATUS_FINAL, "Final"),
+    STATUS_DEPRECATED(6, Keys.STATUS_DEPRECATED, "Deprecated"),
     // firmware types translation
-    TYPE_METER(7, Keys.TYPE_METER, FirmwareType.METER.getDisplayValue()),
-    TYPE_COMMUNICATION(8, Keys.TYPE_COMMUNICATION, FirmwareType.COMMUNICATION.getDisplayValue()),
+    TYPE_METER(7, Keys.TYPE_METER, "Meter firmware"),
+    TYPE_COMMUNICATION(8, Keys.TYPE_COMMUNICATION, "Communication firmware"),
     // firmware upgrade options translation
     UPGRADE_OPTION_INSTALL(9, Keys.UPGRADE_OPTION_INSTALL, "Upload firmware"),
     UPGRADE_OPTION_ACTIVATE(10, Keys.UPGRADE_OPTION_ACTIVATE, "Upload firmware and activate immediately"),

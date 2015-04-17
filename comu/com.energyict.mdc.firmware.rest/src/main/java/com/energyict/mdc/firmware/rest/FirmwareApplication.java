@@ -31,7 +31,6 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     private volatile DeviceService deviceService;
     private volatile FirmwareService firmwareService;
 
-
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
