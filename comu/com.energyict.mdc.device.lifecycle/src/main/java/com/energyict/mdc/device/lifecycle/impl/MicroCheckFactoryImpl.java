@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllIssuesAreClosed;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConnectionPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUsagePoint;
@@ -87,8 +88,11 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             case LINKED_WITH_USAGE_POINT: {
                 return new DeviceIsLinkedWithUsagePoint(this.thesaurus);
             }
+            case ALL_ISSUES_AND_ALARMS_ARE_CLOSED: {
+                return new AllIssuesAreClosed(this.thesaurus);
+            }
             default: {
-                return null;
+                throw new IllegalArgumentException("Unknown or unsupported MicroCheck: " + check);
             }
         }
     }

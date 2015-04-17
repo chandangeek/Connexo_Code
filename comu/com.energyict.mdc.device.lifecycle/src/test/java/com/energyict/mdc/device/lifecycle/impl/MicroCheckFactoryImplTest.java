@@ -51,7 +51,6 @@ public class MicroCheckFactoryImplTest {
     }
 
     @Test
-    @Ignore
     public void allMicroChecksAreCovered() {
         MicroCheckFactoryImpl factory = this.getTestInstance();
 
@@ -60,7 +59,7 @@ public class MicroCheckFactoryImplTest {
             ServerMicroCheck serverMicroCheck = factory.from(microCheck);
 
             // Asserts
-            assertThat(serverMicroCheck).as("Factory does not return ServerMicroCheck for " + microCheck).isNotNull();
+            assertThat(serverMicroCheck).as("MicroCheckFactoryImpl returns null for " + microCheck).isNotNull();
         }
 
     }

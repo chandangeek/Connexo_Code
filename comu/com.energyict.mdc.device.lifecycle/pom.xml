@@ -41,6 +41,10 @@
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
+      <artifactId>issue</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
       <artifactId>domain.util</artifactId>
     </dependency>
     <dependency>
