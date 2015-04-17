@@ -150,6 +150,7 @@ public class DataCollectionKpiImplTest {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LicenseService.class).toInstance(licenseService);

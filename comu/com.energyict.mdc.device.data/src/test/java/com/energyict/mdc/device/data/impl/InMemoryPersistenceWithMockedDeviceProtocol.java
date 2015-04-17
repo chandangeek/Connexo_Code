@@ -119,6 +119,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private SchedulingService schedulingService;
     private ValidationService validationService;
     private InMemoryBootstrapModule bootstrapModule;
+    private com.elster.jupiter.issue.share.service.IssueService jupiterIssueService;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -200,17 +201,12 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
         this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        this.jupiterIssueService = mock(com.elster.jupiter.issue.share.service.IssueService.class);
+
     }
 
     public void cleanUpDataBase() throws SQLException {
         this.bootstrapModule.deactivate();
-    }
-
-    private void deactivate(Object bootstrapModule) {
-        if (bootstrapModule instanceof InMemoryBootstrapModule) {
-            InMemoryBootstrapModule inMemoryBootstrapModule = (InMemoryBootstrapModule) bootstrapModule;
-            inMemoryBootstrapModule.deactivate();
-        }
     }
 
     public MeteringService getMeteringService() {
@@ -256,6 +252,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(jupiterIssueService);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(EventAdmin.class).toInstance(eventAdmin);
@@ -265,12 +262,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(ProtocolPluggableService.class).to(MockProtocolPluggableService.class).in(Scopes.SINGLETON);
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
 
     }

@@ -130,7 +130,7 @@ public class DeviceGroupTest {
     @Mock
     private LicenseService licenseService;
     @Mock
-    private IssueService issueService;
+    private IssueService mdcIssueService;
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
@@ -163,7 +163,8 @@ public class DeviceGroupTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(IssueService.class).toInstance(issueService);
+            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
+            bind(IssueService.class).toInstance(mdcIssueService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
             bind(RelationService.class).toInstance(relationService);
             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
