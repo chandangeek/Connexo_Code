@@ -1,6 +1,6 @@
 package com.elster.jupiter.http.whiteboard;
 
-public final class HttpResource {
+public class HttpResource {
     private final String alias;
     private final String localName;
     private final Resolver resolver;

@@ -150,7 +150,7 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, SessionResource.class);
+        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, SessionResource.class, PluggableResource.class);
     }
 
     List<HttpResource> getResources() {
