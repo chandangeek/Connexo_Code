@@ -3,13 +3,10 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.orm.*;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
-
-import java.util.List;
 
 public enum TableSpecs {
     FWC_FIRMWAREVERSION {
@@ -18,14 +15,14 @@ public enum TableSpecs {
             Table<FirmwareVersion> table = dataModel.addTable(name(),FirmwareVersion.class);
             table.map(FirmwareVersionImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("FIRMWAREVERSION").varChar(Table.NAME_LENGTH).map("firmwareVersion").notNull().add();
+            table.column("FIRMWAREVERSION").varChar(Table.NAME_LENGTH).map(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName()).notNull().add();
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
-            table.column("TYPE").number().map("firmwareType").conversion(ColumnConversion.NUMBER2ENUM).add();
-            table.column("STATUS").number().map("firmwareStatus").conversion(ColumnConversion.NUMBER2ENUM).add();
-            table.column("FIRMWAREFILE").type("blob").map("firmwareFile").conversion(ColumnConversion.BLOB2BYTE).add();
+            table.column("TYPE").number().map(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
+            table.column("STATUS").number().map(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
+            table.column("FIRMWAREFILE").type("blob").map(FirmwareVersionImpl.Fields.FIRMWAREFILE.fieldName()).conversion(ColumnConversion.BLOB2BYTE).add();
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
-            table.foreignKey("FWC_FK_DEVICETYPE").on(deviceTypeColumn).map("deviceType").references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FWC_FK_DEVICETYPE").on(deviceTypeColumn).map(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
         }
     },
 
@@ -35,12 +32,12 @@ public enum TableSpecs {
             Table<FirmwareUpgradeOptions> table = dataModel.addTable(name(),FirmwareUpgradeOptions.class);
             table.map(FirmwareUpgradeOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
-            table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map("install").add();
-            table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map("activate").add();
-            table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map("activateOnDate").add();
+            table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareUpgradeOptionsImpl.Fields.INSTALL.fieldName()).add();
+            table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareUpgradeOptionsImpl.Fields.ACTIVATE.fieldName()).add();
+            table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareUpgradeOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).add();
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWAREUPGRADEOPTIONS").on(deviceTypeColumn).add();
-            table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE").on(deviceTypeColumn).map("deviceType").references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE").on(deviceTypeColumn).map(FirmwareUpgradeOptionsImpl.Fields.DEVICETYPE.fieldName()).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
         }
     },
 

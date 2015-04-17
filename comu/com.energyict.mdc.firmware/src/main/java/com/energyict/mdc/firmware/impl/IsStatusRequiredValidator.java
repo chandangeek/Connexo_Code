@@ -11,8 +11,8 @@ public class IsStatusRequiredValidator implements ConstraintValidator<IsStatusRe
     }
 
     @Override
-    public boolean isValid(FirmwareVersionImpl in, ConstraintValidatorContext context) {
-        if (in.getOldFirmwareStatus() != null && in.getOldFirmwareStatus().equals(FirmwareStatus.GHOST) && in.getFirmwareStatus().equals(FirmwareStatus.GHOST)) {
+    public boolean isValid(FirmwareVersionImpl firmwareVersion, ConstraintValidatorContext context) {
+        if (FirmwareStatus.GHOST.equals(firmwareVersion.getOldFirmwareStatus()) && firmwareVersion.getFirmwareStatus().equals(FirmwareStatus.GHOST)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("firmwareStatus").addConstraintViolation();
             return false;
