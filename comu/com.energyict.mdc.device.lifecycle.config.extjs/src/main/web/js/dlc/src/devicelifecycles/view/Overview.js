@@ -28,6 +28,7 @@ Ext.define('Dlc.devicelifecycles.view.Overview', {
                     },
                     {
                         xtype: 'button',
+                        itemId: 'device-life-cycles-action-menu-btn',
                         text: Uni.I18n.translate('general.actions', 'DLC', 'Actions'),
                         iconCls: 'x-uni-action-iconD',
                         margin: '20 0 0 0',
