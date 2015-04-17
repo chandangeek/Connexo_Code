@@ -9,25 +9,25 @@ Ext.define('Cfg.view.validation.RuleActionMenu', {
         {
             itemId: 'activate',
             text: Uni.I18n.translate('validation.activate', 'CFG', 'Activate'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'activateRule'
         },
         {
             itemId: 'deactivate',
             text: Uni.I18n.translate('validation.deactivate', 'CFG', 'Deactivate'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'deactivateRule'
         },
         {
             itemId: 'editRule',
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'editRule'
         },
         {
             itemId: 'deleteRule',
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'deleteRule'
         }
     ]

@@ -1,5 +1,8 @@
 Ext.define('Cfg.controller.Tasks', {
     extend: 'Ext.app.Controller',
+    requires:[,
+        'Cfg.privileges.Validation'
+    ],
     views: [
         'Cfg.view.validationtask.Add',
         'Cfg.view.validationtask.Setup',

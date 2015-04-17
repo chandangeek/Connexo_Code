@@ -18,7 +18,8 @@ Ext.define('Cfg.controller.Validation', {
         'Uni.model.BreadcrumbItem',
         'Ext.ux.window.Notification',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Cfg.model.Validator'
+        'Cfg.model.Validator',
+        'Cfg.privileges.Validation'
     ],
 
     models: [

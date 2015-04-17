@@ -1,5 +1,8 @@
 Ext.define('Cfg.controller.history.ValidationTask', {
     extend: 'Uni.controller.history.Converter',
+    requires: [
+        'Cfg.privileges.Validation'
+    ],
 
     rootToken: 'administration',
 
@@ -13,14 +16,14 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                     title: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
                     route: 'validationtasks',
                     controller: 'Cfg.controller.Tasks',
-                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
+                    privileges: Cfg.privileges.Validation.viewTasks,
                     action: 'showValidationTasks',
                     items: {
                         add: {
                             title: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),
                             route: 'add',
                             controller: 'Cfg.controller.Tasks',
-                            privileges: ['privilege.administrate.validationConfiguration'],
+                            privileges: Cfg.privileges.Validation.admin,
                             action: 'showAddValidationTask'
                         },
                         validationtask: {
@@ -40,7 +43,7 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                                     title: Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit'),
                                     route: 'edit',
                                     controller: 'Cfg.controller.Tasks',
-                                    privileges: ['privilege.administrate.validationConfiguration'],
+                                    privileges: Cfg.privileges.Validation.admin,
                                     action: 'showEditValidationTask'
                                 },
                                 history: {

@@ -11,13 +11,13 @@ Ext.define('Cfg.view.validation.RuleSetActionMenu', {
         {
             itemId: 'editRuleSet',
             text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'editRuleSet'
         },
         {
             itemId: 'deleteRuleSet',
             text: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'deleteRuleSet'
         }
     ]

@@ -31,7 +31,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
             { header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'left', sortable: false, fixed: true },
             {
                 xtype: 'uni-actioncolumn',
-                privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                privileges: Cfg.privileges.Validation.admin,
                 items: 'Cfg.view.validation.RuleSetActionMenu'
             }
         ]
@@ -51,7 +51,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                 items: [
                     {
                         text: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
-                        privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                        privileges: Cfg.privileges.Validation.admin,
                         itemId: 'newRuleset',
                         xtype: 'button',
                         href: '#/administration/validation/rulesets/add',

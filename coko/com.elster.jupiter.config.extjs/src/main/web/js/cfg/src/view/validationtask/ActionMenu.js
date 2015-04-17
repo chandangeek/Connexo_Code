@@ -12,13 +12,13 @@ Ext.define('Cfg.view.validationtask.ActionMenu', {
         {
             itemId: 'edit-task',
             text: Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'editValidationTask'
         },
         {
             itemId: 'remove-task',
             text: Uni.I18n.translate('validationTasks.general.remove', 'CFG', 'Remove'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'removeTask'
         },
         {

@@ -39,7 +39,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                privileges: Cfg.privileges.Validation.admin,
                 menu: {
                     itemId: 'ruleSetVersionsGridMenu',
                     xtype: 'versions-action-menu'
@@ -63,7 +63,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
                 items: [
                     {
                         text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
-                        privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                        privileges: Cfg.privileges.Validation.admin,
                         itemId: 'newVersion',
                         xtype: 'button',
                         href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/add',

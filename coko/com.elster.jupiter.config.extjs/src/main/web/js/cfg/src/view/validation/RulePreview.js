@@ -20,7 +20,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
             xtype: 'button',
             itemId: 'rulePreviewActionsButton',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'validation-rule-action-menu'

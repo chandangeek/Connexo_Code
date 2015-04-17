@@ -65,7 +65,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),
-                        privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                        privileges: Cfg.privileges.Validation.admin,
                         href: '#/administration/validationtasks/add'
                     }
                 ]

@@ -46,7 +46,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                privileges: Cfg.privileges.Validation.admin,
                 menu: {
                     itemId: 'ruleGridMenu',
                     xtype: 'validation-rule-action-menu'
