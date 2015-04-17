@@ -57,10 +57,11 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     private ComChannel comChannel;
     private InboundDiscoveryContext context;
-    private DeviceIdentifier deviceIdentifier;
     private CollectedLogBook collectedLogBook;
     private CollectedTopology collectedTopology;
     protected ComChannel tcpComChannel;
+
+    private EventPushNotificationParser parser;
 
     @Override
     public void initComChannel(ComChannel comChannel) {
@@ -79,9 +80,8 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public DiscoverResultType doDiscovery() {
-        EventPushNotificationParser parser = new EventPushNotificationParser(comChannel, getContext());
+        parser = new EventPushNotificationParser(comChannel, getContext());
         parser.parseInboundFrame();
-        deviceIdentifier = parser.getDeviceIdentifier();
         collectedLogBook = parser.getCollectedLogBook();
 
         if (isJoinAttempt() || isSuccessfulJoin() || isMeterLeft()) {
@@ -115,11 +115,11 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     protected RtuPlusServer initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
         RtuPlusServer gatewayProtocol = new RtuPlusServer();
 
-        TypedProperties protocolProperties = context.getInboundDAO().getDeviceProtocolProperties(deviceIdentifier);
+        TypedProperties protocolProperties = context.getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
         protocolProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
-        TypedProperties dialectProperties = context.getInboundDAO().getDeviceDialectProperties(deviceIdentifier, context.getComPort());
+        TypedProperties dialectProperties = context.getInboundDAO().getDeviceDialectProperties(getDeviceIdentifier(), context.getComPort());
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
-        OfflineDevice offlineDevice = context.getInboundDAO().findOfflineDevice(deviceIdentifier);
+        OfflineDevice offlineDevice = context.getInboundDAO().findOfflineDevice(getDeviceIdentifier());
         createTcpComChannel();
 
         gatewayProtocol.setDeviceCache(dummyCache);
@@ -132,7 +132,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     private void createTcpComChannel() {
-        TypedProperties connectionProperties = context.getInboundDAO().getOutboundConnectionTypeProperties(deviceIdentifier);
+        TypedProperties connectionProperties = context.getInboundDAO().getOutboundConnectionTypeProperties(getDeviceIdentifier());
         List<ConnectionTaskProperty> connectionTaskProperties = toPropertySpecs(Clocks.getAppServerClock().now(), connectionProperties);
 
         try {
@@ -211,7 +211,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return deviceIdentifier;
+        return parser != null ? parser.getDeviceIdentifier() : null;
     }
 
     @Override

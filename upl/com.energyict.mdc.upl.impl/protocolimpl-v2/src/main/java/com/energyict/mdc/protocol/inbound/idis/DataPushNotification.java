@@ -22,7 +22,6 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
 
     private ComChannel comChannel;
     private InboundDiscoveryContext context;
-    private DeviceIdentifier deviceIdentifier;
 
     private DataPushNotificationParser parser;
 
@@ -45,7 +44,6 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
     public DiscoverResultType doDiscovery() {
         parser = new DataPushNotificationParser(comChannel, getContext());
         parser.parseInboundFrame();
-        deviceIdentifier = parser.getDeviceIdentifier();
 
         return DiscoverResultType.DATA;
     }
@@ -57,7 +55,7 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return deviceIdentifier;
+        return parser != null ? parser.getDeviceIdentifier() : null;
     }
 
     @Override
