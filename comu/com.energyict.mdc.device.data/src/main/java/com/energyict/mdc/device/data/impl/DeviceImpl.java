@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -290,11 +291,11 @@ public class DeviceImpl implements Device, CanLock {
     private void createLogBooks() {
         if (this.getDeviceConfiguration() != null) {
             this.logBooks.addAll(
-                this.getDeviceConfiguration()
-                    .getLogBookSpecs()
-                    .stream()
-                    .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
-                    .collect(Collectors.toList()));
+                    this.getDeviceConfiguration()
+                            .getLogBookSpecs()
+                            .stream()
+                            .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
+                            .collect(Collectors.toList()));
         }
     }
 
@@ -799,6 +800,37 @@ public class DeviceImpl implements Device, CanLock {
         if (amrSystem.isPresent()) {
             Meter meter = findOrCreateKoreMeter(amrSystem.get());
             meter.store(meterReading);
+        }
+    }
+
+    @Override
+    public Optional<UsagePoint> getUsagePoint() {
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            return this.getUsagePointFromMeter(amrSystem);
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<UsagePoint> getUsagePointFromMeter(Optional<AmrSystem> amrSystem) {
+        Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+        if (meter.isPresent()) {
+            return this.getUsagePointFromMeterActivation(meter.get());
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<UsagePoint> getUsagePointFromMeterActivation(Meter meter) {
+        Optional<? extends MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
+        if (currentMeterActivation.isPresent()) {
+            return currentMeterActivation.get().getUsagePoint();
+        }
+        else {
+            return Optional.empty();
         }
     }
 
