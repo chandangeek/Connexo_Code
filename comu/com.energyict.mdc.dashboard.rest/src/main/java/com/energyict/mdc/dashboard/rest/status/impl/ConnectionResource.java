@@ -358,7 +358,10 @@ public class ConnectionResource {
 
     private Map<String, String> convertPropertyInfosToMap(List<PropertyInfo> propertyInfos) {
         Map<String, String> properties = new HashMap<>();
-        propertyInfos.stream().forEach(info->properties.put(info.key, (String)info.getPropertyValueInfo().getValue()));
+        propertyInfos.stream().forEach(info -> {
+            Object value = info.getPropertyValueInfo().getValue();
+            properties.put(info.key, value==null?null:jsonService.serialize(value));
+        });
         return properties;
     }
 

@@ -5,7 +5,10 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
@@ -43,6 +46,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -452,8 +456,41 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
+    @Test
+    public void testUpdateConnectionAttributesWithFilter() throws Exception {
+        mockAppServers(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DESTINATION);
+        when(jsonService.serialize(any())).thenReturn("json");
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(messageService.getDestinationSpec("ItemizeConnPropFilterQD")).thenReturn(Optional.of(destinationSpec));
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(destinationSpec.message("json")).thenReturn(messageBuilder);
+
+        Optional<ConnectionTask> connectionTask1 = mockConnectionTask("someClass");
+        when(connectionTaskService.findConnectionTask(1L)).thenReturn(connectionTask1);
+        ConnectionTypePluggableClass pluggableClass = mockPluggableClass("someClass");
+//        when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClass));
+        when(connectionTaskService.findConnectionTypeByFilter(any())).thenReturn(Arrays.asList(pluggableClass));
+
+        PropertiesBulkRequestInfo info = new PropertiesBulkRequestInfo();
+        info.properties= new ArrayList<>();
+        info.properties.add(new PropertyInfo("hostName", new PropertyValueInfo<>("google.com", null), null, false));
+        info.filter = new ConnectionTaskFilterSpecificationMessage();
+        info.filter.currentStates.add("Busy");
+
+        Response response = target("/connections/properties").
+                request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
+    }
+
     private ConnectionTypePluggableClass mockPluggableClass(String name) {
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
+        PropertySpec hostName = mock(PropertySpec.class);
+        when(hostName.getName()).thenReturn("hostName");
+        when(hostName.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpec portNumber = mock(PropertySpec.class);
+//        when(portNumber.getName()).thenReturn("portNumber");
+//        when(portNumber.getValueFactory()).thenReturn(new IntegerStringFactory());
+        when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(hostName));
         when(pluggableClass.getJavaClassName()).thenReturn(name);
         return pluggableClass;
     }
