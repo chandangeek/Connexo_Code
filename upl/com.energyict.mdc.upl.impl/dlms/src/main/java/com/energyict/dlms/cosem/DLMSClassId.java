@@ -80,6 +80,7 @@ public enum DLMSClassId {
     ZIGBEE_WAN_MANAGEMENT(9905),
     ZIGBEE_SE_DEMAND_RESPONSE_LOAD_CONTROL(9906),
     GPRS_MANUAL_ROAMING_SETUP(10000),
+    DEDICATED_EVENT_LOG_SIMPLE(10920),
     LIFE_CYCLE_MANAGEMENT(20000),
     FIREWALL_SETUP(20001),
     G3_NETWORK_MANAGEMENT(20002),
@@ -109,15 +110,6 @@ public enum DLMSClassId {
     }
 
     /**
-     * Getter for the class number (classId)
-     *
-     * @return the class id as int
-     */
-    public int getClassId() {
-        return classId;
-    }
-
-    /**
      * Get a DLMSClassId by a given classId. If the classId doesn't exist, return the UNKNOWN DLMSClassId
      *
      * @param id
@@ -140,6 +132,15 @@ public enum DLMSClassId {
      */
     public static String getDescription(int dlmsClassId) {
         return findById(dlmsClassId).toString();
+    }
+
+    /**
+     * Getter for the class number (classId)
+     *
+     * @return the class id as int
+     */
+    public int getClassId() {
+        return classId;
     }
 
 }

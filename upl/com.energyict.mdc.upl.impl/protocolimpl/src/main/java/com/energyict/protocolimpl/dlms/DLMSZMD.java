@@ -1,23 +1,23 @@
 /**
- * @version  2.0
- * @author   Koenraad Vanderschaeve
- * <P>
+ * @version 2.0
+ * @author Koenraad Vanderschaeve
+ * <p/>
  * <B>Description :</B><BR>
  * Class that implements the Siemens ZMD DLMS profile implementation
  * <BR>
  * <B>@beginchanges</B><BR>
-KV|08042003|Initial version
-KV|08102003|Set default of RequestTimeZone to 0
-KV|10102003|generate OTHER MeterEvent when statusbit is not supported
-KV|27102003|changed code for correct dst transition S->W
-KV|20082004|Extended with obiscode mapping for register reading
-KV|17032005|improved registerreading
-KV|23032005|Changed header to be compatible with protocol version tool
-KV|30032005|Improved registerreading, configuration data
-KV|31032005|Handle DataContainerException
-KV|15072005|applyEvents() done AFTER getting the logbook!
-KV|10102006|extension to support cumulative values in load profile
-KV|10102006|fix to support 64 bit values in load profile
+ * KV|08042003|Initial version
+ * KV|08102003|Set default of RequestTimeZone to 0
+ * KV|10102003|generate OTHER MeterEvent when statusbit is not supported
+ * KV|27102003|changed code for correct dst transition S->W
+ * KV|20082004|Extended with obiscode mapping for register reading
+ * KV|17032005|improved registerreading
+ * KV|23032005|Changed header to be compatible with protocol version tool
+ * KV|30032005|Improved registerreading, configuration data
+ * KV|31032005|Handle DataContainerException
+ * KV|15072005|applyEvents() done AFTER getting the logbook!
+ * KV|10102006|extension to support cumulative values in load profile
+ * KV|10102006|fix to support 64 bit values in load profile
  * @endchanges
  */
 
@@ -26,32 +26,14 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
@@ -62,20 +44,30 @@ import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
-@Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
+@Deprecated
+/** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
 public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol {
-    private static final byte DEBUG=0;
 
+    private static final byte DEBUG = 0;
+    // Interval List
+    private static final byte IL_CAPUTURETIME = 0;
+    private static final byte IL_EVENT = 12;
+    private static final byte IL_DEMANDVALUE = 13;
+    // Event codes as interpreted by MV90 for the Siemens ZMD meter
+    private static final long EV_NORMAL_END_OF_INTERVAL = 0x00800000;
+    private static final long EV_START_OF_INTERVAL = 0x00080000;
+    private static final long EV_FATAL_ERROR = 0x00000001;
+    private static final long EV_CORRUPTED_MEASUREMENT = 0x00000004;
+    private static final long EV_SUMMER_WINTER = 0x00000008;
+    private static final long EV_TIME_DATE_ADJUSTED = 0x00000020;
+    private static final long EV_POWER_UP = 0x00000040;
+    private static final long EV_POWER_DOWN = 0x00000080;
+    private static final long EV_EVENT_LOG_CLEARED = 0x00002000;
+    private static final long EV_LOAD_PROFILE_CLEARED = 0x00004000;
     private final MessageProtocol messageProtocol;
-
     int eventIdIndex;
 
     public DLMSZMD() {
@@ -85,43 +77,28 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     protected String getDeviceID() {
         return "LGZ";
     }
-
-    // Interval List
-    private static final byte IL_CAPUTURETIME=0;
-    private static final byte IL_EVENT=12;
-    private static final byte IL_DEMANDVALUE=13;
-
-    // Event codes as interpreted by MV90 for the Siemens ZMD meter
-    private static final long EV_NORMAL_END_OF_INTERVAL=0x00800000;
-    private static final long EV_START_OF_INTERVAL=     0x00080000;
-    private static final long EV_FATAL_ERROR=           0x00000001;
-    private static final long EV_CORRUPTED_MEASUREMENT= 0x00000004;
-    private static final long EV_SUMMER_WINTER=         0x00000008;
-    private static final long EV_TIME_DATE_ADJUSTED=    0x00000020;
-    private static final long EV_POWER_UP=              0x00000040;
-    private static final long EV_POWER_DOWN=            0x00000080;
-    private static final long EV_EVENT_LOG_CLEARED=     0x00002000;
-    private static final long EV_LOAD_PROFILE_CLEARED=  0x00004000;
     //private static final long EV_CAPTURED_EVENTS=       0x008860E5; // Add new events...
 
     //KV 27102003
-    public Calendar initCalendarSW(boolean protocolDSTFlag,TimeZone timeZone) {
+    public Calendar initCalendarSW(boolean protocolDSTFlag, TimeZone timeZone) {
         Calendar calendar;
         if (protocolDSTFlag) {
-			calendar = Calendar.getInstance(ProtocolUtils.getSummerTimeZone(timeZone));
-		} else {
-			calendar = Calendar.getInstance(ProtocolUtils.getWinterTimeZone(timeZone));
-		}
+            calendar = Calendar.getInstance(ProtocolUtils.getSummerTimeZone(timeZone));
+        } else {
+            calendar = Calendar.getInstance(ProtocolUtils.getWinterTimeZone(timeZone));
+        }
         return calendar;
     }
 
-    /** ProtocolVersion **/
+    /**
+     * ProtocolVersion *
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }
 
-    protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
-        LogBookReader logBookReader = new LogBookReader(this);
+    protected void getEventLog(ProfileData profileData, Calendar fromCalendar, Calendar toCalendar) throws IOException {
+        LogBookReader logBookReader = new LogBookReader(this, getCosemObjectFactory());
         List<MeterEvent> meterEvents = logBookReader.getEventLog(fromCalendar, toCalendar);
         for (MeterEvent meterEvent : meterEvents) {
             profileData.addEvent(meterEvent);
@@ -137,64 +114,63 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
      * Configure the {@link com.energyict.dlms.aso.ConformanceBlock} which is used for the DLMS association.
      *
      * @return the conformanceBlock, if null is returned then depending on the reference,
-     *         the default value({@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_LN_CONFORMANCE_BLOCK} or {@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_SN_CONFORMANCE_BLOCK}) will be used
+     * the default value({@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_LN_CONFORMANCE_BLOCK} or {@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_SN_CONFORMANCE_BLOCK}) will be used
      */
     @Override
     protected ConformanceBlock configureConformanceBlock() {
         return new ConformanceBlock(1573408L);
     }
 
-    protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,UniversalObject[] intervalList)  throws IOException {
+    protected void buildProfileData(byte bNROfChannels, ProfileData profileData, ScalerUnit[] scalerunit, UniversalObject[] intervalList) throws IOException {
         byte bDOW;
-        Calendar stdCalendar=null;
-        Calendar dstCalendar=null;
-        Calendar calendar=null;
-        int i,t;
-        IntervalData savedIntervalData=null;
+        Calendar stdCalendar = null;
+        Calendar dstCalendar = null;
+        Calendar calendar = null;
+        int i, t;
+        IntervalData savedIntervalData = null;
 
         if (isRequestTimeZone()) {
-            stdCalendar = ProtocolUtils.getCalendar(false,requestTimeZone());
-            dstCalendar = ProtocolUtils.getCalendar(true,requestTimeZone());
-        }
-        else { // KV 27102003
-            stdCalendar = initCalendarSW(false,getTimeZone());
-            dstCalendar = initCalendarSW(true,getTimeZone());
+            stdCalendar = ProtocolUtils.getCalendar(false, requestTimeZone());
+            dstCalendar = ProtocolUtils.getCalendar(true, requestTimeZone());
+        } else { // KV 27102003
+            stdCalendar = initCalendarSW(false, getTimeZone());
+            dstCalendar = initCalendarSW(true, getTimeZone());
         }
 
         if (DEBUG >= 1) {
-			System.out.println("intervalList.length = "+intervalList.length);
-		}
+            System.out.println("intervalList.length = " + intervalList.length);
+        }
 
-        for (i=0;i<intervalList.length;i++) {
+        for (i = 0; i < intervalList.length; i++) {
 
             // KV 27102003
-            if (intervalList[i].getField(IL_CAPUTURETIME+11) != 0xff) {
-                if ((intervalList[i].getField(IL_CAPUTURETIME+11)&0x80) == 0x80) {
-					calendar = dstCalendar;
-				} else {
-					calendar = stdCalendar;
-				}
+            if (intervalList[i].getField(IL_CAPUTURETIME + 11) != 0xff) {
+                if ((intervalList[i].getField(IL_CAPUTURETIME + 11) & 0x80) == 0x80) {
+                    calendar = dstCalendar;
+                } else {
+                    calendar = stdCalendar;
+                }
             } else {
-				calendar = stdCalendar;
-			}
+                calendar = stdCalendar;
+            }
 
             // Build Timestamp
-            calendar.set(Calendar.YEAR,(int)((intervalList[i].getField(IL_CAPUTURETIME)<<8) |
-            intervalList[i].getField(IL_CAPUTURETIME+1)));
-            calendar.set(Calendar.MONTH,(int)intervalList[i].getField(IL_CAPUTURETIME+2)-1);
-            calendar.set(Calendar.DAY_OF_MONTH,(int)intervalList[i].getField(IL_CAPUTURETIME+3));
-            calendar.set(Calendar.HOUR_OF_DAY,(int)intervalList[i].getField(IL_CAPUTURETIME+5));
-            calendar.set(Calendar.MINUTE,(int)intervalList[i].getField(IL_CAPUTURETIME+6));
-            calendar.set(Calendar.SECOND,(int)intervalList[i].getField(IL_CAPUTURETIME+7));
+            calendar.set(Calendar.YEAR, (int) ((intervalList[i].getField(IL_CAPUTURETIME) << 8) |
+                    intervalList[i].getField(IL_CAPUTURETIME + 1)));
+            calendar.set(Calendar.MONTH, (int) intervalList[i].getField(IL_CAPUTURETIME + 2) - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, (int) intervalList[i].getField(IL_CAPUTURETIME + 3));
+            calendar.set(Calendar.HOUR_OF_DAY, (int) intervalList[i].getField(IL_CAPUTURETIME + 5));
+            calendar.set(Calendar.MINUTE, (int) intervalList[i].getField(IL_CAPUTURETIME + 6));
+            calendar.set(Calendar.SECOND, (int) intervalList[i].getField(IL_CAPUTURETIME + 7));
 
-            int iField = (int)intervalList[i].getField(IL_EVENT); // & (int)EV_CAPTURED_EVENTS; // KV 10102003, include all bits...
+            int iField = (int) intervalList[i].getField(IL_EVENT); // & (int)EV_CAPTURED_EVENTS; // KV 10102003, include all bits...
             iField &= (EV_NORMAL_END_OF_INTERVAL ^ 0xffffffff); // exclude EV_NORMAL_END_OF_INTERVAL bit
             iField &= (EV_SUMMER_WINTER ^ 0xffffffff); // exclude EV_SUMMER_WINTER bit // KV 10102003
-            for (int bit=0x1;bit!=0;bit<<=1) {
+            for (int bit = 0x1; bit != 0; bit <<= 1) {
                 if ((iField & bit) != 0) {
-                    profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                    (int)mapLogCodes(bit),
-                    (int)bit));
+                    profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+                            (int) mapLogCodes(bit),
+                            (int) bit));
                 }
             } // for (int bit=0x1;bit!=0;bit<<=1)
 
@@ -208,65 +184,61 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
                 // not aligned to interval boundary caused by an event
                 if ((intervalList[i].getField(IL_EVENT) & EV_NORMAL_END_OF_INTERVAL) == 0) {
                     // Following code does the aligning
-                    int rest = (int)(calendar.getTime().getTime()/1000) % getProfileInterval();
+                    int rest = (int) (calendar.getTime().getTime() / 1000) % getProfileInterval();
                     if (DEBUG >= 1) {
-						System.out.print(calendar.getTime()+" "+calendar.getTime().getTime()+", timestamp adjusted with "+(getProfileInterval() - rest)+" sec.");
-					}
+                        System.out.print(calendar.getTime() + " " + calendar.getTime().getTime() + ", timestamp adjusted with " + (getProfileInterval() - rest) + " sec.");
+                    }
                     if (rest > 0) {
-						calendar.add(Calendar.SECOND, getProfileInterval() - rest);
-					}
-                }
-                else {
+                        calendar.add(Calendar.SECOND, getProfileInterval() - rest);
+                    }
+                } else {
                     if (DEBUG >= 1) {
-						System.out.print(calendar.getTime()+" "+calendar.getTime().getTime()+", statusbits = "+Integer.toHexString(iField));
-					}
+                        System.out.print(calendar.getTime() + " " + calendar.getTime().getTime() + ", statusbits = " + Integer.toHexString(iField));
+                    }
                 }
 
                 // Fill profileData
-                IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
+                IntervalData intervalData = new IntervalData(new Date(((Calendar) calendar.clone()).getTime().getTime()));
 
-                for (t=0;t<bNROfChannels;t++) {
-                    Long val = new Long(intervalList[i].getField(IL_DEMANDVALUE+t));
+                for (t = 0; t < bNROfChannels; t++) {
+                    Long val = new Long(intervalList[i].getField(IL_DEMANDVALUE + t));
                     intervalData.addValue(val);
                     if (DEBUG >= 1) {
-						System.out.print(", value = "+val.longValue());
-					}
+                        System.out.print(", value = " + val.longValue());
+                    }
                 }
 
                 if ((intervalList[i].getField(IL_EVENT) & EV_CORRUPTED_MEASUREMENT) != 0) {
-					intervalData.addStatus(IntervalData.CORRUPTED);
-				}
+                    intervalData.addStatus(IntervalData.CORRUPTED);
+                }
 
                 // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, save the interval and add it to the
                 // next or save as separate!
                 if ((intervalList[i].getField(IL_EVENT) & EV_NORMAL_END_OF_INTERVAL) != 0) {
                     if (savedIntervalData != null) {
                         if (savedIntervalData.getEndTime().equals(intervalData.getEndTime())) {
-                            profileData.addInterval(addIntervalData(savedIntervalData,intervalData));
-                        }
-                        else {
+                            profileData.addInterval(addIntervalData(savedIntervalData, intervalData));
+                        } else {
                             profileData.addInterval(savedIntervalData);
                             profileData.addInterval(intervalData);
                         }
                         savedIntervalData = null;
                     } else {
-						profileData.addInterval(intervalData);
-					}
-                }
-                else {
+                        profileData.addInterval(intervalData);
+                    }
+                } else {
                     // KV 15122003 cumulate multiple powerfails during an interval
                     if (savedIntervalData == null) {
-						savedIntervalData = intervalData;
-					} else {
+                        savedIntervalData = intervalData;
+                    } else {
                         // if new event crosses intervalboundary, save the cumulated data to nearest interval
                         // and save new data for next interval...
                         if (getNrOfIntervals(savedIntervalData) < getNrOfIntervals(intervalData)) {
-                           roundUp2nearestInterval(savedIntervalData);
-                           profileData.addInterval(savedIntervalData);
-                           savedIntervalData = intervalData;
-                        }
-                        else {
-                           savedIntervalData = addIntervalData(savedIntervalData,intervalData);
+                            roundUp2nearestInterval(savedIntervalData);
+                            profileData.addInterval(savedIntervalData);
+                            savedIntervalData = intervalData;
+                        } else {
+                            savedIntervalData = addIntervalData(savedIntervalData, intervalData);
                         }
                     }
                 }
@@ -274,8 +246,8 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
             } // if ((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0)
 
             if (DEBUG >= 1) {
-				System.out.println();
-			}
+                System.out.println();
+            }
 
         } // for (i=0;i<intervalList.length;i++) {
 
@@ -285,52 +257,60 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
     // KV 15122003
     private void roundDown2nearestInterval(IntervalData intervalData) throws IOException {
-        int rest = (int)(intervalData.getEndTime().getTime()/1000) % getProfileInterval();
+        int rest = (int) (intervalData.getEndTime().getTime() / 1000) % getProfileInterval();
         if (rest > 0) {
-			intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime()/1000) - rest) * 1000);
-		}
+            intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime() / 1000) - rest) * 1000);
+        }
     }
 
     // KV 15122003
     private void roundUp2nearestInterval(IntervalData intervalData) throws IOException {
-        int rest = (int)(intervalData.getEndTime().getTime()/1000) % getProfileInterval();
+        int rest = (int) (intervalData.getEndTime().getTime() / 1000) % getProfileInterval();
         if (rest > 0) {
-			intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime()/1000) + (getProfileInterval() - rest)) * 1000);
-		}
+            intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime() / 1000) + (getProfileInterval() - rest)) * 1000);
+        }
     }
 
     // KV 15122003
     private int getNrOfIntervals(IntervalData intervalData) throws IOException {
-        return (int)(intervalData.getEndTime().getTime()/1000) / getProfileInterval();
+        return (int) (intervalData.getEndTime().getTime() / 1000) / getProfileInterval();
     }
 
     // KV 15122003 changed
-    private IntervalData addIntervalData(IntervalData cumulatedIntervalData,IntervalData currentIntervalData) throws IOException {
+    private IntervalData addIntervalData(IntervalData cumulatedIntervalData, IntervalData currentIntervalData) throws IOException {
         int currentCount = currentIntervalData.getValueCount();
         IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime());
         int i;
         long current;
-        for (i=0;i<currentCount;i++) {
+        for (i = 0; i < currentCount; i++) {
             if (getMeterConfig().getChannelObject(i).isCapturedObjectCumulative()) {
-				current = ((Number)currentIntervalData.get(i)).longValue();
-			} else {
-				current = ((Number)currentIntervalData.get(i)).longValue()+((Number)cumulatedIntervalData.get(i)).longValue();
-			}
+                current = ((Number) currentIntervalData.get(i)).longValue();
+            } else {
+                current = ((Number) currentIntervalData.get(i)).longValue() + ((Number) cumulatedIntervalData.get(i)).longValue();
+            }
             intervalData.addValue(new Long(current));
         }
         return intervalData;
     }
 
     private long mapLogCodes(long lLogCode) {
-        switch((int)lLogCode) {
-            case (int)EV_FATAL_ERROR: return(MeterEvent.FATAL_ERROR);
-            case (int)EV_CORRUPTED_MEASUREMENT: return(MeterEvent.OTHER);
-            case (int)EV_TIME_DATE_ADJUSTED: return(MeterEvent.SETCLOCK);
-            case (int)EV_POWER_UP: return(MeterEvent.POWERUP);
-            case (int)EV_POWER_DOWN: return(MeterEvent.POWERDOWN);
-            case (int)EV_EVENT_LOG_CLEARED: return(MeterEvent.OTHER);
-            case (int)EV_LOAD_PROFILE_CLEARED: return(MeterEvent.CLEAR_DATA);
-            default: return(MeterEvent.OTHER);
+        switch ((int) lLogCode) {
+            case (int) EV_FATAL_ERROR:
+                return (MeterEvent.FATAL_ERROR);
+            case (int) EV_CORRUPTED_MEASUREMENT:
+                return (MeterEvent.OTHER);
+            case (int) EV_TIME_DATE_ADJUSTED:
+                return (MeterEvent.SETCLOCK);
+            case (int) EV_POWER_UP:
+                return (MeterEvent.POWERUP);
+            case (int) EV_POWER_DOWN:
+                return (MeterEvent.POWERDOWN);
+            case (int) EV_EVENT_LOG_CLEARED:
+                return (MeterEvent.OTHER);
+            case (int) EV_LOAD_PROFILE_CLEARED:
+                return (MeterEvent.CLEAR_DATA);
+            default:
+                return (MeterEvent.OTHER);
         } // switch(lLogCode)
     } // private void mapLogCodes(long lLogCode)
 
@@ -371,42 +351,41 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator= getRequiredKeys().iterator();
+            Iterator iterator = getRequiredKeys().iterator();
             while (iterator.hasNext()) {
                 String key = (String) iterator.next();
                 if (properties.getProperty(key) == null) {
-					throw new MissingPropertyException(key + " key missing");
-				}
+                    throw new MissingPropertyException(key + " key missing");
+                }
             }
             strID = properties.getProperty(MeterProtocol.ADDRESS);
             // KV 19012004
-            if ((strID != null) &&(strID.length()>16)) {
-				throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-			}
+            if ((strID != null) && (strID.length() > 16)) {
+                throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
+            }
 
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
-            iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
-            iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
-            iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
-            iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
-            iRequestClockObject=Integer.parseInt(properties.getProperty("RequestClockObject","0").trim());
-            iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
-            iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","32").trim());
-            iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","1").trim());
-            iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","0").trim());
-            eventIdIndex=Integer.parseInt(properties.getProperty("EventIdIndex","-1").trim()); // ZMD=1, ZMQ=2
+            iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
+            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
+            iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterfail", "3000").trim());
+            iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
+            iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
+            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+            iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "32").trim());
+            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
+            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
+            eventIdIndex = Integer.parseInt(properties.getProperty("EventIdIndex", "-1").trim()); // ZMD=1, ZMQ=2
 
-        }
-        catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DLMS ZMD, validateProperties, NumberFormatException, "+e.getMessage());
+        } catch (NumberFormatException e) {
+            throw new InvalidPropertyException("DLMS ZMD, validateProperties, NumberFormatException, " + e.getMessage());
         }
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
-			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory(), getMeterConfig(), this);
-			return ocm.getRegisterValue(obisCode);
+            ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory(), getMeterConfig(), this);
+            return ocm.getRegisterValue(obisCode);
         } catch (NestedIOException e) {
             if (ProtocolTools.getRootCause(e) instanceof ConnectionException || ProtocolTools.getRootCause(e) instanceof DLMSConnectionException) {
                 throw e;    // In case of a connection exception (of which we cannot recover), do throw the error.
@@ -414,11 +393,11 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
             String msg = "Problems while reading register " + obisCode.toString() + ": " + e.getMessage();
             getLogger().log(Level.WARNING, msg);
             throw new NoSuchRegisterException(msg);
-		} catch (Exception e) {
+        } catch (Exception e) {
             String msg = "Problems while reading register " + obisCode.toString() + ": " + e.getMessage();
             getLogger().log(Level.WARNING, msg);
-			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
-		}
+            throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
+        }
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -433,7 +412,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
      * @throws java.io.IOException
      */
     public void resetDemand() throws IOException {
-        GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short)10100, (short)0)).getBaseName()),6);
+        GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short) 10100, (short) 0)).getBaseName()), 6);
         gi.invoke(new Integer8(0).getBEREncodedByteArray());
     }
 
