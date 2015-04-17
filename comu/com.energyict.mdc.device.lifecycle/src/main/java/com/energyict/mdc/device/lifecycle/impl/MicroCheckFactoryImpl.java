@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConnectionPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUsagePoint;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.LastReadingTimestampSet;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
@@ -13,11 +13,9 @@ import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAr
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SlaveDeviceHasGateway;
 import com.energyict.mdc.device.topology.TopologyService;
 
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -43,9 +41,10 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     // For testing purposes
     @Inject
-    public MicroCheckFactoryImpl(NlsService nlsService, ThreadPrincipalService threadPrincipalService, BpmService bpmService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TopologyService topologyService) {
+    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService) {
         this();
         this.setNlsService(nlsService);
+        this.setTopologyService(topologyService);
     }
 
     @Reference
@@ -84,6 +83,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case SLAVE_DEVICE_HAS_GATEWAY: {
                 return new SlaveDeviceHasGateway(this.thesaurus, this.topologyService);
+            }
+            case LINKED_WITH_USAGE_POINT: {
+                return new DeviceIsLinkedWithUsagePoint(this.thesaurus);
             }
             default: {
                 return null;
