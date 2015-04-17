@@ -119,7 +119,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         Response response = target("devicetypes/1/firmwares").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
         verify(firmwareService).saveFirmwareVersion(firmwareVersion);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test

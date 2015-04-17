@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -113,14 +114,14 @@ public class FirmwareVersionResource {
                 @FormDataParam("firmwareStatus") FormDataContentDisposition statusContentDispositionHeader) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
         String firmwareVersion = getStringValueFromStream(versionInputStream);
-        FirmwareType firmwareType = FirmwareTypeInfo.FIRMWARE_TYPE_ADAPTER.unmarshal(getStringValueFromStream(typeInputStream));
-        FirmwareStatus firmwareStatus = FirmwareStatusInfo.FIRMWARE_STATUS_ADAPTER.unmarshal(getStringValueFromStream(statusInputStream));
+        FirmwareType firmwareType = parseFirmwareTypeField(typeInputStream).orElse(null);
+        FirmwareStatus firmwareStatus = parseFirmwareStatusField(statusInputStream).orElse(null);
 
         FirmwareVersion versionToSave = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         setFirmwareFile(versionToSave, fileInputStream);
         firmwareService.saveFirmwareVersion(versionToSave);
         
-        return Response.status(Response.Status.CREATED).header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
+        return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
 
     @PUT
@@ -155,11 +156,9 @@ public class FirmwareVersionResource {
                 @FormDataParam("firmwareStatus") FormDataContentDisposition statusContentDispositionHeader)
     {
         FirmwareVersion firmwareVersion = findFirmwareVersionOrElseThrowException(id);
-        String firmwareVersionName = getStringValueFromStream(versionInputStream);
-        FirmwareStatus firmwareStatus = FirmwareStatusInfo.FIRMWARE_STATUS_ADAPTER.unmarshal(getStringValueFromStream(statusInputStream));
         
-        firmwareVersion.setFirmwareVersion(firmwareVersionName);
-        firmwareVersion.setFirmwareStatus(firmwareStatus);
+        firmwareVersion.setFirmwareVersion(getStringValueFromStream(versionInputStream));
+        parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         setFirmwareFile(firmwareVersion, fileInputStream);
         firmwareService.saveFirmwareVersion(firmwareVersion);
         
@@ -245,10 +244,29 @@ public class FirmwareVersionResource {
         }
     }
     
-    private String getStringValueFromStream(InputStream is) {
-        try(Scanner s = new Scanner(is)) {
-            s.useDelimiter("\\A");
-            return s.hasNext() ? s.next() : "";
+    private Optional<FirmwareStatus> parseFirmwareStatusField(InputStream is) {
+        String firmwareStatus = getStringValueFromStream(is);
+        if(firmwareStatus == null || firmwareStatus.isEmpty()) {
+            return Optional.empty();
         }
+        return Optional.of(FirmwareStatusInfo.FIRMWARE_STATUS_ADAPTER.unmarshal(firmwareStatus));
+    }
+    
+    private Optional<FirmwareType> parseFirmwareTypeField(InputStream is) {
+        String firmwareType = getStringValueFromStream(is);
+        if(firmwareType == null || firmwareType.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(FirmwareTypeInfo.FIRMWARE_TYPE_ADAPTER.unmarshal(firmwareType));
+    }
+    
+    private String getStringValueFromStream(InputStream is) {
+        if (is != null) {
+            try (Scanner s = new Scanner(is)) {
+                s.useDelimiter("\\A");
+                return s.hasNext() ? s.next() : "";
+            }
+        }
+        return null;
     }
 }
