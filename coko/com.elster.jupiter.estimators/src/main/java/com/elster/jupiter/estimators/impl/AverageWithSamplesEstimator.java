@@ -87,12 +87,12 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         maxNumberOfSamples = (BigDecimal) properties.get(MIN_NUMBER_OF_SAMPLES);
         if (maxNumberOfSamples == null) {
-            this.maxNumberOfSamples = MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE;
+            this.maxNumberOfSamples = MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE;
         }
 
         minNumberOfSamples = (BigDecimal) properties.get(MAX_NUMBER_OF_SAMPLES);
         if (minNumberOfSamples == null) {
-            this.minNumberOfSamples = MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE;
+            this.minNumberOfSamples = MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE;
         }
 
         Object allowNegativeValuesPropertyValue = properties.get(ALLOW_NEGATIVE_VALUES);
@@ -282,7 +282,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             return false;
         } else {
             if (samples.size() >= this.maxNumberOfSamples.intValue()) {
-                samples = samples.subList(0, this.maxNumberOfSamples.intValue() - 1);
+                samples = samples.subList(0, this.maxNumberOfSamples.intValue());
             }
             estimatable.setEstimation(avg(samples, estimationBlock.getReadingType()));
             Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
