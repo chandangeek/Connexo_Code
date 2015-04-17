@@ -377,7 +377,7 @@ Ext.define('Fwc.controller.Firmware', {
         form.updateRecord();
         form.getRecord().save({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.save.success', 'FWC', 'The firmware upgrade options has been updated'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware upgrade options saved'));
                 router.getRoute('administration/devicetypes/view/firmwareoptions').forward();
             },
             failure: function (record, operation) {
