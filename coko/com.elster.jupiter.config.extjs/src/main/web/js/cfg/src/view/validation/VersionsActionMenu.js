@@ -11,19 +11,19 @@ Ext.define('Cfg.view.validation.VersionsActionMenu', {
         {
             itemId: 'editVersion',
             text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'editVersion'
         },
         {
             itemId: 'cloneVersion',
             text: Uni.I18n.translate('validation.clone', 'CFG', 'Clone'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'cloneVersion'
         },
         {
             itemId: 'deleteVersion',
             text: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),
-            privileges: !Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+            privileges: Cfg.privileges.Validation.admin,
             action: 'deleteVersion'
         }
     ]
