@@ -10,7 +10,8 @@ Ext.define('Ldr.Loader', {
     requires: [
         'Ldr.store.Preferences',
         'Ldr.store.Privileges',
-        'Ldr.store.Translations'
+        'Ldr.store.Translations',
+        'Ldr.store.Pluggable'
     ],
 
     /**
@@ -43,6 +44,7 @@ Ext.define('Ldr.Loader', {
 
         scope.loadPreferences(scope.checkAppLoadable, scope);
         scope.loadTranslations(scope.checkAppLoadable, scope);
+        scope.loadPlugins(scope.checkAppLoadable, scope);
     },
 
     /**
@@ -51,8 +53,22 @@ Ext.define('Ldr.Loader', {
      * @param {Object} scope Scope
      */
     checkAppLoadable: function (scope) {
-        if (scope.loadCallbackCounter > 1 && !scope.isAppScriptLoaded(scope)) {
+        if (scope.loadCallbackCounter > 2 && !scope.isAppScriptLoaded(scope)) {
             scope.loadApp(scope);
+        } else if (scope.loadCallbackCounter > 2 && scope.isAppScriptLoaded(scope)) {
+            Ldr.store.Pluggable.each(function (pluginScript) {
+                Ext.Loader.setPath(pluginScript.get('name'), pluginScript.get('basePath') + '/src');
+                _.each(pluginScript.get('scripts'),function(script){
+                    Ext.Loader.loadScript({
+                        url: pluginScript.get('basePath') + script.path + '/' + script.name,
+                        onError: function () {
+                            console.error('*** Could not load a plugin script!');
+
+                            // TODO Redirect to an error page.
+                        }
+                    });
+                })
+            });
         }
     },
 
@@ -103,6 +119,21 @@ Ext.define('Ldr.Loader', {
         });
     },
 
+    loadPlugins: function (callback, scope) {
+        Ldr.store.Pluggable.load({
+            callback: function (records, operation, success) {
+                scope.loadCallbackCounter++;
+                //<debug>
+                if (!success) {
+                    console.warn('Plugins could not be loaded, continuing anyways.');
+                }
+                //</debug>
+
+                callback(scope);
+            }
+        })
+    },
+
     /**
      * Loads the internationalization translations for the current component settings.
      * The array 'i18nComponents' should be defined in the index file for the translations.
@@ -139,12 +170,28 @@ Ext.define('Ldr.Loader', {
      * @param {Object} scope Scope
      */
     loadApp: function (scope) {
+        var me = this;
         Ext.Loader.loadScript({
             url: scope.appScript,
             onError: function () {
                 console.error('Could not load the application!');
 
                 // TODO Redirect to an error page.
+            },
+            onLoad: function () {
+                Ldr.store.Pluggable.each(function (pluginScript) {
+                    Ext.Loader.setPath(pluginScript.get('name'), pluginScript.get('basePath') + '/src');
+                    _.each(pluginScript.get('scripts'),function(script){
+                        Ext.Loader.loadScript({
+                            url: pluginScript.get('basePath') + script.path + '/' + script.name,
+                            onError: function () {
+                                console.error('*** Could not load a plugin script!');
+
+                                // TODO Redirect to an error page.
+                            }
+                        });
+                    })
+                });
             }
         });
     },
