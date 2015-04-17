@@ -51,6 +51,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -307,7 +308,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
-                                this.ormService, this.eventService, this.nlsService, this.clock,
+                                this.ormService, this.eventService,
+                                injector.getInstance(IssueService.class),
+                                this.nlsService, this.clock,
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,

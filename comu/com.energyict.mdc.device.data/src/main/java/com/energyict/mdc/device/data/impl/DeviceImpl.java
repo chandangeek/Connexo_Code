@@ -8,6 +8,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
@@ -150,6 +152,7 @@ import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
 import static java.util.stream.Collectors.toList;
@@ -160,6 +163,7 @@ public class DeviceImpl implements Device, CanLock {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final IssueService issueService;
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final MeteringService meteringService;
@@ -226,7 +230,7 @@ public class DeviceImpl implements Device, CanLock {
     public DeviceImpl(
             DataModel dataModel,
             EventService eventService,
-            Thesaurus thesaurus,
+            IssueService issueService, Thesaurus thesaurus,
             Clock clock,
             MeteringService meteringService,
             ValidationService validationService,
@@ -241,6 +245,7 @@ public class DeviceImpl implements Device, CanLock {
             Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider, Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.issueService = issueService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
@@ -1598,6 +1603,23 @@ public class DeviceImpl implements Device, CanLock {
         Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             enumeratedEndDeviceGroup.add(this.findOrCreateKoreMeter(amrSystem.get()), range);
+        }
+    }
+
+    @Override
+    public boolean hasOpenIssues() {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return !this.issueService.query(OpenIssue.class).select(where("device").isEqualTo(meter.get())).isEmpty();
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
         }
     }
 

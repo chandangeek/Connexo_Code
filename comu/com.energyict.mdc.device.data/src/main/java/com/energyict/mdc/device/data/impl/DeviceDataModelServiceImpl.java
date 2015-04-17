@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -83,6 +84,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
+    private volatile IssueService issueService;
     private volatile Thesaurus thesaurus;
     private volatile MessageService messagingService;
     private volatile UserService userService;
@@ -117,7 +119,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     // For unit testing purposes only
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
-                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService,
+                                      OrmService ormService, EventService eventService,
+                                      IssueService issueService,
+                                      NlsService nlsService, Clock clock,
+                                      KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
@@ -126,6 +131,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
+        this.setIssueService(issueService);
         this.setNlsService(nlsService);
         this.setRelationService(relationService);
         this.setClock(clock);
@@ -195,6 +201,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
     }
 
     @Reference
@@ -342,6 +353,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(RelationService.class).toInstance(relationService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
+                bind(IssueService.class).toInstance(issueService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);

@@ -308,6 +308,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
 
     /**
+     * Tests if there are open issues against this Device.
+     *
+     * @return A flag that indicates if there are open issues against this Device
+     */
+    public boolean hasOpenIssues();
+
+    /**
      * Gets the current {@link State} of this Device.
      *
      * @return The current State
