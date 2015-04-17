@@ -3,13 +3,10 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.orm.*;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
-
-import java.util.List;
 
 public enum TableSpecs {
     FWC_FIRMWAREVERSION {

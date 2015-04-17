@@ -6,11 +6,11 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
+
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -43,18 +43,18 @@ public class FirmwareUpgradeOptionsImpl implements FirmwareUpgradeOptions {
 
     @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
 
     private final DataModel dataModel;
-    private final FirmwareService firmwareService;
-
+    
     @Inject
-    public FirmwareUpgradeOptionsImpl(DataModel dataModel, FirmwareService firmwareService) {
+    public FirmwareUpgradeOptionsImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.firmwareService = firmwareService;
     }
 
     private FirmwareUpgradeOptions init(DeviceType deviceType) {

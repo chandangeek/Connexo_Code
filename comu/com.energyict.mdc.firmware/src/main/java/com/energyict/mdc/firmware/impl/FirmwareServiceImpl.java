@@ -172,13 +172,10 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
 
     @Override
     public List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device) {
-        Condition where = Where.where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.FINAL)
-                .and(Where.where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(device.getDeviceType()));
         FirmwareVersionFilter filter = new FirmwareVersionFilter(device.getDeviceType());
         List<FirmwareStatus> statuses = new ArrayList<>();
         statuses.add(FirmwareStatus.FINAL);
         filter.setFirmwareStatuses(statuses);
-
         return findAllFirmwareVersions(filter).find();
     }
 

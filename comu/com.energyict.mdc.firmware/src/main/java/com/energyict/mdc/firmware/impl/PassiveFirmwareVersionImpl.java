@@ -12,6 +12,7 @@ import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+
 import java.time.Instant;
 
 public class PassiveFirmwareVersionImpl implements PassiveFirmwareVersion {
@@ -26,12 +27,14 @@ public class PassiveFirmwareVersionImpl implements PassiveFirmwareVersion {
     private Instant lastChecked;
     private Instant activateDate;
 
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
+    @SuppressWarnings("unused")
     private String userName;
-
-
 
     private final DataModel dataModel;
 

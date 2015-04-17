@@ -1,7 +1,6 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
@@ -9,7 +8,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
