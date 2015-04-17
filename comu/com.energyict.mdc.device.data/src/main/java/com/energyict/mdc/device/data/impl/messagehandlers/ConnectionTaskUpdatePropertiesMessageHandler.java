@@ -29,13 +29,13 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
 
     @Override
     public void process(Message message) {
-        UpdateConnectionTaskPropertiesQueueMessage updateConnectionTaskPropertiesQueueMessage = jsonService.deserialize(message.getPayload(), UpdateConnectionTaskPropertiesQueueMessage.class);
-        Optional<ConnectionTask> connectionTaskOptional = connectionTaskService.findConnectionTask(updateConnectionTaskPropertiesQueueMessage.connectionTaskId);
+        UpdateConnectionTaskPropertiesQueueMessage queueMessage = jsonService.deserialize(message.getPayload(), UpdateConnectionTaskPropertiesQueueMessage.class);
+        Optional<ConnectionTask> connectionTaskOptional = connectionTaskService.findConnectionTask(queueMessage.connectionTaskId);
         if (connectionTaskOptional.isPresent()) {
             ConnectionTask connectionTask = connectionTaskOptional.get();
             for (PropertySpec propertySpec : connectionTask.getConnectionType().getPropertySpecs()) {
-                if (updateConnectionTaskPropertiesQueueMessage.properties.containsKey(propertySpec.getName())) {
-                    String stringValue = updateConnectionTaskPropertiesQueueMessage.properties.get(propertySpec.getName());
+                if (queueMessage.properties.containsKey(propertySpec.getName())) {
+                    String stringValue = queueMessage.properties.get(propertySpec.getName());
                     try {
                         connectionTask.setProperty(propertySpec.getName(), convertPropertyStringValueToPropertyValue(propertySpec, stringValue));
                         LOGGER.info(String.format("Set property '%s' on connection task %d to value '%s'", propertySpec.getName(), connectionTask.getId(), stringValue));
@@ -45,7 +45,7 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
                 }
             }
         } else {
-            LOGGER.log(Level.SEVERE, "No connectionTask with id "+updateConnectionTaskPropertiesQueueMessage.connectionTaskId);
+            LOGGER.log(Level.SEVERE, "No connectionTask with id "+queueMessage.connectionTaskId);
         }
     }
 
@@ -58,8 +58,9 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
         } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), Date.class)) {
             return new Date(Long.valueOf(value));
         } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), TimeDuration.class)) {
-            try {
-                return new TimeDuration(value); // expects "" + count + " " + timeUnit
+            try { // String looks like this: '{timeUnit=hours, count=1}'
+                TimeDurationJson json = jsonService.deserialize(value, TimeDurationJson.class);
+                return new TimeDuration(json.count, TimeDuration.TimeUnit.forDescription(json.timeUnit));
             }
             catch (LocalizedFieldValidationException e) {
                 throw new IllegalArgumentException("Invalid timeduration");
@@ -76,8 +77,6 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
         return propertySpec.getValueFactory().fromStringValue(value);
     }
 
-
-
     @Override
     public void onMessageDelete(Message message) {
 
@@ -87,5 +86,13 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
         this.connectionTaskService = connectionTaskService;
         this.jsonService = jsonService;
         return this;
+    }
+}
+
+class TimeDurationJson {
+    public String timeUnit;
+    public int count;
+
+    public TimeDurationJson() {
     }
 }

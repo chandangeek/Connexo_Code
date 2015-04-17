@@ -19,7 +19,7 @@ import java.util.Optional;
  * This message handler will trigger connections to rerun. Supports both a group of connections identified by a filter and an exhaustive list
  * Created by bvn on 3/25/15.
  */
-public class ConnectionFilterRescheduleItimizerMessageHandler implements MessageHandler {
+public class ConnectionFilterRescheduleItemizerMessageHandler implements MessageHandler {
 
     private ConnectionTaskService connectionTaskService;
     private MessageService messageService;

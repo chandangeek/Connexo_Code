@@ -41,7 +41,7 @@ public class ConnectionFilterRescheduleItemizerMessageHandlerFactory implements 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
-                getInstance(ConnectionFilterRescheduleItimizerMessageHandler.class).
+                getInstance(ConnectionFilterRescheduleItemizerMessageHandler.class).
                 init(connectionTaskService, filterFactory, messageService, jsonService);
     }
 
@@ -57,7 +57,7 @@ public class ConnectionFilterRescheduleItemizerMessageHandlerFactory implements 
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel("ConnectionTaskMessageHandlers", "Message handler for bulk action on connection tasks");
+        this.dataModel = ormService.newDataModel("ConnectionTaskRescheduleMessageHandlers", "Message handler for bulk rescheduling on connection tasks");
     }
 
     @Reference

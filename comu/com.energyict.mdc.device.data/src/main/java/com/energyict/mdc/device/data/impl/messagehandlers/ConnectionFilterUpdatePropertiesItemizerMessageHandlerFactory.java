@@ -22,7 +22,7 @@ import org.osgi.service.component.annotations.Reference;
  * Factory for message handlers to itemize connection task for the purpose of updating connection task properties
  * Itemize means convert a filter into an exhaustive set of connection tasks
  */
-@Component(name = "com.energyict.mdc.connectiontask.filter.update.properties.itimizer.message.handler.factory",
+@Component(name = "com.energyict.mdc.connectiontask.filter.itemizer.update.properties.message.handler.factory",
         service = MessageHandlerFactory.class,
         property = {"subscriber="+ ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER,
                 "destination="+ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION},
@@ -40,7 +40,7 @@ public class ConnectionFilterUpdatePropertiesItemizerMessageHandlerFactory imple
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
-                getInstance(ConnectionFilterUpdatePropertiesItimizerMessageHandler.class).
+                getInstance(ConnectionFilterUpdatePropertiesItemizerMessageHandler.class).
                 init(connectionTaskService, dataModel.getInstance(FilterFactory.class), messageService, jsonService);
     }
 
@@ -56,7 +56,7 @@ public class ConnectionFilterUpdatePropertiesItemizerMessageHandlerFactory imple
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.newDataModel("ConnectionTaskMessageHandlers", "Message handler for bulk action on connection tasks");
+        this.dataModel = ormService.newDataModel("ConnectionTaskPropertiesUpdaterMessageHandlers", "Message handler for bulk property updates on connection tasks");
     }
 
     @Reference
@@ -101,7 +101,6 @@ public class ConnectionFilterUpdatePropertiesItemizerMessageHandlerFactory imple
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(MessageService.class).toInstance(messageService);
-                bind(FilterFactory.class).to(FilterFactory.class);
             }
         };
     }

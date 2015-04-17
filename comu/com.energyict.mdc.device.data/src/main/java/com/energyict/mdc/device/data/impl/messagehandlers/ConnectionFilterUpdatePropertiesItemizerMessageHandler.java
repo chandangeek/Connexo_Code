@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * This message handler will update connection properties. Supports both a group of connections identified by a filter and an exhaustive list
  */
-public class ConnectionFilterUpdatePropertiesItimizerMessageHandler implements MessageHandler {
+public class ConnectionFilterUpdatePropertiesItemizerMessageHandler implements MessageHandler {
 
     private ConnectionTaskService connectionTaskService;
     private MessageService messageService;
