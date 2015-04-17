@@ -19,9 +19,13 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         {ref: 'rulesSetGrid', selector: '#deviceDataValidationRulesSetGrid'},
         {ref: 'rulesSetPreviewCt', selector: '#deviceDataValidationRulesSetPreviewCt'},
         {ref: 'rulePreview', selector: '#deviceDataValidationRulePreview'},
-        {ref: 'changeRuleSetStateActionMenuItem', selector: '#changeRuleSetStateActionMenuItem'}
+        {ref: 'changeRuleSetStateActionMenuItem', selector: '#changeRuleSetStateActionMenuItem'},
+        {ref: 'ruleSetVersionsGrid', selector:'#deviceDataValidationRuleSetVersionsGrid'},
+        {ref: 'rulesSetVersionPreviewCt', selector: '#deviceDataValidationRuleSetVersionsPreviewCt'},
+        {ref: 'ruleSetVersionsPreview', selector:'#deviceDataValidationRulesSetVersionPreview'}
     ],
     mRID: null,
+    ruleSetId: null,
     init: function () {
         this.control({
             '#deviceDataValidationRulesSetGrid': {
@@ -29,6 +33,12 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 //itemclick: this.onRulesSetGridItemClick,
                 selectionchange: this.onRulesSetGridSelectionChange
             },
+
+            '#deviceDataValidationRuleSetVersionsGrid': {
+                afterrender: this.onRulesSetVersionGridAfterRender,
+                selectionchange: this.onRulesSetVersionsGridSelectionChange
+            },
+
             '#deviceDataValidationRulesGrid': {
                 afterrender: this.onRulesGridAfterRender,
                 selectionchange: this.onRulesGridSelectionChange
@@ -86,7 +96,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         this.getRulesSetPreviewCt().removeAll(true);
         var validationRuleSet = grid.lastSelected,
             rulesSetPreview = Ext.widget('deviceDataValidationRulesSetPreview', {
-                rulesSetId: validationRuleSet.get('id'),
+                ruleSetId: validationRuleSet.get('id'),
                 title: validationRuleSet.get('name')
             });
         this.getRulesSetPreviewCt().add(rulesSetPreview);
@@ -96,19 +106,48 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             Uni.I18n.translate('general.activate', 'MDC', 'Activate'))
     },
 
-    /*onRulesSetGridItemClick: function (gridView, record, el, idx, e) {
-        var target = e.getTarget(null, null, true);
-        if (target.hasCls('x-action-col-icon')) {
-            var menuItem = this.getChangeRuleSetStateActionMenuItem();
-            menuItem.setText(record.get('isActive') ?
-                Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-                Uni.I18n.translate('general.activate', 'MDC', 'Activate'))
-        }
-    },*/
+
+
+
+    onRulesSetVersionGridAfterRender: function (grid) {
+        var ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
+        grid.store.getProxy().setExtraParam('ruleSetId',ruleSetId);
+
+
+        grid.store.load({
+            ruleSetId: ruleSetId,
+            callback: function () {
+
+                var rec = grid.store.find('status', 'CURRENT');
+                if ((rec>=0)|| (this.getView())) {
+                    grid.getSelectionModel().select(rec);
+                }else{
+                    grid.getSelectionModel().doSelect(0);
+                }
+            }
+        });
+    },
+    onRulesSetVersionsGridSelectionChange: function (grid) {
+        this.getRulesSetVersionPreviewCt().removeAll(true);
+        var selectedRuleSetVersion = grid.lastSelected,
+            rulesSetVersionPreview = Ext.widget('deviceDataValidationRulesSetVersionPreview', {
+                versionId: selectedRuleSetVersion.get('id'),
+                title: selectedRuleSetVersion.get('name')
+            });
+        this.getRulesSetVersionPreviewCt().add(rulesSetVersionPreview);
+
+    },
+
     onRulesGridAfterRender: function (grid) {
         var ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id');
+        var versionId = this.getRuleSetVersionsGrid().getSelectionModel().getLastSelected().get('id');
+
+        grid.store.getProxy().setExtraParam('ruleSetId',ruleSetId);
+        grid.store.getProxy().setExtraParam('versionId',versionId);
+        //var versionId = this.getRuleSetVersionsGrid().getSelectionModel().getLastSelected().get('id');
         grid.store.load({
-            id: ruleSetId,
+            ruleSetId: ruleSetId,
+            versionId: versionId,
             callback: function () {
                 grid.getSelectionModel().doSelect(0);
             }
