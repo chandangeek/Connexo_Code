@@ -14,7 +14,7 @@ Ext.define('Fwc.devicefirmware.view.Upload', {
         me.side = {
             xtype: 'deviceMenu',
             router: me.router,
-            device: me.device,
+            device: me.device
         };
 
         me.content = {

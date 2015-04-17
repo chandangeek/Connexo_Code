@@ -32,14 +32,12 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
     init: function () {
         this.control({
-            'device-firmware-setup device-firmware-action-menu #uploadFirmware': {
-                click: this.moveToUploadFirmware
-            },
-            'device-firmware-setup device-firmware-action-menu #uploadActivateNow': {
-                click: this.moveToUploadActivateNow
-            },
-            'device-firmware-setup device-firmware-action-menu #uploadActivateInDate': {
-                click: this.moveToUploadActivateInDate
+            'device-firmware-setup device-firmware-action-menu': {
+                click: function  (menu, item) {
+                    this.getController('Uni.controller.history.Router')
+                        .getRoute('devices/device/firmware/upload')
+                        .forward(null, {action: item.action});
+                }
             },
             'device-firmware-setup button[action=cancelUpgrade]': {
                 click: this.doCancelUpgrade
@@ -97,24 +95,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         });
     },
 
-    moveToUploadFirmware: function () {
-        var router = this.getController('Uni.controller.history.Router');
-
-        router.getRoute('devices/device/firmware/upload').forward(null, {activate: 'dont'});
-    },
-
-    moveToUploadActivateNow: function () {
-        var router = this.getController('Uni.controller.history.Router');
-
-        router.getRoute('devices/device/firmware/upload').forward(null, {activate: 'now'});
-    },
-
-    moveToUploadActivateInDate: function () {
-        var router = this.getController('Uni.controller.history.Router');
-
-        router.getRoute('devices/device/firmware/upload').forward(null, {activate: 'inDate'});
-    },
-
     loadDevice: function (deviceId, callback) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.Device'),
@@ -147,11 +127,12 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                 router: router,
                 device: device
             });
+
             widget = me.getSetupPage();
             widget.setLoading();
             store.getProxy().setUrl(device.get('mRID'));
             actionsStore.getProxy().setUrl(device.get('mRID'));
-            actionsStore.load();
+
             store.load({
                 callback: function (records, operation, success) {
                     if (success) {
@@ -159,6 +140,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                             var form = Ext.create('Fwc.devicefirmware.view.FirmwareForm', {record: record, router: router});
                             widget.getCenterContainer().add(form);
                         });
+                        actionsStore.load();
                     }
                     widget.setLoading(false);
                 }
@@ -170,79 +152,28 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             messageSpecModel = me.getModel('Fwc.devicefirmware.model.FirmwareMessageSpec'),
-            activateOption = router.queryParams.activate;
+            action = router.queryParams.action;
 
-        messageSpecModel.getProxy().setUrl(mRID);
+        me.loadDevice(mRID, function (device) {
+            var widget = Ext.widget('device-firmware-upload', {
+                device: device,
+                router: router
+            });
+            me.getApplication().fireEvent('loadDevice', device);
+            me.getApplication().fireEvent('changecontentevent', widget);
 
-        var record = Ext.create(messageSpecModel, {
-            id: "activateOnDate",
-            displayValue: "Upload firmware with activation date"
-        });
-
-//        record.properties().add([
-//            {
-//                key: "FirmwareDeviceMessage.upgrade.firwareversion",
-//                name: "Firmware version",
-//                propertyValueInfo: { },
-//                propertyTypeInfo: {
-//                    simplePropertyType: "UNKNOWN",
-//                    predefinedPropertyValuesInfo: {
-//                        possibleValues: [
-//                            {
-//                                "id": 1, "name": "ASP03.01.03-12359"
-//                            },
-//                            {
-//                                "id": 2, "name": "ASP03.01.04-4532"
-//                            }
-//                        ],
-//                        selectionMode: "COMBOBOX",
-//                        exhaustive: true
-//                    }
-//                },
-//                required: true
-//            },
-//            {
-//                key: "FirmwareDeviceMessage.upgrade.activationdate",
-//                name: "Activation date",
-//                propertyValueInfo: { },
-//                propertyTypeInfo: {
-//                    simplePropertyType: "CLOCK"
-//                },
-//                required: true
-//            }
-//        ]);
-
-
-//        console.log(record);
-//
-//        switch (activateOption) {
-//            case 'dont':
-//                title = Uni.I18n.translate('deviceFirmware.upload', 'FWC', 'Upload firmware');
-//                break;
-//            case 'now':
-//                title = Uni.I18n.translate('deviceFirmware.uploadActivate', 'FWC', 'Upload firmware and activate');
-//                break;
-//            case 'inDate':
-//                title = Uni.I18n.translate('deviceFirmware.uploadActivateInDate', 'FWC', 'Upload firmware with activation date');
-//                break;
-//            default:
-//                router.getRoute('devices/device/firmware').forward();
-//                break;
-//        }
-
-        me.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                //        messageSpecModel.load(activateOption, {
-//            success: function (record) {
-                var widget = Ext.widget('device-firmware-upload', {device: device, title: record.get('displayValue'), router: router});
-                me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('property-form').loadRecord(record);
-
-
-                //            }
-//        });
-            }
+            widget.setLoading();
+            messageSpecModel.getProxy().setUrl(mRID);
+            messageSpecModel.load(action, {
+                success: function (record) {
+                    debugger;
+                    widget.down('property-form').loadRecord(record);
+                    //widget.getCenterContainer().setTitle(record.get('displayValue'));
+                },
+                callback: function () {
+                    widget.setLoading(false);
+                }
+            });
         });
     }
 });

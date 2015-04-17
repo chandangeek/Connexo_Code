@@ -23,7 +23,7 @@ Ext.define('Fwc.devicefirmware.view.ActionMenu', {
     initComponent: function () {
         var me = this;
         me.bindStore(me.store || 'ext-empty-store', true);
-        this.callParent(arguments);
+        me.callParent(arguments);
     },
 
     /**
@@ -45,6 +45,5 @@ Ext.define('Fwc.devicefirmware.view.ActionMenu', {
         });
 
         Ext.resumeLayouts();
-        //me.doLayout();
     }
 });

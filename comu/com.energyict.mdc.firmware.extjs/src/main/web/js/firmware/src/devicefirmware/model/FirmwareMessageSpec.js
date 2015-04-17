@@ -12,10 +12,7 @@ Ext.define('Fwc.devicefirmware.model.FirmwareMessageSpec', {
     proxy: {
         type: 'rest',
         urlTpl: '/api/fwc/device/{mRID}/firmwaremessagespecs',
-        reader: {
-            type: 'json',
-            root: 'firmwareCommand'
-        },
+        reader: 'json',
         setUrl: function (mRID) {
             this.url = this.urlTpl.replace('{mRID}', mRID);
         }
