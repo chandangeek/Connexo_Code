@@ -30,6 +30,7 @@ Ext.define('Dlc.devicelifecycles.view.PreviewForm', {
             {
                 xtype: 'fieldcontainer',
                 name: 'deviceTypes',
+                itemId: 'used-by-field',
                 fieldLabel: Uni.I18n.translate('general.usedBy', 'DLC', 'Used by'),
                 items: [
                     {
