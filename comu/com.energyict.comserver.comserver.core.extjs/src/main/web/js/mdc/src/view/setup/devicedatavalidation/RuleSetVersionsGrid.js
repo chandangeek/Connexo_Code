@@ -41,17 +41,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 displayMsg: Uni.I18n.translate('validation.version.display.msg', 'CFG', '{0} - {1} of {2} versions'),
                 displayMoreMsg: Uni.I18n.translate('validation.version.display.more.msg', 'CFG', '{0} - {1} of more than {2} versions'),
                 emptyMsg: Uni.I18n.translate('validation.version.pagingtoolbartop.emptyMsg', 'CFG', 'There are no versions to display'),
-                dock: 'top',
-                items: [
-                    {
-                        text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
-                        itemId: 'newVersion',
-                        xtype: 'button',
-                        href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/add',
-                        hrefTarget: '_self'
-                    }
-                ]
+                dock: 'top'
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -63,19 +53,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
 
             }
         ];
-        me.listeners = {
-            'afterrender': function (component) {
-                component.getStore().on('load', function(store, records, success) {
-                    var rec = store.find('status', 'CURRENT');
-                    if ((rec>=0)|| (this.getView())) {
-                        this.getView().getSelectionModel().select(rec);
-                    }
 
-                }, this, {
-                    single: true
-                });
-            }
-        };
         me.callParent(arguments);
     }
 });

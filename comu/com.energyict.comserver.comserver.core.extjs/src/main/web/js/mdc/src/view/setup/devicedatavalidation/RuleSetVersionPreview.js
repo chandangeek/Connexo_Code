@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionPreview', {
     alias: 'widget.deviceDataValidationRulesSetVersionPreview',
     itemId: 'deviceDataValidationRulesSetVersionPreview',
     title: '',
-    rulesSetId: null,
+    ruleSetId: null,
     rulesSetVersionId: null,
     ui: 'medium',
     padding: 0,
@@ -19,8 +19,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionPreview', {
                 xtype: 'preview-container',
                 grid: {
                     xtype: 'deviceDataValidationRulesGrid',
-                    rulesSetId: me.rulesSetId,
-                    rulesSetVersionId: me.rulesSetVersionId
+                    ruleSetId: me.ruleSetId,
+                    versionId: me.versionId
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionPreview', {
                             text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                             privileges:['privilege.view.fineTuneValidationConfiguration.onDevice'],
                             ui: 'action',
-                            href: '#/administration/validation/rulesets/' + me.rulesSetId + '/versions/' + me.rulesSetVersionId + '/rules/add'
+                            href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/' + me.versionId + '/rules/add'
                         }
                     ]
                 },
