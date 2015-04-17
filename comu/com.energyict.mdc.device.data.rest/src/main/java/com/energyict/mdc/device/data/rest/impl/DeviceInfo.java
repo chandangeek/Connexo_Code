@@ -79,20 +79,10 @@ public class DeviceInfo {
         deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().isDirectlyAddressable();
         deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway();
 
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem(meteringService);
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = findKoreMeter(amrSystem.get(), device);
-            if (meter.isPresent()) {
-                Optional<? extends MeterActivation> meterActivation = meter.get().getCurrentMeterActivation();
-                if (meterActivation.isPresent()) {
-                    Optional<UsagePoint> usagePoint = meterActivation.get().getUsagePoint();
-                    if (usagePoint.isPresent()) {
-                        deviceInfo.usagePoint = usagePoint.get().getMRID();
-                        deviceInfo.serviceCategory = usagePoint.get().getServiceCategory().getName();
-                    }
-                }
-            }
-        }
+        device.getUsagePoint().ifPresent(usagePoint -> {
+            deviceInfo.usagePoint = usagePoint.getMRID();
+            deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
+        });
 
         return deviceInfo;
     }
@@ -113,11 +103,4 @@ public class DeviceInfo {
         return devices.stream().map(DeviceInfo::from).collect(Collectors.toList());
     }
 
-    private static Optional<AmrSystem> getMdcAmrSystem(MeteringService meteringService) {
-        return meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
-    }
-
-    private static Optional<Meter> findKoreMeter(AmrSystem amrSystem, Device device) {
-        return amrSystem.findMeter(String.valueOf(device.getId()));
-    }
 }

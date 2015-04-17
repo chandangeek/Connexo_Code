@@ -6,7 +6,6 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -1041,7 +1040,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
 
@@ -1076,7 +1075,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mockDeviceForTopologyTest("device");
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
 
