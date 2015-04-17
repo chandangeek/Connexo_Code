@@ -18,6 +18,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareMessagesResource;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
 import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
@@ -89,6 +90,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
+            bind(DeviceFirmwareVersionInfoFactory.class).to(DeviceFirmwareVersionInfoFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);

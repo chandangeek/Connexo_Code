@@ -8,14 +8,14 @@ import java.util.List;
 
 public class DeviceFirmwareVersionInfos {
     public Long total = 0L;
-    public List<DeviceActiveFirmwareVersionInfo> firmwares = new ArrayList<>();
+    public List<DeviceFirmwareVersionInfo> firmwares = new ArrayList<>();
 
     public DeviceFirmwareVersionInfos() {
 
     }
 
     public void addVersion(ActivatedFirmwareVersion version, Thesaurus thesaurus) {
-        firmwares.add(new DeviceActiveFirmwareVersionInfo(version, thesaurus));
+        firmwares.add(new DeviceFirmwareVersionInfo(version, thesaurus));
         total++;
     }
 }
