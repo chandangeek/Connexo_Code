@@ -141,6 +141,7 @@ public class FavoritesServiceImplTest {
 
         @Override
         protected void configure() {
+            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
             bind(Clock.class).toInstance(Clock.systemDefaultZone());
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
