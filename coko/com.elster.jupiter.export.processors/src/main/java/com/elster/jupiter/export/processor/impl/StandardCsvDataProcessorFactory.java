@@ -11,13 +11,12 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.validation.ValidationService;
 import java.io.File;
+import java.io.FilePermission;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,43 +109,28 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
 
     @Override
     public void validateProperties(List<DataExportProperty> properties) {
-        String prefix = null;
-        String extension = null;
-        String path = null;
         for (DataExportProperty property : properties) {
             String stringValue = (String) property.getValue();
             if (property.getName().equals(FormatterProperties.FILENAME_PREFIX.getKey())) {
-                 prefix = stringValue;
+                verifySandboxBreaking("", stringValue, "csv", FormatterProperties.FILENAME_PREFIX.getKey());
                 checkInvalidChars(stringValue, FormatterProperties.FILENAME_PREFIX.getKey(), NON_PATH_INVALID);
-                checkIsRelativeChildPath(stringValue, FormatterProperties.FILENAME_PREFIX.getKey());
             } else if (property.getName().equals(FormatterProperties.FILE_EXTENSION.getKey())) {
-                extension = Checks.is(stringValue).emptyOrOnlyWhiteSpace()?"csv":stringValue;
+                verifySandboxBreaking("", "_", stringValue, FormatterProperties.FILE_EXTENSION.getKey());
                 checkInvalidChars(stringValue, FormatterProperties.FILE_EXTENSION.getKey(), NON_PATH_INVALID);
             } else if (property.getName().equals(FormatterProperties.FILE_PATH.getKey())) {
-                path = Checks.is(stringValue).emptyOrOnlyWhiteSpace()?".":stringValue;
+                verifySandboxBreaking(stringValue, "_", "csv", FormatterProperties.FILE_PATH.getKey());
                 checkInvalidChars(stringValue, FormatterProperties.FILE_PATH.getKey(), PATH_INVALID);
-                checkIsRelativeChildPath(stringValue, FormatterProperties.FILE_PATH.getKey());
             }
         }
-        checkIsRelativeChildPath(path + File.separatorChar+prefix+"A"+extension, FormatterProperties.FILE_EXTENSION.getKey());
     }
 
-    private void checkIsRelativeChildPath(String value, String fieldName) {
-        Path path = FileSystems.getDefault().getPath(value);
-        if (path.isAbsolute()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.ABSOLUTE_PATH_NOT_ALLOWED, "properties." + fieldName);
+    private void verifySandboxBreaking(String path, String prefix, String extension, String property) {
+        String basedir = File.separatorChar + "xyz" + File.separatorChar; // bogus path for validation purposes, not real security
+        FilePermission sandbox = new FilePermission(basedir+"-", "write");
+        FilePermission request = new FilePermission(basedir + path + File.separatorChar + prefix + "A." + extension, "write");
+        if (!sandbox.implies(request)) {
+            throw new LocalizedFieldValidationException(MessageSeeds.PARENT_BREAKING_PATH_NOT_ALLOWED, "properties."+ property);
         }
-        if (!resolvesToSubDirectory(path)) {
-            throw new LocalizedFieldValidationException(MessageSeeds.PARENT_BREAKING_PATH_NOT_ALLOWED, "properties." + fieldName);
-        }
-    }
-
-    private boolean resolvesToSubDirectory(Path path) {
-        // construct imaginary root that can not be part of the given path
-        Path root = Paths.get("/A");
-        Path normalize = root.resolve(path).normalize();
-
-        return normalize.toString().startsWith(root.toString());
     }
 
     protected void checkInvalidChars(String value, String fieldName, String invalidCharacters) {
