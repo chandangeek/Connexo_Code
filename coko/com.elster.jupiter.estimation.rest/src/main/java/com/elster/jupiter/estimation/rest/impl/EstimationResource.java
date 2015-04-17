@@ -271,7 +271,9 @@ public class EstimationResource {
                     try {
                         for (PropertySpec propertySpec : rule.getPropertySpecs()) {
                             Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                            rule.addProperty(propertySpec.getName(), value);
+                            if (value != null) {
+                                rule.addProperty(propertySpec.getName(), value);
+                            }
                         }
                     } catch (EstimatorNotFoundException ex) {
                     } finally {
