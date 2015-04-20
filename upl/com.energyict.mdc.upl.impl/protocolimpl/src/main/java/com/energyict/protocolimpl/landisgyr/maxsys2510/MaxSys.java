@@ -16,6 +16,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -31,6 +32,8 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author fbo
@@ -68,17 +71,19 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
     /**
      * Property keys
      */
-    final static String PK_TIMEOUT = "Timeout";
-    final static String PK_RETRIES = "Retries";
-    final static String PK_SECURITY_LEVEL = "SecurityLevel";
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_FORCE_DELAY = "ForceDelay";
-    final static String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
-    final static String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
+    public final static String PK_NODE_PREFIX = "NodeIdPrefix";
+    public final static String PK_TIMEOUT = "Timeout";
+    public final static String PK_RETRIES = "Retries";
+    public final static String PK_SHOULD_DISCONNECT = "ShouldDisconnect";
+    public final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    public final static String PK_FORCE_DELAY = "ForceDelay";
+    public final static String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
+    public final static String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
 
     /**
      * Property Default values
      */
+    final static String PD_NODE_PREFIX = "3";   // MSU Slave (used in EU, doesn't work in US)
     final static String PD_NODE_ID = "";
     final static int PD_TIMEOUT = 10000;
     final static int PD_RETRIES = 5;
@@ -109,6 +114,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
     int pForceDelay = PD_FORCE_DELAY;
 
     String pExtendedLogging = PD_EXTENDED_LOGGING;
+    boolean pShouldDisconnect;
 
     LinkLayer linkLayer;
     CommandFactory commandFactory;
@@ -120,6 +126,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
     private Firmware firmware;
     private boolean readUnit1SerialNumber = false;
     private boolean readProfileDataBeforeConfigChange = true;
+    private String PD_SHOULD_DISCONNECT = "1";
 
 
     public MaxSys() {
@@ -144,19 +151,20 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
         if (p.getProperty(MeterProtocol.NODEID) != null) {
             pNodeId = p.getProperty(MeterProtocol.NODEID);
-            if (pNodeId.length() == 7) {
-                pNodeId = "3" + pNodeId;
+            //Node Address must be 7 digits
+            if (pNodeId.length() != 7) {
+                throw new InvalidPropertyException("NodeId must be a string of 7 numbers long");
             }
-            if (pNodeId.length() != 8) {
-                throw new InvalidPropertyException("NodeId must be a string of 7 or 8 numbers long");
-            }
-            try {
-                Integer.parseInt(pNodeId);
-            } catch (NumberFormatException e) {
-                throw new InvalidPropertyException("NodeId: only numbers allowed");
+
+            pNodeId = getpNodePrefix(p) + pNodeId;
+
+            //Replace integer.parse because of overflow, REGEX is cleaner as well
+            Pattern pattern = Pattern.compile("[[A-F][a-f]\\d]*");
+            Matcher matcher = pattern.matcher(pNodeId);
+            if (!matcher.matches()) {
+                throw new InvalidPropertyException("NodeId and prefix must be hexadecimal numbers");
             }
         }
-
 
         if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null) {
             pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.PROFILEINTERVAL));
@@ -210,14 +218,37 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
             pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
         }
 
+        if (p.getProperty(PK_SHOULD_DISCONNECT) != null) {
+            pShouldDisconnect = p.getProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT) == "1";
+        }
+
         readUnit1SerialNumber =
                 "1".equals(p.getProperty(PK_READ_UNIT1_SERIALNUMBER));
         readProfileDataBeforeConfigChange =
-                !"0".equals(p.getProperty(this.PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
-
-
+                !"0".equals(p.getProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
     }
 
+    /**
+     * Getter for the pNodePrefix, which is the prefix to add to the node address
+     * for daisy chain addressing
+     *
+     * Possible prefixes:
+     * <ul>
+     *     <li>2 -> MSU Master</li>
+     *     <li>3 -> MSU Slave (used in EU, doesn't work in US)</li>
+     *     <li>4 -> Modem 2400</li>
+     *     <li>5 -> Slave (this allows us in the US to connect to the slave device)</li>
+     *     <li>6 -> SM1 Modem</li>
+     *     <li>7 -> Multitech Modem</li>
+     *     <li>9 -> Modem 2400 Master</li>
+     *     <li>A -> Modem 2400 Slave</li>
+     *     <li>D -> Master (this allows us in the US to address master device)</li>
+     *     <liF -> Standalone (this allows us in the US to interrogate standalone meters)></li>
+     * </ul>
+     */
+    protected String getpNodePrefix(Properties p) {
+         return p.getProperty(PK_NODE_PREFIX, PD_NODE_PREFIX);
+    }
 
     public Date getBeginningOfRecording() throws IOException {
         TableAddress ta = new TableAddress(this, 2, 30);
@@ -271,11 +302,13 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
     public List getOptionalKeys() {
         List result = new ArrayList();
         result.add(MeterProtocol.NODEID);
+        result.add(PK_NODE_PREFIX);
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(PK_EXTENDED_LOGGING);
         result.add(PK_READ_UNIT1_SERIALNUMBER);
         result.add(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE);
+        result.add(PK_SHOULD_DISCONNECT);
         return result;
     }
 
@@ -330,7 +363,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     void connect(int baudRate) throws IOException {
         try {
-
             linkLayer.send(commandFactory.createX(nextCrn(), 0x00, 0x0e)); // 0e: return unit id
             getTable0();
 
@@ -343,7 +375,12 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public void disconnect() throws IOException {
-        ProtocolTools.delay(4000);
+        if (pShouldDisconnect) {
+            this.getLogger().info("disconnect " + pSerialNumber);
+            linkLayer.send(commandFactory.createX(nextCrn(), 0x00, 0x10), 1);
+        } else {
+            ProtocolTools.delay(4000);
+        }
     }
 
     public int getNumberOfChannels() throws UnsupportedException, IOException {
@@ -371,7 +408,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-
         ProfileData pd = getTable12(lastReading, includeEvents).getProfile();
         return pd;
 
@@ -438,7 +474,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
         String sn = null;
 
-        // initial implementataion: serialnumber = unit_id3 (this is the default!)
+        // initial implementatation: serialnumber = unit_id3 (this is the default!)
         // implementation for Imserv: serialnumber = unit_id1
         if (!readUnit1SerialNumber) {
             TableAddress ta = new TableAddress(this, 2, 19);
@@ -448,7 +484,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
             byte[] values = ta.readBytes(4);
             sn = getSerialNumber(values).substring(1);
         }
-
 
         if (sn != null) {
             if (pSerialNumber.equals(sn)) {
@@ -686,14 +721,27 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
         Calendar fCal = Calendar.getInstance(timeZone);
         fCal.setTime(from);
 
+        //This was bringing back an extra interval due to the
+        //fact that when the before comparison happens, the
+        //calendars would have non-zero seconds/milliseconds
+
+        //Here we want to round the to calendar to the next interval in case
+        //we jump the interval boundary while reading
+
         Calendar tCal = Calendar.getInstance(timeZone);
         tCal.setTime(getTime());
-
+        ParseUtils.roundDown2nearestInterval(tCal, intervalMinutes * 60);
+        tCal.set(Calendar.MILLISECOND, 0);
+        tCal.set(Calendar.SECOND, 0);
+        fCal.set(Calendar.MILLISECOND, 0);
+        fCal.set(Calendar.SECOND, 0);
         int nrIntervals = 0;
+        Date lastReadDate = fCal.getTime();
         while (fCal.before(tCal)) {
             fCal.add(Calendar.MINUTE, intervalMinutes);
             nrIntervals = nrIntervals + 1;
         }
+        nrIntervals += 2;
         int totalSize = ((headerSize + (nrIntervals * intervalSize)) / 256) + 1; // KV_CHANGED, add +1 to avoid 0, that is what the doc tells...
         // If bytes 7 and 8 are both
         // zero then the SMD will transmit the number of bytes
@@ -705,7 +753,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
         command.setNbls(totalSize & 0x000000FF);
         command.setNbms(totalSize & 0x0000FF00);
         ByteArray ba = linkLayer.send(command);
-        return Table12.parse(new Assembly(this, ba), includeEvents, nrIntervals, readProfileDataBeforeConfigChange);
+        return Table12.parse(new Assembly(this, ba), includeEvents, nrIntervals, readProfileDataBeforeConfigChange, lastReadDate);
     }
 
     Table13 getTable13() throws IOException {

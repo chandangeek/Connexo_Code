@@ -1,15 +1,5 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
-import java.util.TimeZone;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
@@ -17,6 +7,15 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Stack;
+import java.util.TimeZone;
 
 class Table12 {
     
@@ -34,7 +33,7 @@ class Table12 {
     ProfileData profileData;
     TimeZone timeZone;
     
-    static Table12 parse( Assembly assembly, boolean includeEvents, int nrOfIntervals, boolean readProfileDataBeforeConfigChange) throws IOException{
+    static Table12 parse( Assembly assembly, boolean includeEvents, int nrOfIntervals, boolean readProfileDataBeforeConfigChange, Date lastReadDate) throws IOException{
         Table12 t = new Table12();
 
         MaxSys max = assembly.getMaxSys();
@@ -59,8 +58,8 @@ class Table12 {
         //returned to the Central Computer.
 
         t.lastIntlTime  = TypeDateTimeRcd.parse( assembly ).toDate();
-        
-        t.parseProfileData(assembly, readProfileDataBeforeConfigChange, max.getBeginningOfRecording());
+        Date clipDate = max.getBeginningOfRecording();
+        t.parseProfileData(assembly, readProfileDataBeforeConfigChange, clipDate, lastReadDate);
         
         if( includeEvents ) {
             Iterator i = assembly.getMaxSys().getTable4().getMeterEvents().iterator();
@@ -113,7 +112,7 @@ class Table12 {
     }
     
     
-    void parseProfileData(Assembly assembly, boolean readProfileDataBeforeConfigChange, Date clipDate) throws IOException{
+    void parseProfileData(Assembly assembly, boolean readProfileDataBeforeConfigChange, Date clipDate, Date lastReadDate) throws IOException{
         profileData = new ProfileData();
         Iterator ci = channelInfo.iterator();
         while( ci.hasNext() ){
@@ -133,10 +132,10 @@ class Table12 {
             iCalendar.add( Calendar.MINUTE, (-1*intervalMinutes) ); 
             parseInterval(ba, id);
             
-            if (readProfileDataBeforeConfigChange) 
+            if (readProfileDataBeforeConfigChange && id.getEndTime().after(lastReadDate)) {
             	profileData.addInterval(id);
-            else {
-            	if (id.getEndTime().after(clipDate))
+            } else {
+            	if (id.getEndTime().after(clipDate) && id.getEndTime().after(lastReadDate))
             		profileData.addInterval(id);
             }
             
