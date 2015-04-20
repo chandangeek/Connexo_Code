@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
  * An offline implementation version of an {@link com.energyict.mdc.protocol.api.device.BaseDevice}
  * mainly containing information which is relevant to use at offline-time.
  * <p/>
- * TODO we should add some topology in here, currently all slaves don't point to their correct master
  *
  * @author gna
  * @since 12/04/12 - 13:58
@@ -109,11 +108,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     public interface ServiceProvider {
 
-        public TopologyService topologyService();
+        TopologyService topologyService();
 
-        public Optional<DeviceCache> findProtocolCacheByDevice(Device device);
+        Optional<DeviceCache> findProtocolCacheByDevice(Device device);
 
-        public IdentificationService identificationService();
+        IdentificationService identificationService();
 
     }
 
@@ -143,9 +142,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
         if (context.needsSlaveDevices()) {
             List<Device> downstreamDevices = serviceProvider.topologyService().findPhysicalConnectedDevices(this.device);
             List<Device> downStreamEndDevices = new ArrayList<>(downstreamDevices.size());
-            for (Device downstreamDevice : downstreamDevices) {
-                downStreamEndDevices.add(downstreamDevice);
-            }
+            downStreamEndDevices.addAll(downstreamDevices.stream().collect(Collectors.toList()));
             setSlaveDevices(convertToOfflineRtus(downStreamEndDevices));
         }
         if (context.needsMasterLoadProfiles()) {
@@ -187,7 +184,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
         Optional<DeviceCache> deviceProtocolCache = serviceProvider.findProtocolCacheByDevice(device);
         if (deviceProtocolCache.isPresent()) {
             Serializable cacheObject = deviceProtocolCache.get().getSimpleCacheObject();
-            if (cacheObject instanceof DeviceProtocolCache) {
+            if (cacheObject != null) {
                 this.deviceProtocolCache = (DeviceProtocolCache) cacheObject;
                 this.deviceProtocolCache.markClean(); // Cache is loaded from DB, so make sure it is marked clean, i.e. not dirty or changed
             }
@@ -222,26 +219,9 @@ public class OfflineDeviceImpl implements OfflineDevice {
      */
     private List<LoadProfile> getAllLoadProfilesIncludingDownStreams(Device device, TopologyService topologyService) {
         List<LoadProfile> allLoadProfiles = new ArrayList<>(device.getLoadProfiles());
-        for (Device slave : topologyService.findPhysicalConnectedDevices(device)) {
-            if (checkTheNeedToGoOffline(slave)) {
-//                for (LoadProfile lp : ) {
-//                    if (lp.getLoadProfileTypeObisCode().anyChannel()) {
-//                        allLoadProfiles.add(lp);
-//                    } else {
-//                        boolean doesNotExist = true;
-//                        for (LoadProfile lpListItem : allLoadProfiles) {
-//                            if (lp.getLoadProfileTypeObisCode().equals(lpListItem.getLoadProfileTypeObisCode())) {
-//                                doesNotExist = false;
-//                            }
-//                        }
-//                        if (doesNotExist) {
-//                            allLoadProfiles.add(lp);
-//                        }
-//                    }
-//                }
-                allLoadProfiles.addAll(getAllLoadProfilesIncludingDownStreams(slave, topologyService));
-            }
-        }
+        topologyService.findPhysicalConnectedDevices(device).stream().
+                filter(this::checkTheNeedToGoOffline).
+                forEach(slave -> allLoadProfiles.addAll(getAllLoadProfilesIncludingDownStreams(slave, topologyService)));
         return allLoadProfiles;
     }
 
@@ -275,17 +255,13 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private List<OfflineLogBook> convertToOfflineLogBooks(final List<LogBook> logBooks){
         List<OfflineLogBook> offlineLogBooks = new ArrayList<>(logBooks.size());
-        for (LogBook logBook : logBooks) {
-            offlineLogBooks.add(new OfflineLogBookImpl(logBook, serviceProvider.identificationService()));
-        }
+        offlineLogBooks.addAll(logBooks.stream().map(logBook -> new OfflineLogBookImpl(logBook, serviceProvider.identificationService())).collect(Collectors.toList()));
         return offlineLogBooks;
     }
 
     private List<OfflineRegister> convertToOfflineRegister(final List<Register> registers){
         List<OfflineRegister> offlineRegisters = new ArrayList<>(registers.size());
-        for (Register register : registers) {
-            offlineRegisters.add(new OfflineRegisterImpl(register, serviceProvider.identificationService()));
-        }
+        offlineRegisters.addAll(registers.stream().map(register -> new OfflineRegisterImpl(register, serviceProvider.identificationService())).collect(Collectors.toList()));
         return offlineRegisters;
     }
 
