@@ -6,8 +6,6 @@ import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
@@ -19,31 +17,35 @@ import java.util.Optional;
 public class DeviceFirmwareVersionInfoFactory {
     private final Thesaurus thesaurus;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceFirmwareVersionInfoFactory(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public DeviceFirmwareVersionInfoFactory(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, ResourceHelper resourceHelper) {
         this.thesaurus = thesaurus;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.resourceHelper = resourceHelper;
     }
 
     public FirmwareAppender newInfo(){
-        return new FirmwareAppender(this.thesaurus, this.deviceMessageSpecificationService);
+        return new FirmwareAppender(this.thesaurus, this.deviceMessageSpecificationService, resourceHelper);
     }
 
     public static class FirmwareAppender {
         private final Thesaurus thesaurus;
         private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+        private final ResourceHelper resourceHelper;
         private final List<DeviceFirmwareVersionInfo> firmwares;
 
-        private FirmwareAppender(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        private FirmwareAppender(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, ResourceHelper resourceHelper) {
             this.thesaurus = thesaurus;
             this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+            this.resourceHelper = resourceHelper;
             this.firmwares = new ArrayList<>();
             this.firmwares.add(new DeviceFirmwareVersionInfo(FirmwareType.METER, this.thesaurus));
             this.firmwares.add(new DeviceFirmwareVersionInfo(FirmwareType.COMMUNICATION, this.thesaurus));
         }
 
-        public FirmwareAppender addVersion(ActivatedFirmwareVersion version){
+        public FirmwareAppender addActive(ActivatedFirmwareVersion version){
             DeviceFirmwareVersionInfo.ActiveVersion activeVersion = new DeviceFirmwareVersionInfo.ActiveVersion();
             activeVersion.firmwareVersion = version.getFirmwareVersion().getFirmwareVersion();
             activeVersion.firmwareVersionStatus = new FirmwareStatusInfo(version.getFirmwareVersion().getFirmwareStatus(), thesaurus);
@@ -55,16 +57,13 @@ public class DeviceFirmwareVersionInfoFactory {
             return this;
         }
 
-        public FirmwareAppender addVersion(DeviceMessage<Device> message){
-            Optional<DeviceMessageAttribute> messageFirmwareVersion = message.getAttributes()
-                    .stream()
-                    .filter(attr -> DeviceMessageConstants.firmwareUpdateFileAttributeName.equals(attr.getName()))
-                    .findFirst();
+        public FirmwareAppender addPending(DeviceMessage<Device> message){
+            Optional<FirmwareVersion> messageFirmwareVersion = resourceHelper.getFirmwareVersionFromMessage(message);
             if (messageFirmwareVersion.isPresent()){
-                FirmwareVersion version = (FirmwareVersion) messageFirmwareVersion.get().getValue();
+                FirmwareVersion version = messageFirmwareVersion.get();
                 DeviceFirmwareVersionInfo.PendingVersion pendingVersion = new DeviceFirmwareVersionInfo.PendingVersion();
                 pendingVersion.firmwareVersion = version.getFirmwareVersion();
-                pendingVersion.firmwareDeviceMessageId = message.getDeviceMessageId().dbValue();
+                pendingVersion.firmwareDeviceMessageId = message.getId();
                 pendingVersion.plannedDate = message.getReleaseDate() != null ? message.getReleaseDate().toEpochMilli() : null;
                 Optional<ProtocolSupportedFirmwareOptions> upgradeOptionRef = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(message.getDeviceMessageId());
                 upgradeOptionRef.ifPresent(upgradeOption -> {

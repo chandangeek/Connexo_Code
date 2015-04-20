@@ -20,8 +20,8 @@ public class FirmwareMessageInfoFactory {
 
     public FirmwareMessageInfo from(DeviceMessageSpec deviceMessageSpec, Device device, String uploadOption){
         FirmwareMessageInfo info = new FirmwareMessageInfo();
-        info.id = uploadOption;
-        info.displayValue = deviceMessageSpec.getName();
+        info.uploadOption = uploadOption;
+        info.localizedValue = deviceMessageSpec.getName();
         info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty(), device);
         return info;
     }

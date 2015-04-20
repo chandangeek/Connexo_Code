@@ -3,7 +3,6 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -34,15 +33,14 @@ public class DeviceFirmwareVersionResource {
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getFirmwareVersionsOnDevice(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
-        int fuMessageCategoryId = deviceMessageSpecificationService.getFirmwareCategory().getId();
 
         DeviceFirmwareVersionInfoFactory.FirmwareAppender info = versionInfoFactory.newInfo();
-        firmwareService.getCurrentMeterFirmwareVersionFor(device).ifPresent(info::addVersion);
-        firmwareService.getCurrentCommunicationFirmwareVersionFor(device).ifPresent(info::addVersion);
+        firmwareService.getCurrentMeterFirmwareVersionFor(device).ifPresent(info::addActive);
+        firmwareService.getCurrentCommunicationFirmwareVersionFor(device).ifPresent(info::addActive);
         device.getMessages().stream()
-                .filter(message -> message.getStatus().equals(DeviceMessageStatus.PENDING) || message.getStatus().equals(DeviceMessageStatus.WAITING))
-                .filter(message -> message.getSpecification().getCategory().getId() == fuMessageCategoryId)
-                .forEach(info::addVersion);
+                .filter(resourceHelper.filterFirmwareUpgradeMessagesPredicate())
+                .filter(resourceHelper.filterPendingMessagesPredicate())
+                .forEach(info::addPending);
         return Response.ok(info).build();
     }
 }

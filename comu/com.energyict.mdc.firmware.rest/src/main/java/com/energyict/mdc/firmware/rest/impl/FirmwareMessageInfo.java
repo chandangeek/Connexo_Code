@@ -7,8 +7,8 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FirmwareMessageInfo {
-    public String id;
-    public String displayValue;
+    public String uploadOption;
+    public String localizedValue;
     public List<PropertyInfo> properties;
     public Long releaseDate;
 
