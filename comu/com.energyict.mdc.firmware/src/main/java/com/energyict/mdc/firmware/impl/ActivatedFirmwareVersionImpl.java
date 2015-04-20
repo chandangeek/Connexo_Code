@@ -12,6 +12,7 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+
 import java.time.Instant;
 
 public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
@@ -26,9 +27,13 @@ public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Interval interval;
 
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
+    @SuppressWarnings("unused")
     private String userName;
 
     private final DataModel dataModel;

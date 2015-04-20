@@ -56,9 +56,11 @@ public class FirmwareVersionImpl implements FirmwareVersion {
 
     @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
 
     private final DataModel dataModel;
