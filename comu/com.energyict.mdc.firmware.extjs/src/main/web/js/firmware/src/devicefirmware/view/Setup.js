@@ -30,7 +30,15 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
         ];
 
         me.content = {
-            ui: 'large'
+            ui: 'large',
+            itemId: 'device-firmwares',
+            defaults: {
+                margin: '0 0 20 0'
+            },
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            }
         };
 
         me.callParent(arguments);

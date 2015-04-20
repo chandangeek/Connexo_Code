@@ -1,12 +1,10 @@
 Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     extend: 'Ext.form.Panel',
     xtype: 'device-firmware-form',
-    itemId: 'device-firmware-form',
     defaults: {
         labelWidth: 200
     },
     frame: true,
-    border: true,
     minButtonWidth: 50,
     requires: [
         'Uni.util.FormErrorMessage',

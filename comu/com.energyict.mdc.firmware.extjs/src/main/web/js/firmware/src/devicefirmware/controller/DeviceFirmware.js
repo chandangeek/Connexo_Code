@@ -190,14 +190,18 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             store.getProxy().setUrl(device.get('mRID'));
             actionsStore.getProxy().setUrl(device.get('mRID'));
 
+            var container = widget.down('#device-firmwares');
             store.load({
                 callback: function (records, operation, success) {
                     if (success) {
-                        records.map(function (record) {
-                            var form = Ext.create('Fwc.devicefirmware.view.FirmwareForm', {record: record, router: router});
-                            widget.getCenterContainer().add(form);
-                        });
+                        Ext.suspendLayouts();
+                        container.removeAll();
+                        container.add(records.map(function (record) {
+                            return Ext.create('Fwc.devicefirmware.view.FirmwareForm', {record: record, router: router});
+                        }));
                         actionsStore.load();
+                        Ext.resumeLayouts();
+                        container.doLayout();
                     }
                     widget.setLoading(false);
                 }
