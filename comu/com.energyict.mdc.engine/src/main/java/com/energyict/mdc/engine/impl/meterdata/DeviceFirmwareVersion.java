@@ -13,7 +13,7 @@ import java.util.Optional;
  * Straightforward implementation of a FirmwareVersion collectedData object.
  * By default all versions are empty.
  */
-public class DeviceFirmwareVersion extends CollectedDeviceData implements CollectedFirmwareVersion {
+public class DeviceFirmwareVersion extends CollectedDeviceData implements CollectedFirmwareVersion, ServerCollectedFirmwareVersions {
 
     private final DeviceIdentifier<?> deviceDeviceIdentifier;
     private Optional<String> passiveCommunicationFirmwareVersion = Optional.empty();
@@ -72,12 +72,7 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedFirmwareVersionDeviceCommand(serviceProvider,
-                deviceDeviceIdentifier,
-                activeMeterFirmwareVersion,
-                passiveMeterFirmwareVersion,
-                activeCommunicationFirmwareVersion,
-                passiveCommunicationFirmwareVersion);
+        return new CollectedFirmwareVersionDeviceCommand(serviceProvider, this);
     }
 
     @Override
