@@ -33,12 +33,14 @@ public class UniqueDeviceLifeCycleNameValidator implements ConstraintValidator<U
     @Override
     public boolean isValid(DeviceLifeCycle deviceLifeCycle, ConstraintValidatorContext context) {
         Optional<DeviceLifeCycle> lifeCycle = this.service.findDeviceLifeCycleByName(deviceLifeCycle.getName());
-        if (lifeCycle.isPresent()) {
-            return lifeCycle.get().getId() == deviceLifeCycle.getId();
+        if (lifeCycle.isPresent() && lifeCycle.get().getId() != deviceLifeCycle.getId()){
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode("name")
+                    .addConstraintViolation();
+            return false;
         }
-        else {
-            return true;
-        }
+        return true;
     }
 
 }
