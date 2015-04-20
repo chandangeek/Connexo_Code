@@ -99,7 +99,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                             },
                                             items: {
                                                 edit: {
-                                                    title: Uni.I18n.translate('validation.editVersion', 'CFG', 'Edit version'),
+                                                    title: Uni.I18n.translate('validation.editVersion', 'CFG', 'Edit'),
                                                     route: 'edit',
                                                     controller: 'Cfg.controller.Validation',
                                                     privileges: ['privilege.administrate.validationConfiguration'],
