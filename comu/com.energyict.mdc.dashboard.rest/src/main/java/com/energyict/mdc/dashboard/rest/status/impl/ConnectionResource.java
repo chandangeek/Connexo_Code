@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.ConnectionTaskSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
@@ -271,7 +272,13 @@ public class ConnectionResource {
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId));
 
         if (connectionTask instanceof ScheduledConnectionTask) {
-            ((ScheduledConnectionTask) connectionTask).scheduleNow();
+            ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
+            scheduledConnectionTask.getScheduledComTasks().stream().
+                    filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus())).
+                    filter(comTaskExecution -> !comTaskExecution.isObsolete()).
+                    forEach(ComTaskExecution::runNow);
+
+            scheduledConnectionTask.scheduleNow();
         } else {
             throw exceptionFactory.newException(MessageSeeds.RUN_CONNECTIONTASK_IMPOSSIBLE);
         }
