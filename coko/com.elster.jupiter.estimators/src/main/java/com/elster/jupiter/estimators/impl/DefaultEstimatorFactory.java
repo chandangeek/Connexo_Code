@@ -3,6 +3,7 @@ package com.elster.jupiter.estimators.impl;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimators.MessageSeeds;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslation;
@@ -33,15 +34,17 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile ValidationService validationService;
+    private volatile MeteringService meteringService;
 
     public DefaultEstimatorFactory() {
 	}
 
     @Inject
-    public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService) {
+    public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
     	setNlsService(nlsService);
     	setPropertySpecService(propertySpecService);
         setValidationService(validationService);
+        setMeteringService(meteringService);
     }
 
     @Reference
@@ -59,11 +62,16 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
         this.validationService = validationService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     @Override
     public void install() {
         List<Translation> translations = new ArrayList<>(EstimatorDefinition.values().length);
         for (EstimatorDefinition estimatorDefinition : EstimatorDefinition.values()) {
-            IEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService);
+            IEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService);
             Translation translation = SimpleTranslation.translation(estimator.getNlsKey(), Locale.ENGLISH, estimator.getDefaultFormat());
             translations.add(translation);
             estimator.getPropertySpecs()
@@ -86,35 +94,35 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     private enum EstimatorDefinition {
         VALUE_FILL(VALUE_FILL_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
                 return new ValueFillEstimator(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService) {
+            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
                 return new ValueFillEstimator(thesaurus, propertySpecService);
             }
         },
         LINEAR_INTERPOLATION(LINEAR_INTERPOLATION_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
                 return new LinearInterpolation(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService) {
+            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
                 return new LinearInterpolation(thesaurus, propertySpecService);
             }
         },
         AVG_WITH_SAMPLES(AVG_WITH_SAMPLES_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, Map<String, Object> props) {
-                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, props);
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
+                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
             }
 
             @Override
-            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService) {
-                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService);
+            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService,MeteringService meteringService) {
+                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService);
             }
         };
 
@@ -129,9 +137,9 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
             this.implementation = implementation;
         }
 
-        abstract Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, Map<String, Object> props);
+        abstract Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props);
 
-        abstract IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService);
+        abstract IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService);
     }
 
     @Override
@@ -147,7 +155,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     public Estimator create(String implementation, Map<String, Object> props) {
         for (EstimatorDefinition definition : EstimatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.create(thesaurus, propertySpecService, validationService, props);
+                return definition.create(thesaurus, propertySpecService, validationService, meteringService, props);
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);
@@ -157,7 +165,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     public Estimator createTemplate(String implementation) {
         for (EstimatorDefinition definition : EstimatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
-                return definition.createTemplate(thesaurus, propertySpecService, validationService);
+                return definition.createTemplate(thesaurus, propertySpecService, validationService, meteringService);
             }
         }
         throw new IllegalArgumentException("Unsupported implementation " + implementation);

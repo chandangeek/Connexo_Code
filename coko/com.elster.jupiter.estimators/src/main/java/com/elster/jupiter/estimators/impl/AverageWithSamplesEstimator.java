@@ -2,7 +2,6 @@ package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
-import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -46,7 +45,7 @@ import java.util.logging.Logger;
 public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private final ValidationService validationService;
-    private final MeteringService meteringService = null;
+    private final MeteringService meteringService;
 
     static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
     static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = new BigDecimal(10);
@@ -68,14 +67,16 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private AdvanceReadingsSettings advanceReadingsSettings;
 
 
-    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService) {
+    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
         super(thesaurus, propertySpecService);
         this.validationService = validationService;
+        this.meteringService = meteringService;
     }
 
-    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, Map<String, Object> properties) {
+    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.validationService = validationService;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -118,23 +119,39 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return Collections.emptyList();
     }
 
+    private boolean isEstimatable(EstimationBlock block) {
+        if  (block.estimatables().size() > numberOfConsecutiveSuspects.intValue()) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "block cannot be estimated: maxNumberOfConsecutiveSuspects should be max "  + this.numberOfConsecutiveSuspects);
+            return false;
+        }
+        if  (block.getReadingType().isCumulative()) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "Invalid readingtype '" + block.getReadingType().getMRID() + "': only delta readingtypes can be estimated");
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
         List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
         List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
         for (EstimationBlock block : estimationBlocks) {
-            boolean succes = estimate(block);
-            if (succes) {
-                estimated.add(block);
-            } else {
+            if (!isEstimatable(block)) {
                 remain.add(block);
+            } else {
+                boolean succes = estimate(block);
+                if (succes) {
+                    estimated.add(block);
+                } else {
+                    remain.add(block);
+                }
             }
         }
         return SimpleEstimationResult.of(remain, estimated);
     }
 
     private boolean estimate(EstimationBlock estimationBlock) {
-        if (advanceReadingsSettings.equals(new BulkAdvanceReadingsSettings())) {
+        if (advanceReadingsSettings instanceof BulkAdvanceReadingsSettings) {
             return estimateWithBulk(estimationBlock);
 
         } else if (advanceReadingsSettings instanceof ReadingTypeAdvanceReadingsSettings) {
@@ -156,8 +173,11 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         }
         Instant startInterval = esimatables.get(0).getTimestamp();
         Instant endInterval = esimatables.get(esimatables.size() - 1).getTimestamp();
-        Optional<BaseReadingRecord> startBulkReading = estimationBlock.getChannel().getReading(startInterval);
-        Optional<BaseReadingRecord> endBulkReading = estimationBlock.getChannel().getReading(endInterval);
+        Channel channel = estimationBlock.getChannel();
+        Optional<BaseReadingRecord> startBulkReading =
+                channel.getReading(channel.getPreviousDateTime(startInterval));
+        Optional<BaseReadingRecord> endBulkReading =
+                channel.getReading(channel.getNextDateTime(endInterval));
         if ((!startBulkReading.isPresent()) || (!endBulkReading.isPresent())) {
             Logger.getAnonymousLogger().log(Level.WARNING, "no bulk reading available");
             return false;
@@ -193,7 +213,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private BigDecimal getTotalEstimatedConsumption(EstimationBlock estimationBlock) {
         BigDecimal total = BigDecimal.ZERO;
         for (Estimatable estimatable : estimationBlock.estimatables()) {
-            total.add(estimatable.getEstimation());
+            total = total.add(estimatable.getEstimation());
         }
         return total;
     }
@@ -261,18 +281,6 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return true;
     }
 
-    private boolean estimateWithBulk(EstimationBlock estimationBlock, Estimatable estimatable) {
-        estimatable.setEstimation(null);
-        Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
-        return true;
-    }
-
-    private boolean estimateWithDeltas(EstimationBlock estimationBlock, Estimatable estimatable) {
-        estimatable.setEstimation(null);
-        Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
-        return true;
-    }
-
     private boolean estimateWithoutAdvances(EstimationBlock estimationBlock, Estimatable estimatable) {
         Instant timeToEstimate = estimatable.getTimestamp();
         Range<Instant> period = getPeriod(estimationBlock.getChannel(), timeToEstimate);
@@ -284,8 +292,14 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             if (samples.size() >= this.maxNumberOfSamples.intValue()) {
                 samples = samples.subList(0, this.maxNumberOfSamples.intValue());
             }
-            estimatable.setEstimation(avg(samples, estimationBlock.getReadingType()));
-            Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+            BigDecimal value = avg(samples, estimationBlock.getReadingType());
+            if ((value.compareTo(BigDecimal.ZERO) >= 0) || ((value.compareTo(BigDecimal.ZERO) < 0) && (this.allowNegativeValues))) {
+                estimatable.setEstimation(value);
+                Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+            } else {
+                Logger.getAnonymousLogger().log(Level.WARNING, estimatable.getTimestamp() + ": " + estimatable.getEstimation() + ", no negative values allowed");
+                return false;
+            }
         }
         return true;
     }
