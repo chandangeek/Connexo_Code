@@ -71,6 +71,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.firmware</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
