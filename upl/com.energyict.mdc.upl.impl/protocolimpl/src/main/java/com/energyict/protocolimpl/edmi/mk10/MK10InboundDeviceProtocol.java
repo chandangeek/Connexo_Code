@@ -53,6 +53,11 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
+    public String getAdditionalInformation() {
+        return ""; //No additional info available
+    }
+
+    @Override
     public DiscoverResultType doDiscovery() {
         PushPacket packet = PushPacket.getPushPacket(readFrame());
         switch (packet.getPushPacketType()) {

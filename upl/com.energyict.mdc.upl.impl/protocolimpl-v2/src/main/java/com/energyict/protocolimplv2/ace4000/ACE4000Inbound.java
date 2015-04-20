@@ -38,6 +38,11 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         return getContext().getLogger();
     }
 
+    @Override
+    public String getAdditionalInformation() {
+        return ""; //No additional info available
+    }
+
     /**
      * Read in the inbound frames (don't ack them yet), parse them and return the result type.
      *

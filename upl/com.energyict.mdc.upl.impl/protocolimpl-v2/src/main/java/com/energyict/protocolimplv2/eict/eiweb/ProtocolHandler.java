@@ -107,6 +107,10 @@ public class ProtocolHandler {
         return this.packetBuilder.getDeviceIdentifier();
     }
 
+    public String getAdditionalInfo() {
+        return this.packetBuilder.getAdditionalInfo().toString();
+    }
+
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedData = new ArrayList<>();
         this.packetBuilder.addCollectedData(collectedData);

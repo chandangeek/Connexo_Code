@@ -22,14 +22,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -50,7 +47,7 @@ public class PacketBuilderTest {
     private static final int DEVICE_ID = 122;
 
     @Test
-    public void testParseFromUnencryptedStringValuesWithDeviceId () throws IOException {
+    public void testParseFromUnencryptedStringValuesWithDeviceId() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
 
         // Business method
@@ -66,10 +63,11 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.getSeq()).isEqualTo("FFFF");
         assertThat(packetBuilder.getVersion()).isEqualTo(1);
         assertThat(packetBuilder.getData()).isNotNull();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: 221; Serial number: null; IP address: 192.168.2.100");
     }
 
     @Test
-    public void testParseFromUnencryptedStringValuesWithStateBits () throws IOException {
+    public void testParseFromUnencryptedStringValuesWithStateBits() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
 
         // Business method
@@ -86,10 +84,11 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.getSeq()).isEqualTo("FFFF");
         assertThat(packetBuilder.getVersion()).isEqualTo(3);
         assertThat(packetBuilder.getData()).isNotNull();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: 221; Serial number: null; IP address: 192.168.2.100");
     }
 
     @Test
-    public void testParseFromUnencryptedStringValuesWithSerialNumber () throws IOException {
+    public void testParseFromUnencryptedStringValuesWithSerialNumber() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
         String serialNumber = "serial.number";
 
@@ -105,6 +104,7 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.getSeq()).isEqualTo("FFFF");
         assertThat(packetBuilder.getVersion()).isEqualTo(1);
         assertThat(packetBuilder.getData()).isNotNull();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: null; Serial number: serial.number; IP address: 192.168.2.100");
     }
 
     @Test
@@ -124,16 +124,16 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.getSeq()).isEqualTo("FFFF");
         assertThat(packetBuilder.getVersion()).isEqualTo(1);
         assertThat(packetBuilder.getData()).isNotNull();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: null; Serial number: serial.number; IP address: 192.168.2.100");
     }
 
     @Test
-    public void testParseFromUnencryptedStringValuesWithNonNumerialDeviceId () throws IOException {
+    public void testParseFromUnencryptedStringValuesWithNonNumerialDeviceId() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
 
         try {
             packetBuilder.parse("forceparsefailure", "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "0");
-        }
-        catch (CommunicationException e) {
+        } catch (CommunicationException e) {
             if (e.getCause() == null || !(e.getCause() instanceof NumberFormatException)) {
                 fail("Expected a CommunicationException with a nested NumberFormatException");
             }
@@ -146,8 +146,7 @@ public class PacketBuilderTest {
 
         try {
             packetBuilder.parse(String.valueOf(DEVICE_ID), "FFFF", "0", "0", null, "forceparsefailure", "321", "192.168.2.100", null, "0");
-        }
-        catch (CommunicationException e) {
+        } catch (CommunicationException e) {
             if (e.getCause() == null || !(e.getCause() instanceof NumberFormatException)) {
                 fail("Expected a CommunicationException with a nested NumberFormatException");
             }
@@ -160,8 +159,7 @@ public class PacketBuilderTest {
 
         try {
             packetBuilder.parse(String.valueOf(DEVICE_ID), "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "foreceparsefailure");
-        }
-        catch (CommunicationException e) {
+        } catch (CommunicationException e) {
             if (e.getCause() == null || !(e.getCause() instanceof NumberFormatException)) {
                 fail("Expected a CommunicationException with a nested NumberFormatException");
             }
@@ -169,14 +167,13 @@ public class PacketBuilderTest {
     }
 
     @Test
-    public void testParseFromUnencryptedNonNumericalStringValues () throws IOException {
+    public void testParseFromUnencryptedNonNumericalStringValues() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
 
         try {
             String deviceId = "221";
             packetBuilder.parse(deviceId, "FFFF", "0", "0", null, "1", "forceparsefailure", "192.168.2.100", null, "0");
-        }
-        catch (CommunicationException e) {
+        } catch (CommunicationException e) {
             if (e.getCause() == null || !(e.getCause() instanceof NumberFormatException)) {
                 fail("Expected a CommunicationException with a nested NumberFormatException");
             }
@@ -184,7 +181,7 @@ public class PacketBuilderTest {
     }
 
     @Test
-    public void testParseFromUnencryptedStringValuesWithoutMask () throws IOException {
+    public void testParseFromUnencryptedStringValuesWithoutMask() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
 
         // Business method
@@ -200,10 +197,11 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.getSeq()).isEqualTo("FFFF");
         assertThat(packetBuilder.getVersion()).isEqualTo(1);
         assertThat(packetBuilder.getData()).isNotNull();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: 221; Serial number: null; IP address: 192.168.2.100");
     }
 
     @Test(expected = DataEncryptionException.class)
-    public void testParseFromUnencryptedStringValuesWithTooManyChannelValues () throws IOException {
+    public void testParseFromUnencryptedStringValuesWithTooManyChannelValues() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
 
         // Business method
@@ -214,7 +212,7 @@ public class PacketBuilderTest {
     }
 
     @Test
-    public void testCollectedDataFromFromUnencryptedStringValues () throws IOException {
+    public void testCollectedDataFromFromUnencryptedStringValues() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
         packetBuilder.parse("221", "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "0");
 
@@ -225,14 +223,14 @@ public class PacketBuilderTest {
         // Assert that we have exactly one DeviceIpAddress
         assertThat(collectedData).areExactly(1, new Condition<CollectedData>() {
             @Override
-            public boolean matches (CollectedData value) {
+            public boolean matches(CollectedData value) {
                 return value instanceof DeviceIpAddress;
             }
         });
     }
 
     @Test
-    public void testIsTimeCorrectWithUnencryptedData () throws IOException {
+    public void testIsTimeCorrectWithUnencryptedData() throws IOException {
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
         packetBuilder.parse("221", "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "0");
 
@@ -243,7 +241,7 @@ public class PacketBuilderTest {
     }
 
     @Test
-    public void testParseFromUnencryptedInputStreamWithDeviceId () throws IOException {
+    public void testParseFromUnencryptedInputStreamWithDeviceId() throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         LittleEndianOutputStream leos = new LittleEndianOutputStream(os);
         byte[] versionBytes = new byte[1];
@@ -273,10 +271,11 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.getSeq()).isEqualTo("FFFF");
         assertThat(packetBuilder.getVersion()).isEqualTo(1);
         assertThat(packetBuilder.getData()).isNotNull();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: 122; Serial number: null; IP address: 0.0.0.0");
     }
 
     @Test
-    public void testParseFromUnencryptedInputStreamWithSerialNumber () throws IOException {
+    public void testParseFromUnencryptedInputStreamWithSerialNumber() throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         LittleEndianOutputStream leos = new LittleEndianOutputStream(os);
         byte[] versionBytes = new byte[1];
@@ -307,10 +306,11 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.getSeq()).isEqualTo("FFFF");
         assertThat(packetBuilder.getVersion()).isEqualTo(1);
         assertThat(packetBuilder.getData()).isNotNull();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: 0; Serial number: serial.number; IP address: 0.0.0.0");
     }
 
     @Test
-    public void testParseFromEncryptedInputStreamWithDeviceId () throws IOException {
+    public void testParseFromEncryptedInputStreamWithDeviceId() throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         LittleEndianOutputStream leos = new LittleEndianOutputStream(os);
         byte[] versionBytes = new byte[1];
@@ -343,10 +343,11 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.getSeq()).isEqualTo("2114");
         assertThat(packetBuilder.getVersion()).isEqualTo(1);
         assertThat(packetBuilder.getData()).isNotNull();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: 122; Serial number: null; IP address: 0.0.0.0");
     }
 
     @Test
-    public void testIsTimeCorrectWithEncryptedData () throws IOException {
+    public void testIsTimeCorrectWithEncryptedData() throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         LittleEndianOutputStream leos = new LittleEndianOutputStream(os);
         byte[] versionBytes = new byte[1];
@@ -374,6 +375,7 @@ public class PacketBuilderTest {
         assertThat(packetBuilder.isTimeCorrect(this.getCorrectTime())).isTrue();
         assertThat(packetBuilder.isTimeCorrect(this.getPastTime())).isFalse();
         assertThat(packetBuilder.isTimeCorrect(this.getFutureTime())).isFalse();
+        assertEquals(packetBuilder.getAdditionalInfo().toString(), "Device ID: 122; Serial number: null; IP address: 0.0.0.0");
     }
 
     private Date getPastTime() {
@@ -383,21 +385,21 @@ public class PacketBuilderTest {
         return calendar.getTime();
     }
 
-    private Date getCorrectTime () {
+    private Date getCorrectTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.set(Calendar.HOUR_OF_DAY, 14);
         calendar.set(Calendar.MINUTE, 21);
         return calendar.getTime();
     }
 
-    private Date getFutureTime () {
+    private Date getFutureTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 55);
         return calendar.getTime();
     }
 
-    private void writeEncryptedData (String values, LittleEndianOutputStream os) throws IOException {
+    private void writeEncryptedData(String values, LittleEndianOutputStream os) throws IOException {
         Device device = mock(Device.class);
 
         TypedProperties connectionTypeProperties = TypedProperties.empty();

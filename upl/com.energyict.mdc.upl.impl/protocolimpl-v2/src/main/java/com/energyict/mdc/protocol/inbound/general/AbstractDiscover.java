@@ -50,6 +50,11 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     }
 
     @Override
+    public String getAdditionalInformation() {
+        return ""; //No additional info available
+    }
+
+    @Override
     public InboundDiscoveryContext getContext () {
         return this.context;
     }

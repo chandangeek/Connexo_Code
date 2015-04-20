@@ -69,6 +69,11 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     @Override
+    public String getAdditionalInformation() {
+        return ""; //No additional info available
+    }
+
+    @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
         this.context = context;
     }

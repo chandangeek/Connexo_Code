@@ -125,6 +125,11 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     }
 
     @Override
+    public String getAdditionalInformation() {
+        return protocolHandler.getAdditionalInfo();
+    }
+
+    @Override
     public List<CollectedData> getCollectedData() {
         return this.protocolHandler.getCollectedData();
     }

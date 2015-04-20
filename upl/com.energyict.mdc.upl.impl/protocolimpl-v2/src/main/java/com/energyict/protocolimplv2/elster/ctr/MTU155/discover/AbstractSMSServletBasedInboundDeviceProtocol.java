@@ -41,6 +41,11 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     @Override
+    public String getAdditionalInformation() {
+        return ""; //No additional info available
+    }
+
+    @Override
     public String getVersion() {
         return "$Date: 2013-05-28 12:16:55 +0200 (di, 28 mei 2013) $";
     }

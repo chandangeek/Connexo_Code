@@ -76,6 +76,11 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
     }
 
     @Override
+    public String getAdditionalInformation() {
+        return ""; //No additional info available
+    }
+
+    @Override
     public List<PropertySpec> getOptionalProperties() {
         return Collections.emptyList();
     }
