@@ -1384,7 +1384,7 @@ Ext.define('Cfg.controller.Validation', {
                         editVersionPanel = me.getAddVersion();
                         form = editVersionPanel.down('#addVersionForm').getForm();
                         if (!isClone && (versionId!= null)){
-                            editVersionPanel.down('#addVersionTitle').setTitle(Ext.String.format(Uni.I18n.translate('validation.editValidationRulesetVersion', 'CFG', "Edit '{0}'?"), versionRecord.get('name')));
+                            editVersionPanel.down('#addVersionTitle').setTitle(Ext.String.format(Uni.I18n.translate('validation.editValidationRulesetVersion', 'CFG', "Edit '{0}'"), versionRecord.get('name')));
                             me.getApplication().fireEvent('loadVersion', versionRecord);
                             form.loadRecord(versionRecord);
                             var startDate = versionRecord.get('startDate');

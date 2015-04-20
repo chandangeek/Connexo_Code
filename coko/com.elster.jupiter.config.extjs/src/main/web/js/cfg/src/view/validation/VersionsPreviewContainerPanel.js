@@ -30,7 +30,7 @@ Ext.define('Cfg.view.validation.VersionsPreviewContainerPanel', {
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
-                    itemId: 'ctr-no-validation-rule',
+                    itemId: 'ctr-no-rule-set-version',
                     title: Uni.I18n.translate('validation.empty.versions.title', 'CFG', 'No validation rule set versions found'),
                     reasons: [
                         Uni.I18n.translate('validation.empty.versions.list.item1', 'CFG', 'No validation rule set versions have been added yet.')

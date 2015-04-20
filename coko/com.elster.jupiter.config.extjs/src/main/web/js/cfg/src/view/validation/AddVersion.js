@@ -63,7 +63,7 @@ Ext.define('Cfg.view.validation.AddVersion', {
                         },						
                         {
                             xtype: 'fieldcontainer',
-                            fieldLabel: Uni.I18n.translate('validationTasks.general.recurrence', 'CFG', 'Start'),
+                            fieldLabel: Uni.I18n.translate('validation.versionStart', 'CFG', 'Start'),
                             itemId: 'startPeriodContainer',
                             layout: 'hbox',
                             items: [
@@ -80,13 +80,13 @@ Ext.define('Cfg.view.validation.AddVersion', {
 									items: [
                                         {
                                             itemId: 'startPeriodNone',
-                                            boxLabel: Uni.I18n.translate('validationTasks.general.none', 'CFG', 'None'),
+                                            boxLabel: Uni.I18n.translate('validation.version.none', 'CFG', 'None'),
                                             inputValue: false,
                                             checked: true
                                         },
                                         {
                                             itemId: 'startPeriodOn',
-                                            boxLabel: Uni.I18n.translate('validationTasks.general.every', 'CFG', 'On'),
+                                            boxLabel: Uni.I18n.translate('validation.version.on', 'CFG', 'On'),
                                             inputValue: true
                                         }
                                     ]
