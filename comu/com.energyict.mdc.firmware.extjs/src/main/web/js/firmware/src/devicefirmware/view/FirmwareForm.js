@@ -135,11 +135,13 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             failedVersion = associatedData.failedVersion,
             formPending,
             formFailed,
-            formOngoing
+            formOngoing,
+            mclass = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion')
         ;
 
         me.callParent(arguments);
-        me.loadRecord(me.record.getActiveVersion());
+
+        me.loadRecord(me.record.getActiveVersion() || new mclass);
         me.setTitle(me.record.get('type'));
         formPending  = me.down('#message-pending');
         formFailed   = me.down('#message-failed');

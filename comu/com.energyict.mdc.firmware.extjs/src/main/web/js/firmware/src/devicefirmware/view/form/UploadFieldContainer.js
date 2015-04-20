@@ -40,6 +40,7 @@ Ext.define('Fwc.devicefirmware.view.form.UploadFieldContainer', {
                             uploadFileDateContainer.setValue(null);
                         } else {
                             uploadFileDateContainer.enable();
+                            uploadFileDateContainer.setValue(new Date());
                         }
                     }
                 }

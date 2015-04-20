@@ -38,7 +38,7 @@ Ext.define('Fwc.devicefirmware.view.ActionMenu', {
         me.removeAll();
         me.store.each(function (record) {
             me.add({
-                text: record.get('displayValue'),
+                text: record.get('localizedValue'),
                 itemId: record.getId(),
                 action: record.getId()
             });

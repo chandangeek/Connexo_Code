@@ -4,46 +4,25 @@ Ext.define('Fwc.devicefirmware.view.UploadForm', {
     itemId: 'device-firmware-upload-form',
     ui: 'large',
     defaults: {
-        labelWidth: 150
+        labelWidth: 250
     },
     minButtonWidth: 50,
     requires: [
-        'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
         'Fwc.devicefirmware.view.form.UploadFieldContainer'
     ],
     record: null,
-
-    dockedItems: [{
-        xtype: 'toolbar',
-        dock: 'top',
-        border: true,
-        items: {
-            xtype: 'uni-form-error-message',
-            itemId: 'form-errors',
-            hidden: true
-        }
-    }],
 
     initComponent: function () {
         var me = this;
 
         me.items = [
             {
-                xtype: 'property-form',
-
-                defaults: {
-                    xtype: 'container',
-                    layout: 'form',
-                    resetButtonHidden: true,
-                    labelWidth: 250
-                }
-            },
-            {
                 xtype: 'upload-field-container',
                 groupName: 'uploadFileContainer',
                 itemId: 'uploadFileField',
-                fieldLabel: Uni.I18n.translate('deviceFirmware.uploadFile', 'FWC', 'Upload file')
+                fieldLabel: Uni.I18n.translate('deviceFirmware.uploadFile', 'FWC', 'Upload file'),
+                margin: '0 0 20 0'
             }
         ];
 

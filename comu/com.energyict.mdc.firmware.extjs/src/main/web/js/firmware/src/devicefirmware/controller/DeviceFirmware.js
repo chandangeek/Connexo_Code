@@ -33,7 +33,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     init: function () {
         this.control({
             'device-firmware-setup device-firmware-action-menu': {
-                click: function  (menu, item) {
+                click: function (menu, item) {
                     this.getController('Uni.controller.history.Router')
                         .getRoute('devices/device/firmware/upload')
                         .forward(null, {action: item.action});
@@ -54,6 +54,63 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             },
             'device-firmware-setup button[action=cancel]': {
                 click: this.applyFilter
+            },
+            '#device-firmware-upload-form button[action=uploadFirmware]': {
+                click: this.uploadFirmware
+            }
+        });
+    },
+
+    uploadFirmware: function () {
+        var me = this,
+            uploadPage = me.getUploadPage(),
+            errorMsg = uploadPage.down('#form-errors'),
+            router = me.getController('Uni.controller.history.Router'),
+            propertyForm = uploadPage.down('property-form'),
+            messageSpec = propertyForm.getRecord(),
+            model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
+            releaseDate = uploadPage.down('#uploadFileField').getValue(),
+            timestamp = releaseDate && releaseDate.getTime(),
+            record;
+
+        uploadPage.setLoading();
+        errorMsg.hide();
+
+        model.getProxy().setUrl(router.arguments.mRID);
+
+        record = Ext.create(model, {
+            uploadOption: messageSpec.get('id'),
+            localizedValue: messageSpec.get('localizedValue'),
+            releaseDate: timestamp
+        });
+        console.log(propertyForm.isValid());
+
+        record.propertiesStore = messageSpec.properties();
+        propertyForm.updateRecord(record);
+
+
+        record.save({
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upgrade scheduled.'));
+                router.getRoute('devices/device/firmware').forward();
+            },
+            failure: function (record, resp) {
+                var response = resp.response;
+                if (response.status == 400) {
+                    var responseText = Ext.decode(response.responseText, true);
+                    if (responseText && responseText.errors) {
+                        errorMsg.show();
+                        var errorsArr = [];
+                        Ext.each(responseText.errors, function (error) {
+                            var errorKeyArr = error.id.split('.');
+                            errorKeyArr.shift(); // remove first item, as it is not presented in property
+                            errorsArr.push({id: errorKeyArr.join('.'), msg: error.msg});
+                        });
+
+                        propertyForm.getForm().markInvalid(errorsArr);
+                        uploadPage.setLoading(false);
+                    }
+                }
             }
         });
     },
@@ -155,23 +212,19 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             action = router.queryParams.action;
 
         me.loadDevice(mRID, function (device) {
-            var widget = Ext.widget('device-firmware-upload', {
-                device: device,
-                router: router
-            });
             me.getApplication().fireEvent('loadDevice', device);
-            me.getApplication().fireEvent('changecontentevent', widget);
 
-            widget.setLoading();
             messageSpecModel.getProxy().setUrl(mRID);
             messageSpecModel.load(action, {
                 success: function (record) {
-                    debugger;
+                    var widget = Ext.widget('device-firmware-upload', {
+                        device: device,
+                        router: router,
+                        title: record.get('localizedValue')
+                    });
+
+                    me.getApplication().fireEvent('changecontentevent', widget);
                     widget.down('property-form').loadRecord(record);
-                    //widget.getCenterContainer().setTitle(record.get('displayValue'));
-                },
-                callback: function () {
-                    widget.setLoading(false);
                 }
             });
         });

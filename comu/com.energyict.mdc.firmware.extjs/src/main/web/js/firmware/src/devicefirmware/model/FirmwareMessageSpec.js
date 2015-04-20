@@ -6,7 +6,7 @@ Ext.define('Fwc.devicefirmware.model.FirmwareMessageSpec', {
     ],
     fields: [
         {name: 'id', type: 'string', useNull: true},
-        {name: 'displayValue', type: 'string'}
+        {name: 'localizedValue', type: 'string'}
     ],
 
     proxy: {
