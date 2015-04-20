@@ -83,10 +83,10 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             localizedValue: messageSpec.get('localizedValue'),
             releaseDate: timestamp
         });
-        console.log(propertyForm.isValid());
 
+        propertyForm.updateRecord();
         record.propertiesStore = messageSpec.properties();
-        propertyForm.updateRecord(record);
+
 
 
         record.save({
