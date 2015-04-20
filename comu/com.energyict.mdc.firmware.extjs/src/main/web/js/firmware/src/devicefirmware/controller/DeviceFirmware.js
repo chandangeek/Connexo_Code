@@ -87,8 +87,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         propertyForm.updateRecord();
         record.propertiesStore = messageSpec.properties();
 
-
-
         record.save({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upgrade scheduled.'));
@@ -211,26 +209,31 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
     showDeviceFirmwareUpload: function (mRID) {
         var me = this,
-            router = this.getController('Uni.controller.history.Router'),
+            router = me.getController('Uni.controller.history.Router'),
+            device = Ext.ModelManager.getModel('Mdc.model.Device'),
             messageSpecModel = me.getModel('Fwc.devicefirmware.model.FirmwareMessageSpec'),
-            action = router.queryParams.action;
+            action = router.queryParams.action,
+            container = me.getContainer();
 
-        me.loadDevice(mRID, function (device) {
-            me.getApplication().fireEvent('loadDevice', device);
+        container.setLoading();
+        device.load(mRID, {
+            success: function (device) {
+                me.getApplication().fireEvent('loadDevice', device);
+                messageSpecModel.getProxy().setUrl(mRID);
+                messageSpecModel.load(action, {
+                    success: function (record) {
+                        var widget = Ext.widget('device-firmware-upload', {
+                            device: device,
+                            router: router,
+                            title: record.get('localizedValue')
+                        });
 
-            messageSpecModel.getProxy().setUrl(mRID);
-            messageSpecModel.load(action, {
-                success: function (record) {
-                    var widget = Ext.widget('device-firmware-upload', {
-                        device: device,
-                        router: router,
-                        title: record.get('localizedValue')
-                    });
-
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.down('property-form').loadRecord(record);
-                }
-            });
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        widget.down('property-form').loadRecord(record);
+                        container.setLoading(false);
+                    }
+                });
+            }
         });
     }
 });
