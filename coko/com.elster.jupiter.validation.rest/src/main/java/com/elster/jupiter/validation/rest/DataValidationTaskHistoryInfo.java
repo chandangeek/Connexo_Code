@@ -36,14 +36,14 @@ public class DataValidationTaskHistoryInfo {
     }
 
     public DataValidationTaskHistoryInfo(DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
-        populate(dataValidationOccurrence.getTask().getHistory(), dataValidationOccurrence, thesaurus);
+        populate((History<DataValidationTask>) dataValidationOccurrence.getTask().getHistory(), dataValidationOccurrence, thesaurus);
     }
 
     public DataValidationTaskHistoryInfo(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
-        populate(history, dataValidationOccurrence, thesaurus);
+        populate((History<DataValidationTask>) history, dataValidationOccurrence, thesaurus);
     }
 
-    private void populate(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
+    private void populate(History<DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
         this.id = dataValidationOccurrence.getId();
 
         this.startedOn = dataValidationOccurrence.getStartDate().map(this::toLong).orElse(null);
@@ -53,7 +53,9 @@ public class DataValidationTaskHistoryInfo {
         this.reason = dataValidationOccurrence.getFailureReason();
         this.lastRun = dataValidationOccurrence.getTriggerTime().toEpochMilli();
         setStatusOnDate(dataValidationOccurrence, thesaurus);
-        DataValidationTask version = history.getVersionAt(dataValidationOccurrence.getTriggerTime()).get();
+        DataValidationTask version = history.getVersionAt(dataValidationOccurrence.getTriggerTime())
+                .orElseGet(() -> history.getVersionAt(dataValidationOccurrence.getTask().getCreateTime())
+                        .orElseGet(dataValidationOccurrence::getTask));
         task = new DataValidationTaskInfo();
         task.populate(version);
 
