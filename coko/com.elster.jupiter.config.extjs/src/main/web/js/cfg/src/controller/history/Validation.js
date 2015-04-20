@@ -44,14 +44,6 @@ Ext.define('Cfg.controller.history.Validation', {
                                     privileges: ['privilege.administrate.validationConfiguration'],
                                     action: 'createEditRuleSet'
                                 },
-                                rules: {
-                                    title: 'Validation rules',
-                                    route: 'rules',
-                                    controller: 'Cfg.controller.Validation',
-                                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
-                                        'privilege.view.fineTuneValidationConfiguration.onDevice', 'privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
-                                    action: 'showRules'
-                                },
                                 deviceconfigurations: {
                                     title: 'Device configurations',
                                     route: 'deviceconfigurations',
@@ -88,7 +80,8 @@ Ext.define('Cfg.controller.history.Validation', {
                                             title: 'Overview',
                                             route: '{versionId}',
                                             controller: 'Cfg.controller.Validation',
-                                            privileges: ['privilege.administrate.validationConfiguration'],
+                                            privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
+                                                'privilege.view.fineTuneValidationConfiguration.onDevice', 'privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                             action: 'showVersionOverview',
                                             callback: function (route) {
                                                 this.getApplication().on('loadVersion', function (record) {
