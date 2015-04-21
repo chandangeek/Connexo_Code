@@ -70,6 +70,14 @@ Ext.define('Uni.property.view.property.BaseCombo', {
         return this.down('combobox');
     },
 
+    markInvalid: function (error) {
+        this.down('combobox').markInvalid(error);
+    },
+
+    clearInvalid: function (error) {
+        this.down('combobox').clearInvalid();
+    },
+
     initListeners: function () {
         var me = this;
         this.callParent(arguments);

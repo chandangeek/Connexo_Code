@@ -209,5 +209,19 @@ Ext.define('Uni.property.form.Property', {
      */
     getPropertyField: function (key) {
         return this.getComponent(key);
+    },
+
+    clearInvalid: function () {
+        this.items.each(function (item) {
+            item.clearInvalid();
+        });
+    },
+
+    markInvalid: function (errors) {
+        var me = this;
+
+        Ext.each(errors, function (error) {
+            me.getPropertyField(error.id).markInvalid(error.msg);
+        });
     }
 });

@@ -20,6 +20,7 @@ Ext.define('Uni.property.view.property.Base', {
 
     width: 256,
     translationKey: 'UNI',
+    resetButtonHidden: false,
 
     layout: 'hbox',
     fieldLabel: '',
@@ -27,8 +28,7 @@ Ext.define('Uni.property.view.property.Base', {
 
     items: [
         {
-            xtype: 'uni-default-button',
-            visible: true
+            xtype: 'uni-default-button'
         }
     ],
 
@@ -112,9 +112,11 @@ Ext.define('Uni.property.view.property.Base', {
      * Updates the reset button state and tooltip
      */
     updateResetButton: function () {
+        var resetButtonHidden = this.resetButtonHidden;
         var button = this.getResetButton();
 
         if (this.isEdit) {
+            button.setVisible(!resetButtonHidden);
             if(!this.getProperty().get('isInheritedOrDefaultValue')){
                 if (!this.getProperty().get('default')) {
                     button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
@@ -248,6 +250,20 @@ Ext.define('Uni.property.view.property.Base', {
      * @returns {Uni.property.view.property.Base}
      */
     getField: function () {
+        return null;
+    },
+
+    /**
+     * Marking field as invalid and undo this
+     * Implement this methods on inheritance
+     *
+     */
+
+    markInvalid: function () {
+        return null;
+    },
+
+    clearInvalid: function (error) {
         return null;
     },
 
