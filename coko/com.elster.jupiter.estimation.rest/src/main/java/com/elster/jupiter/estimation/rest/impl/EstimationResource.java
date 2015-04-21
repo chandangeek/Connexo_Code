@@ -162,15 +162,17 @@ public class EstimationResource {
                     set.setName(info.name);
                     set.setDescription(info.description);
                     set.save();
-                    long[] current = set.getRules().stream()
-                            .mapToLong(EstimationRule::getId)
-                            .toArray();
-                    long[] target = info.rules.rules.stream()
-                            .mapToLong(ruleInfo -> ruleInfo.id)
-                            .toArray();
-                    KPermutation kPermutation = KPermutation.of(current, target);
-                    if (!kPermutation.isNeutral(set.getRules())) {
-                        set.reorderRules(kPermutation);
+                    if (info.rules != null) {
+                        long[] current = set.getRules().stream()
+                                .mapToLong(EstimationRule::getId)
+                                .toArray();
+                        long[] target = info.rules.rules.stream()
+                                .mapToLong(ruleInfo -> ruleInfo.id)
+                                .toArray();
+                        KPermutation kPermutation = KPermutation.of(current, target);
+                        if (!kPermutation.isNeutral(set.getRules())) {
+                            set.reorderRules(kPermutation);
+                        }
                     }
                 });
             }
