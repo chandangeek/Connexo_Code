@@ -11,12 +11,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
-import java.time.Clock;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.IntStream;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
@@ -450,10 +451,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             if (oldEntry != null && timeSeries.getRecordSpec().derivedFieldCount() > 0) {
                 for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
                     FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
-                    if (fieldSpec.isDerived() && entry.getBigDecimal(i + 1) == null) {
-                        entry.set(i + 1, oldEntry.getBigDecimal(i + 1));
-                    }
-                    if (DoNotUpdateMarker.INSTANCE.equals(entry.getValues()[i])) {
+                    if (fieldSpec.isDerived() && isABigDecimal(entry.getValues()[i + 1])) {
                         entry.set(i + 1, oldEntry.getBigDecimal(i + 1));
                     }
                 }
@@ -463,7 +461,11 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 
         void addInserts(PreparedStatement statement, long now) throws SQLException {
             for (TimeSeriesEntryImpl entry : newEntries.values()) {
+                Object[] values = entry.getValues();
                 if (isInsert(entry)) {
+                    IntStream.range(0, values.length)
+                            .filter(i -> values[i] == DoNotUpdateMarker.INSTANCE)
+                            .forEach(i -> entry.set(i, null));
                     entry.insert(statement, now);
                     insertCount++;
                     statement.addBatch();
@@ -484,6 +486,13 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         void addUpdates(PreparedStatement updateStatement, PreparedStatement journalStatement, long now) throws SQLException {
             for (TimeSeriesEntryImpl entry : newEntries.values()) {
                 if (isUpdate(entry)) {
+                    Object[] values = entry.getValues();
+                    IntStream.range(0, values.length)
+                            .filter(i -> values[i] == DoNotUpdateMarker.INSTANCE)
+                            .forEach(i -> {
+                                TimeSeriesEntryImpl oldEntry = oldEntries.get(entry.getTimeStamp());
+                                entry.set(i, oldEntry == null ? null : oldEntry.getValues()[i]);
+                            });
                     if (journalStatement != null) {
                         entry.journal(journalStatement, now);
                         journalStatement.addBatch();
