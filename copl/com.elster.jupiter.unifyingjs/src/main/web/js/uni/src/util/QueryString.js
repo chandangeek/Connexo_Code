@@ -1,6 +1,5 @@
 /**
  * @class Uni.util.QueryString
- * @deprecated Use Uni.controller.history.Router instead
  */
 Ext.define('Uni.util.QueryString', {
     singleton: true,
@@ -26,7 +25,7 @@ Ext.define('Uni.util.QueryString', {
         var queryObjectCopy = Ext.clone(queryObject || {});
 
         for (var key in queryObject) {
-            if (queryObject.hasOwnProperty(key) && !Ext.isDefined(queryObject[key])) {
+            if (queryObject.hasOwnProperty(key) && (!Ext.isDefined(queryObject[key]) || Ext.isEmpty(queryObject[key]))) {
                 delete queryObjectCopy[key];
             }
         }
