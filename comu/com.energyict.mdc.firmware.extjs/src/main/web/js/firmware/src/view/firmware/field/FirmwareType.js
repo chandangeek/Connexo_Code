@@ -8,7 +8,7 @@ Ext.define('Fwc.view.firmware.field.FirmwareType', {
     columns: 1,
     vertical: true,
     name: 'firmwareType',
-    displayField: 'localizedValue',
+    displayField: 'displayValue',
     valueField: 'id',
     store: 'Fwc.store.FirmwareTypes'
 });

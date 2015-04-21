@@ -10,7 +10,7 @@ Ext.define('Fwc.model.Firmware', {
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.firmwareType ? data.firmwareType.localizedValue : '';
+                return data.firmwareType ? data.firmwareType.displayValue : '';
             }
         },
         {
@@ -18,7 +18,7 @@ Ext.define('Fwc.model.Firmware', {
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.firmwareStatus ? data.firmwareStatus.localizedValue : '';
+                return data.firmwareStatus ? data.firmwareStatus.displayValue : '';
             }
         }
     ],
