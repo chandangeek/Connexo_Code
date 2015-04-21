@@ -229,7 +229,7 @@ public abstract class AbstractCimChannel implements CimChannel {
         for (BaseReading reading : readings) {
             List<ReadingQualityRecordImpl> currentQualityRecords = Optional.ofNullable(readingQualityByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
             boolean alreadyHasQuality = alreadyHasQuality(currentQualityRecords, ImmutableSet.of(qualityForUpdate, qualityForCreate));
-            Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+            Optional<BaseReadingRecord> oldReading = getChannel().getReading(reading.getTimeStamp());
             ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcesStatus).orElse(ProcessStatus.of()));
             if (!alreadyHasQuality) {
                 this.createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading).save();

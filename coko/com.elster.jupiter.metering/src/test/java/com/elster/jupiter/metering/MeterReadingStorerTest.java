@@ -30,7 +30,6 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -345,13 +344,16 @@ public class MeterReadingStorerTest {
             IntervalBlockImpl block = IntervalBlockImpl.of(intervalReadingTypeCode);
             meterReading.addIntervalBlock(block);
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+
             block.addIntervalReading(IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
             block.addIntervalReading(IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
             String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
             meter.store(meterReading);
+
             Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
             IntervalReading reading = IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(50));
             channel.editReadings(ImmutableList.of(reading));
+
             List<? extends BaseReadingRecord> readings = channel.getReadings(
                     Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)));
             assertThat(readings).hasSize(2);
