@@ -71,10 +71,12 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
             releaseDate = uploadPage.down('#uploadFileField').getValue(),
             timestamp = releaseDate && releaseDate.getTime(),
+            container = me.getContainer(),
             record;
 
-        uploadPage.setLoading();
+        container.setLoading();
         errorMsg.hide();
+        propertyForm.clearInvalid();
 
         model.getProxy().setUrl(router.arguments.mRID);
 
@@ -90,6 +92,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         record.save({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upgrade scheduled.'));
+                container.setLoading(false);
                 router.getRoute('devices/device/firmware').forward();
             },
             failure: function (record, resp) {
@@ -105,9 +108,10 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                             errorsArr.push({id: errorKeyArr.join('.'), msg: error.msg});
                         });
 
-                        propertyForm.getForm().markInvalid(errorsArr);
+                        propertyForm.markInvalid(errorsArr);
                         uploadPage.setLoading(false);
                     }
+                    container.setLoading(false);
                 }
             }
         });
