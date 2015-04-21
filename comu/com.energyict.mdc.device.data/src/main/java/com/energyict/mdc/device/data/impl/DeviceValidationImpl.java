@@ -14,6 +14,9 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 import java.time.Clock;
@@ -63,6 +66,47 @@ public class DeviceValidationImpl implements DeviceValidation {
     @Override
     public boolean isValidationActive() {
         return getEvaluator().isValidationEnabled(fetchKoreMeter());
+    }
+
+    @Override
+    public void activateValidation(Instant lastChecked) {
+        Meter koreMeter = this.fetchKoreMeter();
+        if (koreMeter.hasData()) {
+            if (lastChecked == null) {
+                throw InvalidLastCheckedException.lastCheckedCannotBeNull(this.device);
+            }
+            this.getMeterActivationsMostRecentFirst(koreMeter)
+                .filter(each -> this.isEffectiveOrStartsAfterLastChecked(lastChecked, each))
+                .forEach(each -> this.applyLastChecked(lastChecked, each));
+        }
+        this.validationService.enableValidationOnStorage(koreMeter);
+        this.validationService.activateValidation(koreMeter);
+    }
+
+    private boolean isEffectiveOrStartsAfterLastChecked(Instant lastChecked, MeterActivation meterActivation) {
+        return meterActivation.isEffectiveAt(lastChecked) || meterActivation.getInterval().startsAfter(lastChecked);
+    }
+
+    private void applyLastChecked(Instant lastChecked, MeterActivation meterActivation) {
+        Optional<Instant> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
+        if (meterActivation.isCurrent()) {
+            if (meterActivationLastChecked.isPresent() && lastChecked.isAfter(meterActivationLastChecked.get())) {
+                throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.device);
+            }
+            this.validationService.updateLastChecked(meterActivation, lastChecked);
+        } else {
+            Instant lastCheckedDateToSet = this.smallest(meterActivationLastChecked.orElse(meterActivation.getStart()), lastChecked);
+            validationService.updateLastChecked(meterActivation, lastCheckedDateToSet);
+        }
+    }
+
+    private Instant smallest(Instant instant1, Instant instant2) {
+        return Ordering.natural().min(instant1, instant2);
+    }
+
+    @Override
+    public void deactivateValidation() {
+        this.validationService.deactivateValidation(this.fetchKoreMeter());
     }
 
     @Override
@@ -143,10 +187,23 @@ public class DeviceValidationImpl implements DeviceValidation {
         return getValidationStatus(register, readings, interval(readings));
     }
 
+    @Override
+    public void validateData() {
+        List<? extends MeterActivation> meterActivations = device.getMeterActivations();
+        if (!meterActivations.isEmpty()) {
+            Range<Instant> range = meterActivations.get(0).getRange();
+            ValidationEvaluator evaluator = this.validationService.getEvaluator(this.fetchKoreMeter(), range);
+            meterActivations.forEach(meterActivation -> {
+                if (!evaluator.isAllDataValidated(meterActivation)) {
+                    this.validationService.validate(meterActivation);
+                }
+            });
+        }
+    }
 
     @Override
     public void validateLoadProfile(LoadProfile loadProfile) {
-        loadProfile.getChannels().forEach(c -> this.validateChannel(c));
+        loadProfile.getChannels().forEach(this::validateChannel);
     }
 
     @Override
@@ -161,30 +218,34 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     @Override
     public boolean hasData(Channel channel) {
-        return getDevice().findKoreChannels(channel).stream()
-                .anyMatch(c -> c.hasData());
+        return getDevice()
+                .findKoreChannels(channel)
+                .stream()
+                .anyMatch(com.elster.jupiter.metering.Channel::hasData);
     }
 
     @Override
     public boolean hasData(Register<?> register) {
-        return getDevice().findKoreChannels(register).stream()
-                .anyMatch(c -> c.hasData());
+        return getDevice()
+                .findKoreChannels(register)
+                .stream()
+                .anyMatch(com.elster.jupiter.metering.Channel::hasData);
     }
 
     @Override
     public void setLastChecked(Channel channel, Instant start) {
-        getDevice().findKoreChannels(channel).stream()
-                .forEach(c -> {
-                    validationService.updateLastChecked(c, start);
-                });
+        getDevice()
+            .findKoreChannels(channel)
+            .stream()
+            .forEach(c -> this.validationService.updateLastChecked(c, start));
     }
 
     @Override
     public void setLastChecked(Register<?> register, Instant start) {
-        getDevice().findKoreChannels(register).stream()
-                .forEach(c -> {
-                    validationService.updateLastChecked(c, start);
-                });
+        getDevice()
+            .findKoreChannels(register)
+            .stream()
+            .forEach(c -> this.validationService.updateLastChecked(c, start));
     }
 
     private boolean hasActiveRules(Channel channel) {
@@ -240,17 +301,14 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private Comparator<? super Range<Instant>> byStart() {
-        return new Comparator<Range<Instant>>() {
-            @Override
-            public int compare(Range<Instant> o1, Range<Instant> o2) {
-                if (!o1.hasLowerBound()) {
-                    return !o2.hasLowerBound() ? -1 : 0;
-                }
-                if (!o2.hasLowerBound()) {
-                    return 1;
-                }
-                return o1.lowerEndpoint().compareTo(o2.lowerEndpoint());
+        return (o1, o2) -> {
+            if (!o1.hasLowerBound()) {
+                return !o2.hasLowerBound() ? -1 : 0;
             }
+            if (!o2.hasLowerBound()) {
+                return 1;
+            }
+            return o1.lowerEndpoint().compareTo(o2.lowerEndpoint());
         };
     }
 
@@ -278,6 +336,5 @@ public class DeviceValidationImpl implements DeviceValidation {
         }
         return evaluator;
     }
-
 
 }

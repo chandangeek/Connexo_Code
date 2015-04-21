@@ -1,47 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
@@ -116,6 +74,49 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -149,12 +150,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
 import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
@@ -810,23 +814,7 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public Optional<UsagePoint> getUsagePoint() {
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            return this.getUsagePointFromMeter(amrSystem);
-        }
-        else {
-            return Optional.empty();
-        }
-    }
-
-    private Optional<UsagePoint> getUsagePointFromMeter(Optional<AmrSystem> amrSystem) {
-        Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-        if (meter.isPresent()) {
-            return this.getUsagePointFromMeterActivation(meter.get());
-        }
-        else {
-            return Optional.empty();
-        }
+        return this.getOptionalMeterAspect(this::getUsagePointFromMeterActivation);
     }
 
     private Optional<UsagePoint> getUsagePointFromMeterActivation(Meter meter) {
@@ -879,19 +867,16 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval) {
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
-                List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
-                for (BaseReadingRecord reading : readings) {
-                    readingRecords.add((ReadingRecord) reading);
-                }
-                return readingRecords;
-            }
+        return this.getListMeterAspect(meter -> this.getReadingsFor(register, interval, meter));
+    }
+
+    private List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval, Meter meter) {
+        List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
+        List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
+        for (BaseReadingRecord reading : readings) {
+            readingRecords.add((ReadingRecord) reading);
         }
-        return Collections.emptyList();
+        return readingRecords;
     }
 
     List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Range<Instant> interval) {
@@ -941,15 +926,8 @@ public class DeviceImpl implements Device, CanLock {
         return Lists.reverse(loadProfileReadings);
     }
 
-    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter){
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                return meter.get().getDeviceEventsByFilter(filter);
-            }
-        }
-        return Collections.emptyList();
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
+        return this.getListMeterAspect(meter -> meter.getDeviceEventsByFilter(filter));
     }
 
     /**
@@ -1215,17 +1193,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                return this.getLastReadingsFor(register, meter.get());
-            } else {
-                return Optional.empty();
-            }
-        } else {
-            return Optional.empty();
-        }
+        return this.getOptionalMeterAspect(meter -> this.getLastReadingsFor(register, meter));
     }
 
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
@@ -1242,6 +1210,71 @@ public class DeviceImpl implements Device, CanLock {
         return Optional.empty();
     }
 
+    @Override
+    public boolean hasData() {
+        return this.getOptionalMeterAspect(this::hasData).get();
+    }
+
+    private Optional<Boolean> hasData(Meter meter) {
+        if (meter.hasData()) {
+            return Optional.of(true);
+        }
+        else {
+            return Optional.of(false);
+        }
+    }
+
+    @Override
+    public Optional<MeterActivation> getCurrentMeterActivation() {
+        return this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
+    }
+
+    private <AT> Optional<AT> getOptionalMeterAspect(Function<Meter, Optional<AT>> aspectFunction) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return aspectFunction.apply(meter.get());
+            }
+            else {
+                return Optional.empty();
+            }
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <AT> List<AT> getListMeterAspect(Function<Meter, List<AT>> aspectFunction) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return aspectFunction.apply(meter.get());
+            }
+            else {
+                return Collections.emptyList();
+            }
+        }
+        else {
+            return Collections.emptyList();
+        }
+    }
+
+    List<MeterActivation> getMeterActivations() {
+        return this.getListMeterAspect(this::getMeterActivations);
+    }
+
+    private List<MeterActivation> getMeterActivations(Meter meter) {
+        return new ArrayList<>(meter.getMeterActivations());
+    }
+
+    @Override
+    public List<MeterActivation> getMeterActivationsMostRecentFirst() {
+        return this.getListMeterAspect(this::getSortedMeterActivations);
+    }
+
     /**
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * where the most recent activations are returned first.
@@ -1249,8 +1282,8 @@ public class DeviceImpl implements Device, CanLock {
      * @param meter The Meter
      * @return The List of MeterActivation
      */
-    private List<? extends MeterActivation> getSortedMeterActivations(Meter meter) {
-        List<? extends MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
+    private List<MeterActivation> getSortedMeterActivations(Meter meter) {
+        List<MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
         Collections.reverse(meterActivations);
         return meterActivations;
     }
@@ -1260,14 +1293,15 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Instant when) {
-        Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
-        if (found.isPresent()) {
-            Optional<? extends MeterActivation> meterActivation = found.get().getMeterActivation(when);
-            if (meterActivation.isPresent()) {
-                return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
-            }
+        return this.getOptionalMeterAspect(meter -> this.findKoreChannel(meter, readingTypeSupplier, when));
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Meter meter, Supplier<ReadingType> readingTypeSupplier, Instant when) {
+        Optional<? extends MeterActivation> meterActivation = meter.getMeterActivation(when);
+        if (meterActivation.isPresent()) {
+            return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
         }
-        return Optional.empty();
+        return null;
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Channel channel) {
@@ -1279,14 +1313,14 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier) {
-        Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
-        if (found.isPresent()) {
-            return found.get().getMeterActivations().stream()
-                    .map(m -> getChannel(m, readingTypeSupplier.get()))
-                    .flatMap(asStream())
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+        return this.getListMeterAspect(meter -> this.findKoreChannels(readingTypeSupplier, meter));
+    }
+
+    private List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier, Meter meter) {
+        return meter.getMeterActivations().stream()
+                .map(m -> getChannel(m, readingTypeSupplier.get()))
+                .flatMap(asStream())
+                .collect(Collectors.toList());
     }
 
     private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
@@ -1608,18 +1642,16 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public boolean hasOpenIssues() {
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                return !this.issueService.query(OpenIssue.class).select(where("device").isEqualTo(meter.get())).isEmpty();
-            }
-            else {
-                return false;
-            }
+        return this.getOptionalMeterAspect(this::hasOpenIssues).get();
+    }
+
+    public Optional<Boolean> hasOpenIssues(Meter meter) {
+        List<OpenIssue> openIssues = this.issueService.query(OpenIssue.class).select(where("device").isEqualTo(meter));
+        if (openIssues.isEmpty()) {
+            return Optional.of(false);
         }
         else {
-            return false;
+            return Optional.of(true);
         }
     }
 
