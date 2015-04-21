@@ -154,6 +154,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
@@ -166,6 +167,7 @@ public class DeviceImpl implements Device, CanLock {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final IssueService issueService;
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final MeteringService meteringService;
@@ -226,7 +228,7 @@ public class DeviceImpl implements Device, CanLock {
     public DeviceImpl(
             DataModel dataModel,
             EventService eventService,
-            Thesaurus thesaurus,
+            IssueService issueService, Thesaurus thesaurus,
             Clock clock,
             MeteringService meteringService,
             ValidationService validationService,
@@ -241,6 +243,7 @@ public class DeviceImpl implements Device, CanLock {
             Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider, Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.issueService = issueService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
@@ -1704,14 +1707,6 @@ public class DeviceImpl implements Device, CanLock {
 
     private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
-    }
-
-    private int countUniqueEndDeviceEvents(Meter slaveMeter, List<EndDeviceEventType> eventTypes, Interval interval) {
-        Set<String> deviceEventTypes = new HashSet<>();
-        for (EndDeviceEventRecord endDeviceEvent : slaveMeter.getDeviceEvents(interval.toClosedRange(), eventTypes)) {
-            deviceEventTypes.add(endDeviceEvent.getMRID());
-        }
-        return deviceEventTypes.size();
     }
 
     private class ConnectionInitiationTaskBuilderForDevice extends ConnectionInitiationTaskImpl.AbstractConnectionInitiationTaskBuilder {

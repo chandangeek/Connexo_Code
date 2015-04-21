@@ -25,7 +25,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -56,7 +55,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void delete();
 
     /**
-     * Gets the name of the Device
+     * Gets the name of the Device.
      *
      * @return the name of the Device
      */
@@ -65,7 +64,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void setName(String name);
 
     /**
-     * Returns the receiver's DeviceType
+     * Gets the receiver's DeviceType.
      *
      * @return the receiver's DeviceType
      */
@@ -74,7 +73,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<DeviceMessage<Device>> getMessages();
 
     /**
-     * returns The released pending messages for this device
+     * Gets the released pending messages for this device.
      *
      * @return a List of all messages of this device
      */
@@ -82,21 +81,21 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
 
     /**
-     * Returns the {@link DeviceProtocolPluggableClass} configured for this device
+     * Gets the {@link DeviceProtocolPluggableClass} configured for this device.
      *
      * @return the used {@link DeviceProtocolPluggableClass}
      */
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
     /**
-     * Returns the device configuration of a device
+     * Gets the device configuration of a device.
      *
      * @return a device configuration
      */
     DeviceConfiguration getDeviceConfiguration();
 
     /**
-     * Returns the receiver's collection TimeZone.
+     * Gets the receiver's collection TimeZone.
      * This is the timeZone in which interval data is stored
      * in the database. All eiserver protocols and import modules
      * convert between device time and the configured collection TimeZone
@@ -112,14 +111,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void setYearOfCertification(Integer yearOfCertification);
 
     /**
-     * Returns the year of certification of a device
+     * Gets the year of certification of a device.
      *
      * @return a certification year
      */
     Integer getYearOfCertification();
 
     /**
-     * Returns the receiver's last modification date
+     * Gets the receiver's last modification date.
      *
      * @return the last modification timestamp.
      */
@@ -291,9 +290,19 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range);
 
     DeviceValidation forValidation();
+
+    public Optional<UsagePoint> getUsagePoint();
+
     GatewayType getConfigurationGatewayType();
 
     DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
+
+    /**
+     * Tests if there are open issues against this Device.
+     *
+     * @return A flag that indicates if there are open issues against this Device
+     */
+    public boolean hasOpenIssues();
 
     /**
      * Gets the current {@link State} of this Device.
