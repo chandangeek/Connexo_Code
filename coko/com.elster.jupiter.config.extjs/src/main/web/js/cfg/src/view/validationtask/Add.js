@@ -51,7 +51,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                         required: true,
                         //maskRe: /[^:\\/*?"<>|]/,
                         fieldLabel: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
-                        allowBlank: false,
+                        //allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
                     },
@@ -68,13 +68,13 @@ Ext.define('Cfg.view.validationtask.Add', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'device-group-combo',
-                                name: 'deviceGroup',
+                                name: 'endDeviceGroup',
                                 width: 235,
                                 store: 'Cfg.store.DeviceGroups',
                                 editable: false,
                                 disabled: false,
                                 emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
-                                allowBlank: false,
+                                //allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'id'
