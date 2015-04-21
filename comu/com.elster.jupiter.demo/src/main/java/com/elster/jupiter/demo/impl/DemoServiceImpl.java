@@ -8,6 +8,7 @@ import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand
 import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
+import com.elster.jupiter.demo.impl.commands.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
@@ -72,7 +73,8 @@ import java.time.Clock;
         "osgi.command.function=createAssignmentRules",
         "osgi.command.function=addIntervalChannelReadings",
         "osgi.command.function=addNoneIntervalChannelReadings",
-        "osgi.command.function=addRegisterReadings"
+        "osgi.command.function=addRegisterReadings",
+        "osgi.command.function=createG3Gateway"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -420,6 +422,14 @@ public class DemoServiceImpl {
     public void createA3Device(){
         executeTransaction(() -> {
             CreateA3DeviceCommand command = injector.getInstance(CreateA3DeviceCommand.class);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createG3Gateway(){
+        executeTransaction(() -> {
+            CreateG3GatewayCommand command = injector.getInstance(CreateG3GatewayCommand.class);
             command.run();
         });
     }

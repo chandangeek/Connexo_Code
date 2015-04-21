@@ -4,6 +4,7 @@ import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceTypeBuilder;
 import com.energyict.mdc.device.config.DeviceType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +38,8 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.asList(RegisterTypeTpl.BULK_A_PLUS_ALL_PHASES, RegisterTypeTpl.BULK_A_MINUS_ALL_PHASES, RegisterTypeTpl.BULK_REACTIVE_ENERGY_PLUS, RegisterTypeTpl.BULK_REACTIVE_ENERGY_MINUS),
             Arrays.asList(LoadProfileTypeTpl.ELSTER_A3_GENERIC),
             Arrays.asList(LogBookTypeTpl.GENERIC)),
+    RTU_Plus_G3 ("RTU_PLUS_G3", "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", 1, OutboundTCPComPortPoolTpl.ORANGE,
+            new ArrayList<RegisterTypeTpl>(), new ArrayList<LoadProfileTypeTpl>(), new ArrayList<LogBookTypeTpl>()),
     ;
 
     private String name;
