@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
@@ -189,6 +190,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Override
     public ReadingStorer createUpdatingStorer() {
         return ReadingStorerImpl.createUpdatingStorer(idsService, eventService);
+    }
+
+    @Override
+    public ReadingStorer createUpdatingStorer(StorerProcess process) {
+        return ReadingStorerImpl.createUpdatingStorer(idsService, eventService, process);
     }
 
     @Override

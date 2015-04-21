@@ -16,6 +16,8 @@ public interface MeteringService {
 
     ReadingStorer createUpdatingStorer();
 
+    ReadingStorer createUpdatingStorer(StorerProcess process);
+
     ReadingStorer createOverrulingStorer();
 
     ReadingStorer createNonOverrulingStorer();

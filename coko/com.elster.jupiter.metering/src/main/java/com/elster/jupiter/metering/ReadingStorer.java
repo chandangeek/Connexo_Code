@@ -35,4 +35,6 @@ public interface ReadingStorer {
      */
 
     boolean processed(Channel channel, Instant instant);
+
+    StorerProcess getStorerProcess();
 }

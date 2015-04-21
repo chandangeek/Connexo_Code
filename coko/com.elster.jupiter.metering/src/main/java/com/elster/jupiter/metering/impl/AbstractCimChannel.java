@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
@@ -208,7 +209,7 @@ public abstract class AbstractCimChannel implements CimChannel {
             return;
         }
         Map<Instant, List<ReadingQualityRecordImpl>> readingQualityByTimestamp = findReadingQualitiesByTimestamp(readings);
-        ReadingStorer storer = meteringService.createOverrulingStorer();
+        ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.ESTIMATION);
         for (BaseReading reading : readings) {
             List<ReadingQualityRecordImpl> currentQualityRecords = Optional.ofNullable(readingQualityByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
             Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
@@ -224,7 +225,7 @@ public abstract class AbstractCimChannel implements CimChannel {
 
     private void modifyReadings(List<? extends BaseReading> readings, ReadingQualityType qualityForUpdate, ReadingQualityType qualityForCreate, ProcessStatus processStatusToSet) {
         Map<Instant, List<ReadingQualityRecordImpl>> readingQualityByTimestamp = findReadingQualitiesByTimestamp(readings);
-        ReadingStorer storer = meteringService.createOverrulingStorer();
+        ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.EDIT);
         for (BaseReading reading : readings) {
             List<ReadingQualityRecordImpl> currentQualityRecords = Optional.ofNullable(readingQualityByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
             boolean alreadyHasQuality = alreadyHasQuality(currentQualityRecords, ImmutableSet.of(qualityForUpdate, qualityForCreate));

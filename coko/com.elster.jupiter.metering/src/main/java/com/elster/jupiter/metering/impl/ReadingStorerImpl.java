@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.util.Pair;
@@ -29,22 +30,28 @@ class ReadingStorerImpl implements ReadingStorer {
     private final EventService eventService;
     private final Map<Pair<Channel, Instant>, Object[]> consolidatedValues = new HashMap<>();
     private final Map<Pair<Channel, Instant>, BaseReading> readings = new HashMap<>();
+    private final StorerProcess storerProcess;
 
-    private ReadingStorerImpl(IdsService idsService, EventService eventService, UpdateBehaviour updateBehaviour) {
+    private ReadingStorerImpl(IdsService idsService, EventService eventService, UpdateBehaviour updateBehaviour, StorerProcess storerProcess) {
         this.eventService = eventService;
         this.storer = updateBehaviour.createTimeSeriesStorer(idsService);
+        this.storerProcess = storerProcess;
     }
 
     static ReadingStorer createNonOverrulingStorer(IdsService idsService, EventService eventService) {
-        return new ReadingStorerImpl(idsService, eventService, Behaviours.INSERT_ONLY);
+        return new ReadingStorerImpl(idsService, eventService, Behaviours.INSERT_ONLY, StorerProcess.DEFAULT);
     }
 
     static ReadingStorer createOverrulingStorer(IdsService idsService, EventService eventService) {
-        return new ReadingStorerImpl(idsService, eventService, Behaviours.OVERRULE);
+        return new ReadingStorerImpl(idsService, eventService, Behaviours.OVERRULE, StorerProcess.DEFAULT);
     }
 
     static ReadingStorer createUpdatingStorer(IdsService idsService, EventService eventService) {
-        return new ReadingStorerImpl(idsService, eventService, Behaviours.UPDATE);
+        return new ReadingStorerImpl(idsService, eventService, Behaviours.UPDATE, StorerProcess.DEFAULT);
+    }
+
+    static ReadingStorer createUpdatingStorer(IdsService idsService, EventService eventService, StorerProcess storerProcess) {
+        return new ReadingStorerImpl(idsService, eventService, Behaviours.UPDATE, storerProcess);
     }
 
     private interface UpdateBehaviour {
@@ -147,5 +154,10 @@ class ReadingStorerImpl implements ReadingStorer {
     @Override
     public boolean processed(Channel channel, Instant instant) {
         return storer.processed(((ChannelContract) channel).getTimeSeries(), instant);
+    }
+
+    @Override
+    public StorerProcess getStorerProcess() {
+        return storerProcess;
     }
 }
