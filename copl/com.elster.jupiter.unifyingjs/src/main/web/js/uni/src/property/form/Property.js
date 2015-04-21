@@ -108,7 +108,7 @@ Ext.define('Uni.property.form.Property', {
             me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
         });
 
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
 
         me.initialised = true;
     },
