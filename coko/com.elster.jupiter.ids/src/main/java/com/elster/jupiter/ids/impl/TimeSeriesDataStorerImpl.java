@@ -415,7 +415,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             boolean result = false;
             for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
                 FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
-                if (fieldSpec.isDerived() && (DoNotUpdateMarker.INSTANCE.equals(current.getValues()[i]) || current.getBigDecimal(i) == null)) {
+                if (fieldSpec.isDerived() && isABigDecimal(current.getValues()[i]) && isABigDecimal(previous.getValues()[i + 1])) {
                     BigDecimal currentValue = current.getBigDecimal(i + 1);
                     if (currentValue != null) {
                         BigDecimal previousValue = previous.getBigDecimal(i + 1);
@@ -427,6 +427,10 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                 }
             }
             return result;
+        }
+
+        private boolean isABigDecimal(Object o) {
+            return o == null || DoNotUpdateMarker.INSTANCE.equals(o);
         }
 
         private TimeSeriesEntryImpl previous(TimeSeriesEntryImpl current, TimeSeriesEntryImpl guess) {
