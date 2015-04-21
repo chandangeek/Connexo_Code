@@ -136,8 +136,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
             throw new CannotDeleteWhileBusy();
         }
 
-        dataModel.remove(this);
         dataModel.mapper(DataValidationOccurrence.class).remove(getOccurrences());
+        dataModel.remove(this);
         if (recurrentTask.isPresent()) {
             recurrentTask.get().delete();
         }
