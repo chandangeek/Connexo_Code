@@ -58,8 +58,8 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, device.getmRID(), loadProfileId));
     }
 
-    public Channel findChannelOnDeviceOrThrowException(String mrid, long channelId){
-        Device device = this.findDeviceByMrIdOrThrowException(mrid);
+    public Channel findChannelOnDeviceOrThrowException(String mRID, long channelId){
+        Device device = this.findDeviceByMrIdOrThrowException(mRID);
         return this.findChannelOnDeviceOrThrowException(device, channelId);
     }
 
