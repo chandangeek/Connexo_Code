@@ -259,7 +259,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void execute(ServerMicroAction action, Device device) {
-
+        action.execute(device);
     }
 
     @Override

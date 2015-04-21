@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 /**
@@ -10,4 +11,12 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
  * @since 2015-03-23 (09:58)
  */
 public interface ServerMicroAction {
+
+    /**
+     * Executes this Action on the specified {@link Device}.
+     *
+     * @param device The Device
+     */
+    public void execute(Device device);
+
 }
