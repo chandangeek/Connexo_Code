@@ -141,7 +141,7 @@ public class FirmwareVersionResource {
         return Response.ok().build();
     }
 
-    @PUT
+    @POST
     @Path("/{id}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

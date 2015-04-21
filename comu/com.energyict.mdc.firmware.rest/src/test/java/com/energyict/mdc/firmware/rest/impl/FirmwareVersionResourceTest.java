@@ -148,7 +148,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
             .field("firmwareStatus", FirmwareStatus.FINAL.getStatus())
             .bodyPart(new FileDataBodyPart("firmwareFile", File.createTempFile("prefix", "suffix"))).close();
 
-        Response response = target("devicetypes/1/firmwares/1").request().put(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
+        Response response = target("devicetypes/1/firmwares/1").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
         verify(firmwareService).saveFirmwareVersion(firmwareVersion);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
