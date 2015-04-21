@@ -1,17 +1,31 @@
 package com.elster.jupiter.estimation;
 
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_ESTIMATOR(1001, Constants.NO_SUCH_ESTIMATOR, "Estimator {0} does not exist.", Level.SEVERE),
-    MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE);
+    MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE),
 
+    CAN_NOT_BE_EMPTY(1, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
+    INVALID_CHARS(2, Constants.INVALID_CHARS, "This field contains invalid characters", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_80(3, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_256(4, Constants.FIELD_SIZE_BETWEEN_1_AND_4000, "Field's text length should be between 1 and 4000 symbols", Level.SEVERE),
+
+    DUPLICATE_ESTIMATION_RULE_SET(101, Constants.DUPLICATE_ESTIMATION_RULE_SET, "Name must be unique", Level.SEVERE),
+    DUPLICATE_ESTIMATION_RULE(102, Constants.DUPLICATE_ESTIMATION_RULE, "Name must be unique", Level.SEVERE),
+    
+    ESTIMATOR_PROPERTY_NOT_IN_SPEC(1005, Constants.ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY, "The estimator ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
+    ESTIMATOR_PROPERTY_INVALID_VALUE(1006, Constants.ESTIMATOR_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of estimator ''{2}''", Level.SEVERE),
+    ESTIMATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of estimator ''{1}''", Level.SEVERE),
+
+    ;
+    
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -61,17 +75,17 @@ public enum MessageSeeds implements MessageSeed {
 
     public enum Constants {
         ;
-//        public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
-//        public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
-//        public static final String INVALID_CHARS = "InvalidChars";
+        public static final String DUPLICATE_ESTIMATION_RULE_SET = "DuplicateEstimationRuleSet";
+        public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
+        public static final String INVALID_CHARS = "InvalidChars";
         public static final String NO_SUCH_ESTIMATOR = "NoSuchEstimator";
-//        public static final String DUPLICATE_VALIDATION_RULE = "DuplicateValidationRule";
-//        public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
-//        public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
-//        public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
-//        public static final String VALIDATOR_PROPERTY_NOT_IN_SPEC_KEY = "ValidatorPropertyXIsNotInSpec";
-//        public static final String VALIDATOR_PROPERTY_INVALID_VALUE_KEY = "ValidatorPropertyValueInvalid";
-//        public static final String VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY = "ValidatorPropertyRequired";
+        public static final String DUPLICATE_ESTIMATION_RULE = "DuplicateEstimationRule";
+        public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
+        public static final String ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY = "EstimatorPropertyXIsNotInSpec";
+        public static final String ESTIMATOR_PROPERTY_INVALID_VALUE_KEY = "EstimatorPropertyValueInvalid";
+        public static final String ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY = "EstimatorPropertyRequired";
     }
 }
 

@@ -1,28 +1,5 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.estimation.EstimationRuleProperties;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.collections.ArrayDiffList;
-import com.elster.jupiter.util.collections.DiffList;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,17 +10,48 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.estimation.EstimationRuleProperties;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.estimation.MessageSeeds.Constants;
+import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.collections.ArrayDiffList;
+import com.elster.jupiter.util.collections.DiffList;
+
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_ESTIMATION_RULE + "}")
+@HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 class EstimationRuleImpl implements IEstimationRule {
     private long id;
 
-//    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-//    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
     private boolean active;
-//    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-//    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-//    @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
-    private String implementation; //validator classname
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @ExistingEstimator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_ESTIMATOR + "}")
+    private String implementation; //estimator class name
     private Instant obsoleteTime;
 
     private long version;
@@ -51,8 +59,8 @@ class EstimationRuleImpl implements IEstimationRule {
     private Instant modTime;
     private String userName;
     // associations
-//    @Valid
-//    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Valid
+    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     private List<ReadingTypeInEstimationRule> readingTypesInRule = new ArrayList<>();
 
     private Reference<EstimationRuleSet> ruleSet = ValueReference.absent();
