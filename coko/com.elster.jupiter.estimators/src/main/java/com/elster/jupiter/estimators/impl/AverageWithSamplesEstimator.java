@@ -408,5 +408,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             return new Long(dif1).compareTo(new Long(dif2));
         }
     }
+
+    public void validateProperties() {
+
+    }
 }
 
