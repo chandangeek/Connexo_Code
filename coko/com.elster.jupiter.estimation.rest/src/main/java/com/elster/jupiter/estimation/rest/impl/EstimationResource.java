@@ -162,7 +162,7 @@ public class EstimationResource {
                     set.setName(info.name);
                     set.setDescription(info.description);
                     set.save();
-                    if (info.rules != null) {
+                    if ((info.rules != null) && (!info.rules.rules.isEmpty())) {
                         long[] current = set.getRules().stream()
                                 .mapToLong(EstimationRule::getId)
                                 .toArray();
