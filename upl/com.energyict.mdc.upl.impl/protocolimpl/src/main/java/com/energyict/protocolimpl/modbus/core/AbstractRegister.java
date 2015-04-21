@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -42,7 +43,7 @@ public class AbstractRegister {
     private String parser=null;
     
     private int scale;
-    
+
     /** Creates a new instance of AbstractRegister */
     public AbstractRegister(int reg,int range,ObisCode obisCode) {
        this(reg,range,obisCode,Unit.get(""),obisCode.getDescription());    
@@ -108,8 +109,6 @@ public class AbstractRegister {
         this.unit = unit;
     }
     
-    
-    
     public AbstractRegisterFactory getRegisterFactory() {
         return registerFactory;
     }
@@ -119,39 +118,84 @@ public class AbstractRegister {
     }
     
     public ReadHoldingRegistersRequest getReadHoldingRegistersRequest() throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getReadHoldingRegistersRequest(getReg()-(getRegisterFactory().isZeroBased()?1:0),getRange());
+		final int register = getReg()-(getRegisterFactory().isZeroBased()?1:0);
+		try {
+			final ReadHoldingRegistersRequest request = getRegisterFactory().getFunctionCodeFactory().getReadHoldingRegistersRequest(register, getRange());
+			return request;
+		} catch (IOException e) {
+			throw new NestedIOException(e, "IOException while reading holding register [" + register + "] with range [" + getRange() + "]");
+		}
     }
 
     public ReadInputRegistersRequest getReadInputRegistersRequest() throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getReadInputRegistersRequest(getReg()-(getRegisterFactory().isZeroBased()?1:0),getRange());
-    }
+		final int register = getReg()-(getRegisterFactory().isZeroBased()?1:0);
+		try {
+			final ReadInputRegistersRequest request = getRegisterFactory().getFunctionCodeFactory().getReadInputRegistersRequest(register, getRange());
+			return request;
+		} catch (IOException e) {
+            throw new NestedIOException(e, "IOException while reading input register [" + register + "] with range [" + getRange() + "]");
+		}
+	}
 
     public ReadHoldingRegistersRequest getReadCoilStatusRequest() throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getReadHoldingRegistersRequest(getReg()-(getRegisterFactory().isZeroBased()?1:0),getRange());
-    }
+		final int register = getReg()-(getRegisterFactory().isZeroBased()?1:0);
+		try {
+			return getRegisterFactory().getFunctionCodeFactory().getReadHoldingRegistersRequest(register, getRange());
+		} catch (IOException e) {
+            throw new NestedIOException(e, "IOException while reading coil status [" + register + "] with range [" + getRange() + "]");
+		}
+	}
 
     public WriteSingleRegister getWriteSingleRegister(int writeRegisterValue) throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getWriteSingleRegister(getReg()-(getRegisterFactory().isZeroBased()?1:0), writeRegisterValue);
+        final int register = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getWriteSingleRegister(register, writeRegisterValue);
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while writing register [" + register + "]");
+        }
     }
     
     public WriteMultipleRegisters getWriteMultipleRegisters(byte[] registerValues) throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getWriteMultipleRegisters(getReg()-(getRegisterFactory().isZeroBased()?1:0), getRange(), registerValues);
+        final int register = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getWriteMultipleRegisters(register, getRange(), registerValues);
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while writing register [" + register + "] with range [" + getRange() + "]");
+        }
     }
     
     public ReportSlaveId getReportSlaveId() throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId();
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId();
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while reading slave ID");
+        }
     }
 
     public ReadStatuses getCoilStatuses() throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getReadCoilStatuses(getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0), getRange());
+        final int register = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getReadCoilStatuses(register, getRange());
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while reading coil statuses [" + register + "] with range [" + getRange() + "]");
+        }
     }
 
     public ReadStatuses getInputStatuses() throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getReadInputStatuses(getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0), getRange());
+        final int register = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getReadInputStatuses(register, getRange());
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while reading input statuses [" + register + "] with range [" + getRange() + "]");
+        }
     }
     
     public ReadDeviceIdentification getReadDeviceIdentification(int readDeviceIdCode, int objectID) throws IOException {
-        return getRegisterFactory().getFunctionCodeFactory().getReadDeviceIdentification(readDeviceIdCode, objectID);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getReadDeviceIdentification(readDeviceIdCode, objectID);
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while reading device identification [" + objectID + "]");
+        }
     }
     
     public Date dateValue() throws IOException {
