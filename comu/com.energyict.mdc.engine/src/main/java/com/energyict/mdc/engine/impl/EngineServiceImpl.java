@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemType;
 import com.energyict.mdc.io.SerialComponentService;
@@ -116,10 +117,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
+    private volatile FirmwareService firmwareService;
+    private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
+
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
-
-    private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
 
     public EngineServiceImpl() {
@@ -136,7 +138,8 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
             SerialComponentService serialATComponentService,
-            IdentificationService identificationService) {
+            IdentificationService identificationService,
+            FirmwareService firmwareService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -161,6 +164,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         this.setStatusService(statusService);
         this.setManagementBeanFactory(managementBeanFactory);
         this.addIdentificationService(identificationService);
+        this.setFirmwareService(firmwareService);
         this.install();
         this.activate(bundleContext);
     }
@@ -326,6 +330,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     public void addIdentificationService(IdentificationService identificationService) {
         this.identificationService.set(identificationService);
+    }
+
+    @Reference
+    public void setFirmwareService(FirmwareService firmwareService){
+        this.firmwareService = firmwareService;
     }
 
     @SuppressWarnings("unused")
@@ -663,6 +672,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         }
 
         @Override
+        public FirmwareService getFirmwareService() {
+            return firmwareService;
+        }
+
+        @Override
         public Clock clock() {
             return clock;
         }
@@ -710,6 +724,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         @Override
         public IdentificationService identificationService() {
             return identificationService;
+        }
+
+        @Override
+        public FirmwareService firmwareService() {
+            return firmwareService;
         }
     }
 

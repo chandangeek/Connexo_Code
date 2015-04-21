@@ -3,10 +3,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.meterdata.ServerCollectedFirmwareVersions;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -14,15 +12,16 @@ import java.util.function.Consumer;
  */
 public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl {
 
-    private final ServerCollectedFirmwareVersions collectedFirmwareVersions;
+    private final CollectedFirmwareVersion collectedFirmwareVersions;
 
-    public CollectedFirmwareVersionDeviceCommand(ServiceProvider serviceProvider, ServerCollectedFirmwareVersions collectedFirmwareVersions) {
+    public CollectedFirmwareVersionDeviceCommand(ServiceProvider serviceProvider, CollectedFirmwareVersion collectedFirmwareVersions) {
         super(serviceProvider);
         this.collectedFirmwareVersions = collectedFirmwareVersions;
     }
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
+        DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions = comServerDAO.updateFirmwareVersions(collectedFirmwareVersions);
         //TODO comServerDOA.getOfflineFirmwareVersions(deviceIdentifier)
     }
 

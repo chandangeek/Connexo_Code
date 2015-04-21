@@ -13,7 +13,7 @@ import java.util.Optional;
  * Straightforward implementation of a FirmwareVersion collectedData object.
  * By default all versions are empty.
  */
-public class DeviceFirmwareVersion extends CollectedDeviceData implements CollectedFirmwareVersion, ServerCollectedFirmwareVersions {
+public class DeviceFirmwareVersion extends CollectedDeviceData implements CollectedFirmwareVersion {
 
     private final DeviceIdentifier<?> deviceDeviceIdentifier;
     private Optional<String> passiveCommunicationFirmwareVersion = Optional.empty();

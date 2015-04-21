@@ -21,6 +21,7 @@ import com.energyict.mdc.engine.impl.core.RunningRemoteComServerImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -293,6 +294,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public IdentificationService identificationService() {
             return serviceProvider.identificationService();
+        }
+
+        @Override
+        public FirmwareService firmwareService() {
+            return serviceProvider.firmwareService();
         }
 
     }
