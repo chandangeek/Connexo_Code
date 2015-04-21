@@ -132,17 +132,21 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     },
 
     doCancelUpgrade: function (btn) {
-        var form = btn.up('form'),
-            record = form.getRecord(),
-            router = this.getController('Uni.controller.history.Router'),
-            model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
-            devicemessageId = 1; // todo: replace on assoceiated data
+        var me = this,
+            form = btn.up('form'),
+            record = form.down('#message-pending').record,
+            router = me.getController('Uni.controller.history.Router'),
+            Model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
+            devicemessageId = record.firmwareDeviceMessageId,
+            message = new Model();
 
         form.setLoading();
-        model.getProxy().setUrl(router.arguments.mRID);
-        model.load(devicemessageId, {
-            success: function (devicemessage) {
-                devicemessage.destroy();
+        message.getProxy().setUrl(router.arguments.mRID);
+        message.setId(devicemessageId);
+        message.destroy({
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.cancelled', 'FWC', 'Firmware upgrade cancelled.'));
+                router.getRoute().forward();
             },
             callback: function () {
                 form.setLoading(false);

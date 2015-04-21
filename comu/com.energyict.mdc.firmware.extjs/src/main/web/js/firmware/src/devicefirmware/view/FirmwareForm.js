@@ -134,18 +134,19 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formPending,
             formFailed,
             formOngoing,
-            mclass = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion')
+            FirmwareVersion = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion')
         ;
 
         me.callParent(arguments);
 
-        me.loadRecord(me.record.getActiveVersion() || new mclass);
+        me.loadRecord(me.record.getActiveVersion() || new FirmwareVersion({firmwareVersion: Uni.I18n.translate('device.firmware.version.unknown', 'FWC', 'Unknown')}));
         me.setTitle(me.record.get('type'));
         formPending  = me.down('#message-pending');
         formFailed   = me.down('#message-failed');
         formOngoing  = me.down('#message-ongoing');
 
         if (pendingVersion) {
+            formPending.record = pendingVersion;
             formPending.show();
             formPending.setText(Uni.I18n.translate('device.firmware.deprecated.message', 'FWC', 'Firmware version {0} will be uploaded to device on {1}', [
                 pendingVersion.firmwareVersion,
@@ -154,6 +155,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         }
 
         if (failedVersion) {
+            formFailed.record = failedVersion;
             formFailed.show();
             formFailed.setText(Uni.I18n.translate('device.firmware.failed.message', 'FWC', 'Failed to upload version {0} to the device', [
                 failedVersion.firmwareVersion
@@ -161,6 +163,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         }
 
         if (ongoingVersion) {
+            formOngoing.record = ongoingVersion;
             formOngoing.show();
             formOngoing.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Firmware version {0} has been uploaded to the device and will be activated on {1}', [
                 ongoingVersion.firmwareVersion,
