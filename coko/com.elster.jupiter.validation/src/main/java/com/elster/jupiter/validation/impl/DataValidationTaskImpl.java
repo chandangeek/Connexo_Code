@@ -20,7 +20,7 @@ import com.elster.jupiter.validation.*;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
-
+import org.hibernate.validator.constraints.NotEmpty;
 
 
 import javax.inject.Inject;
@@ -41,9 +41,9 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private long id;
     private final String uuid = UUID.randomUUID().toString().replaceAll("-", "");
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @Pattern(regexp="[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.INVALID_CHARS +"}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Pattern(regexp="^$|[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.INVALID_CHARS +"}")
     private String name;
 
     private final TaskService taskService;
@@ -282,7 +282,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
                 .setName(uuid)
                 .setDestination(dataValidationService.getDestination())
                 .setScheduleExpression(scheduleExpression)
-                .setPayLoad(getName());
+                .setPayLoad(uuid);
         if (scheduleImmediately) {
             builder.scheduleImmediately();
         }
