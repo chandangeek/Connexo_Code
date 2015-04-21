@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -21,6 +23,23 @@ public interface DeviceValidation {
     public ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities);
 
     boolean isValidationActive();
+
+    /**
+     * Activates the validation on the Device and sets the last checked
+     * date to the specified instant in time.
+     * Note that the last checked timestamp is only required
+     * when the Device already has data.
+     *
+     * @param lastChecked The last checked timestamp
+     * @throws InvalidLastCheckedException Thrown when lastChecked timestamp is <code>null</code>
+     *                                     or after the last checked timestamp of the Device's current meter activation
+     */
+    void activateValidation(Instant lastChecked);
+
+    /**
+     * Deactivates the validation on the Device.
+     */
+    void deactivateValidation();
 
     boolean isValidationActive(Channel channel, Instant when);
 
@@ -44,7 +63,9 @@ public interface DeviceValidation {
 
     List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings);
 
-    void validateLoadProfile(LoadProfile loadProfile); 
+    void validateData();
+
+    void validateLoadProfile(LoadProfile loadProfile);
 
     void validateChannel(Channel channel);
 
@@ -57,4 +78,5 @@ public interface DeviceValidation {
     void setLastChecked(Channel c, Instant start);
 
     void setLastChecked(Register<?> c, Instant start);
+
 }

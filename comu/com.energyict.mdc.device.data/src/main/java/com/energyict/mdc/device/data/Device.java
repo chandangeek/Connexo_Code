@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.energyict.mdc.common.ComWindow;
@@ -166,6 +168,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @param meterReading the meterReadings which will be stored
      */
     void store(MeterReading meterReading);
+
+    boolean hasData();
+
+    Optional<? extends MeterActivation> getCurrentMeterActivation();
+
+    List<MeterActivation> getMeterActivationsMostRecentFirst();
 
     /**
      * Gets a list of all device multipliers that were active for a device
