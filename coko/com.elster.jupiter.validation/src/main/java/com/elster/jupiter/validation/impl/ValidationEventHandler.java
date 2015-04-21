@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.validation.ValidationService;
@@ -38,7 +39,9 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     protected void onEvent(LocalEvent event, Object... eventDetails) {
         if (event.getType().getTopic().equals(CREATEDTOPIC)) {
             ReadingStorer storer = (ReadingStorer) event.getSource();
-            handleReadingStorer(storer);
+            if (StorerProcess.DEFAULT.equals(storer.getStorerProcess())) {
+                handleReadingStorer(storer);
+            }
         }
         if (event.getType().getTopic().equals(REMOVEDTOPIC)) {
         	Channel.ReadingsDeletedEvent deleteEvent = (Channel.ReadingsDeletedEvent) event.getSource();

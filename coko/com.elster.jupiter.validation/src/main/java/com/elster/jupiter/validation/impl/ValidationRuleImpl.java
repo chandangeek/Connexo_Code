@@ -18,11 +18,13 @@ import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
 import com.google.common.collect.ImmutableMap;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,8 +40,9 @@ import java.util.Set;
 public final class ValidationRuleImpl implements IValidationRule {
     private long id;
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Pattern(regexp="^$|[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.INVALID_CHARS +"}")
     private String name;
     private boolean active;
     private ValidationAction action;

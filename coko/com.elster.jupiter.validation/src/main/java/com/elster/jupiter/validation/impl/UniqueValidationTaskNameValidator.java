@@ -28,12 +28,12 @@ public class UniqueValidationTaskNameValidator implements ConstraintValidator<Un
 
     @Override
     public boolean isValid(DataValidationTask task, ConstraintValidatorContext context) {
-        return task == null || checkExisting(task, context);
+        return task == null || !checkExisting(task, context);
     }
 
     private boolean checkExisting(DataValidationTask task, ConstraintValidatorContext context) {
         Optional<DataValidationTask> found = validationService.findValidationTaskByName(task.getName());
-        if (!found.isPresent() || !areDifferentWithSameName(task, found.get())) {
+        if (found.isPresent() && areDifferentWithSameName(task, found.get())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
             return true;
