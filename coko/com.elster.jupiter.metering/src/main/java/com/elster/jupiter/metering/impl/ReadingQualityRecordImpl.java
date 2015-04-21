@@ -216,7 +216,12 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     public boolean isActual() {
     	return actual;
     }
-    
+
+    @Override
+    public boolean hasEstimatedCategory() {
+        return hasQualityCodeCategory(QualityCodeCategory.ESTIMATED);
+    }
+
     public class LocalEventSource {
         private final ReadingQualityRecordImpl readingQuality;
 

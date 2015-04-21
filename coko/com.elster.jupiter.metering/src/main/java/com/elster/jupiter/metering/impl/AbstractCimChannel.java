@@ -235,6 +235,7 @@ public abstract class AbstractCimChannel implements CimChannel {
                 this.createReadingQuality(oldReading.isPresent() ? qualityForUpdate : qualityForCreate, reading).save();
             }
             makeNoLongerSuspect(currentQualityRecords);
+            makeNoLongerEstimated(currentQualityRecords);
             storer.addReading(this, reading, processStatus);
         }
         storer.execute();
@@ -256,7 +257,14 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .filter(ReadingQualityRecordImpl::isSuspect)
                 .forEach(ReadingQualityRecordImpl::delete);
         currentQualityRecords.stream()
+                .filter(ReadingQualityRecord::isActual)
                 .filter(either(ReadingQualityRecord::hasValidationCategory).or(ReadingQualityRecord::isMissing))
+                .forEach(ReadingQualityRecordImpl::makePast);
+    }
+
+    private void makeNoLongerEstimated(List<ReadingQualityRecordImpl> currentQualityRecords) {
+        currentQualityRecords.stream()
+                .filter(ReadingQualityRecordImpl::hasEstimatedCategory)
                 .forEach(ReadingQualityRecordImpl::makePast);
     }
 

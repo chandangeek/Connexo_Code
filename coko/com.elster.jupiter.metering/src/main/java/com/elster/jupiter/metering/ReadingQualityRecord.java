@@ -44,4 +44,6 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
     void makeActual();
 
 	boolean hasReasonabilityCategory();
+
+    boolean hasEstimatedCategory();
 }
