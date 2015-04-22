@@ -72,7 +72,7 @@ public class MeterReadingEvent implements IssueEvent {
                         readingType);
         if (!isValidReadings(readings, trendPeriodInMillis)) {
             //Nothing to do because at least two measurement points needed
-            LOG.log(Level.INFO, "Device '" + getEndDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
+            LOG.log(Level.INFO, "Device '" + getEndDevice().getMRID() + "' doesn't have enough readings (only " + readings.size() + ")");
             return 0d;
         }
 
