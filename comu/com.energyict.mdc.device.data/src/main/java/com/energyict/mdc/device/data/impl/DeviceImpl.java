@@ -834,7 +834,15 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Meter createKoreMeter() {
-        return this.createKoreMeter(this.getMdcAmrSystem().orElseThrow(() -> new RuntimeException("The MDC AMR system does not exist")));
+        return this.createKoreMeter(this.getMdcAmrSystem().orElseThrow(this.mdcAMRSystemDoesNotExist()));
+    }
+
+    private Supplier<RuntimeException> mdcAMRSystemDoesNotExist() {
+        return () -> new RuntimeException("The MDC AMR system does not exist");
+    }
+
+    private Supplier<IllegalStateException> noMeterActivationAt(Instant timestamp) {
+        return () -> new IllegalStateException("No meter activation found on " + timestamp);
     }
 
     Meter createKoreMeter(AmrSystem amrSystem) {
@@ -865,11 +873,10 @@ public class DeviceImpl implements Device, CanLock {
 
     private List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval, Meter meter) {
         List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
-        List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
-        for (BaseReadingRecord reading : readings) {
-            readingRecords.add((ReadingRecord) reading);
-        }
-        return readingRecords;
+        return readings
+                .stream()
+                .map(ReadingRecord.class::cast)
+                .collect(Collectors.toList());
     }
 
     List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Range<Instant> interval) {
@@ -957,7 +964,10 @@ public class DeviceImpl implements Device, CanLock {
                             if (loadProfileReading != null) {
                                 loadProfileReading.setDataValidationStatus(mdcChannel, s);
                                 //code below is the processing of removed readings
-                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities().stream().filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED))).findAny();
+                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities()
+                                        .stream()
+                                        .filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)))
+                                        .findAny();
                                 if (readingQuality.isPresent()) {
                                     loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
                                 }
@@ -1278,6 +1288,28 @@ public class DeviceImpl implements Device, CanLock {
         return meterActivations;
     }
 
+    /**
+     * Ensures that there is a MeterActivation at the specified instant in time.
+     *
+     * @param when The Instant in time
+     */
+    void ensureActiveOn(Instant when) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Meter meter = this.findKoreMeter(amrSystem.get()).get();
+            if (meter.getMeterActivations().isEmpty()) {
+                meter.activate(when);
+            }
+        }
+        else {
+            throw this.mdcAMRSystemDoesNotExist().get();
+        }
+    }
+
+    Optional<MeterActivation> getMeterActivation(Instant when) {
+        return this.getOptionalMeterAspect(meter -> meter.getMeterActivation(when).map(MeterActivation.class::cast));
+    }
+
     Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Instant when) {
         return findKoreChannel(channel::getReadingType, when);
     }
@@ -1291,7 +1323,9 @@ public class DeviceImpl implements Device, CanLock {
         if (meterActivation.isPresent()) {
             return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
         }
-        return null;
+        else {
+            return Optional.empty();
+        }
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Channel channel) {
@@ -1299,11 +1333,22 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?> register) {
-        return findKoreChannels(() -> register.getReadingType());
+        return findKoreChannels(register::getReadingType);
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier) {
         return this.getListMeterAspect(meter -> this.findKoreChannels(readingTypeSupplier, meter));
+    }
+
+    com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, Register<?> register) {
+        Optional<MeterActivation> meterActivation = this.getMeterActivation(when);
+        if (meterActivation.isPresent()) {
+            return this.getChannel(meterActivation.get(), register.getReadingType())
+                  .orElse(meterActivation.get().createChannel(register.getReadingType()));
+        }
+        else {
+            throw this.noMeterActivationAt(when).get();
+        }
     }
 
     private List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier, Meter meter) {
@@ -1314,12 +1359,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
-        for (com.elster.jupiter.metering.Channel channel : meterActivation.getChannels()) {
-            if (channel.getReadingTypes().contains(readingType)) {
-                return java.util.Optional.of(channel);
-            }
-        }
-        return java.util.Optional.empty();
+        return meterActivation.getChannels().stream().filter(channel -> channel.getReadingTypes().contains(readingType)).findFirst();
     }
 
     /**

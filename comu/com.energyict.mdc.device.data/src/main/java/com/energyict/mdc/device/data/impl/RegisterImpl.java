@@ -1,11 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.google.common.collect.Range;
 
 import com.energyict.mdc.common.ObisCode;
@@ -13,13 +16,16 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.RegisterDataUpdater;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation of a Register of a {@link com.energyict.mdc.device.data.Device},
@@ -33,11 +39,11 @@ import java.util.List;
 public abstract class RegisterImpl<R extends Reading> implements Register<R> {
 
     /**
-     * The {@link RegisterSpec} for which this Register is serving
+     * The {@link RegisterSpec} for which this Register is serving.
      */
     private final RegisterSpec registerSpec;
     /**
-     * The Device which <i>owns</i> this Register
+     * The Device which <i>owns</i> this Register.
      */
     private final DeviceImpl device;
 
@@ -74,39 +80,51 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
 
     private List<R> getReadings(Range<Instant> interval) {
         List<ReadingRecord> koreReadings = this.device.getReadingsFor(this, interval);
-        List<List<ReadingQuality>> readingQualities = this.getReadingQualities(koreReadings);
-        return this.toReadings(koreReadings, readingQualities);
+        List<Optional<DataValidationStatus>> validationStatuses = this.getValidationStatuses(koreReadings);
+        return this.toReadings(koreReadings, validationStatuses);
     }
 
-    private List<List<ReadingQuality>> getReadingQualities(List<ReadingRecord> koreReadings) {
-        List<List<ReadingQuality>> readingQualities = new ArrayList<>(koreReadings.size());
-        // Todo: call validationService, create empty list for each kore reading until API is available
-        for (int i = 0; i < koreReadings.size(); i++) {
-            readingQualities.add(Collections.<ReadingQuality>emptyList());
+    private List<Optional<DataValidationStatus>> getValidationStatuses(List<ReadingRecord> readings) {
+        return readings
+                .stream()
+                .map(this::getValidationStatus)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<DataValidationStatus> getValidationStatus(ReadingRecord reading) {
+        List<DataValidationStatus> validationStatuses = this.getValidationStatus(Arrays.asList(reading), Range.closedOpen(reading.getTimeStamp(), reading.getTimeStamp()));
+        if (validationStatuses.isEmpty()) {
+            return Optional.empty();
         }
-        return readingQualities;
+        else {
+            return Optional.of(validationStatuses.get(0));
+        }
     }
 
-    private List<R> toReadings(List<ReadingRecord> koreReadings, List<List<ReadingQuality>> readingQualities) {
+    private List<DataValidationStatus> getValidationStatus(List<? extends BaseReading> readings, Range<Instant> interval) {
+        return this.device.forValidation().getValidationStatus(this, readings, interval);
+    }
+
+    private List<R> toReadings(List<ReadingRecord> koreReadings, List<Optional<DataValidationStatus>> validationStatuses) {
         List<R> readings = new ArrayList<>(koreReadings.size());
-        for (Pair<ReadingRecord, List<ReadingQuality>> koreReadingAndQuality : DualIterable.endWithShortest(koreReadings, readingQualities)) {
-            readings.add(this.toReading(koreReadingAndQuality));
+        for (Pair<ReadingRecord, Optional<DataValidationStatus>> koreReadingAndStatus : DualIterable.endWithShortest(koreReadings, validationStatuses)) {
+            readings.add(this.toReading(koreReadingAndStatus));
         }
         return readings;
     }
 
-    private R toReading (Pair<ReadingRecord, List<ReadingQuality>> koreReadingAndQuality) {
-        if (koreReadingAndQuality.getLast().isEmpty()) {
-            return this.newUnvalidatedReading(koreReadingAndQuality.getFirst());
+    private R toReading (Pair<ReadingRecord, Optional<DataValidationStatus>> koreReadingAndStatus) {
+        if (koreReadingAndStatus.getLast().isPresent()) {
+            return this.newValidatedReading(koreReadingAndStatus.getFirst(), koreReadingAndStatus.getLast().get());
         }
         else {
-            return this.newValidatedReading(koreReadingAndQuality.getFirst(), koreReadingAndQuality.getLast());
+            return this.newUnvalidatedReading(koreReadingAndStatus.getFirst());
         }
     }
 
     protected abstract R newUnvalidatedReading(ReadingRecord actualReading);
 
-    protected abstract R newValidatedReading(ReadingRecord actualReading, List<ReadingQuality> readingQualities);
+    protected abstract R newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus);
 
     @Override
     public Optional<R> getLastReading() {
@@ -114,8 +132,7 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     private R toReading(ReadingRecord readingRecord) {
-        List<ReadingQuality> readingQualities = this.getReadingQualities(Arrays.asList(readingRecord)).get(0);
-        return this.toReading(Pair.of(readingRecord, readingQualities));
+        return this.toReading(Pair.of(readingRecord, this.getValidationStatus(readingRecord)));
     }
 
     @Override
@@ -147,4 +164,59 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     public ReadingType getReadingType() {
         return getRegisterSpec().getReadingType();
     }
+
+    @Override
+    public RegisterDataUpdater startEditingData() {
+        return new RegisterDataUpdaterImpl(this);
+    }
+
+    private class RegisterDataUpdaterImpl implements RegisterDataUpdater {
+        private final RegisterImpl<R> register;
+        private final List<BaseReading> edited = new ArrayList<>();
+        private final Map<Channel, List<BaseReadingRecord>> obsolete = new HashMap<>();
+        private Optional<Instant> activationDate = Optional.empty();
+
+        private RegisterDataUpdaterImpl(RegisterImpl<R> register) {
+            super();
+            this.register = register;
+        }
+
+        @Override
+        public RegisterDataUpdater editReading(BaseReading modified) {
+            this.activationDate.ifPresent(previousTimestamp -> this.setActivationDateIfBefore(modified.getTimeStamp()));
+            this.edited.add(modified);
+            return this;
+        }
+
+        private void setActivationDateIfBefore(Instant modified) {
+            if (modified.isBefore(this.activationDate.get())) {
+                this.activationDate = Optional.of(modified);
+            }
+        }
+
+        @Override
+        public RegisterDataUpdater removeReading(Instant timestamp) {
+            Channel channel = this.register.device.findOrCreateKoreChannel(timestamp, this.register);
+            BaseReadingRecord reading =
+                    channel
+                        .getReading(timestamp)
+                        .orElseThrow(() -> new IllegalArgumentException("No reading for register " + this.register.getRegisterSpec().getReadingType().getAliasName() + " @ " + timestamp));
+            this.obsolete.computeIfAbsent(channel, c -> new ArrayList<>()).add(reading);
+            return this;
+        }
+
+        @Override
+        public void complete() {
+            this.activationDate.ifPresent(this.register.device::ensureActiveOn);
+            this.edited.forEach(this::addOrEdit);
+        }
+
+        private void addOrEdit(BaseReading reading) {
+            this.register.device
+                .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
+                .editReadings(Arrays.asList(reading));
+            this.obsolete.forEach(Channel::removeReadings);
+        }
+    }
+
 }
