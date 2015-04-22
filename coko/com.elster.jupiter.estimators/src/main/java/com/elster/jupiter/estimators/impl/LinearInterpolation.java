@@ -9,10 +9,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -103,8 +103,8 @@ public class LinearInterpolation extends AbstractEstimator {
         List<? extends Estimatable> estimatables = block.estimatables();
         int numberOfIntervals = estimatables.size();
         BigDecimal consumption = qtyAfter.getValue().subtract(qtyBefore.getValue());
-        BigDecimal step = consumption.divide(new BigDecimal(numberOfIntervals + 1), 10, BigDecimal.ROUND_HALF_UP);
-        BigDecimal currentValue = qtyBefore.getValue();
+        BigDecimal step = consumption.divide(BigDecimal.valueOf(numberOfIntervals + 1), 6, RoundingMode.HALF_UP);
+        BigDecimal currentValue = qtyBefore.getValue().setScale(6, BigDecimal.ROUND_HALF_UP);
         for (Estimatable estimatable : estimatables) {
             currentValue = currentValue.add(step);
             estimatable.setEstimation(currentValue);
