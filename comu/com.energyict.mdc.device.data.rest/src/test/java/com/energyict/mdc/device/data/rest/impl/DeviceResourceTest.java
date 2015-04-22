@@ -1037,11 +1037,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testUpdateMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
+        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         Device gateway = mockDeviceForTopologyTest("gateway");
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
 
@@ -1074,9 +1074,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testDeleteMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
+        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
 
