@@ -28,20 +28,23 @@ public class UniqueStartDateRuleSetVersionValidator implements ConstraintValidat
     }
 
     private boolean startOnSameDate(ValidationRuleSetVersion ruleSetVersion, ConstraintValidatorContext context) {
-        if(ruleSetVersion
-                .getRuleSet()
-                .getRuleSetVersions()
-                .stream()
-                .filter(v -> !v.isObsolete())
-                .filter(v -> v.getId() != ruleSetVersion.getId())
-                .map(IValidationRuleSetVersion.class::cast)
-                .anyMatch(v -> v.getNotNullStartDate().equals(((IValidationRuleSetVersion) ruleSetVersion).getNotNullStartDate()))) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
-            return true;
+        if(!ruleSetVersion.isObsolete()) {
+            if (ruleSetVersion
+                    .getRuleSet()
+                    .getRuleSetVersions()
+                    .stream()
+                    .filter(v -> !v.isObsolete())
+                    .filter(v -> v.getId() != ruleSetVersion.getId())
+                    .map(IValidationRuleSetVersion.class::cast)
+                    .anyMatch(v -> v.getNotNullStartDate().equals(((IValidationRuleSetVersion) ruleSetVersion).getNotNullStartDate()))) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
+                return true;
+            }
         }
         return false;
 
     }
+
 
 }
