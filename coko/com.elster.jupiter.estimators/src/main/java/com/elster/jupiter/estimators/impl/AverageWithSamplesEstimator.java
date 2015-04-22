@@ -47,17 +47,17 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private final ValidationService validationService;
     private final MeteringService meteringService;
 
-    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
-    static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = new BigDecimal(10);
+    private static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
+    private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
-    static final String MIN_NUMBER_OF_SAMPLES = "minNumberOfSamples";
-    static final BigDecimal MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = new BigDecimal(1);
-    static final String MAX_NUMBER_OF_SAMPLES = "maxNumberOfSamples";
-    static final BigDecimal MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = new BigDecimal(10);
+    private static final String MIN_NUMBER_OF_SAMPLES = "minNumberOfSamples";
+    private static final BigDecimal MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = BigDecimal.valueOf(1);
+    private static final String MAX_NUMBER_OF_SAMPLES = "maxNumberOfSamples";
+    private static final BigDecimal MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
-    static final String ALLOW_NEGATIVE_VALUES = "allowNegativeValues";
-    static final String RELATIVE_PERIOD = "relativePeriod";
-    static final String ADVANCE_READINGS_SETTINGS = "advanceReadingsSettings";
+    private static final String ALLOW_NEGATIVE_VALUES = "allowNegativeValues";
+    private static final String RELATIVE_PERIOD = "relativePeriod";
+    private static final String ADVANCE_READINGS_SETTINGS = "advanceReadingsSettings";
 
     private BigDecimal numberOfConsecutiveSuspects;
     private BigDecimal minNumberOfSamples;
@@ -204,7 +204,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private void rescaleEstimation(EstimationBlock estimationBlock, BigDecimal totalConsumption) {
         BigDecimal totalEstimation = getTotalEstimatedConsumption(estimationBlock);
-        BigDecimal factor = totalConsumption.divide(totalEstimation, 10, BigDecimal.ROUND_HALF_UP);
+        BigDecimal factor = totalConsumption.divide(totalEstimation, 6, BigDecimal.ROUND_HALF_UP);
         for (Estimatable estimatable : estimationBlock.estimatables()) {
             estimatable.setEstimation(estimatable.getEstimation().multiply(factor));
         }
@@ -223,7 +223,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         for (BaseReadingRecord reading : readings) {
             Quantity qty = reading.getQuantity(readingType);
             if ((qty != null) && (qty.getValue() != null)) {
-                total.add(qty.getValue());
+                total = total.add(qty.getValue());
             }
         }
         return total;
@@ -243,7 +243,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         List<? extends BaseReadingRecord> readingsBefore =
                 estimationBlock.getChannel().getMeterActivation().getReadingsBefore(startInterval, registerReadingType, 1);
         List<? extends BaseReadingRecord> readingsAfter =
-                estimationBlock.getChannel().getMeterActivation().getReadings(Range.atLeast(endInterval), registerReadingType);
+                estimationBlock.getChannel().getMeterActivation().getReadings(Range.greaterThan(endInterval), registerReadingType);
 
         if (readingsBefore.isEmpty()) {
             Logger.getAnonymousLogger().log(Level.WARNING, "no reading found before start of the block");
@@ -253,16 +253,20 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             Logger.getAnonymousLogger().log(Level.WARNING, "no reading found after end of the block");
             return false;
         }
+
         BaseReadingRecord readingBefore = readingsBefore.get(0);
         BaseReadingRecord readingAfter = readingsAfter.get(0);
+
         BigDecimal consumptionBetweenRegisterReadings =
                 readingAfter.getQuantity(registerReadingType).getValue().add(readingBefore.getQuantity(registerReadingType).getValue().negate());
 
+        // use previous interval because consumption is recorded at the end of the interval
         BigDecimal consumptionBetweenPreviousRegisterReadingAndStartOfBlock = getTotalConsumption(
-                estimationBlock.getChannel().getReadings(Range.open(readingBefore.getTimeStamp(), startInterval)), estimationBlock.getReadingType());
+                estimationBlock.getChannel().getReadings(Range.openClosed(readingBefore.getTimeStamp(), estimationBlock.getChannel().getPreviousDateTime(startInterval))), estimationBlock.getReadingType());
 
+        // use next interval because consumption is recorded at the end of the interval
         BigDecimal consumptionBetweenEndOfBlockAndNextRegisterReading = getTotalConsumption(
-                estimationBlock.getChannel().getReadings(Range.open(endInterval, readingAfter.getTimeStamp())), estimationBlock.getReadingType());
+                estimationBlock.getChannel().getReadings(Range.openClosed(estimationBlock.getChannel().getNextDateTime(endInterval), readingAfter.getTimeStamp())), estimationBlock.getReadingType());
 
         BigDecimal totalConsumption = consumptionBetweenRegisterReadings.add(
                 consumptionBetweenPreviousRegisterReadingAndStartOfBlock.negate()).add(
@@ -403,6 +407,10 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
             return new Long(dif1).compareTo(new Long(dif2));
         }
+    }
+
+    public void validateProperties() {
+
     }
 }
 
