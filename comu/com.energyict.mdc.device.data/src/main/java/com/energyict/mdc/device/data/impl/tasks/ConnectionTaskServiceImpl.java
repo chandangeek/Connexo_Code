@@ -45,6 +45,8 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import org.joda.time.DateTimeConstants;
+
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,7 +66,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.joda.time.DateTimeConstants;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -309,7 +310,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 this.deviceDataModelService.engineConfigurationService()
                     .findAllComPortPools()
                     .stream()
-                    .filter(ComPortPool::isActive)
                     .collect(Collectors.toMap(ComPortPool::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(statusBreakdown, comPortPools);
     }
