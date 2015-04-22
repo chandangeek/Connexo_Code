@@ -13,6 +13,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ComTask;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class DeviceFirmwareVersionUtils {
@@ -32,7 +35,6 @@ public class DeviceFirmwareVersionUtils {
 
     private final Thesaurus thesaurus;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private final Clock clock;
 
     private Device device;
     private FirmwareComTaskExecution comTaskExecution;
@@ -40,10 +42,9 @@ public class DeviceFirmwareVersionUtils {
     private Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
 
     @Inject
-    public DeviceFirmwareVersionUtils(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, Clock clock) {
+    public DeviceFirmwareVersionUtils(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.thesaurus = thesaurus;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-        this.clock = clock;
     }
 
     public DeviceFirmwareVersionUtils onDevice(Device device){
@@ -111,6 +112,18 @@ public class DeviceFirmwareVersionUtils {
                 .findFirst();
     }
 
+    public Optional<DeviceMessage<Device>> getLastSuccessfulUploadMessageFor(DeviceMessage<Device> activationMessage){
+        return this.getFirmwareMessages().stream()
+                .filter(message -> DeviceMessageStatus.CONFIRMED.equals(message))
+                .filter(message -> activationMessage.getModTime().isAfter(message.getModTime()))
+                .filter(message -> {
+                    Optional<ProtocolSupportedFirmwareOptions> uploadOption = getUploadOptionFromMessage(message);
+                    return uploadOption.isPresent() && ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(uploadOption.get());
+                })
+                .filter(message -> isTaskLastSuccessLessOrEqualTo(message.getModTime()))
+                .findFirst();
+    }
+
     public String translate(String key){
         return this.thesaurus.getString(key, key);
     }
@@ -119,8 +132,14 @@ public class DeviceFirmwareVersionUtils {
         return comTaskExecution;
     }
 
-    public ComTaskExecution getBasicCheckExecution(){
-        return null; // TODO
+    public Optional<ComTaskExecution> getBasicCheckExecution(){
+        return device.getComTaskExecutions().stream()
+                .filter(execution -> execution.getComTasks().stream().filter(getComTaskHasBasicCheckAction()).findAny().isPresent())
+                .findFirst();
+    }
+
+    private Predicate<ComTask> getComTaskHasBasicCheckAction() {
+        return task -> task.getProtocolTasks().stream().filter(action -> action instanceof BasicCheckTask).findAny().isPresent();
     }
 
     public List<DeviceMessage<Device>> getFirmwareMessages() {

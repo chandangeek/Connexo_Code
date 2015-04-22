@@ -4,9 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionInfo;
-import com.energyict.mdc.firmware.rest.impl.FirmwareStatusInfo;
-import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
