@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
@@ -38,6 +39,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +128,8 @@ public class DeviceFirmwareMessagesResource {
         return convertedProperties;
     }
 
-    private void prepareCommunicationTask(Device device, Map<String, Object> convertedProperties) {
+    private void
+    prepareCommunicationTask(Device device, Map<String, Object> convertedProperties) {
         Optional<ComTaskExecution> fuComTaskExecutionRef = findFirmwareComTaskExecution(device);
         if (!fuComTaskExecutionRef.isPresent()){
             createFirmwareComTaskExecution(device);
@@ -162,6 +166,7 @@ public class DeviceFirmwareMessagesResource {
                 .filter(message -> message.getId() == msgId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, msgId));
+        // TODO add check that task is not busy
         if (!resourceHelper.filterPendingMessagesPredicate().test(upgradeMessage)) {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
         }
@@ -178,10 +183,19 @@ public class DeviceFirmwareMessagesResource {
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
     public Response getDynamicActions(@PathParam("mrid") String mrid, @BeanParam QueryParameters queryParameters){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
-        List<UpgradeOptionInfo> upgradeOptionActions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(device.getDeviceType())
-                .stream()
-                .map(option -> new UpgradeOptionInfo(option.getId(), thesaurus.getString(option.getId(), option.getId())))
-                .collect(Collectors.toList());
+        List<UpgradeOptionInfo> upgradeOptionActions = new ArrayList<>();
+        EnumSet<DeviceMessageStatus> activeMessageStatuses = EnumSet.of(DeviceMessageStatus.SENT, DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING);
+        boolean hasActiveUpgradeMessages = device.getMessages().stream()
+                .filter(resourceHelper.filterFirmwareUpgradeMessagesPredicate())
+                .filter(message -> activeMessageStatuses.contains(message.getStatus()))
+                .count() != 0;
+        if (!hasActiveUpgradeMessages) {
+            upgradeOptionActions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(device.getDeviceType())
+                    .stream()
+                    .map(option -> new UpgradeOptionInfo(option.getId(), thesaurus.getString(option.getId(), option.getId())))
+                    .collect(Collectors.toList());
+        }
+        // TODO add actions for basic checks here
         return Response.ok(PagedInfoList.fromPagedList("firmwareactions", upgradeOptionActions, queryParameters)).build();
     }
 

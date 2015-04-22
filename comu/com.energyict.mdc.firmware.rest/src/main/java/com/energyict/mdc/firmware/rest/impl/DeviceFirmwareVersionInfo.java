@@ -1,12 +1,19 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.firmware.FirmwareType;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+@JsonSerialize(using = DeviceFirmwareVersionInfo.Serializer.class)
 public class DeviceFirmwareVersionInfo {
     public FirmwareTypeInfo firmwareType;
     public ActiveVersion activeVersion;
-    public PendingVersion pendingVersion;
+    public Map<String, Map<String, Object>> upgradeVersions = new HashMap<>();
 
     public static class ActiveVersion {
         public String firmwareVersion;
@@ -16,22 +23,22 @@ public class DeviceFirmwareVersionInfo {
         public ActiveVersion() {}
     }
 
-    public static class PendingVersion {
-        public String firmwareVersion;
-        public Long firmwareDeviceMessageId;
-        public Long plannedDate;
-        public UpgradeOptionInfo firmwareUpgradeOption;
-
-        public PendingVersion() {}
-    }
-
     public DeviceFirmwareVersionInfo() {}
 
-    public DeviceFirmwareVersionInfo(FirmwareType firmwareType, Thesaurus thesaurus){
-        this.firmwareType = new FirmwareTypeInfo(firmwareType, thesaurus);
-    }
 
-    public boolean hasTheSameType(FirmwareType candidate){
-        return this.firmwareType != null && this.firmwareType.id != null && this.firmwareType.id.equals(candidate);
+    public static class Serializer extends JsonSerializer<DeviceFirmwareVersionInfo> {
+
+        @Override
+        public void serialize(DeviceFirmwareVersionInfo value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+            jgen.writeStartObject();
+            jgen.writeObjectField("firmwareType", value.firmwareType);
+            jgen.writeObjectField("activeVersion", value.activeVersion);
+            if (value.upgradeVersions != null) {
+                for (Map.Entry<String, Map<String, Object>> upgradeVersion : value.upgradeVersions.entrySet()) {
+                    jgen.writeObjectField(upgradeVersion.getKey(), upgradeVersion.getValue());
+                }
+            }
+            jgen.writeEndObject();
+        }
     }
 }
