@@ -261,6 +261,7 @@ public class ReadingEstimateTest {
             ruleSet = estimationService.createEstimationRuleSet("testRuleSet");
             rule = ruleSet.addRule(IMPLEMENTATION, "testRule");
             rule.addReadingType(readingType);
+            rule.activate();
             ruleSet.save();
         }
 

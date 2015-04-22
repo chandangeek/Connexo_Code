@@ -116,6 +116,8 @@ public class EstimationServiceImplTest {
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
         doReturn(estimator1).when(rule1).createNewEstimator();
         doReturn(estimator2).when(rule2).createNewEstimator();
+        doReturn(true).when(rule1).isActive();
+        doReturn(true).when(rule2).isActive();
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
@@ -178,6 +180,20 @@ public class EstimationServiceImplTest {
         assertThat(estimationResult.estimated().get(0).getReadingQualityType()).isEqualTo(readingQualityType1);
         assertThat(estimationResult.estimated().get(1).getReadingQualityType()).isEqualTo(readingQualityType2);
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(1);
+    }
+
+    @Test
+    public void testPreviewEstimateWhenRuleIsNotActive() {
+        doReturn(false).when(rule1).isActive();
+        doReturn(false).when(rule2).isActive();
+
+        EstimationReport report = estimationService.previewEstimate(meterActivation);
+        assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
+
+        EstimationResult estimationResult = report.getResults().get(readingType1);
+
+        assertThat(estimationResult.estimated()).hasSize(0);
+        assertThat(estimationResult.remainingToBeEstimated()).hasSize(3);
     }
 
 

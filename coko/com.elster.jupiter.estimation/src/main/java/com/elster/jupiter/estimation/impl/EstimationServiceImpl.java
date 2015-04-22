@@ -6,6 +6,7 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
@@ -236,6 +237,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         EstimationReportImpl report = new EstimationReportImpl();
 
         determineEstimationRules(meterActivation)
+                .filter(EstimationRule::isActive)
                 .filter(rule -> rule.getReadingTypes().contains(readingType))
                 .map(IEstimationRule::createNewEstimator)
                 .forEach(estimator -> {
