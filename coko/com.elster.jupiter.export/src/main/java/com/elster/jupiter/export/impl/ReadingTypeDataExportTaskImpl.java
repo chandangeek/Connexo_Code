@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -430,7 +431,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     private void persist() {
         RecurrentTaskBuilder builder = taskService.newBuilder()
-                .setName(getName())
+                .setName(UUID.randomUUID().toString())
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
                 .setPayLoad(getName());
