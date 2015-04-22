@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
@@ -310,7 +311,17 @@ public class MeterReadingStorer {
     }
 
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
-        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), channel.getCimChannel(channel.getMainReadingType()).get(), reading.getTimeStamp());
+        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType()).get();
+        if (reading instanceof Reading) {
+            Optional<ReadingType> found = meteringService.getReadingType(((Reading) reading).getReadingTypeCode());
+            if (found.isPresent()) {
+                ReadingType readingType = found.get();
+                if (!cimChannel.getReadingType().equals(readingType)) {
+                    cimChannel = channel.getCimChannel(readingType).orElse(cimChannel);
+                }
+            }
+        }
+        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), cimChannel, reading.getTimeStamp());
         newReadingQuality.setComment(readingQuality.getComment());
         return newReadingQuality;
     }

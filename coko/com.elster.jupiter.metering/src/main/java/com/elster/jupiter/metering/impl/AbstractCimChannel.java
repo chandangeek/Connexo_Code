@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.util.conditions.Condition;
@@ -208,6 +209,7 @@ public abstract class AbstractCimChannel implements CimChannel {
         if (readings.isEmpty()) {
             return;
         }
+        Optional<CimChannel> derivedCimChannel = derivedCimChannel();
         Map<Instant, List<ReadingQualityRecordImpl>> readingQualityByTimestamp = findReadingQualitiesByTimestamp(readings);
         ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.ESTIMATION);
         for (BaseReading reading : readings) {
@@ -219,8 +221,27 @@ public abstract class AbstractCimChannel implements CimChannel {
                     .forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading).save());
             makeNoLongerSuspect(currentQualityRecords);
             storer.addReading(this, reading, processStatus);
+            derivedCimChannel.map(AbstractCimChannel.class::cast)
+                    .ifPresent(derived -> markEstimated(derived, reading.getTimeStamp(), reading.getReadingQualities()));
         }
         storer.execute();
+    }
+
+    private void markEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
+
+            List<ReadingQualityRecordImpl> readingQualityRecords = derived.findReadingQuality(timeStamp).stream()
+                    .map(ReadingQualityRecordImpl.class::cast)
+                    .collect(Collectors.toList());
+            derived.makeNoLongerSuspect(readingQualityRecords);
+            readingQualities.stream()
+                    .filter(readingQuality -> readingQualityRecords.stream().map(ReadingQualityRecord::getType).noneMatch(type -> type.equals(readingQuality.getType())))
+                    .forEach(readingQuality -> derived.createReadingQuality(readingQuality.getType(), timeStamp).save());
+
+    }
+
+    public Optional<CimChannel> derivedCimChannel() {
+        return getChannel().getDerivedReadingType(getReadingType())
+                .flatMap(readingType -> getChannel().getCimChannel(readingType));
     }
 
     private void modifyReadings(List<? extends BaseReading> readings, ReadingQualityType qualityForUpdate, ReadingQualityType qualityForCreate, ProcessStatus processStatusToSet) {

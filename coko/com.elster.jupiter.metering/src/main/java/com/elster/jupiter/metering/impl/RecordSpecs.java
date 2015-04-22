@@ -51,6 +51,11 @@ public enum RecordSpecs {
 			}
 			return toArray(reading, status);
 		}
+
+		@Override
+		int slotOffset() {
+			return 2;
+		}
 	},
 	/*
 		0 : process status
@@ -92,6 +97,11 @@ public enum RecordSpecs {
 			result[2 + slotIndex] = reading.getValue();
 			return result;
 		}
+
+		@Override
+		int slotOffset() {
+			return 2;
+		}
 	},
 	/*
 		0 : process status
@@ -129,6 +139,11 @@ public enum RecordSpecs {
 			result[2 + slotIndex] = reading.getValue();
 			return result;
 		}
+
+		@Override
+		int slotOffset() {
+			return 2;
+		}
 	},
 	/*
 		0 : process status
@@ -157,6 +172,11 @@ public enum RecordSpecs {
 				throw new IllegalArgumentException();
 			}
 			return toArray(reading, status);
+		}
+
+		@Override
+		int slotOffset() {
+			return 1;
 		}
 	},
 	/*
@@ -224,7 +244,12 @@ public enum RecordSpecs {
             }
             return Optional.empty();
         }
-    };
+
+		@Override
+		int slotOffset() {
+			return 1;
+		}
+	};
 	  
 	private final String specName;
 	private final boolean interval;
@@ -253,6 +278,8 @@ public enum RecordSpecs {
 
     void validateValues(BaseReading reading, Object[] values) {
     }
+
+	abstract int slotOffset();
 
 	abstract void addFieldSpecs(RecordSpec recordSpec);
 	

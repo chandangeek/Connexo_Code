@@ -200,6 +200,16 @@ public final class ChannelImpl implements ChannelContract {
         }
     }
 
+    Optional<ReadingType> getDerivedReadingType(ReadingType readingType) {
+        int index = getReadingTypes().indexOf(readingType);
+        if (index < 1) {
+            return Optional.empty();
+        }
+        RecordSpec recordSpec = getRecordSpec();
+        int slotOffset = getRecordSpecDefinition().slotOffset();
+        return recordSpec.getFieldSpecs().get(slotOffset + index - 1).isDerived() ? Optional.<ReadingType>of(getReadingTypes().get(index - 1)) : Optional.<ReadingType>empty();
+    }
+
     private RecordSpec getRecordSpec() {
         return getRecordSpecDefinition().get(idsService);
     }
