@@ -107,7 +107,7 @@ class EstimationEngine {
 
         private Stream<? extends BaseReading> getReadings() {
             return estimationBlock.estimatables().stream()
-                    .map(estimatable -> ReadingImpl.of(null, estimatable.getEstimation(), estimatable.getTimestamp()))
+                    .map(estimatable -> ReadingImpl.of(estimationBlock.getReadingType().getMRID(), estimatable.getEstimation(), estimatable.getTimestamp()))
                     .peek(reading -> reading.addQuality(estimationBlock.getReadingQualityType().getCode()));
         }
     }
