@@ -23,10 +23,10 @@ import java.util.logging.Logger;
 public class ValueFillEstimator extends AbstractEstimator {
 
     static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
-    static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = new BigDecimal(10);
+    private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
     static final String FILL_VALUE = "fillValue";
-    static final BigDecimal DEFAULT_FILL_VALUE = new BigDecimal(0);
+    private static final BigDecimal DEFAULT_FILL_VALUE = BigDecimal.valueOf(0);
 
     private BigDecimal numberOfConsecutiveSuspects;
     private BigDecimal fillValue;
