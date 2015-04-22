@@ -1,12 +1,5 @@
 package com.elster.jupiter.ids.impl;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.FieldType;
@@ -15,6 +8,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
+
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public final class RecordSpecImpl implements RecordSpec {
 	// persistent fields
@@ -109,7 +108,7 @@ public final class RecordSpecImpl implements RecordSpec {
     }
     
     int derivedFieldCount() {
-    	return getFieldSpecs().stream().filter(field -> field.isDerived()).mapToInt(field -> 1).sum();
+    	return getFieldSpecs().stream().filter(FieldSpec::isDerived).mapToInt(field -> 1).sum();
     }
     
     List<String> columnNames() {

@@ -442,20 +442,12 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             return result;
         }
 
-        boolean isInsert(TimeSeriesEntryImpl entry) {
+        private boolean isInsert(TimeSeriesEntryImpl entry) {
             return !oldEntries.containsKey(entry.getTimeStamp());
         }
 
-        boolean isUpdate(TimeSeriesEntryImpl entry) {
+        private boolean isUpdate(TimeSeriesEntryImpl entry) {
             TimeSeriesEntryImpl oldEntry = oldEntries.get(entry.getTimeStamp());
-            if (oldEntry != null && timeSeries.getRecordSpec().derivedFieldCount() > 0) {
-                for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
-                    FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
-                    if (fieldSpec.isDerived() && isABigDecimal(entry.getValues()[i + 1])) {
-                        entry.set(i + 1, oldEntry.getBigDecimal(i + 1));
-                    }
-                }
-            }
             return oldEntry != null && !entry.matches(oldEntry);
         }
 
