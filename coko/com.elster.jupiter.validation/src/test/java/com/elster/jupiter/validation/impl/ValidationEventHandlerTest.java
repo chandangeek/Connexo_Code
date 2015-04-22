@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.StorerProcess;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import org.junit.After;
@@ -81,6 +82,7 @@ public class ValidationEventHandlerTest {
 
         when(localEvent.getSource()).thenReturn(readingStorer);
         when(localEvent.getType()).thenReturn(eventType);
+        when(readingStorer.getStorerProcess()).thenReturn(StorerProcess.DEFAULT);
 
         when(readingStorer.getScope()).thenReturn(map);
     }
@@ -99,6 +101,26 @@ public class ValidationEventHandlerTest {
 
         verify(validationService).validate(meterActivation1, ImmutableMap.of(channel1, interval(date1,date2), channel2 , interval(date3, date5)));
         verify(validationService).validate(meterActivation2, ImmutableMap.of(channel3, interval(date4,date5)));
+    }
+
+    @Test
+    public void testOnEventDoesNotValidateOnEstimate() {
+        when(readingStorer.getStorerProcess()).thenReturn(StorerProcess.ESTIMATION);
+
+        handler.handle(localEvent);
+
+        verify(validationService, never()).validate(meterActivation1, ImmutableMap.of(channel1, interval(date1,date2), channel2 , interval(date3, date5)));
+        verify(validationService, never()).validate(meterActivation2, ImmutableMap.of(channel3, interval(date4,date5)));
+    }
+
+    @Test
+    public void testOnEventDoesNotValidateOnEdit() {
+        when(readingStorer.getStorerProcess()).thenReturn(StorerProcess.EDIT);
+
+        handler.handle(localEvent);
+
+        verify(validationService, never()).validate(meterActivation1, ImmutableMap.of(channel1, interval(date1,date2), channel2 , interval(date3, date5)));
+        verify(validationService, never()).validate(meterActivation2, ImmutableMap.of(channel3, interval(date4,date5)));
     }
 
 
