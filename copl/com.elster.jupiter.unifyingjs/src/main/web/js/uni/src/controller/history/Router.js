@@ -239,7 +239,7 @@ Ext.define('Uni.controller.history.Router', {
                     var controller = me.getController(config.controller);
 
                     var dispatch = function () {
-                        if (Ext.isArray(config.privileges) && !Uni.Auth.hasAnyPrivilege(config.privileges)) {
+                        if (!Uni.Auth.checkPrivileges(config.privileges)) {
                             crossroads.parse("/error/notfound");
                             return;
                         }

@@ -44,5 +44,11 @@ Ext.define('Uni.Auth', {
             }
         }
         return result;
+    },
+    checkPrivileges: function (privileges) {
+        return !( (Ext.isBoolean(privileges) && !privileges) ||
+        (Ext.isFunction(privileges) && !privileges()) ||
+        (Ext.isArray(privileges) && !Uni.Auth.hasAnyPrivilege(privileges)) ||
+        (Ext.isString(privileges) && !Uni.Auth.hasAnyPrivilege([privileges])) );
     }
 });
