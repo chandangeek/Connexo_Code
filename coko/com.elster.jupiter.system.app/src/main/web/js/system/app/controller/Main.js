@@ -18,12 +18,12 @@ Ext.define('SystemApp.controller.Main', {
     searchEnabled: false,
     onlineHelpEnabled: true,
     privileges:  Ext.Array.merge(
-        Usr.privileges.Users.any(),
-        Sam.privileges.DataPurge.any(),
-        Sam.privileges.License.any(),
-        Yfn.privileges.Yellowfin.any(),
-        Dxp.privileges.DataExport.any(),
-        Tme.privileges.Period.any()),
+        Usr.privileges.Users.all(),
+        Sam.privileges.DataPurge.all(),
+        Sam.privileges.License.all(),
+        Yfn.privileges.Yellowfin.all(),
+        Dxp.privileges.DataExport.all(),
+        Tme.privileges.Period.all()),
 
     controllers: [
         'Usr.controller.Main',
