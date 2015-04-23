@@ -1,28 +1,25 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+
 import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 import com.elster.jupiter.validation.security.Privileges;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -47,17 +44,13 @@ import java.util.stream.Collectors;
 public class DeviceValidationResource {
     private final ResourceHelper resourceHelper;
     private final ValidationService validationService;
-    private final DeviceConfigurationService deviceConfigurationService;
-    private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
 
     @Inject
-    public DeviceValidationResource(ResourceHelper resourceHelper, ValidationService validationService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
+    public DeviceValidationResource(ResourceHelper resourceHelper, ValidationService validationService, ExceptionFactory exceptionFactory, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.validationService = validationService;
-        this.deviceConfigurationService = deviceConfigurationService;
-        this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
     }
@@ -65,18 +58,13 @@ public class DeviceValidationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationRulsetsForDevice(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
+    public Response getValidationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        Meter meter = getMeterFor(device);
-
-        Optional<? extends MeterActivation> activation = meter.getCurrentMeterActivation();
-
-        Optional<DeviceConfiguration> deviceConfig = deviceConfigurationService.findDeviceConfiguration(device.getDeviceConfiguration().getId());
-        if (deviceConfig.isPresent()) {
-            List<ValidationRuleSet> linkedRuleSets = deviceConfig.get().getValidationRuleSets();
-            fillValidationRuleSetStatus(linkedRuleSets, activation, result);
-        }
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Optional<? extends MeterActivation> activation = device.getCurrentMeterActivation();
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        List<ValidationRuleSet> linkedRuleSets = deviceConfiguration.getValidationRuleSets();
+        fillValidationRuleSetStatus(linkedRuleSets, activation, result);
         Collections.sort(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR);
         return Response.ok(PagedInfoList.fromPagedList("rulesets",
                 ListPager.of(result).from(queryParameters).find(), queryParameters)).build();
@@ -84,18 +72,17 @@ public class DeviceValidationResource {
 
     private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<? extends MeterActivation> activation, List<DeviceValidationRuleSetInfo> result) {
         List<? extends ValidationRuleSet> activeRuleSets = activation.map(validationService::activeRuleSets).orElse(Collections.emptyList());
-        linkedRuleSets.forEach(ruleset -> result.add(new DeviceValidationRuleSetInfo(ruleset, (!activation.isPresent()) || activeRuleSets.contains(ruleset))));
+        linkedRuleSets.forEach(ruleSet -> result.add(new DeviceValidationRuleSetInfo(ruleSet, (!activation.isPresent()) || activeRuleSets.contains(ruleSet))));
     }
 
     @Path("/{validationRuleSetId}/status")
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        Meter meter = getMeterFor(device);
+    public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mRID, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
-        Optional<? extends MeterActivation> activation = meter.getCurrentMeterActivation();
+        Optional<? extends MeterActivation> activation = device.getCurrentMeterActivation();
         if (activation.isPresent()) {
             setValidationRuleSetActivationStatus(activation.get(), ruleSet, status);
         } else {
@@ -116,8 +103,8 @@ public class DeviceValidationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getValidationFeatureStatus(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
 
         DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatus(device);
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
@@ -149,13 +136,12 @@ public class DeviceValidationResource {
     }
 
     private DeviceValidationStatusInfo determineStatus(Device device) {
-        Meter meter = getMeterFor(device);
         DeviceValidation deviceValidation = device.forValidation();
         DeviceValidationStatusInfo deviceValidationStatusInfo =
                 new DeviceValidationStatusInfo(
                         deviceValidation.isValidationActive(),
                         deviceValidation.getLastChecked(),
-                        meter.hasData());
+                        device.hasData());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
@@ -213,83 +199,52 @@ public class DeviceValidationResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response setValidationFeatureStatus(@PathParam("mRID") String mrid, DeviceValidationStatusInfo deviceValidationStatusInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        Meter meter = getMeterFor(device);
-        if (deviceValidationStatusInfo.isActive) {
-            validationService.activateValidation(meter);
-			validationService.enableValidationOnStorage(meter);
-        } else {
-            validationService.deactivateValidation(meter);
-        }
-
-        if (deviceValidationStatusInfo.isActive && meter.hasData()) {
-            if (deviceValidationStatusInfo.lastChecked == null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
-            }
-            Instant lastCheckedDate = Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked);
-            for (MeterActivation meterActivation : resourceHelper.getMeterActivationsMostCurrentFirst(meter)) {
-                if (meterActivation.isEffectiveAt(lastCheckedDate) || meterActivation.getInterval().startsAfter(lastCheckedDate)) {
-                    Optional<Instant> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
-                    if (meterActivation.isCurrent()) {
-                        if (meterActivationLastChecked.isPresent() && lastCheckedDate.isAfter(meterActivationLastChecked.get())) {
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", meterActivationLastChecked.get());
-                        }
-                        validationService.updateLastChecked(meterActivation, lastCheckedDate);
-                    } else {
-                        Instant lastCheckedDateToSet = smallest(meterActivationLastChecked.orElse(meterActivation.getStart()), lastCheckedDate);
-                        validationService.updateLastChecked(meterActivation, lastCheckedDateToSet);
-                    }
+    public Response setValidationFeatureStatus(@PathParam("mRID") String mRID, DeviceValidationStatusInfo deviceValidationStatusInfo) {
+        try {
+            Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+            if (deviceValidationStatusInfo.isActive) {
+                if (deviceValidationStatusInfo.lastChecked == null) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
                 }
+                device.forValidation().activateValidation(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
+            }
+            else {
+                device.forValidation().deactivateValidation();
             }
         }
-
+        catch (InvalidLastCheckedException e) {
+            throw new LocalizedFieldValidationException(this.toMessageSeed(e), "lastChecked");
+        }
         return Response.status(Response.Status.OK).build();
     }
 
-    private Instant smallest(Instant instant1, Instant instant2) {
-        return Ordering.natural().min(instant1, instant2);
+    private MessageSeed toMessageSeed(InvalidLastCheckedException e) {
+        switch (e.getReason()) {
+            case NULL: {
+                return MessageSeeds.NULL_DATE;
+            }
+            case AFTER_CURRENT_LAST_CHECKED: {
+                return MessageSeeds.INVALID_DATE;
+            }
+            default: {
+                return MessageSeeds.INVALID_DATE;
+            }
+        }
     }
 
     @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
-    public Response validateDeviceData(@PathParam("mRID") String mrid) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        Meter meter = getMeterFor(device);
-        List<MeterActivation> meterActivations = resourceHelper.getMeterActivationsMostCurrentFirst(meter);
-        if (!meterActivations.isEmpty()) {
-            Range<Instant> range = meterActivations.get(meterActivations.size() - 1).getRange();
-            ValidationEvaluator evaluator = validationService.getEvaluator(meter, range);
-            meterActivations.forEach(meterActivation -> {
-                if (!evaluator.isAllDataValidated(meterActivation)) {
-                    Instant instant = validationService.getLastChecked(meterActivation).orElse(meterActivation.getStart());
-                    validationService.validate(meterActivation);
-                }
-            });
-        }
+    public Response validateDeviceData(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        device.forValidation().validateData();
         return Response.status(Response.Status.OK).build();
     }
 
-
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
-        Optional<? extends ValidationRuleSet> rulesetRef = validationService.getValidationRuleSet(validationRuleSetId);
-        return rulesetRef.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        Optional<? extends ValidationRuleSet> ruleSet = validationService.getValidationRuleSet(validationRuleSetId);
+        return ruleSet.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-
-    private Meter getMeterFor(Device device) {
-        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter;
-        Optional<Meter> meterRef = amrSystem.findMeter(String.valueOf(device.getId()));
-        if (meterRef.isPresent()) {
-            meter = meterRef.get();
-        } else {
-            meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
-            meter.setSerialNumber(device.getSerialNumber());
-            meter.save();
-        }
-        return meter;
-    }
 }
