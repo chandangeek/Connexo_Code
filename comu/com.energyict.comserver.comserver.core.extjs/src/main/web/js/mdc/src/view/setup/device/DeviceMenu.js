@@ -113,6 +113,15 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         showCondition: me.device.get('hasLogBooks')
                             || me.device.get('hasLoadProfiles')
                             || me.device.get('hasRegisters')
+                    },
+					{
+                        text: Uni.I18n.translate('devicemenu.validationResults', 'MDC', 'Validation results'),
+                        itemId: 'validationResultsLink',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration']),
+                        href: '#/devices/' + mRID + '/validationresults/configuration',
+                        showCondition: me.device.get('hasLogBooks')
+                            || me.device.get('hasLoadProfiles')
+                            || me.device.get('hasRegisters')
                     }
                 ]
             }
