@@ -1,6 +1,8 @@
 Ext.define('Isu.controller.history.Administration', {
     extend: 'Uni.controller.history.Converter',
-
+    requires: [
+        'Isu.privileges.Issue'
+    ],
     rootToken: 'administration',
     previousPath: '',
     currentPath: null,
@@ -15,19 +17,19 @@ Ext.define('Isu.controller.history.Administration', {
                     title: Uni.I18n.translate('route.assignmentRules', 'ISU', 'Assignment Rules'),
                     route: 'assignmentrules',
                     controller: 'Isu.controller.AssignmentRules',
-                    privileges: ['privilege.view.assignmentRule']
+                    privileges: Isu.privileges.Issue.viewRule
                 },
                 creationrules: {
                     title: Uni.I18n.translate('route.issueCreationRules', 'ISU', 'Issue creation rules'),
                     route: 'creationrules',
                     controller: 'Isu.controller.CreationRules',
-                    privileges: ['privilege.administrate.creationRule','privilege.view.creationRule'],
+                    privileges: Isu.privileges.Issue.adminCreateRule,
                     items: {
                         add: {
                             title: Uni.I18n.translate('route.addIssueCreationRule', 'ISU', 'Add issue creation rule'),
                             route: 'add',
                             controller: 'Isu.controller.CreationRuleEdit',
-                            privileges: ['privilege.administrate.creationRule'],
+                            privileges: Isu.privileges.Issue.createRule,
                             action: 'showCreate',
                             items: {
                                 addaction: {
@@ -43,7 +45,7 @@ Ext.define('Isu.controller.history.Administration', {
                             route: '{id}/edit',
                             controller: 'Isu.controller.CreationRuleEdit',
                             action: 'showEdit',
-                            privileges: ['privilege.administrate.creationRule'],
+                            privileges: Isu.privileges.Issue.createRule,
                             callback: function (route) {
                                 this.getApplication().on('issueCreationRuleEdit', function (record) {
                                     route.setTitle('Edit' + " '" + record.data.name + "'");

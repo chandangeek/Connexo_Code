@@ -32,7 +32,7 @@ Ext.define('Isu.view.creationrules.Overview', {
                             {
                                 itemId: 'createRule',
                                 text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Add rule'),
-                                privileges:['privilege.administrate.creationRule'],
+                                privileges:Isu.privileges.Issue.createRule,
                                 href: '#/administration/creationrules/add',
                                 action: 'create'
                             }
