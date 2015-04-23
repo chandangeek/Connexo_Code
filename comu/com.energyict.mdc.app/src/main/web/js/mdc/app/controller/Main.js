@@ -8,13 +8,17 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.MasterData',
         'Mdc.privileges.DeviceGroup',
         'Mdc.privileges.DeviceType',
+        'Mdc.privileges.Device',
         'Mdc.privileges.CommunicationSchedule',
-        'Mdc.privileges.Communication'
+        'Mdc.privileges.DeviceSecurity',
+        'Mdc.privileges.DeviceCommands',
+        'Mdc.privileges.Communication',
+        'Dvi.privileges.InventoryManagement'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
     defaultToken: '/dashboard',
-    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+    searchEnabled:  Mdc.privileges.Device.canSearchDevices(),
     onlineHelpEnabled: true,
     privileges: Ext.Array.merge(
             Cfg.privileges.Validation.any(),
@@ -23,13 +27,12 @@ Ext.define('MdcApp.controller.Main', {
             Mdc.privileges.DeviceType.any(),
             Mdc.privileges.CommunicationSchedule.any(),
             Mdc.privileges.Communication.any(),
-        ['privilege.close.issue','privilege.comment.issue','privilege.view.issue','privilege.assign.issue','privilege.action.issue'
-            ,'privilege.view.creationRule','privilege.administrate.creationRule','privilege.view.assignmentRule',
-            'view.device.security.properties.level1'
-        ,'view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4','edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level4'
-        ,'edit.device.security.properties.level3','execute.device.message.level1','execute.device.message.level3','execute.device.message.level2','execute.device.message.level4','privilege.add.device','privilege.view.device','privilege.remove.device','privilege.administrate.deviceData'
-        ,'privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication',
-            'privilege.revoke.inventoryManagement','privilege.import.inventoryManagement']),
+            Mdc.privileges.DeviceSecurity.any(),
+            Mdc.privileges.DeviceCommands.any(),
+            Mdc.privileges.Device.any(),
+            Dvi.privileges.InventoryManagement.any(),
+        [   'privilege.close.issue','privilege.comment.issue','privilege.view.issue','privilege.assign.issue','privilege.action.issue'
+            ,'privilege.view.creationRule','privilege.administrate.creationRule','privilege.view.assignmentRule']),
     controllers: [
         'Cfg.controller.Main',
         'Mdc.controller.Main',

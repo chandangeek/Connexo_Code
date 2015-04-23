@@ -3,11 +3,15 @@ Ext.define('MdcApp.Application', {
 
     requires:[
         'Cfg.privileges.Validation',
+        'Mdc.privileges.MasterData',
         'Mdc.privileges.DeviceGroup',
         'Mdc.privileges.DeviceType',
-        'Mdc.privileges.MasterData',
+        'Mdc.privileges.Device',
+        'Mdc.privileges.CommunicationSchedule',
+        'Mdc.privileges.DeviceSecurity',
+        'Mdc.privileges.DeviceCommands',
         'Mdc.privileges.Communication',
-        'Mdc.privileges.CommunicationSchedule'
+        'Dvi.privileges.InventoryManagement'
     ],
     controllers: [
         'MdcApp.controller.Main'
