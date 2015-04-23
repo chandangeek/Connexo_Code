@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  */
 public class LinearInterpolation extends AbstractEstimator {
 
-    private final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
+    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
     private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
     private BigDecimal numberOfConsecutiveSuspects;
