@@ -136,7 +136,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             lastUpdateField = dashboard.down('#last-updated-field');
 
         if (Mdc.privileges.Device.canOperateDevice() ||
-                Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
+                Isu.privileges.Issue.canViewAdminDevice()) {
             var connectionModel = me.getModel('Dsh.model.connection.OverviewDashboard'),
                 communicationModel = me.getModel('Dsh.model.communication.OverviewDashboard'),
                 myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
@@ -178,7 +178,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 });
             }
 
-            if (Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
+            if (Isu.privileges.Issue.canViewAdminDevice()) {
                 issuesWidget.setLoading();
                 myOpenIssuesModel.load(null, {
                     success: function (issues) {

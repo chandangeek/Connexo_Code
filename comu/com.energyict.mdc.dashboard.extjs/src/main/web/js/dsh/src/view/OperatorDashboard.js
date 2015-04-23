@@ -111,7 +111,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
             }
         ];
 
-        if(Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
+        if(Isu.privileges.Issue.canViewAdminDevice()) {
             me.items[0].items.push(
                 {
                     xtype: 'open-data-collection-issues',

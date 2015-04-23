@@ -67,7 +67,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                         '">' +
                         val.config.name +
                         '</a>');
-                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])) {
+                        if (res !== '' && !Mdc.privileges.DeviceType.canView()) {
                             res = val.config.name;
                         }
                         return res
