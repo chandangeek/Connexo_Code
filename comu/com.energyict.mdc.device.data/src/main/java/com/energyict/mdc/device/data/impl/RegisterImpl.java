@@ -166,6 +166,11 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     @Override
+    public boolean hasData() {
+        return this.device.hasData(this);
+    }
+
+    @Override
     public RegisterDataUpdater startEditingData() {
         return new RegisterDataUpdaterImpl(this);
     }

@@ -1231,6 +1231,20 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
+    boolean hasData(Channel channel) {
+        return this.hasData(this.findKoreChannels(channel));
+    }
+
+    boolean hasData(Register<?> register) {
+        return this.hasData(this.findKoreChannels(register));
+    }
+
+    private boolean hasData(List<com.elster.jupiter.metering.Channel> channels) {
+        return channels
+                .stream()
+                .anyMatch(com.elster.jupiter.metering.Channel::hasData);
+    }
+
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
         return this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
