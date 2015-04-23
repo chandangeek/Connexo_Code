@@ -10,7 +10,7 @@ Ext.define('Sam.privileges.DataPurge', {
     singleton: true,
     view : ['privilege.administrate.dataPurge','privilege.view.dataPurge'],
     admin: ['privilege.administrate.dataPurge'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Sam.privileges.DataPurge.view);
     },
     canView:function(){

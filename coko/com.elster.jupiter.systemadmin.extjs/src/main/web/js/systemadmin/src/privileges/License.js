@@ -10,7 +10,7 @@ Ext.define('Sam.privileges.License', {
     singleton: true,
     view : ['privilege.upload.license', 'privilege.view.license'],
     upload : ['privilege.upload.license'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Sam.privileges.License.view, Sam.privileges.License.upload);
     },
     canView:function(){
