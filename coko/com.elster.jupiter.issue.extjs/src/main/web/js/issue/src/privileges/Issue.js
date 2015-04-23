@@ -20,7 +20,7 @@ Ext.define('Isu.privileges.Issue', {
     adminDevice: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'],
     viewAdminDevice: ['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'],
 
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Isu.privileges.Issue.createRule, Isu.privileges.Issue.comment,Isu.privileges.Issue.adminRule,
             Isu.privileges.Issue.viewRule, Isu.privileges.Issue.adminCreateRule,Isu.privileges.Issue.assign,Isu.privileges.Issue.close,Isu.privileges.Issue.notify,
             Isu.privileges.Issue.adminDevice,Isu.privileges.Issue.viewAdminDevice);
