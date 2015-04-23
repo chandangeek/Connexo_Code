@@ -11,18 +11,21 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                     title: Uni.I18n.translate('general.deviceLifeCycles', 'DLC', 'Device life cycles'),
                     route: 'devicelifecycles',
                     controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                    privileges: ['privilege.view.deviceLifeCycle'],
                     action: 'showDeviceLifeCycles',
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Add device life cycle'),
                             route: 'add',
                             controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                            privileges: ['privilege.configure.deviceLifeCycle'],
                             action: 'showAddDeviceLifeCycle'
                         },
                         clone: {
                             title: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Clone device life cycle'),
                             route: '{deviceLifeCycleId}/clone',
                             controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                            privileges: ['privilege.configure.deviceLifeCycle'],
                             action: 'showCloneDeviceLifeCycle',
                             callback: function (route) {
                                 this.getApplication().on('devicelifecyclecloneload', function (title) {
@@ -35,6 +38,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                         devicelifecycle: {
                             route: '{deviceLifeCycleId}',
                             controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                            privileges: ['privilege.view.deviceLifeCycle'],
                             action: 'showDeviceLifeCycleOverview',
                             callback: function (route) {
                                 this.getApplication().on('devicelifecycleload', function (record) {
@@ -48,6 +52,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     title: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
                                     route: 'edit',
                                     controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
+                                    privileges: ['privilege.configure.deviceLifeCycle'],
                                     action: 'showEditDeviceLifeCycle',
                                     callback: function (route) {
                                         this.getApplication().on('deviceLifeCycleEdit', function (record) {

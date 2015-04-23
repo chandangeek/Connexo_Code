@@ -26,6 +26,7 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.configure.deviceLifeCycle'),
                 menu: {
                     xtype: 'device-life-cycles-action-menu',
                     itemId: 'lifeCycleActionMenu'
