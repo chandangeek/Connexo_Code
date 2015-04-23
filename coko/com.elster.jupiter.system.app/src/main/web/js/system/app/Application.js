@@ -1,5 +1,13 @@
 Ext.define('SystemApp.Application', {
     extend: 'Ext.app.Application',
+    requires:[
+        'Usr.privileges.Users',
+        'Sam.privileges.DataPurge',
+        'Sam.privileges.License',
+        'Yfn.privileges.Yellowfin',
+        'Dxp.privileges.DataExport',
+        'Tme.privileges.Period'
+    ],
 
     controllers: [
         'SystemApp.controller.Main'
