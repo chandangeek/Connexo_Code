@@ -66,7 +66,15 @@ Ext.define('Fwc.controller.History', {
                     title: Uni.I18n.translate('firmware.route.devicefirmware.upload', 'FWC', 'Upgrade meter firmware'),
                     route: 'upload',
                     controller: 'Fwc.devicefirmware.controller.DeviceFirmware',
-                    action: 'showDeviceFirmwareUpload'
+                    action: 'showDeviceFirmwareUpload',
+                    callback: function (route) {
+                        this.getApplication().on('uploadfirmwareoption', function (title) {
+                            route.setTitle(title);
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    }
                 },
                 log: {
                     title: Uni.I18n.translate('firmware.route.devicefirmware.log', 'FWC', 'Meter firmware upgrade log'),
