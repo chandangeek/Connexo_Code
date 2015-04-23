@@ -1,17 +1,7 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
-import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
-import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
-import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
-import com.elster.jupiter.demo.impl.commands.CreateG3GatewayCommand;
-import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
-import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
-import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
+import com.elster.jupiter.demo.impl.commands.*;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
@@ -74,7 +64,8 @@ import java.time.Clock;
         "osgi.command.function=addIntervalChannelReadings",
         "osgi.command.function=addNoneIntervalChannelReadings",
         "osgi.command.function=addRegisterReadings",
-        "osgi.command.function=createG3Gateway"
+        "osgi.command.function=createG3Gateway",
+        "osgi.command.function=createG3SlaveDevice"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -435,6 +426,14 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
+    public void createG3SlaveDevice(){
+        executeTransaction(() -> {
+            CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
     public void addIntervalChannelReadings(String mrid, String startDate, String path) {
         executeTransaction(() -> {
             AddIntervalChannelReadingsCommand command = injector.getInstance(AddIntervalChannelReadingsCommand.class);
@@ -477,7 +476,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createUserManagement(){
+    public void createUserManagement() {
         executeTransaction(() -> {
             CreateUserManagementCommand command = injector.getInstance(CreateUserManagementCommand.class);
             command.run();
