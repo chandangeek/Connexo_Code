@@ -86,7 +86,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                     privileges = Isu.privileges.Issue.close;
                     break;
                 case 'Retry now':
-                    privileges = Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication');
+                    privileges = Mdc.privileges.Device.canOperateDeviceCommunication();
                     break;
                 case 'Send someone to inspect':
                     privileges = Isu.privileges.Issue.notify;
