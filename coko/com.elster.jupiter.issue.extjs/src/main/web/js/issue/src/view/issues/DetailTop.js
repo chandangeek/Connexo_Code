@@ -2,7 +2,9 @@ Ext.define('Isu.view.issues.DetailTop', {
     extend: 'Ext.container.Container',
     alias: 'widget.issue-detail-top',
     requires: [
-        'Isu.view.issues.ActionMenu'
+        'Isu.view.issues.ActionMenu',
+        'Isu.privileges.Issue',
+        'Mdc.privileges.Device'
     ],
     layout: {
         type: 'hbox',
@@ -30,8 +32,7 @@ Ext.define('Isu.view.issues.DetailTop', {
                 xtype: 'button',
                 itemId: 'issue-detail-top-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
-                    'privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Mdc.privileges.Device.viewDeviceCommunication),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'issues-action-menu',

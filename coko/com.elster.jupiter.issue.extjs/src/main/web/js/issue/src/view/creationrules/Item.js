@@ -1,7 +1,8 @@
 Ext.define('Isu.view.creationrules.Item', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Isu.view.creationrules.ActionMenu'
+        'Isu.view.creationrules.ActionMenu',
+        'Isu.privileges.Issue'
     ],
     alias: 'widget.issue-creation-rules-item',
     title: 'Details',
@@ -11,7 +12,7 @@ Ext.define('Isu.view.creationrules.Item', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.creationRule'),
+            privileges: Isu.privileges.Issue.createRule,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'creation-rule-action-menu'

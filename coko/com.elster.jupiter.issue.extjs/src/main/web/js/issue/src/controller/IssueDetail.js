@@ -1,5 +1,8 @@
 Ext.define('Isu.controller.IssueDetail', {
     extend: 'Ext.app.Controller',
+    requires: [
+       'Isu.privileges.Issue'
+    ],
 
     showOverview: function (id, issueModel, issuesStore, widgetXtype, routeToList, issueType) {
         var me = this,
@@ -61,7 +64,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsStore.add(records);
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
-                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && !Uni.Auth.hasNoPrivilege('privilege.comment.issue'));
+                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && !Isu.privileges.Issue.canComment());
                 Ext.resumeLayouts(true);
                 commentsView.setLoading(false);
             }
@@ -89,7 +92,7 @@ Ext.define('Isu.controller.IssueDetail', {
         Ext.suspendLayouts();
         commentsPanel.down('#issue-add-comment-form').hide();
         commentsPanel.down('#issue-add-comment-area').reset();
-        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && !Uni.Auth.hasNoPrivilege('privilege.comment.issue'));
+        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && !Isu.privileges.Issue.canComment());
         commentsPanel.down('#no-issue-comments').setVisible(!hasComments);
         Ext.resumeLayouts(true);
     },

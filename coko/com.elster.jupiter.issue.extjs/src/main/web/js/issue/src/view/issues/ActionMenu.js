@@ -1,5 +1,9 @@
 Ext.define('Isu.view.issues.ActionMenu', {
     extend: 'Ext.menu.Menu',
+    requires: [
+        'Isu.privileges.Issue',
+        'Mdc.privileges.Device'
+    ],
     alias: 'widget.issues-action-menu',
     store: 'Isu.store.IssueActions',
     plain: true,
@@ -14,7 +18,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     predefinedItems: [
         {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.comment.issue'),
+            privilege: Isu.privileges.Issue.comment,
             action: 'addComment'
         }
     ],
@@ -73,28 +77,28 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
         // add dynamic actions
         me.store.each(function (record) {
-            var isHidden = false;
+            var privileges;
             switch (record.get('name')) {
                 case 'Assign issue':
-                    isHidden = Uni.Auth.hasNoPrivilege('privilege.assign.issue');
+                    privileges = Isu.privileges.Issue.assign;
                     break;
                 case 'Close issue':
-                    isHidden = Uni.Auth.hasNoPrivilege('privilege.close.issue');
+                    privileges = Isu.privileges.Issue.close;
                     break;
                 case 'Retry now':
-                    isHidden = Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication');
+                    privileges = Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication');
                     break;
                 case 'Send someone to inspect':
-                    isHidden = Uni.Auth.hasNoPrivilege('privilege.action.issue');
+                    privileges = Isu.privileges.Issue.notify;
                     break;
                 case 'Notify user':
-                    isHidden = Uni.Auth.hasNoPrivilege('privilege.action.issue');
+                    privileges = Isu.privileges.Issue.notify;
                     break;
             }
 
             var menuItem = {
                 text: record.get('name'),
-                hidden: isHidden
+                privileges: privileges
             };
 
             if (Ext.isEmpty(record.get('parameters'))) {
@@ -126,7 +130,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         }
 
         // add specific actions
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'])) {
+        if (Mdc.privileges.Device.viewDeviceCommunication) {
             deviceMRID = me.record.get('deviceMRID');
             if (deviceMRID) {
                 comTaskId = me.record.get('comTaskId');

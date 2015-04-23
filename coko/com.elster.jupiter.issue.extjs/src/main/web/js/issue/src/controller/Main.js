@@ -8,7 +8,8 @@ Ext.define('Isu.controller.Main', {
         'Uni.controller.history.EventBus',
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Isu.privileges.Issue'
     ],
 
     controllers: [
@@ -33,7 +34,7 @@ Ext.define('Isu.controller.Main', {
             router = me.getController('Uni.controller.history.Router'),
             historian = me.getController('Isu.controller.history.Administration'); // Forces route registration.
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.assignmentRule','privilege.administrate.creationRule','privilege.view.creationRule'])){
+        if (Isu.privileges.Issue.canAdminRule()){
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: 'Administration',
                 glyph: 'settings',
@@ -42,8 +43,8 @@ Ext.define('Isu.controller.Main', {
             }));
         }
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.assignmentRule','privilege.administrate.creationRule','privilege.view.creationRule'])){
-            if(Uni.Auth.hasAnyPrivilege(['privilege.view.assignmentRule'])) {
+        if (Isu.privileges.Issue.canAdminRule()){
+            if(Isu.privileges.Issue.canViewRule()) {
                 issuemanagementItems.push(
                     {
                         text: 'Issue assignment rules',
@@ -51,7 +52,7 @@ Ext.define('Isu.controller.Main', {
                     }
                 );
             }
-            if(Uni.Auth.hasAnyPrivilege(['privilege.administrate.creationRule','privilege.view.creationRule'])) {
+            if(Isu.privileges.Issue.canAdminCreateRule()) {
                 issuemanagementItems.push(
                     {
                         text: 'Issue creation rules',

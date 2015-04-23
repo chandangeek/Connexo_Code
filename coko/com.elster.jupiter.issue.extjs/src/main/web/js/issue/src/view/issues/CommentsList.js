@@ -2,7 +2,8 @@ Ext.define('Isu.view.issues.CommentsList', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Isu.view.issues.AddCommentForm',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Isu.privileges.Issue'
     ],
     alias: 'widget.issue-comments',
     title: 'Comments',
@@ -20,7 +21,7 @@ Ext.define('Isu.view.issues.CommentsList', {
                 {
                     itemId: 'empty-message-add-comment-button',
                     text: 'Add comment',
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.comment.issue'),
+                    privileges: Isu.privileges.Issue.comment,
                     action: 'add'
                 }
             ],

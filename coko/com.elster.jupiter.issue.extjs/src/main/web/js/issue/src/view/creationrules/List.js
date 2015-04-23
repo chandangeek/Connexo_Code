@@ -5,7 +5,8 @@ Ext.define('Isu.view.creationrules.List', {
         'Ext.grid.column.Template',
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Isu.privileges.Issue'
     ],
     alias: 'widget.issues-creation-rules-list',
     store: 'Isu.store.CreationRules',
@@ -33,7 +34,7 @@ Ext.define('Isu.view.creationrules.List', {
             },
             {   itemId: 'action',
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.creationRule'),
+                privileges: Isu.privileges.Issue.createRule,
                 items: 'Isu.view.creationrules.ActionMenu'
             }
         ]
@@ -57,7 +58,7 @@ Ext.define('Isu.view.creationrules.List', {
                         itemId: 'createRule',
                         xtype: 'button',
                         text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Add rule'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.creationRule'),
+                        privileges: Isu.privileges.Issue.createRule,
                         href: '#/administration/creationrules/add',
                         action: 'create'
                     }
