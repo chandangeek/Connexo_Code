@@ -418,9 +418,12 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createG3Gateway(){
+    public void createG3Gateway(String mrid){
         executeTransaction(() -> {
             CreateG3GatewayCommand command = injector.getInstance(CreateG3GatewayCommand.class);
+            if (mrid != null){ //Otherwise default mrId is Used
+                command.setGatewayMrid(mrid);
+            }
             command.run();
         });
     }
