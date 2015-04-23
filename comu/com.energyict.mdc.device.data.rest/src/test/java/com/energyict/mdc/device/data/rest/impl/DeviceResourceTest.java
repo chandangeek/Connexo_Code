@@ -434,7 +434,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel2.getLoadProfile()).thenReturn(loadProfile1);
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(device1.forValidation()).thenReturn(deviceValidation);
-        when(deviceValidation.getValidationStatus(any(Channel.class), any())).thenReturn(Collections.emptyList());
         when(channel1.getReadingType()).thenReturn(readingType);
         when(channel2.getReadingType()).thenReturn(readingType);
 

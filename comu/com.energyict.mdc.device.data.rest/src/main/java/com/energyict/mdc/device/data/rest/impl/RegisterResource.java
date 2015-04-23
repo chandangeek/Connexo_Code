@@ -117,8 +117,8 @@ public class RegisterResource {
         return register.getDevice().forValidation().isValidationActive(register, clock.instant());
     }
 
-    private boolean hasData(Register<?> channel) {
-        return channel.getDevice().forValidation().hasData(channel);
+    private boolean hasData(Register<?> register) {
+        return register.hasData();
     }
 
 }

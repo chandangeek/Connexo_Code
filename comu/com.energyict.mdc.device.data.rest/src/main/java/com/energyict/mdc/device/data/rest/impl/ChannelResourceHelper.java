@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ChannelResourceHelper {
-    
+
     private static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new ChannelComparator();
 
     private final ResourceHelper resourceHelper;
@@ -77,13 +77,13 @@ public class ChannelResourceHelper {
     }
 
     private boolean hasData(Channel channel) {
-        return channel.getDevice().forValidation().hasData(channel);
+        return channel.hasData();
     }
 
     public ValidationStatusInfo determineStatus(Channel channel) {
         return new ValidationStatusInfo(isValidationActive(channel), channel.getDevice().forValidation().getLastChecked(channel), hasData(channel));
     }
-    
+
     public String getChannelName(Channel channel) {
         ReadingTypeInfo readingTypeInfo = new ReadingTypeInfo(channel.getReadingType());
         StringBuilder channelReadingTypeName = new StringBuilder();
