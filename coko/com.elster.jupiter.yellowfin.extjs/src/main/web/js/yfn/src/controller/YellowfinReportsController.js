@@ -1,6 +1,7 @@
 Ext.define('Yfn.controller.YellowfinReportsController', {
     extend: 'Ext.app.Controller',
     requires: [
+        'Yfn.privileges.Yellowfin',
         'Yfn.view.ReportView',
         'Yfn.store.ReportInfos',
         'Yfn.store.ReportFilterInfos',

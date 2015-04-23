@@ -6,6 +6,7 @@ Ext.define('Yfn.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
         'Uni.model.PortalItem',
+        'Yfn.privileges.Yellowfin',
         'Yfn.controller.history.YellowfinReports',
         'Yfn.store.ReportInfos'
     ],

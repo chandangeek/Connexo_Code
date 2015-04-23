@@ -9,6 +9,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         'Yfn.view.generatereport.Wizard'
     ],
     requires: [
+        'Yfn.privileges.Yellowfin',
         'Uni.view.window.Wizard',
         'Yfn.view.generatereport.RadioGroup',
         'Uni.form.filter.FilterCombobox',
