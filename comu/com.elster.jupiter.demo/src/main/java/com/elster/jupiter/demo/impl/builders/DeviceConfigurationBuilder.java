@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration, DeviceConfigurationBuilder> {
     private DeviceType deviceType;
     private GatewayType gatewayType;
+    private boolean directlyAddressable = true;
     private List<RegisterType> registerTypes;
     private List<LoadProfileType> loadProfileTypes;
     private List<LogBookType> logBookTypes;
@@ -40,6 +41,12 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
 
     public DeviceConfigurationBuilder withGatewayType(GatewayType gatewayType) {
         this.gatewayType = gatewayType;
+        return this;
+    }
+
+
+    public DeviceConfigurationBuilder withDirectlyAddressable(boolean directlyAddressable){
+        this.directlyAddressable = directlyAddressable;
         return this;
     }
 
@@ -90,7 +97,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         DeviceType.DeviceConfigurationBuilder configBuilder = this.deviceType.newConfiguration(getName());
         configBuilder.description(getName() + " configuration for device type: " + this.deviceType.getName());
         configBuilder.gatewayType(this.gatewayType);
-        configBuilder.isDirectlyAddressable(true);
+        configBuilder.isDirectlyAddressable(directlyAddressable);
         addRegisters(configBuilder);
         addLoadProfiles(configBuilder);
         addLogBooks(configBuilder);
