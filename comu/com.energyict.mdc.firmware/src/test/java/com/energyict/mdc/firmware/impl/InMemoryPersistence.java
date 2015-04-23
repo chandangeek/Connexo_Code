@@ -197,8 +197,12 @@ public class InMemoryPersistence {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(DataModel.class).toProvider(() -> dataModel);
+            bind(DataModel.class).toProvider(new Provider<DataModel>() {
+                @Override
+                public DataModel get() {
+                    return dataModel;
+                }
+            });
         }
-
     }
 }
