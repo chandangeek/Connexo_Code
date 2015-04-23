@@ -9,6 +9,8 @@ Ext.define('Mdc.model.ValidationResultsDataFilter', {
     },
     fields: [
         {name: 'intervalStart', type: 'date', dateFormat: 'Y-m-dTH:i:s'},
-        {name: 'duration'}
+        {name: 'duration'},
+		{name: 'count'},
+		{name: 'timeUnit'}		
     ]
 });

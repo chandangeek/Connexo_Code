@@ -1,13 +1,19 @@
 Ext.define('Mdc.model.ValidationResultsRule', {
-    extend: 'Ext.data.Model',
+    extend: 'Cfg.model.ValidationRule',
 	requires: [
-        'Uni.property.model.Property'
+        'Uni.property.model.Property',
+		'Cfg.model.ValidationRule'
     ],
     fields: [
-        'id',
-        'displayName',		
-		'result',
-		'implementation',        
+    	{
+            name: 'total',            
+            convert: function (value, record) {
+                if (value) {
+                    return  Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);                    
+                }
+                return '';    
+            }
+        },
 		{
             name: 'active',            
             convert: function (value, record) {
@@ -16,29 +22,8 @@ Ext.define('Mdc.model.ValidationResultsRule', {
                 }
                 return Uni.I18n.translate('validationResults.inactive', 'MDC', 'Inactive');    
             }
-        },
-		{
-            name: 'total',            
-            convert: function (value, record) {
-                if (value) {
-                    return  Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);                    
-                }
-                return '';    
-            }
         }
-    ],
+    ]
 	
-    associations: [
-        {
-			name: 'properties', 
-			type: 'hasMany', 
-			model: 'Uni.property.model.Property', 
-			associationKey: 'properties', 
-			foreignKey: 'properties',
-            
-			getTypeDiscriminator: function (node) {
-                return 'Uni.property.model.Property';
-            }
-        }
-    ],
+    
 });

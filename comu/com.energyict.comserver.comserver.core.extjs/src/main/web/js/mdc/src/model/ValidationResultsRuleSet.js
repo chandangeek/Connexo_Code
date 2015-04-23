@@ -15,7 +15,8 @@ Ext.define('Mdc.model.ValidationResultsRuleSet', {
                 }
                 return '';    
             }
-        }
+        },
+		'detailedRuleSetVersions'
     ],
 	
 	associations: [
@@ -26,6 +27,6 @@ Ext.define('Mdc.model.ValidationResultsRuleSet', {
 			associationKey: 'detailedRuleSetVersions', 
 			foreignKey: 'detailedRuleSetVersions'
         }
-    ],
+    ]
 
 });
