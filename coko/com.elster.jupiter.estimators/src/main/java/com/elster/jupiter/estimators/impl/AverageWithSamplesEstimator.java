@@ -47,17 +47,17 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private final ValidationService validationService;
     private final MeteringService meteringService;
 
-    private static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
+    private static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "averagewithsamples.maxNumberOfConsecutiveSuspects";
     private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
-    private static final String MIN_NUMBER_OF_SAMPLES = "minNumberOfSamples";
+    private static final String MIN_NUMBER_OF_SAMPLES = "averagewithsamples.minNumberOfSamples";
     private static final BigDecimal MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = BigDecimal.valueOf(1);
-    private static final String MAX_NUMBER_OF_SAMPLES = "maxNumberOfSamples";
+    private static final String MAX_NUMBER_OF_SAMPLES = "averagewithsamples.maxNumberOfSamples";
     private static final BigDecimal MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
-    private static final String ALLOW_NEGATIVE_VALUES = "allowNegativeValues";
-    private static final String RELATIVE_PERIOD = "relativePeriod";
-    private static final String ADVANCE_READINGS_SETTINGS = "advanceReadingsSettings";
+    private static final String ALLOW_NEGATIVE_VALUES = "averagewithsamples.allowNegativeValues";
+    private static final String RELATIVE_PERIOD = "averagewithsamples.relativePeriod";
+    private static final String ADVANCE_READINGS_SETTINGS = "averagewithsamples.advanceReadingsSettings";
 
     private BigDecimal numberOfConsecutiveSuspects;
     private BigDecimal minNumberOfSamples;
@@ -81,32 +81,22 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public void init() {
-        numberOfConsecutiveSuspects = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
-        if (numberOfConsecutiveSuspects == null) {
-            this.numberOfConsecutiveSuspects = MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE;
-        }
+        numberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+                .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
 
-        maxNumberOfSamples = (BigDecimal) properties.get(MIN_NUMBER_OF_SAMPLES);
-        if (maxNumberOfSamples == null) {
-            this.maxNumberOfSamples = MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE;
-        }
+        maxNumberOfSamples = getProperty(MAX_NUMBER_OF_SAMPLES, BigDecimal.class)
+                .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
 
-        minNumberOfSamples = (BigDecimal) properties.get(MAX_NUMBER_OF_SAMPLES);
-        if (minNumberOfSamples == null) {
-            this.minNumberOfSamples = MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE;
-        }
+        minNumberOfSamples = getProperty(MIN_NUMBER_OF_SAMPLES, BigDecimal.class)
+                .orElse(MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE);
 
-        Object allowNegativeValuesPropertyValue = properties.get(ALLOW_NEGATIVE_VALUES);
-        if (allowNegativeValuesPropertyValue != null) {
-            this.allowNegativeValues = ((Boolean) allowNegativeValuesPropertyValue).booleanValue();
-        }
+        allowNegativeValues = getProperty(ALLOW_NEGATIVE_VALUES, Boolean.class)
+                .orElse(false);
 
-        relativePeriod = (RelativePeriod) properties.get(RELATIVE_PERIOD);
+        relativePeriod = getProperty(RELATIVE_PERIOD, RelativePeriod.class).orElse(null);
 
-        advanceReadingsSettings = (AdvanceReadingsSettings) properties.get(ADVANCE_READINGS_SETTINGS);
-        if (advanceReadingsSettings == null) {
-            advanceReadingsSettings = new NoneAdvanceReadingsSettings();
-        }
+        advanceReadingsSettings = getProperty(ADVANCE_READINGS_SETTINGS, AdvanceReadingsSettings.class)
+                .orElseGet(NoneAdvanceReadingsSettings::new);
     }
 
     @Override

@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  */
 public class LinearInterpolation extends AbstractEstimator {
 
-    private final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
+    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "linearinterpolation.maxNumberOfConsecutiveSuspects";
     private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
     private BigDecimal numberOfConsecutiveSuspects;
@@ -40,12 +40,8 @@ public class LinearInterpolation extends AbstractEstimator {
 
     @Override
     public void init() {
-        BigDecimal value = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
-        if (value == null) {
-            this.numberOfConsecutiveSuspects = MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE;
-        } else {
-            this.numberOfConsecutiveSuspects = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
-        }
+        this.numberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+                .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
     }
 
     @Override
