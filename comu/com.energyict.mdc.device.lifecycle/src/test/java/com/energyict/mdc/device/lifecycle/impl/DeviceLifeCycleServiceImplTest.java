@@ -135,6 +135,10 @@ public class DeviceLifeCycleServiceImplTest {
             when(serverMicroCheck.evaluate(any(Device.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
             when(this.microCheckFactory.from(microCheck)).thenReturn(serverMicroCheck);
         }
+        for (MicroAction microAction : MicroAction.values()) {
+            ServerMicroAction serverMicroAction = mock(ServerMicroAction.class);
+            when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
+        }
     }
 
     @Test
