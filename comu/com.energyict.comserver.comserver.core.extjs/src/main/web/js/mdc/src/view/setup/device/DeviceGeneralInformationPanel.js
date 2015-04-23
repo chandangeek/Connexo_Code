@@ -25,6 +25,11 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
                 },
                 {
+                    name: 'state',
+                    itemId: 'fld-device-state',
+                    fieldLabel: Uni.I18n.translate('general.state', 'MDC', 'State')
+                },
+                {
                     name: 'serialNumber',
                     itemId: 'fld-device-serial',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serialNumber', 'MDC', 'Serial number')
