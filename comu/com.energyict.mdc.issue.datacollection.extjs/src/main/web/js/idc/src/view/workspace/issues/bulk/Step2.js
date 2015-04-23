@@ -24,8 +24,19 @@ Ext.define('Idc.view.workspace.issues.bulk.Step2', {
                     },
 
                     items: [
-                        { itemId: 'Assign', boxLabel: 'Assign issues', name: 'operation', inputValue: 'assign', checked: true, hidden: Uni.Auth.hasNoPrivilege('privilege.assign.issue') },
-                        { itemId: 'Close', boxLabel: 'Close issues', name: 'operation', inputValue: 'close', hidden: Uni.Auth.hasNoPrivilege('privilege.close.issue')}
+                        { itemId: 'Assign',
+                            boxLabel: 'Assign issues',
+                            name: 'operation',
+                            inputValue: 'assign',
+                            checked: true,
+                            privileges: Isu.privileges.Issue.assign
+                        },
+                        { itemId: 'Close',
+                            boxLabel: 'Close issues',
+                            name: 'operation',
+                            inputValue: 'close',
+                            privileges: Isu.privileges.Issue.close
+                        }
                     ]
                 }
             ]

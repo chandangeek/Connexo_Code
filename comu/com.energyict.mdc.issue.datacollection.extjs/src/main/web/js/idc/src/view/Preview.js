@@ -2,7 +2,9 @@ Ext.define('Idc.view.Preview', {
     extend: 'Ext.form.Panel',
     requires: [
         'Uni.form.field.FilterDisplay',
-        'Isu.view.issues.ActionMenu'
+        'Isu.view.issues.ActionMenu',
+        'Isu.privileges.Issue',
+        'Mdc.privileges.Device'
     ],
     alias: 'widget.data-collection-issues-preview',
     layout: 'column',
@@ -22,8 +24,7 @@ Ext.define('Idc.view.Preview', {
                 xtype: 'button',
                 itemId: 'data-collection-issues-preview-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
-                hidden:  !Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
-                                                'privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Mdc.privileges.Device.viewDeviceCommunication),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'issues-action-menu',
@@ -69,7 +70,7 @@ Ext.define('Idc.view.Preview', {
                                 result = '';
 
                             if (value) {
-                                if (value.serialNumber && Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+                                if (value.serialNumber && Mdc.privileges.Device.canViewDeviceCommunication()) {
                                     url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
                                     result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
                                 } else {

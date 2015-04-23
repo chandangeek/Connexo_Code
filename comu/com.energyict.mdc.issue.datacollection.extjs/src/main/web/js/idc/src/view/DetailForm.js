@@ -1,5 +1,8 @@
 Ext.define('Idc.view.DetailForm', {
     extend: 'Ext.form.Panel',
+    requires: [
+        'Mdc.privileges.Device'
+    ],
     alias: 'widget.data-collection-issue-detail-form',
     layout: 'column',
     defaults: {
@@ -40,7 +43,7 @@ Ext.define('Idc.view.DetailForm', {
                                 result = '';
 
                             if (value) {
-                                if (value.serialNumber && Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+                                if (value.serialNumber && Mdc.privileges.Device.canViewDeviceCommunication()) {
                                     url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
                                     result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
                                 } else {

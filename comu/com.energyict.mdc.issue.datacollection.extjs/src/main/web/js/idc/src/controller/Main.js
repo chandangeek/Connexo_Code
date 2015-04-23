@@ -8,7 +8,8 @@ Ext.define('Idc.controller.Main', {
         'Uni.controller.history.EventBus',
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Isu.privileges.Issue'
     ],
 
     controllers: [
@@ -46,7 +47,7 @@ Ext.define('Idc.controller.Main', {
             dataCollection = null,
             historian = me.getController('Idc.controller.history.Workspace'); // Forces route registration.
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: 'Workspace',
                 glyph: 'workspace',
@@ -55,7 +56,7 @@ Ext.define('Idc.controller.Main', {
             }));
         }
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: 'Data collection',
                 portal: 'workspace',
