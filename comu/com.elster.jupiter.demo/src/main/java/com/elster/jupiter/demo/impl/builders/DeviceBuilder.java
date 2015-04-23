@@ -64,13 +64,22 @@ public class DeviceBuilder implements Builder<Device> {
 
     @Override
     public Optional<Device> find() {
-        return deviceService.findByUniqueMrid(this.mrid);
+        Optional<Device> existing = deviceService.findByUniqueMrid(this.mrid);
+        if (existing.isPresent()){
+            update((Device)existing.get());
+        }
+        return existing;
     }
 
     @Override
     public Device create() {
         Log.write(this);
         Device device = deviceService.newDevice(deviceConfiguration, mrid, mrid);
+        update(device);
+        return device;
+    }
+
+    private void update(Device device){
         device.setSerialNumber(serialNumber);
         device.setYearOfCertification(this.yearOfCertification);
         if (comSchedules != null) {
@@ -78,9 +87,8 @@ public class DeviceBuilder implements Builder<Device> {
                 device.newScheduledComTaskExecution(comSchedule).add();
             }
         }
-        device.save();
         applyPostBuilders(device);
-        return device;
+        device.save();
     }
 
     private void applyPostBuilders(Device device){
