@@ -11,18 +11,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpecService;
-
+import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.validation.ValidationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 @Component(name = "com.elster.jupiter.estimators.impl.DefaultEstimatorFactory", service = {EstimatorFactory.class, InstallService.class}, property = "name=" + MessageSeeds.COMPONENT_NAME, immediate = true)
 public class DefaultEstimatorFactory implements EstimatorFactory, InstallService {
@@ -37,12 +36,12 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     private volatile MeteringService meteringService;
 
     public DefaultEstimatorFactory() {
-	}
+    }
 
     @Inject
     public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
-    	setNlsService(nlsService);
-    	setPropertySpecService(propertySpecService);
+        setNlsService(nlsService);
+        setPropertySpecService(propertySpecService);
         setValidationService(validationService);
         setMeteringService(meteringService);
     }
@@ -69,21 +68,23 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
 
     @Override
     public void install() {
-        List<Translation> translations = new ArrayList<>(EstimatorDefinition.values().length);
-        for (EstimatorDefinition estimatorDefinition : EstimatorDefinition.values()) {
-            IEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService);
-            Translation translation = SimpleTranslation.translation(estimator.getNlsKey(), Locale.ENGLISH, estimator.getDefaultFormat());
-            translations.add(translation);
-            estimator.getPropertySpecs()
-                    .stream()
-                    .map(key -> SimpleTranslation.translation(estimator.getPropertyNlsKey(key.getName()), Locale.ENGLISH, estimator.getPropertyDefaultFormat(key.getName())))
-                    .forEach(translations::add);
-            estimator.getExtraTranslations()
-                    .stream()
-                    .map(extraTranslation -> SimpleTranslation.translation(extraTranslation.getFirst(), Locale.ENGLISH, extraTranslation.getLast()))
-                    .forEach(translations::add);
-        }
-        thesaurus.addTranslations(translations);
+        ExceptionCatcher.executing(() -> {
+            List<Translation> translations = new ArrayList<>(EstimatorDefinition.values().length);
+            for (EstimatorDefinition estimatorDefinition : EstimatorDefinition.values()) {
+                IEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService);
+                Translation translation = SimpleTranslation.translation(estimator.getNlsKey(), Locale.ENGLISH, estimator.getDefaultFormat());
+                translations.add(translation);
+                estimator.getPropertySpecs()
+                        .stream()
+                        .map(key -> SimpleTranslation.translation(estimator.getPropertyNlsKey(key.getName()), Locale.ENGLISH, estimator.getPropertyDefaultFormat(key.getName())))
+                        .forEach(translations::add);
+                estimator.getExtraTranslations()
+                        .stream()
+                        .map(extraTranslation -> SimpleTranslation.translation(extraTranslation.getFirst(), Locale.ENGLISH, extraTranslation.getLast()))
+                        .forEach(translations::add);
+            }
+            thesaurus.addTranslations(translations);
+        }).andHandleExceptionsWith(Throwable::printStackTrace);
     }
 
     @Override
@@ -121,7 +122,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
             }
 
             @Override
-            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService,MeteringService meteringService) {
+            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
                 return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService);
             }
         };
