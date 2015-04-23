@@ -12,6 +12,7 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.DeviceCommands',
         'Mdc.privileges.Communication',
         'Dvi.privileges.InventoryManagement',
+        'Yfn.privileges.Yellowfin',
         'Isu.privileges.Issue'
     ],
     controllers: [
