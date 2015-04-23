@@ -42,7 +42,6 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-
 /**
  * Tests the {@link CollectedLoadProfileDeviceCommand} component.
  * Primary focus is the toString method for now.
@@ -200,21 +199,21 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         assertThat(intervalReadingsChannel1).hasSize(4);
         assertThat(intervalReadingsChannel1.get(0).getValue()).isNull();
         assertThat(intervalReadingsChannel1.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne));
-        assertThat(intervalReadingsChannel1.get(1).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel1.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel1.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 1));
-        assertThat(intervalReadingsChannel1.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel1.get(2).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel1.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 2));
-        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel1.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 3));
         List<IntervalReadingRecord> intervalReadingsChannel2 = channels.get(1).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel2).hasSize(4);
         assertThat(intervalReadingsChannel2.get(0).getValue()).isNull();
         assertThat(intervalReadingsChannel2.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo));
-        assertThat(intervalReadingsChannel2.get(1).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel2.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel2.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 1));
-        assertThat(intervalReadingsChannel2.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel2.get(2).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel2.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 2));
-        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel2.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 3));
     }
 
@@ -242,21 +241,21 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         assertThat(intervalReadingsChannel1).hasSize(4);
         assertThat(intervalReadingsChannel1.get(0).getValue()).isNull();
         assertThat(intervalReadingsChannel1.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne));
-        assertThat(intervalReadingsChannel1.get(1).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel1.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel1.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 1));
-        assertThat(intervalReadingsChannel1.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel1.get(2).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel1.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 2));
-        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel1.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 3));
         List<IntervalReadingRecord> intervalReadingsChannel2 = channels.get(1).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel2).hasSize(4);
         assertThat(intervalReadingsChannel2.get(0).getValue()).isNull();
         assertThat(intervalReadingsChannel2.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo));
-        assertThat(intervalReadingsChannel2.get(1).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel2.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel2.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 1));
-        assertThat(intervalReadingsChannel2.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel2.get(2).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel2.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 2));
-        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel2.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 3));
     }
 
@@ -335,21 +334,21 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         assertThat(intervalReadingsChannel1).hasSize(4);
         assertThat(intervalReadingsChannel1.get(0).getValue()).isNull();
         assertThat(intervalReadingsChannel1.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne));
-        assertThat(intervalReadingsChannel1.get(1).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel1.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel1.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 1));
         assertThat(intervalReadingsChannel1.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelOne - (intervalValueOne + 1)));
         assertThat(intervalReadingsChannel1.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelOne));
-        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal(-7651));
         assertThat(intervalReadingsChannel1.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 3));
         List<IntervalReadingRecord> intervalReadingsChannel2 = channels.get(1).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel2).hasSize(4);
         assertThat(intervalReadingsChannel2.get(0).getValue()).isNull();
         assertThat(intervalReadingsChannel2.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo));
-        assertThat(intervalReadingsChannel2.get(1).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel2.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(intervalReadingsChannel2.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 1));
         assertThat(intervalReadingsChannel2.get(2).getQuantity(0).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelTwo - (intervalValueTwo + 1)));
         assertThat(intervalReadingsChannel2.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(updatedIntervalChannelTwo));
-        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal(1));
+        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(new BigDecimal(-2679));
         assertThat(intervalReadingsChannel2.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 3));
     }
 
