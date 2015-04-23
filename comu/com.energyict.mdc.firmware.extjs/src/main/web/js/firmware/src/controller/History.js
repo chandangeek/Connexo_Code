@@ -14,7 +14,7 @@ Ext.define('Fwc.controller.History', {
             title: Uni.I18n.translate('firmware.route.firmwareversions', 'FWC', 'Firmware versions'),
             route: 'administration/devicetypes/{deviceTypeId}/firmware/versions',
             controller: 'Fwc.controller.Firmware',
-            privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
+            privileges: Mdc.privileges.DeviceType.view,
             action: 'showFirmwareVersions',
             filter: 'Fwc.model.FirmwareFilter',
             items: {
@@ -22,14 +22,14 @@ Ext.define('Fwc.controller.History', {
                     title: Uni.I18n.translate('firmware.route.firmwareversions.add', 'FWC', 'Add firmware version'),
                     route: 'add',
                     controller: 'Fwc.controller.Firmware',
-                    privileges: ['privilege.administrate.deviceType'],
+                    privileges: Mdc.privileges.DeviceType.admin,
                     action: 'addFirmware'
                 },
                 edit: {
                     title: Uni.I18n.translate('firmware.route.firmwareversions.edit', 'FWC', 'Edit firmware version'),
                     route: '{firmwareId}/edit',
                     controller: 'Fwc.controller.Firmware',
-                    privileges: ['privilege.administrate.deviceType'],
+                    privileges: Mdc.privileges.DeviceType.admin,
                     action: 'editFirmware',
                     callback: function (route) {
                         this.getApplication().on('loadFirmware', function (record) {

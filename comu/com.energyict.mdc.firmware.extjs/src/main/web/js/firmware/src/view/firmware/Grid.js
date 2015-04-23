@@ -4,7 +4,8 @@ Ext.define('Fwc.view.firmware.Grid', {
     itemId: 'FirmwareGrid',
     store: null,
     requires: [
-        'Fwc.view.firmware.ActionMenu'
+        'Fwc.view.firmware.ActionMenu',
+        'Mdc.privileges.DeviceType'
     ],
 
     columns: [
@@ -24,7 +25,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         {
             xtype: 'uni-actioncolumn',
             isDisabled: function(view, rowIndex, colIndex, item, record) {
-                return Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType')
+                return !Mdc.privileges.DeviceType.canAdministrate()
                     || (record.getAssociatedData().firmwareStatus
                     && record.getAssociatedData().firmwareStatus.id === 'deprecated'
                     );
