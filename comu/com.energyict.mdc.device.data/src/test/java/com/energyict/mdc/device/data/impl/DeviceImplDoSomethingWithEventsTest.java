@@ -313,6 +313,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.nlsService, this.clock,
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),
+                                mock(IssueService.class),
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,
                                 this.deviceConfigurationService, this.meteringService, this.validationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),

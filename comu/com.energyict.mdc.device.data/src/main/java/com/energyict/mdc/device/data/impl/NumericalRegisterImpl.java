@@ -4,10 +4,8 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.NumericalRegister;
 
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
-
-import java.util.List;
+import com.elster.jupiter.validation.DataValidationStatus;
 
 /**
  * Provides an implementation for the {@link NumericalRegister} interface.
@@ -27,8 +25,8 @@ public class NumericalRegisterImpl extends RegisterImpl<NumericalReading> implem
     }
 
     @Override
-    protected NumericalReading newValidatedReading(ReadingRecord actualReading, List<ReadingQuality> readingQualities) {
-        return new NumericalReadingImpl(actualReading, readingQualities);
+    protected NumericalReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus) {
+        return new NumericalReadingImpl(actualReading, validationStatus);
     }
 
 }

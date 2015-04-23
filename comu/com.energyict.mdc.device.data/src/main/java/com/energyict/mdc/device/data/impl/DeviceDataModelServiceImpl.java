@@ -88,6 +88,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile Thesaurus thesaurus;
     private volatile MessageService messagingService;
     private volatile UserService userService;
+    private volatile IssueService issueService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
     private volatile com.elster.jupiter.tasks.TaskService taskService;
@@ -119,10 +120,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     // For unit testing purposes only
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
-                                      OrmService ormService, EventService eventService,
-                                      IssueService issueService,
-                                      NlsService nlsService, Clock clock,
-                                      KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService,
+                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
@@ -137,6 +135,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setClock(clock);
         this.setKpiService(kpiService);
         this.setTaskService(taskService);
+        this.setIssueService(issueService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setEngineConfigurationService(engineConfigurationService);
         this.setDeviceConfigurationService(deviceConfigurationService);
@@ -342,6 +341,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.taskService = taskService;
     }
 
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -362,6 +366,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(MessageService.class).toInstance(messagingService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(IssueService.class).toInstance(issueService);
                 bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(KpiService.class).toInstance(kpiService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(taskService);

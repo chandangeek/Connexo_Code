@@ -155,6 +155,7 @@ public class DataCollectionKpiImplTest {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LicenseService.class).toInstance(licenseService);
             bind(IssueService.class).toInstance(mock(IssueService.class));
+            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class, RETURNS_DEEP_STUBS));
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(RelationService.class).toInstance(mock(RelationService.class));
             bind(ConnectionTypeService.class).toInstance(mock(ConnectionTypeService.class));
