@@ -10,7 +10,9 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -25,6 +27,7 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -38,10 +41,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DeviceValidationResource {
@@ -121,6 +121,31 @@ public class DeviceValidationResource {
 
         DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatus(device);
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
+    }
+
+    @Path("/validationmonitoring")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationMonitoring(@PathParam("mRID") String mrid) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+
+        ZonedDateTime intervalStart = end.minusYears(1);
+        Range<Instant> interval = Range.openClosed(intervalStart.toInstant(), end.toInstant());
+
+        List<DataValidationStatus> statuses = device.getLoadProfiles().stream()
+                .flatMap(l -> l.getChannels().stream())
+                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), interval).stream())
+                .collect(Collectors.toList());
+
+        statuses.addAll(device.getRegisters().stream()
+                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), interval).stream())
+                .collect(Collectors.toList()));
+
+        MonitorValidationInfo info = new MonitorValidationInfo(true, statuses, Optional.of(Instant.now()));
+
+        return Response.status(Response.Status.OK).entity(info).build();
     }
 
     private DeviceValidationStatusInfo determineStatus(Device device) {
