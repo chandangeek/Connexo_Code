@@ -65,7 +65,7 @@ Ext.define('Dxp.view.tasks.Grid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.dataExportTask'),
+                        privileges: Dxp.privileges.DataExport.admin,
                         href: '#/administration/dataexporttasks/add'
                     }
                 ]

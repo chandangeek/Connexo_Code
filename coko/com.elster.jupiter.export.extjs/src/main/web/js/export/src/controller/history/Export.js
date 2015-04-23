@@ -13,21 +13,21 @@ Ext.define('Dxp.controller.history.Export', {
                     title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
                     route: 'dataexporttasks',
                     controller: 'Dxp.controller.Tasks',
-                    privileges: ['privilege.administrate.dataExportTask','privilege.view.dataExportTask','privilege.update.dataExportTask','privilege.update.schedule.dataExportTask','privilege.run.dataExportTask'],
+                    privileges : Dxp.privileges.DataExport.view,
                     action: 'showDataExportTasks',
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
                             route: 'add',
                             controller: 'Dxp.controller.Tasks',
-                            privileges: ['privilege.administrate.dataExportTask'],
+                            privileges: Dxp.privileges.DataExport.admin,
                             action: 'showAddExportTask',
                             items: {
                                 readingtypes: {
                                     title: 'Add reading types',
                                     route: 'readingtypes',
                                     controller: 'Dxp.controller.Tasks',
-                                    privileges: ['privilege.administrate.dataExportTask'],
+                                    privileges: Dxp.privileges.DataExport.admin,
                                     action: 'addReadingTypes'
                                 }
                             }
@@ -49,14 +49,14 @@ Ext.define('Dxp.controller.history.Export', {
                                     title: Uni.I18n.translate('general.edit', 'DES', 'Edit'),
                                     route: 'edit',
                                     controller: 'Dxp.controller.Tasks',
-                                    privileges: ['privilege.update.dataExportTask','privilege.update.schedule.dataExportTask'],
+                                    privileges: Dxp.privileges.DataExport.update,
                                     action: 'showEditExportTask',
                                     items: {
                                         readingtypes: {
                                             title: 'Add reading types',
                                             route: 'readingtypes',
                                             controller: 'Dxp.controller.Tasks',
-                                            privileges: ['privilege.update.dataExportTask','privilege.update.schedule.dataExportTask'],
+                                            privileges: Dxp.privileges.DataExport.update,
                                             action: 'addReadingTypes'
                                         }
                                     }

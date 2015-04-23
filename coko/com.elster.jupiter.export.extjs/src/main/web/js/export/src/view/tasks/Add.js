@@ -340,7 +340,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-task-add-export-period',
-                                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.period'),
+                                privileges: Tme.privileges.Time.admin,
                                 margin: '0 0 0 20',
                                 text: Uni.I18n.translate('general.addExportPeriod', 'DES', 'Add export period'),
                                 ui: 'link'

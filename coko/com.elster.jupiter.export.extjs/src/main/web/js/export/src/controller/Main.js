@@ -30,7 +30,7 @@ Ext.define('Dxp.controller.Main', {
     },
 
     initMenu: function () {
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.dataExportTask','privilege.view.dataExportTask','privilege.update.dataExportTask','privilege.update.schedule.dataExportTask','privilege.run.dataExportTask'])) {
+        if (Dxp.privileges.DataExport.canView()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
                 portal: 'administration',

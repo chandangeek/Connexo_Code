@@ -170,7 +170,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         me.fromDetails = false;
         me.getApplication().fireEvent('changecontentevent', view);
-        if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+        if ( Dxp.privileges.DataExport.canRun()) {
             Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
                 item.show();
             });
@@ -203,7 +203,7 @@ Ext.define('Dxp.controller.Tasks', {
                     if (record.get('status') === 'Failed') {
                         view.down('#reason-field').show();
                     }
-                    if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+                    if (Dxp.privileges.DataExport.canRun()) {
                         view.down('#run').show();
                     }
                 }
@@ -380,7 +380,7 @@ Ext.define('Dxp.controller.Tasks', {
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
             recurrenceTypeCombo = view.down('#recurrence-type');
-        if (Uni.Auth.hasNoPrivilege('privilege.update.dataExportTask')) {
+        if ( Dxp.privileges.DataExport.canUpdate()) {
             deviceGroupCombo.disabled = true;
             exportPeriodCombo.disabled = true;
         }
@@ -484,7 +484,7 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 previewForm.down('#reason-field').hide();
             }
-            if (Uni.Auth.hasPrivilege('privilege.run.dataExportTask')) {
+            if ( Dxp.privileges.DataExport.canRun()) {
                 Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
                     item.show();
                 });

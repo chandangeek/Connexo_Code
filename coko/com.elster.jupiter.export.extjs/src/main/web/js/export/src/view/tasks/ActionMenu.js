@@ -8,13 +8,13 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
         {
             itemId: 'edit-task',
             text: Uni.I18n.translate('general.edit', 'DES', 'Edit'),
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.update.dataExportTask','privilege.update.schedule.dataExportTask']),
+            privileges: Dxp.privileges.DataExport.update,
             action: 'editExportTask'
         },
         {
             itemId: 'remove-task',
             text: Uni.I18n.translate('general.remove', 'DES', 'Remove'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.dataExportTask'),
+            privileges: Dxp.privileges.DataExport.admin,
             action: 'removeTask'
         },
         {
