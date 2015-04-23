@@ -40,7 +40,7 @@ Ext.define('Sam.view.licensing.Overview', {
                                     text: Uni.I18n.translate('licensing.uploadLicenses', 'SAM', 'Upload licenses'),
                                     action: 'uploadlicenses',
                                     href: me.router.getRoute('administration/licenses/upload').buildUrl(),
-                                    hidden: Uni.Auth.hasNoPrivilege('privilege.upload.license')
+                                    privileges: Sam.privileges.License.upload
                                 }
                             ]
                         },

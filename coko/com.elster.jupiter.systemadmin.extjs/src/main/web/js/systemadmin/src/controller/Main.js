@@ -39,7 +39,7 @@ Ext.define('Sam.controller.Main', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license', 'privilege.administrate.dataPurge','privilege.view.dataPurge'])) {
+        if (Sam.privileges.License.canView() || Sam.privileges.DataPurge.canView() ) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'SAM', 'Administration'),
                 href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
@@ -49,7 +49,7 @@ Ext.define('Sam.controller.Main', {
             });
             Uni.store.MenuItems.add(menuItem);
 
-            if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license'])) {
+            if (Sam.privileges.License.canView()) {
                 var licensingItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('general.licenses', 'SAM', 'Licensing'),
                     portal: 'administration',
@@ -66,14 +66,14 @@ Ext.define('Sam.controller.Main', {
                 Uni.store.PortalItems.add(licensingItem);
             }
 
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.dataPurge','privilege.view.dataPurge'])) {
+            if (Sam.privileges.DataPurge.canView()) {
                 var dataPurgeItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('datapurge.title', 'SAM', 'Data purge'),
                     portal: 'administration',
                     items: [
                         {
                             text: Uni.I18n.translate('datapurge.settings.title', 'SAM', 'Data purge settings'),
-                            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.dataPurge'),
+                            privileges: Sam.privileges.DataPurge.admin,
                             href: typeof router.getRoute('administration/datapurgesettings') !== 'undefined'
                                 ? router.getRoute('administration/datapurgesettings').buildUrl() : ''
                         },

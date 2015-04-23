@@ -14,13 +14,13 @@ Ext.define('Sam.controller.history.Administration', {
                     route: 'licenses',
                     controller: 'Sam.controller.licensing.Licenses',
                     action: 'showOverview',
-                    privileges: ['privilege.view.license', 'privilege.upload.license'],
+                    privileges: Sam.privileges.License.view,
                     items: {
                         upload: {
                             title: 'Upload',
                             route: 'upload',
                             controller: 'Sam.controller.licensing.Upload',
-                            privileges: ['privilege.upload.license'],
+                            privileges: Sam.privileges.License.upload,
                             action: 'showOverview'
                         }
                     }
@@ -28,14 +28,14 @@ Ext.define('Sam.controller.history.Administration', {
                 datapurgesettings: {
                     title: Uni.I18n.translate('datapurge.settings.title', 'SAM', 'Data purge settings'),
                     route: 'datapurgesettings',
-                    privileges: ['privilege.administrate.dataPurge'],
+                    privileges: Sam.privileges.DataPurge.admin,
                     controller: 'Sam.controller.datapurge.Settings',
                     action: 'showOverview'
                 },
                 datapurgehistory: {
                     title: Uni.I18n.translate('datapurge.history.breadcrumb', 'SAM', 'Data purge history'),
                     route: 'datapurgehistory',
-                    privileges: ['privilege.administrate.dataPurge','privilege.view.dataPurge'],
+                    privileges: Sam.privileges.DataPurge.view,
                     controller: 'Sam.controller.datapurge.History',
                     action: 'showOverview',
                     items: {
