@@ -65,7 +65,7 @@ Ext.define('Dsh.controller.ConnectionOverview', {
     },
 
     updateQuickLinks: function(){
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.reports'])) {
+        if (Yfn.privileges.Yellowfin.canView()) {
             var me = this;
             var deviceGroupField = me.getHeader().down('#device-group');
             var deviceGroupName = deviceGroupField.groupName;

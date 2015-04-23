@@ -4,7 +4,7 @@ Ext.define('Dsh.view.widget.ConnectionActionMenu', {
     items: [
         {
             text: 'Run now',
-            hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+            privileges : Mdc.privileges.Device.operateDeviceCommunication,
             action: 'run'
         },
         {

@@ -135,21 +135,21 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             dashboard = me.getDashboard(),
             lastUpdateField = dashboard.down('#last-updated-field');
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device',
-            'privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
+        if (Mdc.privileges.Device.canOperateDevice() ||
+                Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
             var connectionModel = me.getModel('Dsh.model.connection.OverviewDashboard'),
                 communicationModel = me.getModel('Dsh.model.communication.OverviewDashboard'),
                 myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
                 issuesWidget = me.getIssuesWidget(),
                 router = this.getController('Uni.controller.history.Router');
-            if (Uni.Auth.hasAnyPrivilege(['privilege.view.device'])) {
+            if (Mdc.privileges.Device.canView()) {
                 me.getFlaggedDevices().reload();
             }
 
             communicationModel.getProxy().url = '/api/dsr/communicationoverview/widget';
             connectionModel.getProxy().url = '/api/dsr/connectionoverview/widget';
 
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'])) {
+            if (Mdc.privileges.Device.canAdministrateOrOperateDeviceCommunication()) {
                 connectionModel.setFilter(router.filter);
                 communicationModel.setFilter(router.filter);
                 dashboard.setLoading();

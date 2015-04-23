@@ -24,7 +24,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
-                    return  Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceData'])
+                    return  (Mdc.privileges.Device.canView() || Mdc.privileges.Device.canAdministrateDeviceData())
                         ? '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : val.name
                 }
             },
@@ -116,13 +116,13 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 {
                     xtype:'button',
                     itemId:'generate-report',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
+                    privileges: Yfn.privileges.Yellowfin.view,
                     text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                 },
                 {
                     xtype:'button',
                     itemId:'btn-connections-bulk-action',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device']),
+                    privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                     text: Uni.I18n.translate('general.bulkAction', 'DSH', 'Bulk action')
                 }
             ]

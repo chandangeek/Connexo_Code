@@ -9,6 +9,9 @@ Ext.define('Dsh.controller.Main', {
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
         'Uni.store.MenuItems',
+        'Yfn.privileges.Yellowfin',
+        'Mdc.privileges.Device',
+        'Mdc.privileges.DeviceGroup',
         'Dsh.util.FilterStoreHydrator',
         'Dsh.model.Filterable',
         'Dsh.model.Kpi',
@@ -63,7 +66,7 @@ Ext.define('Dsh.controller.Main', {
             })
         );
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'])) {
+        if (Mdc.privileges.Device.canOperateDevice()) {
             Uni.store.MenuItems.add(
                 Ext.create('Uni.model.MenuItem', {
                     text: 'Workspace',

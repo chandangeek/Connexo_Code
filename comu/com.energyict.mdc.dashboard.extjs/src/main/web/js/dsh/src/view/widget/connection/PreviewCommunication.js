@@ -38,7 +38,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceData'])
+                            Mdc.privileges.Device.canViewOrAdministrateDeviceData()
                                 ? res = '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -50,7 +50,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])
+                            Mdc.privileges.DeviceType.canView()
                                 ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;

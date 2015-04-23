@@ -1,6 +1,8 @@
 Ext.define('Dsh.view.OperatorDashboard', {
     extend: 'Ext.panel.Panel',
     requires: [
+        'Mdc.privileges.Device',
+        'Mdc.privileges.DeviceGroup',
         'Dsh.view.widget.HeaderSection',
         'Dsh.view.widget.Summary',
         'Dsh.view.widget.CommunicationServers',
@@ -77,7 +79,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                 margin: '50 0 0 0',
                 items: {
                     xtype: 'device-group-filter',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                    privileges: Mdc.privileges.Device.administrateOrOperateDeviceCommunication,
                     router: me.router
                 }
             },
@@ -101,7 +103,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     xtype: 'communication-servers',
                     width: 300,
                     dock: 'right',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                    privileges: Mdc.privileges.Device.administrateOrOperateDeviceCommunication,
                     itemId: 'communication-servers',
                     router: me.router,
                     style: 'border-width: 1px !important'   // Andrea: Should be fixed with CSS
@@ -117,7 +119,9 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     router: me.router
                 });
         }
-        if(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+        if(Mdc.privileges.Device.canAdministrateDeviceData() ||
+            Mdc.privileges.Device.canView() ||
+            Mdc.privileges.Device.canAdministrateOrOperateDeviceCommunication()) {
             me.items[0].items.push(
                 {
                     xtype: 'flagged-devices',
@@ -132,7 +136,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     itemId: 'favorite-device-groups'
                 });
         //}
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
+        if (Mdc.privileges.Device.canAdministrateOrOperateDeviceCommunication()) {
             me.items[2].items.push(
                 {
                     xtype: 'summary',

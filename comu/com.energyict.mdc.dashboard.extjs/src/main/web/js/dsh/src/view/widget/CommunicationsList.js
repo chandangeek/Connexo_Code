@@ -100,13 +100,13 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                     {
                         xtype:'button',
                         itemId:'generate-report',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
+                        privileges: Yfn.privileges.Yellowfin.view,
                         text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                     },
                     {
                         xtype:'button',
                         itemId:'btn-communications-bulk-action',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device']),
+                        privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                         text: Uni.I18n.translate('general.bulkAction', 'DSH', 'Bulk action')
                     }
                 ]

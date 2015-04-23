@@ -47,7 +47,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                         dataIndex: 'device',
                         flex: 1,
                         renderer: function (val) {
-                            return Uni.Auth.hasAnyPrivilege(['privilege.view.device', 'privilege.administrate.deviceData'])
+                            return (Mdc.privileges.Device.canView() || Mdc.privileges.Device.canAdministrateDeviceData())
                                 ? '<a href="' + me.router.getRoute('devices/device').buildUrl({mRID: val.id}) + '">' + val.name + '</a>' : val.name;
                         }
                     },

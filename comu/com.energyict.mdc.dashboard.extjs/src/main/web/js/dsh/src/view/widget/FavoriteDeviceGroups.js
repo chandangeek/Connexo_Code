@@ -32,10 +32,10 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                                 '<tpl for=".">',
                                     '<tr>',
                                         '<td style="height: 20px">',
-                                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'])
+                                            Mdc.privileges.DeviceGroup.canAdministrateOrViewDetails()
                                                 ? '<a href="#/devices/devicegroups/{id}">{name}</a>' :
                                                 (
-                                                    Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup']) ?
+                                                    Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()?
                                                         (
                                                             '<tpl if="dynamic==true"{dynamic}>{name}<tpl else><a href="#/devices/devicegroups/{id}">{name}</a></tpl>'
                                                         )

@@ -7,7 +7,9 @@ Ext.define('Dsh.controller.history.Workspace', {
 
     requires: [
         'Dsh.model.OverviewFilter',
-        'Dsh.model.Filter'
+        'Dsh.model.Filter',
+        'Mdc.privileges.Device',
+        'Mdc.privileges.DeviceGroup'
     ],
 
     routeConfig: {
@@ -20,7 +22,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     title: Uni.I18n.translate('title.connections.overview', 'DSH', 'Connections overview'),
                     route: 'connections',
                     controller: 'Dsh.controller.ConnectionOverview',
-                    privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                    privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                     action: 'showOverview',
                     filter: 'Dsh.model.OverviewFilter',
                     items: {
@@ -28,7 +30,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                             title: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
                             route: 'details',
                             controller: 'Dsh.controller.Connections',
-                            privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                            privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                             action: 'showOverview',
                             filter: 'Dsh.model.Filter',
                             items: {
@@ -36,7 +38,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                                     title: Uni.I18n.translate('title.bulkAction', 'DSH', 'Bulk action'),
                                     route: 'bulk',
                                     controller: 'Dsh.controller.ConnectionsBulk',
-                                    privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                                    privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                                     action: 'showOverview',
                                     filter: 'Dsh.model.Filter'
                                 }
@@ -56,7 +58,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                             title: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
                             route: 'details',
                             controller: 'Dsh.controller.Communications',
-                            privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                            privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                             action: 'showOverview',
                             filter: 'Dsh.model.Filter',
                             items: {
@@ -64,7 +66,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                                     title: Uni.I18n.translate('title.bulkAction', 'DSH', 'Bulk action'),
                                     route: 'bulk',
                                     controller: 'Dsh.controller.CommunicationsBulk',
-                                    privileges: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
+                                    privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                                     action: 'showOverview',
                                     filter: 'Dsh.model.Filter'
                                 }
