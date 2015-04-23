@@ -75,7 +75,9 @@ public class PowerGapFillTest {
         doReturn(Optional.of(bulkCimChannel)).when(channel).getCimChannel(bulkReadingType);
         doReturn(deltaReadingType).when(estimationBlock).getReadingType();
         doReturn(false).when(deltaReadingType).isCumulative();
+        doReturn(true).when(deltaReadingType).isRegular();
         doReturn(true).when(bulkReadingType).isCumulative();
+        doReturn(true).when(bulkReadingType).isRegular();
         doReturn(Optional.of(bulkReadingType)).when(deltaReadingType).getBulkReadingType();
         doReturn(ESTIMATABLE1.toInstant()).when(estimatable1).getTimestamp();
         doReturn(ESTIMATABLE2.toInstant()).when(estimatable2).getTimestamp();
@@ -399,6 +401,24 @@ public class PowerGapFillTest {
     public void testPowerGapFillDoesNotEstimateBulkWhenLastReadingDoesNotHavePowerUpFlag() {
         doReturn(bulkReadingType).when(estimationBlock).getReadingType();
         doReturn(ProfileStatus.of()).when(readingRecord2).getProfileStatus();
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+
+        Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
+        estimator.init();
+
+        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+
+    }
+
+    @Test
+    public void testPowerGapFillDoesNotEstimateWhenReadingTypeHasNoInterval() {
+        doReturn(false).when(deltaReadingType).isRegular();
+        doReturn(false).when(bulkReadingType).isRegular();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
