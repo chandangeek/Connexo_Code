@@ -20,7 +20,7 @@ Ext.define('Cfg.privileges.Validation', {
     viewOrAdmin:['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
 
     validateManual: ['privilege.view.validateManual'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Cfg.privileges.Validation.view,
             Cfg.privileges.Validation.viewTasks,
             Cfg.privileges.Validation.device,
