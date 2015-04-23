@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -33,8 +33,7 @@ public class ValidationInfoHelper {
 
     private List<DataValidationStatus> statuses(Register<?> register) {
         List<? extends Reading> readings = getReadingsForOneYear(register);
-        List<ReadingRecord> readingRecords = readings.stream().map(Reading::getActualReading).collect(Collectors.toList());
-        return register.getDevice().forValidation().getValidationStatus(register, readingRecords);
+        return readings.stream().map(Reading::getValidationStatus).flatMap(Functions.asStream()).collect(Collectors.toList());
     }
 
     private boolean validationActive(Register<?> register, DeviceValidation deviceValidation) {
