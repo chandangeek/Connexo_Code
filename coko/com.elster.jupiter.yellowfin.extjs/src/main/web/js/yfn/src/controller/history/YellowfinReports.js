@@ -15,14 +15,14 @@ Ext.define('Yfn.controller.history.YellowfinReports', {
              title: Uni.I18n.translate('generatereport.reportGenerator', 'YFN', 'Report generator'),
                  route: 'administration/generatereport',
                  controller: 'Yfn.controller.setup.GenerateReportWizard',
-                 privileges: ['privilege.view.reports'],
+                 privileges: Yfn.privileges.Yellowfin.view,
                  action: 'showGenerateReportWizard'
         },
         viewreport: {
             title: Uni.I18n.translate('generatereport.viewReport', 'YFN', 'View Report'),
             route: 'reports/view',
             controller: 'Yfn.controller.YellowfinReportsController',
-            privileges: ['privilege.view.reports'],
+            privileges: Yfn.privileges.Yellowfin.view,
             action: 'showReport'
         }
     }

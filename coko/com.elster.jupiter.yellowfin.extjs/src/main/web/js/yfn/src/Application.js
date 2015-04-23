@@ -1,9 +1,8 @@
 Ext.define('Yfn.Application', {
     name: 'Yfn',
-
     extend: 'Ext.app.Application',
-
     requires: [
+        'Yfn.privileges.Yellowfin',
         'Yfn.controller.Main'
     ],
 

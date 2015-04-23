@@ -31,7 +31,7 @@ Ext.define('Yfn.controller.Main', {
     },
 
     initDeviceReports: function () {
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.reports'])) {
+        if (Yfn.privileges.Yellowfin.canView()) {
             var me = this;
             var portalItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('report.home', 'YFN', 'Reports'),
