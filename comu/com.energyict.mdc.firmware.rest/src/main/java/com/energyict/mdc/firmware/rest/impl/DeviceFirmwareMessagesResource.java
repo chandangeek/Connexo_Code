@@ -19,7 +19,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
@@ -27,7 +27,16 @@ import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.inject.Provider;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
@@ -46,9 +55,10 @@ public class DeviceFirmwareMessagesResource {
     private final Clock clock;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Thesaurus thesaurus;
+    private final Provider<DeviceFirmwareVersionUtils> utilProvider;
 
     @Inject
-    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
+    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, Provider<DeviceFirmwareVersionUtils> utilProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.firmwareService = firmwareService;
@@ -58,6 +68,7 @@ public class DeviceFirmwareMessagesResource {
         this.clock = clock;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.thesaurus = thesaurus;
+        this.utilProvider = utilProvider;
     }
 
     @GET
@@ -111,7 +122,7 @@ public class DeviceFirmwareMessagesResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, messageId));
 
 
-        DeviceFirmwareVersionUtils firmwareVersionUtils = new DeviceFirmwareVersionUtils(thesaurus, deviceMessageSpecificationService, clock).onDevice(device);
+        DeviceFirmwareVersionUtils firmwareVersionUtils = new DeviceFirmwareVersionUtils(thesaurus, deviceMessageSpecificationService).onDevice(device);
         Optional<ProtocolSupportedFirmwareOptions> protocolSupportedFirmwareOptions = firmwareVersionUtils.getUploadOptionFromMessage(upgradeMessage);
         if (!protocolSupportedFirmwareOptions.isPresent() || !ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(protocolSupportedFirmwareOptions.get())) {
             exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_CANNOT_BE_ACTIVATED);
@@ -154,12 +165,12 @@ public class DeviceFirmwareMessagesResource {
     private void cancelOldFirmwareUpgrades(Device device, Map<String, Object> convertedProperties) {
         String firmwareVersionPropertyName = DeviceMessageConstants.firmwareUpdateFileAttributeName;
         FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertyName);
-        if (requestedFirmwareVersion != null) {
-            device.getMessages().stream()
-                    .filter(resourceHelper.filterFirmwareUpgradeMessagesPredicate()) // only firmware upgrade messages
-                    .filter(resourceHelper.filterPendingMessagesPredicate()) // only pending firmware upgrade messages
+        DeviceFirmwareVersionUtils versionUtils = utilProvider.get().onDevice(device);
+        if (requestedFirmwareVersion != null && versionUtils.getComTaskExecution() != null) {
+            versionUtils.getFirmwareMessages().stream()
+                    .filter(message -> DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(message.getStatus())) // only pending firmware upgrade messages
                     .filter(candidate -> { // only messages which have the same firmware type
-                        Optional<FirmwareVersion> candidateFirmwareVersion = resourceHelper.getFirmwareVersionFromMessage(candidate);
+                        Optional<FirmwareVersion> candidateFirmwareVersion = versionUtils.getFirmwareVersionFromMessage(candidate);
                         return candidateFirmwareVersion.isPresent() && requestedFirmwareVersion.getFirmwareType().equals(candidateFirmwareVersion.get().getFirmwareType());
                     })
                     .forEach(message -> {
@@ -179,8 +190,7 @@ public class DeviceFirmwareMessagesResource {
                 .filter(message -> message.getId() == msgId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, msgId));
-        // TODO add check that task is not busy
-        if (!resourceHelper.filterPendingMessagesPredicate().test(upgradeMessage)) {
+        if (!DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(upgradeMessage.getStatus())){
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
         }
         upgradeMessage.revoke();
@@ -197,10 +207,9 @@ public class DeviceFirmwareMessagesResource {
     public Response getDynamicActions(@PathParam("mrid") String mrid, @BeanParam QueryParameters queryParameters){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
         List<UpgradeOptionInfo> upgradeOptionActions = new ArrayList<>();
-        EnumSet<DeviceMessageStatus> activeMessageStatuses = EnumSet.of(DeviceMessageStatus.SENT, DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING);
-        boolean hasActiveUpgradeMessages = device.getMessages().stream()
-                .filter(resourceHelper.filterFirmwareUpgradeMessagesPredicate())
-                .filter(message -> activeMessageStatuses.contains(message.getStatus()))
+        DeviceFirmwareVersionUtils versionUtils = utilProvider.get().onDevice(device);
+        boolean hasActiveUpgradeMessages = versionUtils.getFirmwareMessages().stream()
+                .filter(message -> DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(message.getStatus()))
                 .count() != 0;
         if (!hasActiveUpgradeMessages) {
             upgradeOptionActions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(device.getDeviceType())
@@ -255,9 +264,9 @@ public class DeviceFirmwareMessagesResource {
     }
 
     private void rescheduleFirmwareUpgradeTask(Device device) {
-        Optional<Instant> earliestReleaseDate = device.getMessages().stream()
-                .filter(resourceHelper.filterFirmwareUpgradeMessagesPredicate())
-                .filter(resourceHelper.filterPendingMessagesPredicate())
+        DeviceFirmwareVersionUtils versionUtils = utilProvider.get().onDevice(device);
+        Optional<Instant> earliestReleaseDate = versionUtils.getFirmwareMessages().stream()
+                .filter(message -> DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(message.getStatus()))
                 .map(DeviceMessage::getReleaseDate)
                 .sorted(Instant::compareTo)
                 .findFirst();

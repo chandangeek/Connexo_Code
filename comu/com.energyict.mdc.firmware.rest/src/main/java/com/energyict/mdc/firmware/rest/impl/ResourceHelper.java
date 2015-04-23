@@ -23,19 +23,14 @@ public class ResourceHelper {
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
     private final FirmwareService firmwareService;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
-    private final DeviceMessageCategory firmwareCategory;
 
     @Inject
-    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService, FirmwareService firmwareService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService, FirmwareService firmwareService) {
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
         this.firmwareService = firmwareService;
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-
-        this.firmwareCategory = this.deviceMessageSpecificationService.getFirmwareCategory();
     }
 
     public DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
@@ -50,22 +45,5 @@ public class ResourceHelper {
 
     public FirmwareVersion findFirmwareVersionByIdOrThrowException(Long id) {
         return firmwareService.getFirmwareVersionById(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.FIRMWARE_VERSION_NOT_FOUND, id));
-    }
-
-    public Predicate<DeviceMessage<Device>> filterPendingMessagesPredicate(){
-        return candidate -> candidate.getStatus().equals(DeviceMessageStatus.PENDING) || candidate.getStatus().equals(DeviceMessageStatus.WAITING);
-    }
-
-    public Predicate<DeviceMessage<Device>> filterFirmwareUpgradeMessagesPredicate(){
-        return candidate -> candidate.getSpecification().getCategory().getId() == firmwareCategory.getId();
-    }
-
-    public Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage<Device> firmwareMessage){
-        Optional<DeviceMessageAttribute> firmwareVersionMessageAttr = firmwareMessage.getAttributes().stream()
-                .filter(attr -> DeviceMessageConstants.firmwareUpdateFileAttributeName.equals(attr.getName()))
-                .findFirst();
-        return firmwareVersionMessageAttr.isPresent() ?
-                Optional.of((FirmwareVersion) firmwareVersionMessageAttr.get().getValue()):
-                Optional.empty();
     }
 }
