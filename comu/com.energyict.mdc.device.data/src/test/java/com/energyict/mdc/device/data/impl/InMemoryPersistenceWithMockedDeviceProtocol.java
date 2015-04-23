@@ -120,7 +120,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private SchedulingService schedulingService;
     private ValidationService validationService;
     private InMemoryBootstrapModule bootstrapModule;
-    private com.elster.jupiter.issue.share.service.IssueService jupiterIssueService;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -202,8 +201,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
         this.protocolPluggableService = mock(ProtocolPluggableService.class);
-        this.jupiterIssueService = mock(com.elster.jupiter.issue.share.service.IssueService.class);
-
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -253,7 +250,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(jupiterIssueService);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(EventAdmin.class).toInstance(eventAdmin);

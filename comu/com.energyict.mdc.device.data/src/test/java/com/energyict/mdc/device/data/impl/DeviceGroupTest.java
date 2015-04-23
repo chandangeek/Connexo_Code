@@ -131,7 +131,7 @@ public class DeviceGroupTest {
     @Mock
     private LicenseService licenseService;
     @Mock
-    private IssueService mdcIssueService;
+    private IssueService issueService;
     @Mock
     private PropertySpecService propertySpecService;
     @Mock

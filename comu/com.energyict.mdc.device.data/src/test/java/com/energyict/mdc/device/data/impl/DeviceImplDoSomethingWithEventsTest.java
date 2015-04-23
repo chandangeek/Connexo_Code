@@ -309,7 +309,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
                                 this.ormService, this.eventService,
-                                injector.getInstance(IssueService.class),
                                 this.nlsService, this.clock,
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),

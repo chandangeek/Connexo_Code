@@ -84,7 +84,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
-    private volatile IssueService issueService;
     private volatile Thesaurus thesaurus;
     private volatile MessageService messagingService;
     private volatile UserService userService;
@@ -129,7 +128,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
-        this.setIssueService(issueService);
         this.setNlsService(nlsService);
         this.setRelationService(relationService);
         this.setClock(clock);
@@ -339,11 +337,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Reference
     public void setTaskService(com.elster.jupiter.tasks.TaskService taskService) {
         this.taskService = taskService;
-    }
-
-    @Reference
-    public void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
     }
 
     private Module getModule() {

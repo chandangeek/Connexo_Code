@@ -154,7 +154,6 @@ public class InMemoryIntegrationPersistence {
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
     private MeteringGroupsService meteringGroupsService;
-    private com.elster.jupiter.issue.share.service.IssueService jupiterIssueService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -291,7 +290,6 @@ public class InMemoryIntegrationPersistence {
         when(this.principal.getName()).thenReturn(testName);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
-        this.jupiterIssueService = mock(com.elster.jupiter.issue.share.service.IssueService.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -407,7 +405,6 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(jupiterIssueService);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);
