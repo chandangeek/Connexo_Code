@@ -1,6 +1,5 @@
 package com.energyict.mdc.firmware.impl;
 
-import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
