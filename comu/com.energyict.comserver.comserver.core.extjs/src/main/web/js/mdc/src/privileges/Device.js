@@ -55,5 +55,8 @@ Ext.define('Mdc.privileges.Device', {
     },
     canAdministrateOrOperateDeviceCommunication : function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateOrOperateDeviceCommunication );
+    },
+    canViewDeviceCommunication: function() {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewDeviceCommunication);
     }
 });
