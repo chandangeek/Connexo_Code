@@ -11,7 +11,8 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.DeviceSecurity',
         'Mdc.privileges.DeviceCommands',
         'Mdc.privileges.Communication',
-        'Dvi.privileges.InventoryManagement'
+        'Dvi.privileges.InventoryManagement',
+        'Isu.privileges.Issue'
     ],
     controllers: [
         'MdcApp.controller.Main'
