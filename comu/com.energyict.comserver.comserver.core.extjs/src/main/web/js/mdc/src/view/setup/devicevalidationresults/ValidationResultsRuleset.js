@@ -1,8 +1,6 @@
 Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
-    extend: 'Uni.view.container.ContentContainer',	
-   
-    alias: 'widget.deviceValidationResultsRuleset',
-    itemId: 'deviceValidationResultsRuleset',
+    extend: 'Uni.view.container.ContentContainer',	   
+    alias: 'widget.deviceValidationResultsRuleset',    
     ui: 'medium',  
 	layout: {
         type: 'vbox',
@@ -12,7 +10,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 		'Mdc.view.setup.devicevalidationresults.RuleSetList',
 		'Mdc.view.setup.devicevalidationresults.RuleSetVersionList',
 		'Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList',
-		'Mdc.view.setup.devicevalidationresults.RuleSetVersionRulesSummary'
+		'Mdc.view.setup.devicevalidationresults.RuleSetVersionRulesSummary',
+		'Mdc.view.setup.devicedatavalidation.RulePreview'
 	],
     margin: '0 0 0 -16',
     initComponent: function () {
@@ -24,23 +23,23 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
                         align: 'stretch'
                     },			
 				defaults: {
-					labelWidth: 250,
+					labelWidth: 150,
 					labelAlign: 'left'
                 },
-					
+				itemId: 'deviceValidationResultsRulesetForm',
 				items: [
 					{
 						xtype: 'displayfield',						
 						itemId: 'configuration-view-data-validated',
 						fieldLabel: Uni.I18n.translate('validationResults.dataValidated', 'MDC', 'Data validated'),
-						name: 'dataValidated'					
+						name: 'dataValidatedDisplay'					
 						
 					},
 					{
 						xtype: 'displayfield',						
 						itemId: 'configuration-view-validation-results',
 						fieldLabel: Uni.I18n.translate('validationResults.validationResults', 'MDC', 'Validation results'),
-						name: 'validationResultsCount'					
+						name: 'total'					
 					}
 				]	
 
@@ -51,32 +50,30 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
                         type: 'vbox',
                         align: 'stretch'
                     },		
-				 itemId: 'configuration-view-validation-results-browse',
+				 itemId: 'configurationViewValidationResultsBrowse',
 				 items: [
 					{
 						ui: 'large',
-						itemId: 'rule-set-list',
+						itemId: 'ruleSetList',
 						title: Uni.I18n.translate('validationResults.validationRuleSets', 'MDC', 'Validation rule sets'),
-						xtype: 'rulesetList'
+						xtype: 'ruleSetList'
 					},
 					{
 						ui: 'large',
-						itemId: 'rule-set-version-list',
+						itemId: 'ruleSetVersionList',
 						title: Uni.I18n.translate('validationResults.validationRuleSetVersions', 'MDC', 'Validation rule set versions'),
 						xtype: 'ruleSetVersionList'
 					},
 					{
 						ui: 'large',
-						itemId: 'rule-set-version-rule-list',
+						itemId: 'ruleSetVersionRuleList',
 						title: Uni.I18n.translate('validationResults.validationRuleSetVersionRules', 'MDC', 'Validation rules'),
 						xtype: 'ruleSetVersionRuleList'
-					}/*,
-					{
-						xtype: 'validationrulesetversionsBrowse'
 					},
 					{
-						xtype: 'validationrulesBrowse'
-					}*/
+						itemId: 'ruleSetVersionRulePreview',
+						xtype: 'deviceDataValidationRulePreview'
+					}
 				 ]
 			}
 			

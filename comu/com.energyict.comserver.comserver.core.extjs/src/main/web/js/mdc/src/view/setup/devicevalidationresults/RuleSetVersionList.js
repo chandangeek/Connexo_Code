@@ -26,8 +26,6 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
             { 
 				header: Uni.I18n.translate('validationResults.result', 'MDC', 'Result'), 
 				dataIndex: 'total', 
-				//flex: 0.3, 
-				//align: 'left', 
 				sortable: false, 
 				fixed: true/*,
                 renderer: function (value, b, record) {

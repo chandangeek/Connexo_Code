@@ -19,19 +19,19 @@ Ext.define('Mdc.model.ValidationResultsVersion', {
             }
         },
         {
-            name: 'versionName',
-            persist: false,
-            mapping: function (data) {
+            name: 'versionName',            
+            convert: function (value, record) {
+				
                 var result, startDate, endDate;
 
-                startDate = data.startDate;
-                endDate = data.endDate;
+                startDate = record.get('startDate');
+                endDate = record.get('endDate');
                 if (startDate && endDate) {
                     result = Uni.I18n.translate('validationResults.version.from', 'MDC', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
                     Uni.I18n.translate('validationResults.version.until', 'MDC', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
-                } else if (data.startDate) {
+                } else if (startDate) {
                     result = Uni.I18n.translate('validationResults.version.from', 'MDC', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
-                } else if (data.endDate) {
+                } else if (endDate) {
                     result = Uni.I18n.translate('validationResults.version.until', 'MDC', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
                 }else {
                     result = Uni.I18n.translate('validationResults.version.notStart', 'MDC', 'Always')
@@ -40,7 +40,8 @@ Ext.define('Mdc.model.ValidationResultsVersion', {
 				return result;
                 //return '<a href="#/administration/validation/rulesets/' + data.ruleSet.id + '/versions/' + data.id + '">' + result + '</a>';
             }
-        }
+        },
+		'detailedRules'
     ],
 	
 	associations: [

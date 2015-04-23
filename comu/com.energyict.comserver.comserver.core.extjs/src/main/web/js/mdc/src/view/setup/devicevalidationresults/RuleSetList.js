@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetList', {
     extend: 'Ext.grid.Panel',
     border: true,
-    alias: 'widget.rulesetList',
+    alias: 'widget.ruleSetList',
 
     store: 'Mdc.store.ValidationResultsRuleSets',
 
