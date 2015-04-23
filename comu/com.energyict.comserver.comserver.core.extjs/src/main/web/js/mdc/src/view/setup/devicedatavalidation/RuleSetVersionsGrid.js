@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 items: [
                     {
                         text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
+                        privileges: Cfg.privileges.Validation.admin,
                         itemId: 'newVersion',
                         xtype: 'button',
                         href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/add',

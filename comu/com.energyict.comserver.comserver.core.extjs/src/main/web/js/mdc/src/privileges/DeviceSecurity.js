@@ -9,9 +9,10 @@ Ext.define('Mdc.privileges.DeviceSecurity', {
     ],
     singleton: true,
 
-    viewLevels:['view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4',
-        'edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4'],
+    viewLevels:['view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4'],
     editLevels:['edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4'],
+    viewOrEditLevels : ['view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4',
+        'edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4'],
     level1:['edit.device.security.properties.level1'],
     level2:['edit.device.security.properties.level2'],
     level3:['edit.device.security.properties.level3'],

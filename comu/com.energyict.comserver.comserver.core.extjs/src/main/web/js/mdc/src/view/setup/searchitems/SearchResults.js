@@ -65,7 +65,6 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                     },
                     {
                         xtype:'button',
-                        hidden:!Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
                         privileges: Yfn.privileges.Yellowfin.view,
                         itemId:'generate-report',
                         action: 'generate-report',

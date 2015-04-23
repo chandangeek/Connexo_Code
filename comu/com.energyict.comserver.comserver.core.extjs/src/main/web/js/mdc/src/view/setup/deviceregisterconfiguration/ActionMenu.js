@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ActionMenu', {
         {
             itemId: 'validateNowRegister',
             text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.view.validateManual'),
+            privileges: Cfg.privileges.Validation.validateManual,
             action: 'validate'
         }
     ]

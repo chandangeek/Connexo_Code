@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
             xtype: 'preview-container',
             grid: {
                 xtype: 'validation-rules-for-registerconfig-grid',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration']),
+                privileges: Cfg.privileges.Validation.fineTuneOnDeviceConfiguration,
                 deviceTypeId: this.deviceTypeId,
                 deviceConfigId: this.deviceConfigId,
                 registerId: this.registerId

@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
                             if (rule.key.deleted) {
                                 result += rule.key.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                             } else {
-                                if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration'])) {
+                                if (Cfg.privileges.Validation.canViewOrAdminstrate()) {
                                     url = me.router.getRoute('administration/rulesets/overview/rules').buildUrl({ruleSetId: rule.key.ruleSet.id, ruleId: rule.key.id});
                                     result = '<a href="' + url + '"> ' + rule.key.name + '</a>';
                                 } else {

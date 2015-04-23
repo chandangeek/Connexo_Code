@@ -348,7 +348,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     itemId: 'rulesForChannelPreviewContainer',
                     grid: {
                         xtype: 'load-profile-configuration-detail-rules-grid',
-                        privileges: Cfg.privileges.Validation.admin,
+                        privileges: Cfg.privileges.Validation.viewOrAdmin,
                         deviceTypeId: me.deviceTypeId,
                         deviceConfigId: me.deviceConfigurationId,
                         channelConfigId: channelId

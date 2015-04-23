@@ -426,14 +426,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     title: 'Validation rule sets',
                                                     route: 'validationrulesets',
                                                     controller: 'Mdc.controller.setup.ValidationRuleSets',
-                                                    privileges:['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
+                                                    privileges : Cfg.privileges.Validation.fineTuneOnDeviceConfiguration,
                                                     action: 'showValidationRuleSetsOverview',
                                                     items: {
                                                         add: {
                                                             title: 'Add validation rule sets',
                                                             route: 'add',
                                                             controller: 'Mdc.controller.setup.ValidationRuleSets',
-                                                            privileges:['privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
+                                                            privileges : Cfg.privileges.Validation.deviceConfiguration,
                                                             action: 'showAddValidationRuleSets'
                                                         }
                                                     }
@@ -945,7 +945,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
                     route: 'add',
                     controller: 'Mdc.controller.setup.Devices',
-                    privileges: ['privilege.add.device'],
+                    privileges : Mdc.privileges.Device.addDevice,
                     action: 'showAddDevice'
                 },
                 device: {
@@ -1139,14 +1139,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 title: Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'),
                                                 route: 'add',
                                                 controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
-                                                privileges: ['privilege.administrate.deviceData'],
+                                                privileges: Mdc.privileges.Device.administrateDeviceData,
                                                 action: 'showDeviceRegisterConfigurationDataAddView'
                                             },
                                             edit: {
                                                 title: Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'),
                                                 route: '{timestamp}/edit',
                                                 controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
-                                                privileges: ['privilege.administrate.deviceData'],
+                                                privileges: Mdc.privileges.Device.administrateDeviceData,
                                                 action: 'showDeviceRegisterConfigurationDataEditView'
                                             }
                                         }
@@ -1158,7 +1158,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Data validation',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
-                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
+                            privileges : Cfg.privileges.Validation.fineTuneOnDevice,
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {
@@ -1281,7 +1281,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
                             route: 'channels',
                             controller: 'Mdc.controller.setup.DeviceChannels',
-                            privileges: ['privilege.administrate.device','privilege.view.device'],
+                            privileges: Mdc.privileges.Device.viewDevice,
                             action: 'showOverview',
                             filter: 'Mdc.model.filter.DeviceChannelsFilter',
                             items: {
@@ -1417,14 +1417,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Security settings',
                             route: 'securitysettings',
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
-                            privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewLevels),
+                            privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
                             action: 'showDeviceSecuritySettings',
                             items: {
                                 edit: {
                                     title: 'Edit security setting',
                                     route: '{securitySettingId}/edit',
                                     controller: 'Mdc.controller.setup.DeviceSecuritySettings',
-                                    privileges: Mdc.privileges.DeviceSecurity.viewLevels,
+                                    privileges: Mdc.privileges.DeviceSecurity.viewOrEditLevels,
                                     action: 'showDeviceSecuritySettingEditView',
                                     callback: function (route) {
                                         this.getApplication().on('loadDeviceSecuritySetting', function (record) {

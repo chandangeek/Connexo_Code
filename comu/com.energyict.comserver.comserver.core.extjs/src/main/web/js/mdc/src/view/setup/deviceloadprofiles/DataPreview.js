@@ -221,7 +221,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                                     str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '<br>';
                                 } else {
                                     str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
-                                    if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'])) {
+                                    if (Cfg.privileges.Validation.canViewOrAdminstrate()) {
                                         str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
                                     } else {
                                         str += rule.name;

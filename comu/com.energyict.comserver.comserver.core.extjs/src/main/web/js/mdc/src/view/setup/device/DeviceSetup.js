@@ -267,7 +267,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         },
                         items: {
                             xtype: 'device-data-validation-panel',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice']),
+                            privileges: Cfg.privileges.Validation.fineTuneOnDevice,
                             mRID: me.device.get('mRID')
                         }
 

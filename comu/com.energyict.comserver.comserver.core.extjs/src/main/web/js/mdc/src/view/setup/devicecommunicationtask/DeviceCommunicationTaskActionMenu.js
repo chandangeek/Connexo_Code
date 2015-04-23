@@ -8,14 +8,14 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
     items: [
         {
             text: Uni.I18n.translate('deviceCommunicationTask.runComTask', 'MDC', 'Run'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
             itemId: 'runDeviceComTask',
             action: 'runDeviceComTask'
 
         },
         {
             text: Uni.I18n.translate('deviceCommunicationTask.runComTaskNow', 'MDC', 'Run now'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
             itemId: 'runDeviceComTaskNow',
             action: 'runDeviceComTaskNow'
 

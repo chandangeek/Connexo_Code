@@ -49,8 +49,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: !Uni.Auth.hasAnyPrivilege(['view.device.security.properties.level1','view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4',
-                                        'edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level3','edit.device.security.properties.level4']),
+                privileges:Mdc.privileges.DeviceSecurity.viewOrEditLevels,
                 menu: {
                     xtype: 'device-security-setting-action-menu',
                     itemId: 'deviceSecurityGridMenu'

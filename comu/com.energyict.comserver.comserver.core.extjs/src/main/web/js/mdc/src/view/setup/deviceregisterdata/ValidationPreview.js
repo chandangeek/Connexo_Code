@@ -2,6 +2,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.deviceregisterreportpreview-validation',
     itemId: 'deviceregisterreportpreviewvalidation',
+    requires:[
+        'Cfg.privileges.Validation'
+    ],
 
     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation', 'MDC', 'Validation'),
     labelAlign: 'top',
@@ -98,7 +101,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                             str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '<br>';
                         } else {
                             str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
-                            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration'])) {
+                            if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                                 str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
                             } else {
                                 str += rule.name;

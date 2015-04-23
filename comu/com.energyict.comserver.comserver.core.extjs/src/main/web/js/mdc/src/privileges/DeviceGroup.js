@@ -12,6 +12,7 @@ Ext.define('Mdc.privileges.DeviceGroup', {
     viewGroupDetails : [ 'privilege.view.deviceGroupDetail'],
     adminDeviceGroup: ['privilege.administrate.deviceGroup'],
     adminDeviceOfEnumeratedGroup:['privilege.administrate.deviceOfEnumeratedGroup'],
+    administrateOrViewDetails:['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'],
     any: function() {
         return Ext.Array.merge(Mdc.privileges.DeviceGroup.view,
             Mdc.privileges.DeviceGroup.adminDeviceGroup,
@@ -28,6 +29,9 @@ Ext.define('Mdc.privileges.DeviceGroup', {
         return Uni.Auth.checkPrivileges(Mdc.privileges.DeviceGroup.adminDeviceGroup );
     },
     canAdministrateDeviceOfEnumeratedGroup:function(){
+        return Uni.Auth.checkPrivileges(Mdc.privileges.DeviceGroup.adminDeviceOfEnumeratedGroup );
+    },
+    canAdministrateOrViewDetails:function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.DeviceGroup.adminDeviceOfEnumeratedGroup );
     }
 });

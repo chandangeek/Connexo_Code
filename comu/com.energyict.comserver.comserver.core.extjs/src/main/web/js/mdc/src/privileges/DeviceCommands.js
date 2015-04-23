@@ -17,6 +17,9 @@ Ext.define('Mdc.privileges.DeviceCommands', {
 
     any: function() {
         return Ext.Array.merge(Mdc.privileges.DeviceCommands.executeCommands);
+    },
+    canExecuteDeviceCommands: function(){
+        return Ext.Array.merge(Mdc.privileges.DeviceCommands.executeCommands);
     }
 
 });

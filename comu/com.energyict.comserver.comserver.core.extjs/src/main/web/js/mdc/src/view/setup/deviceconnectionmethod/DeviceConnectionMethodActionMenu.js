@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
         },
         {
             text: Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
             itemId: 'toggleActiveMenuItem',
             action: 'toggleActive'
         },

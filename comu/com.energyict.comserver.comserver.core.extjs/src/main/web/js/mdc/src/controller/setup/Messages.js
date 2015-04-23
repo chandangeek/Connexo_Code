@@ -99,7 +99,8 @@ Ext.define('Mdc.controller.setup.Messages', {
             menu = this.getMessagesCategoriesActionMenu();
         if (noItemsFoundPanel) noItemsFoundPanel.destroy();
         grid.setVisible(false);
-        menu.removeAll(true);
+        if(menu)
+            menu.removeAll(true);
         grid.getStore().removeAll();
         if (record) {
             var enablements = record['deviceMessageEnablementsStore'];
@@ -128,33 +129,36 @@ Ext.define('Mdc.controller.setup.Messages', {
                     e.get('active') ? activeEnablements++ : inactiveEnablements++;
                 });
 
-                if (inactiveEnablements > 0) {
-                    menu.add(
-                        {
-                            text: Uni.I18n.translate('messages.categories.activateAll', 'MDC', 'Activate all'),
-                            itemId: 'activateAll',
-                            action: 'activateAll'
-                        }
-                    );
-                }
+                if(menu) {
+                    if (inactiveEnablements > 0) {
+                        menu.add(
+                            {
+                                text: Uni.I18n.translate('messages.categories.activateAll', 'MDC', 'Activate all'),
+                                itemId: 'activateAll',
+                                action: 'activateAll'
+                            }
+                        );
+                    }
 
-                if (activeEnablements > 0) {
-                    Ext.suspendLayouts();
-                    menu.add(
-                        {
-                            text: Uni.I18n.translate('messages.categories.deactivateAll', 'MDC', 'Deactivate all'),
-                            itemId: 'deactivateAll',
-                            action: 'deactivateAll'
-                        },
-                        {
-                            text: Uni.I18n.translate('messages.categories.changePrivilegesForAll', 'MDC', 'Change privileges for all'),
-                            itemId: 'changePrivilegesForAll',
-                            action: 'changePrivilegesForAll'
-                        }
-                    );
-                    Ext.resumeLayouts();
+                    if (activeEnablements > 0) {
+                        Ext.suspendLayouts();
+                        menu.add(
+                            {
+                                text: Uni.I18n.translate('messages.categories.deactivateAll', 'MDC', 'Deactivate all'),
+                                itemId: 'deactivateAll',
+                                action: 'deactivateAll'
+                            },
+                            {
+                                text: Uni.I18n.translate('messages.categories.changePrivilegesForAll', 'MDC', 'Change privileges for all'),
+                                itemId: 'changePrivilegesForAll',
+                                action: 'changePrivilegesForAll'
+                            }
+                        );
+                        Ext.resumeLayouts();
+                    }
+
+                    this.getMessagesActionBtn().menu = menu;
                 }
-                this.getMessagesActionBtn().menu = menu;
             } else {
                 gridContainer.add(
                     {
@@ -174,29 +178,31 @@ Ext.define('Mdc.controller.setup.Messages', {
         var record = selection[0],
             menu = this.getMessagesActionMenu();
 
-        menu.removeAll(true);
+        if(menu) {
+            menu.removeAll(true);
 
-        if (record && record.get('active')) {
-            menu.add(
-                {
-                    text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
-                    itemId: 'deactivate',
-                    action: 'deactivate'
-                },
-                {
-                    text: Uni.I18n.translate('messages.categories.changePrivileges', 'MDC', 'Change privileges'),
-                    itemId: 'changePrivileges',
-                    action: 'changePrivileges'
-                }
-            );
-        } else {
-            menu.add(
-                {
-                    text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
-                    itemId: 'activate',
-                    action: 'activate'
-                }
-            );
+            if (record && record.get('active')) {
+                menu.add(
+                    {
+                        text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
+                        itemId: 'deactivate',
+                        action: 'deactivate'
+                    },
+                    {
+                        text: Uni.I18n.translate('messages.categories.changePrivileges', 'MDC', 'Change privileges'),
+                        itemId: 'changePrivileges',
+                        action: 'changePrivileges'
+                    }
+                );
+            } else {
+                menu.add(
+                    {
+                        text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+                        itemId: 'activate',
+                        action: 'activate'
+                    }
+                );
+            }
         }
     },
 

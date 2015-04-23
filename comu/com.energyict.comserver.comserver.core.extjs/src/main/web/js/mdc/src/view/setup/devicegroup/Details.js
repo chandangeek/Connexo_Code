@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                     {
                         xtype:'button',
                         itemId:'generate-report',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
+                        privileges: Yfn.privileges.Yellowfin.view,
                         margin: '20 10 0 0',
                         text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                     },
