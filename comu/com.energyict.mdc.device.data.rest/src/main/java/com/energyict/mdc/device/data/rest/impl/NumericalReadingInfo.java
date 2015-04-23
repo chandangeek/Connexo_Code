@@ -6,15 +6,14 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
+
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.math.BigDecimal;
 import java.util.Set;
 
@@ -42,9 +41,9 @@ public class NumericalReadingInfo extends ReadingInfo {
 
     public NumericalReadingInfo() {}
 
-    public NumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive, DataValidationStatus dataValidationStatus) {
+    public NumericalReadingInfo(NumericalReading reading, NumericalRegisterSpec registerSpec, boolean isValidationStatusActive) {
         super(reading);
-        if(reading.getQuantity() != null) {
+        if (reading.getQuantity() != null) {
             this.value = reading.getQuantity().getValue();
             this.rawValue = reading.getQuantity().getValue();
         }
@@ -56,11 +55,11 @@ public class NumericalReadingInfo extends ReadingInfo {
         this.unitOfMeasure = registerSpec.getUnit();
 
         this.validationStatus = isValidationStatusActive;
-        if(dataValidationStatus != null) {
-            this.dataValidated = dataValidationStatus.completelyValidated();
-            this.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(dataValidationStatus.getReadingQualities()));
-            this.suspectReason = ValidationRuleInfo.from(dataValidationStatus);
-        }
+        reading.getValidationStatus().ifPresent(status -> {
+            this.dataValidated = status.completelyValidated();
+            this.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
+            this.suspectReason = ValidationRuleInfo.from(status);
+        });
     }
 
     @Override

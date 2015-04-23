@@ -92,7 +92,7 @@ public class DeviceGroupResource {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
         Integer start = queryParameters.getStart();
         Integer limit = queryParameters.getLimit();
-        List<? extends EndDevice> endDevices = null;
+        List<? extends EndDevice> endDevices;
         if (start != null && limit != null) {
             endDevices= endDeviceGroup.getMembers(Instant.now(), start, limit);
         } else {
@@ -193,10 +193,16 @@ public class DeviceGroupResource {
     }
 
     private void syncListWithInfo(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, DeviceGroupInfo deviceGroupInfo) {
-        Stream<? extends Long> deviceIds = Optional.ofNullable(deviceGroupInfo.devices).map(list -> list.stream()).orElse(null);
-        if (deviceIds == null) {
-            deviceIds = deviceService.findAllDevices(getCondition(deviceGroupInfo)).find().stream()
+        Stream<Long> deviceIds;
+        if (deviceGroupInfo.devices == null) {
+            deviceIds = deviceService
+                    .findAllDevices(getCondition(deviceGroupInfo))
+                    .find()
+                    .stream()
                     .map(HasId::getId);
+        }
+        else {
+            deviceIds = deviceGroupInfo.devices.stream();
         }
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<EndDevice> endDevices = deviceIds.map(number -> amrSystem.findMeter(number.toString()))
@@ -271,4 +277,5 @@ public class DeviceGroupResource {
         }
         return condition;
     }
+
 }

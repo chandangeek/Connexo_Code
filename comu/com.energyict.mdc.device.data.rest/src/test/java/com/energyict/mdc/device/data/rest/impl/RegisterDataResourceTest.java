@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
@@ -79,8 +80,10 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(numericalReading.getQuantity()).thenReturn(quantity);
         when(billingReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
         when(numericalReading.getTimeStamp()).thenReturn(READING_TIMESTAMP);
+        when(numericalReading.getValidationStatus()).thenReturn(Optional.empty());
         Range<Instant> interval = Ranges.openClosed(BILLING_READING_INTERVAL_START, BILLING_READING_INTERVAL_END);
         when(billingReading.getRange()).thenReturn(Optional.of(interval));
+        when(billingReading.getValidationStatus()).thenReturn(Optional.empty());
         when(register.getReadings(Interval.sinceEpoch())).thenReturn(Arrays.asList(billingReading, numericalReading));
         when(billingReading.getActualReading()).thenReturn(actualReading1);
         when(actualReading1.edited()).thenReturn(true);
@@ -101,12 +104,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
-        when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         Map json = target("devices/1/registers/1/data").request().get(Map.class);
-        System.out.println(json);
-
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(2);
@@ -121,15 +120,19 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(device.getId()).thenReturn(1L);
-        when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
         when(readingType.getMRID()).thenReturn("mRID");
+        RegisterDataUpdater registerDataUpdater = mock(RegisterDataUpdater.class);
+        when(registerDataUpdater.removeReading(any(Instant.class))).thenReturn(registerDataUpdater);
+        when(registerDataUpdater.editReading(any(BaseReading.class))).thenReturn(registerDataUpdater);
+        when(register.startEditingData()).thenReturn(registerDataUpdater);
 
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
         numericalReadingInfo.value = BigDecimal.TEN;
         numericalReadingInfo.timeStamp = READING_TIMESTAMP;
 
         Response response = target("devices/1/registers/1/data/1").request().put(Entity.json(numericalReadingInfo));
+        verify(registerDataUpdater).complete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
 }
