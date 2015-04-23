@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                 items: [
                     {
                         xtype: 'button',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+                        privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                         action: 'bulk',
                         itemId: 'searchResultsBulkActionButton',
                         text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action')
@@ -66,6 +66,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                     {
                         xtype:'button',
                         hidden:!Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
+                        privileges: Yfn.privileges.Yellowfin.view,
                         itemId:'generate-report',
                         action: 'generate-report',
                         text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')

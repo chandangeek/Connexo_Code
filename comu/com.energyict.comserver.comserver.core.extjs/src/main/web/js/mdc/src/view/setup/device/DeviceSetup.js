@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             style: 'font-size: 16px',
             flag: flag,
             pressed: !!flag,
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+            privileges: Mdc.privileges.Device.flagDevice,
             enableToggle: true,
             toggleHandler: function(button, state) {
                 button.setIconCls(state ? 'icon-star6' : 'icon-star4');
@@ -236,7 +236,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     {
                         xtype: 'deviceCommunicationTopologyPanel',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                        privileges: Mdc.privileges.Device.deviceOperator,
                         router: me.router
                     }
                 ]
@@ -276,7 +276,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             },
             {
                 xtype: 'panel',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                privileges: Mdc.privileges.Device.deviceOperator,
                 itemId: 'device-connections-panel',
                 style: {
                     marginRight: '20px',
@@ -300,7 +300,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             },
             {
                 xtype: 'panel',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                privileges: Mdc.privileges.Device.deviceOperator,
                 itemId: 'device-communications-panel',
                 style: {
                     marginRight: '20px',

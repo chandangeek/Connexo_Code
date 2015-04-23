@@ -51,6 +51,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationSchedu
                                         xtype:'button',
                                         text: Uni.I18n.translate('deviceCommunicationSchedule.addSharedCommunicationSchedule', 'MDC', 'Add shared communication schedule'),
                                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+                                        privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                        flagDevice
 //                                        ui: 'action',
                                         action: 'addSharedCommunicationSchedule',
                                         itemId: 'addSharedCommunicationScheduleButton'

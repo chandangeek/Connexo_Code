@@ -46,14 +46,14 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationSch
                         items: [
                             {
                                 text: Uni.I18n.translate('deviceCommunicationSchedules.addFrequency', 'MDC', 'Add frequency'),
-                                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+                                privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                 itemId: 'addCommunicationSchedule',
                                 action: 'addCommunicationSchedule'
 
                             },
                             {
                                 text: Uni.I18n.translate('deviceCommunicationSchedules.run', 'MDC', 'Run'),
-                                hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+                                privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                 itemId: 'runCommunicationSchedule',
                                 action: 'runCommunicationSchedule'
 
