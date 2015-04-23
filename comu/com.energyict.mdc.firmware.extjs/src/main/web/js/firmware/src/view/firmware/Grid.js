@@ -30,7 +30,8 @@ Ext.define('Fwc.view.firmware.Grid', {
                     );
             },
             menu: {
-                xtype: 'firmware-action-menu'
+                xtype: 'firmware-action-menu',
+                itemId: 'firmware-action-menu'
             }
         }
     ],
