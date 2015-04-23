@@ -3,6 +3,7 @@ Ext.define('Usr.controller.Main', {
 
     requires: [
         'Ext.window.Window',
+        'Usr.privileges.Users',
         'Uni.controller.Navigation'
     ],
 
@@ -33,7 +34,7 @@ Ext.define('Usr.controller.Main', {
     },
 
     initMenu: function () {
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.userAndRole','privilege.view.userAndRole'])) {
+        if (Usr.privileges.Users.canView()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'USR', 'Administration'),
                 glyph: 'settings',

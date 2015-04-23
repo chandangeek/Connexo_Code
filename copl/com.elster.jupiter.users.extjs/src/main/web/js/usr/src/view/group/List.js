@@ -35,7 +35,7 @@ Ext.define('Usr.view.group.List', {
                 {
                     xtype: 'uni-actioncolumn',
                     items: 'Usr.view.group.GroupActionMenu',
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.userAndRole')
+                    privileges: Usr.privileges.Users.admin
                 }
             ]
         };
@@ -51,7 +51,7 @@ Ext.define('Usr.view.group.List', {
                         text: Uni.I18n.translate('group.create', 'USR', 'Add role'),
                         action: 'createGroup',
                         href: '#/administration/roles/add',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.userAndRole')
+                        privileges: Usr.privileges.Users.admin
                     }
                 ]
             },

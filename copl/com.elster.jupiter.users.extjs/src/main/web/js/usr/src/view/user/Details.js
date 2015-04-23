@@ -16,7 +16,7 @@ Ext.define('Usr.view.user.Details', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.userAndRole'),
+            privileges: Usr.privileges.Users.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'user-action-menu'
