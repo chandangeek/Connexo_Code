@@ -1,33 +1,25 @@
 package com.energyict.mdc.firmware;
 
 public enum FirmwareType {
-    COMMUNICATION("communication", "Communication firmware"),
-    METER("meter", "Meter firmware");
+    COMMUNICATION("communication"),
+    METER("meter");
 
     private String type;
-    private String displayValue;
 
-    private FirmwareType(String type, String displayValue) {
+    private FirmwareType(String type) {
         this.type = type;
-        this.displayValue = displayValue;
     }
 
     public String getType() {
         return type;
     }
-
-    public String getDisplayValue() {
-        return displayValue;
-    }
-
-    public static FirmwareType from(String type) {
-        switch(type.toLowerCase()) {
-            case "communication":
-                return FirmwareType.COMMUNICATION;
-            case "meter":
-                return FirmwareType.METER;
-            default:
-                throw new IllegalArgumentException("Firmware type " + type + " doesn't exist");
+    
+    public static FirmwareType get(String type) {
+        for(FirmwareType t : values()) {
+            if (t.getType().equals(type)) {
+                return t;
+            }
         }
+        throw new IllegalArgumentException("Firmware type " + type + " doesn't exist");
     }
 }

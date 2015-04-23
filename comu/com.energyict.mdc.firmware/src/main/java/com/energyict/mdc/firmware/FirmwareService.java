@@ -1,7 +1,6 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
@@ -25,7 +24,7 @@ import java.util.Set;
 
     Query<? extends FirmwareVersion> getFirmwareVersionQuery();
 
-    Finder<FirmwareVersion> findAllFirmwareVersions(Condition condition);
+    Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter);
 
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
 

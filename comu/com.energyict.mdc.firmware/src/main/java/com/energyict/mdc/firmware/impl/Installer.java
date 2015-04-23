@@ -6,12 +6,9 @@ import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 public class Installer {
     private final DataModel dataModel;
-    private final Thesaurus thesaurus;
 
     Installer(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
-        this.thesaurus = thesaurus;
-
     }
 
     void install() {

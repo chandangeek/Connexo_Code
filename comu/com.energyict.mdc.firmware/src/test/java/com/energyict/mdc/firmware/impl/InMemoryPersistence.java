@@ -35,14 +35,12 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -80,10 +78,8 @@ public class InMemoryPersistence {
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
     private OrmService ormService;
-    private EventService eventService;
     private MeteringService meteringService;
     private NlsService nlsService;
-    private UserService userService;
     private DataModel dataModel;
     private Injector injector;
     private InMemoryBootstrapModule bootstrapModule;
@@ -137,9 +133,9 @@ public class InMemoryPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
-            this.eventService = injector.getInstance(EventService.class);
+            injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
-            this.userService = injector.getInstance(UserService.class);
+            injector.getInstance(UserService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.queryService = injector.getInstance(QueryService.class);
@@ -201,8 +197,12 @@ public class InMemoryPersistence {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(DataModel.class).toProvider(() -> dataModel);
+            bind(DataModel.class).toProvider(new Provider<DataModel>() {
+                @Override
+                public DataModel get() {
+                    return dataModel;
+                }
+            });
         }
-
     }
 }
