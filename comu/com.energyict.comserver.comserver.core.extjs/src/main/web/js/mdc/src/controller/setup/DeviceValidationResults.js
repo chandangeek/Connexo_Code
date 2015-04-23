@@ -10,11 +10,11 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 	models: [
 		'Mdc.model.ValidationResultsDataFilter'
 	],
-	
+
 	stores: [
         'Mdc.store.DataIntervalAndZoomLevels',
-        'Mdc.store.ValidationResultsDurations',   
-		'Mdc.store.ValidationResultsRuleSets',		
+        'Mdc.store.ValidationResultsDurations',
+		'Mdc.store.ValidationResultsRuleSets',
 		'Mdc.store.ValidationResultsRules',
 		'Mdc.store.ValidationResultsVersions',
         'Mdc.store.ValidationResultsLoadProfiles',
@@ -68,21 +68,21 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             '#validationResultsTabPanel': {
                 tabChange: this.changeTab
             },
-			
+
 			 '#devicevalidationresultsfilterpanel': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             },
-			
+
 			 'deviceValidationResultsSideFilter #deviceValidationResultsFilterApplyBtn': {
                 click: this.applyFilter
             },
             'deviceValidationResultsSideFilter #deviceValidationResultsFilterResetBtn': {
                 click: this.clearFilter
-            }
+            },
 
         });
-		
+
 
      /*   this.control({
             '#deviceDataValidationRulesSetGrid': {
@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         });
      */   this.callParent();
     },
-	
+
 	showDeviceValidationResultsMainView: function (mRID, activeTab) {
 		 var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
@@ -140,13 +140,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         });
 	},
 	changeTab: function (tabPanel, tab) {
-	
-		var me = this,			        
+
+		var me = this,
             router = me.getController('Uni.controller.history.Router');
 /*
 		if (tab.itemId === 'validationResults-configuration') {
 			 widget = Ext.widget('deviceLoadProfilesData', {
-                router: me.getController('Uni.controller.history.Router'),                
+                router: me.getController('Uni.controller.history.Router'),
                 device: device
             });
 
@@ -159,28 +159,28 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		}
 		me.getSideFilterForm().loadRecord(router.filter);
 		me.setFilterView();
-		
-		
+
+
 	},
 	setDefaults : function(){
 		 var me = this,
-            router = me.getController('Uni.controller.history.Router'),            
+            router = me.getController('Uni.controller.history.Router'),
             intervalStart = new Date().getTime(),
 			durationsStore = me.getStore('Mdc.store.ValidationResultsDurations'),
 			firstItem = durationsStore.first();
         router.filter.beginEdit();
         router.filter.set('intervalStart', me.getIntervalStart(intervalStart, firstItem));
-        router.filter.set('duration', firstItem.get('count') + firstItem.get('timeUnit'));        
+        router.filter.set('duration', firstItem.get('count') + firstItem.get('timeUnit'));
         router.filter.endEdit();
 
-		
-	
+
+
 	},
-	
+
 	 getIntervalStart: function (intervalEnd, item) {
         return moment(intervalEnd).subtract(item.get('timeUnit'), item.get('count')).toDate();
     },
-	
+
 	setFilterView: function () {
         var filterForm = this.getSideFilterForm(),
             filterView = this.getFilterPanel(),
@@ -192,9 +192,9 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
             + Uni.DateTime.formatDateShort(intervalStart);
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
-        filterView.down('#Reset').setText('Reset');        
+        filterView.down('#Reset').setText('Reset');
 	},
-	
+
 	clearFilter: function () {
         this.getSideFilterForm().getRecord().getProxy().destroy();
     },
@@ -208,16 +208,16 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         }
         record.save();
     },
-	
+
 	applyFilter: function () {
         var filterForm = this.getSideFilterForm();
         filterForm.updateRecord();
         filterForm.getRecord().save();
-    }
+    },
 
 
 
-    /*,
+	/*,
     showDeviceDataValidationMainView: function (mRID) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
