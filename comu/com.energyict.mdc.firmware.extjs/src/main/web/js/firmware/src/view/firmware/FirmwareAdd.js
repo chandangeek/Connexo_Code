@@ -17,6 +17,10 @@ Ext.define('Fwc.view.firmware.FirmwareAdd', {
 
                 items: {
                     xtype: 'firmware-form-add',
+                    autoEl: {
+                        tag: 'form',
+                        enctype: 'multipart/form-data'
+                    },
                     record: this.record,
                     router: this.router
                 }
