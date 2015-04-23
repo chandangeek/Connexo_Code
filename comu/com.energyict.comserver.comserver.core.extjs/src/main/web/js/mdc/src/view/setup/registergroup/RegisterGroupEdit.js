@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
     itemId: 'registerGroupEdit',
 
     requires: [
-        'Mdc.store.RegisterTypesToAdd',
+        'Mdc.store.RegisterTypes',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.grid.column.Obis',
@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             enableColumnMove: false,
                                             enableColumnResize: false,
                                             sortableColumns: false,
-                                            store: 'RegisterTypesToAdd',
+                                            store: 'RegisterTypes',
                                             selModel: {
                                                 mode: 'MULTI',
                                                 checkOnly: true,
