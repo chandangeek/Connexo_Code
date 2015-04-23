@@ -10,7 +10,7 @@ Ext.define('Yfn.privileges.Yellowfin', {
     singleton: true,
     view : ['privilege.view.reports'],
     design: ['privilege.design.reports'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Yfn.privileges.Yellowfin.view,Yfn.privileges.Yellowfin.design);
     },
     canView:function(){
