@@ -59,10 +59,6 @@ public interface DeviceValidation {
 
     List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings, Range<Instant> interval);
 
-    List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings);
-
-    List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings);
-
     void validateData();
 
     void validateLoadProfile(LoadProfile loadProfile);
@@ -70,10 +66,6 @@ public interface DeviceValidation {
     void validateChannel(Channel channel);
 
     void validateRegister(Register<?> register);
-
-    boolean hasData(Channel c);
-
-    boolean hasData(Register<?> register);
 
     void setLastChecked(Channel c, Instant start);
 

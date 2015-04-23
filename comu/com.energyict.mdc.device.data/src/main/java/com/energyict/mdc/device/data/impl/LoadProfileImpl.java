@@ -257,6 +257,11 @@ public class LoadProfileImpl implements LoadProfile {
         }
 
         @Override
+        public boolean hasData() {
+            return LoadProfileImpl.this.device.get().hasData(this);
+        }
+
+        @Override
         public ChannelDataUpdater startEditingData() {
             return new ChannelDataUpdaterImpl(this);
         }

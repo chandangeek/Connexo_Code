@@ -172,22 +172,6 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
-    public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
-        if (readings.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return getValidationStatus(channel, readings, interval(readings));
-    }
-
-    @Override
-    public List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings) {
-        if (readings.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return getValidationStatus(register, readings, interval(readings));
-    }
-
-    @Override
     public void validateData() {
         List<? extends MeterActivation> meterActivations = device.getMeterActivations();
         if (!meterActivations.isEmpty()) {
@@ -214,22 +198,6 @@ public class DeviceValidationImpl implements DeviceValidation {
     @Override
     public void validateRegister(Register<?> register) {
         validate(register.getReadingType());
-    }
-
-    @Override
-    public boolean hasData(Channel channel) {
-        return getDevice()
-                .findKoreChannels(channel)
-                .stream()
-                .anyMatch(com.elster.jupiter.metering.Channel::hasData);
-    }
-
-    @Override
-    public boolean hasData(Register<?> register) {
-        return getDevice()
-                .findKoreChannels(register)
-                .stream()
-                .anyMatch(com.elster.jupiter.metering.Channel::hasData);
     }
 
     @Override

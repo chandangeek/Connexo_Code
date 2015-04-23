@@ -64,6 +64,8 @@ public interface Channel extends BaseChannel {
 
     Optional<Instant> getLastDateTime();
 
+    public boolean hasData();
+
     public ChannelDataUpdater startEditingData();
 
 }

@@ -71,6 +71,8 @@ public interface Register<R extends Reading> extends BaseRegister {
 
     public ReadingType getReadingType();
 
+    public boolean hasData();
+
     public RegisterDataUpdater startEditingData();
 
 }
