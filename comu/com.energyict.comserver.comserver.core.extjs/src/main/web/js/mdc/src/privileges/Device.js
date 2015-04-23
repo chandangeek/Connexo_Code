@@ -21,7 +21,7 @@ Ext.define('Mdc.privileges.Device', {
     administrateOrOperateDeviceCommunication:['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'],
     viewOrAdministrateDeviceData : ['privilege.view.device','privilege.administrate.deviceData'],
     viewOrAdministrateOrOperateDeviceCommunication: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Mdc.privileges.Device.viewDevice,
             Mdc.privileges.Device.viewDeviceData,
             Mdc.privileges.Device.deviceOperator,

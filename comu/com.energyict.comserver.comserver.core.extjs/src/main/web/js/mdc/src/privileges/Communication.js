@@ -10,7 +10,7 @@ Ext.define('Mdc.privileges.Communication', {
     singleton: true,
     view : ['privilege.administrate.communicationAdministration', 'privilege.view.communicationAdministration'],
     admin: ['privilege.administrate.communicationAdministration'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Mdc.privileges.Communication.view,Mdc.privileges.Communication.admin);
     },
     canView:function(){

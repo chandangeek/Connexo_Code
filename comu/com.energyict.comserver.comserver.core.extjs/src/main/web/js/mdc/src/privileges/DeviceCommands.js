@@ -15,7 +15,7 @@ Ext.define('Mdc.privileges.DeviceCommands', {
     level3:['execute.device.message.level3'],
     level4:['execute.device.message.level4'],
 
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Mdc.privileges.DeviceCommands.executeCommands);
     },
     canExecuteDeviceCommands: function(){

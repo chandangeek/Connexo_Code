@@ -13,7 +13,7 @@ Ext.define('Mdc.privileges.DeviceGroup', {
     adminDeviceGroup: ['privilege.administrate.deviceGroup'],
     adminDeviceOfEnumeratedGroup:['privilege.administrate.deviceOfEnumeratedGroup'],
     administrateOrViewDetails:['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Mdc.privileges.DeviceGroup.view,
             Mdc.privileges.DeviceGroup.adminDeviceGroup,
             Mdc.privileges.DeviceGroup.adminDeviceOfEnumeratedGroup

@@ -10,7 +10,7 @@ Ext.define('Mdc.privileges.CommunicationSchedule', {
     singleton: true,
     view : ['privilege.administrate.sharedCommunicationSchedule', 'privilege.view.sharedCommunicationSchedule'],
     admin: ['privilege.administrate.sharedCommunicationSchedule'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Mdc.privileges.CommunicationSchedule.view,Mdc.privileges.CommunicationSchedule.admin);
     },
     canView:function(){

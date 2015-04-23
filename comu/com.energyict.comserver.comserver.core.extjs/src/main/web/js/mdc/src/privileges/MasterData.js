@@ -10,7 +10,7 @@ Ext.define('Mdc.privileges.MasterData', {
     singleton: true,
     view : ['privilege.administrate.masterData', 'privilege.view.masterData'],
     admin: ['privilege.administrate.masterData'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Mdc.privileges.MasterData.view,Mdc.privileges.MasterData.admin);
     },
     canView:function(){

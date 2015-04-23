@@ -10,7 +10,7 @@ Ext.define('Mdc.privileges.DeviceType', {
     singleton: true,
     view : ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
     admin: ['privilege.administrate.deviceType'],
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Mdc.privileges.DeviceType.view,Mdc.privileges.DeviceType.admin);
     },
     canAdministrate:function(){

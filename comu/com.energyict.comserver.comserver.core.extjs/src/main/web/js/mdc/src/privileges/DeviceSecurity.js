@@ -18,7 +18,7 @@ Ext.define('Mdc.privileges.DeviceSecurity', {
     level3:['edit.device.security.properties.level3'],
     level4:['edit.device.security.properties.level4'],
 
-    any: function() {
+    all: function() {
         return Ext.Array.merge(Mdc.privileges.DeviceSecurity.viewLevels,
             Mdc.privileges.DeviceSecurity.editLevels
         );

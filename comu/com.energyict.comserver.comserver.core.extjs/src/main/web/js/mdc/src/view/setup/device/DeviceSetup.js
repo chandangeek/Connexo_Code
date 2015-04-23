@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     itemId: 'deviceSetup',
 
     requires: [
+        'Isu.privileges.Issue',
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.device.DeviceCommunicationTopologyPanel',
         'Mdc.view.setup.device.DeviceGeneralInformationPanel',
@@ -253,7 +254,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: [
                     {
                         xtype: 'deviceOpenIssuesPanel',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue']),
+                        privileges: Isu.privileges.Issue.viewAdminDevice,
                         router: me.router,
                         style: {
                             marginRight: '20px',
