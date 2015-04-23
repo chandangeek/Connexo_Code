@@ -39,9 +39,9 @@ import static org.mockito.Mockito.verify;
 public class LinearInterpolationTest {
 
     private static final ZonedDateTime BEFORE = ZonedDateTime.of(2015, 3, 11, 20, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-    public static final ZonedDateTime ESTIMATABLE1 = BEFORE.plusHours(1);
-    public static final ZonedDateTime ESTIMATABLE2 = BEFORE.plusHours(2);
-    public static final ZonedDateTime AFTER = BEFORE.plusHours(3);
+    private static final ZonedDateTime ESTIMATABLE1 = BEFORE.plusHours(1);
+    private static final ZonedDateTime ESTIMATABLE2 = BEFORE.plusHours(2);
+    private static final ZonedDateTime AFTER = BEFORE.plusHours(3);
 
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();

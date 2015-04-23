@@ -6,7 +6,6 @@ import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
@@ -22,10 +21,10 @@ import java.util.logging.Logger;
  */
 public class ValueFillEstimator extends AbstractEstimator {
 
-    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "maxNumberOfConsecutiveSuspects";
+    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "valuefill.maxNumberOfConsecutiveSuspects";
     private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
-    static final String FILL_VALUE = "fillValue";
+    static final String FILL_VALUE = "valuefill.fillValue";
     private static final BigDecimal DEFAULT_FILL_VALUE = BigDecimal.valueOf(0);
 
     private BigDecimal numberOfConsecutiveSuspects;
@@ -41,14 +40,10 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     @Override
     public void init() {
-        numberOfConsecutiveSuspects = (BigDecimal) properties.get(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
-        if (numberOfConsecutiveSuspects == null) {
-            this.numberOfConsecutiveSuspects = MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE;
-        }
-        fillValue = (BigDecimal) properties.get(FILL_VALUE);
-        if (fillValue == null) {
-            this.fillValue = DEFAULT_FILL_VALUE;
-        }
+        numberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+                .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
+        fillValue = getProperty(FILL_VALUE, BigDecimal.class)
+                .orElse(DEFAULT_FILL_VALUE);
     }
 
     @Override
