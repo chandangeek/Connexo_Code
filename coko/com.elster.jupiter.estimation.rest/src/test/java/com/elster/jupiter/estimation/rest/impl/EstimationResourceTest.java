@@ -298,7 +298,7 @@ public class EstimationResourceTest extends BaseEstimationRestTest {
         final EstimationRuleSetInfo info = new EstimationRuleSetInfo();
         info.name = "MyRuleUpdated";
         info.description = "blablabla";
-        info.rules = new EstimationRuleInfos();
+        info.rules = new ArrayList<>();
         EstimationRuleInfo ruleInfo = new EstimationRuleInfo();
         ruleInfo.id = 1L;
         info.rules.add(ruleInfo);

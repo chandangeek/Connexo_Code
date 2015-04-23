@@ -68,7 +68,7 @@ public class EstimationApplication extends Application implements BinderProvider
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(estimationService.COMPONENTNAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(EstimationService.COMPONENTNAME, Layer.REST);
     }
 
     @Reference

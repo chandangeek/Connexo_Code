@@ -162,11 +162,11 @@ public class EstimationResource {
                     set.setName(info.name);
                     set.setDescription(info.description);
                     set.save();
-                    if ((info.rules != null) && (!info.rules.rules.isEmpty())) {
+                    if ((info.rules != null) && (!info.rules.isEmpty())) {
                         long[] current = set.getRules().stream()
                                 .mapToLong(EstimationRule::getId)
                                 .toArray();
-                        long[] target = info.rules.rules.stream()
+                        long[] target = info.rules.stream()
                                 .mapToLong(ruleInfo -> ruleInfo.id)
                                 .toArray();
                         KPermutation kPermutation = KPermutation.of(current, target);
