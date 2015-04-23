@@ -1,6 +1,8 @@
 Ext.define('Idc.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',
-
+    requires:[
+        'Isu.privileges.Issue'
+    ],
     rootToken: 'workspace',
     previousPath: '',
     currentPath: null,
@@ -17,19 +19,19 @@ Ext.define('Idc.controller.history.Workspace', {
                     controller: 'Idc.controller.Overview',
                     action: 'showOverview',
                     filter: 'Isu.model.IssuesFilter',
-                    privileges: ['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'],
+                    privileges: Isu.privileges.Issue.viewAdminDevice,
                     items: {
                         bulkaction: {
                             title: 'Bulk action',
                             route: 'bulkaction',
-                            privileges: ['privilege.close.issue','privilege.assign.issue'],
+                            privileges: Isu.privileges.Issue.closeOrAssing,
                             controller: 'Idc.controller.BulkChangeIssues'
                         },
                         view: {
                             title: 'issue details',
                             route: '{issueId}',
                             controller: 'Idc.controller.Detail',
-                            privileges: ['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'],
+                            privileges: Isu.privileges.Issue.viewAdminDevice,
                             callback: function (route) {
                                 this.getApplication().on('issueLoad', function (record) {
                                     route.setTitle(record.get('title'));
@@ -42,7 +44,7 @@ Ext.define('Idc.controller.history.Workspace', {
                                     title: 'Action',
                                     route: 'action/{actionId}',
                                     controller: 'Idc.controller.ApplyAction',
-                                    privileges: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue','privilege.operate.deviceCommunication'],
+                                    privileges: Isu.privileges.Issue.viewAdminDevice,
                                     callback: function (route) {
                                         this.getApplication().on('issueActionLoad', function (record) {
                                             route.setTitle(record.get('name'));
