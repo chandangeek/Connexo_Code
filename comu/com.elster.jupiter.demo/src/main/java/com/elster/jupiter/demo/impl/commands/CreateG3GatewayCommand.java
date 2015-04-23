@@ -49,6 +49,7 @@ public class CreateG3GatewayCommand {
     private final Provider<DeviceBuilder> deviceBuilderProvider;
 
     private Map<ComTaskTpl, ComTask> comTasks;
+    private String mRID = GATEWAY_MRID;
 
     @Inject
     public CreateG3GatewayCommand(DeviceService deviceService, ProtocolPluggableService protocolPluggableService,
@@ -59,9 +60,13 @@ public class CreateG3GatewayCommand {
         this.deviceBuilderProvider = deviceBuilderProvider;
     }
 
+    public void setGatewayMrid(String mRID){
+        this.mRID = mRID;
+    }
+
     public void run() {
         // 1. Some basic checks
-        Optional<Device> device = deviceService.findByUniqueMrid(GATEWAY_MRID);
+        Optional<Device> device = deviceService.findByUniqueMrid(mRID);
         if (device.isPresent()) {
             System.out.println("Nothing was created since a device with MRID '" + GATEWAY_MRID + "' already exists!");
             return;
@@ -84,7 +89,7 @@ public class CreateG3GatewayCommand {
             .orElseGet(() -> createG3DeviceConfiguration(g3DeviceType, DEVICE_CONFIG_NAME));
 
         // 5. Create the gateway device
-        createG3GatewayDevice(GATEWAY_MRID, configuration);
+        createG3GatewayDevice(mRID, configuration);
     }
 
     private DeviceConfiguration createG3DeviceConfiguration(DeviceType g3DeviceType, String deviceConfigName) {
