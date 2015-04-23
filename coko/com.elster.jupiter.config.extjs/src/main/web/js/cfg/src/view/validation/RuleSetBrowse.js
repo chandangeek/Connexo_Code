@@ -31,7 +31,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
-                                privileges: ['privilege.administrate.validationConfiguration'],
+                                privileges : Cfg.privileges.Validation.admin,
                                 href: '#/administration/validation/rulesets/add'
                             }
                         ]

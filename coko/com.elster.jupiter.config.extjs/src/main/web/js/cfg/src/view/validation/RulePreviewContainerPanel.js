@@ -37,7 +37,7 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
                     stepItems: [
                         {
                             text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
-                            privileges: ['privilege.administrate.validationConfiguration'],
+                            privileges : Cfg.privileges.Validation.admin,
                             href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/'+ me.versionId + '/rules/add'
 							
                         }

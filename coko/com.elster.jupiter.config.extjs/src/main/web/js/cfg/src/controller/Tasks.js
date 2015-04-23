@@ -223,7 +223,7 @@ Ext.define('Cfg.controller.Tasks', {
             deviceGroupCombo = view.down('#device-group-combo'),            
             recurrenceTypeCombo = view.down('#recurrence-type');
 			
-        if (Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration')) {
+        if (Cfg.privileges.Validation.canAdministrate()) {
             deviceGroupCombo.disabled = true;         
         }
         me.fromEdit = true;
