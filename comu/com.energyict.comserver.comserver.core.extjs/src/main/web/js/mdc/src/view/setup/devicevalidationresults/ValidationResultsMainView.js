@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
 	requires: [
 		'Mdc.view.setup.devicevalidationresults.SideFilter',
 		'Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset',
+        'Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileRegister',
 		'Mdc.store.ValidationResultsDurations'
 	],
    /* requires: [
@@ -61,7 +62,18 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
                     },
                     {
                         title: Uni.I18n.translate('validationResults.dataView', 'MDC', 'Data view'),
-                        itemId: 'validationResults-data'
+                        itemId: 'validationResults-data',
+                        items: [
+                                   {
+                                xtype: 'filter-top-panel',
+                                itemId: 'devicevalidationresultsfilterpanel2',
+                                emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
+                            },
+                            {
+                                xtype: 'deviceValidationResultsLoadProfileRegister',
+                                itemId: 'deviceValidationResultsLoadProfileRegisterpanel'
+                            }
+                        ]
                     }
 				]	
                 

@@ -16,7 +16,9 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         'Mdc.store.ValidationResultsDurations',   
 		'Mdc.store.ValidationResultsRuleSets',		
 		'Mdc.store.ValidationResultsRules',
-		'Mdc.store.ValidationResultsVersions'
+		'Mdc.store.ValidationResultsVersions',
+        'Mdc.store.ValidationResultsLoadProfiles',
+        'Mdc.store.ValidationResultsRegisters'
     ],
 	/*
     stores: [
@@ -77,7 +79,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             },
             'deviceValidationResultsSideFilter #deviceValidationResultsFilterResetBtn': {
                 click: this.clearFilter
-            },
+            }
 
         });
 		
@@ -211,11 +213,11 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         var filterForm = this.getSideFilterForm();
         filterForm.updateRecord();
         filterForm.getRecord().save();
-    },
+    }
 
-    
 
-	/*,
+
+    /*,
     showDeviceDataValidationMainView: function (mRID) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
