@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -81,6 +82,7 @@ public class DeviceResource {
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
     private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
+    private final DeviceInfoFactory deviceInfoFactory;
 
     @Inject
     public DeviceResource(
@@ -109,7 +111,8 @@ public class DeviceResource {
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<ChannelResource> channelsOnDeviceResourceProvider,
-            Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
+            Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
+            DeviceInfoFactory deviceInfoFactory) {
 
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -137,6 +140,7 @@ public class DeviceResource {
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
         this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
+        this.deviceInfoFactory = deviceInfoFactory;
     }
 
 
@@ -153,7 +157,7 @@ public class DeviceResource {
         }
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
-        List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
+        List<DeviceInfo> deviceInfos = deviceInfoFactory.from(allDevices); //DeviceInfo.from(allDevices);
         return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
     }
 
@@ -175,7 +179,7 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService, meteringService);
+        return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService, meteringService);
     }
 
     @PUT
@@ -190,7 +194,7 @@ public class DeviceResource {
         } else {
             removeGateway(device);
         }
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
+        return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
     }
 
     private void updateGateway(Device device, String gatewayMRID) {
@@ -236,7 +240,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
+        return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
     }
 
     /**

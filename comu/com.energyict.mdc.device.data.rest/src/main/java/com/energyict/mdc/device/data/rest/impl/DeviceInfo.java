@@ -5,6 +5,7 @@ import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -16,7 +17,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -44,6 +44,7 @@ public class DeviceInfo {
     public Boolean isGateway;
     public String serviceCategory;
     public String usagePoint;
+    public DeviceLifeCycleStateInfo state;
 
     public DeviceInfo() {
     }
@@ -102,8 +103,7 @@ public class DeviceInfo {
         return deviceInfo;
     }
 
-    public static List<DeviceInfo> from(List<Device> devices) {
+/*    public static List<DeviceInfo> from(List<Device> devices) {
         return devices.stream().map(DeviceInfo::from).collect(Collectors.toList());
-    }
-
+    }*/
 }
