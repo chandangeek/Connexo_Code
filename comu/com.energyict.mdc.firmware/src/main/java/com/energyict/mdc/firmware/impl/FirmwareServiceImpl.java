@@ -117,6 +117,9 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         if (!filter.getFirmwareStatuses().isEmpty()) {
             condition = condition.and(createMultipleConditions(filter.getFirmwareStatuses(), FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()));
         }
+        if (!filter.getFirmwareStatuses().isEmpty()) {
+            condition = condition.and(createMultipleConditions(filter.getFirmwareVersions(), FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName()));
+        }
         if (!filter.getFirmwareTypes().isEmpty()) {
             condition = condition.and(createMultipleConditions(filter.getFirmwareTypes(), FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()));
         }
