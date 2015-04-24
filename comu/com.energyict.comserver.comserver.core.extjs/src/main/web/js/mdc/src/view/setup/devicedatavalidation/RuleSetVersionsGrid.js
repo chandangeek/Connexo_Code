@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 sortable: false,
                 fixed: true
             }
-        ];
+        ]; 
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -63,19 +63,21 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
 
             }
         ];
-        me.listeners = {
-            'afterrender': function (component) {
-                component.getStore().on('load', function(store, records, success) {
+	    me.listeners = {
+            'afterrender': function (grid) {
+                grid.getStore().on('load', function(store, records, success) {
                     var rec = store.find('status', 'CURRENT');
-                    if ((rec>=0)|| (this.getView())) {
-                        this.getView().getSelectionModel().select(rec);
+                    if ((rec>=0)|| (grid.getView())) {
+                        grid.getView().getSelectionModel().select(rec);
                     }
 
-                }, this, {
+                }, grid, {
                     single: true
                 });
             }
         };
+
+
         me.callParent(arguments);
     }
 });

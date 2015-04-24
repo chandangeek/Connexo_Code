@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceDataValidationRulesGrid',
     itemId: 'deviceDataValidationRulesGrid',
-    rulesSetId: null,
+    ruleSetId: null,
+    versionId: null,
     title: '',
     requires: [
         'Uni.view.toolbar.PagingBottom',
@@ -19,8 +20,11 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
                 dataIndex: 'name',
                 flex: 1,
                 renderer: function (value, b, record) {
+                    /*
                     return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId')
                         + '/rules/' + record.getId() + '">' + value + '</a>';
+                    */
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetVersion').ruleSet.id + '/versions/' + record.get('ruleSetVersion').id + '/rules/' + record.getId() + '">' + value + '</a>';
                 }
             },
             {
@@ -52,7 +56,10 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesGrid', {
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'MDC', 'Validation rules per page'),
                 dock: 'bottom',
-                params: {id: me.rulesSetId},
+                params: {
+                    ruleSetId: me.ruleSetId,
+                    versionId: me.versionId
+                },
                 deferLoading: true
             }
         ];

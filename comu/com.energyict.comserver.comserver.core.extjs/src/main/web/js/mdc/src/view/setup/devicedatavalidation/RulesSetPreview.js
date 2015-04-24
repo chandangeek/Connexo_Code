@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetPreview', {
     alias: 'widget.deviceDataValidationRulesSetPreview',
     itemId: 'deviceDataValidationRulesSetPreview',
     title: '',
-    rulesSetId: null,
+    ruleSetId: null,
     ui: 'medium',
     padding: 0,
     requires: [
@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetPreview', {
                 xtype: 'preview-container',
                 grid: {
                     xtype: 'deviceDataValidationRuleSetVersionsGrid',
-                    rulesSetId: me.rulesSetId
+                    ruleSetId: me.ruleSetId
                 },
                 emptyComponent: {
 
@@ -39,7 +39,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetPreview', {
                     ]
                 },
                 previewComponent: {
-                    xtype: 'deviceDataValidationRulesSetVersionPreview'
+                    xtype: 'container',
+                    itemId: 'deviceDataValidationRuleSetVersionsPreviewCt'
                 }
             }
         ];
