@@ -10,6 +10,7 @@ Ext.define('Fwc.devicefirmware.view.Log', {
 
     router: null,
     device: null,
+    title: null,
 
     initComponent: function () {
         var me = this;
@@ -22,7 +23,7 @@ Ext.define('Fwc.devicefirmware.view.Log', {
 
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('deviceFirmware.logTitle', 'FWC', 'Meter firmware upgrade log to version'),
+            title: me.title,
             items: [
                 {
                     xtype: 'preview-container',

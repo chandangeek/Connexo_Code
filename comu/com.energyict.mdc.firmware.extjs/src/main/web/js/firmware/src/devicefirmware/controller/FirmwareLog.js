@@ -40,16 +40,20 @@ Ext.define('Fwc.devicefirmware.controller.FirmwareLog', {
 
     showDeviceFirmwareLog: function (mRID) {
         var me = this,
-            router = this.getController('Uni.controller.history.Router');
-
+            router = this.getController('Uni.controller.history.Router'),
+            queryParams = router.queryParams,
+            title = Uni.I18n.translate('deviceFirmware.logTitle', 'FWC', 'Meter firmware upgrade log to version') + ' ' + queryParams.firmwareVersion,
+            logGrid;
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', 'device-firmware-log', {router: router, device: device});
-//                me.getLogsGrid().getStore().setUrl(mRID);
-                me.getLogsGrid().getStore().load(function() {
-                    me.getLogsGrid().getSelectionModel().select(0);
+                me.getApplication().fireEvent('changecontentevent', 'device-firmware-log', {router: router, device: device, title: title});
+
+                logGrid = me.getLogsGrid();
+                logGrid.getStore().getProxy().setUrl(mRID, queryParams.firmwareComTaskId, queryParams.firmwareComTaskSessionId);
+                logGrid.getStore().load(function() {
+                    logGrid.getSelectionModel().select(0);
                 });
             }
         });

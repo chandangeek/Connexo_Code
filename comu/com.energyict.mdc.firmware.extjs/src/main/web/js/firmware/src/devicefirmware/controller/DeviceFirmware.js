@@ -237,6 +237,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         });
 
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getApplication().fireEvent('uploadfirmwareoption', record.get('localizedValue'));
                         widget.down('property-form').loadRecord(record);
                         container.setLoading(false);
                     }
