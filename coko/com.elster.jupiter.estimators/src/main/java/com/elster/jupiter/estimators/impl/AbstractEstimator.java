@@ -9,11 +9,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.validation.ValidationService;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by igh on 3/03/2015.
@@ -22,15 +22,15 @@ public abstract class AbstractEstimator implements IEstimator {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
-    protected final Map<String, Object> properties;
+    private final Map<String, Object> properties;
 
-    AbstractEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    protected AbstractEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.properties = Collections.emptyMap();
     }
 
-    AbstractEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    protected AbstractEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         getRequiredProperties().forEach(propertyName -> checkRequiredProperty(propertyName, properties));
@@ -43,11 +43,11 @@ public abstract class AbstractEstimator implements IEstimator {
         }
     }
 
-    final Thesaurus getThesaurus() {
+    private Thesaurus getThesaurus() {
         return thesaurus;
     }
 
-    final PropertySpecService getPropertySpecService() {
+    protected final PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 
@@ -74,7 +74,15 @@ public abstract class AbstractEstimator implements IEstimator {
                 .orElse(null);
     }
 
-    protected String getBaseKey() {
+    protected final Object getProperty(String key) {
+        return properties.get(key);
+    }
+
+    protected final <T> Optional<T> getProperty(String key, Class<T> clazz) {
+        return Optional.ofNullable(properties.get(key)).map(clazz::cast);
+    }
+
+    protected final String getBaseKey() {
         return this.getClass().getName();
     }
 
