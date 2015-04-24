@@ -308,7 +308,7 @@ Ext.define('Uni.controller.history.Router', {
             path = me.currentRoute;
         }
 
-        return me.routes[path];
+        return me.routes[path] || me.routes["notfound"]; // add fallback route, to prevent crashes when calling buildUrl method.
     },
 
     getRouteConfig: function (path) {
