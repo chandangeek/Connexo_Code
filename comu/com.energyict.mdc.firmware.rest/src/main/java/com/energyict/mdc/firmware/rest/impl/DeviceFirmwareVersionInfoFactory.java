@@ -323,7 +323,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
-                    && helper.getLastSuccessfulUploadMessageFor(message).isPresent()
+                    && helper.getUploadMessageForActivationMessage(message).isPresent()
                     && (helper.taskIsFailed()
                     && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
                         || !helper.taskIsFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
@@ -336,7 +336,7 @@ public class DeviceFirmwareVersionInfoFactory {
 
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
-            Optional<DeviceMessage<Device>> uploadMessage = helper.getLastSuccessfulUploadMessageFor(message);
+            Optional<DeviceMessage<Device>> uploadMessage = helper.getUploadMessageForActivationMessage(message);
             Map<String, Object> properties = new HashMap<>();
             if (uploadMessage.isPresent()) {
                 properties = super.getFirmwareUpgradeProperties(uploadMessage.get(), helper);
@@ -350,7 +350,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
-                    && helper.getLastSuccessfulUploadMessageFor(message).isPresent()
+                    && helper.getUploadMessageForActivationMessage(message).isPresent()
                     && helper.taskIsBusy()
                     && DeviceMessageStatus.PENDING.equals(message.getStatus());
         }
@@ -362,7 +362,7 @@ public class DeviceFirmwareVersionInfoFactory {
 
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
-            Optional<DeviceMessage<Device>> uploadMessage = helper.getLastSuccessfulUploadMessageFor(message);
+            Optional<DeviceMessage<Device>> uploadMessage = helper.getUploadMessageForActivationMessage(message);
             Map<String, Object> properties = new HashMap<>();
             if (uploadMessage.isPresent()) {
                 properties = super.getFirmwareUpgradeProperties(uploadMessage.get(), helper);
