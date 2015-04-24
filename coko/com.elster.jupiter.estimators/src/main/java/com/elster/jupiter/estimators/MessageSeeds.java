@@ -9,7 +9,11 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_ESTIMATOR(1001, "estimator.doesnotexist", "Estimator {0} does not exist.", Level.SEVERE),
-    MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE);
+    MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE),
+    INVALID_NUMBER_OF_SAMPLES(1003, "property.error.maxNumberOfSamples", "The maximum number of samples cannot be smaller than the minimum number of samples", Level.SEVERE),
+    INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS(1004, "property.error.invalidMaxNumberOfConsecutiveSuspects", "The maximum number of consecutive suspects allowed should be greater dan zero", Level.SEVERE),
+    INVALID_ADVANCE_READINGTYPE(1005, "property.error.advanceReadingsSettings", "The reading type should be a cumulative reading type", Level.SEVERE),
+    INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE(1006, "property.error.maxNumberOfConsecutiveSuspectsShouldBeInteger", "The maximum number of consecutive suspects should be an integer value", Level.SEVERE);
 
     public static final String COMPONENT_NAME = "ESR";
 
