@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -32,11 +33,13 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +68,7 @@ public class DeviceConfigurationApplication extends Application implements Trans
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile DeviceService deviceService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile License license;
@@ -94,11 +98,13 @@ public class DeviceConfigurationApplication extends Application implements Trans
                 LoadProfileTypeResource.class,
                 ExecutionLevelResource.class,
                 LoadProfileConfigurationResource.class,
-                DeviceConfigsValidationRuleSetResource.class,
+                DeviceConfigValidationRuleSetResource.class,
                 ValidationRuleSetResource.class,
+                EstimationRuleSetResource.class,
                 DeviceMessagesResource.class,
                 DeviceMessagePrivilegesResource.class,
-                ProtocolPropertiesResource.class
+                ProtocolPropertiesResource.class,
+                DeviceConfigEstimationRuleSetResource.class
         );
     }
 
@@ -113,6 +119,11 @@ public class DeviceConfigurationApplication extends Application implements Trans
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+    
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference
@@ -235,6 +246,7 @@ public class DeviceConfigurationApplication extends Application implements Trans
             bind(thesaurus).to(Thesaurus.class);
             bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(validationService).to(ValidationService.class);
+            bind(estimationService).to(EstimationService.class);
             bind(deviceService).to(DeviceService.class);
             bind(userService).to(UserService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
