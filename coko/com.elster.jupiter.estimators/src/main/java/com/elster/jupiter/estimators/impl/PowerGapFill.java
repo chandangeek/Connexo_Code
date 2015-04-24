@@ -64,6 +64,10 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     }
 
     private boolean canEstimate(EstimationBlock estimationBlock) {
+        return isNotTooLarge(estimationBlock) && estimationBlock.getReadingType().isRegular();
+    }
+
+    private boolean isNotTooLarge(EstimationBlock estimationBlock) {
         return estimationBlock.estimatables().size() <= maxNnumberOfConsecutiveSuspects;
     }
 
