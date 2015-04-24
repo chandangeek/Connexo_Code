@@ -61,7 +61,7 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
 
     @Override
     public boolean allowsSimultaneousConnections() {
-        return false;
+        return true;
     }
 
     @Override
