@@ -73,7 +73,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             },
-
+            '#devicevalidationresultsdatafilterpanel': {
+                removeFilter: this.removeFilterItem,
+                clearAllFilters: this.clearFilter
+            },
 			 'deviceValidationResultsSideFilter #deviceValidationResultsFilterApplyBtn': {
                 click: this.applyFilter
             },
