@@ -5,6 +5,7 @@ Ext.define('MdcApp.controller.Main', {
     extend: 'Uni.controller.AppController',
     requires:[
         'Cfg.privileges.Validation',
+        'Yfn.privileges.Yellowfin',
         'Mdc.privileges.MasterData',
         'Mdc.privileges.DeviceGroup',
         'Mdc.privileges.DeviceType',
@@ -14,7 +15,7 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.DeviceCommands',
         'Mdc.privileges.Communication',
         'Dvi.privileges.InventoryManagement',
-        'Isu.privileges.Issue'
+
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
@@ -23,6 +24,7 @@ Ext.define('MdcApp.controller.Main', {
     onlineHelpEnabled: true,
     privileges: Ext.Array.merge(
             Cfg.privileges.Validation.all(),
+            Yfn.privileges.Yellowfin.all(),
             Mdc.privileges.MasterData.all(),
             Mdc.privileges.DeviceGroup.all(),
             Mdc.privileges.DeviceType.all(),
@@ -32,7 +34,8 @@ Ext.define('MdcApp.controller.Main', {
             Mdc.privileges.DeviceCommands.all(),
             Mdc.privileges.Device.all(),
             Dvi.privileges.InventoryManagement.all(),
-            Isu.privileges.Issue.all()),
+            Isu.privileges.Issue.all()
+            ),
     controllers: [
         'Cfg.controller.Main',
         'Mdc.controller.Main',
