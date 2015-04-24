@@ -1,0 +1,38 @@
+{
+    "id": 1,
+    "active": true,
+    "name": "EstimationTask1",
+    "schedule": {
+        "count": 1,
+        "timeUnit": "months",
+        "offsetMonths": 0,
+        "offsetDays": 1,
+        "lastDayOfMonth": false,
+        "offsetHours": 6,
+        "offsetMinutes": 0,
+        "offsetSeconds": 0
+    },
+    "period": {
+        "id": 1,
+        "name": "Period1"
+    },
+    "deviceGroup": {
+        "id": 1,
+        "name": "DeviceGroup1"
+    },
+    "lastEstimationOccurrence": {
+        "id": 1,
+        "trigger": "Trigger1",
+        "startedOn": 1429193080009,
+        "finishedOn": 1429194080009,
+        "duration": 100000,
+        "lastRun": 1429193080009,
+        "periodFrom": 1428593080009,
+        "periodTo": 1429183080009,
+        "status": "Success",
+        "statusPrefix": "on",
+        "statusDate": 1429272690044
+    },
+    "nextRun": 1900979258000,
+    "lastRun": 1429272590044
+}

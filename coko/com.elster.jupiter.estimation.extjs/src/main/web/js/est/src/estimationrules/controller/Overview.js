@@ -1,0 +1,195 @@
+Ext.define('Est.estimationrules.controller.Overview', {
+    extend: 'Ext.app.Controller',
+    requires: [
+        'Uni.controller.history.Router'
+    ],
+
+    views: [
+        'Est.estimationrules.view.Overview'
+    ],
+
+    stores: [
+        'Est.estimationrules.store.Rules'
+    ],
+
+    models: [
+        'Est.estimationrulesets.model.EstimationRuleSet',
+        'Est.estimationrules.model.Rule'
+    ],
+
+    refs: [
+        {
+            ref: 'page',
+            selector: 'estimation-rules-overview'
+        },
+        {
+            ref: 'grid',
+            selector: 'estimation-rules-overview estimation-rules-grid'
+        },
+        {
+            ref: 'preview',
+            selector: 'estimation-rules-overview estimation-rules-detail-form'
+        },
+        {
+            ref: 'sideMenu',
+            selector: 'estimation-rules-overview estimation-rule-set-side-menu'
+        }
+    ],
+
+    init: function () {
+        this.control({
+            'estimation-rules-overview estimation-rules-grid': {
+                select: this.showPreview
+            },
+            '#estimation-rules-overview-action-menu': {
+                click: this.chooseAction
+            },
+            'estimation-rules-overview [action=saveEstimationRulesOrder]': {
+                click: this.saveEstimationRulesOrder
+            },
+            'estimation-rule-set-side-menu': {
+                beforerender: this.onEstimationRuleSetMenuBeforeRender
+            }
+        });
+    },
+
+    showOverview: function (ruleSetId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('estimation-rules-overview', {
+                router: router,
+                actionMenuItemId: 'estimation-rules-overview-action-menu',
+                editOrder: router.queryParams.editOrder
+            }),
+            grid = widget.down('estimation-rules-grid');
+
+        grid.getStore().loadData([], false);
+        me.getApplication().fireEvent('changecontentevent', widget);
+        grid.setLoading(true);
+        me.getModel('Est.estimationrules.model.Rule').getProxy().setUrl(ruleSetId);
+        me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
+            success: function (record) {
+                var rules = record.rules();
+
+                if (widget.rendered) {
+                    me.getSideMenu().down('#estimation-rule-set-link').setText(record.get('name'));
+                    rules.totalCount = rules.getCount();
+                    if (rules.totalCount) {
+                        widget.down('preview-container').bindStore(rules);
+                        grid.reconfigure(rules);
+                        grid.down('pagingtoolbartop').bindStore(rules);
+                    }
+                    grid.getStore().fireEvent('load');
+                    grid.setLoading(false);
+                    widget.ruleSetRecord = record;
+                    me.getApplication().fireEvent('loadEstimationRuleSet', record);
+                }
+            },
+            failure: function () {
+                if (widget.rendered) {
+                    grid.setLoading(false);
+                    grid.getStore().fireEvent('load');
+                }
+            }
+        });
+    },
+
+    showPreview: function (selectionModel, record) {
+        var preview = this.getPreview();
+
+        preview.updateForm(record);
+        preview.down('#estimation-rules-overview-action-menu').record = record;
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        switch (item.action) {
+            case 'remove':
+                Ext.create('Uni.view.window.Confirmation').show({
+                    title: Uni.I18n.translate('general.remove', 'EST', 'Remove') + ' \'' + menu.record.get('name') + '\'?',
+                    msg: Uni.I18n.translate('estimationrules.deleteConfirmation.msg', 'EST', 'This estimation rule will no longer be available.'),
+                    fn: function (state) {
+                        switch (state) {
+                            case 'confirm':
+                                me.removeRule(menu.record);
+                                break;
+                        }
+                    }
+                });
+                break;
+            case 'toggleActivation':
+                me.toggleActivation(menu.record);
+                break;
+            case 'edit':
+                router.arguments.ruleId = menu.record.getId();
+                router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward(router.arguments, {previousRoute: router.currentRoute});
+                break;
+        }
+    },
+
+    removeRule: function (record) {
+        var me = this,
+            page = me.getPage(),
+            router = me.getController('Uni.controller.history.Router');
+
+        page.setLoading(Uni.I18n.translate('general.removing', 'EST', 'Removing...'));
+        record.destroy({
+            success: function () {
+                if (page.rendered) {
+                    router.getRoute().forward();
+                }
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationrules.estimationRuleRemoved', 'EST', 'Estimation rule removed'));
+            },
+            callback: function () {
+                page.setLoading(false);
+            }
+        });
+    },
+
+    toggleActivation: function (record) {
+        var me = this,
+            page = me.getPage(),
+            isActive = record.get('active');
+
+        record.set('active', !isActive);
+        page.setLoading(true);
+        record.save({
+            callback: function (record, operation, success) {
+                page.setLoading(false);
+                if (success) {
+                    record.commit();
+                    me.getApplication().fireEvent('acknowledge', isActive
+                        ? Uni.I18n.translate('estimationrules.deactivateRuleSuccess', 'EST', 'Estimation rule deactivated')
+                        : Uni.I18n.translate('estimationrules.activateRuleSuccess', 'EST', 'Estimation rule activated'));
+                    if (page.rendered) {
+                        me.getPreview().updateForm(record);
+                    }
+                } else {
+                    record.set('active', isActive);
+                }
+            }
+        });
+    },
+
+    saveEstimationRulesOrder: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            page = me.getPage();
+
+        page.setLoading(true);
+        page.ruleSetRecord.save({
+            callback: function (record, operation, success) {
+                page.setLoading(false);
+                if (success) {
+                    router.getRoute(router.currentRoute).forward(router.arguments, null);
+                }
+            }
+        });
+    },
+
+    onEstimationRuleSetMenuBeforeRender: function (menu) {
+        this.getApplication().fireEvent('estimationrulesetmenurender', menu);
+    }
+});
