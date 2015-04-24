@@ -8,16 +8,6 @@ Ext.define('Mdc.model.ValidationResultsRegister', {
         'displayName',		
 		'result',
 		'implementation',        
-
-        /*{
-            name: 'active',            
-            convert: function (value, record) {
-                if (value) {
-                    return Uni.I18n.translate('validationResults.active', 'MDC', 'Active');                    
-                }
-                return Uni.I18n.translate('validationResults.inactive', 'MDC', 'Inactive');    
-            }
-        },*/
 		{
             name: 'total',            
             convert: function (value, record) {

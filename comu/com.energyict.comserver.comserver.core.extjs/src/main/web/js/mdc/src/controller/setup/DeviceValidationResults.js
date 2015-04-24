@@ -80,30 +80,24 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		 var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
-        me.mRID = mRID;
-
+        me.mRID = mRID;	
         viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                Ext.Ajax.request({
-                    url: '/api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus', /*modify*/
-                    method: 'GET',
-                    timeout: 60000,
-                    success: function () {
-                        var widget = Ext.widget('deviceValidationResultsMainView', { device: device });
-                        me.getApplication().fireEvent('changecontentevent', widget);
-						me.getValidationResultsTabPanel().setActiveTab(activeTab);
-                        //me.updateDataValidationStatusSection(mRID, widget);
-                        viewport.setLoading(false);
-                    }
-                });
-            }
+				viewport.setLoading(false);
+				var widget = Ext.widget('deviceValidationResultsMainView', { device: device });
+				me.getApplication().fireEvent('changecontentevent', widget);
+				me.getValidationResultsTabPanel().setActiveTab(activeTab);                        
+            },
+			failure: function (response) {
+				viewport.setLoading(false);
+			}
         });
 	},
+	
 	changeTab: function (tabPanel, tab) {
-
 		var me = this,
             router = me.getController('Uni.controller.history.Router');
 
@@ -114,18 +108,18 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		me.setFilterView();
 		me.loadConfigurationData();
 	},
+	
 	setDefaults : function(){
 		 var me = this,
             router = me.getController('Uni.controller.history.Router'),
             intervalStart = new Date().getTime(),
 			durationsStore = me.getStore('Mdc.store.ValidationResultsDurations'),
 			firstItem = durationsStore.first();
+			
         router.filter.beginEdit();
         router.filter.set('intervalStart', me.getIntervalStart(intervalStart, firstItem));
         router.filter.set('duration', firstItem.get('count') + firstItem.get('timeUnit'));
-		router.filter.set('count', firstItem.get('count')); 
-		router.filter.set('timeUnit', firstItem.get('timeUnit')); 
-        router.filter.endEdit();
+		router.filter.endEdit();
 	},
 
 	 getIntervalStart: function (intervalEnd, item) {
@@ -153,31 +147,35 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     removeFilterItem: function (key) {
         var router = this.getController('Uni.controller.history.Router'),
             record = router.filter;
-
-        if (key === 'onlySuspect' || key === 'onlyNonSuspect') {
-            record.set(key, false);
-        }
+			
         record.save();
     },
 
 	applyFilter: function () {
         var filterForm = this.getSideFilterForm();
+		
         filterForm.updateRecord();
         filterForm.getRecord().save();
     },
 
-loadConfigurationData: function(){
+	loadConfigurationData: function(){
 		var me = this,		
+			viewport = Ext.ComponentQuery.query('viewport')[0],
 			models = me.getModel('Mdc.model.ValidationResults'),
 			router = me.getController('Uni.controller.history.Router');
 			
-			models.getProxy().setUrl(me.mRID);
-			models.getProxy().setFilterModel(router.filter);
-			
-			models.load('', {
-				success: function (record) {
-					me.loadConfigurationDataItems(record);
-            }
+		models.getProxy().setUrl(me.mRID);
+		models.getProxy().setFilterModel(router.filter);
+		
+        viewport.setLoading();		
+		models.load('', {
+			success: function (record) {
+				me.loadConfigurationDataItems(record);				
+				viewport.setLoading(false);
+            },
+			failure: function (response) {
+				viewport.setLoading(false);
+			}
         });
 	},
 	
@@ -194,8 +192,7 @@ loadConfigurationData: function(){
 			configurationViewValidationResultsBrowse.setVisible(record.get('dataValidated'));
 			
 			ruleSetGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
-			ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));
-		
+			ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));		
 	},
 	
 	onRuleSetGridSelectionChange : function(grid, record){	

@@ -17,7 +17,6 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
 				flex: 0.7, 
 				sortable: false, 
 				fixed: true/*,
-
                 renderer: function (value, metaData, record) {
                     metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'

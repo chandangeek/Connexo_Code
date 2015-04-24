@@ -9,8 +9,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 	requires :[		
 		'Mdc.view.setup.devicevalidationresults.RuleSetList',
 		'Mdc.view.setup.devicevalidationresults.RuleSetVersionList',
-		'Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList',
-		'Mdc.view.setup.devicevalidationresults.RuleSetVersionRulesSummary',
+		'Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList',		
 		'Mdc.view.setup.devicedatavalidation.RulePreview'
 	],
     margin: '0 0 0 -16',
