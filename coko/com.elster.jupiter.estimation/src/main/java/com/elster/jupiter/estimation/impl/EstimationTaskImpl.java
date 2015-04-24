@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class EstimationTaskImpl implements IEstimationTask {
 
@@ -107,7 +108,7 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     private void persist() {
         RecurrentTaskBuilder builder = taskService.newBuilder()
-                .setName(getName())
+                .setName(UUID.randomUUID().toString())
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
                 .setPayLoad(getName());

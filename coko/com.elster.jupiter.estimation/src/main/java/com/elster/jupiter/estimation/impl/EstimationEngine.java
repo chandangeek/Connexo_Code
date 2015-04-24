@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -35,15 +36,17 @@ class EstimationEngine {
     }
 
     private Stream<EstimationBlock> findBlocksToEstimate(Channel channel, ReadingType readingType) {
-        return decorate(findSuspects(channel).stream())
+        return decorate(findSuspects(channel, readingType).stream())
                 .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
                 .map(this::toEstimatable)
                 .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp()).equals(est2.getTimestamp()))
                 .map(list -> SimpleEstimationBlock.of(channel, readingType, list));
     }
 
-    private List<ReadingQualityRecord> findSuspects(Channel channel) {
-        return channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+    private List<ReadingQualityRecord> findSuspects(Channel channel, ReadingType readingType) {
+        return channel.getCimChannel(readingType)
+                .map(cimChannel -> cimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all()))
+                .orElse(Collections.emptyList());
     }
 
     private Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
@@ -104,7 +107,7 @@ class EstimationEngine {
 
         private Stream<? extends BaseReading> getReadings() {
             return estimationBlock.estimatables().stream()
-                    .map(estimatable -> ReadingImpl.of(null, estimatable.getEstimation(), estimatable.getTimestamp()))
+                    .map(estimatable -> ReadingImpl.of(estimationBlock.getReadingType().getMRID(), estimatable.getEstimation(), estimatable.getTimestamp()))
                     .peek(reading -> reading.addQuality(estimationBlock.getReadingQualityType().getCode()));
         }
     }

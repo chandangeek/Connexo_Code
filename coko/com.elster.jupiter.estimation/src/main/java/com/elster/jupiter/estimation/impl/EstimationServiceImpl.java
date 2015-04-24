@@ -6,6 +6,7 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
@@ -13,6 +14,7 @@ import com.elster.jupiter.estimation.EstimationTaskBuilder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
+import com.elster.jupiter.estimation.MessageSeeds;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -23,6 +25,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -36,6 +40,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -44,6 +49,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.validation.MessageInterpolator;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -57,8 +63,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
-public class EstimationServiceImpl implements IEstimationService, InstallService {
+@Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class, TranslationKeyProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
+public class EstimationServiceImpl implements IEstimationService, InstallService, TranslationKeyProvider {
 
     static final String DESTINATION_NAME = "EstimationTask";
     static final String SUBSCRIBER_NAME = "EstimationTask";
@@ -112,6 +118,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                     bind(EstimatorCreator.class).toInstance(new DefaultEstimatorCreator());
                     bind(TaskService.class).toInstance(taskService);
                     bind(IEstimationService.class).toInstance(EstimationServiceImpl.this);
+                    bind(EstimationService.class).toInstance(EstimationServiceImpl.this);
                 }
             });
         } catch (Exception e) {
@@ -230,6 +237,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         EstimationReportImpl report = new EstimationReportImpl();
 
         determineEstimationRules(meterActivation)
+                .filter(EstimationRule::isActive)
                 .filter(rule -> rule.getReadingTypes().contains(readingType))
                 .map(IEstimationRule::createNewEstimator)
                 .forEach(estimator -> {
@@ -393,6 +401,21 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+    
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+    
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+    
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
     }
 
     class DefaultEstimatorCreator implements EstimatorCreator {

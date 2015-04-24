@@ -15,6 +15,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -88,6 +89,8 @@ public class EstimationServiceImplTest {
     private Estimator estimator1, estimator2;
     @Mock
     private UserService userService;
+    @Mock
+    private CimChannel cimChannel1, cimChannel2;
 
     @Before
     public void setUp() {
@@ -104,10 +107,17 @@ public class EstimationServiceImplTest {
         doReturn(Arrays.asList(channel)).when(meterActivation).getChannels();
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(true).when(channel).isRegular();
-        doReturn(readingQualities()).when(channel).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        List<ReadingQualityRecord> readingQualityRecords = readingQualities();
+        doReturn(readingQualityRecords).when(channel).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(Optional.of(cimChannel1)).when(channel).getCimChannel(readingType1);
+        doReturn(Optional.of(cimChannel2)).when(channel).getCimChannel(readingType2);
+        doReturn(readingQualityRecords).when(cimChannel1).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(readingQualityRecords).when(cimChannel2).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all());
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
         doReturn(estimator1).when(rule1).createNewEstimator();
         doReturn(estimator2).when(rule2).createNewEstimator();
+        doReturn(true).when(rule1).isActive();
+        doReturn(true).when(rule2).isActive();
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
@@ -170,6 +180,20 @@ public class EstimationServiceImplTest {
         assertThat(estimationResult.estimated().get(0).getReadingQualityType()).isEqualTo(readingQualityType1);
         assertThat(estimationResult.estimated().get(1).getReadingQualityType()).isEqualTo(readingQualityType2);
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(1);
+    }
+
+    @Test
+    public void testPreviewEstimateWhenRuleIsNotActive() {
+        doReturn(false).when(rule1).isActive();
+        doReturn(false).when(rule2).isActive();
+
+        EstimationReport report = estimationService.previewEstimate(meterActivation);
+        assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
+
+        EstimationResult estimationResult = report.getResults().get(readingType1);
+
+        assertThat(estimationResult.estimated()).hasSize(0);
+        assertThat(estimationResult.remainingToBeEstimated()).hasSize(3);
     }
 
 

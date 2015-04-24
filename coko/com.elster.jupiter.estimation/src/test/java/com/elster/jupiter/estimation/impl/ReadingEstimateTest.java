@@ -134,25 +134,21 @@ public class ReadingEstimateTest {
 
                 @Override
                 public String getDisplayName(String property) {
-                    //TODO automatically generated method body, provide implementation.
-                    return null;
+                    return IMPLEMENTATION;
                 }
 
                 @Override
                 public String getDefaultFormat() {
-                    //TODO automatically generated method body, provide implementation.
-                    return null;
+                    return "";
                 }
 
                 @Override
                 public List<PropertySpec> getPropertySpecs() {
-                    //TODO automatically generated method body, provide implementation.
-                    return null;
+                    return Collections.emptyList();
                 }
 
                 @Override
                 public PropertySpec getPropertySpec(String name) {
-                    //TODO automatically generated method body, provide implementation.
                     return null;
                 }
             };
@@ -265,6 +261,7 @@ public class ReadingEstimateTest {
             ruleSet = estimationService.createEstimationRuleSet("testRuleSet");
             rule = ruleSet.addRule(IMPLEMENTATION, "testRule");
             rule.addReadingType(readingType);
+            rule.activate();
             ruleSet.save();
         }
 

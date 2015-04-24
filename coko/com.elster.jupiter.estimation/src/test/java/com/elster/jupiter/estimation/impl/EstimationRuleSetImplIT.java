@@ -77,8 +77,6 @@ public class EstimationRuleSetImplIT {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
     private String MIN_MAX = "minMax";
-    private String MIN = "min";
-    private String MAX = "max";
     private ReadingType readingType;
     private BigDecimalFactory valueFactory = new BigDecimalFactory();
 
@@ -121,6 +119,7 @@ public class EstimationRuleSetImplIT {
             throw new RuntimeException(e);
         }
         when(estimatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, ZERO_FILL));
+        when(estimatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(estimatorFactory.createTemplate(eq(ZERO_FILL))).thenReturn(zeroFill);
         when(minMax.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(zeroFill.getPropertySpecs()).thenReturn(Arrays.asList(maxConsecutive));
