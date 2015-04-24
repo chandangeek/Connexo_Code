@@ -114,7 +114,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 if (value && value.id === 'deprecated') {
                     this.infoTooltip = Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Active firmware version is deprecated. Consider firmware upgrade');
                 }
-                return value.displayValue || null;
+                return value.localizedValue || null;
             },
             name: 'firmwareVersionStatus'
         },
@@ -148,7 +148,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (pendingVersion) {
             formPending.record = pendingVersion;
             formPending.show();
-            formPending.setText(Uni.I18n.translate('device.firmware.deprecated.message', 'FWC', 'Firmware version {0} will be uploaded to device on {1}', [
+            formPending.setText(Uni.I18n.translate('device.firmware.deprecated.message', 'FWC', 'Upload and activation of version {0} pending (Planned on {1})', [
                 pendingVersion.firmwareVersion,
                 Uni.DateTime.formatDateTimeShort(pendingVersion.plannedDate)
             ]));
@@ -165,7 +165,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (ongoingVersion) {
             formOngoing.record = ongoingVersion;
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Firmware version {0} has been uploaded to the device and will be activated on {1}', [
+            formOngoing.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Upload and activation of version {0} ongoing (upload started on {1})', [
                 ongoingVersion.firmwareVersion,
                 Uni.DateTime.formatDateTimeShort(ongoingVersion.uploadStartDate)
             ]));

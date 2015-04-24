@@ -13,7 +13,7 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.firmwareVersionStatus ? data.firmwareVersionStatus.displayValue : '';
+                return data.firmwareVersionStatus ? data.firmwareVersionStatus.localizedValue : '';
             }
         },
         {
@@ -21,7 +21,7 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.firmwareUpgradeOption ? data.firmwareUpgradeOption.displayValue : '';
+                return data.firmwareUpgradeOption ? data.firmwareUpgradeOption.localizedValue : '';
             }
         }
     ],
