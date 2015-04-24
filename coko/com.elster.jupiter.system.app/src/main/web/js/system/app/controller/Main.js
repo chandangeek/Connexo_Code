@@ -8,7 +8,6 @@ Ext.define('SystemApp.controller.Main', {
         'Usr.privileges.Users',
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
-        'Yfn.privileges.Yellowfin',
         'Dxp.privileges.DataExport',
         'Tme.privileges.Period'
     ],
@@ -21,9 +20,9 @@ Ext.define('SystemApp.controller.Main', {
         Usr.privileges.Users.all(),
         Sam.privileges.DataPurge.all(),
         Sam.privileges.License.all(),
-        Yfn.privileges.Yellowfin.all(),
         Dxp.privileges.DataExport.all(),
-        Tme.privileges.Period.all()),
+        Tme.privileges.Period.all()
+    ),
 
     controllers: [
         'Usr.controller.Main',
