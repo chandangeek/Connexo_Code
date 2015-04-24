@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -157,13 +158,13 @@ public class DeviceLifeCycleCommands {
 
     private void triggerAction(StateTransitionEventType eventType, Device device) {
         this.executeTransaction(() -> {
-            Optional<ExecutableAction> executableAction = deviceLifeCycleService
+            Optional<ExecutableAction> executableAction = this.deviceLifeCycleService
                     .getExecutableActions(device)
                     .stream()
                     .filter(each -> isTransitionAction(each, eventType))
                     .findAny();
             if (executableAction.isPresent()) {
-                executableAction.get().execute();
+                executableAction.get().execute(Collections.emptyList());
             }
             else {
                 System.out.println("Current state of device with mRID " + device.getmRID() + " does not support the event type");
