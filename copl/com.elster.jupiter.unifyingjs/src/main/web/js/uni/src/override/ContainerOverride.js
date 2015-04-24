@@ -32,7 +32,7 @@ Ext.define('Uni.override.ContainerOverride', {
             }
         }
 
-        me.callParent(allowedItems);
+        return me.callParent(allowedItems);
     }
 
 });
