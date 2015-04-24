@@ -68,6 +68,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
     private List<DeviceMessage<Device>> messages;
 
+
     @Before
     public void setupEnvironment() {
         messages = new ArrayList<>();

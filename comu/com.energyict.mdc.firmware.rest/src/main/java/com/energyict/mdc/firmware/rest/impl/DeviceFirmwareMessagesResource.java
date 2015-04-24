@@ -19,7 +19,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
@@ -33,6 +33,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -40,13 +41,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("/device/{mrid}")
@@ -108,6 +103,32 @@ public class DeviceFirmwareMessagesResource {
         for (Map.Entry<String, Object> property : convertedProperties.entrySet()) {
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
         }
+        deviceMessageBuilder.add();
+        rescheduleFirmwareUpgradeTask(device);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/firmwaremessages/{messageId}/activate")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    public Response activateFirmwareOnDevice(@PathParam("mrid") String mrid, @PathParam("messageId") Long messageId) {
+        Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
+
+        DeviceMessage<Device> upgradeMessage = device.getMessages().stream()
+                .filter(message -> message.getId() == messageId)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, messageId));
+
+
+        DeviceFirmwareVersionUtils firmwareVersionUtils = new DeviceFirmwareVersionUtils(thesaurus, deviceMessageSpecificationService).onDevice(device);
+        Optional<ProtocolSupportedFirmwareOptions> protocolSupportedFirmwareOptions = firmwareVersionUtils.getUploadOptionFromMessage(upgradeMessage);
+        if (!protocolSupportedFirmwareOptions.isPresent() || !ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(protocolSupportedFirmwareOptions.get())) {
+            exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_CANNOT_BE_ACTIVATED);
+        }
+        Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, new Date(Instant.now().toEpochMilli()));
         deviceMessageBuilder.add();
         rescheduleFirmwareUpgradeTask(device);
         return Response.ok().build();
