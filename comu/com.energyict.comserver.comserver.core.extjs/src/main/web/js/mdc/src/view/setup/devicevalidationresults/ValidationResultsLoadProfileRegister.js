@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
 								xtype: 'displayfield',
 								itemId: 'data-view-data-validated',
 								fieldLabel: Uni.I18n.translate('validationResults.dataValidated', 'MDC', 'Data validated'),
-								name: 'dataValidated'
+								name: 'allDataValidatedDisplay'
 
 							},
 							{
