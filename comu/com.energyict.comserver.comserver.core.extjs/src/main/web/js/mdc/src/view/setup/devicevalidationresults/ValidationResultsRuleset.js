@@ -22,23 +22,11 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 					type: 'hbox',
 					align: 'stretch'
 				},
-			//	layout: 'column',
-				
-			/*	xtype: 'form',	
-				layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },			
-				defaults: {
-					labelWidth: 150,
-					labelAlign: 'left'
-                },
-			*/	
+		
 				items: [
 					{
 						xtype: 'form',	
 						itemId: 'deviceValidationResultsRulesetForm',	
-						//columnWidth: 1,		
 						flex: 1,						
 						layout: {
 							type: 'vbox',
@@ -66,11 +54,11 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 					},
 					{
 						xtype: 'container',		
-layout: {
-								type: 'hbox',
-                        align: 'bottom',
-                        pack: 'end'
-                    },						
+						layout: {
+							type: 'hbox',
+							align: 'bottom',
+							pack: 'end'
+						},						
 						items: [
 							{
 								xtype: 'button',
@@ -82,30 +70,13 @@ layout: {
 					}						
 
 				]
-				
-				/*items: [
-					{
-						xtype: 'displayfield',						
-						itemId: 'configuration-view-data-validated',
-						fieldLabel: Uni.I18n.translate('validationResults.dataValidated', 'MDC', 'Data validated'),
-						name: 'dataValidatedDisplay'					
-						
-					},
-					{
-						xtype: 'displayfield',						
-						itemId: 'configuration-view-validation-results',
-						fieldLabel: Uni.I18n.translate('validationResults.validationResults', 'MDC', 'Validation results'),
-						name: 'total'					
-					}
-				]	*/
-
 			},
 			{
 				 xtype: 'container',
 				 layout: {
                         type: 'vbox',
                         align: 'stretch'
-                    },		
+                 },		
 				 itemId: 'configurationViewValidationResultsBrowse',
 				 items: [
 					{
