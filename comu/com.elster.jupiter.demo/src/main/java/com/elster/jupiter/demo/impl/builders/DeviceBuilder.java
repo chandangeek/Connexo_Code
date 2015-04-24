@@ -87,8 +87,8 @@ public class DeviceBuilder implements Builder<Device> {
                 device.newScheduledComTaskExecution(comSchedule).add();
             }
         }
-        applyPostBuilders(device);
         device.save();
+        applyPostBuilders(device);
     }
 
     private void applyPostBuilders(Device device){

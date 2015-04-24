@@ -79,6 +79,7 @@ public class CreateG3SlaveCommand {
 
     public void run() {
         deviceConfiguration = getConfiguration();
+        securityPropertySet = deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SECURITY_SET_NAME.equals(s.getName())).findFirst().get();
 
         deviceFrom(meterConfig1);
         deviceFrom(meterConfig2);
@@ -143,8 +144,8 @@ public class CreateG3SlaveCommand {
 
         @Override
         public void accept(DeviceConfiguration configuration) {
-            securityPropertySet = configuration.createSecurityPropertySet(SECURITY_SET_NAME)
-                    .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue())
+             configuration.createSecurityPropertySet(SECURITY_SET_NAME)
+                     .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue())
                     .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
