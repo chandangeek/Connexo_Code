@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -33,7 +35,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CONNECTION_PROPERTIES_ARE_ALL_VALID(10008, MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID, "All mandatory connection method properties should be valid and specified"),
     SLAVE_DEVICE_HAS_GATEWAY(10009, MicroCheck.SLAVE_DEVICE_HAS_GATEWAY, "A slave device must have a gateway device"),
     LINKED_WITH_USAGE_POINT(10010, MicroCheck.LINKED_WITH_USAGE_POINT, "A device must be linked to a usage point"),
-    ALL_ISSUES_AND_ALARMS_ARE_CLOSED(10011, MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED, "All issues and alarms must have been closed or resolved on the device");
+    ALL_ISSUES_AND_ALARMS_ARE_CLOSED(10011, MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED, "All issues and alarms must have been closed or resolved on the device"),
+
+    // MicroActions
+    MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}")
+    ;
 
     private final int number;
     private final String key;
@@ -85,6 +91,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE = "bpmAction.not.device.current.state";
         public static final String NOT_ALLOWED_2_EXECUTE = "authorizedAction.notAllowed2Execute";
         public static final String MULTIPLE_MICRO_CHECKS_FAILED = "authorizedAction.multiple.microChecksFailed";
+        public static final String MISSING_REQUIRED_PROPERTY_VALUES = "authorizedAction.microAction.required.properties.multipleMissing";
     }
 
 }

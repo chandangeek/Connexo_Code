@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -15,8 +16,15 @@ import org.osgi.service.component.annotations.Component;
 public class MicroActionFactoryImpl implements ServerMicroActionFactory {
 
     @Override
-    public ServerMicroAction from(MicroAction check) {
-        return null;
+    public ServerMicroAction from(MicroAction microAction) {
+        switch (microAction) {
+            case ENABLE_VALIDATION: {
+                return new EnableValidation();
+            }
+            default: {
+                throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
+            }
+        }
     }
 
 }

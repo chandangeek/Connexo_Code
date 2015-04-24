@@ -4,17 +4,18 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
+import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionPropertySupport;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -28,11 +29,14 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -40,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -53,6 +58,7 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -94,6 +100,8 @@ public class DeviceLifeCycleServiceImplTest {
     private ThreadPrincipalService threadPrincipleService;
     @Mock
     private BpmService bpmService;
+    @Mock
+    private PropertySpecService propertySpecService;
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
@@ -179,18 +187,17 @@ public class DeviceLifeCycleServiceImplTest {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         State state = mock(State.class);
         when(state.getId()).thenReturn(STATE_ID + 1);
-        AuthorizedTransitionAction action = mock(AuthorizedTransitionAction.class);
+        AuthorizedStandardTransitionAction action = mock(AuthorizedStandardTransitionAction.class);
         when(action.getState()).thenReturn(state);
         StateTransitionEventType eventType = mock(StateTransitionEventType.class);
-        when(eventType.getSymbol()).thenReturn("executeTransitionActionThatIsNotPartOfTheDeviceLifeCycle");
+        when(eventType.getSymbol()).thenReturn("executeTransitionActionThatDoesNotRelateToDeviceState");
         StateTransition stateTransition = mock(StateTransition.class);
         when(stateTransition.getEventType()).thenReturn(eventType);
         when(action.getStateTransition()).thenReturn(stateTransition);
 
-
         try {
             // Business method
-            service.execute(action, this.device);
+            service.execute(action, this.device, Collections.emptyList());
         }
         catch (ActionDoesNotRelateToDeviceStateException e) {
             // Asserts: see also expected exception rule
@@ -232,7 +239,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         try {
             // Business method
-            service.execute(this.action, this.device);
+            service.execute(this.action, this.device, Collections.emptyList());
 
             // Asserts: see expected exception rule
         }
@@ -250,7 +257,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         try {
             // Business method
-            service.execute(this.action, this.device);
+            service.execute(this.action, this.device, Collections.emptyList());
 
             // Asserts: see expected exception rule
         }
@@ -269,7 +276,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         // Business method
         try {
-            service.execute(this.action, this.device);
+            service.execute(this.action, this.device, Collections.emptyList());
 
         }
         catch (SecurityException e) {
@@ -287,7 +294,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(MicroCheck.values())));
 
         // Business method
-        service.execute(this.action, this.device);
+        service.execute(this.action, this.device, Collections.emptyList());
 
         // Asserts
         for (MicroCheck microCheck : MicroCheck.values()) {
@@ -311,7 +318,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(microCheck1, microCheck2)));
 
         // Business method
-        service.execute(this.action, this.device);
+        service.execute(this.action, this.device, Collections.emptyList());
 
         // Asserts
         verify(serverMicroCheck1).evaluate(this.device);
@@ -349,7 +356,7 @@ public class DeviceLifeCycleServiceImplTest {
 
         try {
             // Business method
-            service.execute(this.action, this.device);
+            service.execute(this.action, this.device, Collections.emptyList());
         }
         catch (MultipleMicroCheckViolationsException e) {
             // Asserts
@@ -367,11 +374,11 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
 
         // Business method
-        service.execute(this.action, this.device);
+        service.execute(this.action, this.device, Collections.emptyList());
 
         // Asserts
         for (MicroAction microAction : MicroAction.values()) {
-            verify(this.microActionFactory).from(microAction);
+            verify(this.microActionFactory, atLeastOnce()).from(microAction);
         }
     }
 
@@ -383,10 +390,55 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.values())));
 
         // Business method
-        service.execute(this.action, this.device);
+        service.execute(this.action, this.device, Collections.emptyList());
 
         // Asserts
         verify(this.eventType).newInstance(eq(this.finiteStateMachine), eq(String.valueOf(DEVICE_ID)), anyString(), anyMap());
+    }
+
+    @Test
+    public void executeForwardsProperties() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.ENABLE_VALIDATION)));
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        PropertySpec validationStartDatePropertySpec = mock(PropertySpec.class);
+        when(validationStartDatePropertySpec.getName()).thenReturn("validationStartDate");
+        when(validationStartDatePropertySpec.isRequired()).thenReturn(true);
+        ExecutableActionProperty validationStartDate = mock(ExecutableActionProperty.class);
+        when(validationStartDate.getPropertySpec()).thenReturn(validationStartDatePropertySpec);
+        when(validationStartDate.getValue()).thenReturn(Instant.now());
+        ServerMicroAction enableValidation = mock(ServerMicroAction.class);
+        when(this.microActionFactory.from(MicroAction.ENABLE_VALIDATION)).thenReturn(enableValidation);
+        List<ExecutableActionProperty> expectedProperties = Arrays.asList(validationStartDate);
+
+        // Business method
+        service.execute(this.action, this.device, expectedProperties);
+
+        // Asserts
+        verify(enableValidation).execute(this.device, expectedProperties);
+    }
+
+    @Test(expected = RequiredMicroActionPropertiesException.class)
+    public void executeWithMissingRequiredProperties() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.ENABLE_VALIDATION)));
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
+        PropertySpec validationStartDatePropertySpec = mock(PropertySpec.class);
+        when(validationStartDatePropertySpec.getName()).thenReturn("validationStartDate");
+        when(validationStartDatePropertySpec.isRequired()).thenReturn(true);
+        ExecutableActionProperty validationStartDate = mock(ExecutableActionProperty.class);
+        when(validationStartDate.getPropertySpec()).thenReturn(validationStartDatePropertySpec);
+        when(validationStartDate.getValue()).thenReturn(Instant.now());
+        ServerMicroAction enableValidation = mock(ServerMicroAction.class);
+        when(enableValidation.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(validationStartDatePropertySpec));
+        when(this.microActionFactory.from(MicroAction.ENABLE_VALIDATION)).thenReturn(enableValidation);
+
+        // Business method
+        service.execute(this.action, this.device, Collections.emptyList());
+
+        // Asserts: see expected exception rule
     }
 
     @Test
@@ -443,9 +495,9 @@ public class DeviceLifeCycleServiceImplTest {
     @Test
     public void getExecutableStatesForUserWithSomeWrongPrivileges() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
-        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.THREE));
         AuthorizedBusinessProcessAction businessProcessAction = mock(AuthorizedBusinessProcessAction.class);
-        when(businessProcessAction.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.THREE));
+        when(businessProcessAction.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(this.privilege));
         Privilege allowed = mock(Privilege.class);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
@@ -459,11 +511,45 @@ public class DeviceLifeCycleServiceImplTest {
         // Asserts
         assertThat(executableActions).hasSize(1);
         ExecutableAction executableAction = executableActions.get(0);
-        assertThat(executableAction.getAction()).isEqualTo(businessProcessAction);
+        assertThat(executableAction.getAction()).isEqualTo(this.action);
+    }
+
+    @Test
+    public void getExecutableStatesForUserWithAllPrivileges() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.THREE));
+        AuthorizedBusinessProcessAction businessProcessAction = mock(AuthorizedBusinessProcessAction.class);
+        when(businessProcessAction.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        Privilege allowed = mock(Privilege.class);
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(Arrays.asList(this.action, businessProcessAction));
+        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+
+        // Business method
+        List<ExecutableAction> executableActions = service.getExecutableActions(this.device);
+
+        // Asserts
+        assertThat(executableActions).hasSize(2);
+        List<AuthorizedAction> actions = executableActions.stream().map(ExecutableAction::getAction).collect(Collectors.toList());
+        assertThat(actions).containsOnly(this.action, businessProcessAction);
+    }
+
+    @Test
+    public void getPropertySpecsDoesNotReturnNull() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+
+        for (MicroAction action : MicroAction.values()) {
+            // Business method
+            List<PropertySpec> propertySpecs = service.getPropertySpecsFor(action);
+
+            // Asserts
+            assertThat(propertySpecs).as("Service returns null for MicroAction#" + action.name()).isNotNull();
+        }
     }
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
-        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.bpmService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService);
+        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.bpmService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService);
     }
 
 }

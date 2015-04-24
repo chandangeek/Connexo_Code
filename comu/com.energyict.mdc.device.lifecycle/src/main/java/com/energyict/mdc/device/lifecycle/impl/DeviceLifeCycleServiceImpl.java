@@ -6,12 +6,15 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
+import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -20,6 +23,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -35,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +55,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BpmService bpmService;
+    private volatile PropertySpecService propertySpecService;
     private volatile ServerMicroCheckFactory microCheckFactory;
     private volatile ServerMicroActionFactory microActionFactory;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
@@ -61,11 +68,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleServiceImpl(NlsService nlsService, ThreadPrincipalService threadPrincipalService, BpmService bpmService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifeCycleServiceImpl(NlsService nlsService, ThreadPrincipalService threadPrincipalService, BpmService bpmService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setBpmService(bpmService);
+        this.setPropertySpecService(propertySpecService);
         this.setMicroCheckFactory(microCheckFactory);
         this.setMicroActionFactory(microActionFactory);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
@@ -84,6 +92,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Reference
@@ -130,20 +143,31 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private ExecutableAction toExecutableAction(AuthorizedAction authorizedAction, Device device) {
-        return new ExecutableActionImpl(device, authorizedAction, this);
+        if (authorizedAction instanceof AuthorizedTransitionAction) {
+            AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
+            return new ExecutableTransitionActionImpl(device, transitionAction, this);
+        }
+        else {
+            AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
+            return new ExecutableBusinessProcessActionImpl(device, businessProcessAction, this);
+        }
     }
 
     @Override
-    public void execute(AuthorizedAction action, Device device) throws SecurityException, DeviceLifeCycleActionViolationException {
+    public List<PropertySpec> getPropertySpecsFor(MicroAction action) {
+        return this.microActionFactory.from(action).getPropertySpecs(this.propertySpecService);
+    }
+
+    @Override
+    public void execute(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException {
+        this.validateTriggerExecution(action, device, properties);
+        this.triggerExecution(action, device, properties);
+    }
+
+    @Override
+    public void execute(AuthorizedBusinessProcessAction action, Device device) throws SecurityException, DeviceLifeCycleActionViolationException {
         this.validateTriggerExecution(action, device);
-        if (action instanceof AuthorizedStandardTransitionAction) {
-            AuthorizedStandardTransitionAction transitionAction = (AuthorizedStandardTransitionAction) action;
-            this.triggerExecution(transitionAction, device);
-        }
-        else {
-            AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) action;
-            this.triggerExecution(businessProcessAction, device);
-        }
+        this.triggerExecution(action, device);
     }
 
     private void validateTriggerExecution(AuthorizedAction action, Device device) {
@@ -174,6 +198,31 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         MessageSeeds messageSeed = MessageSeeds.NOT_ALLOWED_2_EXECUTE;
         if (!this.userHasExecutePrivilege(action)) {
             throw newSecurityException(messageSeed);
+        }
+    }
+
+    private void validateTriggerExecution(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) {
+        this.validateTriggerExecution(action, device);
+        this.valueAvailableForAllRequiredProperties(action, properties);
+    }
+
+    private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
+        Set<String> propertySpecNames =
+                properties
+                    .stream()
+                    .map(ExecutableActionProperty::getPropertySpec)
+                    .map(PropertySpec::getName)
+                    .collect(Collectors.toSet());
+        Set<String> missingRequiredPropertySpecNames = action
+                .getActions()
+                .stream()
+                .flatMap(ma -> this.getPropertySpecsFor(ma).stream())
+                .filter(PropertySpec::isRequired)
+                .map(PropertySpec::getName)
+                .filter(each -> !propertySpecNames.contains(each))
+                .collect(Collectors.toSet());
+        if (!missingRequiredPropertySpecNames.isEmpty()) {
+            throw new RequiredMicroActionPropertiesException(this.thesaurus, MessageSeeds.MISSING_REQUIRED_PROPERTY_VALUES, missingRequiredPropertySpecNames);
         }
     }
 
@@ -213,9 +262,9 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return new SecurityException(this.thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat()));
     }
 
-    private void triggerExecution(AuthorizedStandardTransitionAction action, Device device) throws DeviceLifeCycleActionViolationException {
+    private void triggerExecution(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {
         this.executeMicroChecks(action, device);
-        this.executeMicroActions(action, device);
+        this.executeMicroActions(action, device, properties);
         this.triggerEvent((CustomStateTransitionEventType) action.getStateTransition().getEventType(), device);
     }
 
@@ -251,15 +300,15 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return check.evaluate(device);
     }
 
-    private void executeMicroActions(AuthorizedTransitionAction action, Device device) {
+    private void executeMicroActions(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) {
         action.getActions()
             .stream()
             .map(this.microActionFactory::from)
-            .forEach(a -> this.execute(a, device));
+            .forEach(a -> this.execute(a, device, properties));
     }
 
-    private void execute(ServerMicroAction action, Device device) {
-        action.execute(device);
+    private void execute(ServerMicroAction action, Device device, List<ExecutableActionProperty> properties) {
+        action.execute(device, properties);
     }
 
     @Override

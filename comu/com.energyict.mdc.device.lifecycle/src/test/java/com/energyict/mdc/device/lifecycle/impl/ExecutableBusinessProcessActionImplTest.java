@@ -3,6 +3,9 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+
+import java.util.Collections;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -13,24 +16,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests the {@link ExecutableActionImpl} component
+ * Tests the {@link ExecutableBusinessProcessActionImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-10 (16:08)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ExecutableActionImplTest {
+public class ExecutableBusinessProcessActionImplTest {
 
     @Mock
     private DeviceLifeCycleService service;
     @Mock
-    private AuthorizedAction action;
+    private AuthorizedBusinessProcessAction action;
     @Mock
     private Device device;
 
     @Test
     public void getDevice() {
-        ExecutableActionImpl executableAction = new ExecutableActionImpl(this.device, this.action, this.service);
+        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service);
 
         // Business method
         Device device = executableAction.getDevice();
@@ -41,7 +44,7 @@ public class ExecutableActionImplTest {
 
     @Test
     public void getAction() {
-        ExecutableActionImpl executableAction = new ExecutableActionImpl(this.device, this.action, this.service);
+        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service);
 
         // Business method
         AuthorizedAction action = executableAction.getAction();
@@ -52,13 +55,13 @@ public class ExecutableActionImplTest {
 
     @Test
     public void executeDelegatesToService() {
-        ExecutableActionImpl executableAction = new ExecutableActionImpl(this.device, this.action, this.service);
+        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service);
 
         // Business method
-        executableAction.execute();
+        executableAction.execute(Collections.emptyList());
 
         // Asserts
-        verify(service).execute(action, device);
+        verify(this.service).execute(this.action, this.device);
     }
 
 }

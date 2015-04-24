@@ -1,9 +1,17 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
-import java.time.Instant;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionPropertySupport.getLastCheckedTimestamp;
+import static com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionPropertySupport.lastCheckedTimestamp;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
@@ -14,16 +22,14 @@ import java.time.Instant;
  */
 public class EnableValidation implements ServerMicroAction {
 
-    private final Instant lastChecked;
-
-    public EnableValidation(Instant lastChecked) {
-        super();
-        this.lastChecked = lastChecked;
+    @Override
+    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
+        return Arrays.asList(lastCheckedTimestamp(propertySpecService));
     }
 
     @Override
-    public void execute(Device device) {
-        device.forValidation().activateValidation(this.lastChecked);
+    public void execute(Device device, List<ExecutableActionProperty> properties) {
+        device.forValidation().activateValidation(getLastCheckedTimestamp(properties));
     }
 
 }
