@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
@@ -12,6 +13,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
@@ -20,6 +22,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
+import com.energyict.mdc.device.config.DeviceConfigEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -65,12 +68,14 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.ImmutableList;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -104,7 +109,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         GATEWAY_TYPE("gatewayType"),
         COM_TASK_ENABLEMENTS("comTaskEnablements"),
         SECURITY_PROPERTY_SETS("securityPropertySets"),
-        DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements");
+        DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements"),
+        DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigEstimationRuleSetUsages")
         ;
         private final String javaFieldName;
 
@@ -145,9 +151,13 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private List<ProtocolDialectConfigurationPropertiesImpl> configurationPropertiesList = new ArrayList<>();
     private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
     private int communicationFunctionMask;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     private GatewayType gatewayType = GatewayType.NONE;
     @Valid
@@ -164,6 +174,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private List<DeviceConfValidationRuleSetUsage> deviceConfValidationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory;
+    
+    private List<DeviceConfigEstimationRuleSetUsage> deviceConfigEstimationRuleSetUsages = new ArrayList<>();
+    private final Provider<DeviceConfigEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
 
     @Inject
     protected DeviceConfigurationImpl(
@@ -174,6 +187,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                         Provider<LogBookSpecImpl> logBookSpecProvider,
                         Provider<ChannelSpecImpl> channelSpecProvider,
                         Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory,
+                        Provider<DeviceConfigEstimationRuleSetUsageImpl> deviceConfEstimationRuleSetUsageFactory,
                         DeviceConfigurationService deviceConfigurationService,
                         SchedulingService schedulingService,
                         ThreadPrincipalService threadPrincipalService) {
@@ -184,6 +198,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.logBookSpecProvider = logBookSpecProvider;
         this.channelSpecProvider = channelSpecProvider;
         this.deviceConfValidationRuleSetUsageFactory = deviceConfValidationRuleSetUsageFactory;
+        this.deviceConfigEstimationRuleSetUsageFactory = deviceConfEstimationRuleSetUsageFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.schedulingService = schedulingService;
         this.threadPrincipalService = threadPrincipalService;
@@ -1146,6 +1161,50 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         return result;
     }
+    
+    @Override
+    public DeviceConfigEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
+        return findEstimationRuleSetUsage(estimationRuleSet).orElseGet(() -> {
+            DeviceConfigEstimationRuleSetUsage usage = deviceConfigEstimationRuleSetUsageFactory.get().init(this, estimationRuleSet);
+            deviceConfigEstimationRuleSetUsages.add(usage);
+            return usage;
+        });
+    }
+    
+    private Optional<DeviceConfigEstimationRuleSetUsage> findEstimationRuleSetUsage(EstimationRuleSet estimationRuleSet) {
+        return deviceConfigEstimationRuleSetUsages.stream().filter(usage -> usage.getEstimationRuleSet().getId() == estimationRuleSet.getId()).findFirst();
+    }
+    
+    @Override
+    public void removeEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
+        deviceConfigEstimationRuleSetUsages.stream()
+            .filter((usage) -> usage.getEstimationRuleSet().getId() == estimationRuleSet.getId())
+            .findFirst()
+            .ifPresent(usage -> deviceConfigEstimationRuleSetUsages.remove(usage));
+    }
+    
+    @Override
+    public List<EstimationRuleSet> getEstimationRuleSets() {
+        return deviceConfigEstimationRuleSetUsages.stream()
+                .filter(usage -> usage.getEstimationRuleSet() != null)
+                .map(DeviceConfigEstimationRuleSetUsage::getEstimationRuleSet)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<DeviceConfigEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages() {
+        return deviceConfigEstimationRuleSetUsages;
+    }
+    
+    @Override
+    public void reorderEstimationRuleSets(KPermutation kpermutation) {
+        List<DeviceConfigEstimationRuleSetUsage> usages = getDeviceConfigEstimationRuleSetUsages();
+        if (!kpermutation.isPermutation(usages)) {
+            throw new IllegalArgumentException();
+        }
+        List<DeviceConfigEstimationRuleSetUsage> target = kpermutation.perform(usages);
+        dataModel.reorder(usages, target);
+    }
 
     public GatewayType getGetwayType(){
         return this.gatewayType;
@@ -1163,6 +1222,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public DeviceProtocolConfigurationProperties getDeviceProtocolProperties() {
         return new DeviceProtocolConfigurationPropertiesImpl(this);
     }
+    
+    @Override
+    public long getVersion() {
+        return version;
+    };
 
     List<DeviceProtocolConfigurationProperty> getProtocolPropertyList() {
         return protocolProperties;

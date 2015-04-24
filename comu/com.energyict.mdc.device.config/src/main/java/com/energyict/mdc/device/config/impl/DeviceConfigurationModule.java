@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
@@ -26,6 +27,7 @@ public class DeviceConfigurationModule extends AbstractModule {
         requireBinding(MdcReadingTypeUtilService.class);
         requireBinding(SchedulingService.class);
         requireBinding(ValidationService.class);
+        requireBinding(EstimationService.class);
 
         bind(DeviceConfigurationService.class).to(DeviceConfigurationServiceImpl.class).in(Scopes.SINGLETON);
         bind(ServerDeviceConfigurationService.class).to(DeviceConfigurationServiceImpl.class).in(Scopes.SINGLETON);

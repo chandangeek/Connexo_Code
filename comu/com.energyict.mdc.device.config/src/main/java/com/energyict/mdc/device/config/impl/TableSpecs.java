@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -7,6 +8,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfigEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -558,13 +560,13 @@ public enum TableSpecs {
     },
 
     //deviceConfValidationRuleSetUsages
-    DTC_DEVICECONFRULESETUSAGE {
+    DTC_DEVCFGVALRULESETUSAGE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DeviceConfValidationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfValidationRuleSetUsage.class);
             table.map(DeviceConfValidationRuleSetUsageImpl.class);
-            table.setJournalTableName("DTC_DEVICECONFRULESETUSAGEJRNL");
-            Column validationRuleSetIdColumn =
+            table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
+            Column validationRuleSetIdColumn = 
                     table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).map("validationRuleSetId").add();
             Column deviceConfigurationIdColumn =
                     table.column("DEVICECONFIGID").type("number").notNull().conversion(NUMBER2LONG).map("deviceConfigurationId").add();
@@ -572,6 +574,36 @@ public enum TableSpecs {
             table.primaryKey("DTC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, deviceConfigurationIdColumn).add();
             table.foreignKey("DTC_FK_RULESET").references(ValidationService.COMPONENTNAME, "VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
             table.foreignKey("DTC_FK_DEVICECONFIG").references("DTC_DEVICECONFIG").reverseMap("deviceConfValidationRuleSetUsages").composition().map("deviceConfiguration").on(deviceConfigurationIdColumn).add();
+        }
+    },
+    
+    //deviceConfEstimationRuleSetUsages
+    DTC_DEVCFGESTRULESETUSAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceConfigEstimationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfigEstimationRuleSetUsage.class);
+            table.map(DeviceConfigEstimationRuleSetUsageImpl.class);
+            table.setJournalTableName(name() + "JRNL");
+            Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column deviceConfigurationColumn = table.column("DEVICECONFIG").type("number").notNull().conversion(NUMBER2LONG).add();
+            table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(DeviceConfigEstimationRuleSetUsageImpl.Fields.POSITION.fieldName()).add();
+            table.addAuditColumns();
+            
+            table.primaryKey("DTC_PK_ESTRULESETUSAGE").on(estimationRuleSetColumn, deviceConfigurationColumn).add();
+            
+            table.foreignKey("DTC_FK_ESTIMATIONRULESET").
+                    references(EstimationService.COMPONENTNAME, "EST_ESTIMATIONRULESET").
+                    onDelete(RESTRICT).
+                    map(DeviceConfigEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).on(estimationRuleSetColumn).
+                    add();
+            
+            table.foreignKey("DTC_FK_ESTRSUSAGE_DEVICECONF").
+                    references(DTC_DEVICECONFIG.name()).
+                    reverseMap(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName()).
+                    composition().
+                    reverseMapOrder(DeviceConfigEstimationRuleSetUsageImpl.Fields.POSITION.fieldName()).
+                    map(DeviceConfigEstimationRuleSetUsageImpl.Fields.DEVICECONFIGURATION.fieldName()).on(deviceConfigurationColumn).
+                    add();
         }
     },
     ;
