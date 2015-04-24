@@ -61,9 +61,10 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 						items: [
 							{
 								xtype: 'button',
-								itemId: 'configuration-view-validate-now',
+								itemId: 'configurationViewValidateNow',
 								text: Uni.I18n.translate('validationResults.validateNow', 'MDC', 'Validate now'),
-								disabled: true,		
+								disabled: true,
+								action: 'validateNow'								
 							}
 						]
 					}						
@@ -75,7 +76,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 				 layout: {
                         type: 'vbox',
                         align: 'stretch'
-                 },		
+                 },
+				 hidden: true,
 				 itemId: 'configurationViewValidationResultsBrowse',
 				 items: [
 					{

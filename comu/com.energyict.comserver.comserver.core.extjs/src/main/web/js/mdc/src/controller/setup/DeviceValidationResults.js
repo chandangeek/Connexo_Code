@@ -29,7 +29,9 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		{ref: 'ruleSetGrid', selector: '#ruleSetList'},
 		{ref: 'ruleSetVersionGrid', selector: '#ruleSetVersionList'},
 		{ref: 'ruleSetVersionRuleGrid', selector: '#ruleSetVersionRuleList'},
-		{ref: 'ruleSetVersionRulePreview', selector: '#ruleSetVersionRulePreview'}
+		{ref: 'ruleSetVersionRulePreview', selector: '#ruleSetVersionRulePreview'},		
+		{ref: 'configurationViewValidateNowBtn', selector: 'deviceValidationResultsRuleset #configurationViewValidateNow'}
+		
     ],    
     mRID: null,
     init: function () {
@@ -37,8 +39,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         me.control({
             '#validationResultsTabPanel': {
                 tabChange: this.changeTab
-            },
-			
+            },			
 			'#devicevalidationresultsfilterpanel': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
@@ -47,7 +48,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             },
-			 'deviceValidationResultsSideFilter #deviceValidationResultsFilterApplyBtn': {
+			'deviceValidationResultsSideFilter #deviceValidationResultsFilterApplyBtn': {
                 click: this.applyFilter
             },
             'deviceValidationResultsSideFilter #deviceValidationResultsFilterResetBtn': {
@@ -55,22 +56,22 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             },
 			'#configurationViewValidationResultsBrowse #ruleSetList': {
                 selectionchange: this.onRuleSetGridSelectionChange
-            },
-			
+            },			
 			'#configurationViewValidationResultsBrowse #ruleSetVersionList': {
                 selectionchange: this.onRuleSetVersionGridSelectionChange
-            },
-			
+            },			
 			'#configurationViewValidationResultsBrowse #ruleSetVersionRuleList': {
                 selectionchange: this.onRuleSetVersionRuleGridSelectionChange
-            },
-			
+            },			
 			'deviceValidationResultsSideFilter #deviceValidationResultsFilterApplyBtn': {
                 click: this.applyFilter
             },
             'deviceValidationResultsSideFilter #deviceValidationResultsFilterResetBtn': {
                 click: this.clearFilter
-            }
+            },			
+			'deviceValidationResultsRuleset #configurationViewValidateNow': {
+                click: this.validateNow
+            }			
         });
 
       this.callParent();
@@ -87,6 +88,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
 				viewport.setLoading(false);
+				
 				var widget = Ext.widget('deviceValidationResultsMainView', { device: device });
 				me.getApplication().fireEvent('changecontentevent', widget);
 				me.getValidationResultsTabPanel().setActiveTab(activeTab);                        
@@ -134,6 +136,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             intervalStart = intervalStartField.getValue(),
             intervalEnd = intervalEndField.getRawValue(),
             eventDateText = '';
+			
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
             + Uni.DateTime.formatDateShort(intervalStart);
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
@@ -158,6 +161,147 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         filterForm.getRecord().save();
     },
 
+	validateNow : function () {		
+		 var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                itemId: 'validateNowConfirmationWindow',
+                confirmText: Uni.I18n.translate('validationResults.validate.confirm', 'MDC', 'Validate'),				
+				msg: 'message',
+                confirmation: function () {
+                    me.onValidateNow(this);
+                }
+            });
+        
+		confirmationWindow.insert(1,me.getActivationConfirmationContent());
+        confirmationWindow.show({
+			title: Ext.String.format(Uni.I18n.translate('validationResults.validate.title', 'MDC', 'Perform validation on device {0}?'), me.mRID)
+		});
+        confirmationWindow.on('close', function () {
+            this.destroy();
+        });		
+	},
+	
+	 onValidateNow: function (confWindow) {
+	 		
+        var me = this;
+        if (me.hasValidation) {
+            var isValidationRunImmediately = confWindow.down('#validationRunRg').getValue().validationRun === 'now';
+            var isWaitForNewData = confWindow.down('#validationRunRg').getValue().validationRun === 'waitForNewData';
+        }
+        me.confirmationWindowButtonsDisable(true);
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
+            method: 'PUT',
+            jsonData: {
+                isActive: 'true',
+                lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : null)
+            },
+            success: function () {
+                me.updateDataValidationStatusSection(me.mRID, view);
+                if (isValidationRunImmediately) {
+                    me.isValidationRunImmediately = true;
+                    me.validateData(confWindow);
+                } else {
+                    me.destroyConfirmationWindow();
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation activated'));
+                }
+            },
+            failure: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+                me.showValidationActivationErrors(res.errors[0].msg);
+                me.confirmationWindowButtonsDisable(false);
+            }
+        });
+    },
+
+	getActivationConfirmationContent: function () {
+        var me = this;
+        return Ext.create('Ext.container.Container', {
+            defaults: {
+                labelAlign: 'left',
+                labelStyle: 'font-weight: normal; padding-left: 50px'
+            },
+            items: [
+                {
+                    xtype: 'datefield',
+                    itemId: 'validationFromDate',
+                    editable: false,
+                    showToday: false,
+                    value: me.dataValidationLastChecked,
+                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item1', 'MDC', '1. Validate data from'),
+                    labelWidth: 175,
+                    labelPad: 1
+                },
+                {
+                    xtype: 'panel',
+                    itemId: 'validationDateErrors',
+                    hidden: true,
+                    bodyStyle: {
+                        color: '#eb5642',
+                        padding: '0 0 15px 65px'
+                    },
+                    html: ''
+                },
+                {
+                    xtype: 'displayfield',
+                    value: '',
+                    padding: '0 0 -10 0',
+                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2', 'MDC', '2. When do you want to run the data validation?'),
+                    labelWidth: 350
+                },
+                {
+                    xtype: 'radiogroup',
+                    itemId: 'validationRunRg',
+                    columns: 1,
+                    defaults: {
+                        name: 'validationRun',
+                        padding: '-10 0 0 60'
+                    },
+                    items: [
+                        {
+                            boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2.1', 'MDC', 'Run now'),
+                            inputValue: 'now'
+                        },
+                        {
+                            boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2.2', 'MDC', 'Wait for new data'),
+                            inputValue: 'waitForNewData',
+                            checked: true
+                        }
+                    ]
+                },
+                {
+                    xtype: 'panel',
+                    itemId: 'validationProgress',
+                    layout: 'fit',
+                    padding: '0 0 0 50'
+                }
+            ]
+        });
+    },
+
+	
+	destroyConfirmationWindow: function () {
+        if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
+            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].removeAll(true);
+            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].destroy();
+        }
+    },
+
+    confirmationWindowButtonsDisable: function (value) {
+        if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
+            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('button[name=confirm]').setDisabled(value);
+            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('button[name=cancel]').setDisabled(value);
+        }
+    },
+	
+	 showValidationActivationErrors: function (errors) {
+        if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
+            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('#validationDateErrors').update(errors);
+            Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0].down('#validationDateErrors').setVisible(true);
+        }
+    },
+	
 	loadConfigurationData: function(){
 		var me = this,		
 			viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -190,6 +334,9 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			
 			var configurationViewValidationResultsBrowse = me.getConfigurationViewValidationResultsBrowse();				
 			configurationViewValidationResultsBrowse.setVisible(record.get('dataValidated'));
+			
+			var configurationViewValidateNowBtn = me.getConfigurationViewValidateNowBtn();
+			configurationViewValidateNowBtn.setDisabled(!record.get('dataValidated'));
 			
 			ruleSetGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
 			ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));		
