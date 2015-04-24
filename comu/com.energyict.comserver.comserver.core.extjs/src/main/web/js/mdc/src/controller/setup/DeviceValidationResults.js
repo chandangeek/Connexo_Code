@@ -24,8 +24,11 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		{ref: 'validationResultsTabPanel', selector: '#validationResultsTabPanel'},
 		{ref: 'sideFilterForm', selector: '#deviceValidationResultsFilterForm'},
 		{ref: 'filterPanel', selector: 'deviceValidationResultsMainView filter-top-panel'},
+        {ref: 'filterDataPanel', selector: 'deviceValidationResultsMainView #validation-results-data-filter'},
 		{ref: 'validationResultsRulesetForm', selector: '#deviceValidationResultsRulesetForm'},
-		{ref: 'configurationViewValidationResultsBrowse', selector: '#configurationViewValidationResultsBrowse'},		
+        {ref: 'deviceValidationResultsLoadProfileRegisterForm', selector: '#deviceValidationResultsLoadProfileRegisterForm'},
+
+        {ref: 'configurationViewValidationResultsBrowse', selector: '#configurationViewValidationResultsBrowse'},
 		{ref: 'ruleSetGrid', selector: '#ruleSetList'},
 		{ref: 'ruleSetVersionGrid', selector: '#ruleSetVersionList'},
 		{ref: 'ruleSetVersionRuleGrid', selector: '#ruleSetVersionRuleList'},
@@ -129,6 +132,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 	setFilterView: function () {
         var filterForm = this.getSideFilterForm(),
             filterView = this.getFilterPanel(),
+            filterDataView = this.getFilterDataPanel(),
             intervalStartField = filterForm.down('[name=intervalStart]'),
             intervalEndField = filterForm.down('[name=duration]'),
             intervalStart = intervalStartField.getValue(),
@@ -138,6 +142,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             + Uni.DateTime.formatDateShort(intervalStart);
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
         filterView.down('#Reset').setText('Reset');
+
+        filterDataView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
 	},
 
 	clearFilter: function () {
@@ -157,6 +163,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         filterForm.updateRecord();
         filterForm.getRecord().save();
     },
+
+
 
 	loadConfigurationData: function(){
 		var me = this,		
@@ -194,7 +202,46 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			ruleSetGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
 			ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));		
 	},
-	
+
+    //****************************************************************************************************
+    loadValidationResultsData: function(){
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            models = me.getModel('Mdc.model.ValidationResults'),
+            router = me.getController('Uni.controller.history.Router');
+
+        models.getProxy().setUrl(me.mRID);
+        models.getProxy().setFilterModel(router.filter);
+
+        viewport.setLoading();
+        models.load('', {
+            success: function (record) {
+                me.loadConfigurationDataItems(record);
+                viewport.setLoading(false);
+            },
+            failure: function (response) {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    loadValidationResultsDataItems : function(record){
+        var me = this,
+            validationResultsDataForm = me.getdeviceValidationResultsLoadProfileRegisterForm();
+        ruleSetGrid = me.getRuleSetGrid(),
+            ruleSetVersionGrid = me.getRuleSetVersionGrid(),
+            ruleSetVersionRuleGrid = me.getRuleSetVersionRuleGrid();
+
+        validationResultsDataForm.loadRecord(record);
+
+        //var configurationViewValidationResultsBrowse = me.getConfigurationViewValidationResultsBrowse();
+        //configurationViewValidationResultsBrowse.setVisible(record.get('dataValidated'));
+
+        //ruleSetGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
+        //ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));
+    },
+    //**************************************************************
+
 	onRuleSetGridSelectionChange : function(grid, record){	
 		var me = this,
 			ruleSetVersionGrid = me.getRuleSetVersionGrid();
