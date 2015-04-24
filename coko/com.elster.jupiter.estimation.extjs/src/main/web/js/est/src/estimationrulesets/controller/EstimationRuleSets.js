@@ -12,6 +12,10 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         'Uni.view.window.Confirmation'
     ],
 
+    stores: [
+        'Est.estimationrulesets.store.EstimationRuleSetsStore',
+        'Est.estimationrules.store.Rules'
+    ],
 
     refs: [
         {ref: 'ruleSetEditForm', selector: '#rule-set-edit #rule-set-edit-form'},
