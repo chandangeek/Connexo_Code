@@ -1,7 +1,8 @@
 Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Fwc.model.FirmwareUpgradeOptions'
+        'Fwc.model.FirmwareUpgradeOptions',
+        'Fwc.form.OptionsHydrator'
     ],
     alias: 'widget.firmware-options-edit',
     itemId: 'firmware-options-edit',
@@ -128,7 +129,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 xtype: 'button',
                                 ui: 'link',
                                 itemId: 'cancelLink',
-                                href: '#/administration/devicetypes/' + this.deviceTypeId + '/firmware/options'
+                                href: '#/administration/devicetypes/' + this.deviceType.data.id + '/firmware/options'
                             }
                         ]
                     }

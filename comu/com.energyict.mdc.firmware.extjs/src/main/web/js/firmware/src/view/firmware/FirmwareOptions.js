@@ -38,6 +38,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                 items: [
                     {
                         xtype: 'container',
+                        margin: '60 0 0 0',
                         flex: 1,
                         defaults: {
                             labelWidth: 250
@@ -59,9 +60,10 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                         xtype: 'emptygridcontainer',
                                         grid: {
                                             xtype: 'options-grid',
+                                            scroll: false,
                                             name: 'allowedOptions',
                                             store: Ext.create('Ext.data.Store', {
-                                                fields: ['displayValue']
+                                                fields: ['localizedValue']
                                             }),
                                             emptyText: Uni.I18n.translate('deviceType.firmwareupgradeoptions.notsupported', 'FWC', 'No options supported by current device type')
                                         }

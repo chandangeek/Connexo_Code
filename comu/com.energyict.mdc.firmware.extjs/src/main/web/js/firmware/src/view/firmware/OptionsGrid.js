@@ -5,7 +5,7 @@ Ext.define('Fwc.view.firmware.OptionsGrid', {
     store: null,
     columns: [
         {
-            dataIndex: 'displayValue',
+            dataIndex: 'localizedValue',
             flex: 1
         }
     ],

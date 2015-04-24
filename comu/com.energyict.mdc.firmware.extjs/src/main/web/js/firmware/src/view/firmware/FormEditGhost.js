@@ -6,6 +6,7 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
     items: [
         {
             xtype: 'displayfield',
+            itemId: 'displayFirmwareVersion',
             name: 'firmwareVersion',
             fieldLabel: Uni.I18n.translate('firmware.field.version', 'FWC', 'Version')
         },
@@ -20,9 +21,15 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
         },
         {
             xtype: 'firmware-status',
-            defaultType : 'radiofield',
+            defaultType: 'radiofield',
             value: {id: 'final'},
             required: true
+        },
+        {
+            xtype: 'textfield',
+            itemId: 'firmwareStatus',
+            name: 'firmwareStatus',
+            hidden: true
         }
     ]
 });
