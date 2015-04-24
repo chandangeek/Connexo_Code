@@ -17,7 +17,14 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
     initComponent: function () {
         this.content = [            
 			{
-				xtype: 'form',		
+				xtype: 'container',	
+				 layout: {
+					type: 'hbox',
+					align: 'stretch'
+				},
+			//	layout: 'column',
+				
+			/*	xtype: 'form',	
 				layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -26,8 +33,57 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 					labelWidth: 150,
 					labelAlign: 'left'
                 },
-				itemId: 'deviceValidationResultsRulesetForm',
+			*/	
 				items: [
+					{
+						xtype: 'form',	
+						itemId: 'deviceValidationResultsRulesetForm',	
+						//columnWidth: 1,		
+						flex: 1,						
+						layout: {
+							type: 'vbox',
+							align: 'stretch'
+						},			
+						defaults: {
+							labelWidth: 150,
+							labelAlign: 'left'
+						},
+						items: [
+							{
+								xtype: 'displayfield',						
+								itemId: 'configuration-view-data-validated',
+								fieldLabel: Uni.I18n.translate('validationResults.dataValidated', 'MDC', 'Data validated'),
+								name: 'dataValidatedDisplay'					
+								
+							},
+							{
+								xtype: 'displayfield',						
+								itemId: 'configuration-view-validation-results',
+								fieldLabel: Uni.I18n.translate('validationResults.validationResults', 'MDC', 'Validation results'),
+								name: 'total'					
+							}	
+						]
+					},
+					{
+						xtype: 'container',		
+layout: {
+								type: 'hbox',
+                        align: 'bottom',
+                        pack: 'end'
+                    },						
+						items: [
+							{
+								xtype: 'button',
+								itemId: 'configuration-view-validate-now',
+								text: Uni.I18n.translate('validationResults.validateNow', 'MDC', 'Validate now'),
+								disabled: true,		
+							}
+						]
+					}						
+
+				]
+				
+				/*items: [
 					{
 						xtype: 'displayfield',						
 						itemId: 'configuration-view-data-validated',
@@ -41,7 +97,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 						fieldLabel: Uni.I18n.translate('validationResults.validationResults', 'MDC', 'Validation results'),
 						name: 'total'					
 					}
-				]	
+				]	*/
 
 			},
 			{
