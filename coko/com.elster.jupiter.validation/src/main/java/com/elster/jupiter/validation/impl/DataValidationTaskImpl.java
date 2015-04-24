@@ -56,7 +56,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private transient Instant nextExecution;
     private ValidationService dataValidationService;
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DEVICE_GROUP_REQUIRED_PROPERTY_MISSING_KEY + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
