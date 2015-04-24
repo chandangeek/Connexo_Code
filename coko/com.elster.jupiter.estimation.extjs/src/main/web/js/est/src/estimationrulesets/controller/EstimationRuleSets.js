@@ -87,7 +87,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
             callback: function (record, operation, success) {
                 if (success) {
-                    ruleSet = ruleSetStore.getById(ruleSetId);
+                    var ruleSet = ruleSetStore.getById(ruleSetId);
                     ruleSet.beginEdit();
                     ruleSet.set(record.getData());
                     ruleSet.endEdit();
@@ -303,7 +303,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             name = record.get('name');
         record.destroy({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationrulesets.remove.successMsg', 'EST', 'Estimation rule set \'{name}\'  removed').replace('{name}', name));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationrulesets.remove.successMsg', 'EST', 'Estimation rule set removed'));
                 me.navigatePrevious()
             }
         });
