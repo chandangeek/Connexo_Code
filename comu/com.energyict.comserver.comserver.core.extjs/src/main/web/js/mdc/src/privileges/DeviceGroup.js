@@ -32,6 +32,6 @@ Ext.define('Mdc.privileges.DeviceGroup', {
         return Uni.Auth.checkPrivileges(Mdc.privileges.DeviceGroup.adminDeviceOfEnumeratedGroup );
     },
     canAdministrateOrViewDetails:function(){
-        return Uni.Auth.checkPrivileges(Mdc.privileges.DeviceGroup.adminDeviceOfEnumeratedGroup );
+        return Uni.Auth.checkPrivileges(Mdc.privileges.DeviceGroup.administrateOrViewDetails );
     }
 });
