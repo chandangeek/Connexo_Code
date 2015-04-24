@@ -264,6 +264,8 @@ class EstimationRuleImpl implements IEstimationRule {
     }
 
     public void save() {
+        this.getEstimator().validateProperties(this.properties);
+
         if (getId() == 0) {
             doPersist();
             return;
