@@ -277,6 +277,7 @@ public class EstimationResource {
                                 rule.addProperty(propertySpec.getName(), value);
                             }
                         }
+
                     } catch (EstimatorNotFoundException ex) {
                     } finally {
                         set.save();
