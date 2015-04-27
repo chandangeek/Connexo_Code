@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add device type'),
-                                privileges: ['privilege.administrate.deviceType'],
+                                privileges: Mdc.privileges.DeviceType.admin,
                                 action: 'createDeviceType'
                             }
                         ]

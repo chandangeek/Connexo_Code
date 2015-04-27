@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskGrid', {
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
+                privileges: Mdc.privileges.Communication.admin,
                 items: 'Mdc.view.setup.comtasks.ComtaskActionMenu',
                 align: 'left'
             }
@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskGrid', {
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'),
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
+                    privileges: Mdc.privileges.Communication.admin,
                     action: 'createcommunicationtasks',
                     href: '#/administration/communicationtasks/add'
                 }

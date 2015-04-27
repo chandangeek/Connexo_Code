@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetPreview', {
                     stepItems: [
                         {
                             text: Uni.I18n.translate('validation.addValidationRulesetVersion', 'CFG', 'Add validation rule set version'),
-                            privileges: ['privilege.administrate.validationConfiguration'],
+                            privileges : Cfg.privileges.Validation.admin,
                             ui: 'action',
                             href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/add'
                         }

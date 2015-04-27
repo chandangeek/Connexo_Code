@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     itemId: 'deviceSetup',
 
     requires: [
+        'Isu.privileges.Issue',
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.device.DeviceCommunicationTopologyPanel',
         'Mdc.view.setup.device.DeviceGeneralInformationPanel',
@@ -52,7 +53,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             style: 'font-size: 16px',
             flag: flag,
             pressed: !!flag,
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+            privileges: Mdc.privileges.Device.flagDevice,
             enableToggle: true,
             toggleHandler: function(button, state) {
                 button.setIconCls(state ? 'icon-star6' : 'icon-star4');
@@ -236,7 +237,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     {
                         xtype: 'deviceCommunicationTopologyPanel',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                        privileges: Mdc.privileges.Device.deviceOperator,
                         router: me.router
                     }
                 ]
@@ -253,7 +254,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: [
                     {
                         xtype: 'deviceOpenIssuesPanel',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue']),
+                        privileges: Isu.privileges.Issue.viewAdminDevice,
                         router: me.router,
                         style: {
                             marginRight: '20px',
@@ -267,7 +268,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         },
                         items: {
                             xtype: 'device-data-validation-panel',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice']),
+                            privileges: Cfg.privileges.Validation.fineTuneOnDevice,
                             mRID: me.device.get('mRID')
                         }
 
@@ -276,7 +277,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             },
             {
                 xtype: 'panel',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                privileges: Mdc.privileges.Device.deviceOperator,
                 itemId: 'device-connections-panel',
                 style: {
                     marginRight: '20px',
@@ -300,7 +301,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             },
             {
                 xtype: 'panel',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                privileges: Mdc.privileges.Device.deviceOperator,
                 itemId: 'device-communications-panel',
                 style: {
                     marginRight: '20px',

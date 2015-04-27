@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'),
+                privileges: Cfg.privileges.Validation.deviceConfiguration,
                 menu: {
                     xtype: 'rule-device-configuration-action-menu'
                 }
@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'CFG', 'Add device configurations'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'),
+                        privileges: Cfg.privileges.Validation.deviceConfiguration,
                         action: 'addDeviceConfiguration',
                         listeners: {
                             click: {

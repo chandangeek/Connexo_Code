@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
                             {
                                 itemId: 'comtaskCreateActionButton',
                                 text: Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'),
-                                privileges: ['privilege.administrate.communicationAdministration'],
+                                privileges: Mdc.privileges.Communication.admin,
                                 href: '#/administration/communicationtasks/add'
                             }
                         ]

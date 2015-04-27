@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
+                        privileges:Mdc.privileges.Device.viewDevice,
                         itemId: 'channelsLink',
                         href: '#/devices/' + mRID + '/channels',
                         showCondition: me.device.get('hasLoadProfiles')
@@ -108,7 +108,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     {
                         text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
                         itemId: 'dataValidationLink',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration']),
+                        privileges: Cfg.privileges.Validation.fineTuneValidation,
                         href: '#/devices/' + mRID + '/datavalidation',
                         showCondition: me.device.get('hasLogBooks')
                             || me.device.get('hasLoadProfiles')

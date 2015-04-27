@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
-                                    privileges: ['privilege.administrate.deviceType'],
+                                    privileges: Mdc.privileges.DeviceType.admin,
                                     action: 'addloadprofileconfiguration'
                                 }
                             ]

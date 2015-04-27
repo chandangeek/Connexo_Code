@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.comservercomports.View', {
                             {
                                 action: 'addComPort',
                                 text: Uni.I18n.translate('comServerComPorts.add', 'MDC', 'Add communication port'),
-                                privileges: ['privilege.administrate.communicationAdministration'],
+                                privileges: Mdc.privileges.Communication.admin,
                                 menu: {
                                     xtype: 'comServerComPortsAddMenu'
                                 }

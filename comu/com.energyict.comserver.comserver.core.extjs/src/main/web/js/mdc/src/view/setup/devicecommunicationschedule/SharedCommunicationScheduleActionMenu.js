@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
     items: [
         {
             text: Uni.I18n.translate('deviceCommunicationSchedules.removeCommunicationSchedule', 'MDC', 'Remove shared communication schedule'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'removeCommunicationSchedule',
             action: 'removeSharedCommunicationSchedule'
 

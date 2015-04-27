@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.generalattributes.Setup', {
         me.down('#editBtnContainer').add({
             xtype: 'button',
             itemId: 'generalAttributesShowEdit',
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+            privileges: Mdc.privileges.DeviceType.admin,
             href: typeof me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/generalattributes/edit') !== 'undefined'
                 ? me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/generalattributes/edit').buildUrl() : null,
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit')

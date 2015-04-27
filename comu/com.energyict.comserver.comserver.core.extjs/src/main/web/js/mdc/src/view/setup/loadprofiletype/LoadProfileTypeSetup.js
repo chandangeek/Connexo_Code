@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                             {
                                 text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                                 action: 'addloadprofiletypeaction',
-                                privileges: ['privilege.administrate.masterData'],
+                                privileges: Mdc.privileges.MasterData.admin,
                                 href: '#/administration/loadprofiletypes/add'
                             }
                         ]
@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
 
         if (config) {
 
-            hasPrivilege = Uni.Auth.hasPrivilege('privilege.administrate.deviceType');
+            hasPrivilege = Mdc.privileges.DeviceType.canAdministrate();
             actionMenuColumn = me.down('#load-profile-type-action-menu-column');
             actionMenuButton = me.down('#loadProfileTypePreview').tools[0];
 
@@ -94,6 +94,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                     emptyComponent.down('#no-items-found-panel-steps-label').hidden = !hasPrivilege;
                 }
                 button.hidden = !hasPrivilege;
+
             });
             actionMenuColumn.hidden = !hasPrivilege;
             actionMenuButton.hidden = !hasPrivilege;
