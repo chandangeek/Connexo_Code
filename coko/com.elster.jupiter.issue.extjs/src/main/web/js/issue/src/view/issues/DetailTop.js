@@ -32,7 +32,7 @@ Ext.define('Isu.view.issues.DetailTop', {
                 xtype: 'button',
                 itemId: 'issue-detail-top-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
-                privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Mdc.privileges.Device.viewDeviceCommunication),
+                privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Isu.privileges.Device.viewDeviceCommunication),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'issues-action-menu',

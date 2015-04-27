@@ -86,7 +86,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                     privileges = Isu.privileges.Issue.close;
                     break;
                 case 'Retry now':
-                    privileges = Mdc.privileges.Device.canOperateDeviceCommunication();
+                    privileges = Isu.privileges.Device.canOperateDeviceCommunication();
                     break;
                 case 'Send someone to inspect':
                     privileges = Isu.privileges.Issue.notify;
@@ -130,7 +130,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         }
 
         // add specific actions
-        if (Mdc.privileges.Device.viewDeviceCommunication) {
+        if (Isu.privileges.viewDeviceCommunication) {
             deviceMRID = me.record.get('deviceMRID');
             if (deviceMRID) {
                 comTaskId = me.record.get('comTaskId');
