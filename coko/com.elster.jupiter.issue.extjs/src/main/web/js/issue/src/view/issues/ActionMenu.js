@@ -2,7 +2,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     extend: 'Ext.menu.Menu',
     requires: [
         'Isu.privileges.Issue',
-        'Mdc.privileges.Device'
+        'Isu.privileges.Device'
     ],
     alias: 'widget.issues-action-menu',
     store: 'Isu.store.IssueActions',
