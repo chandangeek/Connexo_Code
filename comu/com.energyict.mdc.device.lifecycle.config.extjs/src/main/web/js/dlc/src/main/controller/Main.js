@@ -24,7 +24,7 @@ Ext.define('Dlc.main.controller.Main', {
     },
 
     initMenu: function () {
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.deviceLifeCycle'])) {
+        if (Dlc.privileges.DeviceLifeCycle.canConfigure()) {
             var deviceLifeCycleItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.deviceLifeCycleManagement', 'DLC', 'Device life cycle management'),
                 portal: 'administration',

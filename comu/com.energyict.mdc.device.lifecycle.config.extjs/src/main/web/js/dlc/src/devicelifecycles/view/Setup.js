@@ -36,7 +36,8 @@ Ext.define('Dlc.devicelifecycles.view.Setup', {
                             {
                                 text: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Add device life cycle'),
                                 href: me.router.getRoute('administration/devicelifecycles/add').buildUrl(),
-                                hidden: Uni.Auth.hasNoPrivilege('privilege.configure.deviceLifeCycle'),
+                                //hidden: Uni.Auth.hasNoPrivilege('privilege.configure.deviceLifeCycle'),
+                                privileges: Dlc.privileges.DeviceLifeCycle.configure,
                                 itemId: 'add-device-life-cycle-button'
                             }
                         ]
