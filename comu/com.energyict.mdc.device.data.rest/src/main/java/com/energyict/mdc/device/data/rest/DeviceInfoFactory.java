@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.impl.DeviceInfo;
@@ -18,11 +19,19 @@ import java.util.stream.Collectors;
 
 public class DeviceInfoFactory {
 
-    private final DeviceLifeCycleStateFactory deviceLifeCycleStateFactory;
+    private final Thesaurus thesaurus;
+    private final  DeviceImportService deviceImportService;
+    private final TopologyService topologyService;
+    private final IssueService issueService;
+    private final MeteringService meteringService;
 
     @Inject
-    public DeviceInfoFactory(DeviceLifeCycleStateFactory deviceLifeCycleStateFactory) {
-        this.deviceLifeCycleStateFactory = deviceLifeCycleStateFactory;
+    public DeviceInfoFactory(Thesaurus thesaurus, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, MeteringService meteringService) {
+        this.thesaurus = thesaurus;
+        this.deviceImportService = deviceImportService;
+        this.topologyService = topologyService;
+        this.issueService = issueService;
+        this.meteringService = meteringService;
     }
 
     public List<DeviceInfo> from(List<Device> devices) {
@@ -30,26 +39,11 @@ public class DeviceInfoFactory {
     }
 
     public DeviceInfo from(Device device){
-        Objects.requireNonNull(device);
-        DeviceInfo deviceInfo = DeviceInfo.from(device);
-        return setState(deviceInfo, device);
+        return DeviceInfo.from(device);
     }
 
-    public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, MeteringService meteringService){
-        DeviceInfo deviceInfo = DeviceInfo.from(device, slaveDevices, deviceImportService, topologyService, issueService, meteringService);
-        return setState(deviceInfo, device);
+    public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices){
+        return DeviceInfo.from(device, slaveDevices, deviceImportService, topologyService, issueService, meteringService, thesaurus);
     }
 
-    private DeviceInfo setState(DeviceInfo deviceInfo, Device device) {
-        Objects.requireNonNull(deviceInfo);
-        Objects.requireNonNull(device);
-        if(device.getCurrentMeterActivation().isPresent()) {
-            Optional<Meter> meter = device.getCurrentMeterActivation().get().getMeter();
-
-            if (meter.isPresent() && meter.get().getState().isPresent()) {
-                deviceInfo.state = deviceLifeCycleStateFactory.from(meter.get().getState().get());
-            }
-        }
-        return deviceInfo;
-    }
 }
