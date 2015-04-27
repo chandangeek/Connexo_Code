@@ -6,20 +6,24 @@ import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -32,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -264,5 +269,42 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         return cimChannel.getReading(timestampBefore)
                 .map(IntervalReadingRecord.class::cast)
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
+    }
+
+    @Override
+    public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
+        ImmutableMap.Builder<String, Consumer<EstimationRuleProperties>> builder = ImmutableMap.builder();
+        builder.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, property -> {
+            BigDecimal value = (BigDecimal) property.getValue();
+            if (hasFractionalPart(value)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+            }
+            if (value.intValue() < 1) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+            }
+        });
+        builder.put(ADVANCE_READINGS_SETTINGS, property -> {
+            if (NoneAdvanceReadingsSettings.INSTANCE.equals(property.getValue())) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED, "properties." + ADVANCE_READINGS_SETTINGS);
+            }
+            if (BulkAdvanceReadingsSettings.INSTANCE.equals(property.getValue())) {
+                return;
+            }
+            ReadingType readingType = ((ReadingTypeAdvanceReadingsSettings) property.getValue()).getReadingType();
+            if (!readingType.isCumulative()) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, "properties." + ADVANCE_READINGS_SETTINGS);
+            }
+        });
+
+        ImmutableMap<String, Consumer<EstimationRuleProperties>> propertyValidations = builder.build();
+
+        estimatorProperties.forEach(property -> {
+            Optional.ofNullable(propertyValidations.get(property.getName()))
+                    .ifPresent(validator -> validator.accept(property));
+        });
+    }
+
+    private boolean hasFractionalPart(BigDecimal value) {
+        return value.setScale(0, RoundingMode.DOWN).compareTo(value) != 0;
     }
 }
