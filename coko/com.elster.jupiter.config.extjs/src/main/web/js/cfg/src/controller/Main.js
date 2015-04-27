@@ -65,6 +65,7 @@ Ext.define('Cfg.controller.Main', {
                     {
                         text: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
                         href: '#/administration/validationtasks',
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'),
                         itemId: 'lnk-validation-tasks'
                     }
                 ]

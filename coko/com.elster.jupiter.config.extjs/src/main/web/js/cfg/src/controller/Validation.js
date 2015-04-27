@@ -1318,7 +1318,8 @@ Ext.define('Cfg.controller.Validation', {
     deleteVersion: function (version) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            view = me.getVersionsContainer() || me.getVersionOverview() || me.getRuleSetsGrid();
+            view = me.getVersionsContainer() || me.getVersionOverview() || me.getRuleSetsGrid(),
+            grid = me.getVersionsGrid();
 
         view.setLoading();
 
@@ -1335,6 +1336,17 @@ Ext.define('Cfg.controller.Validation', {
 
                     if (me.getVersionOverview()) {
                         router.getRoute('administration/rulesets/overview/versions').forward({ruleSetId: version.get('ruleSetId')});
+                    } else{
+
+                        if (grid && grid.getStore().getCount() != 0) {
+                            grid.getStore().load
+                            ({
+                                params: {
+                                    ruleSetId: version.get('ruleSetId')
+                                }
+                            });
+                        }
+
                     }
 
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeVersionSuccess.msg', 'CFG', 'Validation rule set version removed'));
@@ -1394,7 +1406,7 @@ Ext.define('Cfg.controller.Validation', {
                         editVersionPanel = me.getAddVersion();
                         form = editVersionPanel.down('#addVersionForm').getForm();
                         if (!isClone && (versionId!= null)){
-                            editVersionPanel.down('#addVersionTitle').setTitle(Ext.String.format(Uni.I18n.translate('validation.editValidationRulesetVersion', 'CFG', "Edit '{0}'?"), versionRecord.get('name')));
+                            editVersionPanel.down('#addVersionTitle').setTitle(Ext.String.format(Uni.I18n.translate('validation.editValidationRulesetVersion', 'CFG', "Edit '{0}'"), versionRecord.get('name')));
                             me.getApplication().fireEvent('loadVersion', versionRecord);
                             form.loadRecord(versionRecord);
                             var startDate = versionRecord.get('startDate');
