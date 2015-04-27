@@ -87,7 +87,7 @@ Ext.define('Est.estimationrules.view.Grid', {
         } else {
             me.columns.push({
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.EstimationConfiguration'),
+                privileges: Est.privileges.EstimationConfiguration.administrate,
                 menu: {
                     xtype: 'estimation-rules-action-menu',
                     itemId: me.actionMenuItemId
@@ -109,7 +109,7 @@ Ext.define('Est.estimationrules.view.Grid', {
                         text: Uni.I18n.translate('estimationrules.addEstimationRule', 'EST', 'Add estimation rule'),
                         action: 'addEstimationRule',
                         href: me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/add').buildUrl(),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.EstimationConfiguration')
+                        privileges: Est.privileges.EstimationConfiguration.administrate
                     }
                 ]
             }

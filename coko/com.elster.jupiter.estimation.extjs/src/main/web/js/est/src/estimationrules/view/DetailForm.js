@@ -78,7 +78,7 @@ Ext.define('Est.estimationrules.view.DetailForm', {
                 itemId: 'estimation-rules-detail-action-menu-button',
                 text: Uni.I18n.translate('general.actions', 'EST', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.EstimationConfiguration'),
+                privileges: Est.privileges.EstimationConfiguration.administrate,
                 menu: {
                     xtype: 'estimation-rules-action-menu',
                     itemId: me.actionMenuItemId

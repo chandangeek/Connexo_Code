@@ -184,10 +184,15 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         model.load(id, {
             success: function (record) {
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
-                widget.down('#rule-set-form').loadRecord(record);
-                var actionBtn = widget.down('#action-button');
-                if (actionBtn) {
-                    actionBtn.menu.record = record;
+                if (widget.rendered) {
+                    Ext.suspendLayouts();
+                    widget.down('#rule-set-form').loadRecord(record);
+                    widget.down('estimation-rule-set-side-menu #estimation-rule-set-link').setText(record.get('name'));
+                    var actionBtn = widget.down('#action-button');
+                    if (actionBtn) {
+                        actionBtn.menu.record = record;
+                    }
+                    Ext.resumeLayouts(true);
                 }
                 widget.setLoading(false);
             }

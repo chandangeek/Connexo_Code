@@ -34,7 +34,7 @@ Ext.define('Est.estimationrules.view.PreviewContainer', {
                     text: Uni.I18n.translate('estimationrules.addEstimationRule', 'EST', 'Add estimation rule'),
                     action: 'addEstimationRule',
                     href: me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/add').buildUrl(),
-                    privileges: ['privilege.administrate.EstimationConfiguration']
+                    privileges: Est.privileges.EstimationConfiguration.administrate
                 }
             ]
         };

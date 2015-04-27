@@ -95,10 +95,13 @@ Ext.define('Est.estimationrules.controller.Overview', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPreview();
+        var preview = this.getPreview(),
+            menu = preview.down('#estimation-rules-overview-action-menu');
 
         preview.updateForm(record);
-        preview.down('#estimation-rules-overview-action-menu').record = record;
+        if (menu) {
+            menu.record = record;
+        }
     },
 
     chooseAction: function (menu, item) {

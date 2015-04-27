@@ -34,16 +34,15 @@ Ext.define('Est.estimationrulesets.view.RuleSetsGrid', {
                 header: Uni.I18n.translate('estimationrulesets.inactiveRules', 'EST', 'Inactive rules'),
                 dataIndex: 'numberOfInactiveRules',
                 flex: 1
-            }
-        ];
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.EstimationConfiguration'])) {
-            me.columns.push({
+            },
+            {
                 xtype: 'uni-actioncolumn',
+                privileges: Est.privileges.EstimationConfiguration.administrate,
                 menu: {
                     xtype: 'estimation-rule-sets-action-menu'
                 }
-            })
-        }
+            }
+        ];
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
