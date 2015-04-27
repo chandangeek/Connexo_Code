@@ -31,7 +31,8 @@ Ext.define('Est.main.controller.Main', {
                     {
                         text: Uni.I18n.translate('estimationrulesets.estimationrulesets', 'EST', 'Estimation rule sets'),
                         href: '#/administration/estimationrulesets',
-                        route: 'estimationrulesets'
+                        route: 'estimationrulesets',
+                        privileges: Est.privileges.EstimationConfiguration.view
                     },
                     {
                         text: Uni.I18n.translate('estimationtasks.title', 'EST', 'Estimation tasks'),
