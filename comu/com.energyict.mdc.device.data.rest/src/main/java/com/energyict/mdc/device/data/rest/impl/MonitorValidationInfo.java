@@ -4,33 +4,44 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.NumericalRegister;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
-/**
- * Created by tgr on 5/09/2014.
- */
 public class MonitorValidationInfo {
 
-    public Boolean validationActive;
-    public Boolean dataValidated;
-    public List<DetailedValidationRuleSetInfo> detailedRuleSets;
-    public Long lastChecked;
-    public Long total;
 
-    public MonitorValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
-        validationActive = active;
+    public ValidationStatusInfo validationStatus;
+    public Long total;
+    public List<DetailedValidationRuleSetInfo> detailedRuleSets;
+    public List<DetailedValidationLoadProfileInfo> detailedValidationLoadProfile;
+    public List<DetailedValidationRegisterInfo> detailedValidationRegister;
+
+    public MonitorValidationInfo(List<DataValidationStatus> dataValidationStatuses, ValidationStatusInfo validationStatus) {
         total = 0L;
-        this.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
+        this.validationStatus = validationStatus;
+        this.validationStatus.allDataValidated = isDataCompletelyValidated(dataValidationStatuses);
         this.detailedRuleSets = getSuspectReasonMap(dataValidationStatuses);
-        if (lastChecked.isPresent()) {
-            this.lastChecked = lastChecked.get().toEpochMilli();
-        }
-        else {
-            this.lastChecked = null;
-        }
+    }
+
+    public MonitorValidationInfo(Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus , Map<NumericalRegister, List<DataValidationStatus>> registerStatus, ValidationStatusInfo validationStatus) {
+        total = loadProfileStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting()) +
+                registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.counting());
+        List<DataValidationStatus> dataValidationStatuses = loadProfileStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.toList());
+        dataValidationStatuses.addAll(registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.toList()));
+        this.validationStatus = validationStatus;
+        this.validationStatus.allDataValidated = isDataCompletelyValidated(dataValidationStatuses);
+        this.detailedValidationLoadProfile = new ArrayList<>();
+        this.detailedValidationRegister = new ArrayList<>();
+        loadProfileStatus.entrySet().stream().forEach( lp -> {
+            this.detailedValidationLoadProfile.add(new DetailedValidationLoadProfileInfo(lp.getKey(),new Long(lp.getValue().size())));
+        });
+        registerStatus.entrySet().stream().forEach( lp -> {
+            this.detailedValidationRegister.add(new DetailedValidationRegisterInfo(lp.getKey(),new Long(lp.getValue().size())));
+        });
     }
 
     public MonitorValidationInfo() {

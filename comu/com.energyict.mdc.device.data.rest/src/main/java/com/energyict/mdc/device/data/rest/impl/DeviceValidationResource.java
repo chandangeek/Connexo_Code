@@ -7,6 +7,8 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -25,13 +27,7 @@ import com.google.common.collect.Range;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.swing.text.html.Option;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
@@ -110,12 +106,18 @@ public class DeviceValidationResource {
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
     }
 
-    @Path("/validationmonitoring")
+    @Path("/validationmonitoring/configurationview")
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationMonitoring(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        DeviceValidation deviceValidation = device.forValidation();
+        ValidationStatusInfo validationStatusInfo =
+                new ValidationStatusInfo(
+                        deviceValidation.isValidationActive(),
+                        deviceValidation.getLastChecked(),
+                        device.hasData());
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
         ZonedDateTime intervalStart = end.minusYears(1);
@@ -130,9 +132,77 @@ public class DeviceValidationResource {
                 .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), interval).stream())
                 .collect(Collectors.toList()));
 
-        MonitorValidationInfo info = new MonitorValidationInfo(true, statuses, Optional.of(Instant.now()));
+        MonitorValidationInfo info = new MonitorValidationInfo(statuses, validationStatusInfo);
 
         return Response.status(Response.Status.OK).entity(info).build();
+    }
+
+    @Path("/validationmonitoring/dataview")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationMonitoringLoadProfile(@PathParam("mRID") String mrid,
+                                                       @QueryParam("ruleSetId") Long ruleSetId,
+                                                       @QueryParam("ruleSetVersionId") Long ruleSetVersionId,
+                                                       @QueryParam("ruleId") Long ruleId) {
+
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+
+        DeviceValidation deviceValidation = device.forValidation();
+        ValidationStatusInfo validationStatusInfo =
+                new ValidationStatusInfo(
+                        deviceValidation.isValidationActive(),
+                        deviceValidation.getLastChecked(),
+                        device.hasData());
+
+        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+
+        ZonedDateTime intervalStart = end.minusYears(1);
+        Range<Instant> interval = Range.openClosed(intervalStart.toInstant(), end.toInstant());
+
+        Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus =  device.getLoadProfiles().stream()
+                .collect(Collectors.toMap(
+                        l -> l,
+                        lp -> lp.getChannels()
+                                .stream()
+                                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), interval).stream())
+                                .collect(Collectors.toList())
+                )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
+                    .collect(Collectors.toMap(m -> (LoadProfile) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
+
+        Map<NumericalRegister, List<DataValidationStatus>> registerStatus = device.getRegisters().stream()
+                .collect(Collectors.toMap(
+                        r -> r,
+                        reg -> (device.forValidation().getValidationStatus(reg, Collections.emptyList(), interval).stream())
+                                .collect(Collectors.toList())
+                )).entrySet().stream().filter(m -> (((List<DataValidationStatus>)m.getValue()).size()) > 0L)
+                    .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
+
+        MonitorValidationInfo info = new MonitorValidationInfo(loadProfileStatus, registerStatus, validationStatusInfo);
+
+        return Response.status(Response.Status.OK).entity(info).build();
+    }
+
+    @Path("/validationmonitoring/register")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationMonitoringRegister(@PathParam("mRID") String mrid) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+
+        ZonedDateTime intervalStart = end.minusYears(1);
+        Range<Instant> interval = Range.openClosed(intervalStart.toInstant(), end.toInstant());
+
+        Map<NumericalRegister, Long> registerStatus = device.getRegisters().stream()
+                .collect(Collectors.toMap(
+                        r -> r,
+                        reg -> (device.forValidation().getValidationStatus(reg, Collections.emptyList(), interval).stream())
+                                .collect(Collectors.counting())
+                )).entrySet().stream().filter(m -> ((Long) m.getValue()) > 0L)
+                .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (Long) (m.getValue())));
+
+        return Response.status(Response.Status.OK).entity(registerStatus).build();
     }
 
     private DeviceValidationStatusInfo determineStatus(Device device) {
