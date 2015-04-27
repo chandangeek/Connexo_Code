@@ -18,4 +18,8 @@ public interface Estimator extends HasDynamicProperties {
 
     String getDefaultFormat();
 
+    default void validateProperties(List<EstimationRuleProperties> properties) {
+
+    }
+
 }
