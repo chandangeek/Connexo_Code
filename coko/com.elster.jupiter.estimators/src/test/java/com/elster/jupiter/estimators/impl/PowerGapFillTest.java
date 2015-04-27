@@ -7,6 +7,8 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
@@ -14,6 +16,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Unit;
@@ -29,14 +32,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.elster.jupiter.estimators.impl.PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.cmpEq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PowerGapFillTest {
@@ -110,7 +114,7 @@ public class PowerGapFillTest {
     public void testPowerGapFillForDelta() {
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -131,7 +135,7 @@ public class PowerGapFillTest {
         doReturn(bulkReadingType).when(estimationBlock).getReadingType();
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -151,7 +155,7 @@ public class PowerGapFillTest {
     public void testPowerGapFillDoesNotEstimateWhenTooManySuspects() {
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(1));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(1));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -169,7 +173,7 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(BEFORE.toInstant());
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -187,7 +191,7 @@ public class PowerGapFillTest {
         doReturn(null).when(readingRecord1).getQuantity(bulkReadingType);
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -205,7 +209,7 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(ESTIMATABLE3.toInstant());
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -223,7 +227,7 @@ public class PowerGapFillTest {
         doReturn(null).when(readingRecord2).getQuantity(bulkReadingType);
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -240,7 +244,7 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(deltaReadingType).getBulkReadingType();
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -257,7 +261,7 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(channel).getCimChannel(bulkReadingType);
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -274,7 +278,7 @@ public class PowerGapFillTest {
         doReturn(ProfileStatus.of()).when(readingRecord1).getProfileStatus();
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -291,7 +295,7 @@ public class PowerGapFillTest {
         doReturn(ProfileStatus.of()).when(readingRecord2).getProfileStatus();
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -310,7 +314,7 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(BEFORE.toInstant());
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -329,7 +333,7 @@ public class PowerGapFillTest {
         doReturn(null).when(readingRecord1).getQuantity(bulkReadingType);
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -348,7 +352,7 @@ public class PowerGapFillTest {
         doReturn(Optional.empty()).when(bulkCimChannel).getReading(AFTER.toInstant());
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -367,7 +371,7 @@ public class PowerGapFillTest {
         doReturn(null).when(readingRecord2).getQuantity(bulkReadingType);
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -385,7 +389,7 @@ public class PowerGapFillTest {
         doReturn(ProfileStatus.of()).when(readingRecord1).getProfileStatus();
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -403,7 +407,7 @@ public class PowerGapFillTest {
         doReturn(ProfileStatus.of()).when(readingRecord2).getProfileStatus();
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -421,7 +425,7 @@ public class PowerGapFillTest {
         doReturn(false).when(bulkReadingType).isRegular();
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init();
@@ -432,5 +436,71 @@ public class PowerGapFillTest {
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
 
     }
+
+    @Test(expected = LocalizedFieldValidationException.class)
+    public void testInvalidPropertiesWhenConsecutiveIsFractional() {
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(11, 1));
+
+        Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
+
+        estimator.validateProperties(Collections.singletonList(property));
+    }
+
+    @Test
+    public void testValidPropertiesWhenConsecutiveIsFractionalYetZeroAsFractionalPart() {
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10, 1));
+
+        Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
+
+        estimator.validateProperties(Collections.singletonList(property));
+    }
+
+    @Test(expected = LocalizedFieldValidationException.class)
+    public void testInvalidPropertiesWhenConsecutiveIsZero() {
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.ZERO);
+
+        Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
+
+        estimator.validateProperties(Collections.singletonList(property));
+    }
+
+    @Test(expected = LocalizedFieldValidationException.class)
+    public void testInvalidPropertiesWhenConsecutiveIsNegative() {
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(-1));
+
+        Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
+
+        estimator.validateProperties(Collections.singletonList(property));
+    }
+
+    private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
+        return new EstimationRuleProperties() {
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public String getDisplayName() {
+                return name;
+            }
+
+            @Override
+            public Object getValue() {
+                return value;
+            }
+
+            @Override
+            public void setValue(Object value) {
+            }
+
+            @Override
+            public EstimationRule getRule() {
+                return mock(EstimationRule.class);
+            }
+        };
+    }
+
+
 
 }
