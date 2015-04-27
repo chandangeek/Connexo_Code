@@ -13,7 +13,8 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.Communication',
         'Dvi.privileges.InventoryManagement',
         'Yfn.privileges.Yellowfin',
-        'Isu.privileges.Issue'
+        'Isu.privileges.Issue',
+        'Dxp.privileges.DataExport'
     ],
     controllers: [
         'MdcApp.controller.Main'
