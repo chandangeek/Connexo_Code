@@ -316,7 +316,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("MTR", "TSK", "MTG");
+        return Arrays.asList("MTR", "TSK", "MTG", "TME");
     }
 
     @Override
