@@ -3,7 +3,7 @@ Ext.define('Dxp.view.tasks.Add', {
     alias: 'widget.data-export-tasks-add',
     requires: [
         'Uni.form.field.DateTime',
-        'Tme.privileges.Time',
+        'Tme.privileges.Period',
         'Dxp.view.tasks.AddScheduleGrid',
         'Uni.property.form.Property',
         'Uni.property.form.GroupedPropertyForm',
@@ -341,7 +341,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-task-add-export-period',
-                                privileges: Tme.privileges.Time.admin,
+                                privileges: Tme.privileges.Period.admin,
                                 margin: '0 0 0 20',
                                 text: Uni.I18n.translate('general.addExportPeriod', 'DES', 'Add export period'),
                                 ui: 'link'
