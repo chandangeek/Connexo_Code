@@ -9,8 +9,12 @@ Ext.define('Dlc.privileges.DeviceLifeCycle', {
     ],
     singleton: true,
     configure : ['privilege.configure.deviceLifeCycle'],
+    view : ['privilege.view.deviceLifeCycle'],
     all: function() {
-        return Ext.Array.merge(Dlc.privileges.DeviceLifeCycle.configure);
+        return Ext.Array.merge(Dlc.privileges.DeviceLifeCycle.view, Dlc.privileges.DeviceLifeCycle.configure);
+    },
+    canView:function(){
+        return Uni.Auth.checkPrivileges(Dlc.privileges.DeviceLifeCycle.view);
     },
     canConfigure : function (){
         return Uni.Auth.checkPrivileges(Dlc.privileges.DeviceLifeCycle.configure);
