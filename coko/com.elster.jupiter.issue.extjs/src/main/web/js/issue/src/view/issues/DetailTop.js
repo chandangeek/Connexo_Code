@@ -4,7 +4,7 @@ Ext.define('Isu.view.issues.DetailTop', {
     requires: [
         'Isu.view.issues.ActionMenu',
         'Isu.privileges.Issue',
-        'Mdc.privileges.Device'
+        'Isu.privileges.Device'
     ],
     layout: {
         type: 'hbox',

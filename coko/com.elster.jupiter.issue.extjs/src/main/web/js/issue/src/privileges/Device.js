@@ -17,6 +17,6 @@ Ext.define('Isu.privileges.Device', {
         );
     },
     canOperateDeviceCommunication : function(){
-        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.operateDeviceCommunication );
+        return Uni.Auth.checkPrivileges(Isu.privileges.Device.operateDeviceCommunication );
     }
 });
