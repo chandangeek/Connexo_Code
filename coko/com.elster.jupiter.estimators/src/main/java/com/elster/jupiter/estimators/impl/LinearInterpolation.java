@@ -3,13 +3,17 @@ package com.elster.jupiter.estimators.impl;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRuleProperties;
+import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -125,5 +131,31 @@ public class LinearInterpolation extends AbstractEstimator {
                 MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
         return builder.build();
     }
+
+    @Override
+    public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
+        ImmutableMap.Builder<String, Consumer<EstimationRuleProperties>> builder = ImmutableMap.builder();
+        builder.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, property -> {
+            BigDecimal value = (BigDecimal) property.getValue();
+            if (hasFractionalPart(value)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+            }
+            if (value.intValue() < 1) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+            }
+        });
+
+        ImmutableMap<String, Consumer<EstimationRuleProperties>> propertyValidations = builder.build();
+
+        estimatorProperties.forEach(property -> {
+            Optional.ofNullable(propertyValidations.get(property.getName()))
+                    .ifPresent(validator -> validator.accept(property));
+        });
+    }
+
+    private boolean hasFractionalPart(BigDecimal value) {
+        return value.setScale(0, RoundingMode.DOWN).compareTo(value) != 0;
+    }
+
 }
 
