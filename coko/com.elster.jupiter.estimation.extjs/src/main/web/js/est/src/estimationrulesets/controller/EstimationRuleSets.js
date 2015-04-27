@@ -158,45 +158,31 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
     showEstimationRuleSetEdit: function (id) {
         var me = this,
-            ruleSetsStore = Ext.getStore('Est.estimationrulesets.store.EstimationRuleSetsStore'),
-            widget,
-            showPage = function (record) {
+            widget = Ext.widget('rule-set-edit'),
+            model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet');
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setLoading(true);
+        model.load(id, {
+            success: function (record) {
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
-                widget = Ext.widget('rule-set-edit', {record: record});
-                me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#rule-set-edit-form').loadRecord(record)
+                widget.down('#rule-set-edit-form').loadRecord(record);
+                widget.down('#rule-set-edit-form').setTitle(Uni.I18n.translate('estimationrulesets.edit.title', 'EST', 'Edit \'{name}\'').replace('{name}', record.get('name')));
+                widget.setLoading(false);
             },
-            loadRecord = function (id) {
-                var model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet');
-                model.load(id, {
-                    callback: function (record, operation, success) {
-                        if (success) {
-                            showPage(record);
-                        } else {
-
-                        }
-                    }
-                })
-            };
-
-        if (Ext.isDefined(ruleSetsStore)) {
-            var record = ruleSetsStore.getById(id);
-            if (Ext.isDefined(record)) {
-                showPage(record)
-            } else {
-                loadRecord(id)
+            failure: function () {
+                widget.setLoading(false)
             }
-        } else {
-            loadRecord(id)
-        }
+        });
     },
 
     showEstimationRuleSetDetails: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('rule-set-details', {router: router}),
-            ruleSetsStore = Ext.getStore('Est.estimationrulesets.store.EstimationRuleSetsStore'),
-            showPage = function (record) {
+            model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet');
+        widget.setLoading(true);
+        model.load(id, {
+            success: function (record) {
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
                 widget.down('#rule-set-form').loadRecord(record);
                 var actionBtn = widget.down('#action-button');
@@ -204,31 +190,9 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
                     actionBtn.menu.record = record;
                 }
                 widget.setLoading(false);
-            },
-            loadRecord = function (id) {
-                var model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet');
-                widget.setLoading(true);
-                model.load(id, {
-                    callback: function (record, operation, success) {
-                        if (success) {
-                            showPage(record);
-                        }
-                        widget.setLoading(false);
-                    }
-                })
-            };
-
-        me.getApplication().fireEvent('changecontentevent', widget);
-        if (Ext.isDefined(ruleSetsStore)) {
-            var record = ruleSetsStore.getById(id);
-            if (Ext.isDefined(record)) {
-                showPage(record)
-            } else {
-                loadRecord(id)
             }
-        } else {
-            loadRecord(id)
-        }
+        });
+        me.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showErrorPanel: function (value) {
