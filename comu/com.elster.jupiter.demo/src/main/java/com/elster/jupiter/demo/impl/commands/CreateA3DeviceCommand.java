@@ -18,7 +18,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -36,21 +35,20 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 //TODO reuse code
 public class CreateA3DeviceCommand {
     public static final String SECURITY_PROPERTY_NAME = "Read only authentication and Message Encryption/Authentication";
 
     private final ProtocolPluggableService protocolPluggableService;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
     private final DeviceService deviceService;
@@ -63,12 +61,10 @@ public class CreateA3DeviceCommand {
     @Inject
     public CreateA3DeviceCommand(
             ProtocolPluggableService protocolPluggableService,
-            DeviceConfigurationService deviceConfigurationService,
             ConnectionTaskService connectionTaskService,
             Provider<DeviceBuilder> deviceBuilderProvider,
             DeviceService deviceService) {
         this.protocolPluggableService = protocolPluggableService;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.connectionTaskService = connectionTaskService;
         this.deviceBuilderProvider = deviceBuilderProvider;
         this.deviceService = deviceService;
@@ -113,8 +109,9 @@ public class CreateA3DeviceCommand {
 
     private void findLogBooks() {
         logBookTypes = new HashMap<>();
-        LogBookTypeTpl logBookTypeTpl = LogBookTypeTpl.GENERIC;
-        logBookTypes.put(logBookTypeTpl, Builders.from(logBookTypeTpl).get());
+        EnumSet.of(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG).stream().forEach(
+                tpl->logBookTypes.put(tpl, Builders.from(tpl).get())
+        );
     }
 
     private void findComTasks() {
@@ -142,7 +139,9 @@ public class CreateA3DeviceCommand {
         configBuilder.isDirectlyAddressable(true);
 
         addNumericRegistersToDeviceConfiguration(configBuilder, RegisterTypeTpl.BULK_A_PLUS_ALL_PHASES, RegisterTypeTpl.BULK_A_MINUS_ALL_PHASES, RegisterTypeTpl.BULK_REACTIVE_ENERGY_PLUS, RegisterTypeTpl.BULK_REACTIVE_ENERGY_MINUS);
-        configBuilder.newLogBookSpec(logBookTypes.get(LogBookTypeTpl.GENERIC));
+        EnumSet.of(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG).stream().forEach(
+                tpl->configBuilder.newLogBookSpec(logBookTypes.get(tpl))
+        );
         configBuilder.newLoadProfileSpec(loadProfileTypes.get(LoadProfileTypeTpl.ELSTER_A3_GENERIC));
         configuration = configBuilder.add();
         Map<String, String> channels = new HashMap<>(4);

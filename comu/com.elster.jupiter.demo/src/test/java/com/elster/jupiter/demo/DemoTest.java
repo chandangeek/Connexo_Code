@@ -320,7 +320,7 @@ public class DemoTest {
             sqlBuilder = new SqlBuilder("CREATE VIEW USER_IND_COLUMNS AS (select INDEX_NAME, TABLE_NAME, COLUMN_NAME, '1' COLUMN_POSITION from INFORMATION_SCHEMA.INDEXES AS ind)");
             sqlBuilder.prepare(connection).execute();
         } catch (SQLException e) {
-            LOG.severe("Erros during creating substitutes for ORACLE tables. It may cause unpredictable work.");
+            LOG.severe("Errors during creating substitutes for ORACLE tables. It may cause unpredictable work.");
         }
     }
 

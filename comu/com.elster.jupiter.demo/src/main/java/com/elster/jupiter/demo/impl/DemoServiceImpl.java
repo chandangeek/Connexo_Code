@@ -487,6 +487,11 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
+    public void createDemoData(){
+        System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01>");
+    }
+
+    @SuppressWarnings("unused")
     public void createDemoData(String comServerName, String host, String startDate){
         executeTransaction(() -> {
             CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);

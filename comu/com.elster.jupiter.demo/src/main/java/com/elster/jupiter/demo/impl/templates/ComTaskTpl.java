@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     READ_ALL("Read all",
             Arrays.asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
-            Arrays.asList(LogBookTypeTpl.GENERIC),
+            Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
             Arrays.asList(RegisterGroupTpl.DEVICE_DATA),
             null,
             Arrays.asList(new ComTaskBuilder.Clock(ClockTaskType.SETCLOCK, TimeDuration.minutes(5), TimeDuration.hours(1), null))),
@@ -44,7 +44,7 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null),
     READ_LOG_BOOK_DATA("Read logbook data",
             null,
-            Arrays.asList(LogBookTypeTpl.GENERIC),
+            Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
             null,
             null,
             null),

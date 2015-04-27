@@ -32,6 +32,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.engine.config.ComServer;
 
+import java.util.EnumSet;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Arrays;
@@ -73,7 +74,7 @@ public class CreateCollectRemoteDataSetupCommand {
         createComBackground();
         createRegisterTypes();
         createRegisterGroups();
-        createLoogBookTypes();
+        createLogBookTypes();
         createLoadProfileTypes();
         createComTasks();
         createComSchedules();
@@ -130,8 +131,10 @@ public class CreateCollectRemoteDataSetupCommand {
         Builders.from(RegisterGroupTpl.TARIFF_2).get();
     }
 
-    private void createLoogBookTypes(){
-        Builders.from(LogBookTypeTpl.GENERIC).get();
+    private void createLogBookTypes(){
+        EnumSet.of(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG).stream().forEach(
+                tpl->Builders.from(tpl).get()
+        );
     }
 
     private void createLoadProfileTypes(){
