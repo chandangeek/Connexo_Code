@@ -99,7 +99,7 @@ public class CreateG3SlaveCommand {
     }
 
     private DeviceConfiguration createDefaultConfiguration(DeviceType deviceType) {
-        return Builders.from(DeviceConfigurationTpl.DEFAULT).withDeviceType(deviceType)
+        return Builders.from(DeviceConfigurationTpl.AM540).withDeviceType(deviceType)
                 .withDirectlyAddressable(false)
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                 .withPostBuilder(new SecurityPropertySetPostBuilder())
