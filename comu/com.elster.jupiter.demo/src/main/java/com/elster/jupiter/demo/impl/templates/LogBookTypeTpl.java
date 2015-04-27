@@ -5,6 +5,9 @@ import com.energyict.mdc.masterdata.LogBookType;
 
 public enum LogBookTypeTpl implements Template<LogBookType, LogBookTypeBuilder> {
     GENERIC("Generic logbook", "0.0.99.98.0.255"),
+    STANDARD_EVENT_LOG("Standard event logbook", "0.0.96.11.0.255"),
+    FRAUD_DETECTION_LOG("Fraud detection logbook", "0.0.96.11.1.255"),
+    DISCONNECTOR_CONTROL_LOG("Disconnector control logbook", "0.0.96.11.2.255"),
     ;
 
     private String obisCode;
