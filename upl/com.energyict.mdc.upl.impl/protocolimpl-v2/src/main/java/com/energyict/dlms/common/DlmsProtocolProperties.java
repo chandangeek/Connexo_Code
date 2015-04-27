@@ -100,7 +100,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final boolean DEFAULT_FIX_MBUS_HEX_SHORT_ID = false;
     public static final String DEFAULT_DEVICE_ID = "";
     public static final boolean DEFAULT_ENABLE_GBT = false;
-    public static final int DEFAULT_GBT_WINDOW_SIZE = -1;
+    public static final BigDecimal DEFAULT_GBT_WINDOW_SIZE = BigDecimal.valueOf(-1);
 
     private TypedProperties typedProperties;
 

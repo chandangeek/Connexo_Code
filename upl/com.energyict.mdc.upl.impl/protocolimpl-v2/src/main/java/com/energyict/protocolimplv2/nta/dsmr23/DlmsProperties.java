@@ -269,6 +269,6 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public int getGeneralBlockTransferWindowSize() {
-        return properties.getTypedProperty(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE);
+        return properties.getTypedProperty(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE).intValue();
     }
 }
