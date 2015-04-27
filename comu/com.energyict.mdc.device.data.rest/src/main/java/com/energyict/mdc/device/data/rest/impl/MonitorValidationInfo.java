@@ -7,7 +7,6 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
