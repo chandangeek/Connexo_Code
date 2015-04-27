@@ -16,10 +16,6 @@ Ext.onReady(function () {
             name: 'Tme',
             path: '../../apps/tme/src'
         },
-        {
-            name: 'Dxp',
-            path: '../../apps/dxp/src'
-        },
 		{
             name: 'Apr',
             path: '../../apps/apr/src'

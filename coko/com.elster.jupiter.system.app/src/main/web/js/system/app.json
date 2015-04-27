@@ -6,7 +6,6 @@
         "com.elster.jupiter.unifyingjs",
         "com.elster.jupiter.users.extjs",
         "com.elster.jupiter.systemadmin.extjs",
-        "com.elster.jupiter.export.extjs",
         "com.elster.jupiter.time.extjs",
         "com.elster.jupiter.appserver.extjs"
     ],
