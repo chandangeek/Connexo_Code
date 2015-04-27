@@ -42,7 +42,7 @@ Ext.define('Mdc.model.ValidationResults', {
     ],
 	proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/validationrulesets/validationmonitoring',
+        urlTpl: '/api/ddr/devices/{mRID}/validationrulesets/validationmonitoring/configurationview',
         reader: {
             type: 'json'
         },

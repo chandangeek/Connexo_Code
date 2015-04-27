@@ -5,9 +5,7 @@ Ext.define('Mdc.model.ValidationResultsRegister', {
     ],
     fields: [
         'id',
-        'displayName',		
-		'result',
-		'implementation',        
+        'name',
 		{
             name: 'total',            
             convert: function (value, record) {
@@ -17,19 +15,6 @@ Ext.define('Mdc.model.ValidationResultsRegister', {
                 return '';    
             }
         }
-    ],
-	
-    associations: [
-        {
-			name: 'properties', 
-			type: 'hasMany', 
-			model: 'Uni.property.model.Property', 
-			associationKey: 'properties', 
-			foreignKey: 'properties',
-            
-			getTypeDiscriminator: function (node) {
-                return 'Uni.property.model.Property';
-            }
-        }
-    ],
+    ]
+
 });

@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     ],
 	models: [
 		'Mdc.model.ValidationResultsDataFilter',
-		'Mdc.model.ValidationResults'
+		'Mdc.model.ValidationResults',
+        'Mdc.model.ValidationResultsDataView'
 	],
 	stores: [
         'Mdc.store.DataIntervalAndZoomLevels',
@@ -33,8 +34,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		{ref: 'ruleSetVersionRuleGrid', selector: '#ruleSetVersionRuleList'},
 		{ref: 'ruleSetVersionRulePreview', selector: '#ruleSetVersionRulePreview'},		
 		{ref: 'configurationViewValidateNowBtn', selector: 'deviceValidationResultsRuleset #configurationViewValidateNow'},
-        {ref: 'loadProfileGrid', selector: '#loadProfileList'},
-        {ref: 'registerGrid', selector: '#registerList'}
+        {ref: 'loadProfileGrid', selector: 'loadProfileList'},
+        {ref: 'registerGrid', selector: 'registerList'}
 		
     ],    
     mRID: null,
@@ -349,7 +350,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     loadValidationResultsData: function(){
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            models = me.getModel('Mdc.model.ValidationResultsLoadProfile'),
+            models = me.getModel('Mdc.model.ValidationResultsDataView'),
             router = me.getController('Uni.controller.history.Router');
 
         models.getProxy().setUrl(me.mRID);
@@ -376,8 +377,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             validationResultsDataForm.loadRecord(record);
 
 
-        //loadProfileGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
-        //loadProfileGrid.getStore().loadData(record.get('detailedRuleSets'));
+        //loadProfileGrid.getStore().on('datachanged', function (){loadProfileGrid.getSelectionModel().select(0); return true;}, this);
+        loadProfileGrid.getStore().loadData(record.get('detailedValidationLoadProfile'));
+        loadProfileGrid.getSelectionModel().select(0);
+
+        //registerGrid.getStore().on('datachanged', function (){registerGrid.getSelectionModel().select(0); return true;}, this);
+        registerGrid.getStore().loadData(record.get('detailedValidationRegister'));
+        registerGrid.getSelectionModel().select(0);
     },
 
 	onRuleSetGridSelectionChange : function(grid, record){	
