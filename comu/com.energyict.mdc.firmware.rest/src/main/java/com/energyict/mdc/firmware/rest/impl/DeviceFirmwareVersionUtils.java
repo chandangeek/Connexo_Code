@@ -18,7 +18,6 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,6 +25,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -57,29 +57,37 @@ public class DeviceFirmwareVersionUtils {
                 .findFirst()
                 .orElse(null);
         this.firmwareMessages = new ArrayList<>();
-        Map<FirmwareType, DeviceMessage<Device>> messages = new HashMap<>();
+        this.uploadOptionsCache = new HashMap<>();
+        Map<FirmwareType, DeviceMessage<Device>> uploadMessages = new HashMap<>();
+        Map<String , DeviceMessage<Device>> activationMessages = new HashMap<>();
         for (DeviceMessage<Device> candidate : device.getMessages()) {
             // only firmware upgrade, no revoked messages and only one message for each firmware type
             if (candidate.getSpecification().getCategory().getId() == deviceMessageSpecificationService.getFirmwareCategory().getId()
                     && !DeviceMessageStatus.REVOKED.equals(candidate.getStatus())){
-                FirmwareType key = null;
                 if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())){
-                    Optional<FirmwareVersion> version = getFirmwareVersionFromMessage(candidate);
-                    if (version.isPresent()){
-                        key = version.get().getFirmwareType();
-                    }
+                    compareAndSwapUploadMessage(uploadMessages, candidate);
                 } else {
-
-                }
-                DeviceMessage<Device> oldMessage = messages.get(key);
-                if (oldMessage == null || !oldMessage.getReleaseDate().isAfter(candidate.getReleaseDate())){
-                    messages.put(key, candidate);
+                    activationMessages.put(candidate.getTrackingId(), candidate);
                 }
             }
         }
-        this.firmwareMessages.addAll(messages.values());
-        this.uploadOptionsCache = new HashMap<>();
+        this.firmwareMessages.addAll(uploadMessages.values());
+        this.firmwareMessages.addAll(this.firmwareMessages.stream()
+                .map(message -> activationMessages.get(String.valueOf(message.getId())))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
         return this;
+    }
+
+    private void compareAndSwapUploadMessage(Map<FirmwareType, DeviceMessage<Device>> uploadMessages, DeviceMessage<Device> candidate) {
+        Optional<FirmwareVersion> version = getFirmwareVersionFromMessage(candidate);
+        if (version.isPresent()){
+            FirmwareType key = version.get().getFirmwareType();
+            DeviceMessage<Device> oldMessage = uploadMessages.get(key);
+            if (oldMessage == null || !oldMessage.getReleaseDate().isAfter(candidate.getReleaseDate())){
+                uploadMessages.put(key, candidate);
+            }
+        }
     }
 
     public boolean taskIsBusy(){
@@ -87,12 +95,34 @@ public class DeviceFirmwareVersionUtils {
     }
 
     public boolean taskIsFailed(){
-        return TaskStatus.Failed.equals(this.comTaskExecution.getStatus());
+        return getComTaskExecution().isLastExecutionFailed();
     }
 
-    public boolean isTaskLastSuccessLessOrEqualTo(Instant instant){
-        Instant lastSuccessfulCompletionTimestamp = getComTaskExecution().getLastSuccessfulCompletionTimestamp();
-        return lastSuccessfulCompletionTimestamp != null && !lastSuccessfulCompletionTimestamp.isAfter(instant);
+    public Optional<DeviceMessage<Device>> getUploadMessageForActivationMessage(DeviceMessage<Device> activationMessage){
+        return getFirmwareMessages().stream()
+                .filter(candidate -> DeviceMessageStatus.CONFIRMED.equals(candidate.getStatus()))
+                .filter(candidate -> String.valueOf(candidate.getId()).equals(activationMessage.getTrackingId()))
+                .findFirst();
+    }
+
+    public Optional<DeviceMessage<Device>> getActivationMessageForUploadMessage(DeviceMessage<Device> uploadMessage){
+        return getFirmwareMessages().stream()
+                .filter(candidate -> DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId()))
+                .filter(candidate -> String.valueOf(uploadMessage.getId()).equals(candidate.getTrackingId()))
+                .findFirst();
+    }
+
+    public Optional<ProtocolSupportedFirmwareOptions> getUploadOptionFromMessage(DeviceMessage<Device> message){
+        DeviceMessageId deviceMessageId = message.getDeviceMessageId();
+        if (this.uploadOptionsCache.containsKey(deviceMessageId)){
+            return this.uploadOptionsCache.get(deviceMessageId);
+        }
+        Optional<ProtocolSupportedFirmwareOptions> uploadOption = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(deviceMessageId);
+        if (!uploadOption.isPresent() && DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())){
+            uploadOption = Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
+        }
+        this.uploadOptionsCache.put(deviceMessageId, uploadOption);
+        return uploadOption;
     }
 
     public Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage<Device> message){
@@ -110,28 +140,6 @@ public class DeviceFirmwareVersionUtils {
                 Optional.empty();
     }
 
-    public Optional<DeviceMessage<Device>> getUploadMessageForActivationMessage(DeviceMessage<Device> activationMessage){
-        return getFirmwareMessages().stream()
-                .filter(candidate -> DeviceMessageStatus.CONFIRMED.equals(candidate.getStatus()))
-                .filter(candidate -> DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER.equals(candidate.getDeviceMessageId()))
-                .sorted((m1, m2) -> -m1.getReleaseDate().compareTo(m2.getReleaseDate()))
-                .filter(candidate -> activationMessage.getModTime().isAfter(candidate.getModTime()))
-                .findFirst();
-    }
-
-    public Optional<ProtocolSupportedFirmwareOptions> getUploadOptionFromMessage(DeviceMessage<Device> message){
-        DeviceMessageId deviceMessageId = message.getDeviceMessageId();
-        if (this.uploadOptionsCache.containsKey(deviceMessageId)){
-            return this.uploadOptionsCache.get(deviceMessageId);
-        }
-        Optional<ProtocolSupportedFirmwareOptions> uploadOption = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(deviceMessageId);
-        if (!uploadOption.isPresent() && DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())){
-            uploadOption = Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
-        }
-        this.uploadOptionsCache.put(deviceMessageId, uploadOption);
-        return uploadOption;
-    }
-
     public Optional<Instant> getActivationDateFromMessage(DeviceMessage<Device> message){
         Optional<DeviceMessageAttribute> activationDateMessageAttr = message.getAttributes().stream()
                 .filter(attr -> DeviceMessageConstants.firmwareUpdateActivationDateAttributeName.equals(attr.getName()))
@@ -139,14 +147,6 @@ public class DeviceFirmwareVersionUtils {
         return activationDateMessageAttr.isPresent() ?
                 Optional.of(((Date) activationDateMessageAttr.get().getValue()).toInstant()):
                 Optional.<Instant>empty();
-    }
-
-    public Optional<DeviceMessage<Device>> getLastFirmwareActivationMessage(DeviceMessage<Device> message){
-        return this.firmwareMessages.stream()
-                .filter(candidate -> DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId()))
-                .filter(candidate -> candidate.getModTime().isAfter(message.getModTime()))
-                .sorted((m1, m2) -> -m1.getReleaseDate().compareTo(m2.getReleaseDate()))
-                .findFirst();
     }
 
     public String translate(String key){

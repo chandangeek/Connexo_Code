@@ -19,7 +19,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
@@ -41,7 +40,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/device/{mrid}")
@@ -122,13 +127,14 @@ public class DeviceFirmwareMessagesResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, messageId));
 
 
-        DeviceFirmwareVersionUtils firmwareVersionUtils = new DeviceFirmwareVersionUtils(thesaurus, deviceMessageSpecificationService).onDevice(device);
-        Optional<ProtocolSupportedFirmwareOptions> protocolSupportedFirmwareOptions = firmwareVersionUtils.getUploadOptionFromMessage(upgradeMessage);
+        DeviceFirmwareVersionUtils versionUtils = utilProvider.get().onDevice(device);
+        Optional<ProtocolSupportedFirmwareOptions> protocolSupportedFirmwareOptions = versionUtils.getUploadOptionFromMessage(upgradeMessage);
         if (!protocolSupportedFirmwareOptions.isPresent() || !ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(protocolSupportedFirmwareOptions.get())) {
-            exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_CANNOT_BE_ACTIVATED);
+            throw exceptionFactory.newException(MessageSeeds.FIRMWARE_CANNOT_BE_ACTIVATED);
         }
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
-        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, new Date(Instant.now().toEpochMilli()));
+        deviceMessageBuilder.setTrackingId(String.valueOf(messageId));
+        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, new Date(clock.instant().toEpochMilli()));
         deviceMessageBuilder.add();
         rescheduleFirmwareUpgradeTask(device);
         return Response.ok().build();

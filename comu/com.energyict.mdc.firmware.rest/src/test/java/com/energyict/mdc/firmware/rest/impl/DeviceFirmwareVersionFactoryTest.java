@@ -235,7 +235,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessage<Device> firmwareMessage = mockUploadAndActivateImmediateFirmwareMessage();
 
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
-        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Failed);
+        when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
@@ -399,7 +399,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessage<Device> firmwareMessage = mockUploadWithActivationDateFirmwareMessage();
 
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
-        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Failed);
+        when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
@@ -558,6 +558,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         DeviceMessage<Device> activationMessage = mockFirmwareMessage();
         when(activationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(activationMessage.getTrackingId()).thenReturn("1001");
         when(activationMessage.getModTime()).thenReturn(TIME.minus(1, ChronoUnit.DAYS));
         messages.add(activationMessage);
 
@@ -581,6 +582,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         DeviceMessage<Device> activationMessage = mockFirmwareMessage();
         when(activationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(activationMessage.getTrackingId()).thenReturn("1001");
         when(activationMessage.getModTime()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
         when(activationMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(activationMessage.getId()).thenReturn(1002L);
@@ -606,11 +608,12 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         DeviceMessage<Device> activationMessage = mockFirmwareMessage();
         when(activationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(activationMessage.getTrackingId()).thenReturn("1001");
         when(activationMessage.getModTime()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
         when(activationMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(activationMessage.getId()).thenReturn(1002L);
         messages.add(activationMessage);
-        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Failed);
+        when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
@@ -633,6 +636,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         DeviceMessage<Device> activationMessage = mockFirmwareMessage();
         when(activationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(activationMessage.getTrackingId()).thenReturn("1001");
         when(activationMessage.getModTime()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
         when(activationMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
         when(activationMessage.getId()).thenReturn(1002L);
@@ -686,6 +690,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         // failed activation for meter firmware
         DeviceMessage<Device> meterActivationMessage = mockFirmwareMessage();
         when(meterActivationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(meterActivationMessage.getTrackingId()).thenReturn("1001");
         when(meterActivationMessage.getReleaseDate()).thenReturn(TIME.plusSeconds(1));
         when(meterActivationMessage.getModTime()).thenReturn(TIME.plusSeconds(1));
         when(meterActivationMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING); //Task was failed due to connection for example
@@ -714,6 +719,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         // ongoing activation for communication firmware
         DeviceMessage<Device> communicationActivationMessage = mockFirmwareMessage();
         when(communicationActivationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(communicationActivationMessage.getTrackingId()).thenReturn("1003");
         when(communicationActivationMessage.getReleaseDate()).thenReturn(TIME.plusSeconds(3));
         when(communicationActivationMessage.getModTime()).thenReturn(TIME.plusSeconds(3));
         when(communicationActivationMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
@@ -730,7 +736,6 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<Number>get("$.firmwares[1].ongoingActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1004);
     }
 
-
     /*
      - upload meter firmware
      - activate meter firmware
@@ -742,7 +747,6 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
                 and 'Activating version ...' for communication firmware
     */
     @Test
-    @Ignore
     public void customScenarioWithUploadAndActivateLaterCase2(){
         // successfully uploaded meter firmware
         FirmwareVersion meterFirmwareVersion = mock(FirmwareVersion.class);
@@ -766,6 +770,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         // successful activation for meter firmware
         DeviceMessage<Device> meterActivationMessage = mockFirmwareMessage();
         when(meterActivationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(meterActivationMessage.getTrackingId()).thenReturn("1001");
         when(meterActivationMessage.getReleaseDate()).thenReturn(TIME.plusSeconds(1));
         when(meterActivationMessage.getModTime()).thenReturn(TIME.plusSeconds(1));
         when(meterActivationMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
@@ -794,6 +799,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         // ongoing activation for communication firmware
         DeviceMessage<Device> communicationActivationMessage = mockFirmwareMessage();
         when(communicationActivationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(communicationActivationMessage.getTrackingId()).thenReturn("1003");
         when(communicationActivationMessage.getReleaseDate()).thenReturn(TIME.plusSeconds(3));
         when(communicationActivationMessage.getModTime()).thenReturn(TIME.plusSeconds(3));
         when(communicationActivationMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
@@ -805,8 +811,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
-        assertThat(model.<Object>get("$.firmwares[0].needActivationVersion")).isNotNull();
-        assertThat(model.<Number>get("$.firmwares[0].needActivationVersion.firmwareDeviceMessageId")).isEqualTo(1002);
+        assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
         assertThat(model.<Object>get("$.firmwares[1].ongoingActivatingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[1].ongoingActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1004);
     }

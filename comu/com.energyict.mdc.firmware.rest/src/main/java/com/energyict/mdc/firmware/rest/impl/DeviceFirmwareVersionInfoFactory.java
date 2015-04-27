@@ -258,23 +258,20 @@ public class DeviceFirmwareVersionInfoFactory {
         }
 
         private boolean needVerificationAfterImmediatelyActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
-            return ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.equals(helper.getUploadOptionFromMessage(message).get())
-                    && helper.isTaskLastSuccessLessOrEqualTo(message.getModTime());
+            return ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.equals(helper.getUploadOptionFromMessage(message).get());
         }
 
         private boolean needVerificationAfterScheduledActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
             Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
             return ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.equals(helper.getUploadOptionFromMessage(message).get())
-                    && helper.isTaskLastSuccessLessOrEqualTo(message.getModTime())
                     && activationDate.isPresent()
                     && !activationDate.get().isAfter(Instant.now());
         }
 
         private boolean needVerificationAfterManualActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
-            Optional<DeviceMessage<Device>> activationMessage = helper.getLastFirmwareActivationMessage(message);
+            Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
             return activationMessage.isPresent()
-                    && DeviceMessageStatus.CONFIRMED.equals(activationMessage.get().getStatus())
-                    && helper.isTaskLastSuccessLessOrEqualTo(activationMessage.get().getModTime());
+                    && DeviceMessageStatus.CONFIRMED.equals(activationMessage.get().getStatus());
         }
 
         @Override
@@ -299,7 +296,6 @@ public class DeviceFirmwareVersionInfoFactory {
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return super.validateMessage(message, helper)
                     && DeviceMessageStatus.CONFIRMED.equals(message.getStatus())
-                    && helper.isTaskLastSuccessLessOrEqualTo(message.getModTime())
                     && ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.equals(helper.getUploadOptionFromMessage(message).get());
         }
 
@@ -377,7 +373,6 @@ public class DeviceFirmwareVersionInfoFactory {
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return super.validateMessage(message, helper)
                     && DeviceMessageStatus.CONFIRMED.equals(message.getStatus())
-                    && helper.isTaskLastSuccessLessOrEqualTo(message.getModTime())
                     && ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(helper.getUploadOptionFromMessage(message).get())
                     && thereIsNoActivationMessageYet(message, helper);
         }
