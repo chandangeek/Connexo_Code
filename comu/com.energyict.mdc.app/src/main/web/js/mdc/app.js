@@ -42,6 +42,10 @@ Ext.onReady(function () {
         {
             name: 'Dlc',
             path: '../../apps/dlc/src'
+        },
+        {
+            name: 'Dxp',
+            path: '../../apps/dxp/src'
         }
 
     ];
