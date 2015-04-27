@@ -13,21 +13,21 @@ Ext.define('Tme.controller.history.Time', {
                     title: Uni.I18n.translate('general.relativeperiods', 'TME', 'Relative periods'),
                     route: 'relativeperiods',
                     controller: 'Tme.controller.RelativePeriods',
-                    privileges: ['privilege.view.period', 'privilege.administrate.period'],
+                    privileges: Tme.privileges.Period.view,
                     action: 'showRelativePeriods',
                     items: {
                         add: {
                             title: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
                             route: 'add',
                             controller: 'Tme.controller.RelativePeriods',
-                            privileges: ['privilege.administrate.period'],
+                            privileges: Tme.privileges.Period.admin,
                             action: 'showAddRelativePeriod'
                         },
                         relativeperiod: {
                             title: Uni.I18n.translate('general.relativePeriod', 'TME', 'Relative period'),
                             route: '{periodId}',
                             controller: 'Tme.controller.RelativePeriods',
-                            privileges: ['privilege.view.period', 'privilege.administrate.period'],
+                            privileges: Tme.privileges.Period.view,
                             action: 'showRelativePeriodDetails',
                             callback: function (route) {
                                 this.getApplication().on('relativeperiodload', function (record) {

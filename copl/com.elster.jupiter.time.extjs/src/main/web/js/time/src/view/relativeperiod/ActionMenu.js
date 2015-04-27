@@ -8,7 +8,7 @@ Ext.define('Tme.view.relativeperiod.ActionMenu', {
         {
             itemId: 'remove-period',
             text: Uni.I18n.translate('general.remove', 'TME', 'Remove'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.period'),
+            privileges : Tme.privileges.Period.admin,
             action: 'removePeriod'
         },
         {

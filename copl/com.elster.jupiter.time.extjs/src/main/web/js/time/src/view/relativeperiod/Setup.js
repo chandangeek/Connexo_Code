@@ -5,6 +5,7 @@ Ext.define('Tme.view.relativeperiod.Setup', {
     router: null,
 
     requires: [
+        'Tme.privileges.Period',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Tme.view.relativeperiod.Grid',
         'Tme.view.relativeperiod.Preview'
@@ -36,7 +37,7 @@ Ext.define('Tme.view.relativeperiod.Setup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
-                                privileges: ['privilege.administrate.period'],
+                                privileges: Tme.privileges.Period.admin,
                                 href: typeof me.router.getRoute('administration/relativeperiods/add') !== 'undefined'
                                     ? me.router.getRoute('administration/relativeperiods/add').buildUrl() : null
                             }

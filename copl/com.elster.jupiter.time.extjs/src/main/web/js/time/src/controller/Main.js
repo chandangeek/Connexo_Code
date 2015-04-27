@@ -3,6 +3,7 @@ Ext.define('Tme.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
+        'Tme.privileges.Period',
         'Uni.store.MenuItems',
         'Uni.store.PortalItems',
         'Tme.controller.history.Time'
@@ -28,7 +29,7 @@ Ext.define('Tme.controller.Main', {
     },
 
     initMenu: function () {
-	    if (Uni.Auth.hasAnyPrivilege(['privilege.view.period', 'privilege.administrate.period'])) {
+	    if (Tme.privileges.Period.canView()) {
             var relativePeriodItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('general.relativePeriod', 'TME', 'Relative period'),
                     portal: 'administration',
