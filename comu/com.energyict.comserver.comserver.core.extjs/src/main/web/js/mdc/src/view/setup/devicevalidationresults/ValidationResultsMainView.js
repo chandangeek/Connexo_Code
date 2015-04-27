@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
                         items: [
                             {
                                 xtype: 'filter-top-panel',
-                                itemId: 'devicevalidationresultsdatafilterpanel',
+                                itemId: 'validation-results-data-filter',
                                 emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                             },
                             {
