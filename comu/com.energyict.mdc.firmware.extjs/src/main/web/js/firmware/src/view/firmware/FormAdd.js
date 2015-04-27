@@ -7,25 +7,41 @@ Ext.define('Fwc.view.firmware.FormAdd', {
     items: [
         {
             xtype: 'firmware-field-file',
+            itemId: 'firmware-field-file',
             anchor: '60%'
         },
         {
             xtype: 'textfield',
             name: 'firmwareVersion',
+            itemId: 'text-firmware-version',
             anchor: '60%',
             required: true,
             fieldLabel: Uni.I18n.translate('firmware.field.version', 'FWC', 'Version'),
             allowBlank: false
         },
         {
+            xtype: 'textfield',
+            itemId: 'firmwareType',
+            name: 'firmwareType',
+            hidden: true
+        },
+        {
+            xtype: 'textfield',
+            itemId: 'firmwareStatus',
+            name: 'firmwareStatus',
+            hidden: true
+        },
+        {
             xtype: 'firmware-type',
-            defaultType : 'radiofield',
+            itemId: 'radio-firmware-type',
+            defaultType: 'radiofield',
             value: {id: 'communication'},
             required: true
         },
         {
             xtype: 'firmware-status',
-            defaultType : 'radiofield',
+            itemId: 'radio-firmware-status',
+            defaultType: 'radiofield',
             value: {id: 'final'},
             required: true
         }

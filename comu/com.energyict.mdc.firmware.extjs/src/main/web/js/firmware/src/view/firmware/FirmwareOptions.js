@@ -38,6 +38,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                 items: [
                     {
                         xtype: 'container',
+                        margin: '60 0 0 0',
                         flex: 1,
                         defaults: {
                             labelWidth: 250
@@ -46,6 +47,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                             {
                                 xtype: 'displayfield',
                                 name: 'isAllowed',
+                                itemId: 'is-allowed',
                                 fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.allowed', 'FWC', 'Firmware upgrade allowed'),
                                 renderer: function (value) {
                                     return value ? Uni.I18n.translate('general.yes', 'FWC', 'Yes') : Uni.I18n.translate('general.no', 'FWC', 'No');
@@ -53,12 +55,15 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                             },
                             {
                                 xtype: 'fieldcontainer',
+                                itemId: 'field-fw-upgrade-opts',
                                 fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.options', 'FWC', 'Firmware upgrade options'),
                                 items: [
                                     {
                                         xtype: 'emptygridcontainer',
                                         grid: {
                                             xtype: 'options-grid',
+                                            itemId: 'options-grid',
+                                            scroll: false,
                                             name: 'allowedOptions',
                                             store: Ext.create('Ext.data.Store', {
                                                 fields: ['localizedValue']
@@ -76,6 +81,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                         items: [
                             {
                                 xtype: 'button',
+                                itemId: 'button-edit',
                                 name: 'Edit',
                                 text: Uni.I18n.translate('deviceType.firmwareupgradeoptions.edit', 'FWC', 'Edit'),
                                 action: 'editFirmwareOptions'

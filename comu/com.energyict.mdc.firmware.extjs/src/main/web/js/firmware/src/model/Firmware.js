@@ -55,6 +55,19 @@ Ext.define('Fwc.model.Firmware', {
         });
     },
 
+    doSave: function (callback, form) {
+        Ext.Ajax.request({
+            method: 'POST',
+            headers: {'Content-type': 'multipart/form-data'},
+            url: this.proxy.url + (this.hasId() ? '/' + this.getId() : ''),
+            form: form.getEl().dom,
+            isUpload: true,
+            hasUpload: true,
+            callback: callback
+
+        });
+    },
+
     setFinal: function (callback) {
         var me = this;
         me.getProxy().getReader().readAssociated(me, {firmwareStatus: {id: 'final'}});
@@ -62,7 +75,9 @@ Ext.define('Fwc.model.Firmware', {
     },
 
     deprecate: function (callback) {
-        this.destroy(callback);
+        var me = this;
+        me.getProxy().getReader().readAssociated(me, {firmwareStatus: {id: 'deprecated'}});
+        me.save(callback);
     },
 
     proxy: {

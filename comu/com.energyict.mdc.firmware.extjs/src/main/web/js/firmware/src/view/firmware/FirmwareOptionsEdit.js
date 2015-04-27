@@ -79,7 +79,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         itemId: 'firmwareUpgradeOptions',
                         columns: 1,
                         vertical: true,
-                        minHeight: 200,
                         defaults: {
                             name: 'allowedOptions',
                             getModelData: function () {
@@ -97,13 +96,13 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 itemId: 'firmwareUpgradeOptionsImmediately',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.immediately', 'FWC', 'Upload firmware and activate immediately') + '</b>',
                                 inputValue: 'activate',
-                                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.immediately.comment', 'FWC', 'Firmware will be activated as soon as it is uploaded to the device') + '</span>'
+                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.immediately.comment', 'FWC', 'Firmware will be activated as soon as it is uploaded to the device') + '</span>'
                             },
                             {
                                 itemId: 'firmwareUpgradeOptionsOnDate',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.ondate', 'FWC', 'Upload firmware with activation date') + '</b>',
                                 inputValue: 'activateOnDate',
-                                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.ondate.comment', 'FWC', 'Firmware will be uploaded to the device. Firmware will be activated at date and time specified by user') + '</span>'
+                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.ondate.comment', 'FWC', 'Firmware will be uploaded to the device. Firmware will be activated at date and time specified by user') + '</span>'
                             }
                         ]
                     },
@@ -129,7 +128,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 xtype: 'button',
                                 ui: 'link',
                                 itemId: 'cancelLink',
-                                href: '#/administration/devicetypes/' + this.deviceTypeId + '/firmware/options'
+                                href: '#/administration/devicetypes/' + this.deviceType.data.id + '/firmware/options'
                             }
                         ]
                     }

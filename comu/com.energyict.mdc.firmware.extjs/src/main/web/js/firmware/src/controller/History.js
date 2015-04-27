@@ -55,6 +55,20 @@ Ext.define('Fwc.controller.History', {
                     action: 'editFirmwareOptions'
                 }
             }
+        },
+        "devices/device/firmware": {
+            title: Uni.I18n.translate('firmware.route.devicefirmware', 'FWC', 'Firmware'),
+            route: 'devices/{mRID}/firmware',
+            controller: 'Fwc.devicefirmware.controller.DeviceFirmware',
+            action: 'showDeviceFirmware',
+            items: {
+                upload: {
+                    title: Uni.I18n.translate('firmware.route.devicefirmware.upload', 'FWC', 'Upgrade meter firmware'),
+                    route: 'upload',
+                    controller: 'Fwc.devicefirmware.controller.DeviceFirmware',
+                    action: 'showDeviceFirmwareUpload'
+                }
+            }
         }
     }
 });
