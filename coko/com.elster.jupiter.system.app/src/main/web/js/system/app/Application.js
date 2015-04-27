@@ -5,7 +5,6 @@ Ext.define('SystemApp.Application', {
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
         'Yfn.privileges.Yellowfin',
-        'Dxp.privileges.DataExport',
         'Tme.privileges.Period'
     ],
 
