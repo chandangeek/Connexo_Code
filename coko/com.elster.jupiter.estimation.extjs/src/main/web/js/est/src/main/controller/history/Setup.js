@@ -11,21 +11,21 @@ Ext.define('Est.main.controller.history.Setup', {
                 estimationrulesets: {
                     title: Uni.I18n.translate('estimationrulesets.estimationrulesets', 'EST', 'Estimation rule sets'),
                     route: 'estimationrulesets',
-//                    privileges: ['privilege.view.EstimationConfiguration'],
+                    privileges: Est.privileges.EstimationConfiguration.view,
                     controller: 'Est.estimationrulesets.controller.EstimationRuleSets',
                     action: 'showEstimationRuleSets',
                     items: {
                         addruleset: {
                             title: Uni.I18n.translate('estimationrulesets.add.title', 'EST', 'Add estimation rule set'),
                             route: 'add',
-//                            privileges: ['privilege.view.EstimationConfiguration'],
+                            privileges: Est.privileges.EstimationConfiguration.administrate,
                             controller: 'Est.estimationrulesets.controller.EstimationRuleSets',
                             action: 'showEstimationRuleSetAdd'
                         },
                         estimationruleset: {
                             title: Uni.I18n.translate('estimationrulesets.estimationrulesets', 'EST', 'Estimation rule sets'),
                             route: '{ruleSetId}',
-//                            privileges: ['privilege.view.EstimationConfiguration'],
+                            privileges: Est.privileges.EstimationConfiguration.view,
                             controller: 'Est.estimationrulesets.controller.EstimationRuleSets',
                             action: 'showEstimationRuleSetDetails',
                             callback: function (route) {
@@ -39,21 +39,21 @@ Ext.define('Est.main.controller.history.Setup', {
                                 edit: {
                                     title: Uni.I18n.translate('general.edit', 'EST', 'Edit'),
                                     route: 'edit',
-//                                     privileges: ['privilege.administrate.EstimationConfiguration'],
+                                    privileges: Est.privileges.EstimationConfiguration.administrate,
                                     controller: 'Est.estimationrulesets.controller.EstimationRuleSets',
                                     action: 'showEstimationRuleSetEdit'
                                 },
                                 rules: {
                                     title: Uni.I18n.translate('general.estimationRules', 'EST', 'Estimation rules'),
                                     route: 'rules',
-                                    privileges: ['privilege.view.EstimationConfiguration'],
+                                    privileges: Est.privileges.EstimationConfiguration.view,
                                     controller: 'Est.estimationrules.controller.Overview',
                                     action: 'showOverview',
                                     items: {
                                         add: {
                                             title: Uni.I18n.translate('estimationrules.addEstimationRule', 'EST', 'Add estimation rule'),
                                             route: 'add',
-                                            privileges: ['privilege.administrate.EstimationConfiguration'],
+                                            privileges: Est.privileges.EstimationConfiguration.administrate,
                                             controller: 'Est.estimationrules.controller.Edit',
                                             action: 'showOverview',
                                             items: {
@@ -69,7 +69,7 @@ Ext.define('Est.main.controller.history.Setup', {
                                         rule: {
                                             title: Uni.I18n.translate('general.estimationRule', 'EST', 'Estimation rule'),
                                             route: '{ruleId}',
-                                            privileges: ['privilege.view.EstimationConfiguration'],
+                                            privileges: Est.privileges.EstimationConfiguration.view,
                                             controller: 'Est.estimationrules.controller.Detail',
                                             action: 'showOverview',
                                             callback: function (route) {
@@ -83,7 +83,7 @@ Ext.define('Est.main.controller.history.Setup', {
                                                 edit: {
                                                     title: Uni.I18n.translate('general.edit', 'EST', 'Edit'),
                                                     route: 'edit',
-                                                    privileges: ['privilege.administrate.EstimationConfiguration'],
+                                                    privileges: Est.privileges.EstimationConfiguration.administrate,
                                                     controller: 'Est.estimationrules.controller.Edit',
                                                     action: 'showOverview',
                                                     items: {
