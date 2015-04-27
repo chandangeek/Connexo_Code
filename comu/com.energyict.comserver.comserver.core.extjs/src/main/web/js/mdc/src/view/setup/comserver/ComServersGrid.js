@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         {
             itemId: 'actionColumn',
             xtype: 'uni-actioncolumn',
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
+            privileges: Mdc.privileges.Communication.admin,
             menu: {
                 xtype: 'comserver-actionmenu',
                 itemId: 'comserverViewMenu'
@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
                     xtype: 'button',
                     itemId: 'btn-add-online-communication-server',
                     text: Uni.I18n.translate('deviceType.addOnline', 'MDC', 'Add online communication server'),
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
+                    privileges: Mdc.privileges.Communication.admin,
                     href: '#/administration/comservers/add/online'
                 }
             ]

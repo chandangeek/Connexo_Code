@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
+            privileges: Mdc.privileges.Communication.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'device-communication-protocol-action-menu'

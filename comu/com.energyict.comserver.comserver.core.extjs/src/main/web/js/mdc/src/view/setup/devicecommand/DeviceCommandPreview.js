@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreview', {
             xtype: 'button',
             itemId: 'commandsPreviewActionButton',
             text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
-            hidden: !Uni.Auth.hasAnyPrivilege(['execute.device.message.level1','execute.device.message.level2','execute.device.message.level3','execute.device.message.level4']),
+            hidden: Mdc.privileges.DeviceCommands.executeCommands,
             iconCls: 'x-uni-action-iconD',
             hidden: true,
             menu: {

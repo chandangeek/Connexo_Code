@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             stepItems: [
                                 {
                                     text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
-                                    privileges: ['privilege.administrate.deviceType'],
+                                    privileges: Mdc.privileges.DeviceType.admin,
                                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/add'
                                 }
                             ]
@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('executionLevel.addExecutionLevels','MDC','Add privileges'),
-                                    privileges: ['privilege.administrate.deviceType'],
+                                    privileges: Mdc.privileges.DeviceType.admin,
                                     itemId: 'execution-level-grid-add-link',
                                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/'
                                 }

@@ -39,6 +39,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		
     ],    
     mRID: null,
+	dataValidationLastChecked: null,
     init: function () {
 		var me = this;
         me.control({
@@ -126,7 +127,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		router.filter.endEdit();
 	},
 
-	 getIntervalStart: function (intervalEnd, item) {
+	getIntervalStart: function (intervalEnd, item) {
         return moment(intervalEnd).subtract(item.get('timeUnit'), item.get('count')).toDate();
     },
 
@@ -168,7 +169,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
 	validateNow : function () {		
 		 var me = this,
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+			viewport = Ext.ComponentQuery.query('viewport')[0],
+			confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowConfirmationWindow',
                 confirmText: Uni.I18n.translate('validationResults.validate.confirm', 'MDC', 'Validate'),				
 				msg: 'message',
@@ -176,11 +178,38 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     me.onValidateNow(this);
                 }
             });
-        
-		confirmationWindow.insert(1,me.getActivationConfirmationContent());
-        confirmationWindow.show({
-			title: Ext.String.format(Uni.I18n.translate('validationResults.validate.title', 'MDC', 'Perform validation on device {0}?'), me.mRID)
-		});
+		
+        viewport.setLoading();		
+		Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
+            method: 'GET',
+            timeout: 60000,
+            success: function (response) {
+			
+				viewport.setLoading(false);		
+				
+                var res = Ext.JSON.decode(response.responseText);				
+			/*	if (!res.isActive || res.allDataValidated){
+					return;
+				}
+			*/	
+                if (res.lastChecked) {
+                    me.dataValidationLastChecked = new Date(res.lastChecked);
+                } else {
+                    me.dataValidationLastChecked = new Date();
+                }
+				
+				confirmationWindow.insert(1,me.getActivationConfirmationContent());
+				confirmationWindow.show({
+					title: Ext.String.format(Uni.I18n.translate('validationResults.validate.title', 'MDC', 'Validate data of device {0}?'), me.mRID)
+				});
+                
+            },
+			failure: function (record) {
+				viewport.setLoading(false);
+			}
+        });
+		
         confirmationWindow.on('close', function () {
             this.destroy();
         });		
@@ -189,28 +218,21 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 	 onValidateNow: function (confWindow) {
 	 		
         var me = this;
-        if (me.hasValidation) {
-            var isValidationRunImmediately = confWindow.down('#validationRunRg').getValue().validationRun === 'now';
-            var isWaitForNewData = confWindow.down('#validationRunRg').getValue().validationRun === 'waitForNewData';
-        }
+		
+		var isFromLastValidation = confWindow.down('#validationRun').getValue().validation === 'lastValidation';
+        var isFromNewValidation = confWindow.down('#validationRun').getValue().validation === 'newValidation';
+	
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'PUT',
             jsonData: {
                 isActive: 'true',
-                lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : null)
+                lastChecked: (isFromNewValidation ? confWindow.down('#validationFromDate').getValue().getTime() : me.dataValidationLastChecked.getTime())
             },
             success: function () {
-                me.updateDataValidationStatusSection(me.mRID, view);
-                if (isValidationRunImmediately) {
-                    me.isValidationRunImmediately = true;
-                    me.validateData(confWindow);
-                } else {
-                    me.destroyConfirmationWindow();
-                    me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation activated'));
-                }
+                //me.updateDataValidationStatusSection(me.mRID, view);
+                me.validateData(confWindow);                
             },
             failure: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -220,25 +242,129 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         });
     },
 
+	 validateData: function (confWindow) {
+        var me = this;
+
+        confWindow.down('#validationProgress').add(Ext.create('Ext.ProgressBar', {
+                margin: '5 0 15 0'
+            })).wait({
+            duration: 120000,
+            text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
+            fn: function () {
+                me.destroyConfirmationWindow();
+                Ext.widget('messagebox', {
+                    buttons: [
+                        {
+                            text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
+                            ui: 'remove',
+                            handler: function () {
+                                this.up('window').close();
+                            }
+                        }
+                    ],
+                    listeners: {
+                        close: function () {
+                            this.destroy();
+                        }
+                    }
+                }).show({
+                    ui: 'notification-error',
+                    title: Uni.I18n.translate('device.dataValidation.timeout.title', 'MDC', 'Data validation takes longer as expected'),
+                    msg: Uni.I18n.translate('device.dataValidation.timeout.msg', 'MDC', 'Data validation takes longer as expected. Data validation will continue in the background'),
+                    icon: Ext.MessageBox.ERROR
+                });
+            }
+        });
+
+        Ext.Ajax.suspendEvent('requestexception');
+
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validate',
+            method: 'PUT',
+            timeout: 600000,
+            success: function () {
+                me.destroyConfirmationWindow();
+                me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation completed'));   
+
+				me.showDeviceValidationResultsMainView(me.mRID, 0);
+            },
+            failure: function (response) {
+                if (confWindow) {
+                    var res = Ext.JSON.decode(response.responseText);
+                    confWindow.down('#validationProgress').removeAll(true);
+                    me.showValidationActivationErrors(res.errors[0].msg);
+                    me.confirmationWindowButtonsDisable(false);
+                }
+            },
+            callback: function () {
+                Ext.Ajax.resumeEvent('requestexception');
+            }
+        });
+    },
+	
 	getActivationConfirmationContent: function () {
         var me = this;
         return Ext.create('Ext.container.Container', {
             defaults: {
-                labelAlign: 'left',
-                labelStyle: 'font-weight: normal; padding-left: 50px'
+                labelAlign: 'left'
             },
             items: [
-                {
-                    xtype: 'datefield',
-                    itemId: 'validationFromDate',
-                    editable: false,
-                    showToday: false,
-                    value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item1', 'MDC', '1. Validate data from'),
-                    labelWidth: 175,
-                    labelPad: 1
+				{
+                    xtype: 'radiogroup',
+                    itemId: 'validationRun',
+                    columns: 1,
+					padding: '-10 0 0 60',
+                    defaults: {
+                        name: 'validationRun',                    
+                    },
+                    items: [
+						{
+							boxLabel: Uni.I18n.translate('validationResults.validate.fromLast', 'MDC', 'Validate data from last validation'),
+							inputValue: 'lastValidation',
+							itemId: 'validateFromLast',
+							xtype: 'radiofield',
+							checked: true,
+							name: 'validation'
+						}, 
+						{
+							xtype: 'container',
+							layout: {
+								type: 'hbox',
+								align: 'stretch'
+							},
+							width: 300,							
+							items: [	
+								{
+									boxLabel: Uni.I18n.translate('validationResults.validate.from', 'MDC', 'Validate data from'),
+									inputValue: 'newValidation',
+									itemId: 'validateFromDate',
+									xtype: 'radiofield',									
+									name: 'validation'
+								},
+								{
+									xtype: 'datefield',
+									itemId: 'validationFromDate',
+									editable: false,
+									showToday: false,
+									value: me.dataValidationLastChecked,
+									fieldLabel: '  ',
+									labelWidth: 10,
+									width: 150,
+									listeners: {
+										focus: {
+											fn: function () {														
+												var radioButton = Ext.ComponentQuery.query('#validationRun #validateFromDate')[0];
+												radioButton.setValue(true);
+											}
+										}
+                                    }									
+								}
+							]
+						}   
+                    ]
                 },
-                {
+				{
                     xtype: 'panel',
                     itemId: 'validationDateErrors',
                     hidden: true,
@@ -247,33 +373,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                         padding: '0 0 15px 65px'
                     },
                     html: ''
-                },
-                {
-                    xtype: 'displayfield',
-                    value: '',
-                    padding: '0 0 -10 0',
-                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2', 'MDC', '2. When do you want to run the data validation?'),
-                    labelWidth: 350
-                },
-                {
-                    xtype: 'radiogroup',
-                    itemId: 'validationRunRg',
-                    columns: 1,
-                    defaults: {
-                        name: 'validationRun',
-                        padding: '-10 0 0 60'
-                    },
-                    items: [
-                        {
-                            boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2.1', 'MDC', 'Run now'),
-                            inputValue: 'now'
-                        },
-                        {
-                            boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2.2', 'MDC', 'Wait for new data'),
-                            inputValue: 'waitForNewData',
-                            checked: true
-                        }
-                    ]
                 },
                 {
                     xtype: 'panel',
@@ -338,10 +437,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			validationResultsRulesetForm.loadRecord(record);
 			
 			var configurationViewValidationResultsBrowse = me.getConfigurationViewValidationResultsBrowse();				
-			configurationViewValidationResultsBrowse.setVisible(record.get('dataValidated'));
+			configurationViewValidationResultsBrowse.setVisible(record.get('detailedRuleSets') && record.get('detailedRuleSets').length >0);
 			
 			var configurationViewValidateNowBtn = me.getConfigurationViewValidateNowBtn();
-			configurationViewValidateNowBtn.setDisabled(!record.get('dataValidated'));
+			configurationViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
 			
 			ruleSetGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
 			ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));		

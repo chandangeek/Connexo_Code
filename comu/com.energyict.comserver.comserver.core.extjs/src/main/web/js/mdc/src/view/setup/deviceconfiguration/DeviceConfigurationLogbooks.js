@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 },
                                 {
                                     xtype: 'uni-actioncolumn',
-                                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                                    privileges: Mdc.privileges.DeviceType.admin,
                                     items: 'Mdc.view.setup.deviceconfiguration.ActionMenu'
                                 }
                             ]
@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                         xtype: 'button',
                                         margin: '10 0 0 0',
                                         text: Uni.I18n.translate('deviceconfiguration.addLogbookConfiguration', 'MDC', 'Add logbook configuration'),
-                                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                                        privileges: Mdc.privileges.DeviceType.admin,
                                         action: 'add',
                                         listeners: {
                                             click: {
@@ -92,7 +92,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('deviceconfiguration.addLogbookConfiguration', 'MDC', 'Add logbook configuration'),
-                                privileges: ['privilege.administrate.deviceType'],
+                                privileges: Mdc.privileges.DeviceType.admin,
                                 action: 'add',
                                 listeners: {
                                     click: {
@@ -113,7 +113,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                             {
                                 xtype: 'button',
                                 text: 'Actions',
-                                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                                privileges: Mdc.privileges.DeviceType.admin,
                                 iconCls: 'x-uni-action-iconD',
                                 menu: {
                                     xtype: 'device-logbook-action-menu'

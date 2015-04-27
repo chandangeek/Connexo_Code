@@ -132,7 +132,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             } else {
                 me.getRegisterConfigNumberPanel().show();
             }
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'])) {
+            if (Cfg.privileges.Validation.canUpdateDeviceValidation()) {
                 me.getRulesForRegisterConfigPreview().setTitle(registerConfig.get('name') + ' validation rules');
                 me.getRegisterConfigValidationRulesStore().load();
             } else {
@@ -148,7 +148,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         this.deviceConfigId = deviceConfigId;
         var widget = Ext.widget('registerConfigSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
 
-        me.getCreateRegisterConfigBtn().href = '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations/add';
+        if(me.getCreateRegisterConfigBtn())
+            me.getCreateRegisterConfigBtn().href = '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations/add';
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);

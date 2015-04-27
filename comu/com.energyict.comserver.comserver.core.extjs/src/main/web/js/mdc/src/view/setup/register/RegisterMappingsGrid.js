@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 items: 'Mdc.view.setup.register.RegisterMappingActionMenu'
             }
         ];
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                     {
 
                         text: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                        privileges: Mdc.privileges.DeviceType.admin,
                         itemId: 'addRegisterMappingBtn',
                         xtype: 'button',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/registertypes/add',

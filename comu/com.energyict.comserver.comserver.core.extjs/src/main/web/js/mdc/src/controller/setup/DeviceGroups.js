@@ -162,9 +162,9 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     updateCriteria: function(record) {
         var me = this,
             func = function (menuItem) {
-                if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup'])) {
+                if (Mdc.privileges.DeviceGroup.canAdministrateDeviceGroup()) {
                     menuItem.show();
-                } else if (Uni.Auth.hasAnyPrivilege(['privilege.view.deviceGroupDetail', 'privilege.administrate.deviceOfEnumeratedGroup'])) {
+                } else if (Mdc.privileges.DeviceGroup.canAdministrateDeviceGroup() || Mdc.privileges.DeviceGroup.canViewGroupDetails()) {
                     menuItem.hide();
                 }
             };
@@ -209,7 +209,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             //Ext.resumeLayouts();
         } else {
             Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
-                if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) { item.show(); }
+                if (Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()) { item.show(); }
             });
             me.getSearchCriteriaContainer().setVisible(false);
         }
@@ -249,15 +249,15 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         var actionMenu = this.getDeviceGroupDetailsActionMenu();
         var removeItem = this.getRemoveDeviceGroupMenuItem();
         var editItem = this.getEditDeviceGroupMenuItem();
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup'])) {
+        if (Mdc.privileges.DeviceGroup.canAdministrateDeviceGroup()) {
             actionMenu.setVisible(true);
             removeItem.setVisible(true);
             editItem.setVisible(true);
-        } else if (Uni.Auth.hasAnyPrivilege(['privilege.view.deviceGroupDetail'])) {
+        } else if (Mdc.privileges.DeviceGroup.canViewGroupDetails()) {
             actionMenu.setVisible(false);
             removeItem.setVisible(false);
             editItem.setVisible(false);
-        } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) {
+        } else if (Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()) {
             if (record.get('dynamic')) {
                 actionMenu.setVisible(false);
                 removeItem.setVisible(false);

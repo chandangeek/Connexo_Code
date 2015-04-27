@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
+                privileges: Mdc.privileges.MasterData.admin,
                 items: 'Mdc.view.setup.registergroup.RegisterGroupActionMenu'
             }
         ];
@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
                 items: [
                     {
                         text: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
+                        privileges: Mdc.privileges.MasterData.admin,
                         itemId: 'createRegisterGroup',
                         xtype: 'button',
                         action: 'createRegisterGroup'

@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.Devices', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Mdc.model.Device'
+        'Mdc.model.Device',
+        'Cfg.privileges.Validation'
     ],
     views: [
         'setup.device.DeviceSetup',
@@ -207,7 +208,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationForm().loadRecord(device);
 
                 if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                    && (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration.onDevice']))) {
+                    && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
                     me.updateDataValidationStatusSection(mRID, widget);
                 } else {
                     widget.down('device-data-validation-panel').hide();

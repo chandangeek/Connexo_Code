@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
             {
                 xtype: 'uni-actioncolumn',
                 items:'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration')
+                privileges: Mdc.privileges.Communication.admin
             }
 
         ];

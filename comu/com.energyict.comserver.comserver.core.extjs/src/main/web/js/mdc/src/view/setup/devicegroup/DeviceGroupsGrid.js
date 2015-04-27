@@ -20,9 +20,9 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                 header: Uni.I18n.translate('devicegroup.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail'])) {
+                    if(Mdc.privileges.DeviceGroup.canAdministrateDeviceGroup() || Mdc.privileges.DeviceGroup.canViewGroupDetails()){
                         return '<a href="#/devices/devicegroups/' + record.get('id') + '">' + value + '</a>';
-                    } else if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceOfEnumeratedGroup'])) {
+                    } else if(Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()) {
                         if (record.get('dynamic')) {
                             return value;
                         } else {
@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                 items: [
                     {
                         text: Uni.I18n.translate('deviceGroup.createDeviceGroup', 'MDC', 'Add device group'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
+                        privileges:Mdc.privileges.DeviceGroup.adminDeviceGroup,
                         itemId: 'createDeviceGroupButton',
                         xtype: 'button',
                         action: 'createDeviceGroupButton'

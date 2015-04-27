@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersSetup', {
                         {
                             text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add online communication server'),
                             itemId: 'btn-no-items-add-online-communication-server',
-                            privileges: ['privilege.administrate.communicationAdministration'],
+                            privileges: Mdc.privileges.Communication.admin,
                             action: 'addOnlineComServer',
                             href: '#/administration/comservers/add/online'
                         }

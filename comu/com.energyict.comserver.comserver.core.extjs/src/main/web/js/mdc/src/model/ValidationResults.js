@@ -3,14 +3,32 @@ Ext.define('Mdc.model.ValidationResults', {
 	requires: [
         'Mdc.model.ValidationResultsRuleSet'
     ],
-    fields: [        
-		 {
-			name: 'dataValidated'
-		},            
+    fields: [      
+		{
+			name: 'validationStatus'
+		},
+		{
+            name: 'allDataValidated',            
+            convert: function (value, record) {			
+				return record.get('validationStatus').allDataValidated;               
+            }
+        },
+		{
+            name: 'isActive',            
+            convert: function (value, record) {			
+				return record.get('validationStatus').isActive;               
+            }
+        },
+		{
+            name: 'lastChecked',            
+            convert: function (value, record) {			
+				return record.get('validationStatus').lastChecked;               
+            }
+        },
 		{
             name: 'dataValidatedDisplay',            
             convert: function (value, record) {			
-                if (record.get('dataValidated')) {
+                if (record.get('validationStatus').allDataValidated) {
                     return  Uni.I18n.translate('validationResults.dataValidatedYes', 'MDC', 'Yes');
                 }
                 return Uni.I18n.translate('validationResults.dataValidatedNo', 'MDC', 'No');  
@@ -18,11 +36,8 @@ Ext.define('Mdc.model.ValidationResults', {
         },
         {
             name: 'total',            
-            convert: function (value, record) {
-                if (value) {
-                    return  Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);                    
-                }
-                return '';    
+            convert: function (value, record) {			
+                return  Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);                                    
             }
         },
 		{

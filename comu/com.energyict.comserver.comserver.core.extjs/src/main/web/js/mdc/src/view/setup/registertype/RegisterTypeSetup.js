@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('registerType.add', 'MDC', 'Add register type'),
-                                privileges: ['privilege.administrate.masterData'],
+                                privileges: Mdc.privileges.MasterData.admin,
                                 action: 'createRegisterType'
                             }
                         ]

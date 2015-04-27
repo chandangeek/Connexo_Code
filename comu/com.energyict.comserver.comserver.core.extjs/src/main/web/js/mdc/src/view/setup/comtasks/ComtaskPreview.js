@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
         {
             xtype: 'button',
             text: 'Actions',
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationAdministration'),
+            privileges: Mdc.privileges.Communication.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'comtaskActionMenu'
