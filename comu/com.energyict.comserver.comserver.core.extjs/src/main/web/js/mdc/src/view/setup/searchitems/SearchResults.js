@@ -1,5 +1,8 @@
 Ext.define('Mdc.view.setup.searchitems.SearchResults', {
     extend: 'Ext.grid.Panel',
+    requires:[
+        'Yfn.privileges.Yellowfin'
+    ],
     alias: 'widget.searchResults',
     overflowY: 'auto',
     itemId: 'searchResults',
