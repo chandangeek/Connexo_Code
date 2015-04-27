@@ -43,11 +43,11 @@ public class AdvanceReadingsSettingsWithoutNoneFactory extends AbstractValueFact
     @Override
     public AdvanceReadingsSettings fromStringValue (String stringValue) {
         if (BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS.equals(stringValue)) {
-            return new BulkAdvanceReadingsSettings();
+            return BulkAdvanceReadingsSettings.INSTANCE;
         } else {
             ReadingType readingType = meteringService.getReadingType(stringValue).orElse(null);
             return (readingType == null) ?
-                    new BulkAdvanceReadingsSettings() :
+                    BulkAdvanceReadingsSettings.INSTANCE :
                     new ReadingTypeAdvanceReadingsSettings(readingType);
         }
     }

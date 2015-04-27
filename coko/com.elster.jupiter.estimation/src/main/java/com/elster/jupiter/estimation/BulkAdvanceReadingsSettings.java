@@ -1,9 +1,7 @@
 package com.elster.jupiter.estimation;
 
-/**
- * Created by igh on 2/04/2015.
- */
-public class BulkAdvanceReadingsSettings  implements AdvanceReadingsSettings {
+public enum BulkAdvanceReadingsSettings implements AdvanceReadingsSettings {
+    INSTANCE;
 
     public static final String BULK_ADVANCE_READINGS_SETTINGS = "bulk";
 
