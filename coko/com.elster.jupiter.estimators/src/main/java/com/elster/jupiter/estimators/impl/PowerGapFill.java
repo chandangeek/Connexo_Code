@@ -26,7 +26,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
 
     public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "powergapfill.maxNumberOfConsecutiveSuspects";
     private static final long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
-    private long maxNnumberOfConsecutiveSuspects;
+    private long maxNumberOfConsecutiveSuspects;
 
     public PowerGapFill(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
@@ -38,7 +38,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
 
     @Override
     public void init() {
-        maxNnumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+        maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
                 .map(BigDecimal::longValue)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
     }
@@ -68,7 +68,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     }
 
     private boolean isNotTooLarge(EstimationBlock estimationBlock) {
-        return estimationBlock.estimatables().size() <= maxNnumberOfConsecutiveSuspects;
+        return estimationBlock.estimatables().size() <= maxNumberOfConsecutiveSuspects;
     }
 
     private boolean estimate(Channel channel, ReadingType readingType, List<? extends Estimatable> estimatables) {
@@ -134,21 +134,6 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
                                 .map(valueAtLast::subtract)));
     }
 
-    private Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Estimatable last) {
-        return bulkCimChannel.getReading(last.getTimestamp())
-                .map(IntervalReadingRecord.class::cast)
-                .filter(intervalReadingRecord -> intervalReadingRecord.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERUP))
-                .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
-    }
-
-    private Optional<BigDecimal> getValueBefore(CimChannel cimChannel, Estimatable first) {
-        Instant timestampBefore = cimChannel.getPreviousDateTime(first.getTimestamp());
-        return cimChannel.getReading(timestampBefore)
-                .map(IntervalReadingRecord.class::cast)
-                .filter(intervalReadingRecord -> intervalReadingRecord.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERDOWN))
-                .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
-    }
-
     @Override
     public String getDefaultFormat() {
         return "Power gap fill";
@@ -177,4 +162,18 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
         return Collections.emptyList();
     }
 
+    private Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Estimatable last) {
+        return bulkCimChannel.getReading(last.getTimestamp())
+                .map(IntervalReadingRecord.class::cast)
+                .filter(intervalReadingRecord -> intervalReadingRecord.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERUP))
+                .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
+    }
+
+    private Optional<BigDecimal> getValueBefore(CimChannel cimChannel, Estimatable first) {
+        Instant timestampBefore = cimChannel.getPreviousDateTime(first.getTimestamp());
+        return cimChannel.getReading(timestampBefore)
+                .map(IntervalReadingRecord.class::cast)
+                .filter(intervalReadingRecord -> intervalReadingRecord.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERDOWN))
+                .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
+    }
 }

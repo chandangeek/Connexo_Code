@@ -106,4 +106,5 @@ public abstract class AbstractEstimator implements IEstimator {
     public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
         return Collections.emptyList();
     }
+
 }

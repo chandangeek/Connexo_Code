@@ -96,7 +96,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         relativePeriod = getProperty(RELATIVE_PERIOD, RelativePeriod.class).orElse(null);
 
         advanceReadingsSettings = getProperty(ADVANCE_READINGS_SETTINGS, AdvanceReadingsSettings.class)
-                .orElseGet(NoneAdvanceReadingsSettings::new);
+                .orElse(NoneAdvanceReadingsSettings.INSTANCE);
     }
 
     @Override
@@ -357,7 +357,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         PropertySpecBuilder propertySpecBuilder = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService));
         propertySpecBuilder.markRequired();
         PropertySpec spec =
-                propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS).setDefaultValue(new NoneAdvanceReadingsSettings()).finish();
+                propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS).setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE).finish();
         builder.add(spec);
 
 
