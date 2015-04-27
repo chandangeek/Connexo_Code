@@ -8,6 +8,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
+        'Yfn.privileges.Yellowfin',
         'Dsh.view.widget.ConnectionActionMenu'
     ],
     itemId: 'connectionslist',

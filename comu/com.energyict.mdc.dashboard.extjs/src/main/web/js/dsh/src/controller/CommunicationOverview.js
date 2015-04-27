@@ -1,5 +1,8 @@
 Ext.define('Dsh.controller.CommunicationOverview', {
     extend: 'Ext.app.Controller',
+    requires:[
+        'Yfn.privileges.Yellowfin'
+    ],
     models: [
         'Dsh.model.communication.Overview'
     ],

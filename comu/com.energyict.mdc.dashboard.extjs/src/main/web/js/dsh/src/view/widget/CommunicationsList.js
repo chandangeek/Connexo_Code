@@ -8,7 +8,8 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
         'Ext.grid.column.Template',
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Yfn.privileges.Yellowfin'
     ],
     columns: {
         defaults: {
