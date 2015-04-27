@@ -3,6 +3,7 @@ Ext.define('Dxp.view.tasks.Add', {
     alias: 'widget.data-export-tasks-add',
     requires: [
         'Uni.form.field.DateTime',
+        'Tme.privileges.Time',
         'Dxp.view.tasks.AddScheduleGrid',
         'Uni.property.form.Property',
         'Uni.property.form.GroupedPropertyForm',
