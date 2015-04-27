@@ -30,7 +30,10 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     fieldLabel: Uni.I18n.translate('general.state', 'MDC', 'State'),
                     renderer: function (value) {
                         if (value) {
+                            this.show();
                             return value.name;
+                        } else {
+                            this.hide();
                         }
                     }
                 },
