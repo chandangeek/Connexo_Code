@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 items: 'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu'
             }
 
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                        privileges: Mdc.privileges.DeviceType.admin,
                         iconCls: 'x-uni-action-iconD',
                         menu: {
                             plain: true,

@@ -111,7 +111,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         xtype: 'button',
                         itemId: 'device-load-profile-channel-data-edit-readings-button',
                         text: Uni.I18n.translate('deviceloadprofilechannels.data.editReadings', 'MDC', 'Edit readings'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceData'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
                         href: typeof me.router.getRoute('devices/device/channels/channeltableData/editreadings') !== 'undefined'
                             ? me.router.getRoute('devices/device/channels/channeltableData/editreadings').buildUrl(me.router.arguments, me.router.queryParams) : null
 

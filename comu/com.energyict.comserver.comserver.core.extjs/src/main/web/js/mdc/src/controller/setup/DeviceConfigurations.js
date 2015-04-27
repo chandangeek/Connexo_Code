@@ -190,7 +190,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         loadProfilesLink.setText(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profile configurations'));
 
                         widget.down('form').loadRecord(deviceConfiguration);
-                        widget.down('#device-configuration-action-menu').record = deviceConfiguration;
+                        var menuItem = widget.down('#device-configuration-action-menu');
+                        if(menuItem)
+                            menuItem.record = deviceConfiguration;
 
                         Ext.resumeLayouts(true);
 

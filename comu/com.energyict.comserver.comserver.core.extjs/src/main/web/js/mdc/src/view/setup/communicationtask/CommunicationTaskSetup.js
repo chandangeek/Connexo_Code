@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration'),
-                                    privileges: ['privilege.administrate.deviceType'],
+                                    privileges: Mdc.privileges.DeviceType.admin,
                                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/add'
                                 }
                             ]

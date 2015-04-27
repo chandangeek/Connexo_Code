@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                     {
                                         xtype: 'button',
                                         itemId: 'deviceDataValidationStateChangeBtn',
-                                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration.onDevice'),
+                                        privileges:Cfg.privileges.Validation.device,
                                         action: ''
                                     }
                                 ]

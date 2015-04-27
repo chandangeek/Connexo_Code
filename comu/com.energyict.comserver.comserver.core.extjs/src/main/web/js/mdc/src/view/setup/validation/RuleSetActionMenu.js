@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetActionMenu', {
         },
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'),
+            privileges: Cfg.privileges.Validation.deviceConfiguration,
             itemId: 'removeRuleSet',
             action: 'removeRuleSet'
         }

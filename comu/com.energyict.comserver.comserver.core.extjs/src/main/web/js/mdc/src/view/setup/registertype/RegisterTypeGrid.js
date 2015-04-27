@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
             me.columns.push(
                 {
                     xtype: 'uni-actioncolumn',
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
+                    privileges: Mdc.privileges.MasterData.admin,
                     items: 'Mdc.view.setup.registertype.RegisterTypeActionMenu'
                 }
             );
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                         emptyMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display'), items: [
                             {
                                 text: Uni.I18n.translate('registerType.addRegisterType', 'MDC', 'Add register type'),
-                                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
+                                privileges: Mdc.privileges.MasterData.admin,
                                 itemId: 'createRegisterType',
                                 xtype: 'button',
                                 action: 'createRegisterType'

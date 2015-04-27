@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+            privileges: Mdc.privileges.DeviceType.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'connection-method-action-menu'

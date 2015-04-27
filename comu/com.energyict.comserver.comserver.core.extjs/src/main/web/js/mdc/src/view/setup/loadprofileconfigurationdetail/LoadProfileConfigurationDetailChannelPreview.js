@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             {
                 xtype: 'button',
                 text: 'Actions',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'menu',

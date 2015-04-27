@@ -75,13 +75,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
             },
             {
                 title: Uni.I18n.translate('devicemenu.validation', 'MDC', 'Validation'),
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration']),
+                privileges: Cfg.privileges.Validation.fineTuneOnDeviceConfiguration,
                 xtype: 'menu',
                 items: [
                     {
                         text: Uni.I18n.translate('device.dataValidation.rulesSetGrid.title', 'MDC', 'Validation rule sets'),
                         itemId: 'validationRuleSetsLink',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration']),
+                        privileges: Cfg.privileges.Validation.fineTuneOnDeviceConfiguration,
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/validationrulesets'
                     }
                 ]

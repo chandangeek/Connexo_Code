@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('registerConfig.addRegisterConfiguration', 'MDC', 'Add register configuration'),
-                                    privileges: ['privilege.administrate.deviceType'],
+                                    privileges: Mdc.privileges.DeviceType.admin,
                                     itemId: 'createRegisterConfigurationButton',
                                     action: 'createRegisterConfig'
                                 }

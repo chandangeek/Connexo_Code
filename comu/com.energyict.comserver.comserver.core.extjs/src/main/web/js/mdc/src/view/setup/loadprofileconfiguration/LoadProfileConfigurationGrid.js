@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 items: 'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu'
             }
         ]
@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             items: [
                 {
                     text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                    privileges: Mdc.privileges.DeviceType.admin,
                     action: 'addloadprofileconfiguration'
                 }
             ]
