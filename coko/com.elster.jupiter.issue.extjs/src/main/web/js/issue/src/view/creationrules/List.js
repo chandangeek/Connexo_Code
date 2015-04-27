@@ -53,7 +53,6 @@ Ext.define('Isu.view.creationrules.List', {
                 displayMoreMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issue creation rules'),
                 emptyMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issue creation rules to display'),
                 items: [
-                    '->',
                     {
                         itemId: 'createRule',
                         xtype: 'button',

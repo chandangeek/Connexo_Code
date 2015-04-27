@@ -72,7 +72,6 @@ Ext.define('Isu.view.issues.Grid', {
                 displayMoreMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} issues'),
                 emptyMsg: Uni.I18n.translate('workspace.issues.pagingtoolbartop.emptyMsg', 'ISU', 'There are no issues to display'),
                 items: [
-                    '->',
                     {
                         xtype: 'button',
                         itemId: 'issues-bulk-action',
