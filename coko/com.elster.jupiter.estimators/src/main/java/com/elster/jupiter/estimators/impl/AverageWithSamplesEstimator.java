@@ -6,12 +6,15 @@ import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRuleProperties;
+import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -304,7 +307,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         List<BaseReadingRecord> samples = new ArrayList<BaseReadingRecord>();
         for (BaseReadingRecord record : records) {
             if ((sameTime(channel.getZoneId(), estimatableTime, record.getTimeStamp())) &&
-                (record.getQuantity(estimationBlock.getReadingType()) != null)) {
+                    (record.getQuantity(estimationBlock.getReadingType()) != null)) {
                 samples.add(record);
             }
         }
@@ -399,8 +402,34 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         }
     }
 
-    public void validateProperties() {
-
+    public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
+        BigDecimal maxSamples = null;
+        BigDecimal minSamples = null;
+        for (EstimationRuleProperties property : estimatorProperties) {
+            if (property.getName().equals(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)) {
+                BigDecimal value = (BigDecimal) property.getValue();
+                if (value.scale() != 0) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+                }
+                if (value.intValue() < 1) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+                }
+            } else if (property.getName().equals(ADVANCE_READINGS_SETTINGS)) {
+                ReadingTypeAdvanceReadingsSettings settings = (ReadingTypeAdvanceReadingsSettings) property.getValue();
+                ReadingType readingType = settings.getReadingType();
+                if (!readingType.isCumulative()) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, "properties." + ADVANCE_READINGS_SETTINGS);
+                }
+            } else if (property.getName().equals(MAX_NUMBER_OF_SAMPLES)) {
+                maxSamples = (BigDecimal) property.getValue();
+            }
+            else if (property.getName().equals(MIN_NUMBER_OF_SAMPLES)) {
+                minSamples = (BigDecimal) property.getValue();
+            }
+        }
+        if ((maxSamples != null) && (minSamples != null) && (maxSamples.intValue() < minSamples.intValue())) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_SAMPLES, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+        }
     }
 }
 
