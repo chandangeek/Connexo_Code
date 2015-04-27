@@ -19,7 +19,7 @@ Ext.define('Dxp.view.tasks.Details', {
                 title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                 flex: 1,
                 items: {
-                    xtype: 'tasks-preview-form',
+                    xtype: 'dxp-tasks-preview-form',
                     margin: '0 0 0 100'
                 }
             },
@@ -29,7 +29,7 @@ Ext.define('Dxp.view.tasks.Details', {
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
                 menu: {
-                    xtype: 'tasks-action-menu'
+                    xtype: 'dxp-tasks-action-menu'
                 }
             }
         ]
@@ -44,7 +44,7 @@ Ext.define('Dxp.view.tasks.Details', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'tasks-menu',
+                        xtype: 'dxp-tasks-menu',
                         itemId: 'tasks-view-menu',
                         router: me.router,
                         taskId: me.taskId

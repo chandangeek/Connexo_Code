@@ -20,7 +20,7 @@ Ext.define('Dxp.view.log.Setup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'log-menu',
+                        xtype: 'dxp-log-menu',
                         itemId: 'log-view-menu',
                         toggle: 0
                     }
@@ -33,14 +33,14 @@ Ext.define('Dxp.view.log.Setup', {
             title: Uni.I18n.translate('general.log', 'DES', 'Log'),
             items: [
                 {
-                    xtype: 'log-preview',
+                    xtype: 'dxp-log-preview',
                     router: me.router,
                     margin: '10 0 20 0'
                 },
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'log-grid'
+                        xtype: 'dxp-log-grid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',

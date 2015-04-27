@@ -1,6 +1,6 @@
 Ext.define('Dxp.view.tasks.Grid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.tasks-grid',
+    alias: 'widget.dxp-tasks-grid',
     store: 'Dxp.store.DataExportTasks',
     router: null,
     requires: [
@@ -47,8 +47,8 @@ Ext.define('Dxp.view.tasks.Grid', {
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    xtype: 'tasks-action-menu',
-                    itemId: 'tasks-action-menu'
+                    xtype: 'dxp-tasks-action-menu',
+                    itemId: 'dxp-tasks-action-menu'
                 }
             }
         ];

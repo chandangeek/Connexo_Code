@@ -1,6 +1,6 @@
 Ext.define('Dxp.view.log.Grid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.log-grid',
+    alias: 'widget.dxp-log-grid',
     store: 'Dxp.store.Logs',
     requires: [
         'Uni.view.toolbar.PagingTop',

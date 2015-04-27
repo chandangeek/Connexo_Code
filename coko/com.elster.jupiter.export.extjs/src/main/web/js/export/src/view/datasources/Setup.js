@@ -17,7 +17,7 @@ Ext.define('Dxp.view.datasources.Setup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'tasks-menu',
+                        xtype: 'dxp-tasks-menu',
                         itemId: 'tasks-view-menu',
                         taskId: me.taskId,
                         router: me.router

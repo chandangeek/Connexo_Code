@@ -83,7 +83,7 @@ Ext.define('Dxp.controller.Tasks', {
         },
         {
             ref: 'actionMenu',
-            selector: 'tasks-action-menu'
+            selector: 'dxp-tasks-action-menu'
         }
     ],
     fromDetails: false,
@@ -127,13 +127,13 @@ Ext.define('Dxp.controller.Tasks', {
             '#AddReadingTypesToTaskSetup button[name=add]': {
                 click: this.addSelectedReadingTypes
             },
-            'data-export-tasks-setup tasks-grid': {
+            'data-export-tasks-setup dxp-tasks-grid': {
                 select: this.showPreview
             },
-            'data-export-tasks-history tasks-history-grid': {
+            'data-export-tasks-history dxp-tasks-history-grid': {
                 select: this.showHistoryPreview
             },
-            'tasks-action-menu': {
+            'dxp-tasks-action-menu': {
                 click: this.chooseAction
             },
             'tasks-history-action-menu': {
@@ -185,13 +185,13 @@ Ext.define('Dxp.controller.Tasks', {
                 router: router,
                 taskId: currentTaskId
             }),
-            actionsMenu = view.down('tasks-action-menu');
+            actionsMenu = view.down('dxp-tasks-action-menu');
 
         me.fromDetails = true;
         me.getApplication().fireEvent('changecontentevent', view);
         taskModel.load(currentTaskId, {
             success: function (record) {
-                var detailsForm = view.down('tasks-preview-form'),
+                var detailsForm = view.down('dxp-tasks-preview-form'),
                     propertyForm = detailsForm.down('property-form');
 
                 actionsMenu.record = record;
@@ -299,8 +299,8 @@ Ext.define('Dxp.controller.Tasks', {
     showHistoryPreview: function (selectionModel, record) {
         var me = this,
             page = me.getHistory(),
-            preview = page.down('tasks-history-preview'),
-            previewForm = page.down('tasks-history-preview-form');
+            preview = page.down('dxp-tasks-history-preview'),
+            previewForm = page.down('dxp-tasks-history-preview-form');
 
         if (record) {
             Ext.suspendLayouts();
@@ -469,8 +469,8 @@ Ext.define('Dxp.controller.Tasks', {
     showPreview: function (selectionModel, record) {
         var me = this,
             page = me.getPage(),
-            preview = page.down('tasks-preview'),
-            previewForm = page.down('tasks-preview-form'),
+            preview = page.down('dxp-tasks-preview'),
+            previewForm = page.down('dxp-tasks-preview-form'),
             propertyForm = previewForm.down('property-form');
 
         Ext.suspendLayouts();
@@ -492,7 +492,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
-        preview.down('tasks-action-menu').record = record;
+        preview.down('dxp-tasks-action-menu').record = record;
         if (record.properties() && record.properties().count()) {
             propertyForm.loadRecord(record);
         }
@@ -590,8 +590,8 @@ Ext.define('Dxp.controller.Tasks', {
                     taskModel.load(id, {
                         success: function (rec) {
                             view = me.getDetailsPage();
-                            view.down('tasks-action-menu').record = rec;
-                            view.down('tasks-preview-form').loadRecord(rec);
+                            view.down('dxp-tasks-action-menu').record = rec;
+                            view.down('dxp-tasks-preview-form').loadRecord(rec);
                             if (record.get('status') === 'Busy') {
                                 view.down('#run').hide();
                             }
@@ -633,7 +633,7 @@ Ext.define('Dxp.controller.Tasks', {
         record.destroy({
             success: function () {
                 if (me.getPage()) {
-                    var grid = me.getPage().down('tasks-grid');
+                    var grid = me.getPage().down('dxp-tasks-grid');
                     grid.down('pagingtoolbartop').totalCount = 0;
                     grid.down('pagingtoolbarbottom').resetPaging();
                     grid.getStore().load();

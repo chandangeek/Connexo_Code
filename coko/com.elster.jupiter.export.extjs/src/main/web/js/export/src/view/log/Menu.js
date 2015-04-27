@@ -1,6 +1,6 @@
 Ext.define('Dxp.view.log.Menu', {
     extend: 'Uni.view.navigation.SubMenu',
-    alias: 'widget.log-menu',
+    alias: 'widget.dxp-log-menu',
     toggle: null,
     router: null,
 

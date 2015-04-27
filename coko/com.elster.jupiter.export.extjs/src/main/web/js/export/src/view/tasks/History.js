@@ -23,7 +23,7 @@ Ext.define('Dxp.view.tasks.History', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'tasks-menu',
+                        xtype: 'dxp-tasks-menu',
                         itemId: 'tasks-view-menu',
                         taskId: me.taskId,
                         router: me.router
@@ -49,7 +49,7 @@ Ext.define('Dxp.view.tasks.History', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'tasks-history-grid',
+                        xtype: 'dxp-tasks-history-grid',
                         router: me.router
                     },
                     emptyComponent: {
@@ -60,7 +60,7 @@ Ext.define('Dxp.view.tasks.History', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'tasks-history-preview'
+                        xtype: 'dxp-tasks-history-preview'
                     }
                 }
             ]

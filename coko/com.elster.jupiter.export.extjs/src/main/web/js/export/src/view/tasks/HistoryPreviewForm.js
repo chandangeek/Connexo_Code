@@ -1,6 +1,6 @@
 Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.tasks-history-preview-form',
+    alias: 'widget.dxp-tasks-history-preview-form',
 
     requires: [
         'Uni.property.form.Property',

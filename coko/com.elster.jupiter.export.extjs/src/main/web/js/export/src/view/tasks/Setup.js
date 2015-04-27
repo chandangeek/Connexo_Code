@@ -23,7 +23,7 @@ Ext.define('Dxp.view.tasks.Setup', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'tasks-grid',
+                        xtype: 'dxp-tasks-grid',
                         itemId: 'grd-data-export-tasks',
                         router: me.router
                     },
@@ -46,7 +46,7 @@ Ext.define('Dxp.view.tasks.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'tasks-preview',
+                        xtype: 'dxp-tasks-preview',
                         itemId: 'pnl-data-export-task-preview'
                     }
                 }

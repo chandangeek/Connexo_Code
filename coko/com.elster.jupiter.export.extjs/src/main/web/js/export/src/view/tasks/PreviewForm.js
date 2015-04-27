@@ -1,6 +1,6 @@
 Ext.define('Dxp.view.tasks.PreviewForm', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.tasks-preview-form',
+    alias: 'widget.dxp-tasks-preview-form',
 
     requires: [
         'Uni.property.form.Property',

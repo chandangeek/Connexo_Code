@@ -1,6 +1,6 @@
 Ext.define('Dxp.view.tasks.ActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.tasks-action-menu',
+    alias: 'widget.dxp-tasks-action-menu',
     plain: true,
     border: false,
     shadow: false,

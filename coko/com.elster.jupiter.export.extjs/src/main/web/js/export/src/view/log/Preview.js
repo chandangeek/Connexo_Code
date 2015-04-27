@@ -1,7 +1,7 @@
 Ext.define('Dxp.view.log.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    alias: 'widget.log-preview',
+    alias: 'widget.dxp-log-preview',
     router: null,
     initComponent: function () {
         var me = this;

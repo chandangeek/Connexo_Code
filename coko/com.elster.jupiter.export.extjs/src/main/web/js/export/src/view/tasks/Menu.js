@@ -1,6 +1,6 @@
 Ext.define('Dxp.view.tasks.Menu', {
     extend: 'Uni.view.menu.SideMenu',
-    alias: 'widget.tasks-menu',
+    alias: 'widget.dxp-tasks-menu',
 
     router: null,
 

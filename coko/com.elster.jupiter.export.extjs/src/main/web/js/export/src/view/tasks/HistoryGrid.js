@@ -1,6 +1,6 @@
 Ext.define('Dxp.view.tasks.HistoryGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.tasks-history-grid',
+    alias: 'widget.dxp-tasks-history-grid',
     store: 'Dxp.store.DataExportTasksHistory',
     router: null,
 

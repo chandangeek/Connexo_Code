@@ -1,7 +1,7 @@
 Ext.define('Dxp.view.tasks.HistoryPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    alias: 'widget.tasks-history-preview',
+    alias: 'widget.dxp-tasks-history-preview',
 
     requires: [
         'Dxp.view.tasks.HistoryPreviewForm',
@@ -20,7 +20,7 @@ Ext.define('Dxp.view.tasks.HistoryPreview', {
     ],
 
     items: {
-        xtype: 'tasks-history-preview-form'//,
+        xtype: 'dxp-tasks-history-preview-form'//,
         //itemId: 'pnl-data-export-task-preview'
     }
 });

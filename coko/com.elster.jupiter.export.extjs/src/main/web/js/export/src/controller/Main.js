@@ -3,7 +3,8 @@ Ext.define('Dxp.controller.Main', {
 
     requires: [
         'Uni.store.PortalItems',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Dxp.privileges.DataExport'
     ],
 
     controllers: [
