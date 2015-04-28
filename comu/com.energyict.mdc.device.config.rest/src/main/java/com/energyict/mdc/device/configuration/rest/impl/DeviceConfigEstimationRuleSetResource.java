@@ -92,6 +92,7 @@ public class DeviceConfigEstimationRuleSetResource {
             .flatMap(deviceType -> deviceType.getConfigurations().stream())
             .filter(deviceConfig -> !areLinked(deviceConfig, estimationRuleSet))
             .filter(deviceConfig -> haveCommonReadingTypes(readingTypesInRuleSet, readingTypesFor(deviceConfig)))
+            .sorted((dc1, dc2) -> dc1.getName().compareToIgnoreCase(dc2.getName()))
             .collect(Collectors.toList());
     }
 

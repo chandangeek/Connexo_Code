@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.configuration.rest.impl;
+package com.energyict.mdc.device.configuration.rest;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

@@ -32,6 +32,7 @@ import com.elster.jupiter.util.collections.KPermutation;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 
 public class EstimationRuleSetResource {
     
@@ -57,7 +58,7 @@ public class EstimationRuleSetResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<EstimationRuleSet> ruleSets = includeOnlyLinkableEstimationRuleSets ? getLinkableEstimationRuleSets(deviceConfiguration) : deviceConfiguration.getEstimationRuleSets();
         List<EstimationRuleSet> pagedRuleSets = ListPager.of(ruleSets).from(queryParameters).find();
-        List<EstimationRuleSetRefInfo> infos = pagedRuleSets.stream().map(ruleSet -> EstimationRuleSetRefInfo.from(ruleSet, deviceConfiguration)).collect(Collectors.toList());
+        List<EstimationRuleSetRefInfo> infos = pagedRuleSets.stream().map(ruleSet -> new EstimationRuleSetRefInfo(ruleSet, deviceConfiguration)).collect(Collectors.toList());
         return PagedInfoList.asJson("estimationRuleSets", infos, queryParameters);
     }
     
@@ -136,6 +137,7 @@ public class EstimationRuleSetResource {
         return estimationService.getEstimationRuleSets().stream()
                 .filter(ruleSet -> !ruleSet.getRules(relatedToConfiguration).isEmpty())
                 .filter(ruleSet -> !deviceConfiguration.getEstimationRuleSets().contains(ruleSet))
+                .sorted((rs1, rs2) -> rs1.getName().compareToIgnoreCase(rs2.getName()))
                 .collect(Collectors.<EstimationRuleSet>toList());
     }
 }

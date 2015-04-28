@@ -24,6 +24,8 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.EntityRefInfo;
+import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 import com.jayway.jsonpath.JsonModel;
 
 public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
@@ -138,8 +140,8 @@ public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicatio
         
         when(deviceConfiguration.getEstimationRuleSets()).thenReturn(Arrays.asList(ruleSet1, ruleSet2));
         
-        EstimationRuleSetRefInfo ruleSetInfo1 = EstimationRuleSetRefInfo.from(ruleSet1, deviceConfiguration);
-        EstimationRuleSetRefInfo ruleSetInfo2 = EstimationRuleSetRefInfo.from(ruleSet2, deviceConfiguration);
+        EstimationRuleSetRefInfo ruleSetInfo1 = new EstimationRuleSetRefInfo(ruleSet1, deviceConfiguration);
+        EstimationRuleSetRefInfo ruleSetInfo2 = new EstimationRuleSetRefInfo(ruleSet2, deviceConfiguration);
         
         Response response = target("/devicetypes/1003/deviceconfigurations/1003/estimationrulesets").request().put(Entity.json(Arrays.asList(ruleSetInfo2, ruleSetInfo1)));
         
