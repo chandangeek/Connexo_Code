@@ -247,7 +247,8 @@ public class DeviceFirmwareVersionInfoFactory {
     }
 
     public static class FirmwareUploadedButNotVerifiedYetState extends AbstractFirmwareUpgradeState {
-        protected static final String CHECK_DATE = "checkDate";
+        protected static final String CHECK_DATE = "lastCheckedDate";
+        protected static final String UPGRADE_FINISHED_DATE = "plannedDate";
 
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
@@ -287,7 +288,20 @@ public class DeviceFirmwareVersionInfoFactory {
             if (basicCheckExecution.isPresent() && basicCheckExecution.get().getNextExecutionTimestamp() != null){
                 properties.put(CHECK_DATE, basicCheckExecution.get().getNextExecutionTimestamp().toEpochMilli());
             }
+            addUpgradeFinishedDate(message, helper, properties);
             return properties;
+        }
+
+        private void addUpgradeFinishedDate(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper, Map<String, Object> properties) {
+            properties.put(UPGRADE_FINISHED_DATE, message.getReleaseDate().toEpochMilli());
+            Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
+            if (activationDate.isPresent()){
+                properties.put(UPGRADE_FINISHED_DATE, activationDate.get().toEpochMilli());
+            }
+            Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
+            if (activationMessage.isPresent()){
+                properties.put(UPGRADE_FINISHED_DATE, activationMessage.get().getReleaseDate().toEpochMilli());
+            }
         }
     }
 
