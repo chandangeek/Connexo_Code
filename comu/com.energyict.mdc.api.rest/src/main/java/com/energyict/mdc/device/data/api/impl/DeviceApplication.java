@@ -54,7 +54,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.energyict.ddr.rest",
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
-        property = {"alias=/dda", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME, "version=v1.0", "public=true"})
+        property = {"alias=/dda", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME, "version=v2.0", "public=true"})
 public class DeviceApplication extends Application implements TranslationKeyProvider {
 
     private final Logger logger = Logger.getLogger(DeviceApplication.class.getName());

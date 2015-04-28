@@ -56,7 +56,7 @@ public class DeviceResource {
                 deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
             }
 
-            Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mIRD, info.mIRD);
+            Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
             newDevice.setSerialNumber(info.serialNumber);
             newDevice.setYearOfCertification(2015);
             newDevice.save();
@@ -64,7 +64,7 @@ public class DeviceResource {
             return DeviceInfo.from(newDevice);
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
-                System.out.println("BEAN:"+constraintViolation.getLeafBean());
+                System.out.println("BEAN:" + constraintViolation.getLeafBean());
             }
             throw e;
         }

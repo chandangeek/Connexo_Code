@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class DeviceInfo {
     public long id;
-    public String mIRD;
+    public String mRID;
     public String serialNumber;
     public String deviceTypeName;
     public Long deviceTypeId;
@@ -21,7 +21,7 @@ public class DeviceInfo {
     public static DeviceInfo from(Device device) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
-        deviceInfo.mIRD = device.getmRID();
+        deviceInfo.mRID = device.getmRID();
         deviceInfo.serialNumber = device.getSerialNumber();
         deviceInfo.deviceTypeId = device.getDeviceType().getId();
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
