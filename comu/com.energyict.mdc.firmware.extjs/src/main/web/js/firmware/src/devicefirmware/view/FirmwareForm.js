@@ -150,37 +150,43 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         if (pendingVersion) {
             formPending.record = me.record.getPendingVersion();
             formPending.show();
-            formPending.setText(Uni.I18n.translate('device.firmware.deprecated.message', 'FWC', 'Upload and activation of version {0} pending (Planned on {1})', [
-                pendingVersion.firmwareVersion,
-                Uni.DateTime.formatDateTimeShort(pendingVersion.plannedDate)
-            ]));
+            formPending.setText(Uni.I18n.translate('device.firmware.' + pendingVersion.firmwareUpgradeOption.id + '.deprecated',
+                'FWC', 'Upload and activation of version {0} pending (Planned on {1})', [
+                    pendingVersion.firmwareVersion,
+                    Uni.DateTime.formatDateTimeShort(pendingVersion.plannedDate)
+                ]));
         }
 
         if (failedVersion) {
             formFailed.record = me.record.getFailedVersion();
             formFailed.show();
-            formFailed.setText(Uni.I18n.translate('device.firmware.failed.message', 'FWC', 'Upload and activation of version {0} failed', [
-                failedVersion.firmwareVersion
-            ]));
+            formFailed.setText(Uni.I18n.translate('device.firmware.' + failedVersion.firmwareUpgradeOption.id + '.failed',
+                'FWC', 'Upload and activation of version {0} failed', [
+                    failedVersion.firmwareVersion
+                ]));
+
+            formFailed.down('#logBtn').setVisible(failedVersion.firmwareComTaskId && failedVersion.firmwareComTaskSessionId);
         }
 
         if (ongoingVersion) {
             formOngoing.record =  me.record.getOngoingVersion();
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Upload and activation of version {0} ongoing (upload started on {1})', [
-                ongoingVersion.firmwareVersion,
-                Uni.DateTime.formatDateTimeShort(ongoingVersion.uploadStartDate)
-            ]));
+            formOngoing.setText(Uni.I18n.translate('device.firmware.' + ongoingVersion.firmwareUpgradeOption.id + '.ongoing',
+                'FWC', 'Upload and activation of version {0} ongoing (upload started on {1})', [
+                    ongoingVersion.firmwareVersion,
+                    Uni.DateTime.formatDateTimeShort(ongoingVersion.uploadStartDate)
+                ]));
         }
 
         if (verificationVersion) {
-            formPending.record =  me.record.getVerificationVersion();
-            formPending.show();
-            formPending.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Upload and activation of version {0} completed on {1}. Verification scheduled on {2}', [
-                verificationVersion.firmwareVersion,
-                Uni.DateTime.formatDateTimeShort(verificationVersion.lastCheckedDate),
-                Uni.DateTime.formatDateTimeShort(verificationVersion.plannedDate)
-            ]));
+            formOngoing.record =  me.record.getVerificationVersion();
+            formOngoing.show();
+            formOngoing.setText(Uni.I18n.translate('device.firmware.' + verificationVersion.firmwareUpgradeOption.id + '.needVerification',
+                'FWC', 'Upload and activation of version {0} completed on {1}. Verification scheduled on {2}', [
+                    verificationVersion.firmwareVersion,
+                    Uni.DateTime.formatDateTimeShort(verificationVersion.lastCheckedDate),
+                    Uni.DateTime.formatDateTimeShort(verificationVersion.plannedDate)
+                ]));
         }
     }
 });
