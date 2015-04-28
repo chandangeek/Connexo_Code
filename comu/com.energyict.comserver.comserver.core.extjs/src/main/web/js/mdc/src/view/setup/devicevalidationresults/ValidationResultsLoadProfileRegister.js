@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
 								xtype: 'displayfield',
 								itemId: 'data-view-validation-results',
 								fieldLabel: Uni.I18n.translate('validationResults.validationResults', 'MDC', 'Validation results'),
-								name: 'validationResultsCount'
+								name: 'total'
 							}
 						]
 					},
