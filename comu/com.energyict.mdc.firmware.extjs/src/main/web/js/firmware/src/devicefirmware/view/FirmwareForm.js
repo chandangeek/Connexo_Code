@@ -131,6 +131,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             pendingVersion = associatedData.pendingVersion,
             ongoingVersion = associatedData.ongoingVersion,
             failedVersion = associatedData.failedVersion,
+            verificationVersion = associatedData.needVerificationVersion,
             formPending,
             formFailed,
             formOngoing,
@@ -169,6 +170,16 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formOngoing.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Upload and activation of version {0} ongoing (upload started on {1})', [
                 ongoingVersion.firmwareVersion,
                 Uni.DateTime.formatDateTimeShort(ongoingVersion.uploadStartDate)
+            ]));
+        }
+
+        if (verificationVersion) {
+            formPending.record =  me.record.getVerificationVersion();
+            formPending.show();
+            formPending.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Upload and activation of version {0} completed on {1}. Verification scheduled on {2}', [
+                verificationVersion.firmwareVersion,
+                Uni.DateTime.formatDateTimeShort(verificationVersion.lastCheckedDate),
+                Uni.DateTime.formatDateTimeShort(verificationVersion.plannedDate)
             ]));
         }
     }
