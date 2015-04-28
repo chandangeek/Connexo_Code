@@ -1,6 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -11,23 +19,10 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
-
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
-import com.elster.jupiter.validation.security.Privileges;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -36,7 +31,6 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class DeviceValidationResource {
@@ -308,8 +302,8 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response setValidationFeatureStatus(@PathParam("mRID") String mRID, DeviceValidationStatusInfo deviceValidationStatusInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         try {
-            Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
             if (deviceValidationStatusInfo.isActive) {
                 if (deviceValidationStatusInfo.lastChecked == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
@@ -321,7 +315,7 @@ public class DeviceValidationResource {
             }
         }
         catch (InvalidLastCheckedException e) {
-            throw new LocalizedFieldValidationException(this.toMessageSeed(e), "lastChecked");
+            throw new LocalizedFieldValidationException(this.toMessageSeed(e), "lastChecked", device.forValidation().getLastChecked());
         }
         return Response.status(Response.Status.OK).build();
     }
