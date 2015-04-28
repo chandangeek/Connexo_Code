@@ -62,7 +62,7 @@ public class MdcPropertyReferenceInfoFactory {
             } else if (LogBook.class.isAssignableFrom(property.getClass())) {
                 info = new LogBookInfo((LogBook) property);
             } else if (FirmwareVersion.class.isAssignableFrom(property.getClass())){
-                info = asInfoObject(property);
+                info = asInfoObject((FirmwareVersion) property);
             }
         }
         return info;
