@@ -68,7 +68,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                             store: Ext.create('Ext.data.Store', {
                                                 fields: ['localizedValue']
                                             }),
-                                            emptyText: Uni.I18n.translate('deviceType.firmwareupgradeoptions.notsupported', 'FWC', 'No options supported by current device type')
+                                            emptyText: Uni.I18n.translate('deviceType.firmwareupgradeoptions.off', 'FWC', 'Firmware upgrade is off')
                                         }
                                     }
 
