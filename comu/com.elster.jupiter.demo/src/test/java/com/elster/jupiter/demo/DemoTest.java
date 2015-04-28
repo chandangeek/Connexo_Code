@@ -5,7 +5,9 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -36,6 +38,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -49,7 +52,16 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -58,6 +70,9 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -80,7 +95,10 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
+import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -113,6 +131,7 @@ import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -123,7 +142,9 @@ import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DemoTest {
     private static final Logger LOG = Logger.getLogger(DemoTest.class.getName());
@@ -269,24 +290,116 @@ public class DemoTest {
     }
 
     @Test
-    public void testA3Device() {
+    public void testCreateA3Device() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try {
-            demoService.createA3Device();
-        } catch (Exception e) {
-            fail("The demo command shouldn't produce errors");
-        }
+        demoService.createA3Device();
+        // The demo command shouldn't produce errors
     }
 
     @Test
-    public void testReExecute() {
+    public void testExecuteCreateA3DeviceTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        try {
-            demoService.createDemoData("DemoServ", "host", "2014-12-01");
-            demoService.createDemoData("DemoServ", "host", "2014-12-01");
-        } catch (Exception e) {
-            fail("The demo command shouldn't produce errors");
+        demoService.createA3Device();
+        demoService.createA3Device();
+        // Calling the command 'createA3Device' twice shouldn't produce errors
+    }
+
+    @Test
+    public void testCreateG3Devices() {
+        String MRID_GATEWAY = "123-4567-89";
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        demoService.createG3Gateway(MRID_GATEWAY);
+        demoService.createG3SlaveDevice();
+
+        checkCreatedG3Gateway(MRID_GATEWAY);
+    }
+
+    private void checkCreatedG3Gateway(String mridGateway) {
+        String DEVICE_CONFIG_NAME = "Default";
+        String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
+        String CONNECTION_METHOD_NAME = "Outbound TCP";
+
+        DeviceService deviceService = injector.getInstance(DeviceService.class);
+        Optional<Device> gatewayOptional = deviceService.findByUniqueMrid(mridGateway);
+        assertThat(gatewayOptional.isPresent()).isTrue();
+        Device gateway = gatewayOptional.get();
+        DeviceType deviceType = gateway.getDeviceType();
+        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getName());
+        assertThat(deviceType.getLoadProfileTypes()).isEmpty();
+        assertThat(deviceType.getRegisterTypes()).isEmpty();
+        assertThat(deviceType.getLogBookTypes()).isEmpty();
+        DeviceConfiguration configuration = gateway.getDeviceConfiguration();
+        assertThat(configuration.getName()).isEqualTo(DEVICE_CONFIG_NAME);
+        assertThat(configuration.isDirectlyAddressable()).isTrue();
+        assertThat(configuration.canActAsGateway()).isTrue();
+        assertThat(configuration.getGetwayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
+        assertThat(configuration.getSecurityPropertySets().size()==1).isTrue();
+        SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
+        assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_PROPERTY_SET_NAME);
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
+        assertThat(securityPropertySet.getUserActions()).containsExactly(
+            DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
+            DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+        assertThat(configuration.getPartialOutboundConnectionTasks().size()==1).isTrue();
+        PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+        assertThat(connectionTask.getName()).isEqualTo(CONNECTION_METHOD_NAME);
+        assertThat(connectionTask.isDefault()).isTrue();
+        assertThat(connectionTask.getComPortPool().getName()).isEqualTo(OutboundTCPComPortPoolTpl.ORANGE.getName());
+        assertThat(connectionTask.getRescheduleDelay().getCount()).isEqualTo(5);
+        assertThat(connectionTask.getRescheduleDelay().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.MINUTES);
+        assertThat(configuration.getComTaskEnablements().size()==1).isTrue();
+        ComTaskEnablement enablement = configuration.getComTaskEnablements().get(0);
+        assertThat(enablement.getComTask().getName()).isEqualTo(ComTaskTpl.TOPOLOGY_UPDATE.getName());
+        assertThat(enablement.getSecurityPropertySet().getId()).isEqualTo(securityPropertySet.getId());
+        assertThat(enablement.usesDefaultConnectionTask()).isTrue();
+        assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isTrue();
+        assertThat(enablement.getPriority()==100).isTrue();
+        assertThat(gateway.getConnectionTasks().size()==1).isTrue();
+        ConnectionTask connTask = gateway.getConnectionTasks().get(0);
+        assertThat(connTask instanceof ScheduledConnectionTask).isTrue();
+        ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask)connTask;
+        assertThat(scheduledConnectionTask.getComPortPool().getName()).isEqualTo(OutboundTCPComPortPoolTpl.ORANGE.getName());
+        assertThat(scheduledConnectionTask.isDefault()).isTrue();
+        assertThat(scheduledConnectionTask.allowsSimultaneousConnections()).isTrue();
+        assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
+            assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
+            assertThat(gateway.getAllSecurityProperties(securityPropertySet).size()==3).isTrue();
+            for (SecurityProperty securityProperty : gateway.getAllSecurityProperties(securityPropertySet)) {
+                if (securityProperty.getName().equals("ClientMacAddress")) {
+                    assertThat(securityProperty.getValue()).isEqualTo(new BigDecimal(1));
+                } else if (securityProperty.getName().equals("AuthenticationKey")) {
+                    assertThat(securityProperty.getValue().toString()).isEqualTo("00112233445566778899AABBCCDDEEFF");
+                } else if (securityProperty.getName().equals("EncryptionKey")) {
+                    assertThat(securityProperty.getValue().toString()).isEqualTo("11223344556677889900AABBCCDDEEFF");
+                }
+            }
+            ctx.commit();
         }
+        assertThat(gateway.getDeviceProtocolProperties().getProperty("Short_MAC_address")).isEqualTo(new BigDecimal(0));
+        assertThat(gateway.getComTaskExecutions().size()==1).isTrue();
+    }
+
+    @Test
+    public void testExecuteCreateG3DevicesTwice() {
+        String MRID_GATEWAY = "123-4567-89";
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        demoService.createG3Gateway(MRID_GATEWAY);
+        demoService.createG3SlaveDevice();
+        demoService.createG3Gateway(MRID_GATEWAY);
+        demoService.createG3SlaveDevice();
+        // Calling the commands 'createG3Gateway' and 'createG3SlaveDevice' twice shouldn't produce errors
+        checkCreatedG3Gateway(MRID_GATEWAY);
+    }
+
+    @Test
+    public void testExecuteCreateDemoDataTwice() {
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+            demoService.createDemoData("DemoServ", "host", "2014-12-01");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01");
+        // Calling the command 'createDemoData' twice shouldn't produce errors
     }
 
     @Test
@@ -330,6 +443,8 @@ public class DemoTest {
         protocolPluggableService.newInboundDeviceProtocolPluggableClass("DlmsSerialNumberDiscover", DlmsSerialNumberDiscover.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("WebRTUKP", WebRTUKP.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("ALPHA_A3", AlphaA3.class.getName()).save();
+        protocolPluggableService.newDeviceProtocolPluggableClass("RTU_PLUS_G3", com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer.class.getName()).save();
+        protocolPluggableService.newDeviceProtocolPluggableClass("AM540", com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540.class.getName()).save();
         protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIp", OutboundTcpIpConnectionType.class.getName());
     }
 

@@ -86,4 +86,8 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         builder.withClocks(clocks);
         return builder;
     }
+
+    public String getName() {
+        return name;
+    }
 }
