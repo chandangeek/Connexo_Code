@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -46,9 +48,7 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -80,6 +80,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -227,15 +228,12 @@ public class ComServerDAOImpl implements ComServerDAO {
             ComPort reloadedPort = reloaded.get();
             if (reloadedPort.isObsolete()) {
                 return null;
-            }
-            else if (reloadedPort.getModificationDate().isAfter(comPort.getModificationDate())) {
+            } else if (reloadedPort.getModificationDate().isAfter(comPort.getModificationDate())) {
                 return reloadedPort;
-            }
-            else {
+            } else {
                 return comPort;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -343,8 +341,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
         if (gatewayDevice != null) {
             this.serviceProvider.topologyService().setPhysicalGateway(device, gatewayDevice);
-        }
-        else {
+        } else {
             this.serviceProvider.topologyService().clearPhysicalGateway(device);
         }
     }
@@ -429,7 +426,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionStarted(final ComTaskExecution comTaskExecution, final ComPort comPort, boolean executeInTransaction) {
-        if(executeInTransaction){
+        if (executeInTransaction) {
             this.executeTransaction(() -> {
                 markComTaskForExecutionStarted(comTaskExecution, comPort);
                 return null;
@@ -699,7 +696,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         topologyPathSegments.stream().forEach(topologyPathSegment -> {
             Optional<Device> target = getOptionalDeviceByIdentifier(topologyPathSegment.getTarget());
             Optional<Device> intermediateHop = getOptionalDeviceByIdentifier(topologyPathSegment.getIntermediateHop());
-            if(target.isPresent() && intermediateHop.isPresent()){
+            if (target.isPresent() && intermediateHop.isPresent()) {
                 g3CommunicationPathSegmentBuilder.add(
                         target.get(),
                         intermediateHop.get(),
@@ -716,7 +713,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         TopologyService.G3NeighborhoodBuilder g3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood((Device) sourceDeviceIdentifier.findDevice());
         topologyNeighbours.stream().forEach(topologyNeighbour -> {
             Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyNeighbour.getNeighbour());
-            if(optionalDevice.isPresent()){
+            if (optionalDevice.isPresent()) {
                 TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()), Modulation.fromOrdinal(topologyNeighbour.getModulation()), PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()));
                 g3NeighborBuilder.linkQualityIndicator(topologyNeighbour.getLqi());
                 g3NeighborBuilder.timeToLiveSeconds(topologyNeighbour.getNeighbourValidTime());
@@ -730,9 +727,9 @@ public class ComServerDAOImpl implements ComServerDAO {
         g3NeighborhoodBuilder.complete();
     }
 
-    public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation){
+    public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyDeviceAddressInformation.getDeviceIdentifier());
-        if(optionalDevice.isPresent()){
+        if (optionalDevice.isPresent()) {
             serviceProvider.topologyService().setG3DeviceAddressInformation(
                     optionalDevice.get(),
                     topologyDeviceAddressInformation.getFullIPv6Address(),
@@ -755,43 +752,85 @@ public class ComServerDAOImpl implements ComServerDAO {
     public DeviceFirmwareVersionStorageTransitions updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedFirmwareVersions.getDeviceIdentifier());
         DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions = new DeviceFirmwareVersionStorageTransitions();
-        optionalDevice.map(device -> { // device is present
 
-            collectedFirmwareVersions.getActiveMeterFirmwareVersion()
-                    .map(activeMeterFirmwareVersion -> {
+        optionalDevice.ifPresent(device -> {
+            defineMeterFirmwareVersionTransition(collectedFirmwareVersions, deviceFirmwareVersionStorageTransitions, device);
+            updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
+            defineCommunicationFirmwareVersionTransition(collectedFirmwareVersions, deviceFirmwareVersionStorageTransitions, device);
+            updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
+        });
 
-                        // TODO the from and tos are wrong!
-//                        if (activeMeterFirmwareVersion.equals("")){
-//                            deviceFirmwareVersionStorageTransitions.setActiveMeterFirmwareVersionTransition(
-//                                    FirmwareVersionStorageTransition.from(FirmwareVersionStorageTransition.Constants.EMPTY,
-//                                            getCurrentMeterFirmwareVersionStatus(device)));
-//                        } else {
-//                            Optional<FirmwareVersion> firmwareVersionByVersion = this.serviceProvider.firmwareService().getFirmwareVersionByVersion(activeMeterFirmwareVersion, device.getDeviceType());
-//                            firmwareVersionByVersion.map(newFirmwareVersion -> {
-//                                deviceFirmwareVersionStorageTransitions.setActiveCommunicationFirmwareVersionTransition(
-//                                        FirmwareVersionStorageTransition.from(newFirmwareVersion.getFirmwareStatus().getStatus(), getCurrentMeterFirmwareVersionStatus(device)));
-//                                return null;
-//                            }).orElse(deviceFirmwareVersionStorageTransitions.)
-//                        }
-
-                    return null;})
-                    .orElse();
-
-//                    .ifPresent(collectedActiveMeterFirmwareVersion -> {
-//                Optional<FirmwareVersion> firmwareVersionByVersion = this.serviceProvider.firmwareService().getFirmwareVersionByVersion(collectedActiveMeterFirmwareVersion, device.getDeviceType());
-//                firmwareVersionByVersion.ifPresent(firmwareVersion -> );
-//            });
-
-            Optional<ActivatedFirmwareVersion> currentCommunicationFirmwareVersionFor = this.serviceProvider.firmwareService().getCurrentCommunicationFirmwareVersionFor(device);
-            return null;
-        }).orElseGet(() -> null);
         return deviceFirmwareVersionStorageTransitions;
+    }
+
+    private void updateCommunicationFirmwareVersion(Optional<String> collectedCommunicationFirmwareVersion, Device device) {
+        collectedCommunicationFirmwareVersion.ifPresent(version -> {
+            Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
+            existingFirmwareVersion.map(firmwareVersion -> createNewActiveVersion(device, firmwareVersion)).
+                    orElseGet(() -> createNewActiveVersion(device, createNewGhostFirmwareVersion(device, version, FirmwareType.COMMUNICATION)));
+        });
+    }
+
+    private void updateMeterFirmwareVersion(Optional<String> collectedMeterFirmwareVersion, Device device) {
+        collectedMeterFirmwareVersion.ifPresent(version -> {
+            Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
+            existingFirmwareVersion.map(firmwareVersion -> createNewActiveVersion(device, firmwareVersion)).
+                    orElseGet(() -> createNewActiveVersion(device, createNewGhostFirmwareVersion(device, version, FirmwareType.METER)));
+        });
+    }
+
+    private FirmwareVersion createNewGhostFirmwareVersion(Device device, String version, FirmwareType firmwareType) {
+        FirmwareVersion ghostVersion = this.serviceProvider.firmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType);
+        this.serviceProvider.firmwareService().saveFirmwareVersion(ghostVersion);
+        return ghostVersion;
+    }
+
+    private ActivatedFirmwareVersion createNewActiveVersion(Device device, FirmwareVersion firmwareVersion) {
+        ActivatedFirmwareVersion activatedFirmwareVersion = this.serviceProvider.firmwareService().newActivatedFirmwareVersionFrom(device, firmwareVersion, now());
+        this.serviceProvider.firmwareService().saveActivatedFirmwareVersion(activatedFirmwareVersion);
+        return activatedFirmwareVersion;
+    }
+
+    private Interval now() {
+        return Interval.of(Range.atLeast(this.serviceProvider.clock().instant()));
+    }
+
+    private void defineCommunicationFirmwareVersionTransition(CollectedFirmwareVersion collectedFirmwareVersions, DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions, Device device) {
+        String currentCommunicationFirmwareVersionStatus = getCurrentCommunicationFirmwareVersionStatus(device);
+        String collectedMeterFirmwareVersionStatus = collectedFirmwareVersions.getActiveMeterFirmwareVersion().map(version -> getFirmwareStatus(device, version)).orElse(FirmwareVersionStorageTransition.Constants.EMPTY);
+        deviceFirmwareVersionStorageTransitions.setActiveCommunicationFirmwareVersionTransition(FirmwareVersionStorageTransition.from(currentCommunicationFirmwareVersionStatus, collectedMeterFirmwareVersionStatus));
+
+    }
+
+    private String getCurrentCommunicationFirmwareVersionStatus(Device device) {
+        Optional<ActivatedFirmwareVersion> currentCommunicationFirmwareVersionFor = this.serviceProvider.firmwareService().getCurrentCommunicationFirmwareVersionFor(device);
+        return currentCommunicationFirmwareVersionFor.map(activatedFirmwareVersion -> activatedFirmwareVersion.getFirmwareVersion().getFirmwareStatus().getStatus())
+                .orElseGet(() -> FirmwareVersionStorageTransition.Constants.EMPTY);
+    }
+
+    private void defineMeterFirmwareVersionTransition(CollectedFirmwareVersion collectedFirmwareVersions, DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions, Device device) {
+        String currentMeterFirmwareVersionStatus = getCurrentMeterFirmwareVersionStatus(device);
+        String collectedMeterFirmwareVersionStatus = collectedFirmwareVersions.getActiveMeterFirmwareVersion().map(version -> getFirmwareStatus(device, version)).orElse(FirmwareVersionStorageTransition.Constants.EMPTY);
+        deviceFirmwareVersionStorageTransitions.setActiveMeterFirmwareVersionTransition(FirmwareVersionStorageTransition.from(currentMeterFirmwareVersionStatus, collectedMeterFirmwareVersionStatus));
     }
 
     private String getCurrentMeterFirmwareVersionStatus(Device device) {
         Optional<ActivatedFirmwareVersion> currentMeterFirmwareVersionFor = this.serviceProvider.firmwareService().getCurrentMeterFirmwareVersionFor(device);
         return currentMeterFirmwareVersionFor.map(activatedFirmwareVersion -> activatedFirmwareVersion.getFirmwareVersion().getFirmwareStatus().getStatus())
                 .orElseGet(() -> FirmwareVersionStorageTransition.Constants.EMPTY);
+    }
+
+    private String getFirmwareStatus(Device device, String collectedVersion) {
+        Optional<FirmwareVersion> meterFirmwareVersionOnDeviceType = getFirmwareVersionFor(collectedVersion, device.getDeviceType());
+        return getFirmwareStatusFromOptionalVersion(meterFirmwareVersionOnDeviceType);
+    }
+
+    private Optional<FirmwareVersion> getFirmwareVersionFor(String collectedVersion, DeviceType deviceType) {
+        return this.serviceProvider.firmwareService().getFirmwareVersionByVersion(collectedVersion, deviceType);
+    }
+
+    private String getFirmwareStatusFromOptionalVersion(Optional<FirmwareVersion> firmwareVersionOnDeviceType) {
+        return firmwareVersionOnDeviceType.map(firmwareVersion -> firmwareVersion.getFirmwareStatus().getStatus()).orElse(FirmwareVersionStorageTransition.Constants.EMPTY);
     }
 
 

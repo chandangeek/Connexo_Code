@@ -60,6 +60,19 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY(144, "unknownSerialsAddedToTopology", "The following unknown devices were found in the topology: '{0}'", Level.SEVERE),
     PROPERTY_VALIDATION_FAILED(145, "propertyValidationFailed", "The validation of property '{0}' with value '{1}' failed", Level.SEVERE),
     COMTASK_NOT_ENABLED_ON_CONFIGURATION(146, "comTaskNotEnabled", "The communication task '{0}' is not enabled for execution on devices of configuration '{1}'", Level.SEVERE),
+
+    FW_DISCOVERED_NEW_GHOST(147, Keys.FW_DISCOVERED_NEW_GHOST, "Discovered a new ghost firmware version '{0}'", Level.SEVERE),
+    FW_DISCOVERED_EXISTING_GHOST(148, Keys.FW_DISCOVERED_EXISTING_GHOST, "Discovered an existing ghost firmware version '{0}'", Level.INFO),
+    FW_DISCOVERED_DEPRECATE(149, Keys.FW_DISCOVERED_DEPRECATE, "Discovered a deprecate firmware version", Level.INFO),
+    FW_DISCOVERED_EMPTY_WAS_GHOST(150, Keys.FW_DISCOVERED_EMPTY_WAS_GHOST, "Discovered an EMPTY firmware version, while it previously was a ghost version '{0}'", Level.INFO),
+    FW_DISCOVERED_EMPTY_WAS_TEST(151, Keys.FW_DISCOVERED_EMPTY_WAS_TEST, "Discovered an EMPTY firmware version, while it previously was a test version '{0}'", Level.INFO),
+    FW_DISCOVERED_EMPTY_WAS_FINAL(152, Keys.FW_DISCOVERED_EMPTY_WAS_FINAL, "Discovered an EMPTY firmware version, while it previously was a final version '{0}'", Level.INFO),
+    FW_DISCOVERED_EMPTY_WAS_DEPRECATE(153, Keys.FW_DISCOVERED_EMPTY_WAS_DEPRECATE, "Discovered an EMPTY firmware version, while it previously was a deprecate version '{0}'", Level.INFO),
+    FW_DISCOVERED_NEW_GHOST_WAS_FINAL(154, Keys.FW_DISCOVERED_NEW_GHOST_WAS_FINAL, "Discovered a new ghost firmware version '{0}', while it previously was a final version '{1}'", Level.INFO),
+    FW_DISCOVERED_EXISTING_GHOST_WAS_FINAL(155, Keys.FW_DISCOVERED_EXISTING_GHOST_WAS_FINAL, "Discovered an existing ghost firmware version '{0}', while it previously was a final version '{1}'", Level.INFO),
+    FW_DISCOVERED_DEPRECATE_WAS_FINAL(156, Keys.FW_DISCOVERED_DEPRECATE_WAS_FINAL, "Discovered a deprecate firmware version '{0}', while it previously was a final version '{1}'", Level.INFO),
+    FW_UNKNOWN(157, "DDC.device.firmware.unknown", "Unknown firmware version transition...", Level.INFO),
+
     ;
 
     private final int number;
@@ -103,6 +116,16 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DEVICE_IS_REQUIRED_FOR_CACHE = "DDC.device.required";
         public static final String DEVICE_CACHE_NOT_SERIALIZABLE = "DDC.device.cache.not.serializable";
         public static final String DEVICE_CACHE_NOT_DESERIALIZABLE = "DDC.device.cache.not.deserializable";
+        public static final String FW_DISCOVERED_NEW_GHOST = "DDC.device.discovered.new.ghost.firmware";
+        public static final String FW_DISCOVERED_EXISTING_GHOST = "DDC.device.discovered.existing.ghost.firmware";
+        public static final String FW_DISCOVERED_DEPRECATE = "DDC.device.discovered.deprecate.firmware";
+        public static final String FW_DISCOVERED_EMPTY_WAS_GHOST = "DDC.device.discovered.empty.was.ghost";
+        public static final String FW_DISCOVERED_EMPTY_WAS_TEST = "DDC.device.discovered.empty.was.test";
+        public static final String FW_DISCOVERED_EMPTY_WAS_FINAL = "DDC.device.discovered.empty.was.final";
+        public static final String FW_DISCOVERED_EMPTY_WAS_DEPRECATE = "DDC.device.discovered.empty.was.deprecate";
+        public static final String FW_DISCOVERED_NEW_GHOST_WAS_FINAL = "DDC.device.discovered.new.ghost.was.final";
+        public static final String FW_DISCOVERED_EXISTING_GHOST_WAS_FINAL = "DDC.device.discovered.existing.ghost.was.final";
+        public static final String FW_DISCOVERED_DEPRECATE_WAS_FINAL = "DDC.device.discovered.deprecate.was.final";
     }
 
 }

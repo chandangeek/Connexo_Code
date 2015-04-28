@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.firmware.FirmwareStatus;
 
 import java.util.Optional;
@@ -46,6 +47,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.NEWGHOST;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_NEW_GHOST);
+        }
     },
 
     EMPTY_EXISTINGGHOST {
@@ -57,6 +63,11 @@ public enum FirmwareVersionStorageTransition {
         @Override
         String getToStatus() {
             return Constants.EXISTINGGHOST;
+        }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_EXISTING_GHOST);
         }
     },
 
@@ -94,6 +105,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.DEPRECATED;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_DEPRECATE);
+        }
     },
 
     EXISTINGGHOST_EMPTY {
@@ -106,6 +122,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.EMPTY;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_EMPTY_WAS_GHOST);
+        }
     },
     EXISTINGGHOST_NEW_GHOST {
         @Override
@@ -116,6 +137,11 @@ public enum FirmwareVersionStorageTransition {
         @Override
         String getToStatus() {
             return Constants.NEWGHOST;
+        }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_NEW_GHOST);
         }
     },
     EXISTINGGHOST_EXISTINGGHOST {
@@ -161,6 +187,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.DEPRECATED;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_DEPRECATE);
+        }
     },
     TEST_EMPTY {
         @Override
@@ -171,6 +202,11 @@ public enum FirmwareVersionStorageTransition {
         @Override
         String getToStatus() {
             return Constants.EMPTY;
+        }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_EMPTY_WAS_TEST);
         }
     },
     TEST_NEW_GHOST {
@@ -183,6 +219,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.NEWGHOST;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_NEW_GHOST);
+        }
     },
     TEST_EXISTINGGHOST {
         @Override
@@ -193,6 +234,11 @@ public enum FirmwareVersionStorageTransition {
         @Override
         String getToStatus() {
             return Constants.EXISTINGGHOST;
+        }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_EXISTING_GHOST);
         }
     },
     TEST_TEST {
@@ -227,6 +273,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.DEPRECATED;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_DEPRECATE);
+        }
     },
     FINAL_EMPTY {
         @Override
@@ -237,6 +288,11 @@ public enum FirmwareVersionStorageTransition {
         @Override
         String getToStatus() {
             return Constants.EMPTY;
+        }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_EMPTY_WAS_FINAL);
         }
     },
     FINAL_NEW_GHOST {
@@ -249,6 +305,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.NEWGHOST;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_NEW_GHOST_WAS_FINAL);
+        }
     },
     FINAL_EXISTINGGHOST {
         @Override
@@ -259,6 +320,11 @@ public enum FirmwareVersionStorageTransition {
         @Override
         String getToStatus() {
             return Constants.EXISTINGGHOST;
+        }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_EXISTING_GHOST_WAS_FINAL);
         }
     },
     FINAL_TEST {
@@ -293,6 +359,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.DEPRECATED;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_DEPRECATE_WAS_FINAL);
+        }
     },
     DEPRECATE_EMPTY {
         @Override
@@ -303,6 +374,11 @@ public enum FirmwareVersionStorageTransition {
         @Override
         String getToStatus() {
             return Constants.EMPTY;
+        }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_EMPTY_WAS_DEPRECATE);
         }
     },
     DEPRECATE_NEW_GHOST {
@@ -315,6 +391,11 @@ public enum FirmwareVersionStorageTransition {
         String getToStatus() {
             return Constants.NEWGHOST;
         }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_NEW_GHOST);
+        }
     },
     DEPRECATE_EXISTINGGHOST {
         @Override
@@ -325,6 +406,11 @@ public enum FirmwareVersionStorageTransition {
         @Override
         String getToStatus() {
             return Constants.EXISTINGGHOST;
+        }
+
+        @Override
+        Optional<MessageSeeds> getMessageSeed() {
+            return Optional.of(MessageSeeds.FW_DISCOVERED_EXISTING_GHOST);
         }
     },
     DEPRECATE_TEST {
@@ -369,6 +455,10 @@ public enum FirmwareVersionStorageTransition {
     abstract String getFromStatus();
 
     abstract String getToStatus();
+
+    Optional<MessageSeeds> getMessageSeed(){
+        return Optional.empty();
+    }
 
     public static class Constants {
         private static final String UNKNOWN = "UNKNOWN";

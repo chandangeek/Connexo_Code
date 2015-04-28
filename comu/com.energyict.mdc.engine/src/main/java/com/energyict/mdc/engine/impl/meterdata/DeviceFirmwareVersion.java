@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedFirmwareVersionDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -20,6 +21,7 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
     private Optional<String> activeCommunicationFirmwareVersion = Optional.empty();
     private Optional<String> passiveMeterFirmwareVersion = Optional.empty();
     private Optional<String> activeMeterFirmwareVersion = Optional.empty();
+    private ComTaskExecution comTaskExecution;
 
     public DeviceFirmwareVersion(DeviceIdentifier deviceIdentifier) {
         this.deviceDeviceIdentifier = deviceIdentifier;
@@ -33,6 +35,11 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
     @Override
     public void setPassiveCommunicationFirmwareVersion(String passiveCommunicationFirmwareVersion) {
         this.passiveCommunicationFirmwareVersion = Optional.of(passiveCommunicationFirmwareVersion);
+    }
+
+    @Override
+    public void setDataCollectionConfiguration(DataCollectionConfiguration configuration) {
+        this.comTaskExecution = (ComTaskExecution)configuration;
     }
 
     @Override
@@ -72,7 +79,7 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedFirmwareVersionDeviceCommand(serviceProvider, this);
+        return new CollectedFirmwareVersionDeviceCommand(serviceProvider, this, comTaskExecution);
     }
 
     @Override

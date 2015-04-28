@@ -1,11 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * Provides functionality to update the FirmwareVersion(s) of a Device
@@ -13,16 +18,33 @@ import java.util.function.Consumer;
 public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl {
 
     private final CollectedFirmwareVersion collectedFirmwareVersions;
+    private final ComTaskExecution comTaskExecution;
 
-    public CollectedFirmwareVersionDeviceCommand(ServiceProvider serviceProvider, CollectedFirmwareVersion collectedFirmwareVersions) {
+    public CollectedFirmwareVersionDeviceCommand(ServiceProvider serviceProvider, CollectedFirmwareVersion collectedFirmwareVersions, ComTaskExecution comTaskExecution) {
         super(serviceProvider);
         this.collectedFirmwareVersions = collectedFirmwareVersions;
+        this.comTaskExecution = comTaskExecution;
     }
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
         DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions = comServerDAO.updateFirmwareVersions(collectedFirmwareVersions);
-        //TODO comServerDOA.getOfflineFirmwareVersions(deviceIdentifier)
+        logAndCreateWarningsIfRequired(deviceFirmwareVersionStorageTransitions);
+    }
+
+    private void logAndCreateWarningsIfRequired(DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions) {
+        Stream.of(
+                deviceFirmwareVersionStorageTransitions.getActiveMeterFirmwareVersionTransition().getMessageSeed(),
+                deviceFirmwareVersionStorageTransitions.getActiveCommunicationFirmwareVersionTransition().getMessageSeed(),
+                deviceFirmwareVersionStorageTransitions.getPassiveMeterFirmwareVersionTransition().getMessageSeed(),
+                deviceFirmwareVersionStorageTransitions.getPassiveCommunicationFirmwareVersionTransition().getMessageSeed()).
+
+                forEach(optionalMessageSeed -> optionalMessageSeed.ifPresent(messageSeed ->
+                        getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning, createWarning(messageSeed), comTaskExecution)));
+    }
+
+    private Warning createWarning(MessageSeeds messageSeed) {
+        return getIssueService().newWarning(collectedFirmwareVersions.getDeviceIdentifier(), messageSeed.getKey());
     }
 
     @Override

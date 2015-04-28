@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.meterdata.DeviceFirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
@@ -26,9 +27,11 @@ import java.util.Optional;
 public class StatusInformationCommandImpl extends SimpleComCommand implements StatusInformationCommand {
 
     private final DeviceIdentifier<?> deviceDeviceIdentifier;
+    private final ComTaskExecution comTaskExecution;
 
     public StatusInformationCommandImpl(final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
+        this.comTaskExecution = comTaskExecution;
         if (device == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device");
         }
@@ -50,6 +53,8 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        addCollectedDataItem(deviceProtocol.getFirmwareVersions());
+        CollectedFirmwareVersion firmwareVersions = deviceProtocol.getFirmwareVersions();
+        firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
+        addCollectedDataItem(firmwareVersions);
     }
 }
