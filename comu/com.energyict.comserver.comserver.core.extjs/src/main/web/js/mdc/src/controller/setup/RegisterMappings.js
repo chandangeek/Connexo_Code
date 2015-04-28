@@ -77,7 +77,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
 
         this.getRegisterTypesOfDevicetypeStore().getProxy().setExtraParam('deviceType', id);
-        me.getAddRegisterMappingBtn().href = '#/administration/devicetypes/' + id + '/registertypes/add';
+        me.getAddRegisterMappingBtn() && (me.getAddRegisterMappingBtn().href = '#/administration/devicetypes/' + id + '/registertypes/add');
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
