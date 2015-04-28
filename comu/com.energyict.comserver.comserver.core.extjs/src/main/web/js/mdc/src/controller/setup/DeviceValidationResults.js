@@ -39,6 +39,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		
     ],    
     mRID: null,
+    veto: false,
 	dataValidationLastChecked: null,
     init: function () {
 		var me = this;
@@ -89,29 +90,51 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-				viewport.setLoading(false);
-				
-				var widget = Ext.widget('deviceValidationResultsMainView', { device: device });
-				me.getApplication().fireEvent('changecontentevent', widget);
-				me.getValidationResultsTabPanel().setActiveTab(activeTab);                        
+                viewport.setLoading(false);
+
+                var widget = Ext.widget('deviceValidationResultsMainView', {device: device});
+                me.getApplication().fireEvent('changecontentevent', widget);
+
+                me.veto = true;
+                me.getValidationResultsTabPanel().setActiveTab(activeTab);
+                if(activeTab == 0)
+                    me.loadConfigurationData();
+                else
+                    me.loadValidationResultsData();
+                me.veto = false;
             },
 			failure: function (response) {
 				viewport.setLoading(false);
 			}
         });
 	},
-	
-	changeTab: function (tabPanel, tab) {
-		var me = this,
-            router = me.getController('Uni.controller.history.Router');
 
-		if (Ext.isEmpty(router.filter.data.intervalStart)) {
-			me.setDefaults();
-		}
-		me.getSideFilterForm().loadRecord(router.filter);
-		me.setFilterView();
-		me.loadConfigurationData();
-        me.loadValidationResultsData();
+	changeTab: function (tabPanel, tab) {
+        if (!this.veto) {
+
+            var me = this,
+                router = me.getController('Uni.controller.history.Router'),
+                routeParams = router.arguments,
+                route,
+                filterParams = {};
+
+            if (tab.itemId === 'validationResults-configuration') {
+                routeParams.mRID = me.mRID;
+                route = 'devices/device/validationresultsconfiguration';
+                route && (route = router.getRoute(route));
+                route && route.forward(routeParams, filterParams);
+            }
+            else if (tab.itemId === 'validationResults-data') {
+                routeParams.mRID = me.mRID;
+                route = 'devices/device/validationresultsdata';
+                route && (route = router.getRoute(route));
+                route && route.forward(routeParams, filterParams);
+            }
+
+
+        } else {
+            this.veto = false;
+        }
 	},
 	
 	setDefaults : function(){
@@ -316,7 +339,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     columns: 1,
 					padding: '-10 0 0 60',
                     defaults: {
-                        name: 'validationRun',                    
+                        name: 'validationRun'
                     },
                     items: [
 						{
@@ -411,10 +434,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			viewport = Ext.ComponentQuery.query('viewport')[0],
 			models = me.getModel('Mdc.model.ValidationResults'),
 			router = me.getController('Uni.controller.history.Router');
-			
+
 		models.getProxy().setUrl(me.mRID);
 		models.getProxy().setFilterModel(router.filter);
-		
+
         viewport.setLoading();		
 		models.load('', {
 			success: function (record) {
@@ -425,6 +448,12 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 				viewport.setLoading(false);
 			}
         });
+        if (Ext.isEmpty(router.filter.data.intervalStart)) {
+            me.setDefaults();
+        }
+        me.getSideFilterForm().loadRecord(router.filter);
+        me.setFilterView();
+
 	},
 	
 	loadConfigurationDataItems : function(record){
@@ -465,6 +494,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 viewport.setLoading(false);
             }
         });
+
+        if (Ext.isEmpty(router.filter.data.intervalStart)) {
+            me.setDefaults();
+        }
+        me.getSideFilterForm().loadRecord(router.filter);
+        me.setFilterView();
+
     },
 
     loadValidationResultsDataItems : function(record){

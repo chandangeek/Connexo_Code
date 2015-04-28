@@ -5,12 +5,18 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
     ],
     fields: [
         {
-            name: 'allDataValidated'
+            name: 'validationStatus'
+        },
+        {
+            name: 'allDataValidated',
+            convert: function (value, record) {
+                return record.get('validationStatus').allDataValidated;
+            }
         },
         {
             name: 'allDataValidatedDisplay',
             convert: function (value, record) {
-                if (record.get('allDataValidated')) {
+                if (record.get('validationStatus').allDataValidated) {
                     return  Uni.I18n.translate('validationResults.dataValidatedYes', 'MDC', 'Yes');
                 }
                 return Uni.I18n.translate('validationResults.dataValidatedNo', 'MDC', 'No');
@@ -38,9 +44,6 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
             name: 'detailedValidationLoadProfile',
             type: 'hasMany',
             model: 'Mdc.model.ValidationResultsLoadProfile',
-            associationKey: 'detailedValidationLoadProfile',
-            //foreignKey: 'detailedValidationLoadProfile',
-
             getTypeDiscriminator: function (node) {
                 return 'Uni.property.model.Property';
             }
@@ -49,9 +52,6 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
             name: 'detailedValidationRegister',
             type: 'hasMany',
             model: 'Mdc.model.ValidationResultsRegister',
-            associationKey: 'detailedValidationRegister',
-            //foreignKey: 'detailedValidationRegister',
-
             getTypeDiscriminator: function (node) {
                 return 'Uni.property.model.Property';
             }
