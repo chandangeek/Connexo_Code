@@ -43,7 +43,7 @@ public class DeviceEstimationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE})
-    public PagedInfoList getValidationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getEstimationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<DeviceEstimationRuleSetActivation> pagedRuleSets = ListPager.of(device.forEstimation().getEstimationRuleSetActivations()).from(queryParameters).find();
         List<DeviceEstimationRuleSetRefInfo> infos = pagedRuleSets.stream().map(rs -> new DeviceEstimationRuleSetRefInfo(rs, device)).collect(Collectors.toList());
@@ -54,6 +54,7 @@ public class DeviceEstimationResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE)
     public Response toggleEstimationRuleSetActivation(@PathParam("mRID") String mRID, @PathParam("id") long id, DeviceEstimationRuleSetRefInfo info) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(info.parent.id, info.parent.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
         EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(info.id).orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));

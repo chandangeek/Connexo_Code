@@ -12,6 +12,7 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -72,6 +73,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     ValidationService validationService;
     @Mock
+    EstimationService estimationService;
+    @Mock
     Clock clock;
     @Mock
     MasterDataService masterDataService;
@@ -127,6 +130,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setMeteringService(meteringService);
         application.setSchedulingService(schedulingService);
         application.setValidationService(validationService);
+        application.setEstimationService(estimationService);
         application.setRestQueryService(restQueryService);
         application.setTaskService(taskService);
         application.setCommunicationTaskService(communicationTaskService);

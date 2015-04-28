@@ -192,7 +192,9 @@ public class DeviceResource {
     public DeviceInfo updateDevice(@PathParam("mRID") String id, DeviceInfo info, @Context SecurityContext securityContext) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(info.id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
         updateGateway(info, device);
-        updateEstimationStatus(info, device);
+        if (info.estimationStatus != null) {
+            updateEstimationStatus(info.estimationStatus, device);
+        }
         return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
     }
 
@@ -204,8 +206,8 @@ public class DeviceResource {
         }
     }
     
-    private void updateEstimationStatus(DeviceInfo info, Device device) {
-        if (info.estimationStatus.active) {
+    private void updateEstimationStatus(DeviceEstimationStatusInfo info, Device device) {
+        if (info.active) {
             device.forEstimation().activateEstimation();
         } else {
             device.forEstimation().deactivateEstimation();
