@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.tasks.TaskStatus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
@@ -388,6 +389,78 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public String getFirmwareVersionName() {
             return "needActivationVersion";
+        }
+    }
+
+    public static class OngoingVersionVerificationFirmwareState extends AbstractFirmwareUpgradeState {
+        @Override
+        public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
+            return super.validateMessage(message, helper)
+                    && DeviceMessageStatus.CONFIRMED.equals(message.getStatus())
+                    && !DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
+                    && activationMessageIfExistWasSuccessful(message, helper)
+                    && helper.getBasicCheckExecution().isPresent()
+                    && TaskStatus.BUSY.equals(helper.getBasicCheckExecution().get());
+        }
+
+        private boolean activationMessageIfExistWasSuccessful(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
+            Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
+            return !activationMessage.isPresent() && DeviceMessageStatus.CONFIRMED.equals(activationMessage.get().getStatus());
+        }
+
+        @Override
+        public String getFirmwareVersionName() {
+            return "ongoingVerificationVersion";
+        }
+    }
+
+    public static class FailedVersionVerificationFirmwareState extends FailedFirmwareUploadState {
+        @Override
+        public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
+            return helper.getUploadOptionFromMessage(message).isPresent()
+                    && !DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
+                    && DeviceMessageStatus.CONFIRMED.equals(message.getStatus())
+                    && activationMessageIfExistWasSuccessful(message, helper)
+                    && helper.getBasicCheckExecution().isPresent()
+                    && helper.getBasicCheckExecution().get().isLastExecutionFailed();
+        }
+
+        private boolean activationMessageIfExistWasSuccessful(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
+            Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
+            return !activationMessage.isPresent() && DeviceMessageStatus.CONFIRMED.equals(activationMessage.get().getStatus());
+        }
+
+        @Override
+        public String getFirmwareVersionName() {
+            return "failedVerificationVersion";
+        }
+    }
+
+
+    public static class WrongVersionVerificationFirmwareState extends AbstractFirmwareUpgradeState {
+        @Override
+        public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
+            return helper.getUploadOptionFromMessage(message).isPresent()
+                    && !DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
+                    && DeviceMessageStatus.CONFIRMED.equals(message.getStatus())
+                    && activationMessageIfExistWasSuccessful(message, helper)
+                    && helper.getBasicCheckExecution().isPresent()
+                    && !helper.messageContainsActiveFirmwareVersion(message);
+        }
+
+        private boolean activationMessageIfExistWasSuccessful(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
+            Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
+            return !activationMessage.isPresent() && DeviceMessageStatus.CONFIRMED.equals(activationMessage.get().getStatus());
+        }
+
+        @Override
+        public String getFirmwareVersionName() {
+            return "wrongVerificationVersion";
+        }
+
+        @Override
+        public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
+            return super.getFirmwareUpgradeProperties(message, helper);
         }
     }
 }
