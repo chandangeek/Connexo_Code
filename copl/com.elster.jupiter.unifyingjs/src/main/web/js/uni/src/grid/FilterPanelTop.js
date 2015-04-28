@@ -1,12 +1,10 @@
 /**
- * @class Uni.grid.FilterPanel
+ * @class Uni.grid.FilterPanelTop
  */
-Ext.define('Uni.grid.FilterPanel', {
+Ext.define('Uni.grid.FilterPanelTop', {
     extend: 'Ext.panel.Panel',
-    xtype: 'uni-grid-filterpanel',
+    xtype: 'uni-grid-filterpaneltop',
     ui: 'filter',
-
-    title: Uni.I18n.translate('uni.grid.filterpanel.title', 'UNI', 'Filters'),
 
     requires: [],
 
@@ -43,27 +41,32 @@ Ext.define('Uni.grid.FilterPanel', {
     filterObjectParam: 'filter',
 
     layout: {
-        type: 'vbox',
-        align: 'stretch'
+        type: 'hbox'
     },
 
     defaults: {
-        labelAlign: 'top'
+        labelAlign: 'top',
+        margins: '0 16 0 0'
     },
 
     items: [],
 
     dockedItems: [
         {
-            xtype: 'toolbar',
-            dock: 'bottom',
+            xtype: 'container',
+            dock: 'right',
+            layout: {
+                type: 'hbox'
+            },
             items: [
                 {
+                    xtype: 'button',
                     ui: 'action',
                     text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
                     action: 'apply'
                 },
                 {
+                    xtype: 'button',
                     text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
                     action: 'clear'
                 }
@@ -384,17 +387,17 @@ Ext.define('Uni.grid.FilterPanel', {
     getFilterType: function (type) {
         switch (type) {
             case 'checkbox':
-                return 'Uni.grid.filter.Checkbox';
+                return 'Uni.grid.filtertop.Checkbox';
             case 'combobox':
-                return 'Uni.grid.filter.ComboBox';
+                return 'Uni.grid.filtertop.ComboBox';
             case 'date':
-                return 'Uni.grid.filter.Date';
+                return 'Uni.grid.filtertop.Date';
             case 'interval':
-                return 'Uni.grid.filter.Interval';
+                return 'Uni.grid.filtertop.Interval';
             case 'radio':
-                return 'Uni.grid.filter.Radio';
+                return 'Uni.grid.filtertop.Radio';
             case 'text':
-                return 'Uni.grid.filter.Text';
+                return 'Uni.grid.filtertop.Text';
             default:
                 return undefined;
         }

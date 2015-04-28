@@ -12,7 +12,7 @@ Ext.define('Uni.util.QueryString', {
         Ext.apply(queryObject, config || {});
 
         queryObject = me.cleanQueryObject(queryObject);
-        return Ext.Object.toQueryString(queryObject);
+        return Ext.Object.toQueryString(queryObject, true);
     },
 
     /**
@@ -47,6 +47,6 @@ Ext.define('Uni.util.QueryString', {
     },
 
     getQueryStringValues: function () {
-        return Ext.Object.fromQueryString(this.getQueryString());
+        return Ext.Object.fromQueryString(this.getQueryString(), true);
     }
 });

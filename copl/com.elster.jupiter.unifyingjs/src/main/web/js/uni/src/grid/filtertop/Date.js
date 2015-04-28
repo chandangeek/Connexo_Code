@@ -1,12 +1,12 @@
 /**
- * @class Uni.grid.filter.Date
+ * @class Uni.grid.filtertop.Date
  */
-Ext.define('Uni.grid.filter.Date', {
+Ext.define('Uni.grid.filtertop.Date', {
     extend: 'Ext.form.FieldContainer',
-    xtype: 'uni-grid-filter-date',
+    xtype: 'uni-grid-filtertop-date',
 
     mixins: [
-        'Uni.grid.filter.Base'
+        'Uni.grid.filtertop.Base'
     ],
 
     fieldLabel: Uni.I18n.translate('grid.filter.date.label', 'UNI', 'Date'),
