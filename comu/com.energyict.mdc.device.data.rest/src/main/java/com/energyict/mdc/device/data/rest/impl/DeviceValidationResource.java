@@ -125,17 +125,35 @@ public class DeviceValidationResource {
 
         Range<Instant> interval = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
 
-        List<DataValidationStatus> statuses = device.getLoadProfiles().stream()
+        List<DataValidationStatus> lpStatuses = device.getLoadProfiles().stream()
                 .flatMap(l -> l.getChannels().stream())
                 .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), interval).stream())
                 .collect(Collectors.toList());
 
-        statuses.addAll(device.getRegisters().stream()
-                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), interval).stream())
-                .collect(Collectors.toList()));
+        validationStatusInfo.allDataValidated = true;
+        if (lpStatuses.isEmpty()) {
+            validationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()
+                    .flatMap(l -> l.getChannels().stream())
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
+        } else {
+            validationStatusInfo.allDataValidated &= lpStatuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
 
-        validationStatusInfo.allDataValidated = statuses.stream()
-                .allMatch(DataValidationStatus::completelyValidated);
+        List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
+                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), interval).stream())
+                .collect(Collectors.toList());
+
+        if (rgStatuses.isEmpty()) {
+            validationStatusInfo.allDataValidated &= device.getRegisters().stream()
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
+        } else {
+            validationStatusInfo.allDataValidated &= rgStatuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
+        List<DataValidationStatus> statuses = new ArrayList<>();
+        statuses.addAll(lpStatuses);
+        statuses.addAll(rgStatuses);
 
         MonitorValidationInfo info = new MonitorValidationInfo(statuses, validationStatusInfo);
 
@@ -188,11 +206,11 @@ public class DeviceValidationResource {
                                         .anyMatch(r -> ruleSetVersionId == null || r.getRuleSetVersion().getId() == ruleSetVersionId))
                                 .collect(Collectors.toList())
                 )).entrySet().stream().filter(m -> (((List<DataValidationStatus>)m.getValue()).size()) > 0L)
-                    .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
+                .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
 
         validationStatusInfo.allDataValidated = true;
         List<DataValidationStatus> lpsList = loadProfileStatus.entrySet().stream().flatMap(lps -> lps.getValue().stream()).collect(Collectors.toList());
-        if(lpsList.size()!=0)
+        if (lpsList.size()!=0)
             validationStatusInfo.allDataValidated &= lpsList.stream().allMatch(DataValidationStatus::completelyValidated);
         List<DataValidationStatus> rsList = registerStatus.entrySet().stream().flatMap(rs -> rs.getValue().stream()).collect(Collectors.toList());
         if(validationStatusInfo.allDataValidated && rsList.size()!=0)
