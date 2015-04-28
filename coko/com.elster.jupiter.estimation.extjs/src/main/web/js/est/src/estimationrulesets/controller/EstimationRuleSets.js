@@ -136,8 +136,9 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
     selectRule: function (grid, record) {
         var me =this,
-            previewForm = me.getRuleSetRulePreview().getForm();
-        previewForm.loadRecord(record)
+            previewForm = me.getRuleSetRulePreview();
+        previewForm.updateForm(record);
+        previewForm.down('menu').record = record;
     },
 
     showEstimationRuleSets: function () {
@@ -167,6 +168,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
                 widget.down('#rule-set-edit-form').loadRecord(record);
                 widget.down('#rule-set-edit-form').setTitle(Uni.I18n.translate('estimationrulesets.edit.title', 'EST', 'Edit \'{name}\'').replace('{name}', record.get('name')));
+                widget.down('#rule-set-edit-form #save-button').setText(Uni.I18n.translate('general.save', 'EST', 'Save'));
                 widget.setLoading(false);
             },
             failure: function () {
@@ -308,8 +310,9 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             previousRoute = router.getQueryStringValues().previousRoute;
+
         if (previousRoute) {
-            router.getRoute(previousRoute).forward()
+            location.href = previousRoute;
         } else {
             router.getRoute('administration/estimationrulesets').forward()
         }
@@ -320,7 +323,8 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             ruleId = record.getId(),
             ruleSetId = record.get('ruleSet').id,
             router = me.getController('Uni.controller.history.Router'),
-            previousRoute = router.currentRoute;
+            previousRoute = router.getRoute().buildUrl();
+
         router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward({ruleSetId: ruleSetId, ruleId: ruleId}, {previousRoute: previousRoute})
     },
 
@@ -328,7 +332,8 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             id = record.getId(),
             router = me.getController('Uni.controller.history.Router'),
-            previousRoute = router.currentRoute;
+            previousRoute = router.getRoute().buildUrl();
+
         router.getRoute('administration/estimationrulesets/estimationruleset/edit').forward({ruleSetId: id}, {previousRoute: previousRoute})
     },
 
@@ -337,14 +342,14 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             ruleSetGrid = me.getRuleSetGrid(),
             ruleSetId = ruleSetGrid.getSelectionModel().getSelection()[0].getId(),
             router = me.getController('Uni.controller.history.Router'),
-            previousRoute = router.currentRoute;
+            previousRoute = router.getRoute().buildUrl();
         router.getRoute('administration/estimationrulesets/estimationruleset/rules/add').forward({ruleSetId: ruleSetId}, {previousRoute: previousRoute})
     },
 
     navigateAdd: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            previousRoute = router.currentRoute;
+            previousRoute = router.getRoute().buildUrl();
         router.getRoute('administration/estimationrulesets/addruleset').forward({}, {previousRoute: previousRoute})
     }
 

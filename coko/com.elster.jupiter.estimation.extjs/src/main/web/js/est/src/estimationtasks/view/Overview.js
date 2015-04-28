@@ -34,7 +34,7 @@ Ext.define('Est.estimationtasks.view.Overview', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('estimationtasks.general.addEstimationTask', 'EST', 'Add validation task'),
+                                text: Uni.I18n.translate('estimationtasks.general.addEstimationTask', 'EST', 'Add estimation task'),
 //                                privileges:['privilege.administrate.estimationConfiguration'],
                                 ui: 'action',
                                 href: '#/administration/estimationtasks/add'

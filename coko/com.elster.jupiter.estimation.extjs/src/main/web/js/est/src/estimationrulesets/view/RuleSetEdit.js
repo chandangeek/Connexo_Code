@@ -43,9 +43,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
                 ],
                 buttons: [
                     {
-                        text: me.record ?
-                            Uni.I18n.translate('general.save', 'EST', 'Save') :
-                            Uni.I18n.translate('general.add', 'EST', 'Add'),
+                        text: Uni.I18n.translate('general.add', 'EST', 'Add'),
                         ui: 'action',
                         itemId: 'save-button'
                     },

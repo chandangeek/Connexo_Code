@@ -16,7 +16,7 @@ Ext.define('Est.estimationtasks.view.Log', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('estimationtasks.estimationtask', 'EST', 'Estimation task'),
+                title: Uni.I18n.translate('estimationtasks.general.estimationtasks', 'EST', 'Estimation task'),
                 ui: 'medium',
                 items: [
                     {

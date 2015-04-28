@@ -23,7 +23,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksDetails', {
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Est.estimationtasks.model.EstimationTask'),
             widget = Ext.widget('estimationtasks-details', {router: router, taskId: currentTaskId});
-
+        me.getController('Est.estimationtasks.controller.EstimationTasksAddEdit').fromDetails = true;
         me.getApplication().fireEvent('changecontentevent', widget);
 
         widget.setLoading(true);

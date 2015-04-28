@@ -42,14 +42,16 @@ Ext.define('Est.estimationrules.controller.Edit', {
     },
 
     showOverview: function (ruleSetId, ruleId) {
+
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             clipboard = me.getStore('Est.main.store.Clipboard'),
             savedState = clipboard.get('estimationRule'),
+
             widget = Ext.widget('estimation-rule-edit', {
                 edit: !!ruleId,
                 returnLink: router.queryParams.previousRoute
-                    ? router.getRoute(router.queryParams.previousRoute).buildUrl()
+                    ? router.queryParams.previousRoute
                     : router.getRoute('administration/estimationrulesets/estimationruleset/rules').buildUrl()
             }),
             dependencies = 2,

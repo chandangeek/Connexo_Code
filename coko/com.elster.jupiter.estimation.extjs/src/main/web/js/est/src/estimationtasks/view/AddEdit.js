@@ -36,7 +36,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                         itemId: 'task-name',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.name', 'EST', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
@@ -272,13 +272,13 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-button',
-                                text: Uni.I18n.translate('general.add', 'EST', 'Add'),
+                                text: Uni.I18n.translate('estimationtasks.general.add', 'EST', 'Add'),
                                 ui: 'action'
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'cancel-link',
-                                text: Uni.I18n.translate('general.cancel', 'EST', 'Cancel'),
+                                text: Uni.I18n.translate('estimationtasks.general.cancel', 'EST', 'Cancel'),
                                 ui: 'link',
                                 href: '#/administration/estimationtasks/'
                             }
@@ -294,11 +294,11 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('general.save ', 'EST', 'Save'));
+            this.down('#add-button').setText(Uni.I18n.translate('estimationtasks.general.save', 'EST', 'Save'));
             this.down('#add-button').action = 'editTask';
         } else {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('general.add', 'EST', 'Add'));
+            this.down('#add-button').setText(Uni.I18n.translate('estimationtasks.general.add', 'EST', 'Add'));
             this.down('#add-button').action = 'addTask';
         }
         if (this.returnLink) {

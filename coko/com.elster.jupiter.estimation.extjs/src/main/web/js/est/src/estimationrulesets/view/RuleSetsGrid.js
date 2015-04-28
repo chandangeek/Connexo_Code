@@ -11,7 +11,6 @@ Ext.define('Est.estimationrulesets.view.RuleSetsGrid', {
     store: 'Est.estimationrulesets.store.EstimationRuleSetsStore',
     initComponent: function () {
         var me = this;
-        me.store = Ext.getStore(me.store) || Ext.create(me.store);
         me.columns = [
             {
                 header: Uni.I18n.translate('estimationrulesets.estimationruleset', 'EST', 'Estimation rule set'),
@@ -34,15 +33,17 @@ Ext.define('Est.estimationrulesets.view.RuleSetsGrid', {
                 header: Uni.I18n.translate('estimationrulesets.inactiveRules', 'EST', 'Inactive rules'),
                 dataIndex: 'numberOfInactiveRules',
                 flex: 1
-            },
-            {
+            }
+        ];
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.EstimationConfiguration'])) {
+            me.columns.push({
                 xtype: 'uni-actioncolumn',
                 privileges: Est.privileges.EstimationConfiguration.administrate,
                 menu: {
                     xtype: 'estimation-rule-sets-action-menu'
                 }
-            }
-        ];
+            })
+        }
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -55,6 +56,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetsGrid', {
                     {
                         text: Uni.I18n.translate('estimationrulesets.add.title', 'EST', 'Add estimation rule set'),
                         itemId: 'add-estimation-rule-set-button',
+                        privileges: Est.privileges.EstimationConfiguration.administrate,
                         xtype: 'button',
                         action: 'addEstimationRuleSet'
                     }

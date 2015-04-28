@@ -84,7 +84,7 @@ Ext.define('Est.estimationrules.controller.Detail', {
                 me.toggleActivation(menu.record);
                 break;
             case 'edit':
-                router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward(router.arguments, {previousRoute: router.currentRoute});
+                router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
                 break;
         }
     },

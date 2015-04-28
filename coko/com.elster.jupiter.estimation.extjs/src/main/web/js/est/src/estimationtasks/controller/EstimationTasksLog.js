@@ -29,8 +29,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
             sideMenu,
             occurrenceTask;
 
-        //historyStore.getProxy().setUrl(router.arguments);
-        //logsStore.getProxy().setUrl(router.arguments);
+        historyStore.getProxy().setUrl(router.arguments);
+        logsStore.getProxy().setUrl(router.arguments);
         taskModel.load(taskId, {
             success: function (record) {
                 historyStore.load(function(records) {

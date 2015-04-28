@@ -48,9 +48,10 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Est.estimationtasks.model.EstimationTask'),
-            widget = Ext.widget('estimationtasks-history', {router: router, taskId: currentTaskId});
-
-
+            store = me.getStore('Est.estimationtasks.store.EstimationTasksHistory'),
+            widget;
+        store.getProxy().setUrl(router.arguments);
+        widget = Ext.widget('estimationtasks-history', {router: router, taskId: currentTaskId});
         me.getApplication().fireEvent('changecontentevent', widget);
         me.initFilter();
 

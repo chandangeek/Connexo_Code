@@ -4,8 +4,7 @@ Ext.define('Est.estimationtasks.store.Logs', {
     pageSize: 50,
     proxy: {
         type: 'rest',
-        //urlTpl: '/api/est/estimationtasks/{taskId}/history/{occurrenceId}',
-        url: '/api/val/validationtasks/2/history/206686', // Test Url
+        urlTpl: '/api/est/estimation/tasks/{taskId}/history/{occurrenceId}',
         reader: {
             type: 'json',
             root: 'data'

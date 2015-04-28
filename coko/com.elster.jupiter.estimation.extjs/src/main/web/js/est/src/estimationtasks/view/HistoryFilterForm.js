@@ -11,7 +11,7 @@ Ext.define('Est.estimationtasks.view.HistoryFilterForm', {
     cls: 'filter-form',
     width: 250,
     style: 'padding: 0',
-    title: Uni.I18n.translate('general.filter', 'EST', 'Filter'),
+    title: Uni.I18n.translate('estimationtasks.filter', 'EST', 'Filter'),
     ui: 'medium',
 
     items: [
@@ -112,12 +112,12 @@ Ext.define('Est.estimationtasks.view.HistoryFilterForm', {
                     dock: 'bottom',
                     items: [
                         {
-                            text: Uni.I18n.translate('general.apply', 'EST', 'Apply'),
+                            text: Uni.I18n.translate('estimationtasks.connection.widget.sideFilter.apply', 'EST', 'Apply'),
                             ui: 'action',
                             action: 'applyfilter'
                         },
                         {
-                            text: Uni.I18n.translate('general.clearAll', 'EST', 'Clear all'),
+                            text: Uni.I18n.translate('estimationtasks.connection.widget.sideFilter.clearAll', 'EST', 'Clear all'),
                             action: 'clearfilter'
                         }
                     ]

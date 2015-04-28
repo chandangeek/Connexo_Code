@@ -55,7 +55,8 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('estimationrules.addEstimationRule', 'EST', 'Add estimation rule'),
-                                    itemId: 'rule-sets-add-rule-button'
+                                    itemId: 'rule-sets-add-rule-button',
+                                    privileges: Est.privileges.EstimationConfiguration.administrate
                                 }
                             ]
                         }

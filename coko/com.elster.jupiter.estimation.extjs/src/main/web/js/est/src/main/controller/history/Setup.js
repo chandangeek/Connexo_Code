@@ -146,6 +146,13 @@ Ext.define('Est.main.controller.history.Setup', {
                                 return this;
                             },
                             items: {
+                                edit: {
+                                    title: Uni.I18n.translate('estimationtasks.general.edit', 'EST', 'Edit'),
+                                    route: 'edit',
+                                    controller: 'Est.estimationtasks.controller.EstimationTasksAddEdit',
+                                    //privileges: ['privilege.administrate.EstimationConfiguration'],
+                                    action: 'showEditEstimationTasksView'
+                                },
                                 history: {
                                     title: Uni.I18n.translate('estimationtasks.general.history', 'EST', 'History'),
                                     route: 'history',

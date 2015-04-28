@@ -25,7 +25,7 @@ Ext.define('Est.estimationtasks.view.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.status', 'EST', 'Status'),
+                header: Uni.I18n.translate('estimationtasks.general.status', 'EST', 'Status'),
                 dataIndex: 'status_formatted',
                 flex: 1
             },

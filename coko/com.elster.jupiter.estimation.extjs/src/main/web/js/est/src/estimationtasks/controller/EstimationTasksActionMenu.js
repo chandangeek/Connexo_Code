@@ -52,6 +52,9 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
             case 'viewLog':
                 route = 'administration/estimationtasks/estimationtask/history/occurrence';
                 break;
+            case 'editEstimationTask':
+                route = 'administration/estimationtasks/estimationtask/edit';
+                break;
         }
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments);
@@ -139,7 +142,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('estimationtasks.general.remove.msg', 'EST', 'This estimation task will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'EST', 'Remove') + '&nbsp' + record.data.name + '?',
+            title: Uni.I18n.translate('estimationtasks.general.remove', 'EST', 'Remove') + '&nbsp' + record.data.name + '?',
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {

@@ -56,8 +56,8 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             persist: false,
             mapping: function (data) {
                 var result;
-                if (data.lastRun && (data.lastRun !== 0)) {
-                    result = Uni.DateTime.formatDateTimeLong(new Date(data.lastRun));
+                if (data.lastEstimationOccurrence && (data.lastEstimationOccurrence.lastRun !== 0)) {
+                    result = Uni.DateTime.formatDateTimeLong(new Date(data.lastEstimationOccurrence.lastRun));
                 } else {
                     result = '-'
                 }
@@ -127,8 +127,6 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
     proxy: {
         type: 'rest',
         url: '/api/est/estimation/tasks',
-//      url: '/apps/est/src/estimationtasks/fakedata/estimationtask.json',
-//        url: '/apps/est/src/estimationtasks/fakedata/estimationtasksempty.json',
         timeout: 240000,
         reader: {
             type: 'json'

@@ -5,15 +5,13 @@ Ext.define('Est.estimationtasks.store.EstimationTasksHistory', {
 
     proxy: {
         type: 'rest',
-        //urlTpl: '/api/est/estimationtasks/{taskId}/history',
-        url: '/api/val/validationtasks/2/history', // Test url
-        //url: '/apps/est/src/estimationtasks/fakedata/estimationtaskhistory.json',
+        urlTpl: '/api/est/estimation/tasks/{taskId}/history',
         reader: {
             type: 'json',
             root: 'data'
+        },
+        setUrl: function (params) {
+            this.url = this.urlTpl.replace('{taskId}', params.taskId);
         }
-        //setUrl: function (params) {
-        //    this.url = this.urlTpl.replace('{taskId}', params.taskId);
-        //}
     }
 });

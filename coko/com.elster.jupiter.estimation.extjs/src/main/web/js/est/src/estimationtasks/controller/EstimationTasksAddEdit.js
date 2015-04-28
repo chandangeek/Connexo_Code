@@ -16,14 +16,15 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         {ref: 'addEditEstimationtaskPage', selector: 'estimationtasks-addedit'},
         {ref: 'addEditEstimationtaskForm', selector: '#add-edit-estimationtask-form'},
         {ref: 'deviceGroupCombo', selector: '#device-group-id'},
+        {ref: 'estimationPeriodCombo', selector: '#estimationPeriod-id'},
         {ref: 'noDeviceGroupBlock', selector: '#no-device'},
         {ref: 'recurrenceTypeCombo', selector: '#recurrence-type'}
     ],
 
-    //fromDetails: false,
+    fromDetails: null,
     //fromEdit: false,
-    //taskModel: null,
-    //taskId: null,
+    taskModel: null,
+    taskId: null,
 
     init: function () {
         this.control({
@@ -46,13 +47,13 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         me.getRecurrenceTypeCombo().setValue(me.getRecurrenceTypeCombo().store.getAt(2));
     },
 
-    createEstimationTask: function () {
+    createEstimationTask: function (button) {
         var me = this, newEstimationTaskDto = me.getAddEditEstimationtaskForm().getValues();
 
         me.getAddEditEstimationtaskForm().down('#form-errors').hide();
 
         if (me.getAddEditEstimationtaskForm().isValid()) {
-            var newEstimationTask = Ext.create('Est.estimationtasks.model.EstimationTask');
+            var newEstimationTask = me.taskModel || Ext.create('Est.estimationtasks.model.EstimationTask');
 
             newEstimationTask.beginEdit();
 
@@ -150,8 +151,16 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
             newEstimationTask.save({
                 success: function () {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.addTask.successMsg', 'EST', 'Estimation task added'));
+                    if (button.action === 'editTask' && me.fromDetails) {
+                        me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').forward({taskId: newEstimationTask.getId()});
+                    } else {
+                        me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks').forward();
+                    }
+                    if (button.action === 'editTask') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.saveTask.successMsg', 'EST', 'Estimation task saved'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.addTask.successMsg', 'EST', 'Estimation task added'));
+                    }
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
@@ -169,5 +178,66 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         } else {
             me.getAddEditEstimationtaskForm().down('#form-errors').show();
         }
+    },
+
+    showEditEstimationTasksView: function (currentTaskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            taskModel = me.getModel('Est.estimationtasks.model.EstimationTask'),
+            widget;
+
+        me.taskId = currentTaskId;
+
+        if (me.fromDetails) {
+            widget = Ext.widget('estimationtasks-addedit',{
+                edit: true,
+                returnLink: router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: currentTaskId})
+            })
+        } else {
+            widget = Ext.widget('estimationtasks-addedit',{
+                edit: true,
+                returnLink: router.getRoute('administration/estimationtasks').buildUrl()
+            })
+        }
+
+        var taskForm = widget.down('#add-edit-estimationtask-form'),
+            deviceGroupCombo = widget.down('#device-group-id'),
+            recurrenceTypeCombo = widget.down('#recurrence-type');
+
+        taskModel.load(currentTaskId, {
+            success: function (record) {
+                var schedule = record.get('schedule'),
+                    period = record.get('period');
+                me.taskModel = record;
+                taskForm.loadRecord(record);
+                me.getApplication().fireEvent('estimationTaskLoaded', record);
+                taskForm.setTitle(Uni.I18n.translate('estimationtasks.general.edit', 'EST', 'Edit') + " '" + record.get('name') + "'");
+                deviceGroupCombo.store.load(function () {
+                    if (this.getCount() === 0) {
+                        deviceGroupCombo.allowBlank = true;
+                        deviceGroupCombo.hide();
+                        me.getNoDeviceGroupBlock().show();
+                    }
+                    deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
+                });
+
+                if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                    widget.down('#recurrence-trigger').setValue({recurrence: true});
+                    widget.down('#recurrence-number').setValue(schedule.count);
+                    recurrenceTypeCombo.setValue(schedule.timeUnit);
+                    widget.down('#start-on').setValue(record.data.nextRun);
+                } else {
+                    recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+                }
+
+                if (record.data.period && (record.data.period.id !== 0)) {
+                    widget.down('#estimation-period-trigger').setValue({estimationPeriod: true});
+                    me.getEstimationPeriodCombo().setValue(period.id);
+                }
+                widget.setLoading(false);
+            }
+        });
+
+        me.getApplication().fireEvent('changecontentevent', widget);
     }
 });
