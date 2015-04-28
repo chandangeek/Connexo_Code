@@ -31,7 +31,7 @@ public class LogBookEventCode extends AbstractField<LogBookEventCode> {
     public LogBookEventCode parse(byte[] rawData, int offset) throws ParsingException {
         int code = getIntFromBytesLE(rawData, offset, LENGTH);
         eventCode = EventCode.fromCode(code);
-        if (eventCode.equals(EventCode.UNKNOWN)) {
+        if (eventCode.equals(EventCode.UNKNOWN) && code != 0) {
             throw new ParsingException("Encountered invalid/unknown Logbook event code " + ProtocolTools.getHexStringFromInt(code, 1, "0x") + ".");
         }
         return this;

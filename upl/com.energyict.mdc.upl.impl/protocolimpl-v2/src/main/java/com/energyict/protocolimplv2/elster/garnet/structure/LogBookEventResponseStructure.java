@@ -103,7 +103,9 @@ public class LogBookEventResponseStructure extends Data<LogBookEventResponseStru
         this.eventCode.parse(rawData, ptr);
         ptr += eventCode.getLength();
 
-        this.parseEventData(rawData, ptr);
+        if (!this.eventCode.getEventCode().equals(LogBookEventCode.EventCode.UNKNOWN)) {
+            this.parseEventData(rawData, ptr);
+        }
         return this;
     }
 
