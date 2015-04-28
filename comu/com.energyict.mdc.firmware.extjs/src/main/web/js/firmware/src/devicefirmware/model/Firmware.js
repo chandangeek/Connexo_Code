@@ -25,14 +25,6 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
         'Fwc.devicefirmware.model.FirmwareVersion'
     ],
 
-    retry: function (comTaskId, callback) {
-        Ext.Ajax.request({
-            method: 'PUT',
-            url: 'api/ddr/devices/{mrid}/comtasks/{id}/runnow'.replace('{id}', comTaskId),
-            callback: callback
-        });
-    },
-
     associations: [
         {
             type: 'hasOne',
@@ -53,21 +45,24 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
             model: 'Fwc.devicefirmware.model.FirmwareVersion',
             name: 'pendingVersion',
             associatedName: 'pendingVersion',
-            associationKey: 'pendingVersion'
+            associationKey: 'pendingVersion',
+            getterName: 'getPendingVersion'
         },
         {
             type: 'hasOne',
             model: 'Fwc.devicefirmware.model.FirmwareVersion',
             name: 'failedVersion',
             associatedName: 'failedVersion',
-            associationKey: 'failedVersion'
+            associationKey: 'failedVersion',
+            getterName: 'getFailedVersion'
         },
         {
             type: 'hasOne',
             model: 'Fwc.devicefirmware.model.FirmwareVersion',
             name: 'ongoingVersion',
             associatedName: 'ongoingVersion',
-            associationKey: 'ongoingVersion'
+            associationKey: 'ongoingVersion',
+            getterName: 'getOngoingVersion'
         }
     ],
 

@@ -52,9 +52,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         .forward();
                 }
             },
-            'device-firmware-setup button[action=cancel]': {
-                click: this.applyFilter
-            },
             '#device-firmware-upload-form button[action=uploadFirmware]': {
                 click: this.uploadFirmware
             }
@@ -118,20 +115,18 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     },
 
     doRetry: function (btn) {
-        var form = btn.up('form'),
-            record = form.getRecord(),
-            router = this.getController('Uni.controller.history.Router'),
-            model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
-            comTaskId = 1; // todo: replace on assoceiated data
+        var me = this,
+            form = btn.up('form'),
+            record = form.down('#message-failed').record,
+            router = this.getController('Uni.controller.history.Router');
 
         form.setLoading();
-        record.retry(comTaskId, {
-            success: function (devicemessage) {
-                devicemessage.destroy();
-            },
-            callback: function () {
-                form.setLoading(false);
+        record.retry(router.arguments.mRID, function (operation, success) {
+            if (success) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.retried', 'FWC', 'Firmware upgrade retried.'));
+                router.getRoute().forward();
             }
+            form.setLoading(false);
         });
     },
 
@@ -141,7 +136,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             record = form.down('#message-pending').record,
             router = me.getController('Uni.controller.history.Router'),
             Model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
-            devicemessageId = record.firmwareDeviceMessageId,
+            devicemessageId = record.get('firmwareDeviceMessageId'),
             message = new Model();
 
         form.setLoading();

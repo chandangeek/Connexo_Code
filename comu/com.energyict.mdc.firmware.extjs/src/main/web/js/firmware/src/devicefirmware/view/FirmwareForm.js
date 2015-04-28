@@ -137,16 +137,17 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             FirmwareVersion = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion')
         ;
 
+        me.title = me.record.get('type');
         me.callParent(arguments);
 
         me.loadRecord(me.record.getActiveVersion() || new FirmwareVersion({firmwareVersion: Uni.I18n.translate('device.firmware.version.unknown', 'FWC', 'Unknown')}));
-        me.setTitle(me.record.get('type'));
+
         formPending  = me.down('#message-pending');
         formFailed   = me.down('#message-failed');
         formOngoing  = me.down('#message-ongoing');
 
         if (pendingVersion) {
-            formPending.record = pendingVersion;
+            formPending.record = me.record.getPendingVersion();
             formPending.show();
             formPending.setText(Uni.I18n.translate('device.firmware.deprecated.message', 'FWC', 'Upload and activation of version {0} pending (Planned on {1})', [
                 pendingVersion.firmwareVersion,
@@ -155,15 +156,15 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         }
 
         if (failedVersion) {
-            formFailed.record = failedVersion;
+            formFailed.record = me.record.getFailedVersion();
             formFailed.show();
-            formFailed.setText(Uni.I18n.translate('device.firmware.failed.message', 'FWC', 'Failed to upload version {0} to the device', [
+            formFailed.setText(Uni.I18n.translate('device.firmware.failed.message', 'FWC', 'Upload and activation of version {0} failed', [
                 failedVersion.firmwareVersion
             ]));
         }
 
         if (ongoingVersion) {
-            formOngoing.record = ongoingVersion;
+            formOngoing.record =  me.record.getOngoingVersion();
             formOngoing.show();
             formOngoing.setText(Uni.I18n.translate('device.firmware.ongoing.message', 'FWC', 'Upload and activation of version {0} ongoing (upload started on {1})', [
                 ongoingVersion.firmwareVersion,

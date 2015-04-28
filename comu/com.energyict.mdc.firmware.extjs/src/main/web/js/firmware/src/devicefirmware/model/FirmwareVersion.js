@@ -26,6 +26,16 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
         }
     ],
 
+    retry: function (mrid, callback) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ddr/devices/{mrid}/comtasks/{id}/runnow'
+                .replace('{mrid}', mrid)
+                .replace('{id}', this.get('firmwareComTaskId')),
+            callback: callback
+        });
+    },
+
     requires: [
         'Fwc.model.FirmwareStatus',
         'Fwc.devicefirmware.model.FirmwareUpgradeOption'
