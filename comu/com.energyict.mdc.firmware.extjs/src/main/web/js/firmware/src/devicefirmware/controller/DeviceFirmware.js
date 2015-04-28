@@ -46,10 +46,15 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                 click: this.doRetry
             },
             'device-firmware-setup button[action=viewLog]': {
-                click: function () {
+                click: function (el) {
+                    var record = el.up('#message-failed').record;
                     this.getController('Uni.controller.history.Router')
                         .getRoute('devices/device/firmware/log')
-                        .forward();
+                        .forward(null, {
+                            firmwareComTaskId: record.get('firmwareComTaskId'),
+                            firmwareComTaskSessionId: record.get('firmwareComTaskSessionId'),
+                            firmwareVersion: record.get('firmwareVersion')
+                        });
                 }
             },
             '#device-firmware-upload-form button[action=uploadFirmware]': {

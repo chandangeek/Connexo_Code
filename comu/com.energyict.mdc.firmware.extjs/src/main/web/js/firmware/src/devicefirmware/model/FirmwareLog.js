@@ -3,8 +3,8 @@ Ext.define('Fwc.devicefirmware.model.FirmwareLog', {
     fields: [
         {name: 'id', type: 'string', useNull: true},
         {name: 'timestamp', dateFormat: 'time', type: 'date'},
-        {name: 'description', type: 'string'},
+        {name: 'errorDetails', type: 'string'},
         {name: 'details', type: 'string'},
-        {name: 'level', type: 'string'}
+        {name: 'logLevel', type: 'string'}
     ]
 });

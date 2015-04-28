@@ -17,12 +17,12 @@ Ext.define('Fwc.devicefirmware.view.LogGrid', {
             },
             {
                 header: Uni.I18n.translate('deviceFirmware.log.description', 'FWC', 'Description'),
-                dataIndex: 'description',
+                dataIndex: 'errorDetails',
                 flex: 2
             },
             {
                 header: Uni.I18n.translate('deviceFirmware.log.level', 'FWC', 'Log level'),
-                dataIndex: 'level',
+                dataIndex: 'logLevel',
                 flex: 1
             }
         ];
