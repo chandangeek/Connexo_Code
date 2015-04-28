@@ -449,9 +449,15 @@ public class DataContainer implements Serializable {
 						i+=4;
 					} break;
 					
+					case INTEGER: {
+						i++;
+						addInteger(responseData[i]);    //Signed
+						i++;
+					}
+					break;
+
 					case BCD:
 					case ENUM:
-					case INTEGER:
 					case BOOLEAN:
 					case UNSIGNED:
 					{

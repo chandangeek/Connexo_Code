@@ -83,8 +83,12 @@ public class CapturedObject {
         if (classId != that.classId) return false;
         if (attributeIndex != that.attributeIndex) return false;
         if (dataIndex != that.dataIndex) return false;
-        return !(logicalName != null ? !logicalName.equals(that.logicalName) : that.logicalName != null);
 
+        if (logicalName != null && that.logicalName != null) {
+            return logicalName.getObisCode().equals(that.logicalName.getObisCode());
+        } else {
+            return logicalName == null && that.logicalName == null;
+        }
 }
 
     @Override
