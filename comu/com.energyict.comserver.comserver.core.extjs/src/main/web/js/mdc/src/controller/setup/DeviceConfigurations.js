@@ -147,9 +147,14 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             loadProfilesLink.setText(deviceConfigurations[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC', 'load profile configurations'));
 
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
+
             var actionMenu = this.getDeviceConfigurationPreview().down('#device-configuration-action-menu');
             if(actionMenu)
                 actionMenu.record = deviceConfigurations[0];
+
+            if(this.getDeviceConfigurationPreview().down('#device-configuration-action-menu')) {
+                this.getDeviceConfigurationPreview().down('#device-configuration-action-menu').record = deviceConfigurations[0];
+            }
             this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
             this.getDeviceConfigurationPreview().setTitle(deviceConfigurations[0].get('name'));
 
