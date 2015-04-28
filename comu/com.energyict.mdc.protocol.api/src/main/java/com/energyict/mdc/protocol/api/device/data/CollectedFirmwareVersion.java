@@ -37,4 +37,7 @@ public interface CollectedFirmwareVersion extends CollectedData {
      */
     Optional<String> getPassiveCommunicationFirmwareVersion();
     void setPassiveCommunicationFirmwareVersion(String passiveCommunicationFirmwareVersion);
+
+    void setDataCollectionConfiguration (DataCollectionConfiguration configuration);
+
 }
