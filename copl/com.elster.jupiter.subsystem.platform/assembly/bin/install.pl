@@ -7,10 +7,12 @@ use File::Basename;
 use File::Path qw(rmtree);
 use File::Path qw(make_path);
 use File::Copy;
+use Socket;
 
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
+my $INSTALL_VERSION="v20150428";
 my $OS="$^O";
 my $JAVA_HOME=$ENV{"JAVA_HOME"};
 my $CURRENT_DIR=getcwd;
@@ -29,7 +31,7 @@ my $INSTALL_FACTS="yes";
 my $INSTALL_FLOW="yes";
 my $INSTALL_WSO2IS="yes";
 
-my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
+my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
 my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
@@ -97,6 +99,10 @@ sub read_args {
 		if ($ARGV[$i] eq "--uninstall") {
 			$install=0;
 		}
+		if ($ARGV[$i] eq "--version") {
+			print "\nInstallation script version $INSTALL_VERSION\n";
+			exit (0);
+		}
 	}
 }
 
@@ -108,6 +114,7 @@ sub read_config {
 			chomp($row);
 			if ( "$row" ne "") {
 				my @val=split('=',$row);
+				if ( "$val[0]" eq "HOST_NAME" )			{$HOST_NAME=$val[1];}
 				if ( "$val[0]" eq "CONNEXO_HTTP_PORT" ) {$CONNEXO_HTTP_PORT=$val[1];}
 				if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
 				if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
@@ -167,6 +174,41 @@ sub read_uninstall_config {
 		}
 	}
 	close($FH);
+}
+
+sub check_port {
+	my $proto = getprotobyname('tcp');
+	my $iaddr = inet_aton('localhost');
+	my $paddr = sockaddr_in($_[0], $iaddr);
+    
+	socket(SOCKET, PF_INET, SOCK_STREAM, $proto) || warn "socket: $!";
+    
+	eval {
+		#local $SIG{ALRM} = sub { die "timeout" };
+		#alarm(10);
+		connect(SOCKET, $paddr) || error();
+		#alarm(0);
+	};
+    
+	if ($@) {
+		close SOCKET || warn "close: $!";
+		return 0;
+	} else {
+		close SOCKET || warn "close: $!";
+		return 1;
+	}
+}
+
+sub checking_ports {
+	my $CONNEXO_PORT=0;
+	my $TOMCAT_PORT=0;
+	if ("$INSTALL_CONNEXO" eq "yes") { $CONNEXO_PORT=check_port($CONNEXO_HTTP_PORT); };
+	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) { $TOMCAT_PORT=check_port($TOMCAT_HTTP_PORT); };
+	if ($CONNEXO_PORT>0 || $TOMCAT_PORT>0) {
+		if ($CONNEXO_PORT>0) { print "Port $CONNEXO_HTTP_PORT for Connexo already in use!\n"; }
+		if ($TOMCAT_PORT>0) { print "Port $TOMCAT_HTTP_PORT for Tomcat already in use!\n"; }
+		exit (0);
+	}
 }
 
 sub install_connexo {
@@ -290,9 +332,11 @@ sub install_facts {
 			chomp($FACTS_DBPASSWORD=<STDIN>);
 		}
 
+		chdir "$CONNEXO_DIR/bin";
 		if ("$FACTS_LICENSE" ne "") {
-			if (-e "$FACTS_LICENSE") {
-				copy("$FACTS_LICENSE","$INSTALLER_LICENSE") or die "File cannot be copied: $!";
+			chdir dirname($FACTS_LICENSE);
+			if (-e basename($FACTS_LICENSE)) {
+				copy(basename($FACTS_LICENSE),"$INSTALLER_LICENSE") or die "File cannot be copied: $!";
 			} else {
 				print "License file $FACTS_LICENSE not found, taking the default one.\n";
 			}
@@ -439,8 +483,8 @@ sub start_connexo {
 			print "\n\nStarting Connexo ...\n";
 			print "==========================================================================\n";
 			open(my $FH,">> $config_file") or die "Could not open $config_file: $!";
-			print $FH "com.elster.jupiter.bpm.url=http://localhost:$TOMCAT_HTTP_PORT/flow\n";
-			print $FH "com.elster.jupiter.yellowfin.url=http://localhost:$TOMCAT_HTTP_PORT/facts\n";
+			print $FH "com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
+			print $FH "com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
 			close($FH);
 			if ("$OS" eq "MSWin32") {
 				system("sc start Connexo$SERVICE_VERSION");
@@ -522,6 +566,8 @@ sub uninstall_all {
 		print "Stop and remove connexo service";
 		system("/sbin/service connexo stop");
 		sleep 3;
+		system("pgrep -u connexo | xargs kill -9");
+		sleep 3;
 		system("userdel -r connexo");
 		unlink("/etc/init.d/connexo");
 		print "Stop and remove tomcat service";
@@ -549,6 +595,7 @@ check_create_users();
 read_args();
 if ($install) {
 	read_config();
+	checking_ports();
 	install_connexo();
 	install_tomcat();
 	install_wso2();
