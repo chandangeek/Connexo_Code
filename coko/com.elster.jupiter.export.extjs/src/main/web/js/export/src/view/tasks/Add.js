@@ -337,14 +337,6 @@ Ext.define('Dxp.view.tasks.Add', {
                                 emptyText: Uni.I18n.translate('addDataExportTask.exportPeriodPrompt', 'DES', 'Select an export period...'),
                                 displayField: 'name',
                                 valueField: 'id'
-                            },
-                            {
-                                xtype: 'button',
-                                itemId: 'add-task-add-export-period',
-                                privileges: Tme.privileges.Period.admin,
-                                margin: '0 0 0 20',
-                                text: Uni.I18n.translate('general.addExportPeriod', 'DES', 'Add export period'),
-                                ui: 'link'
                             }
                         ]
                     },

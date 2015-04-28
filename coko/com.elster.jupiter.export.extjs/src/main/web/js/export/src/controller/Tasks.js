@@ -118,9 +118,6 @@ Ext.define('Dxp.controller.Tasks', {
             'data-export-tasks-add #addReadingTypeButton': {
                 click: this.showAddReadingGrid
             },
-            'data-export-tasks-add #add-task-add-export-period': {
-                click: this.redirectToRelativePeriodsPage
-            },
             '#AddReadingTypesToTaskSetup button[name=cancel]': {
                 click: this.forwardToPreviousPage
             },
@@ -1041,17 +1038,6 @@ Ext.define('Dxp.controller.Tasks', {
             }
         });
         return isExist;
-    },
-
-    redirectToRelativePeriodsPage: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            additionalParams = {};
-
-        me.saveFormValues();
-        additionalParams.fromEdit = me.fromEdit;
-        additionalParams.taskId = me.taskId;
-        router.getRoute('administration/relativeperiods/add').forward(null, additionalParams);
     },
 
     saveFormValues: function () {
