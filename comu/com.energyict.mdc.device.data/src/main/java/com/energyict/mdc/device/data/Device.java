@@ -33,11 +33,10 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.util.HasName;
-
 import com.google.common.collect.Range;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -290,6 +289,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range);
 
     DeviceValidation forValidation();
+    
+    DeviceEstimation forEstimation();
 
     public Optional<UsagePoint> getUsagePoint();
 
@@ -321,6 +322,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The State
      */
     public Optional<State> getState(Instant instant);
+    
+    public long getVersion();
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
@@ -424,4 +427,5 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          */
         DeviceMessage<Device> add();
     }
+
 }
