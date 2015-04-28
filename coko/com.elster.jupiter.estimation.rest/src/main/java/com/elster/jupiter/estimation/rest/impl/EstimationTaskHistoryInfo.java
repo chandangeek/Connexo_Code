@@ -1,9 +1,10 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.estimation.EstimationTaskOccurrence;
+import com.elster.jupiter.estimation.EstimationTaskStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
-import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -11,26 +12,19 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Optional;
-
-import static com.elster.jupiter.estimation.rest.impl.MessageSeeds.Labels.ON_REQUEST;
-import static com.elster.jupiter.estimation.rest.impl.MessageSeeds.Labels.SCHEDULED;
 
 public class EstimationTaskHistoryInfo {
 
     public Long id;
-    public String trigger;
     public Long startedOn;
     public Long finishedOn;
     public Long duration;
+    public String status;
+    public String reason;
     public Long lastRun;
-    public Long periodFrom;
-    public Long periodTo;
     public Long statusDate;
     public String statusPrefix;
     public EstimationTaskInfo task;
@@ -38,34 +32,30 @@ public class EstimationTaskHistoryInfo {
     public EstimationTaskHistoryInfo() {
     }
 
-    public EstimationTaskHistoryInfo(History<? extends EstimationTask> history, TaskOccurrence taskOccurrence, Thesaurus thesaurus, TimeService timeService) {
-        populate(history, taskOccurrence, thesaurus, timeService);
+    public EstimationTaskHistoryInfo(EstimationTaskOccurrence estimationTaskOccurrence, Thesaurus thesaurus) {
+        populate((History<EstimationTask>) estimationTaskOccurrence.getTask().getHistory(), estimationTaskOccurrence, thesaurus);
     }
 
-    private void populate(History<? extends EstimationTask> history, TaskOccurrence taskOccurrence, Thesaurus thesaurus, TimeService timeService) {
-        EstimationTask estimationTask = history.getVersionAt(taskOccurrence.getTriggerTime()).orElseThrow(IllegalStateException::new);
-        this.id = taskOccurrence.getId();
+    public EstimationTaskHistoryInfo(History<? extends EstimationTask> history, EstimationTaskOccurrence estimationTaskOccurrence, Thesaurus thesaurus) {
+        populate((History<EstimationTask>) history, estimationTaskOccurrence, thesaurus);
+    }
 
-        this.trigger = (taskOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
-        if (taskOccurrence.wasScheduled()) {
-            String scheduledTriggerDescription = this.getScheduledTriggerDescription(taskOccurrence, thesaurus, timeService);
-            if (scheduledTriggerDescription != null) {
-                this.trigger = this.trigger + " (" + scheduledTriggerDescription + ")";
-            }
-        }
-        this.startedOn = taskOccurrence.getStartDate().map(this::toLong).orElse(null);
-        this.finishedOn = taskOccurrence.getEndDate().map(this::toLong).orElse(null);
+    private void populate(History<EstimationTask> history, EstimationTaskOccurrence estimationTaskOccurrence, Thesaurus thesaurus) {
+        this.id = estimationTaskOccurrence.getId();
+        this.startedOn = estimationTaskOccurrence.getStartDate().map(this::toLong).orElse(null);
+        this.finishedOn = estimationTaskOccurrence.getEndDate().map(this::toLong).orElse(null);
         this.duration = calculateDuration(startedOn, finishedOn);
-        this.lastRun = taskOccurrence.getTriggerTime().toEpochMilli();
-        estimationTask.getPeriod().ifPresent(relativePeriod -> {
-            Range<ZonedDateTime> interval = relativePeriod.getInterval(ZonedDateTime.ofInstant(taskOccurrence.getTriggerTime(), ZoneId.systemDefault()));
-            this.periodFrom = interval.lowerEndpoint().toInstant().toEpochMilli();
-            this.periodTo = interval.upperEndpoint().toInstant().toEpochMilli();
-        });
+        this.status = getName(estimationTaskOccurrence.getStatus(), thesaurus);
+        this.reason = estimationTaskOccurrence.getFailureReason();
+        this.lastRun = estimationTaskOccurrence.getTriggerTime().toEpochMilli();
+        setStatusOnDate(estimationTaskOccurrence, thesaurus);
+        EstimationTask version = history.getVersionAt(estimationTaskOccurrence.getTriggerTime())
+                .orElseGet(() -> history.getVersionAt(estimationTaskOccurrence.getTask().getCreateTime())
+                        .orElseGet(estimationTaskOccurrence::getTask));
         task = new EstimationTaskInfo();
-        task.doPopulate(estimationTask, thesaurus, timeService);
+        task.populate(version, thesaurus);
 
-        Optional<ScheduleExpression> foundSchedule = estimationTask.getScheduleExpression(taskOccurrence.getTriggerTime());
+        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(estimationTaskOccurrence.getTriggerTime());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             task.schedule = null;
         } else if (foundSchedule.isPresent()) {
@@ -76,7 +66,20 @@ public class EstimationTaskHistoryInfo {
                 task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
+    }
 
+    private void setStatusOnDate(EstimationTaskOccurrence estimationTaskOccurrence, Thesaurus thesaurus) {
+        EstimationTaskStatus estimationTaskStatus = estimationTaskOccurrence.getStatus();
+        String statusTranslation = thesaurus.getStringBeyondComponent(estimationTaskStatus.toString(), estimationTaskStatus.toString());
+        if (EstimationTaskStatus.BUSY.equals(estimationTaskStatus)) {
+            this.statusPrefix = statusTranslation + " " + thesaurus.getString("since", "since");
+            this.statusDate = startedOn;
+        } else if ((EstimationTaskStatus.FAILED.equals(estimationTaskStatus)) || (EstimationTaskStatus.SUCCESS.equals(estimationTaskStatus))) {
+            this.statusPrefix = statusTranslation + " " + thesaurus.getString("on", "on");
+            this.statusDate = finishedOn;
+        } else {
+            this.statusPrefix = statusTranslation;
+        }
     }
 
     private static Long calculateDuration(Long startedOn, Long finishedOn) {
@@ -90,8 +93,12 @@ public class EstimationTaskHistoryInfo {
         return instant == null ? null : instant.toEpochMilli();
     }
 
-    private String getScheduledTriggerDescription(TaskOccurrence taskOccurrence, Thesaurus thesaurus, TimeService timeService) {
-        ScheduleExpression scheduleExpression = taskOccurrence.getRecurrentTask().getScheduleExpression();
+    private static String getName(EstimationTaskStatus status, Thesaurus thesaurus) {
+        return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
+    }
+
+    private String getScheduledTriggerDescription(EstimationTaskOccurrence estimationTaskOccurrence, Thesaurus thesaurus, TimeService timeService) {
+        ScheduleExpression scheduleExpression = estimationTaskOccurrence.getTask().getScheduleExpression();
         if (Never.NEVER.equals(scheduleExpression)) {
             return null;
         }
@@ -121,22 +128,19 @@ public class EstimationTaskHistoryInfo {
             } else {
                 unitTranslation = thesaurus.getString("multipleDays", "days");
             }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
+        } else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
             if (count == 1) {
                 unitTranslation = thesaurus.getString("week", "week");
             } else {
                 unitTranslation = thesaurus.getString("multipleWeeks", "weeks");
             }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
+        } else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
             if (count == 1) {
                 unitTranslation = thesaurus.getString("month", "month");
             } else {
                 unitTranslation = thesaurus.getString("multipleMonths", "months");
             }
-        }
-        else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
+        } else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
             if (count == 1) {
                 unitTranslation = thesaurus.getString("year", "year");
             } else {
