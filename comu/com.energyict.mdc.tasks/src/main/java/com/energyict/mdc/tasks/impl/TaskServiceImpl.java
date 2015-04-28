@@ -68,11 +68,12 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
 
     @Override
     public void install() {
-        if(!dataModel.isInstalled()){
+        if (!dataModel.isInstalled()) {
             dataModel.install(true, true);
         }
         this.createEventTypes();
         this.createFirmwareComTaskIfNotPresentYet();
+        this.createStatusInformationComTaskIfNotPresentYet();
     }
 
     @Override
@@ -131,12 +132,26 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
         }
     }
 
+    private void createStatusInformationComTaskIfNotPresentYet() {
+        if (!this.findStatusInformationComTask().isPresent()) {
+            createStatusInformationComTask();
+        }
+    }
+
     private void createFirmwareComTask() {
         SystemComTask systemComTask = dataModel.getInstance(SystemComTask.class);
         systemComTask.setName(FIRMWARE_COMTASK_NAME);
         systemComTask.createFirmwareUpgradeTask();
         systemComTask.save();
     }
+
+    private void createStatusInformationComTask() {
+        ComTask comTask = dataModel.getInstance(ComTask.class);
+        comTask.setName(STATUS_INFORMATION_COMTASK_NAME);
+        comTask.createStatusInformationTask();
+        comTask.save();
+    }
+
 
     Module getModule() {
         return new AbstractModule() {
@@ -193,7 +208,7 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
 
     @Override
     public List<ComTask> findAllSystemComTasks() {
-        return dataModel.mapper(ComTaskDefinedBySystemImpl.class).find().stream().map(comTaskDefinedBySystem -> (ComTask)comTaskDefinedBySystem).collect(Collectors.toList());
+        return dataModel.mapper(ComTaskDefinedBySystemImpl.class).find().stream().map(comTaskDefinedBySystem -> (ComTask) comTaskDefinedBySystem).collect(Collectors.toList());
     }
 
     @Override
@@ -204,6 +219,11 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
     @Override
     public Optional<ComTask> findFirmwareComTask() {
         List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", FIRMWARE_COMTASK_NAME);
+        return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
+    }
+
+    private Optional<ComTask> findStatusInformationComTask() {
+        List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", STATUS_INFORMATION_COMTASK_NAME);
         return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
     }
 
