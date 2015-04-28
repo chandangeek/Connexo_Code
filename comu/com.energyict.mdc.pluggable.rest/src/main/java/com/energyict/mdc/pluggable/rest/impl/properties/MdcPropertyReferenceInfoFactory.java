@@ -5,6 +5,7 @@ import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
@@ -61,10 +62,17 @@ public class MdcPropertyReferenceInfoFactory {
             } else if (LogBook.class.isAssignableFrom(property.getClass())) {
                 info = new LogBookInfo((LogBook) property);
             } else if (FirmwareVersion.class.isAssignableFrom(property.getClass())){
-                info = new FirmwareVersionInfo((FirmwareVersion) property);
+                info = asInfoObject(property);
             }
         }
         return info;
+    }
+
+    public static Object asInfoObject(FirmwareVersion property) {
+        IdWithNameInfo response = new IdWithNameInfo();
+        response.id = property.getId();
+        response.name = property.getFirmwareVersion();
+        return response;
     }
 
     /**
