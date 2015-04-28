@@ -2,12 +2,11 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.NumericalReading;
 
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.DataValidationStatus;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link NumericalReading} interface.
@@ -21,8 +20,8 @@ public class NumericalReadingImpl extends ReadingImpl implements NumericalReadin
         super(actualReading);
     }
 
-    protected NumericalReadingImpl(ReadingRecord actualReading, List<ReadingQuality> readingQualities) {
-        super(actualReading, readingQualities);
+    protected NumericalReadingImpl(ReadingRecord actualReading, DataValidationStatus validationStatus) {
+        super(actualReading, validationStatus);
     }
 
     @Override

@@ -5,12 +5,15 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.ChannelDataUpdater;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -20,6 +23,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -167,7 +171,7 @@ public class LoadProfileImpl implements LoadProfile {
         private final ChannelSpec channelSpec;
 
         /**
-         * The LoadProfile which 'owns' this Channel
+         * The LoadProfile that 'owns' this Channel.
          */
         private final LoadProfile loadProfile;
 
@@ -251,6 +255,51 @@ public class LoadProfileImpl implements LoadProfile {
             Optional<com.elster.jupiter.metering.Channel> koreChannel = LoadProfileImpl.this.device.get().findKoreChannel(this, Instant.now());
             return koreChannel.map(com.elster.jupiter.metering.Channel::getLastDateTime);
         }
+
+        @Override
+        public boolean hasData() {
+            return LoadProfileImpl.this.device.get().hasData(this);
+        }
+
+        @Override
+        public ChannelDataUpdater startEditingData() {
+            return new ChannelDataUpdaterImpl(this);
+        }
     }
 
+    private class ChannelDataUpdaterImpl implements ChannelDataUpdater {
+        private final com.elster.jupiter.metering.Channel koreChannel;
+        private final List<BaseReadingRecord> removed = new ArrayList<>();
+        private final List<BaseReading> edited = new ArrayList<>();
+
+        private ChannelDataUpdaterImpl(ChannelImpl channel) {
+            super();
+            this.koreChannel = LoadProfileImpl.this.device.get().findKoreChannel(channel, Instant.now()).get();
+        }
+
+        @Override
+        public ChannelDataUpdater editChannelData(List<BaseReading> modifiedChannelData) {
+            this.edited.addAll(modifiedChannelData);
+            return this;
+        }
+
+        @Override
+        public ChannelDataUpdater removeChannelData(Range<Instant> interval) {
+            this.removed.addAll(this.koreChannel.getReadings(interval));
+            return this;
+        }
+
+        @Override
+        public ChannelDataUpdater removeChannelData(List<Range<Instant>> intervals) {
+            intervals.forEach(this::removeChannelData);
+            return this;
+        }
+
+        @Override
+        public void complete() {
+            this.koreChannel.editReadings(this.edited);
+            this.koreChannel.removeReadings(this.removed);
+        }
+
+    }
 }

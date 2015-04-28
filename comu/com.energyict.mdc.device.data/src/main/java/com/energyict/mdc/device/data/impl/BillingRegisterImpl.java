@@ -4,10 +4,8 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.BillingRegister;
 
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
-
-import java.util.List;
+import com.elster.jupiter.validation.DataValidationStatus;
 
 /**
  * Provides an implementation for the {@link BillingRegister} interface.
@@ -27,8 +25,8 @@ public class BillingRegisterImpl extends RegisterImpl<BillingReading> implements
     }
 
     @Override
-    protected BillingReading newValidatedReading(ReadingRecord actualReading, List<ReadingQuality> readingQualities) {
-        return new BillingReadingImpl(actualReading, readingQualities);
+    protected BillingReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus) {
+        return new BillingReadingImpl(actualReading, validationStatus);
     }
 
 }
