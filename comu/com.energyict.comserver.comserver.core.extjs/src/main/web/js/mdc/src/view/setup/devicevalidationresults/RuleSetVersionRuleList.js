@@ -16,11 +16,10 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList', {
 				dataIndex: 'name', 
 				flex: 0.4, 
 				sortable: false, 
-				fixed: true/*,
-                renderer: function (value, metaData, record) {
-                    metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
-                }*/
+				fixed: true,
+                renderer: function (value, metaData, record) {			
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.getId() + '">' + value + '</a>';
+                }
             },
             { 
 				header: Uni.I18n.translate('validationResults.status', 'MDC', 'Status'), 
@@ -34,11 +33,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList', {
 				header: Uni.I18n.translate('validationResults.result', 'MDC', 'Result'), 
 				dataIndex: 'total', 
 				sortable: false, 
-				fixed: true/*,
-                renderer: function (value, b, record) {
-                    var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
-                    return numberOfActiveRules;
-                }*/
+				fixed: true
             }
         ]
     }

@@ -18,6 +18,15 @@ Ext.define('Mdc.model.ValidationResultsVersion', {
                 return '';    
             }
         },
+		{
+			name: 'ruleSet'
+		},
+		{
+			name: 'ruleSetId',			            
+            convert: function (value, record) {				
+                return record.get('ruleSet').id;  
+            }
+		},
         {
             name: 'versionName',            
             convert: function (value, record) {

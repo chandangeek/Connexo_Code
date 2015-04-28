@@ -212,10 +212,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 				viewport.setLoading(false);		
 				
                 var res = Ext.JSON.decode(response.responseText);				
-			/*	if (!res.isActive || res.allDataValidated){
+				if (!res.isActive || res.allDataValidated){
 					return;
 				}
-			*/	
+				
                 if (res.lastChecked) {
                     me.dataValidationLastChecked = new Date(res.lastChecked);
                 } else {
