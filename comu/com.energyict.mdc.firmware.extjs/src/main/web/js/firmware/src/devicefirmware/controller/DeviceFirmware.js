@@ -52,9 +52,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         .forward();
                 }
             },
-            'device-firmware-setup button[action=cancel]': {
-                click: this.applyFilter
-            },
             '#device-firmware-upload-form button[action=uploadFirmware]': {
                 click: this.uploadFirmware
             }
