@@ -192,7 +192,7 @@ public class DeviceValidationResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
         if (deviceValidationStatusInfo.isActive) {
-            validationService.activateValidation(meter, true);
+            validationService.activateValidation(meter);
         } else {
             validationService.deactivateValidation(meter);
         }
