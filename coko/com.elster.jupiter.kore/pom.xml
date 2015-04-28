@@ -77,7 +77,9 @@
                 <module>../com.elster.jupiter.config.extjs</module>
                 <module>../com.elster.jupiter.data.lifecycle</module>
                 <module>../com.elster.jupiter.estimation</module>
+                <module>../com.elster.jupiter.estimation.extjs</module>
                 <module>../com.elster.jupiter.estimation.rest</module>
+                <module>../com.elster.jupiter.estimators</module>
                 <module>../com.elster.jupiter.export</module>
                 <module>../com.elster.jupiter.export.extjs</module>
                 <module>../com.elster.jupiter.export.processors</module>
