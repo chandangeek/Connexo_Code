@@ -22,7 +22,6 @@ public class MonitorValidationInfo {
     public MonitorValidationInfo(List<DataValidationStatus> dataValidationStatuses, ValidationStatusInfo validationStatus) {
         total = 0L;
         this.validationStatus = validationStatus;
-        //this.validationStatus.allDataValidated = isDataCompletelyValidated(dataValidationStatuses);
         this.detailedRuleSets = getSuspectReasonMap(dataValidationStatuses);
     }
 
@@ -32,7 +31,6 @@ public class MonitorValidationInfo {
         List<DataValidationStatus> dataValidationStatuses = loadProfileStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.toList());
         dataValidationStatuses.addAll(registerStatus.entrySet().stream().flatMap(m -> m.getValue().stream()).collect(Collectors.toList()));
         this.validationStatus = validationStatus;
-        //this.validationStatus.allDataValidated = isDataCompletelyValidated(dataValidationStatuses);
         this.detailedValidationLoadProfile = new ArrayList<>();
         this.detailedValidationRegister = new ArrayList<>();
         loadProfileStatus.entrySet().stream().forEach( lp -> {
@@ -44,11 +42,6 @@ public class MonitorValidationInfo {
     }
 
     public MonitorValidationInfo() {
-
-    }
-
-    private boolean isDataCompletelyValidated(List<DataValidationStatus> dataValidationStatuses) {
-        return dataValidationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
     }
 
     private List<DetailedValidationRuleSetInfo> getSuspectReasonMap(List<DataValidationStatus> dataValidationStatuses) {
