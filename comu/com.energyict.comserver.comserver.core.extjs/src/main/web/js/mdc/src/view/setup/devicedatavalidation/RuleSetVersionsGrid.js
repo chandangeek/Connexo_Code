@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 sortable: false,
                 fixed: true
             }
-        ];
+        ]; 
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -41,7 +41,17 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 displayMsg: Uni.I18n.translate('validation.version.display.msg', 'CFG', '{0} - {1} of {2} versions'),
                 displayMoreMsg: Uni.I18n.translate('validation.version.display.more.msg', 'CFG', '{0} - {1} of more than {2} versions'),
                 emptyMsg: Uni.I18n.translate('validation.version.pagingtoolbartop.emptyMsg', 'CFG', 'There are no versions to display'),
-                dock: 'top'
+                dock: 'top',
+                items: [
+                    {
+                        text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
+                        privileges: Cfg.privileges.Validation.admin,
+                        itemId: 'newVersion',
+                        xtype: 'button',
+                        href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/add',
+                        hrefTarget: '_self'
+                    }
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -53,6 +63,20 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
 
             }
         ];
+	    me.listeners = {
+            'afterrender': function (grid) {
+                grid.getStore().on('load', function(store, records, success) {
+                    var rec = store.find('status', 'CURRENT');
+                    if ((rec>=0)|| (grid.getView())) {
+                        grid.getView().getSelectionModel().select(rec);
+                    }
+
+                }, grid, {
+                    single: true
+                });
+            }
+        };
+
 
         me.callParent(arguments);
     }

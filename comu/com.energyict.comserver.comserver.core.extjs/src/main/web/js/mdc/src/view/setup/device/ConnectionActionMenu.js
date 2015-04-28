@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
     items: [
         {
             text: 'Run now',
-            hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
             action: 'run'
         },
         {
@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
         beforeshow: function() {
             var me = this;
             me.items.each(function(item){
-                (item.visible && !item.visible.call(me) && !Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication')) ? item.hide() : item.show();
+                (item.visible && !item.visible.call(me) && !Mdc.privileges.Device.canOperateDeviceCommunication()) ? item.hide() : item.show();
             })
         }
     }

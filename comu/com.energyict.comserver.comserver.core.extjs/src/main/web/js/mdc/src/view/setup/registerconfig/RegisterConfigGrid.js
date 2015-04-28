@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 items: 'Mdc.view.setup.registerconfig.RegisterConfigActionMenu'
             }
         ];
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
                     {
 
                         text: Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                        privileges: Mdc.privileges.DeviceType.admin,
                         itemId: 'createRegisterConfigBtn',
                         xtype: 'button',
                         action: 'createRegisterConfig'

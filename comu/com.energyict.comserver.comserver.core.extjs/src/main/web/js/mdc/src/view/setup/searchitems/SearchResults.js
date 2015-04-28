@@ -1,5 +1,8 @@
 Ext.define('Mdc.view.setup.searchitems.SearchResults', {
     extend: 'Ext.grid.Panel',
+    requires:[
+        'Yfn.privileges.Yellowfin'
+    ],
     alias: 'widget.searchResults',
     overflowY: 'auto',
     itemId: 'searchResults',
@@ -58,14 +61,14 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                 items: [
                     {
                         xtype: 'button',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+                        privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                         action: 'bulk',
                         itemId: 'searchResultsBulkActionButton',
                         text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action')
                     },
                     {
                         xtype:'button',
-                        hidden:!Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
+                        privileges: Yfn.privileges.Yellowfin.view,
                         itemId:'generate-report',
                         action: 'generate-report',
                         text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')

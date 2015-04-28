@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 items: 'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu'
             }
         ]
@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeGrid', {
             items: [
                 {
                     text: Uni.I18n.translate('loadProfileTypes.add.loadprofileTypes', 'MDC', 'Add load profile types'),
-                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                    privileges: Mdc.privileges.DeviceType.admin,
                     itemId: 'addLoadProfileType',
                     xtype: 'button',
                     action: 'addloadprofiletypeaction',

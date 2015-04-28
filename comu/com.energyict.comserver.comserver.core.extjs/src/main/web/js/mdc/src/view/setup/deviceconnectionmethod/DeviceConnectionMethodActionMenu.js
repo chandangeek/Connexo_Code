@@ -8,25 +8,25 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
     items: [
         {
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'editDeviceConnectionMethod',
             action: 'editDeviceConnectionMethod'
         },
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'deleteDeviceConnectionMethod',
             action: 'deleteDeviceConnectionMethod'
         },
         {
             text: Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.administrateDeviceCommunication,
             itemId: 'toggleDefaultMenuItem',
             action: 'toggleDefault'
         },
         {
             text: Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate'),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.operate.deviceCommunication'),
+            privileges: Mdc.privileges.Device.operateDeviceCommunication,
             itemId: 'toggleActiveMenuItem',
             action: 'toggleActive'
         },

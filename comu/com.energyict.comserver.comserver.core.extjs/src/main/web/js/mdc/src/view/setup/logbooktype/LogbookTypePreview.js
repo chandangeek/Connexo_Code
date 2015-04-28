@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypePreview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.masterData'),
+            privileges: Mdc.privileges.MasterData.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'logbook-type-action-menu' }
