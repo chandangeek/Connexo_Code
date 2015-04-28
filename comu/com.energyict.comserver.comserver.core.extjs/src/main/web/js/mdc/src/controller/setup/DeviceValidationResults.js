@@ -406,7 +406,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             ]
         });
     },
-
 	
 	destroyConfirmationWindow: function () {
         if (Ext.ComponentQuery.query('#validateNowConfirmationWindow')[0]) {
@@ -435,6 +434,12 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			models = me.getModel('Mdc.model.ValidationResults'),
 			router = me.getController('Uni.controller.history.Router');
 
+		if (Ext.isEmpty(router.filter.data.intervalStart)) {
+            me.setDefaults();
+        }
+		me.getSideFilterForm().loadRecord(router.filter);
+        me.setFilterView();
+		
 		models.getProxy().setUrl(me.mRID);
 		models.getProxy().setFilterModel(router.filter);
 
@@ -448,12 +453,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 				viewport.setLoading(false);
 			}
         });
-        if (Ext.isEmpty(router.filter.data.intervalStart)) {
-            me.setDefaults();
-        }
-        me.getSideFilterForm().loadRecord(router.filter);
-        me.setFilterView();
-
 	},
 	
 	loadConfigurationDataItems : function(record){
@@ -461,18 +460,22 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			validationResultsRulesetForm = me.getValidationResultsRulesetForm();
 			ruleSetGrid = me.getRuleSetGrid(),
 			ruleSetVersionGrid = me.getRuleSetVersionGrid(),
-			ruleSetVersionRuleGrid = me.getRuleSetVersionRuleGrid();
-			
-			validationResultsRulesetForm.loadRecord(record);
-			
-			var configurationViewValidationResultsBrowse = me.getConfigurationViewValidationResultsBrowse();				
-			configurationViewValidationResultsBrowse.setVisible(record.get('detailedRuleSets') && record.get('detailedRuleSets').length >0);
-			
-			var configurationViewValidateNowBtn = me.getConfigurationViewValidateNowBtn();
-			configurationViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
-			
-			ruleSetGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
-			ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));		
+			ruleSetVersionRuleGrid = me.getRuleSetVersionRuleGrid(),
+			router = me.getController('Uni.controller.history.Router');
+		
+		validationResultsRulesetForm.loadRecord(record);
+		ruleSetGrid.router = router;
+		ruleSetVersionGrid.router = router;
+		ruleSetVersionRuleGrid.router = router;		
+		
+		var configurationViewValidationResultsBrowse = me.getConfigurationViewValidationResultsBrowse();				
+		configurationViewValidationResultsBrowse.setVisible(record.get('detailedRuleSets') && record.get('detailedRuleSets').length >0);
+		
+		var configurationViewValidateNowBtn = me.getConfigurationViewValidateNowBtn();
+		configurationViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
+		
+		ruleSetGrid.getStore().on('datachanged', function (){ruleSetGrid.getSelectionModel().select(0); return true;}, this);
+		ruleSetGrid.getStore().loadData(record.get('detailedRuleSets'));		
 	},
 
     loadValidationResultsData: function(){
@@ -481,6 +484,12 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             models = me.getModel('Mdc.model.ValidationResultsDataView'),
             router = me.getController('Uni.controller.history.Router');
 
+		if (Ext.isEmpty(router.filter.data.intervalStart)) {
+            me.setDefaults();
+        }
+        me.getSideFilterForm().loadRecord(router.filter);
+        me.setFilterView();
+		
         models.getProxy().setUrl(me.mRID);
         models.getProxy().setFilterModel(router.filter);
 
@@ -494,13 +503,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 viewport.setLoading(false);
             }
         });
-
-        if (Ext.isEmpty(router.filter.data.intervalStart)) {
-            me.setDefaults();
-        }
-        me.getSideFilterForm().loadRecord(router.filter);
-        me.setFilterView();
-
     },
 
     loadValidationResultsDataItems : function(record){

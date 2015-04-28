@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
     requires: [
         'Mdc.store.ValidationResultsVersions'
     ],
-
+	router: null,
     columns: {
         items: [
           { 
@@ -25,7 +25,12 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
 				header: Uni.I18n.translate('validationResults.result', 'MDC', 'Result'), 
 				dataIndex: 'total', 
 				sortable: false, 
-				fixed: true
+				fixed: true,
+				renderer: function (value, meta, record) {					
+					var me = this,
+						href = me.router.getRoute('devices/device/validationresultsdata').buildUrl({mRID: record.get('mRID'), ruleSetVersionId: record.get('id')}, me.router.queryParams );
+					return '<a href="' + href + '">' + value + '</a>'
+				}
             }
         ]
     }
