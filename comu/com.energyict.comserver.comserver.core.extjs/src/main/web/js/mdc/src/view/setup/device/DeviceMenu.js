@@ -106,7 +106,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 title: 'Validation',
                 items: [
                     {
-                        text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
+                        text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Validation configuration'),
                         itemId: 'dataValidationLink',
                         privileges: Cfg.privileges.Validation.fineTuneValidation,
                         href: '#/devices/' + mRID + '/datavalidation',

@@ -1155,7 +1155,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         datavalidation: {
-                            title: 'Data validation',
+                            title: 'Validation configuration',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
                             privileges : Cfg.privileges.Validation.fineTuneOnDevice,
