@@ -14,7 +14,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
     stores: [
         'RegisterGroups',
-        'RegisterTypesToAdd',
+        'InfiniteRegisterTypes',
         'AvailableRegisterTypesForRegisterGroup'
     ],
 
@@ -151,7 +151,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         Ext.ModelManager.getModel('Mdc.model.RegisterGroup').load(registerGroupId, {
             success: function (registerGroup) {
                 me.getApplication().fireEvent('loadRegisterGroup', registerGroup);
-                var store = me.getStore('Mdc.store.RegisterTypesToAdd');
+                var store = me.getStore('Mdc.store.InfiniteRegisterTypes');
                 widget.down('form').loadRecord(registerGroup);
                 widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerGroup.get('name') + '\'');
                 var grid = widget.down('#editRegisterGroupGridField');
@@ -183,7 +183,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         widget.setLoading(true);
         widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
 
-        var store = me.getStore('Mdc.store.RegisterTypesToAdd');
+        var store = me.getStore('Mdc.store.InfiniteRegisterTypes');
         //store.getProxy().pageParam = 200;
         //store.getProxy().startParam = undefined;
         //store.getProxy().limitParam = undefined;
