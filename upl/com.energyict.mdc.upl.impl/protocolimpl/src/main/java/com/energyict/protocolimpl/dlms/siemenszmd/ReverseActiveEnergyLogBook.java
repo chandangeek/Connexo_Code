@@ -11,6 +11,7 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -37,7 +38,13 @@ public class ReverseActiveEnergyLogBook {
 
     public List<MeterEvent> readEvents(Calendar fromCalendar, Calendar toCalendar) throws IOException {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        DedicatedEventLogSimple dedicatedEventLogSimple = cosemObjectFactory.getDedicatedEventLogSimple(NEGATIVE_ACTIVE_ENERGY_LOGBOOK);
+        DedicatedEventLogSimple dedicatedEventLogSimple;
+        try {
+            dedicatedEventLogSimple = cosemObjectFactory.getDedicatedEventLogSimple(NEGATIVE_ACTIVE_ENERGY_LOGBOOK);
+        } catch (ProtocolException e) {
+            return meterEvents; //Logbook does not exist
+        }
+
         DataContainer buffer = readBuffer(dedicatedEventLogSimple);
         List<CapturedObject> capturedObjects = readCapturedObjects(dedicatedEventLogSimple);
 
