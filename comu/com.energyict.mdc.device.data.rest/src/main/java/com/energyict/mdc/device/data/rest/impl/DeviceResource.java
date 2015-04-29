@@ -185,11 +185,11 @@ public class DeviceResource {
     }
 
     @PUT//the method designed like 'PATCH'
-    @Path("/{mRID}")
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public DeviceInfo updateDevice(@PathParam("mRID") String id, DeviceInfo info, @Context SecurityContext securityContext) {
+    public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(info.id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
         updateGateway(info, device);
         if (info.estimationStatus != null) {

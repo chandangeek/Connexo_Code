@@ -1051,7 +1051,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.masterDeviceId = gateway.getId();
         info.masterDevicemRID = gateway.getmRID();
 
-        Response response = target("/devices/device").request().put(Entity.json(info));
+        Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService).setPhysicalGateway(device, gateway);
@@ -1071,7 +1071,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.masterDeviceId = 1L;
         info.masterDevicemRID = "1";
 
-        Response response = target("/devices/device").request().put(Entity.json(info));
+        Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -1091,7 +1091,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.version = 1l;
         info.masterDevicemRID = null;
 
-        Response response = target("/devices/device").request().put(Entity.json(info));
+        Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService).clearPhysicalGateway(device);
@@ -1111,7 +1111,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = true;
         
-        Response response = target("/devices/device").request().put(Entity.json(info));
+        Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device.forEstimation()).activateEstimation();        
@@ -1131,7 +1131,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = false;
         
-        Response response = target("/devices/device").request().put(Entity.json(info));
+        Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device.forEstimation()).deactivateEstimation();        
