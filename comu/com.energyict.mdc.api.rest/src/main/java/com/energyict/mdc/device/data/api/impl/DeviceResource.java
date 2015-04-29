@@ -44,7 +44,7 @@ public class DeviceResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8 ," + MediaType.APPLICATION_XML + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getDevices() {
         return Response.ok(deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(DeviceInfo::from).collect(toList())).build();
