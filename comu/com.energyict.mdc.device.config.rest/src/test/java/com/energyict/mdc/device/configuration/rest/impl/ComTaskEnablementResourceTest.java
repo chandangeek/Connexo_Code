@@ -36,7 +36,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
 
     @Before
     public void initBefore() {
-        when(firmwareService.findFirmwareUpgradeOptionsByDeviceType(any(DeviceType.class))).thenReturn(Optional.<FirmwareUpgradeOptions>empty());
+        when(firmwareService.isFirmwareUpgradeAllowedFor(any(DeviceType.class))).thenReturn(false);
     }
 
     @Test
@@ -212,7 +212,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
     private DeviceType mockDeviceTypeWithConfigWhichAllowsFirmwareUpgrade() {
         DeviceType deviceType = mockSimpleDeviceTypeAndConfig();
         FirmwareUpgradeOptions firmwareUpgradeOption = mock(FirmwareUpgradeOptions.class);
-        when(firmwareService.findFirmwareUpgradeOptionsByDeviceType(deviceType)).thenReturn(Optional.of(firmwareUpgradeOption));
+        when(firmwareService.isFirmwareUpgradeAllowedFor(deviceType)).thenReturn(true);
         return deviceType;
     }
 
