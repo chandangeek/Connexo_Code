@@ -75,7 +75,9 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     }
 
     private void checkOverlaps(Instant start) {
-        if (meterActivations.stream().anyMatch(meterActivation -> !meterActivation.getRange().intersection(Range.atLeast(start)).isEmpty())) {
+        if (meterActivations.stream()
+                .filter(meterActivation -> meterActivation.getRange().isConnected(Range.atLeast(start)))
+                .anyMatch(meterActivation -> !meterActivation.getRange().intersection(Range.atLeast(start)).isEmpty())) {
             throw new MeterAlreadyActive(thesaurus, this, start);
         }
     }
