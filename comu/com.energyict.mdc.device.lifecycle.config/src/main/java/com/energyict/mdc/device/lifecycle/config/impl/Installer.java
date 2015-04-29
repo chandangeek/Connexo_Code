@@ -65,7 +65,7 @@ public class Installer {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         this.createPrivileges();
-       // this.installDefaultLifeCycle();
+        this.installDefaultLifeCycle();
     }
 
     private void createPrivileges() {
