@@ -50,10 +50,6 @@ Ext.onReady(function () {
         {
             name: 'Est',
             path: '../../apps/est/src'
-        },
-        {
-            name: 'Est',
-            path: '../../apps/est/src'
         }
 //        {
 //            name: 'PlaygroundApp',
