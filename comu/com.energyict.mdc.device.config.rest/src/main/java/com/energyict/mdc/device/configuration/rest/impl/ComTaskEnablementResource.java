@@ -203,7 +203,8 @@ public class ComTaskEnablementResource {
     }
 
     private boolean deviceTypeAllowsFirmwareUpgrade(DeviceType deviceType) {
-        return this.firmwareService.findFirmwareUpgradeOptionsByDeviceType(deviceType).isPresent();
+        //TODO changed this according to compile errors, need to update when COMU-152 is merged in to the correct call!
+        return (!this.firmwareService.getSupportedFirmwareOptionsFor(deviceType).isEmpty());
     }
 
     private void setComTaskEnablementActive(long deviceTypeId, long deviceConfigurationId, long comTaskEnablementId, boolean setActive) {
