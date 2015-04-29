@@ -1,8 +1,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.AmrSystem;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.IntervalInfo;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.ChannelDataUpdater;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
@@ -14,20 +22,9 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.IntervalInfo;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -39,10 +36,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.mockito.Mock;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -186,17 +190,16 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testPutChannelData() {
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        Meter meter = mock(Meter.class);
         MeterActivation meterActivation = mock(MeterActivation.class);
         com.elster.jupiter.metering.Channel meteringChannel = mock(com.elster.jupiter.metering.Channel.class);
         ReadingType readingType = mock(ReadingType.class);
         List list = mock(List.class);
         when(channel.getReadingType()).thenReturn(readingType);
+        ChannelDataUpdater channelDataUpdater = mock(ChannelDataUpdater.class);
+        when(channelDataUpdater.editChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.removeChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channel.startEditingData()).thenReturn(channelDataUpdater);
         when(device.getId()).thenReturn(1L);
-        when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
-        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(meteringChannel));
         doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
         when(list.contains(readingType)).thenReturn(true);
@@ -211,6 +214,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         infos.add(channelDataInfo);
 
         Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/data").request().put(Entity.json(infos));
+        verify(channelDataUpdater).complete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

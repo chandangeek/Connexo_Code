@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -17,21 +9,30 @@ import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -56,20 +57,13 @@ public class RegisterDataResource {
     public PagedInfoList getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        Meter meter = resourceHelper.getMeterFor(device);
         Interval interval = Interval.sinceEpoch();
-        Range<Instant> range = interval.toOpenClosedRange();
         List<? extends Reading> readings = register.getReadings(interval);
-        List<ReadingRecord> readingRecords = readings.stream().map(Reading::getActualReading).collect(Collectors.toList());
-        Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
-        List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
-        Boolean validationStatusForRegister = false;
-        if(channelRef.isPresent()) {
-            validationStatusForRegister = device.forValidation().isValidationActive(register, clock.instant());
-            dataValidationStatuses = device.forValidation().getValidationStatus(register, readingRecords, range);
-        }
-        List<ReadingInfo> readingInfos = ReadingInfoFactory.asInfoList(readings, register.getRegisterSpec(),
-                validationStatusForRegister, dataValidationStatuses);
+        List<ReadingInfo> readingInfos =
+                ReadingInfoFactory.asInfoList(
+                        readings,
+                        register.getRegisterSpec(),
+                        device.forValidation().isValidationActive(register, this.clock.instant()));
         // sort the list of readings
         Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
         /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
@@ -113,28 +107,11 @@ public class RegisterDataResource {
     public ReadingInfo getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        Meter meter = resourceHelper.getMeterFor(device);
         Reading reading = register.getReading(Instant.ofEpochMilli(timeStamp)).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp));
-        List<ReadingRecord> readingRecords = new ArrayList<>(Arrays.asList(reading.getActualReading()));
-        Optional<Channel> channelRef = resourceHelper.getRegisterChannel(register, meter);
-        List<DataValidationStatus> dataValidationStatuses = new ArrayList<>();
-        Boolean validationStatusForRegister = false;
-        if(channelRef.isPresent()) {
-            validationStatusForRegister = device.forValidation().isValidationActive(register, clock.instant());
-            dataValidationStatuses =
-                    device.forValidation().getValidationStatus(
-                            register,
-                            readingRecords,
-                            Range.closedOpen(
-                                    Instant.ofEpochMilli(timeStamp),
-                                    Instant.ofEpochMilli(timeStamp)));
-        }
-
         return ReadingInfoFactory.asInfo(
                 reading,
                 register.getRegisterSpec(),
-                validationStatusForRegister,
-                !dataValidationStatuses.isEmpty() ? dataValidationStatuses.get(0) : null);
+                device.forValidation().isValidationActive(register, this.clock.instant()));
     }
 
     @PUT
@@ -145,16 +122,7 @@ public class RegisterDataResource {
     public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        Meter meter = resourceHelper.getMeterFor(device);
-        return editOrAddRegisterData(readingInfo, register, meter);
-    }
-
-    private Response editOrAddRegisterData(ReadingInfo readingInfo, Register<?> register, Meter meter) {
-        Channel channel = resourceHelper.getRegisterChannel(register, meter).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, register.getRegisterSpec().getRegisterType().getReadingType().getAliasName()));
-        List<BaseReading> readings = new ArrayList<>();
-        readings.add(readingInfo.createNew(register));
-        channel.editReadings(readings);
-
+        register.startEditingData().editReading(readingInfo.createNew(register)).complete();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -166,29 +134,8 @@ public class RegisterDataResource {
     public Response addRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        Meter meter = resourceHelper.getMeterFor(device);
-        if (meter.getMeterActivations().isEmpty()) {
-            meter.activate(readingInfo.timeStamp);
-        }
-        List<MeterActivation> activations = resourceHelper.getMeterActivationsMostCurrentFirst(meter);
-        findChannel(register, resourceHelper.getMeterActivationsMostCurrentFirst(meter), readingInfo.timeStamp).orElseGet(() ->{
-            MeterActivation meterActivation = activations.stream().filter(a -> a.getInterval().toClosedRange().contains(readingInfo.timeStamp)).findFirst().orElse(activations.get(0));
-            return meterActivation.createChannel(register.getReadingType());
-        });
-        return editOrAddRegisterData(readingInfo, register, meter);
-    }
-
-    private Optional<Channel> findChannel(Register<?> register, List<MeterActivation> activations, Instant when) {
-        for (MeterActivation activation : activations) {
-            if (activation.getInterval().toClosedRange().contains(when)) {
-                for (Channel channel : activation.getChannels()) {
-                    if (channel.getReadingTypes().contains(register.getReadingType())) {
-                        return Optional.of(channel);
-                    }
-                }
-            }
-        }
-        return Optional.empty();
+        register.startEditingData().editReading(readingInfo.createNew(register)).complete();
+        return Response.status(Response.Status.OK).build();
     }
 
     @DELETE
@@ -198,15 +145,12 @@ public class RegisterDataResource {
     public Response deleteRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        Meter meter = resourceHelper.getMeterFor(device);
-        Channel channel = resourceHelper.getRegisterChannel(register, meter).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId));
-
-        BaseReadingRecord reading =
-                channel
-                    .getReading(Instant.ofEpochMilli(timeStamp))
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_READING_ON_REGISTER, registerId, timeStamp));
-        channel.removeReadings(Arrays.asList(reading));
-
+        try {
+            register.startEditingData().removeReading(Instant.ofEpochMilli(timeStamp)).complete();
+        }
+        catch (IllegalArgumentException e) {
+            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId).get();
+        }
         return Response.status(Response.Status.OK).build();
     }
 

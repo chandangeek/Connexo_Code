@@ -228,11 +228,7 @@ public class LoadProfileResource {
 
     private boolean hasData(LoadProfile loadProfile) {
         return loadProfile.getChannels().stream()
-                .anyMatch(hasData());
-    }
-
-    private Predicate<Channel> hasData() {
-        return c -> c.getDevice().forValidation().hasData(c);
+                .anyMatch(Channel::hasData);
     }
 
 }

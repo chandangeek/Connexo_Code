@@ -1,12 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -14,28 +7,26 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.util.conditions.Condition;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import static com.elster.jupiter.util.streams.Functions.asStream;
 
 public class ResourceHelper {
 
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
-    private final MeteringService meteringService;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, MeteringService meteringService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
-        this.meteringService = meteringService;
     }
 
     public Device findDeviceByMrIdOrThrowException(String mRID) {
@@ -58,8 +49,8 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_LOAD_PROFILE_ON_DEVICE, device.getmRID(), loadProfileId));
     }
 
-    public Channel findChannelOnDeviceOrThrowException(String mrid, long channelId){
-        Device device = this.findDeviceByMrIdOrThrowException(mrid);
+    public Channel findChannelOnDeviceOrThrowException(String mRID, long channelId){
+        Device device = this.findDeviceByMrIdOrThrowException(mRID);
         return this.findChannelOnDeviceOrThrowException(device, channelId);
     }
 
@@ -107,48 +98,6 @@ public class ResourceHelper {
             condition = condition.or(where(conditionField).isEqualTo(value.trim()));
         }
         return condition;
-    }
-
-
-    public Meter getMeterFor(Device device) {
-        Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(1);
-        Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
-        if (!meterRef.isPresent()) {
-            throw new IllegalArgumentException("Validation feature on device " + device.getmRID() +
-                    " wasn't configured.");
-        }
-        return meterRef.get();
-    }
-
-    public List<MeterActivation> getMeterActivationsMostCurrentFirst(Meter meter) {
-        List<MeterActivation> activations = new ArrayList<>(meter.getMeterActivations());
-        Collections.reverse(activations);
-        return activations;
-    }
-
-    public Optional<com.elster.jupiter.metering.Channel> getRegisterChannel(Register register, Meter meter) {
-        return this.getMeterActivationsMostCurrentFirst(meter)
-                .stream()
-                .map(ma -> getChannel(ma, register.getRegisterSpec().getRegisterType().getReadingType()))
-                .flatMap(asStream())
-                .findFirst();
-    }
-
-    public com.elster.jupiter.metering.Channel findLoadProfileChannelOrThrowException(Channel channel, Meter meter) {
-        return this.getMeterActivationsMostCurrentFirst(meter)
-                .stream()
-                .map(ma -> getChannel(ma, channel.getReadingType()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, meter.getAmrId(), channel.getId()));
-    }
-
-    public Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
-        return meterActivation.getChannels()
-                .stream()
-                .filter(c -> c.getReadingTypes().contains(readingType))
-                .findFirst();
     }
 
     public ConnectionTask<?, ?> findConnectionTaskOrThrowException(Device device, long connectionMethodId) {
