@@ -6,13 +6,15 @@
         "com.elster.jupiter.unifyingjs",
         "com.elster.jupiter.config.extjs",
         "com.elster.jupiter.issue.extjs",
+        "com.elster.jupiter.time.extjs",
         "com.energyict.mdc.issue.datacollection.extjs",
         "com.energyict.comserver.comserver.core.extjs",
         "com.energyict.mdc.dashboard.extjs",
         "com.energyict.mdc.device.data.imp.extjs",
         "com.elster.jupiter.yellowfin.extjs",
         "com.energyict.mdc.firmware.extjs",
-        "com.energyict.mdc.device.lifecycle.config.extjs"
+        "com.energyict.mdc.device.lifecycle.config.extjs",
+        "com.elster.jupiter.export.extjs"
     ],
 
     "id": "28c552c9-436e-4d93-8f74-038373138820"
