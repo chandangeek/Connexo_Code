@@ -17,4 +17,8 @@ public class DetailedValidationRegisterInfo {
         this.total = count;
     }
 
+    public DetailedValidationRegisterInfo() {
+
+    }
+
 }
