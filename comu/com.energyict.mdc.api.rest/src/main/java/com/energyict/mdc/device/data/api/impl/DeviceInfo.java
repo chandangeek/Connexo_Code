@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class DeviceInfo {
+    public Links _links;
     public long id;
     public String mIRD;
     public String serialNumber;
@@ -30,8 +31,30 @@ public class DeviceInfo {
         return deviceInfo;
     }
 
+    public static DeviceInfo fromHal(Device device) {
+        DeviceInfo deviceInfo = from(device);
+        deviceInfo._links = new Links("http://localhost:8085");
+        return deviceInfo;
+    }
+
     public static List<DeviceInfo> from(List<Device> devices) {
         return devices.stream().map(DeviceInfo::from).collect(Collectors.toList());
     }
 
+    public static List<DeviceInfo> fromHal(List<Device> devices) {
+        return devices.stream().map(DeviceInfo::from).collect(Collectors.toList());
+    }
+}
+
+class Links {
+    public Reference self;
+
+    public Links(String href) {
+        self=new Reference();
+        self.href = href;
+    }
+
+    class Reference {
+        public String href;
+    }
 }

@@ -50,6 +50,13 @@ public class DeviceResource {
         return Response.ok(deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(DeviceInfo::from).collect(toList())).build();
     }
 
+    @GET
+    @Produces("application/hal+json; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    public Response getHALDevices() {
+        return Response.ok(deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(DeviceInfo::fromHal).collect(toList())).build();
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
