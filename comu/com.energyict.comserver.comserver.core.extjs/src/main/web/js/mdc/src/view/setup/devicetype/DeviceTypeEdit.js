@@ -31,7 +31,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         xtype: 'uni-form-info-message',
                         itemId: 'info-panel',
                         hidden: true,
-                        width: 600,
+                        maxWidth: 800,
+                        minWidth: 650,
                         iconCmp: {
                             xtype: 'box',
                             height: 16,
