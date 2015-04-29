@@ -10,6 +10,7 @@ Ext.define('Uni.util.FormInfoMessage', {
         align: 'middle'
     },
     margin: '7 0 32 0',
+    iconCmp: null,
     beforeRender: function () {
         var me = this;
         me.renew();
@@ -23,6 +24,7 @@ Ext.define('Uni.util.FormInfoMessage', {
 
         me.removeAll(true);
         me.add([
+            me.iconCmp,
             {
                 ui: 'form-error',
                 name: 'errormsgpanel',
