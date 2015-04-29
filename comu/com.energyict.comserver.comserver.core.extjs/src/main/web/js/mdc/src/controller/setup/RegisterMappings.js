@@ -80,6 +80,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         if(me.getAddRegisterMappingBtn()) {
             me.getAddRegisterMappingBtn().href = '#/administration/devicetypes/' + id + '/registertypes/add';
         }
+
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);

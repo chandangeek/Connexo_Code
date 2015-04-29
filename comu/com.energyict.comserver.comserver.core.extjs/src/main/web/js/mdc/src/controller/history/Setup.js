@@ -1155,11 +1155,33 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         datavalidation: {
-                            title: 'Data validation',
+                            title: 'Validation configuration',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
                             privileges : Cfg.privileges.Validation.fineTuneOnDevice,
                             action: 'showDeviceDataValidationMainView'
+                        },
+						validationresultsconfiguration: {
+                            title: 'Validation results',
+                            route: 'validationresults/configuration',
+                            controller: 'Mdc.controller.setup.DeviceValidationResults',
+                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
+                            action: 'showDeviceValidationResultsMainView',
+							filter: 'Mdc.model.ValidationResultsDataFilter',
+							params: {
+								'activeTab': 0
+                                    }
+                        },
+						validationresultsdata: {
+                            title: 'Validation results',
+                            route: 'validationresults/data',
+                            controller: 'Mdc.controller.setup.DeviceValidationResults',
+                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
+                            action: 'showDeviceValidationResultsMainView',
+							filter: 'Mdc.model.ValidationResultsDataFilter',
+							params: {
+								'activeTab': 1	
+								}
                         },
                         communicationschedules: {
                             title: 'Communication planning',

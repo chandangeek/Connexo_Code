@@ -53,7 +53,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                     form.down('[name=discoveryProtocolPluggableClassId]').hide();
                 }
                 form.loadRecord(record);
-                widget.down('comportpool-actionmenu').record = record;
+                var actionMenu = widget.down('comportpool-actionmenu');
+                if(actionMenu)
+                    actionMenu.record = record;
                 widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
                 me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
             },
