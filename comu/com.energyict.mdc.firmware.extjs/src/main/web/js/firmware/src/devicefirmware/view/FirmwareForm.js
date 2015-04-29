@@ -121,7 +121,10 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         {
             xtype: 'displayfield',
             fieldLabel: Uni.I18n.translate('device.firmware.field.date', 'FWC', 'Last checked date'),
-            name: 'lastCheckedDate'
+            name: 'lastCheckedDate',
+            renderer: function (data) {
+                return data ? Uni.DateTime.formatDateTimeShort(data) : '';
+            }
         }
     ],
 
