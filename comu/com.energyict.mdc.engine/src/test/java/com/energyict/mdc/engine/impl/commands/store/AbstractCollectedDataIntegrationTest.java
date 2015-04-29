@@ -256,6 +256,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(LicenseService.class).toInstance(licenseService);
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
+            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
         }
 
     }
