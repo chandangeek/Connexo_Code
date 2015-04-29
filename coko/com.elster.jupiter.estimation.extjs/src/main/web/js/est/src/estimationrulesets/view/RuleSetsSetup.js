@@ -19,38 +19,58 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                 xtype: 'panel',
                 ui: 'large',
                 title: Uni.I18n.translate('estimationrulesets.estimationrulesets', 'EST', 'Estimation rule sets'),
-                items: {
-                    xtype: 'preview-container',
-                    grid: {
-                        xtype: 'rule-sets-grid',
-                        itemId: 'rule-sets-grid',
-                        router: me.router
-                    },
-                    previewComponent: {
+                items: [
+                    {
                         xtype: 'preview-container',
                         grid: {
-                            xtype: 'estimation-rules-grid',
-                            showButtons: false,
-                            store: me.rulesStore,
-                            router: me.router,
-                            actionMenuItemId: 'rule-set-rule-action-menu',
-                            itemId: 'rule-sets-rule-grid',
-                            showBottomPaging: true
+                            xtype: 'rule-sets-grid',
+                            itemId: 'rule-sets-grid',
+                            router: me.router
                         },
                         previewComponent: {
-                            xtype: 'estimation-rules-detail-form',
-                            actionMenuItemId: 'rule-set-rule-action-menu',
-                            itemId: 'rule-sets-rule-preview',
-                            frame: true,
-                            ui: 'default',
-                            title: ''
+                            xtype: 'preview-container',
+                            grid: {
+                                xtype: 'estimation-rules-grid',
+                                style: 'padding-left: 0; padding-right: 0',
+                                ui: 'medium',
+                                title: '&nbsp;',
+                                showButtons: false,
+                                store: me.rulesStore,
+                                router: me.router,
+                                actionMenuItemId: 'rule-set-rule-action-menu',
+                                itemId: 'rule-sets-rule-grid',
+                                showBottomPaging: true
+                            },
+                            previewComponent: {
+                                xtype: 'estimation-rules-detail-form',
+                                actionMenuItemId: 'rule-set-rule-action-menu',
+                                itemId: 'rule-sets-rule-preview',
+                                frame: true,
+                                ui: 'default',
+                                title: ''
+                            },
+                            emptyComponent: {
+                                xtype: 'no-items-found-panel',
+                                title: Uni.I18n.translate('estimationrules.empty.title', 'EST', 'No estimation rules found'),
+                                reasons: [
+                                    Uni.I18n.translate('estimationrules.empty.list.item1', 'EST', 'No estimation rules have been defined yet.'),
+                                    Uni.I18n.translate('estimationrules.empty.list.item2', 'EST', 'Estimation rules exist, but you do not have permission to view them.')
+                                ],
+                                stepItems: [
+                                    {
+                                        text: Uni.I18n.translate('estimationrules.addEstimationRule', 'EST', 'Add estimation rule'),
+                                        itemId: 'rule-sets-add-rule-button',
+                                        privileges: Est.privileges.EstimationConfiguration.administrate
+                                    }
+                                ]
+                            }
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('estimationrules.empty.title', 'EST', 'No estimation rules found'),
+                            title: Uni.I18n.translate('estimationrulesets.empty.title', 'EST', 'No estimation rule sets found'),
                             reasons: [
-                                Uni.I18n.translate('estimationrules.empty.list.item1', 'EST', 'No estimation rules have been defined yet.'),
-                                Uni.I18n.translate('estimationrules.empty.list.item2', 'EST', 'Estimation rules exist, but you do not have permission to view them.')
+                                Uni.I18n.translate('estimationrulesets.reson1', 'EST', 'No estimation rule sets have been defined yet.'),
+                                Uni.I18n.translate('estimationrulesets.reson2', 'EST', 'Estimation rule sets exist, but you do not have permission to view them.')
                             ],
                             stepItems: [
                                 {
@@ -60,24 +80,8 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                                 }
                             ]
                         }
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('estimationrules.empty.list.item1', 'EST', 'No events found'),
-                        reasons: [
-                            Uni.I18n.translate('estimation.ruleSets.reson1', 'EST', 'No estimation rule sets have been defined yet.'),
-                            Uni.I18n.translate('estimation.ruleSets.reson2', 'EST', 'Estimation rule sets exist, but you do not have permission to view them.')
-                        ],
-                        stepItems: [
-                            {
-                                text: Uni.I18n.translate('estimationrulesets.add.title', 'EST', 'Add estimation rule set'),
-                                itemId: 'add-estimation-rule-set-button',
-                                xtype: 'button',
-                                action: 'addEstimationRuleSet'
-                            }
-                        ]
                     }
-                }
+                ]
 
             }
         ];

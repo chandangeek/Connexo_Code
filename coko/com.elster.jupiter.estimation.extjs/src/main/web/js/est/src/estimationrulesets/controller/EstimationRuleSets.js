@@ -129,9 +129,10 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             rulesStore = me.getStore('Est.estimationrules.store.Rules');
-            rulesStore.getProxy().setUrl(record.getId());
-            rulesStore.load();
-            router.arguments.ruleSetId = record.getId();
+        me.getRuleSetRulesGrid().setTitle(record.get('name'));
+        rulesStore.getProxy().setUrl(record.getId());
+        rulesStore.load();
+        router.arguments.ruleSetId = record.getId();
     },
 
     selectRule: function (grid, record) {
@@ -154,6 +155,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             widget = Ext.widget('rule-set-edit'),
             model = new Est.estimationrulesets.model.EstimationRuleSet;
         me.getApplication().fireEvent('changecontentevent', widget);
+        widget.down('#rule-set-edit-form').setTitle(Uni.I18n.translate('estimationrulesets.add.title', 'EST', 'Add estimation rule set'));
         widget.down('#rule-set-edit-form').loadRecord(model)
     },
 
@@ -212,31 +214,31 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             form = btn.up('#rule-set-edit-form'),
             action;
-            form.updateRecord();
-            var record = form.getRecord();
-            record.getId() ? action = 'update' : action = 'create';
-            record.save({
-                action: action,
-                failure: function (record, operation) {
-                    if (operation.response.status == 400) {
-                        me.showErrorPanel(true);
-                        if (!Ext.isEmpty(operation.response.responseText)) {
-                            var json = Ext.decode(operation.response.responseText, true);
-                            if (json && json.errors) {
-                                form.getForm().markInvalid(json.errors);
-                            }
+        form.updateRecord();
+        var record = form.getRecord();
+        record.getId() ? action = 'update' : action = 'create';
+        record.save({
+            action: action,
+            failure: function (record, operation) {
+                if (operation.response.status == 400) {
+                    me.showErrorPanel(true);
+                    if (!Ext.isEmpty(operation.response.responseText)) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            form.getForm().markInvalid(json.errors);
                         }
                     }
-                },
-                success: function (record) {
-                    me.navigatePrevious();
-                    var name = record.get('name'),
-                        msg = action == 'create' ?
-                            Uni.I18n.translate('estimationrulesets.add.successMsg', 'EST', 'Estimation rule set added'):
-                            Uni.I18n.translate('estimationrulesets.edit.successMsg', 'EST', 'Estimation rule set edited');
-                    me.getApplication().fireEvent('acknowledge', msg);
                 }
-            })
+            },
+            success: function (record) {
+                me.navigatePrevious();
+                var name = record.get('name'),
+                    msg = action == 'create' ?
+                        Uni.I18n.translate('estimationrulesets.add.successMsg', 'EST', 'Estimation rule set added') :
+                        Uni.I18n.translate('estimationrulesets.edit.successMsg', 'EST', 'Estimation rule set edited');
+                me.getApplication().fireEvent('acknowledge', msg);
+            }
+        })
     },
 
     removeAction: function (record) {
