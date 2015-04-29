@@ -3,6 +3,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceSideMenu', {
 
     initComponent: function () {
         var me = this;
+
         this.callParent(arguments);
         this.addMenuItems([{
             title: Uni.I18n.translate('firmware.route.devicefirmware', 'FWC', 'Firmware'),
@@ -13,6 +14,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceSideMenu', {
                 }
             ]
         }]);
+
         this.checkNavigation(Ext.util.History.getToken());
     }
 });
