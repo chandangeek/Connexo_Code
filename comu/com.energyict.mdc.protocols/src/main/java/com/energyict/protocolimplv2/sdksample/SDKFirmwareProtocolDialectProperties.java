@@ -16,8 +16,8 @@ public class SDKFirmwareProtocolDialectProperties extends AbstractDeviceProtocol
 
     public static final String activeMeterFirmwarePropertyName = "ActiveMeterFirmareVersion";
     public static final String passiveMeterFirmwarePropertyName = "PassiveMeterFirmareVersion";
-    public static final String activeCommunicationFirmwarePropertyName = "ActiveCommunicationFirmareVersion";
-    public static final String passiveCommunicationFirmwarePropertyName = "PassiveCommunicationFirmareVersion";
+    public static final String activeCommunicationFirmwarePropertyName = "ActiveComFirmareVersion";
+    public static final String passiveCommunicationFirmwarePropertyName = "PassiveComFirmareVersion";
 
     protected SDKFirmwareProtocolDialectProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
