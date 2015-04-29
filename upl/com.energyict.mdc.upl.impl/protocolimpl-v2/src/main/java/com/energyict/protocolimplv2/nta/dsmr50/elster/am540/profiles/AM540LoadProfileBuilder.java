@@ -30,11 +30,11 @@ public class AM540LoadProfileBuilder extends LGLoadProfileBuilder {
     }
 
     @Override
-    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> allLoadProfileReaders) {
         List<LoadProfileReader> eMeterLoadProfileReaders = new ArrayList<>();
         List<LoadProfileReader> mbusLoadProfileReaders = new ArrayList<>();
 
-        for (LoadProfileReader loadProfileReader : loadProfileReaders) {
+        for (LoadProfileReader loadProfileReader : allLoadProfileReaders) {
             if (loadProfileReader.getMeterSerialNumber().equals(getMeterProtocol().getSerialNumber())) {
                 eMeterLoadProfileReaders.add(loadProfileReader);
             } else {
@@ -42,7 +42,7 @@ public class AM540LoadProfileBuilder extends LGLoadProfileBuilder {
             }
         }
 
-        List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfileReaders.size());
+        List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(allLoadProfileReaders.size());
         loadProfileConfigurations.addAll(super.fetchLoadProfileConfiguration(eMeterLoadProfileReaders));
         loadProfileConfigurations.addAll(fetchMBusLoadProfileConfiguration(mbusLoadProfileReaders));
         return loadProfileConfigurations;

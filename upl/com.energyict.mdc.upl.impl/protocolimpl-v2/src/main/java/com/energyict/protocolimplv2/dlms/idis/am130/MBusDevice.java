@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.am130;
 
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsMbusProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessaging;
 
@@ -15,7 +15,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessag
  * @author khe
  * @since 15/01/2015 - 9:19
  */
-public class MBusDevice extends AbstractDlmsMbusProtocol {
+public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     private final AbstractDlmsProtocol masterProtocol = new AM130();
     private final IDISMBusMessaging idisMBusMessaging = new IDISMBusMessaging(masterProtocol);

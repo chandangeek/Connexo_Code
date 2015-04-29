@@ -40,6 +40,7 @@ import java.util.List;
  * Date: 7-feb-2011
  * Time: 14:15:14
  */
+@Deprecated //Use the V2 protocol instead: com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3
 public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
 
     /**

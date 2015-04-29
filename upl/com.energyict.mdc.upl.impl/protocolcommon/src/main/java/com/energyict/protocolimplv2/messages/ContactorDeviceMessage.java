@@ -50,7 +50,13 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
                     new BigDecimal("1"), new BigDecimal("2")),
             PropertySpecFactory.bigDecimalPropertySpecWithValues(contactorModeAttributeName,
                     new BigDecimal("0"), new BigDecimal("1"), new BigDecimal("2"), new BigDecimal("3"),
-                    new BigDecimal("4"), new BigDecimal("5"), new BigDecimal("6")));
+                    new BigDecimal("4"), new BigDecimal("5"), new BigDecimal("6"))),
+    CONTACTOR_OPEN_WITH_OUTPUT_AND_ACTIVATION_DATE(12,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(digitalOutputAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
+    CONTACTOR_CLOSE_WITH_OUTPUT_AND_ACTIVATION_DATE(13,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(digitalOutputAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2)),
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName));
 
     private static final DeviceMessageCategory contactorCategory = DeviceMessageCategories.CONTACTOR;
 
@@ -62,13 +68,13 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
+    private static String translate(final String key) {
+        return UserEnvironment.getDefault().getTranslation(key);
+    }
+
     @Override
     public DeviceMessageCategory getCategory() {
         return contactorCategory;
-    }
-
-    private static String translate(final String key) {
-        return UserEnvironment.getDefault().getTranslation(key);
     }
 
     @Override

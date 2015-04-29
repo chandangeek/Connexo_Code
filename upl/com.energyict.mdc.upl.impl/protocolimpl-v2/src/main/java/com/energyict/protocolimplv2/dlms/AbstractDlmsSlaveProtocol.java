@@ -42,7 +42,7 @@ import java.util.List;
  * @author khe
  * @since 15/01/2015 - 10:18
  */
-public abstract class AbstractDlmsMbusProtocol implements DeviceProtocol {
+public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     abstract protected DeviceProtocolSecurityCapabilities getSecurityCapabilities();
 

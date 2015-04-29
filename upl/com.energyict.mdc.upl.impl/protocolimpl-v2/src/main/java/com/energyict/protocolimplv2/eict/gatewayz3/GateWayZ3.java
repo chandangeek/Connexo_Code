@@ -3,12 +3,7 @@ package com.energyict.protocolimplv2.eict.gatewayz3;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
@@ -28,6 +23,7 @@ import java.util.List;
  * Date: 9/04/13
  * Time: 13:54
  */
+@Deprecated //The Cynet RF functionality is no longer supported in EIServer 9.x. This class is placeholder so the old devices can be migrated.
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
@@ -122,6 +118,6 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Data$";
+        return "$Date$";
     }
 }

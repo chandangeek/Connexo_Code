@@ -76,6 +76,8 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private long initialFrameCounter = -1;
     private IDISMeterTopology meterTopology;
     private DLMSCache dlmsCache;
+    private LoadProfileBuilder loadProfileBuilder;
+    private Dsmr50RegisterFactory registerFactory;
 
     public AM540() {
         super();
@@ -293,11 +295,11 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         return getRegisterFactory().readRegisters(registers);
     }
 
-    protected Dsmr50RegisterFactory getRegisterFactory() {
+    private Dsmr50RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new Dsmr50RegisterFactory(this);
         }
-        return (Dsmr50RegisterFactory) registerFactory;
+        return registerFactory;
     }
 
     public AM540Messaging getAM540Messaging() {

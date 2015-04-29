@@ -43,7 +43,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),
             PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileActivationDateAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(emergencyProfileActivationDateAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileDurationAttributeName)
     ),
     CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(3,

@@ -288,6 +288,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     Itron_CryptoMbusDeviceWithBreaker(253, "com.enexis.smartmeterprotocolimpl.nta.dsmr40.itron.CryptoMbusDeviceWithBreaker", FamilyRule.DSMR_NTA),
 
     PM5560(254, "com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5560", FamilyRule.EICT_RTU_EMS),
+    WEB_RTU_Z3_V2(255, "com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3", FamilyRule.EICT_Z3),
+    WEB_RTU_Z3_MBUS_DEVICE_V2(256, "com.energyict.protocolimplv2.eict.webrtuz3.MBusDevice", FamilyRule.EICT_Z3),
+    WEB_RTU_Z3_EMETER_V2(257, "com.energyict.protocolimplv2.eict.webrtuz3.EMeter", FamilyRule.EICT_Z3),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -332,22 +335,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
         this.families = new HashSet<>(Arrays.asList(families));
     }
 
-    @Override
-    public int getCode() {
-        return code;
-    }
-
-    @Override
-    public String getClassName() {
-        return className;
-    }
-
-    @Override
-    public Set<ProtocolFamily> getFamilies() {
-        return this.families;
-    }
-
-
     /**
      * Returns the LicensedProtocolRule that is uniquely identified by the code.
      *
@@ -377,6 +364,21 @@ public enum LicensedProtocolRule implements LicensedProtocol {
             }
         }
         return null;
+    }
+
+    @Override
+    public int getCode() {
+        return code;
+    }
+
+    @Override
+    public String getClassName() {
+        return className;
+    }
+
+    @Override
+    public Set<ProtocolFamily> getFamilies() {
+        return this.families;
     }
 
 }

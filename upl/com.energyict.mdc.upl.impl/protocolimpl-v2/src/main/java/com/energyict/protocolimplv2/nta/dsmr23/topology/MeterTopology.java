@@ -222,6 +222,14 @@ public class MeterTopology extends AbstractMeterTopology {
         return null;
     }
 
+    /**
+     * Returns the actual device topology (which should be the master device and a number of attached slave devices).
+     * <p/>
+     * <b>Warning:</b> this method should only be called after the actual device topology is read out, or in other words
+     * after method #searchForSlaveDevices() has been called!
+     *
+     * @return the current Topology
+     */
     @Override
     public CollectedTopology getDeviceTopology() {
         if (deviceTopology == null) {

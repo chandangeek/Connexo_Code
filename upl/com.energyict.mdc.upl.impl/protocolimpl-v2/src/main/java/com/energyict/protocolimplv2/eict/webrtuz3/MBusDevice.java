@@ -1,28 +1,25 @@
-package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
+package com.energyict.protocolimplv2.eict.webrtuz3;
 
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessaging;
+import com.energyict.protocolimplv2.eict.webrtuz3.messages.mbus.WebRTUZ3MBusMessaging;
 
 /**
  * Copyrights EnergyICT
- * <p/>
- * Logical slave protocol that does not read out any data, it's merely a placeholder for the supported messages, properties, ...
- * The read out of the MBus registers, logbook, load profile, etc is implemented in the AM450 e-meter (master) protocol.
  *
- * @author sva
- * @since 23/01/2015 - 9:26
+ * @author khe
+ * @since 28/04/2015 - 16:29
  */
 public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
-    private final AbstractDlmsProtocol masterProtocol = new AM540();
-    private final IDISMBusMessaging idisMBusMessaging = new IDISMBusMessaging(masterProtocol);
+    private final AbstractDlmsProtocol masterProtocol = new WebRTUZ3();
+    private final WebRTUZ3MBusMessaging mBusMessaging = new WebRTUZ3MBusMessaging(masterProtocol);
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AM540 DLMS (IDIS P2) MBus slave V2";
+        return "EnergyICT WebRTU Z3 DLMS MBus device V2";
     }
 
     @Override
@@ -35,6 +32,6 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
     }
 
     protected DeviceMessageSupport getDeviceMessageSupport() {
-        return idisMBusMessaging;
+        return mBusMessaging;
     }
 }

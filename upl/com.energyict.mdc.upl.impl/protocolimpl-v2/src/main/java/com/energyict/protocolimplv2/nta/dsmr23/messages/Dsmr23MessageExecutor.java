@@ -2,78 +2,23 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.User;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -83,12 +28,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -100,7 +40,6 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
-    private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
     private Dsmr23MbusMessageExecutor mbusMessageExecutor;
 
     public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol) {
@@ -403,188 +342,6 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void globalMeterReset() throws IOException {
         ScriptTable globalResetST = getCosemObjectFactory().getGlobalMeterResetScriptTable();
         globalResetST.invoke(1);    // execute script one
-    }
-
-    private void setEmergencyProfileGroupIds(OfflineDeviceMessage pendingMessage) throws IOException {
-        String[] groupIds = getDeviceMessageAttributeValue(pendingMessage, emergencyProfileGroupIdListAttributeName).split(SEPARATOR);
-        Array idArray = new Array();
-        for (String groupId : groupIds) {
-            idArray.addDataType(new Unsigned16(Integer.valueOf(groupId)));
-
-        }
-        getCosemObjectFactory().getLimiter().writeEmergencyProfileGroupIdList(idArray);
-    }
-
-    // first do it the Iskra way, if it fails do it our way
-    protected void clearLoadLimitConfiguration() throws IOException {
-        Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
-        Structure emptyStruct = new Structure();
-        emptyStruct.addDataType(new Unsigned16(0));
-        emptyStruct.addDataType(OctetString.fromByteArray(new byte[14]));
-        emptyStruct.addDataType(new Unsigned32(0));
-        try {
-            clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
-        } catch (DataAccessResultException e) {
-            if (e.getDataAccessResult() == DataAccessResultCode.TYPE_UNMATCHED.getResultCode()) {
-                emptyStruct = new Structure();
-                emptyStruct.addDataType(new NullData());
-                emptyStruct.addDataType(new NullData());
-                emptyStruct.addDataType(new NullData());
-                clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    protected void configureLoadLimitParameters(OfflineDeviceMessage pendingMessage) throws IOException {
-        String normalThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, normalThresholdAttributeName).getDeviceMessageAttributeValue();
-        String emergencyThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyThresholdAttributeName).getDeviceMessageAttributeValue();
-        String overThresholdDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, overThresholdDurationAttributeName).getDeviceMessageAttributeValue();
-        String emergencyProfileId = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileIdAttributeName).getDeviceMessageAttributeValue();
-        String emergencyProfileActivationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileActivationDateAttributeName).getDeviceMessageAttributeValue();
-        String emergencyProfileDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileDurationAttributeName).getDeviceMessageAttributeValue();
-
-        byte theMonitoredAttributeType = -1;
-        Limiter loadLimiter = getCosemObjectFactory().getLimiter();
-
-        if (theMonitoredAttributeType == -1) {    // check for the type of the monitored value
-            Limiter.ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
-            if (valueDefinitionType.getClassId().getValue() == 0) {
-                setMonitoredValue(loadLimiter);
-                valueDefinitionType = loadLimiter.readMonitoredValue();
-            }
-            theMonitoredAttributeType = getMonitoredAttributeType(valueDefinitionType);
-        }
-
-        // Write the normalThreshold
-        if (normalThreshold != null) {
-            loadLimiter.writeThresholdNormal(convertToMonitoredType(theMonitoredAttributeType, normalThreshold));
-        }
-
-        // Write the emergencyThreshold
-        if (emergencyThreshold != null) {
-            loadLimiter.writeThresholdEmergency(convertToMonitoredType(theMonitoredAttributeType, emergencyThreshold));
-        }
-
-        // Write the minimumOverThresholdDuration
-        if (overThresholdDuration != null) {
-            loadLimiter.writeMinOverThresholdDuration(new Unsigned32(Integer.parseInt(overThresholdDuration)));
-        }
-
-        // Construct the emergencyProfile
-        Structure emergencyProfile = new Structure();
-        if (emergencyProfileId != null) {    // The EmergencyProfileID
-            emergencyProfile.addDataType(new Unsigned16(Integer.parseInt(emergencyProfileId)));
-        }
-        if (emergencyProfileActivationDate != null) {    // The EmergencyProfileActivationTime
-            emergencyProfile.addDataType(new OctetString(getEmergencyProfileActivationAXDRDateTime(emergencyProfileActivationDate).getBEREncodedByteArray(), 0, true));
-        }
-        if (emergencyProfileDuration != null) {        // The EmergencyProfileDuration
-            emergencyProfile.addDataType(new Unsigned32(Integer.parseInt(emergencyProfileDuration)));
-        }
-        if ((emergencyProfile.nrOfDataTypes() > 0) && (emergencyProfile.nrOfDataTypes() != 3)) {    // If all three elements are correct, then send it, otherwise throw error
-            throw new ProtocolException("The complete emergecy profile must be filled in before sending it to the meter.");
-        } else {
-            if (emergencyProfile.nrOfDataTypes() > 0) {
-                loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
-            }
-        }
-    }
-
-    protected AXDRDateTime getEmergencyProfileActivationAXDRDateTime(String emergencyProfileActivationDate) {
-        return convertUnixToGMTDateTime(emergencyProfileActivationDate);
-    }
-
-    /**
-     * Convert a given epoch timestamp in SECONDS to an {@link com.energyict.dlms.axrdencoding.util.AXDRDateTime} object
-     *
-     * @param time - the time in seconds sinds 1th jan 1970 00:00:00
-     * @return the AXDRDateTime of the given time
-     */
-    public AXDRDateTime convertUnixToGMTDateTime(String time) {
-        return convertUnixToDateTime(time, TimeZone.getTimeZone("GMT"));
-    }
-
-    public AXDRDateTime convertUnixToDateTime(String time, TimeZone timeZone) {
-        Calendar cal = Calendar.getInstance(timeZone);
-        cal.setTimeInMillis(Long.parseLong(time) * 1000);
-        return new AXDRDateTime(cal);
-    }
-
-    /**
-     * Convert the value to write to the Limiter object to the correct monitored value type ...
-     */
-    protected AbstractDataType convertToMonitoredType(byte theMonitoredAttributeType, String value) throws ProtocolException {
-
-        final AxdrType axdrType = AxdrType.fromTag(theMonitoredAttributeType);
-        switch (axdrType) {
-            case NULL: {
-                return new NullData();
-            }
-            case BOOLEAN: {
-                return new BooleanObject(value.equalsIgnoreCase("1"));
-            }
-            case BIT_STRING: {
-                return new BitString(Integer.parseInt(value));
-            }
-            case DOUBLE_LONG: {
-                return new Integer32(Integer.parseInt(value));
-            }
-            case DOUBLE_LONG_UNSIGNED: {
-                return new Unsigned32(Integer.parseInt(value));
-            }
-            case OCTET_STRING: {
-                return OctetString.fromString(value);
-            }
-            case VISIBLE_STRING: {
-                return new VisibleString(value);
-            }
-            case INTEGER: {
-                return new Integer8(Integer.parseInt(value));
-            }
-            case LONG: {
-                return new Integer16(Integer.parseInt(value));
-            }
-            case UNSIGNED: {
-                return new Unsigned8(Integer.parseInt(value));
-            }
-            case LONG_UNSIGNED: {
-                return new Unsigned16(Integer.parseInt(value));
-            }
-            case LONG64: {
-                return new Integer64(Integer.parseInt(value));
-            }
-            case ENUM: {
-                return new TypeEnum(Integer.parseInt(value));
-            }
-            default:
-                throw new ProtocolException("convertToMonitoredtype error, unknown type.");
-        }
-    }
-
-    private byte getMonitoredAttributeType(Limiter.ValueDefinitionType vdt) throws IOException {
-
-        if (getMeterConfig().getClassId(vdt.getObisCode()) == Register.CLASSID) {
-            return getCosemObjectFactory().getRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
-        } else if (getMeterConfig().getClassId(vdt.getObisCode()) == ExtendedRegister.CLASSID) {
-            return getCosemObjectFactory().getExtendedRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
-        } else if (getMeterConfig().getClassId(vdt.getObisCode()) == DLMSClassId.DEMAND_REGISTER.getClassId()) {
-            return getCosemObjectFactory().getDemandRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
-        } else if (getMeterConfig().getClassId(vdt.getObisCode()) == Data.CLASSID) {
-            return getCosemObjectFactory().getData(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
-        } else {
-            throw new ProtocolException("WebRtuKP, getMonitoredAttributeType, invalid classID " + getMeterConfig().getClassId(vdt.getObisCode()) + " for obisCode " + vdt.getObisCode().toString());
-        }
-    }
-
-    private void setMonitoredValue(Limiter loadLimiter) throws IOException {
-        Limiter.ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
-        vdt.addDataType(new Unsigned16(3));
-        OctetString os = OctetString.fromByteArray(defaultMonitoredAttribute);
-        vdt.addDataType(os);
-        vdt.addDataType(new Integer8(2));
-        loadLimiter.writeMonitoredValue(vdt);
     }
 
     private void codeToP1(OfflineDeviceMessage pendingMessage) throws IOException {

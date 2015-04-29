@@ -1,18 +1,12 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
@@ -23,10 +17,14 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Provides functionality to handle the {@link com.energyict.mdc.messages.DeviceMessageSpec}s.
@@ -36,6 +34,8 @@ import java.util.List;
  * @since 29/11/13 - 15:20
  */
 public abstract class AbstractMessageExecutor {
+
+    private static final byte[] DEFAULT_MONITORED_ATTRIBUTE = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
     private AbstractDlmsProtocol protocol;
 
@@ -177,4 +177,188 @@ public abstract class AbstractMessageExecutor {
     protected boolean getBooleanAttribute(OfflineDeviceMessage pendingMessage) {
         return Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
     }
+
+
+    protected void setEmergencyProfileGroupIds(OfflineDeviceMessage pendingMessage) throws IOException {
+        String[] groupIds = getDeviceMessageAttributeValue(pendingMessage, emergencyProfileGroupIdListAttributeName).split(";");
+        Array idArray = new Array();
+        for (String groupId : groupIds) {
+            idArray.addDataType(new Unsigned16(Integer.valueOf(groupId)));
+
+        }
+        getCosemObjectFactory().getLimiter().writeEmergencyProfileGroupIdList(idArray);
+    }
+
+    // first do it the Iskra way, if it fails do it our way
+    protected void clearLoadLimitConfiguration() throws IOException {
+        Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
+        Structure emptyStruct = new Structure();
+        emptyStruct.addDataType(new Unsigned16(0));
+        emptyStruct.addDataType(OctetString.fromByteArray(new byte[14]));
+        emptyStruct.addDataType(new Unsigned32(0));
+        try {
+            clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
+        } catch (DataAccessResultException e) {
+            if (e.getDataAccessResult() == DataAccessResultCode.TYPE_UNMATCHED.getResultCode()) {
+                emptyStruct = new Structure();
+                emptyStruct.addDataType(new NullData());
+                emptyStruct.addDataType(new NullData());
+                emptyStruct.addDataType(new NullData());
+                clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    protected void configureLoadLimitParameters(OfflineDeviceMessage pendingMessage) throws IOException {
+        String normalThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, normalThresholdAttributeName).getDeviceMessageAttributeValue();
+        String emergencyThreshold = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyThresholdAttributeName).getDeviceMessageAttributeValue();
+        String overThresholdDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, overThresholdDurationAttributeName).getDeviceMessageAttributeValue();
+        String emergencyProfileId = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileIdAttributeName).getDeviceMessageAttributeValue();
+        String emergencyProfileActivationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String emergencyProfileDuration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, emergencyProfileDurationAttributeName).getDeviceMessageAttributeValue();
+
+        byte theMonitoredAttributeType = -1;
+        Limiter loadLimiter = getCosemObjectFactory().getLimiter();
+
+        if (theMonitoredAttributeType == -1) {    // check for the type of the monitored value
+            Limiter.ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
+            if (valueDefinitionType.getClassId().getValue() == 0) {
+                setMonitoredValue(loadLimiter);
+                valueDefinitionType = loadLimiter.readMonitoredValue();
+            }
+            theMonitoredAttributeType = getMonitoredAttributeType(valueDefinitionType);
+        }
+
+        // Write the normalThreshold
+        if (normalThreshold != null) {
+            loadLimiter.writeThresholdNormal(convertToMonitoredType(theMonitoredAttributeType, normalThreshold));
+        }
+
+        // Write the emergencyThreshold
+        if (emergencyThreshold != null) {
+            loadLimiter.writeThresholdEmergency(convertToMonitoredType(theMonitoredAttributeType, emergencyThreshold));
+        }
+
+        // Write the minimumOverThresholdDuration
+        if (overThresholdDuration != null) {
+            loadLimiter.writeMinOverThresholdDuration(new Unsigned32(Integer.parseInt(overThresholdDuration)));
+        }
+
+        // Construct the emergencyProfile
+        Structure emergencyProfile = new Structure();
+        if (emergencyProfileId != null) {    // The EmergencyProfileID
+            emergencyProfile.addDataType(new Unsigned16(Integer.parseInt(emergencyProfileId)));
+        }
+        if (emergencyProfileActivationDate != null) {    // The EmergencyProfileActivationTime
+            emergencyProfile.addDataType(new OctetString(getEmergencyProfileActivationAXDRDateTime(emergencyProfileActivationDate).getBEREncodedByteArray(), 0, true));
+        }
+        if (emergencyProfileDuration != null) {        // The EmergencyProfileDuration
+            emergencyProfile.addDataType(new Unsigned32(Integer.parseInt(emergencyProfileDuration)));
+        }
+        if ((emergencyProfile.nrOfDataTypes() > 0) && (emergencyProfile.nrOfDataTypes() != 3)) {    // If all three elements are correct, then send it, otherwise throw error
+            throw new ProtocolException("The complete emergecy profile must be filled in before sending it to the meter.");
+        } else {
+            if (emergencyProfile.nrOfDataTypes() > 0) {
+                loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
+            }
+        }
+    }
+
+    protected AXDRDateTime getEmergencyProfileActivationAXDRDateTime(String emergencyProfileActivationDate) {
+        return convertUnixToGMTDateTime(emergencyProfileActivationDate);
+    }
+
+    /**
+     * Convert a given epoch timestamp in SECONDS to an {@link com.energyict.dlms.axrdencoding.util.AXDRDateTime} object
+     *
+     * @param time - the time in seconds sinds 1th jan 1970 00:00:00
+     * @return the AXDRDateTime of the given time
+     */
+    public AXDRDateTime convertUnixToGMTDateTime(String time) {
+        return convertUnixToDateTime(time, TimeZone.getTimeZone("GMT"));
+    }
+
+    public AXDRDateTime convertUnixToDateTime(String time, TimeZone timeZone) {
+        Calendar cal = Calendar.getInstance(timeZone);
+        cal.setTimeInMillis(Long.parseLong(time) * 1000);
+        return new AXDRDateTime(cal);
+    }
+
+    /**
+     * Convert the value to write to the Limiter object to the correct monitored value type ...
+     */
+    protected AbstractDataType convertToMonitoredType(byte theMonitoredAttributeType, String value) throws ProtocolException {
+
+        final AxdrType axdrType = AxdrType.fromTag(theMonitoredAttributeType);
+        switch (axdrType) {
+            case NULL: {
+                return new NullData();
+            }
+            case BOOLEAN: {
+                return new BooleanObject(value.equalsIgnoreCase("1"));
+            }
+            case BIT_STRING: {
+                return new BitString(Integer.parseInt(value));
+            }
+            case DOUBLE_LONG: {
+                return new Integer32(Integer.parseInt(value));
+            }
+            case DOUBLE_LONG_UNSIGNED: {
+                return new Unsigned32(Integer.parseInt(value));
+            }
+            case OCTET_STRING: {
+                return OctetString.fromString(value);
+            }
+            case VISIBLE_STRING: {
+                return new VisibleString(value);
+            }
+            case INTEGER: {
+                return new Integer8(Integer.parseInt(value));
+            }
+            case LONG: {
+                return new Integer16(Integer.parseInt(value));
+            }
+            case UNSIGNED: {
+                return new Unsigned8(Integer.parseInt(value));
+            }
+            case LONG_UNSIGNED: {
+                return new Unsigned16(Integer.parseInt(value));
+            }
+            case LONG64: {
+                return new Integer64(Integer.parseInt(value));
+            }
+            case ENUM: {
+                return new TypeEnum(Integer.parseInt(value));
+            }
+            default:
+                throw new ProtocolException("convertToMonitoredtype error, unknown type.");
+        }
+    }
+
+    private byte getMonitoredAttributeType(Limiter.ValueDefinitionType vdt) throws IOException {
+
+        if (getMeterConfig().getClassId(vdt.getObisCode()) == Register.CLASSID) {
+            return getCosemObjectFactory().getRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
+        } else if (getMeterConfig().getClassId(vdt.getObisCode()) == ExtendedRegister.CLASSID) {
+            return getCosemObjectFactory().getExtendedRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
+        } else if (getMeterConfig().getClassId(vdt.getObisCode()) == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+            return getCosemObjectFactory().getDemandRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
+        } else if (getMeterConfig().getClassId(vdt.getObisCode()) == Data.CLASSID) {
+            return getCosemObjectFactory().getData(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
+        } else {
+            throw new ProtocolException("WebRtuKP, getMonitoredAttributeType, invalid classID " + getMeterConfig().getClassId(vdt.getObisCode()) + " for obisCode " + vdt.getObisCode().toString());
+        }
+    }
+
+    private void setMonitoredValue(Limiter loadLimiter) throws IOException {
+        Limiter.ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
+        vdt.addDataType(new Unsigned16(3));
+        OctetString os = OctetString.fromByteArray(DEFAULT_MONITORED_ATTRIBUTE);
+        vdt.addDataType(os);
+        vdt.addDataType(new Integer8(2));
+        loadLimiter.writeMonitoredValue(vdt);
+    }
+
 }

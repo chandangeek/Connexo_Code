@@ -27,6 +27,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -130,14 +131,14 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles for the {@link #meterProtocol}
      *
-     * @param loadProfileReaders a list of definitions of expected loadProfiles to read
+     * @param allLoadProfileReaders a list of definitions of expected loadProfiles to read
      * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
      */
-    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
-        this.expectedLoadProfileReaders = filterOutAllInvalidLoadProfiles(loadProfileReaders);
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> allLoadProfileReaders) {
+        this.expectedLoadProfileReaders = filterOutAllInvalidLoadProfiles(allLoadProfileReaders);
         this.loadProfileConfigurationList = new ArrayList<>();
 
-        ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, meterProtocol.getDlmsSessionProperties().isBulkRequest());
+        ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(expectedLoadProfileReaders, meterProtocol.getDlmsSessionProperties().isBulkRequest());
 
         List<CapturedRegisterObject> capturedObjectRegisterList;
         try {
@@ -147,7 +148,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         }
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, meterProtocol.getDlmsSessionProperties().isBulkRequest());
 
-        for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
+        for (LoadProfileReader lpr : allLoadProfileReaders) {
             DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
                 lpc.setSupportedByMeter(false);
@@ -469,7 +470,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     toCalendar.setTime(lpr.getEndReadingTime());
 
                     DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask,
-                            this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits());
+                            this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), getIntervalStatusBits());
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval());
 
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
@@ -486,6 +487,10 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             collectedLoadProfileList.add(collectedLoadProfile);
         }
         return collectedLoadProfileList;
+    }
+
+    protected ProfileIntervalStatusBits getIntervalStatusBits() {
+        return new DSMRProfileIntervalStatusBits();
     }
 
     /**

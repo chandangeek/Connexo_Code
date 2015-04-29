@@ -43,14 +43,12 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
-    protected Dsmr23RegisterFactory registerFactory = null;
     private ComposedMeterInfo meterInfo;
     protected DlmsProperties dlmsProperties;
     private DlmsConfigurationSupport dlmsConfigurationSupport;
     private DlmsSession dlmsSession;
-    protected LoadProfileBuilder loadProfileBuilder;
     private DLMSCache dlmsCache;
-    private MeterTopology meterTopology;
+    protected AbstractMeterTopology meterTopology;
     protected OfflineDevice offlineDevice;
     private DlmsSecuritySupport dlmsSecuritySupport;
 
@@ -167,20 +165,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
             this.meterTopology = new MeterTopology(this);
         }
         return meterTopology;
-    }
-
-    protected Dsmr23RegisterFactory getRegisterFactory() {
-        if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr23RegisterFactory(this);
-        }
-        return registerFactory;
-    }
-
-    protected LoadProfileBuilder getLoadProfileBuilder() {
-        if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
-        }
-        return loadProfileBuilder;
     }
 
     @Override

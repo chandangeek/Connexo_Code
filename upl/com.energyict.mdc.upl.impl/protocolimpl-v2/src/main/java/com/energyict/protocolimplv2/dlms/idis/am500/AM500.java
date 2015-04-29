@@ -58,7 +58,6 @@ public class AM500 extends AbstractDlmsProtocol {
     private IDISProfileDataReader idisProfileDataReader = null;
     protected IDISMessaging idisMessaging = null;
     private IDISStoredValues storedValues = null;
-    private IDISMeterTopology idisMeterTopology = null;
     private String serialNumber = null;
 
     @Override
@@ -278,10 +277,10 @@ public class AM500 extends AbstractDlmsProtocol {
 
     @Override
     public AbstractMeterTopology getMeterTopology() {
-        if (idisMeterTopology == null) {
-            idisMeterTopology = new IDISMeterTopology(this);
+        if (meterTopology == null) {
+            meterTopology = new IDISMeterTopology(this);
         }
-        return idisMeterTopology;
+        return meterTopology;
     }
 
     @Override

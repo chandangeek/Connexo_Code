@@ -9,11 +9,7 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -31,6 +27,8 @@ import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +50,8 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private Dsmr23Messaging dsmr23Messaging;
     private Dsmr23LogBookFactory logBookFactory;
+    private LoadProfileBuilder loadProfileBuilder;
+    private Dsmr23RegisterFactory registerFactory;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -106,6 +106,13 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
+    private LoadProfileBuilder getLoadProfileBuilder() {
+        if (this.loadProfileBuilder == null) {
+            this.loadProfileBuilder = new LoadProfileBuilder(this);
+        }
+        return loadProfileBuilder;
+    }
+
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         return getDeviceLogBookFactory().getLogBookData(logBooks);
@@ -153,6 +160,13 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         return getRegisterFactory().readRegisters(registers);
+    }
+
+    private Dsmr23RegisterFactory getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new Dsmr23RegisterFactory(this);
+        }
+        return registerFactory;
     }
 
     @Override

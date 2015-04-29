@@ -31,6 +31,7 @@ import com.energyict.protocolimplv2.edp.messages.EDPMessageExecutor;
 import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +49,7 @@ public class CX20009 extends AbstractDlmsProtocol {
     private LogbookReader logbookReader = null;
     private RegisterReader registerReader;
     private EDPMessaging edpMessaging;
+    private LoadProfileBuilder loadProfileBuilder;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -149,6 +151,13 @@ public class CX20009 extends AbstractDlmsProtocol {
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<com.energyict.protocol.LoadProfileReader> loadProfiles) {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
+    }
+
+    private LoadProfileBuilder getLoadProfileBuilder() {
+        if (this.loadProfileBuilder == null) {
+            this.loadProfileBuilder = new LoadProfileBuilder(this);
+        }
+        return loadProfileBuilder;
     }
 
     @Override

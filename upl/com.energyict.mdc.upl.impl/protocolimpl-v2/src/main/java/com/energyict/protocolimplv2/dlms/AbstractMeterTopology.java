@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms;
 
 import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.protocol.tasks.support.DeviceTopologySupport;
 import com.energyict.obis.ObisCode;
 
 /**
@@ -10,7 +11,7 @@ import com.energyict.obis.ObisCode;
  * @author sva
  * @since 23/01/2015 - 10:10
  */
-public abstract class AbstractMeterTopology {
+public abstract class AbstractMeterTopology implements DeviceTopologySupport {
 
     /**
      * Search for the serialNumber of the meter which corresponds with the B-Field of the given ObisCode
@@ -34,16 +35,6 @@ public abstract class AbstractMeterTopology {
      * Thus in other words: discover all attached slave devices
      */
     public abstract void searchForSlaveDevices();
-
-    /**
-     * Returns the actual device topology (which should be the master device and a number of attached slave devices).
-     * <p/>
-     * <b>Warning:</b> this method should only be called after the actual device topology is read out, or in other words
-     * after method #searchForSlaveDevices() has been called!
-     *
-     * @return the current Topology
-     */
-    public abstract CollectedTopology getDeviceTopology();
 
     /**
      * Return a B-Field corrected ObisCode.

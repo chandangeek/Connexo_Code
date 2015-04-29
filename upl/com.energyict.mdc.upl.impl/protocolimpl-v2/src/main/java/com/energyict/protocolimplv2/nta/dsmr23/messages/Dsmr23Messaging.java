@@ -60,7 +60,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    public static final String SEPARATOR = ";";
 
     private final AbstractMessageExecutor messageExecutor;
     private List<DeviceMessageSpec> supportedMessages;
@@ -207,6 +206,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 return String.valueOf(((Date) messageAttribute).getTime());
             case contactorActivationDateAttributeName:
             case activityCalendarActivationDateAttributeName:
+            case emergencyProfileActivationDateAttributeName:
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
             default:
@@ -222,48 +222,6 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         return getMessageExecutor().executePendingMessages(pendingMessages);
-    }
-
-    /**
-     * Parse the special days of the given code table into the proper AXDR array.
-     */
-    private String parseSpecialDays(Code codeTable) {
-        List<CodeCalendar> calendars = codeTable.getCalendars();
-        Array result = new Array();
-        for (CodeCalendar cc : calendars) {
-            if (cc.getSeason() == 0) {
-                OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
-                        (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                        (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
-                Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
-                Structure struct = new Structure();
-                AXDRDateTime dt = null;
-                try {
-                    dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((cc.getYear() == -1) ? 0x07 : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xB2 : (cc.getYear()) & 0xFF),
-                            (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                            (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
-                } catch (IOException e) {
-                    throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
-                }
-                long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
-                struct.addDataType(new Unsigned16((int) days));
-                struct.addDataType(os);
-                struct.addDataType(dayType);
-                result.addDataType(struct);
-            }
-        }
-        return ProtocolTools.getHexStringFromBytes(result.getBEREncodedByteArray(), "");
-    }
-
-    private String convertLookupTable(Lookup messageAttribute) {
-        StringBuilder result = new StringBuilder();
-        for (LookupEntry entry : messageAttribute.getEntries()) {
-            if (result.length() > 0) {
-                result.append(SEPARATOR);
-            }
-            result.append(entry.getKey());
-        }
-        return result.toString();
     }
 
     public void setSupportMBus(boolean supportMBus) {
