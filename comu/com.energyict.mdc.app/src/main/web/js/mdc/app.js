@@ -46,8 +46,19 @@ Ext.onReady(function () {
         {
             name: 'Dxp',
             path: '../../apps/dxp/src'
-        }
-
+        },
+        {
+            name: 'Est',
+            path: '../../apps/est/src'
+        },
+        {
+            name: 'Est',
+            path: '../../apps/est/src'
+        },
+//        {
+//            name: 'PlaygroundApp',
+//            path: '../../apps/playground/app'
+//        }
     ];
 
     loader.initPackages(packages);
