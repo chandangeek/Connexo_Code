@@ -48,6 +48,8 @@ Ext.define('Uni.Loader', {
         'Uni.override.ModelOverride',
         'Uni.override.FieldSetOverride',
 
+        'Uni.override.ContainerOverride',
+
         'Uni.override.form.field.Base',
         'Uni.override.form.field.ComboBox',
         'Uni.override.form.field.Date',

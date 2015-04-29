@@ -28,6 +28,14 @@ Ext.define('Uni.property.view.property.Date', {
         return this.down('datefield');
     },
 
+    markInvalid: function (error) {
+        this.down('datefield').markInvalid(error);
+    },
+
+    clearInvalid: function (error) {
+        this.down('datefield').clearInvalid();
+    },
+
     setValue: function (value) {
         if (value !== null && value !== '') {
             value = new Date(value);

@@ -9,5 +9,5 @@ Ext.define('Uni.property.view.DefaultButton', {
     width: 28,
     action: 'delete',
     margin: '0 0 0 5',
-    hidden: false
+    hidden: true
 });
