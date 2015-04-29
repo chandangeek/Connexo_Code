@@ -12,12 +12,6 @@ Ext.define('Fwc.devicefirmware.view.Upload', {
     initComponent: function () {
         var me = this;
 
-        me.side = {
-            xtype: 'deviceMenu',
-            router: me.router,
-            device: me.device
-        };
-
         me.content = {
             ui: 'large',
             title: me.title,
