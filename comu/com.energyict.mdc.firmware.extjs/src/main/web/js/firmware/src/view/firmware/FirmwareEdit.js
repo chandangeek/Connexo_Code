@@ -20,6 +20,10 @@ Ext.define('Fwc.view.firmware.FirmwareEdit', {
                             && this.record.getAssociatedData().firmwareStatus.id === 'ghost')
                     ? 'firmware-form-edit-ghost'
                     : 'firmware-form-edit',
+                    autoEl: {
+                        tag: 'form',
+                        enctype: 'multipart/form-data'
+                    },
                     record: this.record,
                     router: this.router
                 }

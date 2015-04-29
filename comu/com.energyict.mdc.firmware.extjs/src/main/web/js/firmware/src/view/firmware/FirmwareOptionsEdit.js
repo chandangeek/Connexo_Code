@@ -129,7 +129,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 xtype: 'button',
                                 ui: 'link',
                                 itemId: 'cancelLink',
-                                href: '#/administration/devicetypes/' + this.deviceTypeId + '/firmware/options'
+                                href: '#/administration/devicetypes/' + this.deviceType.data.id + '/firmware/options'
                             }
                         ]
                     }

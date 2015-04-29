@@ -50,7 +50,7 @@ Ext.define('Fwc.controller.Firmware', {
                 deprecate: this.deprecate
             },
             'firmware-edit [action=saveFirmware]': {
-                click: this.saveFirmware
+                click: this.saveEditedFirmware
             },
             'firmware-add [action=saveFirmware]': {
                 click: this.saveFirmware
@@ -156,7 +156,7 @@ Ext.define('Fwc.controller.Firmware', {
             container = me.getContainer();
 
         var data = firmware.getAssociatedData().firmwareType;
-        Ext.create('Uni.view.window.Confirmation',{
+        Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate'),
         }).show({
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'It will not be possible to upload this firmware version on devices.'),
@@ -233,47 +233,116 @@ Ext.define('Fwc.controller.Firmware', {
             record;
 
         form.down('uni-form-error-message').hide();
-        if (form.isValid()) {
-            record = form.updateRecord().getRecord();
+        record = form.updateRecord().getRecord();
+        var input = form.down('filefield').button.fileInputEl.dom,
+            file = input.files[0],
+            precallback = function (options, success, response) {
+                if (success) {
+                    // setting of hidden fields, needs to request
+                    var origValueType = form.down('firmware-type').getValues().firmwareType;
+                    form.down('#firmwareType').setValue(origValueType);
+                    var origValueStatus = form.down('firmware-status').getValues().firmwareStatus;
+                    form.down('#firmwareStatus').setValue(origValueStatus);
+                    callback(options, success, response);
+                } else {
+                    me.setFormErrors(response, form);
+                    form.setLoading(false);
+                }
+            },
+            callback = function (options, success, response) {
+                if (success) {
+                    record.doSave(savecallback, form);
+                } else {
+                    me.setFormErrors(response, form);
+                    form.setLoading(false);
+                }
+            },
+            savecallback = function (options, success, response) {
+                form.setLoading(false);
+                if (success) {
+                    form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
 
-            var input = form.down('filefield').extractFileInput(),
-                file = input.files[0],
-                callback = function (options, success, response) {
-                    if (success) {
-                        record.save({
-                            success: function () {
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.save.success', 'FWC', 'Firmware version updated'));
-                                form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
-                            },
-                            failure: function (record, operation) {
-                                me.setFormErrors(operation.response, form);
-                            },
-                            callback: function () {
-                                form.setLoading(false);
-                            }
-                        });
-                    } else {
-                        me.setFormErrors(response, form);
-                        form.setLoading(false);
-                    }
-                };
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.save.success', 'FWC', 'Firmware version saved'));
+                } else {
+                    me.setFormErrors(response, form);
+                }
+            };
 
-            if (file) {
-                var reader = new FileReader();
+        if (file) {
+            var reader = new FileReader();
 
-                form.setLoading();
-                reader.onload = function () {
-                    record.set('fileSize', file.size);
-                    record.set('firmwareFile', window.btoa(reader.result));
-                    record.doValidate(callback);
-                };
+            form.setLoading();
+            reader.onload = function () {
+                record.set('fileSize', file.size);
+                record.doValidate(precallback);
+            };
 
-                reader.readAsBinaryString(file);
-            } else {
-                record.doValidate(callback);
-            }
+            reader.readAsBinaryString(file);
         } else {
-            form.down('uni-form-error-message').show();
+            record.doValidate(precallback);
+        }
+    },
+
+    saveEditedFirmware: function () {
+        var me = this,
+            form = me.getFirmwareForm(),
+            record;
+        form.down('uni-form-error-message').hide();
+        record = form.updateRecord().getRecord();
+        var input = form.down('firmware-field-file').button.fileInputEl.dom,
+            file = input.files[0],
+            precallback = function (options, success, response) {
+                if (success) {
+                    if (form.xtype == 'firmware-form-edit-ghost') {
+                        var origValueVersion = form.down('#displayFirmwareVersion').getValue();
+                        form.remove(form.down('#displayFirmwareVersion'));
+                        form.add({
+                            xtype: 'textfield',
+                            name: 'firmwareVersion',
+                            itemId: 'firmwareVersion',
+                            hidden: true
+                        });
+                        form.down('#firmwareVersion').setValue(origValueVersion);
+                        var origValueStatus = form.down('firmware-status').getValues().firmwareStatus;
+                        form.down('#firmwareStatus').setValue(origValueStatus);
+                    }
+                    callback(options, success, response);
+                } else {
+                    me.setFormErrors(response, form);
+                    form.setLoading(false);
+                }
+            },
+            callback = function (options, success, response) {
+                if (success) {
+                    record.doSave(savecallback, form);
+                } else {
+                    me.setFormErrors(response, form);
+                    form.setLoading(false);
+                }
+            },
+            savecallback = function (options, success, response) {
+                form.setLoading(false);
+                if (success) {
+                    form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
+
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.save.success', 'FWC', 'Firmware version updated'));
+                } else {
+                    me.setFormErrors(response, form);
+                }
+            };
+
+        if (file) {
+            var reader = new FileReader();
+
+            form.setLoading();
+            reader.onload = function () {
+                record.set('fileSize', file.size);
+                record.doValidate(precallback);
+            };
+
+            reader.readAsBinaryString(file);
+        } else {
+            record.doValidate(precallback);
         }
     },
 
@@ -377,7 +446,7 @@ Ext.define('Fwc.controller.Firmware', {
         form.updateRecord();
         form.getRecord().save({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.save.success', 'FWC', 'The firmware upgrade options has been updated'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware upgrade options saved'));
                 router.getRoute('administration/devicetypes/view/firmwareoptions').forward();
             },
             failure: function (record, operation) {
