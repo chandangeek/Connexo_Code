@@ -18,14 +18,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,8 +34,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Copyrights EnergyICT
@@ -183,19 +184,26 @@ public class FirmwareUtils {
         }
     }
 
-    public void createFirmwareMessageFor(String mridOfDevice, String firwareVersion) {
+    public void createFirmwareMessageFor(String mridOfDevice, String firmwareVersion) {
         Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
         if (device.isPresent()) {
-            Optional<FirmwareVersion> firmwareVersionByVersion = this.firmwareService.getFirmwareVersionByVersion(firwareVersion, device.get().getDeviceType());
-            firmwareVersionByVersion.ifPresent(firmwareVersion -> executeTransaction(() -> {
-                Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
-                DeviceMessage<Device> deviceMessage = deviceMessageBuilder
-                        .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersion)
-                        .setReleaseDate(clock.instant())
-                        .add();
-                System.out.println("Create message for " + mridOfDevice + " with id " + deviceMessage.getId());
-                return null;
-            }));
+            Condition where = Where.where("firmwareVersion").isEqualTo(firmwareVersion).and(Where.where("deviceType").isEqualTo(device.get().getDeviceType()));
+            FirmwareVersionFilter filter = new FirmwareVersionFilter(device.get().getDeviceType());
+            filter.setFirmwareVersions(Collections.singletonList(firmwareVersion));
+            List<FirmwareVersion> firmwareVersions = this.firmwareService.findAllFirmwareVersions(filter).find();
+            if (firmwareVersions.size() > 0) {
+                executeTransaction(() -> {
+                    Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
+                    DeviceMessage<Device> deviceMessage = deviceMessageBuilder
+                            .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersions.get(0))
+                            .setReleaseDate(clock.instant())
+                            .add();
+                    System.out.println("Create message for " + mridOfDevice + " with id " + deviceMessage.getId());
+                    return null;
+                });
+            } else {
+                System.out.println("No firmware version found with the name " + firmwareVersion + " for device " + mridOfDevice);
+            }
         } else {
             System.out.println("No Device found with the mrid '" + mridOfDevice + "'");
         }
