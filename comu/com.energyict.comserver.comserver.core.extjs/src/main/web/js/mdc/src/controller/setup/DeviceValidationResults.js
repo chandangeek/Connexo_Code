@@ -34,8 +34,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		{ref: 'ruleSetVersionRuleGrid', selector: '#ruleSetVersionRuleList'},
 		{ref: 'ruleSetVersionRulePreview', selector: '#ruleSetVersionRulePreview'},		
 		{ref: 'configurationViewValidateNowBtn', selector: 'deviceValidationResultsRuleset #configurationViewValidateNow'},
-        {ref: 'loadProfileGrid', selector: 'loadProfileList'},
-        {ref: 'registerGrid', selector: 'registerList'}
+        {ref: 'loadProfileGrid', selector: '#validation-result-load-profile-list'},
+        {ref: 'registerGrid', selector: '#validation-result-register-list'}
 		
     ],    
     mRID: null,
@@ -48,6 +48,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 tabChange: this.changeTab
             },			
 			'#devicevalidationresultsfilterpanel': {
+                removeFilter: this.removeFilterItem,
+                clearAllFilters: this.clearFilter
+            },
+			'#validation-results-data-filter': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             },
@@ -122,13 +126,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 routeParams.mRID = me.mRID;
                 route = 'devices/device/validationresultsconfiguration';
                 route && (route = router.getRoute(route));
-                route && route.forward(routeParams, filterParams);
+                route && route.forward(routeParams, router.queryParams);
             }
             else if (tab.itemId === 'validationResults-data') {
                 routeParams.mRID = me.mRID;
                 route = 'devices/device/validationresultsdata';
                 route && (route = router.getRoute(route));
-                route && route.forward(routeParams, filterParams);
+                route && route.forward(routeParams, router.queryParams);
             }
 
 
@@ -167,7 +171,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
             + Uni.DateTime.formatDateShort(intervalStart);
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
-        filterView.down('#Reset').setText('Reset');
+        //filterView.down('#Reset').setText('Reset');
+		//filterDataView.down('#Reset').setText('Reset');
 
         filterDataView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
 	},
@@ -511,15 +516,14 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             loadProfileGrid = me.getLoadProfileGrid(),
             registerGrid = me.getRegisterGrid(),
 
-            validationResultsDataForm.loadRecord(record);
-
-
-        //loadProfileGrid.getStore().on('datachanged', function (){loadProfileGrid.getSelectionModel().select(0); return true;}, this);
+        validationResultsDataForm.loadRecord(record);
+		
         loadProfileGrid.getStore().loadData(record.get('detailedValidationLoadProfile'));
+		loadProfileGrid.setVisible(record.get('detailedValidationLoadProfile') && record.get('detailedValidationLoadProfile').length >0);				
         loadProfileGrid.getSelectionModel().select(0);
-
-        //registerGrid.getStore().on('datachanged', function (){registerGrid.getSelectionModel().select(0); return true;}, this);
+        
         registerGrid.getStore().loadData(record.get('detailedValidationRegister'));
+		registerGrid.setVisible(record.get('detailedValidationRegister') && record.get('detailedValidationRegister').length >0);		
         registerGrid.getSelectionModel().select(0);
     },
 
