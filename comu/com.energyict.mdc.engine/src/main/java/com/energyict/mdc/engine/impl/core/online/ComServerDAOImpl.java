@@ -765,17 +765,21 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void updateCommunicationFirmwareVersion(Optional<String> collectedCommunicationFirmwareVersion, Device device) {
         collectedCommunicationFirmwareVersion.ifPresent(version -> {
-            Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
-            existingFirmwareVersion.map(firmwareVersion -> createNewActiveVersion(device, firmwareVersion)).
-                    orElseGet(() -> createNewActiveVersion(device, createNewGhostFirmwareVersion(device, version, FirmwareType.COMMUNICATION)));
+            if (!version.equals(FirmwareVersionStorageTransition.Constants.EMPTY)) {
+                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
+                existingFirmwareVersion.map(firmwareVersion -> createNewActiveVersion(device, firmwareVersion)).
+                        orElseGet(() -> createNewActiveVersion(device, createNewGhostFirmwareVersion(device, version, FirmwareType.COMMUNICATION)));
+            }
         });
     }
 
     private void updateMeterFirmwareVersion(Optional<String> collectedMeterFirmwareVersion, Device device) {
         collectedMeterFirmwareVersion.ifPresent(version -> {
-            Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
-            existingFirmwareVersion.map(firmwareVersion -> createNewActiveVersion(device, firmwareVersion)).
-                    orElseGet(() -> createNewActiveVersion(device, createNewGhostFirmwareVersion(device, version, FirmwareType.METER)));
+            if (!version.equals(FirmwareVersionStorageTransition.Constants.EMPTY)) {
+                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
+                existingFirmwareVersion.map(firmwareVersion -> createNewActiveVersion(device, firmwareVersion)).
+                        orElseGet(() -> createNewActiveVersion(device, createNewGhostFirmwareVersion(device, version, FirmwareType.METER)));
+            }
         });
     }
 
