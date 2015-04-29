@@ -2,10 +2,8 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.FlagsReading;
 
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
-
-import java.util.List;
+import com.elster.jupiter.validation.DataValidationStatus;
 
 /**
  * Provides an implementation for the {@link FlagsReading} interface.
@@ -19,8 +17,8 @@ public class FlagsReadingImpl extends ReadingImpl implements FlagsReading {
         super(actualReading);
     }
 
-    protected FlagsReadingImpl(ReadingRecord actualReading, List<ReadingQuality> readingQualities) {
-        super(actualReading, readingQualities);
+    protected FlagsReadingImpl(ReadingRecord actualReading, DataValidationStatus validationStatus) {
+        super(actualReading, validationStatus);
     }
 
     @Override

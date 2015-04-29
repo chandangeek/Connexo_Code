@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
@@ -163,7 +162,7 @@ public enum ServerComTaskStatus {
             return nextExecutionTimestamp != null
                     && nextExecutionTimestamp.isAfter(now)
                     && task.getLastSuccessfulCompletionTimestamp() != null
-                    && task.lastExecutionFailed()
+                    && task.isLastExecutionFailed()
                     && retryCount == 0;
         }
 
@@ -195,7 +194,7 @@ public enum ServerComTaskStatus {
                     && task.getLastSuccessfulCompletionTimestamp() != null
                     && nextExecutionTimestamp != null
                     && nextExecutionTimestamp.isAfter(now)
-                    && !task.lastExecutionFailed();
+                    && !task.isLastExecutionFailed();
         }
 
         @Override

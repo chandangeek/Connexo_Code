@@ -99,6 +99,7 @@ import org.osgi.service.log.LogService;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -164,6 +165,7 @@ public class DeviceGroupTest {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
             bind(IssueService.class).toInstance(issueService);
+            bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class, RETURNS_DEEP_STUBS));
             bind(PropertySpecService.class).toInstance(propertySpecService);
             bind(RelationService.class).toInstance(relationService);
             bind(ConnectionTypeService.class).toInstance(connectionTypeService);

@@ -32,6 +32,10 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>tasks</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>issue</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.energyict</groupId>

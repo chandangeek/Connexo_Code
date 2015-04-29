@@ -4,10 +4,8 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.FlagsRegister;
 
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingRecord;
-
-import java.util.List;
+import com.elster.jupiter.validation.DataValidationStatus;
 
 /**
  * Provides an implementation for the {@link FlagsRegister} interface.
@@ -27,8 +25,8 @@ public class FlagsRegisterImpl extends RegisterImpl<FlagsReading> implements Fla
     }
 
     @Override
-    protected FlagsReading newValidatedReading(ReadingRecord actualReading, List<ReadingQuality> readingQualities) {
-        return new FlagsReadingImpl(actualReading, readingQualities);
+    protected FlagsReading newValidatedReading(ReadingRecord actualReading, DataValidationStatus validationStatus) {
+        return new FlagsReadingImpl(actualReading, validationStatus);
     }
 
 }

@@ -1,45 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
@@ -114,6 +74,49 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -147,11 +150,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
 import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
@@ -160,6 +167,7 @@ public class DeviceImpl implements Device, CanLock {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final IssueService issueService;
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final MeteringService meteringService;
@@ -220,7 +228,7 @@ public class DeviceImpl implements Device, CanLock {
     public DeviceImpl(
             DataModel dataModel,
             EventService eventService,
-            Thesaurus thesaurus,
+            IssueService issueService, Thesaurus thesaurus,
             Clock clock,
             MeteringService meteringService,
             ValidationService validationService,
@@ -235,6 +243,7 @@ public class DeviceImpl implements Device, CanLock {
             Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider, Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.issueService = issueService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
@@ -274,22 +283,22 @@ public class DeviceImpl implements Device, CanLock {
     private void createLoadProfiles() {
         if (this.getDeviceConfiguration() != null) {
             this.loadProfiles.addAll(
-                this.getDeviceConfiguration()
-                    .getLoadProfileSpecs()
-                    .stream()
-                    .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
-                    .collect(Collectors.toList()));
+                    this.getDeviceConfiguration()
+                            .getLoadProfileSpecs()
+                            .stream()
+                            .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                            .collect(Collectors.toList()));
         }
     }
 
     private void createLogBooks() {
         if (this.getDeviceConfiguration() != null) {
             this.logBooks.addAll(
-                this.getDeviceConfiguration()
-                    .getLogBookSpecs()
-                    .stream()
-                    .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
-                    .collect(Collectors.toList()));
+                    this.getDeviceConfiguration()
+                            .getLogBookSpecs()
+                            .stream()
+                            .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
+                            .collect(Collectors.toList()));
         }
     }
 
@@ -571,10 +580,7 @@ public class DeviceImpl implements Device, CanLock {
         try {
             try (PreparedStatement stmnt = getLockSqlBuilder().getStatement(dataModel.getConnection(true))) {
                 try (ResultSet rs = stmnt.executeQuery()) {
-                    if (rs.next()) {
-                        return;
-                    }
-                    else {
+                    if (!rs.next()) {
                         throw new ApplicationException("Tuple not found");
                     }
                 }
@@ -799,6 +805,21 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
+    @Override
+    public Optional<UsagePoint> getUsagePoint() {
+        return this.getOptionalMeterAspect(this::getUsagePointFromMeterActivation);
+    }
+
+    private Optional<UsagePoint> getUsagePointFromMeterActivation(Meter meter) {
+        Optional<? extends MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
+        if (currentMeterActivation.isPresent()) {
+            return currentMeterActivation.get().getUsagePoint();
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
     Optional<Meter> findKoreMeter(AmrSystem amrSystem) {
         return amrSystem.findMeter(String.valueOf(getId()));
     }
@@ -813,7 +834,15 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Meter createKoreMeter() {
-        return this.createKoreMeter(this.getMdcAmrSystem().orElseThrow(() -> new RuntimeException("The MDC AMR system does not exist")));
+        return this.createKoreMeter(this.getMdcAmrSystem().orElseThrow(this.mdcAMRSystemDoesNotExist()));
+    }
+
+    private Supplier<RuntimeException> mdcAMRSystemDoesNotExist() {
+        return () -> new RuntimeException("The MDC AMR system does not exist");
+    }
+
+    private Supplier<IllegalStateException> noMeterActivationAt(Instant timestamp) {
+        return () -> new IllegalStateException("No meter activation found on " + timestamp);
     }
 
     Meter createKoreMeter(AmrSystem amrSystem) {
@@ -839,19 +868,15 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval) {
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                List<? extends BaseReadingRecord> readings = meter.get().getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
-                List<ReadingRecord> readingRecords = new ArrayList<>(readings.size());
-                for (BaseReadingRecord reading : readings) {
-                    readingRecords.add((ReadingRecord) reading);
-                }
-                return readingRecords;
-            }
-        }
-        return Collections.emptyList();
+        return this.getListMeterAspect(meter -> this.getReadingsFor(register, interval, meter));
+    }
+
+    private List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval, Meter meter) {
+        List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
+        return readings
+                .stream()
+                .map(ReadingRecord.class::cast)
+                .collect(Collectors.toList());
     }
 
     List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Range<Instant> interval) {
@@ -901,15 +926,8 @@ public class DeviceImpl implements Device, CanLock {
         return Lists.reverse(loadProfileReadings);
     }
 
-    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter){
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                return meter.get().getDeviceEventsByFilter(filter);
-            }
-        }
-        return Collections.emptyList();
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
+        return this.getListMeterAspect(meter -> meter.getDeviceEventsByFilter(filter));
     }
 
     /**
@@ -946,7 +964,10 @@ public class DeviceImpl implements Device, CanLock {
                             if (loadProfileReading != null) {
                                 loadProfileReading.setDataValidationStatus(mdcChannel, s);
                                 //code below is the processing of removed readings
-                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities().stream().filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED))).findAny();
+                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities()
+                                        .stream()
+                                        .filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)))
+                                        .findAny();
                                 if (readingQuality.isPresent()) {
                                     loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
                                 }
@@ -1172,17 +1193,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                return this.getLastReadingsFor(register, meter.get());
-            } else {
-                return Optional.empty();
-            }
-        } else {
-            return Optional.empty();
-        }
+        return this.getOptionalMeterAspect(meter -> this.getLastReadingsFor(register, meter));
     }
 
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
@@ -1199,6 +1210,85 @@ public class DeviceImpl implements Device, CanLock {
         return Optional.empty();
     }
 
+    @Override
+    public boolean hasData() {
+        return this.getOptionalMeterAspect(this::hasData).get();
+    }
+
+    private Optional<Boolean> hasData(Meter meter) {
+        if (meter.hasData()) {
+            return Optional.of(true);
+        }
+        else {
+            return Optional.of(false);
+        }
+    }
+
+    boolean hasData(Channel channel) {
+        return this.hasData(this.findKoreChannels(channel));
+    }
+
+    boolean hasData(Register<?> register) {
+        return this.hasData(this.findKoreChannels(register));
+    }
+
+    private boolean hasData(List<com.elster.jupiter.metering.Channel> channels) {
+        return channels
+                .stream()
+                .anyMatch(com.elster.jupiter.metering.Channel::hasData);
+    }
+
+    @Override
+    public Optional<MeterActivation> getCurrentMeterActivation() {
+        return this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
+    }
+
+    private <AT> Optional<AT> getOptionalMeterAspect(Function<Meter, Optional<AT>> aspectFunction) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return aspectFunction.apply(meter.get());
+            }
+            else {
+                return Optional.empty();
+            }
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <AT> List<AT> getListMeterAspect(Function<Meter, List<AT>> aspectFunction) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return aspectFunction.apply(meter.get());
+            }
+            else {
+                return Collections.emptyList();
+            }
+        }
+        else {
+            return Collections.emptyList();
+        }
+    }
+
+    List<MeterActivation> getMeterActivations() {
+        return this.getListMeterAspect(this::getMeterActivations);
+    }
+
+    private List<MeterActivation> getMeterActivations(Meter meter) {
+        return new ArrayList<>(meter.getMeterActivations());
+    }
+
+    @Override
+    public List<MeterActivation> getMeterActivationsMostRecentFirst() {
+        return this.getListMeterAspect(this::getSortedMeterActivations);
+    }
+
     /**
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * where the most recent activations are returned first.
@@ -1206,10 +1296,32 @@ public class DeviceImpl implements Device, CanLock {
      * @param meter The Meter
      * @return The List of MeterActivation
      */
-    private List<? extends MeterActivation> getSortedMeterActivations(Meter meter) {
-        List<? extends MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
+    private List<MeterActivation> getSortedMeterActivations(Meter meter) {
+        List<MeterActivation> meterActivations = new ArrayList<>(meter.getMeterActivations());    // getMeterActivations returns ImmutableList
         Collections.reverse(meterActivations);
         return meterActivations;
+    }
+
+    /**
+     * Ensures that there is a MeterActivation at the specified instant in time.
+     *
+     * @param when The Instant in time
+     */
+    void ensureActiveOn(Instant when) {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Meter meter = this.findKoreMeter(amrSystem.get()).get();
+            if (meter.getMeterActivations().isEmpty()) {
+                meter.activate(when);
+            }
+        }
+        else {
+            throw this.mdcAMRSystemDoesNotExist().get();
+        }
+    }
+
+    Optional<MeterActivation> getMeterActivation(Instant when) {
+        return this.getOptionalMeterAspect(meter -> meter.getMeterActivation(when).map(MeterActivation.class::cast));
     }
 
     Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Channel channel, Instant when) {
@@ -1217,14 +1329,17 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Supplier<ReadingType> readingTypeSupplier, Instant when) {
-        Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
-        if (found.isPresent()) {
-            Optional<? extends MeterActivation> meterActivation = found.get().getMeterActivation(when);
-            if (meterActivation.isPresent()) {
-                return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
-            }
+        return this.getOptionalMeterAspect(meter -> this.findKoreChannel(meter, readingTypeSupplier, when));
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Meter meter, Supplier<ReadingType> readingTypeSupplier, Instant when) {
+        Optional<? extends MeterActivation> meterActivation = meter.getMeterActivation(when);
+        if (meterActivation.isPresent()) {
+            return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
         }
-        return Optional.empty();
+        else {
+            return Optional.empty();
+        }
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Channel channel) {
@@ -1232,27 +1347,33 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?> register) {
-        return findKoreChannels(() -> register.getReadingType());
+        return findKoreChannels(register::getReadingType);
     }
 
     List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier) {
-        Optional<Meter> found = findKoreMeter(getMdcAmrSystem().get());
-        if (found.isPresent()) {
-            return found.get().getMeterActivations().stream()
-                    .map(m -> getChannel(m, readingTypeSupplier.get()))
-                    .flatMap(asStream())
-                    .collect(Collectors.toList());
+        return this.getListMeterAspect(meter -> this.findKoreChannels(readingTypeSupplier, meter));
+    }
+
+    com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, Register<?> register) {
+        Optional<MeterActivation> meterActivation = this.getMeterActivation(when);
+        if (meterActivation.isPresent()) {
+            return this.getChannel(meterActivation.get(), register.getReadingType())
+                  .orElse(meterActivation.get().createChannel(register.getReadingType()));
         }
-        return Collections.emptyList();
+        else {
+            throw this.noMeterActivationAt(when).get();
+        }
+    }
+
+    private List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier, Meter meter) {
+        return meter.getMeterActivations().stream()
+                .map(m -> getChannel(m, readingTypeSupplier.get()))
+                .flatMap(asStream())
+                .collect(Collectors.toList());
     }
 
     private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
-        for (com.elster.jupiter.metering.Channel channel : meterActivation.getChannels()) {
-            if (channel.getReadingTypes().contains(readingType)) {
-                return java.util.Optional.of(channel);
-            }
-        }
-        return java.util.Optional.empty();
+        return meterActivation.getChannels().stream().filter(channel -> channel.getReadingTypes().contains(readingType)).findFirst();
     }
 
     /**
@@ -1559,6 +1680,21 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public boolean hasOpenIssues() {
+        return this.getOptionalMeterAspect(this::hasOpenIssues).get();
+    }
+
+    public Optional<Boolean> hasOpenIssues(Meter meter) {
+        List<OpenIssue> openIssues = this.issueService.query(OpenIssue.class).select(where("device").isEqualTo(meter));
+        if (openIssues.isEmpty()) {
+            return Optional.of(false);
+        }
+        else {
+            return Optional.of(true);
+        }
+    }
+
+    @Override
     public State getState() {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
@@ -1625,14 +1761,6 @@ public class DeviceImpl implements Device, CanLock {
 
     private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
-    }
-
-    private int countUniqueEndDeviceEvents(Meter slaveMeter, List<EndDeviceEventType> eventTypes, Interval interval) {
-        Set<String> deviceEventTypes = new HashSet<>();
-        for (EndDeviceEventRecord endDeviceEvent : slaveMeter.getDeviceEvents(interval.toClosedRange(), eventTypes)) {
-            deviceEventTypes.add(endDeviceEvent.getMRID());
-        }
-        return deviceEventTypes.size();
     }
 
     private class ConnectionInitiationTaskBuilderForDevice extends ConnectionInitiationTaskImpl.AbstractConnectionInitiationTaskBuilder {

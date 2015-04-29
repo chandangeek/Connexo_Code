@@ -46,15 +46,6 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
     public void executionFailed ();
 
     /**
-     * Tests if the last execution of this ComTaskExecution failed.
-     * Note that each time the ComTaskExecution executes,
-     * this flag will be reset.
-     *
-     * @return <code>true</code> iff the last execution of this ComTaskExecution failed.
-     */
-    public boolean lastExecutionFailed ();
-
-    /**
      * Notifies this ComTaskExecution that execution has been started
      * on the specified OutboundComPort.
      * This will set the last execution timestamp and calculate

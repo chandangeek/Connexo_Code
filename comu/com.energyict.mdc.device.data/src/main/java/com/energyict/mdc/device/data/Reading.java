@@ -3,10 +3,12 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.DataValidationStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models data that was read from a Device and stored in a {@link Register}.
@@ -26,26 +28,8 @@ public interface Reading {
 
     public String getSource();
 
-    /**
-     * Tests if this Reading has already been validated
-     * by the validation mechanism or not.
-     * If that is the case then it would make sense
-     * to get the reading qualities for this Reading.
-     *
-     * @return A flag that indicates if this Reading has been validated
-     */
-    public boolean isValidated ();
-
-    /**
-     * Gets the results of the validation mechanism
-     * after having validated this Reading.
-     * Note that when the validation mechanism has not
-     * validated this Reading than an empty List will be returned.
-     *
-     * @return The List of ReadingQuality
-     */
-    public List<ReadingQuality> getReadingQualities();
-
     public ReadingRecord getActualReading();
+
+    public Optional<DataValidationStatus> getValidationStatus();
 
 }
