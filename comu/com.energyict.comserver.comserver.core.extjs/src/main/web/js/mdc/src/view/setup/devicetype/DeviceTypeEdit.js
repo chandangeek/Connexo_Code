@@ -29,7 +29,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 items: [
                     {
                         xtype: 'uni-form-info-message',
-                        text: 'This device type has one or more device configurations. Only fields name and device life cycle are editable',
                         itemId: 'info-panel',
                         hidden: true,
                         width: 600,
