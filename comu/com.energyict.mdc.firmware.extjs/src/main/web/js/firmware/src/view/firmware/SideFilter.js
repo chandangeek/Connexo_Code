@@ -15,10 +15,12 @@ Ext.define('Fwc.view.firmware.SideFilter', {
     hydrator: 'Fwc.form.Hydrator',
     items: [
         {
-            xtype: 'firmware-type'
+            xtype: 'firmware-type',
+            itemId: 'side-filter-firmware-type'
         },
         {
-            xtype: 'firmware-status'
+            xtype: 'firmware-status',
+            itemId: 'side-filter-firmware-status'
         }
     ],
 
