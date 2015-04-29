@@ -50,7 +50,7 @@ Ext.define('MdcApp.controller.Main', {
         'Fwc.controller.Main',
         'Dxp.controller.Main',
         'Fwc.controller.Main',
-        'Est.main.controller.Main',
+        'Est.main.controller.Main'
   //      'PlaygroundApp.controller.Main'
     ],
 
