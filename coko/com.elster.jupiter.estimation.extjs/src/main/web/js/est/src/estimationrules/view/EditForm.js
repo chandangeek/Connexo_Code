@@ -158,9 +158,8 @@ Ext.define('Est.estimationrules.view.EditForm', {
     loadRecord: function (record) {
         var me = this;
 
-        me.callParent(arguments);
-
         me.suspendImplementationChange = true;
+        me.callParent(arguments);
         me.down('property-form').loadRecord(record);
         me.suspendImplementationChange = false;
 
