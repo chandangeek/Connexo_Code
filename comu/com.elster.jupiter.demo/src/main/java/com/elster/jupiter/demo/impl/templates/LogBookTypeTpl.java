@@ -27,4 +27,12 @@ public enum LogBookTypeTpl implements Template<LogBookType, LogBookTypeBuilder> 
     public LogBookTypeBuilder get(LogBookTypeBuilder builder){
         return builder.withName(this.name).withObisCode(this.obisCode);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getObisCode() {
+        return obisCode;
+    }
 }

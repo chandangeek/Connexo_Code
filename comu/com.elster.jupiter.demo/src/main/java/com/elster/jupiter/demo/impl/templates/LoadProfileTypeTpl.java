@@ -44,4 +44,20 @@ public enum LoadProfileTypeTpl implements Template<LoadProfileType, LoadProfileT
         }
         return builder.withName(this.name).withObisCode(this.obisCode).withTimeDuration(this.timeDuration).withRegisters(registerTypes);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getObisCode() {
+        return obisCode;
+    }
+
+    public TimeDuration getInterval() {
+        return timeDuration;
+    }
+
+    public RegisterTypeTpl[] getRegisterTypes() {
+        return registerTypes;
+    }
 }
