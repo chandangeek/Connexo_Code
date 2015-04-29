@@ -13,6 +13,9 @@ public class DetailedValidationRuleInfo extends ValidationRuleInfo {
     public DetailedValidationRuleInfo(ValidationRule rule, Long total) {
         super(rule);
         this.total = total;
+    }
+
+    public DetailedValidationRuleInfo() {
 
     }
 }

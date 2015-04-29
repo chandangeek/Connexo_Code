@@ -16,4 +16,8 @@ public class DetailedValidationLoadProfileInfo {
         this.name = loadProfile.getLoadProfileSpec().getLoadProfileType().getName();
         this.total = count;
     }
+
+    public DetailedValidationLoadProfileInfo() {
+
+    }
 }

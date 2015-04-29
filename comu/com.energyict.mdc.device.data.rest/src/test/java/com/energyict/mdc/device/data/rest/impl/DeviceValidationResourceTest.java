@@ -1,26 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.google.common.collect.Range;
-
+import com.elster.jupiter.validation.*;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.google.common.collect.Range;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,15 +24,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -63,7 +54,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     @Mock
     private Meter meter;
     @Mock
-    private Register register1;
+    private NumericalRegister register1;
     @Mock
     private RegisterSpec registerSpec;
     @Mock
@@ -118,10 +109,41 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         assertThat(response.loadProfileSuspectCount).isEqualTo(4);
     }
 
+    @Test
+    public void testGetValidationMonitoringConfigurationView() {
+
+        MonitorValidationInfo response = target("devices/MRID/validationrulesets/validationmonitoring/configurationview")
+                .queryParam("intervalStart", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("intervalEnd", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .request().get(MonitorValidationInfo.class);
+
+        assertThat(response.detailedRuleSets.size()).isEqualTo(1);
+        assertThat(response.detailedRuleSets.get(0).id).isEqualTo(1);
+        assertThat(response.detailedRuleSets.get(0).detailedRuleSetVersions.get(0).id).isEqualTo(11);
+        assertThat(response.detailedRuleSets.get(0).detailedRuleSetVersions.get(0).detailedRules.get(0).id).isEqualTo(20);
+    }
+
+    @Test
+    public void testGetValidationMonitoringDataView() {
+
+        MonitorValidationInfo response = target("devices/MRID/validationrulesets/validationmonitoring/dataview")
+                .queryParam("intervalStart", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("intervalEnd", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("ruleSetId", 1)
+                .request().get(MonitorValidationInfo.class);
+
+        assertThat(response.detailedValidationRegister.size()).isEqualTo(1);
+        assertThat(response.detailedValidationRegister.get(0).total).isEqualTo(1);
+        assertThat(response.detailedValidationRegister.get(0).name).isEqualTo("Sum+");
+    }
+
     private void doModelStubbing() {
         when(device.getRegisters()).thenReturn(Arrays.asList(register1));
         when(register1.getReadingType()).thenReturn(regReadingType);
+        when(register1.getRegisterSpec()).thenReturn(registerSpec);
+        when(registerSpec.getReadingType()).thenReturn(regReadingType);
         when(regReadingType.getMRID()).thenReturn("REG1");
+        when(regReadingType.getAliasName()).thenReturn("Sum+");
         when(channelReadingType1.getMRID()).thenReturn("CH1");
         when(channelReadingType2.getMRID()).thenReturn("CH2");
 
@@ -194,6 +216,60 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         doReturn(Arrays.asList(notSuspect, suspect)).when(validationStatus6).getReadingQualities();
 
         when(deviceValidation.getLastChecked()).thenReturn(Optional.<Instant>empty());
+
+        ValidationRuleSet ruleSet = mockValidationRuleSet(1,true);
+        doReturn(ruleSet.getRules()).when(validationStatus4).getOffendedRules();
+        doReturn(ruleSet.getRules()).when(validationStatus2).getOffendedRules();
     }
 
+    private ValidationRuleSet mockValidationRuleSet(int id, boolean version) {
+        ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
+        when(ruleSet.getId()).thenReturn(Long.valueOf(id));
+        when(ruleSet.getName()).thenReturn("MyName");
+        when(ruleSet.getDescription()).thenReturn("MyDescription");
+        if (version) {
+            ValidationRuleSetVersion ruleSetVersion = mockValidationRuleSetVersion(11, ruleSet);
+            List versions = Arrays.asList(ruleSetVersion);
+            when(ruleSet.getRuleSetVersions()).thenReturn(versions);
+
+            List rules = Arrays.asList(mockValidationRuleInRuleSetVersion(20, ruleSet, ruleSetVersion));
+            when(ruleSetVersion.getRules()).thenReturn(rules);
+            when(ruleSet.getRules()).thenReturn(rules);
+        }
+
+        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
+
+        return ruleSet;
+    }
+
+    private ValidationRuleSetVersion mockValidationRuleSetVersion(long id, ValidationRuleSet ruleSet){
+        ValidationRuleSetVersion ruleSetVersion = mock(ValidationRuleSetVersion.class);
+        when(ruleSetVersion.getDescription()).thenReturn("descriptionOfVersion");
+        when(ruleSetVersion.getId()).thenReturn(id);
+        when(ruleSetVersion.getStartDate()).thenReturn(ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
+        when(ruleSetVersion.getRuleSet()).thenReturn(ruleSet);
+        return ruleSetVersion;
+    }
+
+    private ValidationRule mockValidationRuleInRuleSetVersion(long id, ValidationRuleSet ruleSet, ValidationRuleSetVersion ruleSetVersion) {
+        ValidationRule rule = mock(ValidationRule.class);
+        when(rule.getName()).thenReturn("MyRule");
+        when(rule.getId()).thenReturn(id);
+        when(rule.getAction()).thenReturn(ValidationAction.FAIL);
+        when(rule.getImplementation()).thenReturn("com.blablabla.Validator");
+        when(rule.getDisplayName()).thenReturn("My rule");
+        when(rule.isActive()).thenReturn(true);
+        when(rule.getRuleSetVersion()).thenReturn(ruleSetVersion);
+        when(rule.getRuleSet()).thenReturn(ruleSet);
+
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("number", 13);
+        props.put("nullableboolean", true);
+        props.put("boolean", false);
+        props.put("text", "string");
+        when(rule.getProps()).thenReturn(props);
+
+        return rule;
+    }
 }
