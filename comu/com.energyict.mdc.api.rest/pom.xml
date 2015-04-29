@@ -10,7 +10,11 @@
     </parent>
 
     <artifactId>mdc.device.data.api</artifactId>
+<<<<<<< HEAD
     <version>2.0.0-SNAPSHOT</version>
+=======
+    <version>1.0.0-SNAPSHOT</version>
+>>>>>>> v1.0
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.data.api [init DDA]</name>
     <description>
