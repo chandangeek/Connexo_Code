@@ -27,7 +27,6 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
