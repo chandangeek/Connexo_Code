@@ -5,12 +5,13 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
     mRID: null,
     router: null,
     device: null,
+
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.devicechannels.Grid',
         'Mdc.view.setup.devicechannels.Preview',
-        'Mdc.view.setup.devicechannels.ChannelsFilter'
-
+        'Mdc.view.setup.devicechannels.ChannelsFilter',
+        'Mdc.view.setup.devicechannels.ChannelsTopFilter'
     ],
 
     initComponent: function () {
@@ -29,9 +30,6 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         mRID: me.mRID
                     }
                 ]
-            },
-            {
-                xtype: 'device-channels-filter'
             }
         ];
 
@@ -61,6 +59,12 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         router: me.router,
                         device: me.device
                     }
+                }
+            ],
+            dockedItems: [
+                {
+                    dock: 'top',
+                    xtype: 'mdc-view-setup-devicechannels-channelstopfilter'
                 }
             ]
         };
