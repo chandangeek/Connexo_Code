@@ -16,17 +16,20 @@ import java.util.Optional;
 public class EstimationTaskInfo {
 
     public long id = 0;
+    public String name = "blank_name";
     public boolean active = true;
-    public String name = "name";
+    public MeterGroupInfo deviceGroup;
     public PeriodicalExpressionInfo schedule;
     public RelativePeriodInfo period;
-    public MeterGroupInfo deviceGroup;
-    public EstimationTaskHistoryInfo lastExportOccurrence;
+    public EstimationTaskHistoryInfo lastEstimationOccurrence;
     public Long nextRun;
     public Long lastRun;
 
-    public EstimationTaskInfo(EstimationTask estimationTask, Thesaurus thesaurus, TimeService timeService) {
-        doPopulate(estimationTask, thesaurus, timeService);
+    public EstimationTaskInfo() {
+    }
+
+    public EstimationTaskInfo(EstimationTask estimationTask, Thesaurus thesaurus) {
+        populate(estimationTask, thesaurus);
         if (Never.NEVER.equals(estimationTask.getScheduleExpression())) {
             schedule = null;
         } else {
@@ -37,17 +40,14 @@ public class EstimationTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
+        lastEstimationOccurrence = estimationTask.getLastOccurrence().map(oc -> new EstimationTaskHistoryInfo(oc, thesaurus)).orElse(null);
     }
 
-    public EstimationTaskInfo() {
-    }
-
-    void doPopulate(EstimationTask estimationTask, Thesaurus thesaurus, TimeService timeService) {
+    void populate(EstimationTask estimationTask, Thesaurus thesaurus) {
         id = estimationTask.getId();
         name = estimationTask.getName();
-
-        deviceGroup = new MeterGroupInfo(estimationTask.getEndDeviceGroup());
         active = estimationTask.isActive();
+        deviceGroup = new MeterGroupInfo(estimationTask.getEndDeviceGroup());
         estimationTask.getPeriod().ifPresent(period -> this.period = new RelativePeriodInfo(period, thesaurus));
 
         Instant nextExecution = estimationTask.getNextExecution();

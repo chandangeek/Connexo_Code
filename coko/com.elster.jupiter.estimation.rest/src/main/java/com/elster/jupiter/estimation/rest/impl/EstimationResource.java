@@ -6,6 +6,8 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.estimation.EstimationTaskOccurrence;
+import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.estimation.security.Privileges;
@@ -18,6 +20,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -31,11 +34,15 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.logging.LogEntry;
+import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -90,7 +97,7 @@ public class EstimationResource {
      * @return all estimation rulesets
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION,
             Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public EstimationRuleSetInfos getEstimationRuleSets(@Context UriInfo uriInfo) {
@@ -112,7 +119,7 @@ public class EstimationResource {
 
     @GET
     @Path("/{ruleSetId}/rules")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION,
             Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public EstimationRuleInfos getEstimationRules(@PathParam("ruleSetId") long ruleSetId, @Context UriInfo uriInfo) {
@@ -138,7 +145,7 @@ public class EstimationResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response createEstimationRuleSet(final EstimationRuleSetInfo info) {
@@ -152,7 +159,7 @@ public class EstimationResource {
 
     @PUT
     @Path("/{ruleSetId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public EstimationRuleSetInfo updateEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, final EstimationRuleSetInfo info, @Context SecurityContext securityContext) {
         transactionService.execute(new VoidTransaction() {
@@ -182,7 +189,7 @@ public class EstimationResource {
 
     @GET
     @Path("/{ruleSetId}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
     public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, @Context SecurityContext securityContext) {
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
@@ -196,7 +203,7 @@ public class EstimationResource {
 
     @GET
     @Path("/{ruleSetId}/rule/{ruleId}/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
     public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
         ReadingTypeInfos infos = new ReadingTypeInfos();
@@ -212,7 +219,7 @@ public class EstimationResource {
 
     @GET
     @Path("/estimators")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
     public EstimatorInfos getAvailableEstimatimators(@Context UriInfo uriInfo) {
         EstimatorInfos infos = new EstimatorInfos();
@@ -232,7 +239,7 @@ public class EstimationResource {
 
     @GET
     @Path("/{ruleSetId}/usage")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
     public Response getValidationRuleSetUsage(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
@@ -243,7 +250,7 @@ public class EstimationResource {
 
     @DELETE
     @Path("/{ruleSetId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response deleteEstimationRuleSet(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
         transactionService.execute(new VoidTransaction() {
@@ -259,7 +266,7 @@ public class EstimationResource {
 
     @POST
     @Path("/{ruleSetId}/rules")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addRule(@PathParam("ruleSetId") final long ruleSetId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
         EstimationRuleInfo result =
@@ -289,7 +296,7 @@ public class EstimationResource {
 
     @PUT
     @Path("/{ruleSetId}/rules/{ruleId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public EstimationRuleInfos editRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
         EstimationRuleInfos result = new EstimationRuleInfos();
@@ -336,7 +343,7 @@ public class EstimationResource {
 
     @DELETE
     @Path("/{ruleSetId}/rules/{ruleId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response removeRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
         transactionService.execute(new Transaction<EstimationRule>() {
@@ -377,13 +384,13 @@ public class EstimationResource {
 
     @GET
     @Path("/tasks")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
     public EstimationTaskInfos getEstimationTasks(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends EstimationTask> list = queryTasks(params);
 
-        EstimationTaskInfos infos = new EstimationTaskInfos(params.clipToLimit(list), thesaurus, timeService);
+        EstimationTaskInfos infos = new EstimationTaskInfos(params.clipToLimit(list), thesaurus);
         infos.total = params.determineTotal(list.size());
 
         return infos;
@@ -397,15 +404,15 @@ public class EstimationResource {
 
     @GET
     @Path("/tasks/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
     public EstimationTaskInfo getEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new EstimationTaskInfo(fetchEstimationTask(id), thesaurus, timeService);
+        return new EstimationTaskInfo(fetchEstimationTask(id), thesaurus);
     }
 
     @POST
     @Path("/tasks/{id}/trigger")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
     public Response triggerEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         transactionService.execute(VoidTransaction.of(() -> fetchEstimationTask(id).triggerNow()));
@@ -414,7 +421,7 @@ public class EstimationResource {
 
     @POST
     @Path("/tasks")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addEstimationTask(EstimationTaskInfo info) {
@@ -429,12 +436,12 @@ public class EstimationResource {
             dataExportTask.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(dataExportTask, thesaurus, timeService)).build();
+        return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(dataExportTask, thesaurus)).build();
     }
 
     @DELETE
     @Path("/tasks/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response removeEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         EstimationTask task = fetchEstimationTask(id);
@@ -453,7 +460,7 @@ public class EstimationResource {
 
     @PUT
     @Path("/tasks/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK})
     public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info) {
 
@@ -473,64 +480,57 @@ public class EstimationResource {
             task.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(task, thesaurus, timeService)).build();
+        return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(task, thesaurus)).build();
     }
 
-//    @GET
-//    @Path("/{id}/history")
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public EstimationTaskHistoryInfos getEstimationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
-//                                                               @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
-//        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-//        EstimationTask task = fetchEstimationTask(id);
-//        DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-//                .setStart(queryParameters.getStart())
-//                .setLimit(queryParameters.getLimit() + 1);
-//
-//        if (filter.hasProperty("startedOnFrom")) {
-//            occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
-//                    filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
-//        } else if (filter.hasProperty("startedOnTo")) {
-//            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
-//        }
-//        if (filter.hasProperty("finishedOnFrom")) {
-//            occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"),
-//                    filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
-//        } else if (filter.hasProperty("finishedOnTo")) {
-//            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
-//        }
-//        if (filter.hasProperty("exportPeriodContains")) {
-//            occurrencesFinder.withExportPeriodContaining(filter.getInstant("exportPeriodContains"));
-//        }
-//
-//        List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
-//
-//        EstimationTaskHistoryInfos infos = new EstimationTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService);
-//        infos.total = queryParameters.determineTotal(occurrences.size());
-//        return infos;
-//    }
-//
+    @GET
+    @Path("/tasks/{id}/history")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public EstimationTaskHistoryInfos getEstimationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
+                                                               @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        EstimationTask task = fetchEstimationTask(id);
 
-//    @GET
-//    @Path("/{id}/history/{occurrenceId}")
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    public DataExportOccurrenceLogInfos getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
-//                                                                 @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
-//        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-//        EstimationTask task = fetchEstimationTask(id);
-//        DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task);
-//        LogEntryFinder finder = occurrence.getLogsFinder()
-//                .setStart(queryParameters.getStart())
-//                .setLimit(queryParameters.getLimit());
-//
-//        List<? extends LogEntry> occurrences = finder.find();
-//
-//        DataExportOccurrenceLogInfos infos = new DataExportOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
-//        infos.total = queryParameters.determineTotal(occurrences.size());
-//        return infos;
-//    }
-//
+        EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(queryParameters.getStart()).setLimit(queryParameters.getLimit() + 1);
+
+        if (filter.hasProperty("startedOnFrom")) {
+            occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
+        } else if (filter.hasProperty("startedOnTo")) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
+        }
+
+        if (filter.hasProperty("finishedOnFrom")) {
+            occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
+        } else if (filter.hasProperty("finishedOnTo")) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
+        }
+
+        List<? extends EstimationTaskOccurrence> occurrences = occurrencesFinder.find();
+
+        EstimationTaskHistoryInfos infos = new EstimationTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus);
+        infos.total = queryParameters.determineTotal(occurrences.size());
+        return infos;
+    }
+
+
+    @GET
+    @Path("/tasks/{id}/history/{occurrenceId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public EstimationTaskOccurrenceLogInfos getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
+                                                                     @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        EstimationTask task = fetchEstimationTask(id);
+        EstimationTaskOccurrence occurrence = fetchEstimationTaskOccurrence(occurrenceId, task);
+        LogEntryFinder finder = occurrence.getLogsFinder().setStart(queryParameters.getStart()).setLimit(queryParameters.getLimit());
+
+        List<? extends LogEntry> occurrences = finder.find();
+
+        EstimationTaskOccurrenceLogInfos infos = new EstimationTaskOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
+        infos.total = queryParameters.determineTotal(occurrences.size());
+        return infos;
+    }
+
     private EstimationTask findTaskOrThrowException(long id) {
         return estimationService.findEstimationTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
@@ -553,6 +553,10 @@ public class EstimationResource {
 
     private EstimationTask fetchEstimationTask(long id) {
         return estimationService.findEstimationTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private EstimationTaskOccurrence fetchEstimationTaskOccurrence(long occurrenceId, EstimationTask task) {
+        return task.getOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
 }
