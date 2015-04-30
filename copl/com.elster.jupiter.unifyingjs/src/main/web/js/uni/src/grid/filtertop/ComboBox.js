@@ -39,6 +39,7 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
 
         me.on('specialkey', function (field, event) {
             if (event.getKey() === event.ENTER) {
+                me.assertValue();
                 me.fireFilterUpdateEvent();
             }
         }, me);

@@ -223,7 +223,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
             var tempParams = me.getFilterParams(false, !me.filterObjectEnabled);
 
             if (me.filterObjectEnabled) {
-                params[me.filterObjectParam] = Ext.encode(tempParams);
+                params[me.filterObjectParam] = me.createFiltersObject(tempParams);
             } else {
                 params = tempParams;
             }
@@ -234,6 +234,25 @@ Ext.define('Uni.grid.FilterPanelTop', {
         }
 
         Ext.apply(options.params, params);
+    },
+
+    createFiltersObject: function (params) {
+        var result = [];
+
+        for (var dataIndex in params) {
+            var value = params[dataIndex];
+
+            if (params.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                var filter = {
+                    property: dataIndex,
+                    value: value
+                };
+
+                result.push(filter);
+            }
+        }
+
+        return Ext.encode(result);
     },
 
     loadHistoryState: function () {
