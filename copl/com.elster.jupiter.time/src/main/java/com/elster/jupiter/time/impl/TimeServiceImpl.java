@@ -144,7 +144,7 @@ public class TimeServiceImpl implements TimeService, InstallService {
 
     @Override
     public void install() {
-        new Installer(dataModel, thesaurus, userService, eventService).install(true);
+        new Installer(dataModel, this, thesaurus, userService, eventService).install(true);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.security.Privileges;
@@ -14,6 +15,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -26,9 +29,11 @@ public class Installer {
     private final Thesaurus thesaurus;
     private final UserService userService;
     private final EventService eventService;
+    private final TimeService timeService;
 
-    public Installer(DataModel dataModel, Thesaurus thesaurus, UserService userService, EventService eventService) {
+    public Installer(DataModel dataModel, TimeService timeService, Thesaurus thesaurus, UserService userService, EventService eventService) {
         super();
+        this.timeService = timeService;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.userService = userService;
@@ -41,7 +46,8 @@ public class Installer {
                 this::createMessageSeedTranslations,
                 this::createLabelTranslations,
                 this::createPrivileges,
-                this::createEventTypes
+                this::createEventTypes,
+                this::createDefaultRelativePeriods
         ).andHandleExceptionsWith(e -> logger.log(Level.SEVERE, e.getMessage(), e))
                 .execute();
     }
@@ -67,6 +73,11 @@ public class Installer {
             translations.add(toTranslation(nlsKey, Locale.ENGLISH, label.getDefaultFormat()));
         }
         thesaurus.addTranslations(translations);
+    }
+
+    private void createDefaultRelativePeriods() {
+        Arrays.stream(DefaultRelativePeriodDefinition.values())
+                .forEach(definition -> definition.create(timeService, Collections.emptyList()));
     }
 
     private Translation toTranslation(SimpleNlsKey nlsKey, Locale locale, String translation) {
