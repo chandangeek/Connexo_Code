@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationTaskOccurrence;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -14,17 +15,22 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 public enum TableSpecs {
 
     EST_ESTIMATIONRULESET {
-    	@Override
+        @Override
         void addTo(DataModel dataModel) {
-        	Table<EstimationRuleSet> table = dataModel.addTable(name(), EstimationRuleSet.class);
-            table.map(EstimationRuleSetImpl.class);          
+            Table<EstimationRuleSet> table = dataModel.addTable(name(), EstimationRuleSet.class);
+            table.map(EstimationRuleSetImpl.class);
             table.setJournalTableName("EST_ESTIMATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
@@ -40,7 +46,7 @@ public enum TableSpecs {
     EST_ESTIMATIONRULE {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<EstimationRule> table = dataModel.addTable(name(), EstimationRule.class);
+            Table<EstimationRule> table = dataModel.addTable(name(), EstimationRule.class);
             table.map(EstimationRuleImpl.class);
             table.setJournalTableName("EST_ESTIMATIONRULEJRNL");
             Column idColumn = table.addAutoIdColumn();
@@ -53,14 +59,14 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("EST_PK_ESTIMATIONRULE").on(idColumn).add();
             table.foreignKey("EST_FK_RULE").references("EST_ESTIMATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
-            	.map("ruleSet").reverseMap("rules").composition().reverseMapOrder("position").add();
+                    .map("ruleSet").reverseMap("rules").composition().reverseMapOrder("position").add();
         }
     },
     EST_ESTIMATIONRULEPROPS {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<EstimationRuleProperties> table = dataModel.addTable(name(), EstimationRuleProperties.class);
-        	table.map(EstimationRulePropertiesImpl.class);
+            Table<EstimationRuleProperties> table = dataModel.addTable(name(), EstimationRuleProperties.class);
+            table.map(EstimationRulePropertiesImpl.class);
             table.setJournalTableName("EST_ESTIMATIONRULEPROPSJRNL");
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
@@ -71,9 +77,9 @@ public enum TableSpecs {
         }
     },
     EST_READINGTYPEINESTRULE {
-    	@Override
-    	void addTo(DataModel dataModel) {
-        	Table<ReadingTypeInEstimationRule> table = dataModel.addTable(name(), ReadingTypeInEstimationRule.class);
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ReadingTypeInEstimationRule> table = dataModel.addTable(name(), ReadingTypeInEstimationRule.class);
             table.map(ReadingTypeInEstimationRuleImpl.class);
             table.setJournalTableName("EST_READINGTYPEINESTRULEJRNL");
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
@@ -115,8 +121,29 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
         }
-    };
+    },
+    EST_OCCURRENCE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EstimationTaskOccurrence> table = dataModel.addTable(name(), EstimationTaskOccurrence.class);
+            table.map(EstimationTaskOccurrenceImpl.class);
+            Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
+            Column estimationTask = table.column("ESTIMATIONTASK").number().notNull().add();
+            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
+            table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
 
+            table.primaryKey("EST_PK_ESTIMATIONOCC")
+                    .on(taskOccurrence)
+                    .add();
+            table.foreignKey("EST_FK_ESTOCC_TSKOCC")
+                    .on(taskOccurrence)
+                    .references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
+                    .map("taskOccurrence").refPartition().add();
+            table.foreignKey("EST_FK_OCC_ESTIMATIONTASK").on(estimationTask).references(EST_ESTIMATIONTASK.name())
+                    .map("estimationTask").add();
+
+
+        }
+    };
     abstract void addTo(DataModel component);
-        
 }
