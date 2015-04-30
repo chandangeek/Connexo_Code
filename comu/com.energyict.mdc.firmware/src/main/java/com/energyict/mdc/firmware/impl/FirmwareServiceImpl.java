@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -71,19 +72,21 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     private volatile QueryService queryService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
+    private volatile EventService eventService;
 
     // For OSGI
     public FirmwareServiceImpl() {
     }
 
     @Inject
-    public FirmwareServiceImpl(OrmService ormService, NlsService nlsService, QueryService queryService, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService) {
+    public FirmwareServiceImpl(OrmService ormService, NlsService nlsService, QueryService queryService, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, EventService eventService) {
         this.deviceService = deviceService;
         setOrmService(ormService);
         setNlsService(nlsService);
         setQueryService(queryService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setEventService(eventService);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -278,6 +281,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                     bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                     bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                     bind(DeviceService.class).toInstance(deviceService);
+                    bind(EventService.class).toInstance(eventService);
                 }
             });
         } catch (RuntimeException e) {
@@ -318,6 +322,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         }
     }
 
+    @Reference
+    public void setEventService(EventService eventService){
+        this.eventService = eventService;
+    }
+
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList(OrmService.COMPONENTNAME, NlsService.COMPONENTNAME, DeviceConfigurationService.COMPONENTNAME, DeviceMessageSpecificationService.COMPONENT_NAME, DeviceDataServices.COMPONENT_NAME);
@@ -325,7 +334,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
 
     @Override
     public void install() {
-        Installer installer = new Installer(dataModel, thesaurus);
+        Installer installer = new Installer(dataModel, thesaurus, eventService);
         installer.install();
     }
 

@@ -149,7 +149,7 @@ public class InMemoryPersistence {
     }
 
     private DataModel createFirmwareService() {
-        this.firmwareService = new FirmwareServiceImpl(ormService, nlsService, queryService, deviceConfigurationService, deviceMessageSpecificationService, deviceService);
+        this.firmwareService = new FirmwareServiceImpl(ormService, nlsService, queryService, deviceConfigurationService, deviceMessageSpecificationService, deviceService, );
         return this.firmwareService.getDataModel();
     }
 
