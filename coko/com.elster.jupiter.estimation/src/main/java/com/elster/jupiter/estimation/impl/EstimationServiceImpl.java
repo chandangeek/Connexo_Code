@@ -51,6 +51,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -221,7 +222,26 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public EstimationReport estimate(MeterActivation meterActivation, Logger logger) {
         EstimationReportImpl report = previewEstimate(meterActivation, logger);
+        report.getResults().values().stream()
+                .map(EstimationResult::remainingToBeEstimated)
+                .flatMap(Collection::stream)
+                .forEach(estimationBlock -> {
+                    String message = "Block {0} could not be estimated.";
+                    LoggingContext.get().warning(logger, message, EstimationBlockFormatter.getInstance().format(estimationBlock));
+                });
         estimationEngine.applyEstimations(report);
+
+        long notEstimated = report.getResults().values().stream()
+                .map(EstimationResult::remainingToBeEstimated)
+                .flatMap(Collection::stream)
+                .count();
+        long estimated = report.getResults().values().stream()
+                .map(EstimationResult::estimated)
+                .flatMap(Collection::stream)
+                .count();
+        String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}";
+        LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated);
+
         return report;
     }
 

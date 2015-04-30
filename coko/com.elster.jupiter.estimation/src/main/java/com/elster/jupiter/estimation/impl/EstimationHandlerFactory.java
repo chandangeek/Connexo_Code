@@ -11,6 +11,7 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -47,7 +48,17 @@ public class EstimationHandlerFactory implements MessageHandlerFactory {
     private class EstimationTaskExecutor implements TaskExecutor {
         @Override
         public void execute(TaskOccurrence occurrence) {
-            Logger taskLogger = createTaskLogger(occurrence);
+            try (LoggingContext loggingContext = LoggingContext.get()) {
+                Logger taskLogger = createTaskLogger(occurrence);
+                try {
+                    tryExecute(occurrence, taskLogger);
+                } catch (Exception e) {
+                    loggingContext.severe(taskLogger, e);
+                }
+            }
+        }
+
+        private void tryExecute(TaskOccurrence occurrence, Logger taskLogger) {
             RecurrentTask recurrentTask = occurrence.getRecurrentTask();
             EstimationTask estimationTask = estimationService.findEstimationTask(recurrentTask).orElseThrow(IllegalArgumentException::new);
             estimationTask.getEndDeviceGroup().getMembers(occurrence.getTriggerTime()).stream()
