@@ -106,7 +106,7 @@ public class DeviceValidationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationMonitoring(@PathParam("mRID") String mrid,
+    public Response getValidationMonitoringConfigurationView(@PathParam("mRID") String mrid,
                                             @QueryParam("intervalStart") Long intervalStart,
                                             @QueryParam("intervalEnd") Long intervalEnd) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -124,27 +124,12 @@ public class DeviceValidationResource {
                 .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), interval).stream())
                 .collect(Collectors.toList());
 
-        validationStatusInfo.allDataValidated = true;
-        if (lpStatuses.isEmpty()) {
-            validationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()
-                    .flatMap(l -> l.getChannels().stream())
-                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-        } else {
-            validationStatusInfo.allDataValidated &= lpStatuses.stream()
-                    .allMatch(DataValidationStatus::completelyValidated);
-        }
-
         List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
                 .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), interval).stream())
                 .collect(Collectors.toList());
 
-        if (rgStatuses.isEmpty()) {
-            validationStatusInfo.allDataValidated &= device.getRegisters().stream()
-                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-        } else {
-            validationStatusInfo.allDataValidated &= rgStatuses.stream()
-                    .allMatch(DataValidationStatus::completelyValidated);
-        }
+        validationStatusInfo.allDataValidated = isAllDataValidated(lpStatuses, rgStatuses, device);
+
         List<DataValidationStatus> statuses = new ArrayList<>();
         statuses.addAll(lpStatuses);
         statuses.addAll(rgStatuses);
@@ -158,7 +143,7 @@ public class DeviceValidationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationMonitoringLoadProfile(@PathParam("mRID") String mrid,
+    public Response getValidationMonitoringDataView(@PathParam("mRID") String mrid,
                                                        @QueryParam("intervalStart") Long intervalStart,
                                                        @QueryParam("intervalEnd") Long intervalEnd,
                                                        @QueryParam("ruleSetId") Long ruleSetId,
@@ -202,13 +187,11 @@ public class DeviceValidationResource {
                 )).entrySet().stream().filter(m -> (((List<DataValidationStatus>)m.getValue()).size()) > 0L)
                 .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
 
-        validationStatusInfo.allDataValidated = true;
+
         List<DataValidationStatus> lpsList = loadProfileStatus.entrySet().stream().flatMap(lps -> lps.getValue().stream()).collect(Collectors.toList());
-        if (lpsList.size()!=0)
-            validationStatusInfo.allDataValidated &= lpsList.stream().allMatch(DataValidationStatus::completelyValidated);
         List<DataValidationStatus> rsList = registerStatus.entrySet().stream().flatMap(rs -> rs.getValue().stream()).collect(Collectors.toList());
-        if(validationStatusInfo.allDataValidated && rsList.size()!=0)
-            validationStatusInfo.allDataValidated &= rsList.stream().allMatch(DataValidationStatus::completelyValidated);
+
+        validationStatusInfo.allDataValidated = isAllDataValidated(lpsList, rsList, device);
 
         MonitorValidationInfo info = new MonitorValidationInfo(loadProfileStatus, registerStatus, validationStatusInfo);
 
@@ -347,6 +330,27 @@ public class DeviceValidationResource {
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
         Optional<? extends ValidationRuleSet> ruleSet = validationService.getValidationRuleSet(validationRuleSetId);
         return ruleSet.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private boolean isAllDataValidated(List<DataValidationStatus> lpStatuses, List<DataValidationStatus> rgStatuses, Device device) {
+        boolean result = true;
+        if (lpStatuses.isEmpty()) {
+            result &= device.getLoadProfiles().stream()
+                    .flatMap(l -> l.getChannels().stream())
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
+        } else {
+            result &= lpStatuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
+
+        if (rgStatuses.isEmpty()) {
+            result &= device.getRegisters().stream()
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
+        } else {
+            result &= rgStatuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
+        return result;
     }
 
 }
