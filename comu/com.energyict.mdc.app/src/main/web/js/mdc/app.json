@@ -14,7 +14,8 @@
         "com.elster.jupiter.yellowfin.extjs",
         "com.energyict.mdc.firmware.extjs",
         "com.energyict.mdc.device.lifecycle.config.extjs",
-        "com.elster.jupiter.export.extjs"
+        "com.elster.jupiter.export.extjs",
+        "com.elster.jupiter.estimation.extjs"
     ],
 
     "id": "28c552c9-436e-4d93-8f74-038373138820"
