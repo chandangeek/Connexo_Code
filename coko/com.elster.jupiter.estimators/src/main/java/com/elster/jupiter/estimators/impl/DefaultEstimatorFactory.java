@@ -88,7 +88,8 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
                         .forEach(translations::add);
             }
             thesaurus.addTranslations(translations);
-        }).andHandleExceptionsWith(Throwable::printStackTrace);
+        }).andHandleExceptionsWith(Throwable::printStackTrace)
+          .execute();
     }
 
     @Override

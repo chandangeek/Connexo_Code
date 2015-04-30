@@ -55,7 +55,14 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     @Override
     public String getPropertyDefaultFormat(String property) {
-        return null;
+        switch (property) {
+        case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
+            return "Max number of consecutive suspects";
+        case FILL_VALUE:
+            return "Fill value";
+        default:
+            return "";
+        }
     }
 
     @Override
