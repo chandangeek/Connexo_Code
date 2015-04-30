@@ -430,10 +430,12 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                     throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
                 }
             } else if (property.getName().equals(ADVANCE_READINGS_SETTINGS)) {
-                ReadingTypeAdvanceReadingsSettings settings = (ReadingTypeAdvanceReadingsSettings) property.getValue();
-                ReadingType readingType = settings.getReadingType();
-                if (!readingType.isCumulative()) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, "properties." + ADVANCE_READINGS_SETTINGS);
+                Object settings = property.getValue();
+                if (settings instanceof ReadingTypeAdvanceReadingsSettings) {
+                    ReadingType readingType = ((ReadingTypeAdvanceReadingsSettings)settings).getReadingType();
+                    if (!readingType.isCumulative()) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, "properties." + ADVANCE_READINGS_SETTINGS);
+                    }
                 }
             } else if (property.getName().equals(MAX_NUMBER_OF_SAMPLES)) {
                 maxSamples = (BigDecimal) property.getValue();
