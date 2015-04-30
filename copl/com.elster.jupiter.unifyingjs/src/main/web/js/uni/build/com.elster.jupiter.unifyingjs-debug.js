@@ -1,145 +1,142 @@
 /**
- * @class Uni.override.ApplicationOverride
+ * @class Uni.Auth
+ *
+ * Authorization class that checks whether the currently logged-in user has privileges or not.
  */
-Ext.define('Uni.override.ApplicationOverride', {
-    override: 'Ext.app.Application',
+Ext.define('Uni.Auth', {
+    singleton: true,
 
-    unifyingControllers: [
-        'Uni.controller.Acknowledgements',
-        'Uni.controller.Configuration',
-        'Uni.controller.Error',
-        'Uni.controller.Navigation',
-        'Uni.controller.Portal',
-        'Uni.controller.Notifications',
-        'Uni.controller.Search'
+    requires: [
+        'Ldr.store.Privileges'
     ],
 
-    /**
-     *
-     */
-    initControllers: function () {
-        this.callParent(arguments);
-        this.loadUnifyingControllers();
-    },
-
-    loadUnifyingControllers: function () {
-        var me = this;
-
-        for (var i = 0, ln = me.unifyingControllers.length; i < ln; i++) {
-            me.getController(me.unifyingControllers[i]);
-        }
-    }
-
-});
-
-Ext.define('Uni.override.panel.Panel', {
-    override: 'Ext.panel.Panel',
-
-    beforeRender: function() {
-        var me = this;
-        this.callParent(arguments);
-
-        if (me.subtitle) {
-            this.setSubTitle(me.subtitle);
-        }
-    },
-
-    /**
-     * Set a title for the panel's header. See {@link Ext.panel.Header#title}.
-     * @param {String} subtitle
-     */
-    setSubTitle: function(subtitle) {
-        var me = this,
-            header = me.header;
-
-        me.subtitle = subtitle;
-
-        if (header) {
-            if (header.isHeader) {
-                header.setSubTitle(subtitle);
-            } else {
-                header.subtitle = subtitle;
+    hasPrivilege: function (privilege) {
+        for (var i = 0; i < Ldr.store.Privileges.getCount(); i++) {
+            if (privilege === Ldr.store.Privileges.getAt(i).get('name')) {
+                return true;
             }
-        } else if (me.rendered) {
-            me.updateHeader();
         }
-    }
-});
-
-Ext.define('Uni.override.panel.Header', {
-    override: 'Ext.panel.Header',
-
-    headingTpl: [
-        // unselectable="on" is required for Opera, other browsers inherit unselectability from the header
-        '<span id="{id}-textEl" class="{headerCls}-text {cls}-text {cls}-text-{ui}" unselectable="on"',
-        '<tpl if="headerRole">',
-        ' role="{headerRole}"',
-        '</tpl>',
-        '>{title}</span>',
-        '<span id="{id}-subTextEl" class="{headerCls}-sub-text {cls}-sub-text {cls}-sub-text-{ui}" unselectable="on"',
-        '>{subtitle}</span>'
-    ],
-
-    initComponent: function() {
-        var me = this;
-
-        this.callParent(arguments);
-        me.titleCmp.childEls.push("subTextEl");
+        return false;
     },
 
-    /**
-     * Sets the subtitle of the header.
-     * @param {String} subtitle The title to be set
-     */
-    setSubTitle: function(subtitle) {
-        var me = this,
-            titleCmp = me.titleCmp;
+    hasNoPrivilege: function (privilege) {
+        return !this.hasPrivilege(privilege);
+    },
 
-        me.subtitle = subtitle;
-
-        if (titleCmp.rendered) {
-            titleCmp.subTextEl.update(me.subtitle || '&#160;');
-            titleCmp.updateLayout();
-        } else {
-            me.titleCmp.on({
-                render: function() {
-                    me.setSubTitle(subtitle);
-                },
-                single: true
-            });
+    hasAnyPrivilege: function (privileges) {
+        var result = false;
+        if (Ext.isArray(privileges)) {
+            for (var i = 0; i < privileges.length; i++) {
+                var privilege = privileges[i];
+                if (Ext.isArray(privilege)) {
+                    result = false;
+                    for (var j = 0; j < privilege.length; j++) {
+                        result = result || this.hasPrivilege(privilege[j]);
+                    }
+                    if (!result) {
+                        return result;
+                    }
+                } else {
+                    if (this.hasPrivilege(privilege)) {
+                        return true;
+                    }
+                }
+            }
         }
+        return result;
+    },
+    checkPrivileges: function (privileges) {
+        return !( (Ext.isBoolean(privileges) && !privileges) ||
+        (Ext.isFunction(privileges) && !privileges()) ||
+        (Ext.isArray(privileges) && !Uni.Auth.hasAnyPrivilege(privileges)) ||
+        (Ext.isString(privileges) && !Uni.Auth.hasAnyPrivilege([privileges])) );
     }
 });
 
 /**
- * @class Uni.override.ButtonOverride
+ * @class Uni.override.ContainerOverride
  */
-Ext.define('Uni.override.ButtonOverride', {
-    override: 'Ext.button.Button',
+Ext.define('Uni.override.ContainerOverride', {
+    override: 'Ext.container.AbstractContainer',
+    requires: [
+        'Ext.Array',
+        'Uni.Auth'
+    ],
 
-    /**
-     * Changes the default value from '_blank' to '_self'.
-     */
-    hrefTarget: '_self'
+    add: function() {
+        var me = this,
+            args = Ext.Array.slice(arguments),
+            items;
+
+        if (args.length == 1 && Ext.isArray(args[0])) {
+            items = args[0];
+        } else {
+            items = args;
+        }
+
+        var len = items.length;
+        var i=0;
+        var allowedItems = [];
+        for (; i < len; i++) {
+            var item = items[i];
+            if (item != null &&
+                (typeof item.privileges === 'undefined' ||
+                    typeof item.privileges === null ||
+                    Uni.Auth.checkPrivileges(item.privileges))) {
+                allowedItems.push(item);
+            }
+        }
+
+        return me.callParent(allowedItems);
+    }
 
 });
 
 /**
- * @class Uni.override.JsonWriterOverride
+ * @class Uni.override.RestOverride
+ *
+ * Formats reserved HTML tokens in the url builder.
  */
-Ext.define('Uni.override.JsonWriterOverride', {
-    override: 'Ext.data.writer.Json',
+Ext.define('Uni.override.RestOverride', {
+    override: 'Ext.data.proxy.Rest',
 
-    /**
-     * Adds the associated data to the returned record.
-     * @param record
-     * @returns {*}
-     */
-    getRecordData: function (record, operation) {
-     //   Ext.apply(record.data, record.getAssociatedData());
-        return record.getWriteData(true, true);
+    buildUrl: function (request) {
+        var me = this,
+            operation = request.operation,
+            records = operation.records || [],
+            record = records[0],
+            id = record ? record.getId() : operation.id;
+
+        // Encodes HTML characters such as '/' and '@'.
+        if (typeof id !== 'undefined') {
+            id = encodeURIComponent(id);
+
+            if (record) {
+                record.setId(id);
+            } else {
+                operation.id = id;
+            }
+        }
+
+        var url = me.callParent(arguments);
+
+        var urlTemplate = new Ext.Template(url),
+            params = request.proxy.extraParams,
+            newUrl = urlTemplate.apply(params);
+
+
+        //Remove variables embedded into URL
+        Ext.Object.each(params, function (key, value) {
+            var regex = new RegExp('{' + key + '.*?}');
+       /*     if (regex.test(url)) {
+                delete params[key];
+            }*/
+        });
+
+        request.url = url;
+
+        return newUrl;
     }
-
 });
 
 /**
@@ -357,50 +354,157 @@ Ext.define('Uni.override.ModelOverride', {
 });
 
 /**
- * @class Uni.override.RestOverride
- *
- * Formats reserved HTML tokens in the url builder.
+ * @class Uni.override.JsonWriterOverride
  */
-Ext.define('Uni.override.RestOverride', {
-    override: 'Ext.data.proxy.Rest',
+Ext.define('Uni.override.JsonWriterOverride', {
+    override: 'Ext.data.writer.Json',
 
-    buildUrl: function (request) {
-        var me = this,
-            operation = request.operation,
-            records = operation.records || [],
-            record = records[0],
-            id = record ? record.getId() : operation.id;
-
-        // Encodes HTML characters such as '/' and '@'.
-        if (typeof id !== 'undefined') {
-            id = encodeURIComponent(id);
-
-            if (record) {
-                record.setId(id);
-            } else {
-                operation.id = id;
-            }
-        }
-
-        var url = me.callParent(arguments);
-
-        var urlTemplate = new Ext.Template(url),
-            params = request.proxy.extraParams,
-            newUrl = urlTemplate.apply(params);
-
-
-        //Remove variables embedded into URL
-        Ext.Object.each(params, function (key, value) {
-            var regex = new RegExp('{' + key + '.*?}');
-       /*     if (regex.test(url)) {
-                delete params[key];
-            }*/
-        });
-
-        request.url = url;
-
-        return newUrl;
+    /**
+     * Adds the associated data to the returned record.
+     * @param record
+     * @returns {*}
+     */
+    getRecordData: function (record, operation) {
+     //   Ext.apply(record.data, record.getAssociatedData());
+        return record.getWriteData(true, true);
     }
+
+});
+
+/**
+ * @class Uni.override.ApplicationOverride
+ */
+Ext.define('Uni.override.ApplicationOverride', {
+    override: 'Ext.app.Application',
+
+    unifyingControllers: [
+        'Uni.controller.Acknowledgements',
+        'Uni.controller.Configuration',
+        'Uni.controller.Error',
+        'Uni.controller.Navigation',
+        'Uni.controller.Portal',
+        'Uni.controller.Notifications',
+        'Uni.controller.Search',
+        'Uni.controller.Session'
+    ],
+
+    /**
+     *
+     */
+    initControllers: function () {
+        this.callParent(arguments);
+        this.loadUnifyingControllers();
+        this.loadPluginControllers();
+    },
+
+    loadUnifyingControllers: function () {
+        var me = this;
+
+        for (var i = 0, ln = me.unifyingControllers.length; i < ln; i++) {
+            me.getController(me.unifyingControllers[i]);
+        }
+    },
+
+    loadPluginControllers: function() {
+        var me = this;
+        Ldr.store.Pluggable.each(function (pluginScript) {
+            Ext.require(pluginScript.get('mainController'),function(){
+                me.getController(pluginScript.get('mainController'));
+            });
+        });
+    }
+});
+
+Ext.define('Uni.override.panel.Panel', {
+    override: 'Ext.panel.Panel',
+
+    beforeRender: function() {
+        var me = this;
+        this.callParent(arguments);
+
+        if (me.subtitle) {
+            this.setSubTitle(me.subtitle);
+        }
+    },
+
+    /**
+     * Set a title for the panel's header. See {@link Ext.panel.Header#title}.
+     * @param {String} subtitle
+     */
+    setSubTitle: function(subtitle) {
+        var me = this,
+            header = me.header;
+
+        me.subtitle = subtitle;
+
+        if (header) {
+            if (header.isHeader) {
+                header.setSubTitle(subtitle);
+            } else {
+                header.subtitle = subtitle;
+            }
+        } else if (me.rendered) {
+            me.updateHeader();
+        }
+    }
+});
+
+Ext.define('Uni.override.panel.Header', {
+    override: 'Ext.panel.Header',
+
+    headingTpl: [
+        // unselectable="on" is required for Opera, other browsers inherit unselectability from the header
+        '<span id="{id}-textEl" class="{headerCls}-text {cls}-text {cls}-text-{ui}" unselectable="on"',
+        '<tpl if="headerRole">',
+        ' role="{headerRole}"',
+        '</tpl>',
+        '>{title}</span>',
+        '<span id="{id}-subTextEl" class="{headerCls}-sub-text {cls}-sub-text {cls}-sub-text-{ui}" unselectable="on"',
+        '>{subtitle}</span>'
+    ],
+
+    initComponent: function() {
+        var me = this;
+
+        this.callParent(arguments);
+        me.titleCmp.childEls.push("subTextEl");
+    },
+
+    /**
+     * Sets the subtitle of the header.
+     * @param {String} subtitle The title to be set
+     */
+    setSubTitle: function(subtitle) {
+        var me = this,
+            titleCmp = me.titleCmp;
+
+        me.subtitle = subtitle;
+
+        if (titleCmp.rendered) {
+            titleCmp.subTextEl.update(me.subtitle || '&#160;');
+            titleCmp.updateLayout();
+        } else {
+            me.titleCmp.on({
+                render: function() {
+                    me.setSubTitle(subtitle);
+                },
+                single: true
+            });
+        }
+    }
+});
+
+/**
+ * @class Uni.override.ButtonOverride
+ */
+Ext.define('Uni.override.ButtonOverride', {
+    override: 'Ext.button.Button',
+
+    /**
+     * Changes the default value from '_blank' to '_self'.
+     */
+    hrefTarget: '_self'
+
 });
 
 /**
@@ -661,8 +765,8 @@ Ext.define('Uni.DateTime', {
     timeShortDefault: 'H:i',
     timeLongDefault: 'H:i:s',
 
-    dateTimeShortDefault: 'd M \'y H:i',
-    dateTimeLongDefault: 'D d M \'y H:i:s',
+    dateTimeShortDefault: 'd M \'y - H:i',
+    dateTimeLongDefault: 'D d M \'y - H:i:s',
 
     formatDateShort: function (date) {
         date = date || new Date();
@@ -742,6 +846,7 @@ Ext.define('Uni.Number', {
 
     currencyDefault: '£ {0}',
 
+    // if decimalPrecision is equals -1, then it uses current number decimals count
     doFormatNumber: function (number, decimalPrecision, decimalSeparator, thousandsSeparator) {
         var me = this,
             n = parseFloat(number),
@@ -749,10 +854,10 @@ Ext.define('Uni.Number', {
             d = decimalSeparator || me.decimalSeparatorDefault,
             t = (typeof thousandsSeparator === 'undefined') ? me.thousandsSeparatorDefault : thousandsSeparator,
             sign = (n < 0) ? '-' : '',
-            i = parseInt(n = Math.abs(n).toFixed(c)) + '',
+            i = (!isNaN(decimalPrecision) && decimalPrecision === -1 ? parseInt(n = Math.abs(n)) + '' :  parseInt(n = Math.abs(n).toFixed(c)) + '' ),
             j = ((j = i.length) > 3) ? j % 3 : 0;
 
-        return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (parseInt(decimalPrecision) < 0 ? number.split('.')[1] ? d + number.split('.')[1] : '' : (c ? d + Math.abs(n - i).toFixed(c).slice(2) : ''));
+        return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (!isNaN(decimalPrecision) && decimalPrecision === -1 ? number.split('.')[1] ? d + number.split('.')[1] : '' : (c ? d + Math.abs(n - i).toFixed(c).slice(2) : ''));
     },
 
     /**
@@ -1407,6 +1512,51 @@ Ext.define('Uni.override.NumberFieldOverride', {
 
 });
 
+/**
+ * This override fixes an ExtJS 4.2.3 defect where the picker closes early.
+ *
+ * @markdown
+ * @docauthor Rex Staples
+ */
+Ext.define('Uni.override.form.field.Picker', {
+    override: 'Ext.form.field.Picker',
+
+    // Overrides code below come from ExtJS 4.2.2
+    // http://docs.sencha.com/extjs/4.2.2/source/Picker.html#Ext-form-field-Picker
+
+    /**
+     * @private
+     * Runs on mousewheel and mousedown of doc to check to see if we should collapse the picker
+     */
+    collapseIf: function(e) {
+        var me = this;
+
+        if (!me.isDestroyed && !e.within(me.bodyEl, false, true) && !e.within(me.picker.el, false, true) && !me.isEventWithinPickerLoadMask(e)) {
+            me.collapse();
+        }
+    },
+
+    mimicBlur: function(e) {
+        var me = this,
+            picker = me.picker;
+        // ignore mousedown events within the picker element
+        if (!picker || !e.within(picker.el, false, true) && !me.isEventWithinPickerLoadMask(e)) {
+            me.callParent(arguments);
+        }
+    },
+
+    /**
+     * returns true if the picker has a load mask and the passed event is within the load mask
+     * @private
+     * @param {Ext.EventObject} e
+     * @return {Boolean}
+     */
+    isEventWithinPickerLoadMask: function(e) {
+        var loadMask = this.picker.loadMask;
+        return loadMask ? e.within(loadMask.maskEl, false, true) || e.within(loadMask.el, false, true) : false;
+    }
+});
+
 Ext.define('Uni.override.form.field.Date', {
     override: 'Ext.form.field.Date',
 
@@ -1483,7 +1633,9 @@ Ext.define('Uni.override.GridPanelOverride', {
     plugins: [
         'showConditionalToolTip'
     ],
-
+    viewConfig: {
+        enableTextSelection: true
+    },
     /**
      * Do not select row when column is of type actioncolumn.
      */
@@ -1509,54 +1661,40 @@ Ext.define('Uni.override.grid.Panel', {
 
     selModel: {
         mode: 'SINGLE'
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.callParent(arguments);
+
+        me.on('afterlayout', function () {
+            if (me.lastGridScrollPosition) {
+                me.getView().getEl().scrollTo('top', me.lastGridScrollPosition.top, false);
+            }
+        });
+        me.on('selectionchange', function () {
+            this.lastGridScrollPosition = this.getView().getEl().getScroll();
+        });
     }
 });
 
 Ext.define('Uni.override.view.Table', {
     override: 'Ext.view.Table',
     bodyBorder: true
-//    ,
-//    scroll: true,
-//    scrollbarTpl: '<div class="scrollbar"><div class="up"><span class="arrow-up"></span></div><div class="down"><span class="arrow-down"></span></div><div class="track"><div class="thumb"></div></div></div>',
-//
-//    // todo: refactor this
-//    listeners: {
-////        refresh: function () {
-////            var body = this.getEl().parent('.x-grid-body');
-////            body.update(body.getHTML() + this.scrollbarTpl);
-////            if (body.down('.x-grid-view')) {
-////                body.down('.x-grid-view').addCls('viewport');
-////
-////                this.getEl().down('.x-grid-table').addCls('overview');
-////
-////                var $scrollbar = body.dom,
-////                    scrollbar  = tinyscrollbar($scrollbar, {
-////                        trackSize: body.down('.track').dom.offsetHeight
-////                    });
-////            }
-////
-////        }
-//    }
 });
 
 Ext.define('Uni.override.grid.plugin.BufferedRenderer', {
     override: 'Ext.grid.plugin.BufferedRenderer',
     rowHeight: 29, // comes from skyline theme
 
-    init: function(grid) {
+    init: function (grid) {
         this.callParent(arguments);
-
+        grid.view.cls = 'uni-infinite-scrolling-grid-view';
         // grid height calculated before the toolbar is on layouts, it causes the bug: JP-3817
-        grid.on('boxready', function() {
+        grid.on('boxready', function () {
             grid.view.refresh();
-        })
-    },
-
-    bindStore: function(store) {
-        var me = this;
-        me.trailingBufferZone = 0; // No idea why this needs to be 0, without it some grids don't work.
-        me.leadingBufferZone = store.pageSize;
-        me.callParent(arguments);
+        });
     }
 });
 
@@ -1585,55 +1723,6 @@ Ext.define('Uni.About', {
     version: '1.0.0',
     startup: new Date(),
     baseCssPrefix: 'uni-'
-});
-
-/**
- * @class Uni.Auth
- *
- * Authorization class that checks whether the currently logged-in user has privileges or not.
- */
-Ext.define('Uni.Auth', {
-    singleton: true,
-
-    requires: [
-        'Ldr.store.Privileges'
-    ],
-
-    hasPrivilege: function (privilege) {
-        for (var i = 0; i < Ldr.store.Privileges.getCount(); i++) {
-            if (privilege === Ldr.store.Privileges.getAt(i).get('name')) {
-                return true;
-            }
-        }
-        return false;
-    },
-
-    hasNoPrivilege: function (privilege) {
-        return !this.hasPrivilege(privilege);
-    },
-
-    hasAnyPrivilege: function (privileges) {
-        var result = false;
-        if (Ext.isArray(privileges)) {
-            for (var i = 0; i < privileges.length; i++) {
-                var privilege = privileges[i];
-                if (Ext.isArray(privilege)) {
-                    result = false;
-                    for (var j = 0; j < privilege.length; j++) {
-                        result = result || this.hasPrivilege(privilege[j]);
-                    }
-                    if (!result) {
-                        return result;
-                    }
-                } else {
-                    if (this.hasPrivilege(privilege)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return result;
-    }
 });
 
 /**
@@ -1742,7 +1831,7 @@ Ext.define('Uni.controller.Acknowledgements', {
         msgWindow.setMessage(message);
         msgWindow.center();
         msgWindow.setPosition(msgWindow.x, 116, false);
-
+        msgWindow.doLayout();
         task.delay(5000);
     }
 });
@@ -2427,6 +2516,8 @@ Ext.define('Uni.view.container.ContentContainer', {
         var side = this.side,
             content = this.content;
 
+        content.preserveScrollOnRefresh = true;
+
         if (!(side instanceof Ext.Component)) {
             // Never modify a passed config object, that could break the expectations of the using code.
             side = Ext.clone(side);
@@ -2468,8 +2559,30 @@ Ext.define('Uni.view.container.ContentContainer', {
      */
     getCenterContainer: function () {
         return this.down('#centerContainer');
-    }
+    },
 
+    onRender: function () {
+        this.callParent(arguments);
+        this.mon(this.getEl(), 'scroll', this.onScroll, this);
+    },
+
+
+    onScroll: function (e ,t, eOpts) {
+        this.lastScrollPosition = this.getEl().getScroll();
+    },
+
+    afterLayout: function () {
+        var el;
+
+        this.callParent(arguments);
+
+        if (this.lastScrollPosition) {
+            el = this.getEl();
+
+            el.scrollTo('left', this.lastScrollPosition.left);
+            el.scrollTo('top', this.lastScrollPosition.top);
+        }
+    }
 });
 
 /**
@@ -2569,31 +2682,43 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
     layout: {
         type: 'vbox'
     },
-
     items: [
         {
-            xtype: 'panel',
-            itemId: 'wrapper',
-            cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
             ui: 'medium',
             framed: true,
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            }
+            cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
+            items: [
+                {
+                    xtype: 'container',
+                    cls: Uni.About.baseCssPrefix + 'panel-no-items-found-header',
+                    items: {
+                        xtype: 'container',
+                        itemId: 'header'
+                    }
+                },
+                {
+                    xtype: 'panel',
+                    itemId: 'wrapper',
+                    ui: 'medium',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    }
+                }
+            ]
         }
     ],
 
     initComponent: function () {
         var me = this;
-
         me.callParent(arguments);
 
         Ext.suspendLayouts();
 
         var wrapper = me.down('#wrapper');
+        var header = me.down('#header');
 
-        wrapper.setTitle(me.title);
+        header.update(me.title);
 
         if (Ext.isArray(me.reasons) || Ext.isString(me.reasons)) {
             var formattedReasons = me.formatReasons(me.reasons);
@@ -2604,9 +2729,9 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
             });
         }
 
-        if (!Ext.isEmpty(me.stepItems)){
+        if (!Ext.isEmpty(me.stepItems)) {
             var stepItems = me.stepItems;
-            if(!Ext.isArray(stepItems)) {
+            if (!Ext.isArray(stepItems)) {
                 stepItems = [stepItems];
             }
             if (typeof stepItems[0].privileges === 'undefined' || Uni.Auth.hasAnyPrivilege(stepItems[0].privileges)) {
@@ -2791,18 +2916,18 @@ Ext.define('Uni.controller.Error', {
         window: null
     },
 
-    routeConfig:{
+    routeConfig: {
         notfound: {
             title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found'),
             route: 'error/notfound',
             controller: 'Uni.controller.Error',
-            action:'showPageNotFound'
+            action: 'showPageNotFound'
         },
         launch: {
             title: Uni.I18n.translate('error.errorLaunch', 'UNI', 'Application error'),
             route: 'error/launch',
             controller: 'Uni.controller.Error',
-            action:'showErrorLaunch'
+            action: 'showErrorLaunch'
         }
     },
 
@@ -2816,18 +2941,27 @@ Ext.define('Uni.controller.Error', {
     init: function () {
         var me = this;
 
-        Ext.Error.handle = me.handleGenericError;
+        Ext.Error.handle = function (error) {
+            me.handleGenericError(error, me);
+        };
+
         Ext.Ajax.on('requestexception', me.handleRequestError, me);
 
         var router = this.getController('Uni.controller.history.Router');
         router.addConfig(this.routeConfig);
     },
 
-    handleGenericError: function (error) {
+    handleGenericError: function (error, scope) {
         console.log(error);
 
-        var title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
-        this.showError(title, error);
+        var me = scope || this,
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+
+        if(Ext.isObject(error) && Ext.isDefined(error.msg)) {
+            error = error.msg;
+        }
+
+        me.showError(title, error);
     },
 
     handleRequestError: function (conn, response, options) {
@@ -2873,6 +3007,10 @@ Ext.define('Uni.controller.Error', {
                 'UNI',
                 'Unexpected connection problems. Please check that server is available.'
             );
+        }
+        else {
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed');
+            message = Uni.I18n.translate(message, 'UNI', message);
         }
 
         switch (response.status) {
@@ -2948,7 +3086,8 @@ Ext.define('Uni.controller.Error', {
             msg: message,
             modal: false,
             ui: 'message-error',
-            icon: Ext.MessageBox.ERROR
+            icon: 'icon-warning2',
+            style: 'font-size: 34px;'
         });
 
         var box = Ext.create('Ext.window.MessageBox', {
@@ -2958,7 +3097,7 @@ Ext.define('Uni.controller.Error', {
                     text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
                     action: 'close',
                     name: 'close',
-                    ui: 'action',
+                    ui: 'remove',
                     handler: function () {
                         box.close();
                     }
@@ -2977,77 +3116,6 @@ Ext.define('Uni.controller.Error', {
         this.getApplication().fireEvent('changecontentevent', widget);
     }
 
-});
-
-/**
- * @class Uni.controller.history.EventBus
- */
-Ext.define('Uni.controller.history.EventBus', {
-    extend: 'Ext.app.Controller',
-
-    requires: [
-        'Ext.util.History'
-    ],
-
-    config: {
-        defaultToken: '',
-        previousPath: null,
-        currentPath: null
-    },
-
-    onLaunch: function () {
-        this.initHistory();
-    },
-
-    initHistory: function () {
-        var me = this;
-
-        Ext.util.History.init(function () {
-            Ext.util.History.addListener('change', function (token) {
-                me.onHistoryChange(token);
-            });
-
-            me.checkHistoryState();
-        });
-
-        crossroads.bypassed.add(function(request){
-            crossroads.parse("/error/notfound");
-        });
-
-    },
-
-    checkHistoryState: function () {
-        var me = this,
-            token = Ext.util.History.getToken();
-
-        if (token === null || token === '') {
-            token = me.getDefaultToken();
-            Ext.util.History.add(token);
-            Ext.util.History.currentToken = token;
-        }
-
-        me.onHistoryChange(token);
-    },
-
-    onHistoryChange: function (token) {
-        var queryStringIndex = token.indexOf('?');
-
-        if (typeof token === 'undefined' || token === null || token === '') {
-            token = this.getDefaultToken();
-            Ext.util.History.add(token);
-        }
-
-        if (queryStringIndex > 0) {
-            token = token.substring(0, queryStringIndex);
-        }
-
-        if (this.getCurrentPath() !== null) {
-            this.setPreviousPath(this.getCurrentPath());
-        }
-        this.setCurrentPath(token);
-
-        crossroads.parse(token);
-    }
 });
 
 /**
@@ -3094,6 +3162,148 @@ Ext.define('Uni.store.MenuItems', {
             direction: 'DESC'
         }
     ]
+});
+
+/**
+ * @class Uni.model.PortalItem
+ *
+ * If you have several widgets that need to be shown on a common page, you will need
+ * to create a {@link Uni.model.PortalItem} for each widget on that page. E.g. there is
+ * an administration page that is filled with several portal widgets.
+ *
+ * This model class provides the portal item configuration, including title and component.
+ *
+ * See {@link Uni.controller.Portal} for more detailed information.
+ *
+ */
+Ext.define('Uni.model.PortalItem', {
+    extend: 'Ext.data.Model',
+    fields: [
+        'title',
+        'portal',
+        'index',
+        'items',
+        'itemId',
+        'afterrender'
+    ],
+    proxy: {
+        type: 'memory'
+    }
+});
+
+/**
+ * @class Uni.store.PortalItems
+ *
+ * If you have several widgets that need to be shown on a common page, you will need
+ * to create a {@link Uni.model.PortalItem} for each widget on that page. E.g. there is
+ * an administration page that is filled with several portal widgets.
+ *
+ * This store is used to keep track of the portal items and listen to changes to them in
+ * {@link Uni.controller.Portal}.
+ *
+ * See {@link Uni.controller.Portal} for more detailed information.
+ *
+ */
+Ext.define('Uni.store.PortalItems', {
+    extend: 'Ext.data.Store',
+    model: 'Uni.model.PortalItem',
+    storeId: 'portalItems',
+    singleton: true,
+    autoLoad: false,
+    clearOnPageLoad: false,
+    clearRemovedOnLoad: false,
+
+    proxy: {
+        type: 'memory',
+        reader: {
+            type: 'json',
+            root: 'items'
+        }
+    }
+});
+
+/**
+ * @class Uni.controller.history.EventBus
+ */
+Ext.define('Uni.controller.history.EventBus', {
+    extend: 'Ext.app.Controller',
+
+    requires: [
+        'Ext.util.History',
+        'Uni.store.MenuItems',
+        'Uni.store.PortalItems'
+    ],
+
+    config: {
+        defaultToken: '',
+        previousPath: null,
+        currentPath: null
+    },
+
+    onLaunch: function () {
+        this.initHistory();
+        this.initListeners();
+    },
+
+    initHistory: function () {
+        var me = this;
+
+        crossroads.bypassed.add(function (request) {
+            crossroads.parse("/error/notfound");
+        });
+
+        Ext.util.History.init(function () {
+            Ext.util.History.addListener('change', function (token) {
+                me.onHistoryChange(token);
+            });
+
+            me.checkHistoryState();
+        });
+    },
+
+    initListeners: function () {
+        Uni.store.MenuItems.on({
+            add: this.checkHistoryState,
+            load: this.checkHistoryState,
+            update: this.checkHistoryState,
+            remove: this.checkHistoryState,
+            bulkremove: this.checkHistoryState,
+            scope: this
+        });
+    },
+
+    checkHistoryState: function () {
+        var me = this,
+            token = Ext.util.History.getToken();
+
+        if (token === null || token === '') {
+            token = me.getDefaultToken();
+            // checking hash after set produces execution of "onHistoryChange" twice. @see JP-8559
+            Ext.util.History.setHash(token);
+        } else {
+            me.onHistoryChange(token);
+        }
+    },
+
+    onHistoryChange: function (token) {
+        var queryStringIndex = token.indexOf('?');
+
+        if (typeof token === 'undefined' || token === null || token === '') {
+            token = this.getDefaultToken();
+            Ext.util.History.add(token);
+        }
+
+        if (queryStringIndex > 0) {
+            token = token.substring(0, queryStringIndex);
+        }
+
+        if (this.getCurrentPath() !== null) {
+            this.setPreviousPath(this.getCurrentPath());
+        }
+        this.setCurrentPath(token);
+
+        crossroads.parse(token);
+    }
 });
 
 /**
@@ -3192,7 +3402,14 @@ Ext.define('Uni.store.Apps', {
             type: 'json',
             root: ''
         }
-    }
+    },
+
+    sorters: [
+        {
+            property: 'name',
+            direction: 'ASC'
+        }
+    ]
 });
 
 /**
@@ -3322,7 +3539,7 @@ Ext.define('Uni.controller.history.Router', {
 
     getQueryString: function () {
         var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
-            queryStringIndex = token.indexOf('?');
+            queryStringIndex = token?token.indexOf('?'):-1;
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
@@ -3395,7 +3612,12 @@ Ext.define('Uni.controller.history.Router', {
              * @param queryParams
              */
             forward: function (arguments, queryParams) {
-                window.location.href = this.buildUrl(arguments, queryParams);
+                var url = this.buildUrl(arguments, queryParams);
+                if (url === window.location.hash) {
+                    Ext.util.History.fireEvent('change', Ext.util.History.getToken());
+                } else {
+                    window.location.assign(url);
+                }
             }
         });
 
@@ -3416,7 +3638,6 @@ Ext.define('Uni.controller.history.Router', {
                 );
 
                 var routeArguments = _.values(_.extend(me.arguments, params));
-
                 if (Ext.isDefined(config.redirect)) {
                     // perform redirect on route match
                     if (Ext.isObject(config.redirect)) {
@@ -3432,6 +3653,10 @@ Ext.define('Uni.controller.history.Router', {
                     var controller = me.getController(config.controller);
 
                     var dispatch = function () {
+                        if (!Uni.Auth.checkPrivileges(config.privileges)) {
+                            crossroads.parse("/error/notfound");
+                            return;
+                        }
                         me.fireEvent('routematch', me);
                         controller[action].apply(controller, routeArguments);
                     };
@@ -3454,9 +3679,6 @@ Ext.define('Uni.controller.history.Router', {
         // handle child items
         if (config.items) {
             _.each(config.items, function (item, itemKey) {
-                if (Ext.isArray(item.privileges) && !Uni.Auth.hasAnyPrivilege(item.privileges)) {
-                    return;
-                }
 
                 var path = key + '/' + itemKey;
                 me.initRoute(path, item, route);
@@ -3500,7 +3722,7 @@ Ext.define('Uni.controller.history.Router', {
             path = me.currentRoute;
         }
 
-        return me.routes[path];
+        return me.routes[path] || me.routes["notfound"]; // add fallback route, to prevent crashes when calling buildUrl method.
     },
 
     getRouteConfig: function (path) {
@@ -3532,8 +3754,7 @@ Ext.define('Uni.controller.Navigation', {
         'Uni.controller.history.Router'
     ],
 
-    views: [
-    ],
+    views: [],
 
     refs: [
         {
@@ -3558,9 +3779,9 @@ Ext.define('Uni.controller.Navigation', {
         }
     ],
 
-    applicationTitle: 'Connexo Multi Sense',
+    applicationTitle: 'Connexo',
     applicationTitleSeparator: '-',
-    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
     onlineHelpEnabled: false,
 
     init: function (app) {
@@ -3588,11 +3809,11 @@ Ext.define('Uni.controller.Navigation', {
             }
         });
 
-        me.getApplication().on('changemaincontentevent', me.showContent,me);
-        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb,me);
-        me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged,me);
-        me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch,me);
-        me.getApplication().on('ononlinehelpenabled', me.onOnlineHelpEnabled,me);
+        me.getApplication().on('changemaincontentevent', me.showContent, me);
+        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb, me);
+        me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged, me);
+        me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch, me);
+        me.getApplication().on('ononlinehelpenabled', me.onOnlineHelpEnabled, me);
 
         me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
         me.getController('Uni.controller.history.Router').on('routechange', me.initBreadcrumbs, me);
@@ -3602,15 +3823,15 @@ Ext.define('Uni.controller.Navigation', {
         Uni.store.Apps.load();
     },
 
-    onNavigationTitleChanged: function(title){
+    onNavigationTitleChanged: function (title) {
         this.applicationTitle = title;
     },
-    onNavigationToggleSearch: function(enabled){
+    onNavigationToggleSearch: function (enabled) {
         this.searchEnabled = enabled;
     },
 
-    onOnlineHelpEnabled: function(enabled){
-       this.onlineHelpEnabled = enabled;
+    onOnlineHelpEnabled: function (enabled) {
+        this.onlineHelpEnabled = enabled;
     },
 
     initTitle: function (breadcrumbItem) {
@@ -3628,8 +3849,8 @@ Ext.define('Uni.controller.Navigation', {
 
         if (!Ext.isEmpty(text)) {
             Ext.getDoc().dom.title = text + ' '
-                + me.applicationTitleSeparator + ' '
-                + me.applicationTitle;
+            + me.applicationTitleSeparator + ' '
+            + me.applicationTitle;
         } else {
             Ext.getDoc().dom.title = me.applicationTitle;
         }
@@ -3641,7 +3862,6 @@ Ext.define('Uni.controller.Navigation', {
         var breadcrumbs = me.getBreadcrumbs();
         var child, breadcrumb;
 
-        breadcrumbs.removeAll();
         _.map(router.buildBreadcrumbs(), function (route) {
             var title = route.getTitle();
 
@@ -3663,7 +3883,8 @@ Ext.define('Uni.controller.Navigation', {
 
     initSearch: function () {
         var me = this;
-        me.getSearchButton().setVisible(me.searchEnabled);
+        me.getSearchButton().setVisible(me.searchEnabled &&
+        Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']));
     },
 
     initOnlineHelp: function () {
@@ -3673,7 +3894,7 @@ Ext.define('Uni.controller.Navigation', {
         if (me.onlineHelpEnabled) {
             Ext.Ajax.request({
                 url: '/api/usr/currentuser',
-                success: function(response){
+                success: function (response) {
                     var currentUser = Ext.decode(response.responseText, true),
                         url;
                     if (currentUser && currentUser.language && currentUser.language.languageTag) {
@@ -3681,7 +3902,7 @@ Ext.define('Uni.controller.Navigation', {
                         Ext.Ajax.request({
                             url: url,
                             method: 'HEAD',
-                            success: function(response){
+                            success: function (response) {
                                 helpBtn.setHref(url);
                             },
                             callback: function () {
@@ -3801,7 +4022,18 @@ Ext.define('Uni.controller.Navigation', {
         Uni.store.MenuItems.each(function (model) {
             modelTokens = me.stripAndSplitToken(model.get('href'));
             if (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal')) {
+                var text = '';
+
                 me.getNavigationMenu().selectMenuItem(model);
+                text = model.get('text');
+
+                if (!Ext.isEmpty(text)) {
+                    Ext.getDoc().dom.title = text + ' '
+                    + me.applicationTitleSeparator + ' '
+                    + me.applicationTitle;
+                } else {
+                    Ext.getDoc().dom.title = me.applicationTitle;
+                }
                 return;
             }
         });
@@ -3826,7 +4058,6 @@ Ext.define('Uni.controller.Navigation', {
     showContent: function (content, side) {
         var panel = this.getContentWrapper();
 
-        Ext.suspendLayouts();
         panel.removeAll();
 
         if (content instanceof Uni.view.container.ContentContainer) {
@@ -4004,68 +4235,10 @@ Ext.define('Uni.controller.Notifications', {
     }
 });
 
-/**
- * @class Uni.model.PortalItem
- *
- * If you have several widgets that need to be shown on a common page, you will need
- * to create a {@link Uni.model.PortalItem} for each widget on that page. E.g. there is
- * an administration page that is filled with several portal widgets.
- *
- * This model class provides the portal item configuration, including title and component.
- *
- * See {@link Uni.controller.Portal} for more detailed information.
- *
- */
-Ext.define('Uni.model.PortalItem', {
-    extend: 'Ext.data.Model',
-    fields: [
-        'title',
-        'portal',
-        'index',
-        'items',
-        'itemId'
-    ],
-    proxy: {
-        type: 'memory'
-    }
-});
-
-/**
- * @class Uni.store.PortalItems
- *
- * If you have several widgets that need to be shown on a common page, you will need
- * to create a {@link Uni.model.PortalItem} for each widget on that page. E.g. there is
- * an administration page that is filled with several portal widgets.
- *
- * This store is used to keep track of the portal items and listen to changes to them in
- * {@link Uni.controller.Portal}.
- *
- * See {@link Uni.controller.Portal} for more detailed information.
- *
- */
-Ext.define('Uni.store.PortalItems', {
-    extend: 'Ext.data.Store',
-    model: 'Uni.model.PortalItem',
-    storeId: 'portalItems',
-    singleton: true,
-    autoLoad: false,
-    clearOnPageLoad: false,
-    clearRemovedOnLoad: false,
-
-    proxy: {
-        type: 'memory',
-        reader: {
-            type: 'json',
-            root: 'items'
-        }
-    }
-});
-
 Ext.define('Uni.view.container.PortalContainer', {
     extend: 'Ext.panel.Panel',
     xtype: 'portal-container',
     ui: 'large',
-
     padding: '16px 0 0 0 ',
     layout: 'column',
     columnCount: 3,
@@ -4076,24 +4249,9 @@ Ext.define('Uni.view.container.PortalContainer', {
             index = model.get('index');
 
         if (index === '' || index === null || typeof index === 'undefined') {
-            this.add(component);
+            me.add(component);
         } else {
-            this.insert(index, component);
-        }
-
-        var count = this.items.items.length,
-            remainder = count % me.columnCount;
-
-        switch (remainder) {
-            case 1:
-                component.addCls('first');
-                break;
-            case 2:
-                component.addCls('middle');
-                break;
-            default:
-                component.addCls('last');
-                break;
+            me.insert(index, component);
         }
     },
 
@@ -4102,6 +4260,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             title = model.get('title'),
             items = model.get('items'),
             itemId = model.get('itemId'),
+            afterrender = model.get('afterrender'),
             widget;
 
         itemId = (Ext.isString(itemId) && itemId.length) ? itemId : undefined;
@@ -4115,6 +4274,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             itemId:itemId,
             columnWidth: 1 / me.columnCount,
             height: 256,
+            overflowY:true,
             items: [
                 {
                     xtype: 'menu',
@@ -4126,10 +4286,16 @@ Ext.define('Uni.view.container.PortalContainer', {
             refresh : function (items) {
                 var me = this;
                 var menu = me.down('menu');
-                menu.removeAll();
-                menu.add(items);
+                if(menu) {
+                    menu.removeAll();
+                    menu.add(items);
+                }
             }
         });
+
+        if(afterrender){
+            widget.on('afterrender',afterrender );
+        }
 
         return widget;
     }
@@ -4397,6 +4563,111 @@ Ext.define('Uni.controller.Search', {
     }
 });
 
+Ext.define('Uni.controller.Session', {
+    extend: 'Ext.app.Controller',
+    runner: null,
+    body: null,
+    initialized: false,
+    lastResetTime: null,
+    maxInactive: null,
+    verbose:false,
+    init: function () {
+        this.runner = new Ext.util.TaskRunner();
+        this.body = Ext.getBody();
+        this.initialized = true;
+        this.lastResetTime = new Date();
+        this.getTimeOutFromserver();
+        this.initListeners();
+    },
+
+    getTimeOutFromserver: function(){
+        var me = this;
+        Ext.Ajax.request({
+            url: '/api/apps/session/timeout',
+            method: 'GET',
+            async: false,
+            success: function (response) {
+                var backEndTimeout = JSON.parse(response.responseText).sessionTimeOut;
+                me.maxInactive = (backEndTimeout-backEndTimeout/10)*1000; // 10% earlier
+                me.log("Inactivity timeout " + me.maxInactive);
+            },
+            failure: function () {
+                //window.location.replace('/apps/login/index.html');
+            }
+        });
+    },
+
+    initListeners: function () {
+        this.body.on('mousedown', this.checkForExpiration, this);
+        Ext.Ajax.on('beforerequest', this.checkRequestAndResetActivity, this);
+    },
+
+    checkRequestAndResetActivity: function (con, options) {
+        if (options.url !== '/api/apps/session/timeout') {
+            this.resetActivity();
+        }
+    },
+
+    checkForExpiration: function(){
+        var me = this;
+        me.log("Check for expiration  ...");
+        var currentTime = new Date();
+        if (currentTime - this.lastResetTime > this.maxInactive) {
+            // if there was no user activity in specified period check to see if the session is
+            // still available due activities from different tabs.
+            me.log("Inactivity timeout is already expired... Checking backend... ");
+            this.keepBackEndAlive();
+        }
+        else{
+            me.log(" not yet.");
+        }
+    },
+    resetActivity: function () {
+        this.log("Reset Activity  ....");
+        this.lastResetTime = new Date();
+    },
+
+    logout: function () {
+        var me = this;
+        me.log('Logout requested ...');
+        Ext.Ajax.request({
+            url: '/api/apps/apps/logout',
+            method: 'POST',
+            disableCaching: true,
+            scope: this,
+            callback: function () {
+                me.log('Redirecting to login page ....');
+                window.location.replace('/apps/login/index.html');
+            }
+        });
+    },
+
+    keepBackEndAlive: function () {
+        var me = this;
+        me.log('Check backend ...');
+        Ext.Ajax.request({
+            url: '/api/apps/session/timeout',
+            method: 'GET',
+            async: false,
+            success: function (response) {
+                me.log('Session is OK');
+                me.resetActivity();
+            },
+            failure: function () {
+                me.log('Session might be expired ...');
+                me.logout();
+            }
+        });
+    },
+    log : function(msg) {
+        if (this.verbose && window.console) {
+            window.console.log("ACTIVITY MONITOR::" + msg);
+        }
+    }
+
+
+});
+
 /**
  * @class Uni.view.form.field.Vtypes
  */
@@ -4638,12 +4909,24 @@ Ext.define('Uni.component.filter.view.FilterTopPanel', {
     setFilter: function (key, name, value, hideIcon) {
         var me = this,
             btnsContainer = me.getContainer(),
+            str = '',
             btn = btnsContainer.down('button[name=' + key + ']');
         if (!_.isEmpty(btn)) {
             btn.setText(name + ': ' + value);
         } else if (!hideIcon) {
+            if (Ext.isArray(value)) {
+                Ext.Array.each(value, function (item) {
+                    if (item !== value[value.length-1]) {
+                        str += item + ', ';
+                    } else {
+                        str += item;
+                    }
+                });
+            } else {
+                str = value;
+            }
             btnsContainer.add(Ext.create('Uni.view.button.TagButton', {
-                text: name + ': ' + value,
+                text: name + ': ' + str,
                 name: key,
                 listeners: {
                     closeclick: function () {
@@ -4738,16 +5021,21 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
         '<tpl for=".">',
             '<div class="x-boundlist-item">',
                 '<tpl if="aliasName.length &gt; 0">',
+                    '<tpl if="names">',
+                        '<tpl if="names.timeAttribute.length &gt; 0">',
+                            '[{names.timeAttribute}] ',
+                        '</tpl>',
+                    '</tpl>',
                     '{aliasName}',
                     '<tpl if="names">',
-                        '<tpl if="names.timeOfUse.length &gt; 0">',
-                            ' {names.timeOfUse}',
-                        '</tpl>',
                         '<tpl if="names.unitOfMeasure.length &gt; 0">',
                             ' ({names.unitOfMeasure})',
                         '</tpl>',
-                        '<tpl if="names.timeAttribute.length &gt; 0">',
-                            ' [{names.timeAttribute}]',
+                        '<tpl if="names.phase.length &gt; 0">',
+                            ' {names.phase}',
+                        '</tpl>',
+                        '<tpl if="names.timeOfUse.length &gt; 0">',
+                            ' {names.timeOfUse}',
                         '</tpl>',
                     '</tpl>',
                 '<tpl else>',
@@ -4759,16 +5047,21 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
     displayTpl: Ext.create('Ext.XTemplate',
         '<tpl for=".">',
             '<tpl if="aliasName.length &gt; 0">',
+                '<tpl if="names">',
+                    '<tpl if="names.timeAttribute.length &gt; 0">',
+                        '[{names.timeAttribute}] ',
+                    '</tpl>',
+                '</tpl>',
                 '{aliasName}',
                 '<tpl if="names">',
-                    '<tpl if="names.timeOfUse.length &gt; 0">',
-                        ' {names.timeOfUse}',
-                    '</tpl>',
                     '<tpl if="names.unitOfMeasure.length &gt; 0">',
                         ' ({names.unitOfMeasure})',
                     '</tpl>',
-                    '<tpl if="names.timeAttribute.length &gt; 0">',
-                        ' [{names.timeAttribute}]',
+                    '<tpl if="names.phase.length &gt; 0">',
+                        ' {names.phase}',
+                    '</tpl>',
+                    '<tpl if="names.timeOfUse.length &gt; 0">',
+                        ' {names.timeOfUse}',
                     '</tpl>',
                 '</tpl>',
             '<tpl else>',
@@ -4807,11 +5100,17 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
     },
     getReadingTypeName: function (readingType) {
         if (!readingType) return this.emptyText;
-        var assembledName = readingType.aliasName ? (' ' + readingType.aliasName) : '';
+        var assembledName = '';
+        var alias = readingType.aliasName ? (' ' + readingType.aliasName) : '';
         if (readingType.names && Ext.isObject(readingType.names)) {
-            assembledName += (readingType.names.timeOfUse ? (' ' + readingType.names.timeOfUse) : '')
-                + (readingType.names.unitOfMeasure ? (' (' + readingType.names.unitOfMeasure + ')') : '')
-                + ((readingType.names.timeAttribute && this.showTimeAttribute) ? (' [' + readingType.names.timeAttribute + ']') : '');
+            assembledName +=
+                    ((readingType.names.timeAttribute && this.showTimeAttribute) ? (' [' + readingType.names.timeAttribute + ']') : '')
+                    + alias
+                    + (readingType.names.unitOfMeasure ? (' (' + readingType.names.unitOfMeasure + ')') : '')
+                    + (readingType.names.phase ? (' ' + readingType.names.phase ) : '')
+                    + (readingType.names.timeOfUse ? (' ' + readingType.names.timeOfUse) : '');
+        } else {
+            assembledName += alias;
         }
         return assembledName || readingType.mRID;
     },
@@ -4934,6 +5233,508 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
 });
 
 /**
+ * @class Uni.view.grid.SelectionGrid
+ */
+Ext.define('Uni.view.grid.SelectionGrid', {
+    extend: 'Ext.grid.Panel',
+    xtype: 'selection-grid',
+
+    bottomToolbarHeight: 27,
+
+    requires: [
+        'Ext.grid.plugin.BufferedRenderer'
+    ],
+
+    selType: 'checkboxmodel',
+    selModel: {
+        mode: 'MULTI',
+        checkOnly: true,
+        showHeaderCheckbox: false,
+        updateHeaderState: Ext.emptyFn
+    },
+
+    cls: 'uni-selection-grid',
+
+    overflowY: 'auto',
+    maxHeight: 450,
+
+    extraTopToolbarComponent: undefined,
+
+    /**
+     * @cfg counterTextFn
+     *
+     * The translation function to use to translate the selected count on top of the
+     * text above the grid.
+     *
+     * @param {Number} count Count to base the translation on.
+     * @returns {String} Translation value based on the count.
+     */
+    counterTextFn: function (count) {
+        return Uni.I18n.translatePlural(
+            'grid.BulkSelection.counterText',
+            count,
+            'UNI',
+            '{0} items selected'
+        );
+    },
+
+    /**
+     * @cfg uncheckText
+     *
+     * Text used for the uncheck all button.
+     */
+    uncheckText: Uni.I18n.translate('general.uncheckAll', 'UNI', 'Uncheck all'),
+
+    initComponent: function () {
+        var me = this;
+
+        me.dockedItems = [
+            {
+                xtype: 'toolbar',
+                dock: 'top',
+                itemId: 'topToolbarContainer',
+                layout: {
+                    type: 'hbox',
+                    align: 'middle'
+                },
+                items: [
+                    {
+                        xtype: 'component',
+                        itemId: 'selectionCounter',
+                        html: me.counterTextFn(0),
+                        margin: '0 8 0 0',
+                        setText: function (text) {
+                            this.update(text);
+                        }
+                    },
+                    {
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'button',
+                                itemId: 'uncheckAllButton',
+                                text: me.uncheckText,
+                                action: 'uncheckAll',
+                                margin: '0 0 0 8',
+                                disabled: true
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        me.callParent(arguments);
+
+        me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
+        me.on('selectionchange', me.onSelectionChange, me);
+
+        me.addComponentInToolbar();
+    },
+
+    onClickUncheckAllButton: function (button) {
+        var me = this;
+
+        me.view.getSelectionModel().deselectAll();
+        button.setDisabled(true);
+    },
+
+    onSelectionChange: function () {
+        var me = this,
+            selection = me.view.getSelectionModel().getSelection();
+
+        me.getSelectionCounter().setText(me.counterTextFn(selection.length));
+        me.getUncheckAllButton().setDisabled(selection.length === 0);
+    },
+
+    getSelectionCounter: function () {
+        return this.down('#selectionCounter');
+    },
+
+    getUncheckAllButton: function () {
+        return this.down('#uncheckAllButton');
+    },
+
+    getTopToolbarContainer: function () {
+        return this.down('#topToolbarContainer');
+    },
+
+    addComponentInToolbar: function () {
+        var me = this;
+
+        if (me.extraTopToolbarComponent) {
+            me.getTopToolbarContainer().add(
+                me.extraTopToolbarComponent
+            )
+        }
+    }
+});
+
+/**
+ * @class Uni.view.grid.BulkSelection
+ *
+ * The bulk selection component is used for when all or selected items for a specific
+ * screen need to be added. A checkbox is used to select the models in the infinite
+ * scrolling grid below the radio options. You can either select all items or only
+ * a few specific ones from the grid and then press the add button.
+ *
+ * The 'allitemsadd' or 'selecteditemsadd' event is fired respectively for the all
+ * and selected items adding.
+ *
+ * Example:
+ *     {
+ *         xtype: 'Uni.view.grid.BulkSelection',
+ *
+ *         store: 'Mdc.store.ValidationRuleSetsForDeviceConfig',
+ *
+ *         counterTextFn: function (count) {
+ *             return Uni.I18n.translatePlural(
+ *                 'validation.noValidationRuleSetSelected',
+ *                 count,
+ *                 'MDC',
+ *                 '{0} validation rule sets selected'
+ *             );
+ *         },
+ *
+ *         allLabel: Uni.I18n.translate('ruleset.allRuleSets', 'MDC', 'All validation rule sets'),
+ *         allDescription: Uni.I18n.translate(
+ *             'ruleset.selectAllRuleSets',
+ *             'MDC',
+ *             'Select all validation rule sets related to device configuration'
+ *         ),
+ *
+ *         selectedLabel: Uni.I18n.translate('ruleset.selectedRuleSets', 'MDC', 'Selected validation rule sets'),
+ *         selectedDescription: Uni.I18n.translate(
+ *             'ruleset.selectRuleSets',
+ *             'MDC',
+ *             'Select validation rule sets in table'
+ *         ),
+ *
+ *         columns: [
+ *             {
+ *                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
+ *                 dataIndex: 'name',
+ *                 renderer: function (value, metaData, record) {
+ *                     metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
+ *                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
+ *                 },
+ *                 flex: 1
+ *             },
+ *             {
+ *                 header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+ *                 dataIndex: 'numberOfRules',
+ *                 flex: 1,
+ *                 renderer: function (value, b, record) {
+ *                     var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
+ *                     return numberOfActiveRules;
+ *                 }
+ *             },
+ *             {
+ *                 header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+ *                 dataIndex: 'numberOfInactiveRules',
+ *                 flex: 1
+ *             },
+ *             {
+ *                 xtype: 'uni-actioncolumn',
+ *                 items: 'Mdc.view.setup.validation.AddRuleSetActionMenu'
+ *             }
+ *         ],
+ *
+ *         // Other code...
+ *     }
+ */
+Ext.define('Uni.view.grid.BulkSelection', {
+    extend: 'Uni.view.grid.SelectionGrid',
+    xtype: 'bulk-selection-grid',
+
+    maxHeight: 600,
+
+    /**
+     * @cfg allLabel
+     *
+     * Text to show for the all items label.
+     */
+    allLabel: Uni.I18n.translate('grid.BulkSelection.allLabel', 'UNI', 'All items'),
+
+    /**
+     * @cfg allDescription
+     *
+     * Description to show under the all items label.
+     */
+    allDescription: Uni.I18n.translate(
+        'grid.BulkSelection.allDescription',
+        'UNI',
+        'Select all items'
+    ),
+
+    /**
+     * @cfg selectedLabel
+     *
+     * Text to show for the selected items label.
+     */
+    selectedLabel: Uni.I18n.translate('grid.BulkSelection.selectedLabel', 'UNI', 'Selected items'),
+
+    /**
+     * @cfg selectedDescription
+     *
+     * Description to show under the selected items label.
+     */
+    selectedDescription: Uni.I18n.translate(
+        'grid.BulkSelection.selectedDescription',
+        'UNI',
+        'Select items in table'
+    ),
+
+    /**
+     * @cfg addText
+     *
+     * Text used for the add button.
+     */
+    addText: Uni.I18n.translate('general.add', 'UNI', 'Add'),
+
+    /**
+     * @cfg cancelText
+     *
+     * Text used for the cancel button.
+     */
+    cancelText: Uni.I18n.translate('general.cancel', 'UNI', 'Cancel'),
+
+    /**
+     * @cfg cancelHref
+     *
+     * The URL to be used for the cancel button.
+     */
+    cancelHref: window.location.href,
+
+    /**
+     * @cfg allChosenByDefault
+     *
+     * The property that determines what radio button will be selected when using the
+     * bulk selection component. By default the all items option is chosen. Set this
+     * to 'false' to select the selected items option.
+     */
+    allChosenByDefault: true,
+
+    /**
+     * @cfg allInputValue
+     */
+    allInputValue: 'allItems',
+
+    /**
+     * @cfg selectedInputValue
+     */
+    selectedInputValue: 'selectedItems',
+
+    /**
+     * @cfg radioGroupName
+     */
+    radioGroupName: 'selectedGroupType-' + new Date().getTime() * Math.random(),
+
+    /**
+     * @cfg bottomToolbarHidden
+     */
+    bottomToolbarHidden: false,
+
+    gridHeight: 0,
+    gridHeaderHeight: 0,
+
+    initComponent: function () {
+        var me = this;
+
+        me.addEvents(
+            /**
+             * @event allitemsadd
+             *
+             * Fires after pressing the add button while having the all items option chosen.
+             */
+            'allitemsadd',
+            /**
+             * @event selecteditemsadd
+             *
+             * Fires after pressing the add button while having the selected items option chosen.
+             *
+             * @param {Ext.data.Model[]} The selected items.
+             */
+            'selecteditemsadd'
+        );
+
+        me.callParent(arguments);
+
+        me.addDocked({
+            xtype: 'radiogroup',
+            dock: 'top',
+            itemId: 'itemradiogroup',
+            columns: 1,
+            vertical: true,
+            submitValue: false,
+            defaults: {
+                padding: '0 0 16 0'
+            },
+            items: [
+                {
+                    name: me.radioGroupName,
+                    boxLabel: '<b>' + me.allLabel + '</b>',
+                    afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.allDescription + '</span>',
+                    inputValue: me.allInputValue,
+                    checked: me.allChosenByDefault
+                },
+                {
+                    name: me.radioGroupName,
+                    boxLabel: '<b>' + me.selectedLabel + '</b>',
+                    afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.selectedDescription + '</span>',
+                    inputValue: me.selectedInputValue,
+                    checked: !me.allChosenByDefault
+                }
+            ]
+        }, 0);
+
+        me.addDocked({
+            xtype: 'toolbar',
+            dock: 'bottom',
+            itemId: 'bottomToolbar',
+            layout: 'hbox',
+            hidden: me.bottomToolbarHidden,
+            items: [
+                {
+                    xtype: 'button',
+                    itemId: 'addButton',
+                    text: me.addText,
+                    action: 'add',
+                    ui: 'action'
+                },
+                {
+                    xtype: 'button',
+                    itemId: 'cancelButton',
+                    text: me.cancelText,
+                    action: 'cancel',
+                    ui: 'link',
+                    href: me.cancelHref
+                }
+            ]
+        });
+
+        me.getSelectionGroupType().on('change', me.onChangeSelectionGroupType, me);
+        me.getAddButton().on('click', me.onClickAddButton, me);
+        me.on('selectionchange', me.onBulkSelectionChange, me);
+
+        me.store.on('load', me.onSelectDefaultGroupType, me, {
+            single: true
+        });
+    },
+
+    onSelectDefaultGroupType: function () {
+        var me = this;
+
+        if (me.rendered) {
+            me.onChangeSelectionGroupType();
+        }
+    },
+
+    onChangeSelectionGroupType: function (radiogroup, value) {
+        var me = this;
+        if (me.view) {
+            var selection = me.view.getSelectionModel().getSelection();
+
+            Ext.suspendLayouts();
+            me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
+            me.setGridVisible(!me.isAllSelected());
+            Ext.resumeLayouts(true);
+        }
+    },
+
+    setGridVisible: function (visible) {
+        var me = this,
+            gridHeight = me.gridHeight,
+            gridHeaderHeight = me.gridHeaderHeight,
+            currentGridHeight,
+            currentGridHeaderHeight,
+            noBorderCls = 'force-no-border';
+
+        me.getTopToolbarContainer().setVisible(visible);
+
+        if (me.rendered) {
+            currentGridHeight = me.getView().height;
+            currentGridHeaderHeight = me.headerCt.height;
+
+            if (!visible) {
+                gridHeight = 0;
+                gridHeaderHeight = 0;
+
+                me.addCls(noBorderCls);
+            } else {
+                me.removeCls(noBorderCls);
+            }
+
+            if (currentGridHeight !== 0 && currentGridHeaderHeight !== 0) {
+                me.gridHeight = currentGridHeight;
+                me.gridHeaderHeight = currentGridHeaderHeight;
+            }
+
+            if (typeof gridHeight === 'undefined') {
+                var row = me.getView().getNode(0),
+                    rowElement = Ext.get(row),
+                    count = me.store.getCount() > 10 ? 10 : me.store.getCount();
+
+                if (rowElement !== null) {
+                    gridHeight = count * rowElement.getHeight();
+                } else {
+                    gridHeight = count * 29;
+                }
+            }
+
+            me.getView().height = gridHeight;
+            me.headerCt.height = gridHeaderHeight;
+            me.doLayout();
+        }
+    },
+
+    onClickAddButton: function () {
+        var me = this,
+            selection = me.view.getSelectionModel().getSelection();
+
+        if (me.isAllSelected()) {
+            me.fireEvent('allitemsadd');
+        } else if (selection.length > 0) {
+            me.fireEvent('selecteditemsadd', selection);
+        }
+    },
+
+    onBulkSelectionChange: function () {
+        var me = this,
+            selection = me.view.getSelectionModel().getSelection();
+
+        me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
+    },
+
+    isAllSelected: function () {
+        var me = this,
+            groupType = me.getSelectionGroupType().getValue();
+
+        return groupType[me.radioGroupName] === me.allInputValue;
+    },
+
+    getSelectionGroupType: function () {
+        return this.down('radiogroup');
+    },
+
+    getAddButton: function () {
+        return this.down('#addButton');
+    },
+
+    getCancelButton: function () {
+        return this.down('#cancelButton');
+    },
+
+    getBottomToolbar: function () {
+        return this.down('#bottomToolbar');
+    },
+
+    hideBottomToolbar: function () {
+        this.getBottomToolbar().setVisible(false);
+    }
+});
+
+/**
  * @class Uni.Loader
  *
  * Loader class for the Unifying JS project, it makes sure every dependency is
@@ -4961,6 +5762,7 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Notifications',
         'Uni.controller.Portal',
         'Uni.controller.Search',
+        'Uni.controller.Session',
 
         'Uni.view.form.field.Vtypes',
         'Uni.component.filter.view.FilterTopPanel',
@@ -4982,6 +5784,8 @@ Ext.define('Uni.Loader', {
         'Uni.override.ModelOverride',
         'Uni.override.FieldSetOverride',
 
+        'Uni.override.ContainerOverride',
+
         'Uni.override.form.field.Base',
         'Uni.override.form.field.ComboBox',
         'Uni.override.form.field.Date',
@@ -4996,7 +5800,9 @@ Ext.define('Uni.Loader', {
         'Uni.override.ux.window.Notification',
         'Uni.override.view.Table',
         'Uni.override.window.MessageBox',
-        'Uni.form.field.ReadingTypeCombo'
+        'Uni.override.form.field.Picker',
+        'Uni.form.field.ReadingTypeCombo',
+        'Uni.view.grid.BulkSelection'
     ],
 
     /**
@@ -5618,8 +6424,7 @@ Ext.define('Uni.component.sort.store.Sortable', {
 Ext.define('Uni.controller.AppController', {
     extend: 'Ext.app.Controller',
 
-    requires: [
-    ],
+    requires: [],
 
     refs: [
         {
@@ -5700,12 +6505,13 @@ Ext.define('Uni.controller.AppController', {
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('changecontentevent', me.showContent, me);
         me.getApplication().on('sessionexpired', me.redirectToLogin, me);
-        
+
         if (Uni.Auth.hasAnyPrivilege(me.privileges)) {
             me.checkLicenseStatus();
             me.loadControllers();
             me.showLicenseGraced();
         }
+
         me.callParent(arguments);
     },
 
@@ -5730,14 +6536,19 @@ Ext.define('Uni.controller.AppController', {
         me.callParent(arguments);
     },
 
-    showContent: function (widget) {
+    showContent: function (widget, config) {
         var panel = this.getContentPanel();
 
         Ext.suspendLayouts();
-
         panel.removeAll();
-        panel.add(widget);
 
+        if (Ext.isString(widget)) {
+            widget = Ext.widget(widget, Ext.applyIf(config, {
+                router: this.getController('Uni.controller.history.Router')
+            }));
+        }
+
+        panel.add(widget);
         Ext.resumeLayouts();
 
         panel.doComponentLayout();
@@ -5745,13 +6556,15 @@ Ext.define('Uni.controller.AppController', {
 
     checkLicenseStatus: function () {
         var me = this;
+
         if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS') {
             Ext.Ajax.request({
                 url: '/api/apps/apps/status/' + me.applicationKey,
                 method: 'GET',
                 async: false,
                 success: function (response) {
-                    me.licenseStatus = response.responseText;
+                    var data = Ext.JSON.decode(response.responseText);
+                    me.licenseStatus = data.status;
                     if (me.licenseStatus === 'EXPIRED') {
                         me.controllers = [];
                         me.getController('Uni.controller.Navigation').searchEnabled = false;
@@ -5768,6 +6581,7 @@ Ext.define('Uni.controller.AppController', {
         if (!isNaN(this.licenseStatus) && !Ext.state.Manager.get('licenseGraced')) {
             Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
             Ext.state.Manager.set('licenseGraced', 'Y');
+
             var config = {
                 title: Uni.I18n.translate('error.license', 'UNI', 'License'),
                 msg: Uni.I18n.translate('error.license.graced', 'UNI', 'The system is currently running on a license that has a grace period. You have {0} day(s) remaining.', [this.licenseStatus]),
@@ -5797,8 +6611,8 @@ Ext.define('Uni.controller.AppController', {
 
     redirectToLogin: function () {
         window.location = '/apps/login/index.html?expired&page='
-            + window.location.pathname
-            + window.location.hash;
+        + window.location.pathname
+        + window.location.hash;
     },
 
     loadControllers: function () {
@@ -6019,7 +6833,6 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
             Model = me.model;
 
         operation.setStarted();
-
         if (!_.isUndefined(router.queryParams[me.root])) {
             var data = Ext.decode(router.queryParams[me.root], true);
 
@@ -6070,7 +6883,6 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
     setQueryParams: function (operation, callback, model) {
         var router = this.router,
             queryParams = {};
-
         operation.setStarted();
         var data = this.hydrator
             ? this.hydrator.extract(model)
@@ -6222,7 +7034,8 @@ Ext.define('Uni.form.field.StartPeriod', {
                         value: new Date(),
                         maxValue: new Date(),
                         width: 128,
-                        margin: '0 0 0 6'
+                        margin: '0 0 0 6',
+                        format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                     }
                 ]
             });
@@ -7052,7 +7865,8 @@ Ext.define('Uni.form.RelativePeriod', {
                     var startDate = new Date(dateLong);
                     var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
                     var zonedDate = new Date(startDateUtc - (60000 * zoneOffset));
-                    dateString = Uni.I18n.formatDate('datetime.longdate', new Date(zonedDate), 'UNI', 'l F j, Y \\a\\t H:i a');
+                    zonedDate.setSeconds(0);
+                    dateString = Uni.DateTime.formatDateTimeLong(new Date(zonedDate));
                     dateString = me.formatPreviewTextFn(dateString);
                 }
             },
@@ -7177,6 +7991,7 @@ Ext.define('Uni.form.field.DateTime', {
                 itemId: 'date-time-field-date',
                 submitValue: false,
                 allowBlank: false,
+                format: 'd M \'y',
                 width: '100%',
                 listeners: {
                     change: {
@@ -7657,29 +8472,9 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
      */
     beforeRenderer: null,
 
-    requires: [
-        'Ext.button.Button'
-    ],
-
-    deferredRenderer: function (value, field, tooltip) {
-        if (!field.isDestroyed) {
-            new Ext.button.Button({
-                renderTo: field.getEl().down('.x-form-display-field'),
-                tooltip: tooltip,
-                iconCls: 'uni-icon-info-small',
-                cls: 'uni-btn-transparent',
-                style: {
-                    display: 'inline-block',
-                    "text-decoration": 'none !important'
-                }
-            });
-
-            field.updateLayout();
-        }
-    },
-
     renderer: function (value, field) {
-        var me = this;
+        var me = this,
+            icon = '';
 
         if (Ext.isEmpty(value)) {
             return me.emptyText;
@@ -7689,8 +8484,10 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
             value = me.beforeRenderer(value, field);
         }
 
-        me.infoTooltip && Ext.defer(this.deferredRenderer, 1, this, [value, field, me.infoTooltip]);
-        return '<span style="display: inline-block; float: left; margin-right: 10px;">' + value + '</span>';
+        if (me.infoTooltip) {
+            icon  = '<span class="uni-icon-info-small" style="width: 16px; height: 16px; display: inline-block;float: none;margin-left: 10px;vertical-align: top" data-qtip="' + me.infoTooltip + '"></span>'
+        }
+        return value + icon;
     }
 });
 
@@ -8616,109 +9413,109 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         widget.setTitle('<span style="margin: 10px 0 0 10px">' + name + '</span>');
         var tpl = new Ext.XTemplate(
             '<table style="width: 100%; margin: 30px 10px">',
-                '<tr>',
-                    '<td colspan="2">',
-                        '<table style="width: 100%; margin-bottom: 30px">',
-                            '<tr>',
-                                '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.name', 'UNI', 'Reading type name') + '</td>',
-                                '<td style="width: 70%; text-align: left; padding-bottom: 10px">' + name + '</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.cimCode', 'UNI', 'CIM code') + '</td>',
-                                '<td style="width: 70%; text-align: left; padding-bottom: 10px">{mRID}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 30%; text-align: right; font-weight: bold; padding-right: 20px">' + Uni.I18n.translate('readingType.description', 'UNI', 'Description') + '</td>',
-                                '<td style="width: 70%; text-align: left">{name}</td>',
-                            '</tr>',
-                        '</table>',
-                    '</td>',
-                '</tr>',
-                '<tr>',
-                    '<td colspan="2" style="padding-bottom: 20px; font-weight: bold; font-size: 1.5em; color: grey">' + Uni.I18n.translate('readingType.cimCodeDetails', 'UNI', 'CIM code details') + '</td>',
-                '</tr>',
-                '<tr>',
-                    '<td style="width: 50%; vertical-align: top">',
-                        '<table style="width: 100%">',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timePeriodOfInterest', 'UNI', 'Time-period of interest') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{macroPeriod}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.dataQualifier', 'UNI', 'Data qualifier') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{aggregate}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.time', 'UNI', 'Time') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measuringPeriod}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.accumulation', 'UNI', 'Accumulation') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{accumulation}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.directionOfFlow', 'UNI', 'Direction of flow') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{flowDirection}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.commodity', 'UNI', 'Commodity') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{commodity}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.measurementKind', 'UNI', 'Kind') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measurementKind}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonicNumerator', 'UNI', 'Interharmonic numerator') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interHarmonicNumerator}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonicDenominator', 'UNI', 'Interharmonic denominator') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interHarmonicDenominator}</td>',
-                            '</tr>',
-                        '</table>',
-                    '</td>',
-                    '<td style="width: 50%; vertical-align: top">',
-                        '<table style="width: 100%">',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentNumerator', 'UNI', 'Argument numerator') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentNumerator}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentDenominator', 'UNI', 'Argument denominator') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentDenominator}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timeOfUse', 'UNI', 'Time of use') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{tou}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.criticalPeakPeriod', 'UNI', 'Critical peak period') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{cpp}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.comsumptionTier', 'UNI', 'Consumption tier') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{consumptionTier}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.phase', 'UNI', 'Phase') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{phases}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.multiplier', 'UNI', 'Multiplier') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{metricMultiplier}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.unitOfMeasure', 'UNI', 'Unit of measure') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{unit}</td>',
-                            '</tr>',
-                            '<tr>',
-                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.currency', 'UNI', 'Currency') + '</td>',
-                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{currency}</td>',
-                            '</tr>',
-                        '</table>',
-                    '</td>',
-                '</tr>',
+            '<tr>',
+            '<td colspan="2">',
+            '<table style="width: 100%; margin-bottom: 30px">',
+            '<tr>',
+                '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.name', 'UNI', 'Reading type name') + '</td>',
+                '<td style="width: 70%; text-align: left; padding-bottom: 10px">' + name + '</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.cimCode', 'UNI', 'CIM code') + '</td>',
+            '<td style="width: 70%; text-align: left; padding-bottom: 10px">{mRID}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 30%; text-align: right; font-weight: bold; padding-right: 20px">' + Uni.I18n.translate('readingType.description', 'UNI', 'Description') + '</td>',
+            '<td style="width: 70%; text-align: left">{name}</td>',
+            '</tr>',
+            '</table>',
+            '</td>',
+            '</tr>',
+            '<tr>',
+                '<td colspan="2" style="padding-bottom: 20px; font-weight: bold; font-size: 1.5em; color: grey">' + Uni.I18n.translate('readingType.cimCodeDetails', 'UNI', 'CIM code details') + '</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; vertical-align: top">',
+            '<table style="width: 100%">',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timePeriodOfInterest', 'UNI', 'Time-period of interest') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{macroPeriod}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.dataQualifier', 'UNI', 'Data qualifier') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{aggregate}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.time', 'UNI', 'Time') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measuringPeriod}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.accumulation', 'UNI', 'Accumulation') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{accumulation}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.directionOfFlow', 'UNI', 'Direction of flow') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{flowDirection}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.commodity', 'UNI', 'Commodity') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{commodity}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.measurementKind', 'UNI', 'Kind') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measurementKind}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonicNumerator', 'UNI', 'Interharmonic numerator') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interHarmonicNumerator}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonicDenominator', 'UNI', 'Interharmonic denominator') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interHarmonicDenominator}</td>',
+            '</tr>',
+            '</table>',
+            '</td>',
+            '<td style="width: 50%; vertical-align: top">',
+            '<table style="width: 100%">',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentNumerator', 'UNI', 'Argument numerator') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentNumerator}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentDenominator', 'UNI', 'Argument denominator') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentDenominator}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timeOfUse', 'UNI', 'Time of use') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{tou}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.criticalPeakPeriod', 'UNI', 'Critical peak period') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{cpp}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.comsumptionTier', 'UNI', 'Consumption tier') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{consumptionTier}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.phase', 'UNI', 'Phase') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{phases}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.multiplier', 'UNI', 'Multiplier') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{metricMultiplier}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.unitOfMeasure', 'UNI', 'Unit of measure') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{unit}</td>',
+            '</tr>',
+            '<tr>',
+                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.currency', 'UNI', 'Currency') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{currency}</td>',
+            '</tr>',
+            '</table>',
+            '</td>',
+            '</tr>',
             '</table>'
         );
         tpl.overwrite(widget.down('panel').body, value);
@@ -8729,22 +9526,49 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         if (!value) return this.emptyText;
 
         var me = this,
-            assembledName = value.aliasName ? (' ' + value.aliasName) : '',
+            assembledName = value.fullAliasName,
+            //alias = value.aliasName ? (' ' + value.aliasName) : '',
             icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
 
-        if (value.names && Ext.isObject(value.names)) {
-            assembledName += (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '')
-                + (value.names.unitOfMeasure ? (' (' + value.names.unitOfMeasure + ')') : '')
-                + ((value.names.timeAttribute && me.showTimeAttribute) ? (' [' + value.names.timeAttribute + ']') : '');
-        }
+        /*if (value.names && Ext.isObject(value.names)) {
+            assembledName +=
+                    ((value.names.timeAttribute && me.showTimeAttribute) ? ('[' + value.names.timeAttribute + ']') : '')
+                    + alias
+                    + (value.names.unitOfMeasure ? (' (' + value.names.unitOfMeasure + ')') : '')
+                    + (value.names.phase ? (' ' + value.names.phase ) : '')
+                    + (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '');
+        } else {
+            assembledName += alias;
+        }*/
 
         setTimeout(function () {
-            var icon = (view && record) ? view.getCell(record, me).down('.uni-icon-info-small') : field.getEl().down('.uni-icon-info-small');
+            var parent,
+                iconEl;
 
-            icon.clearListeners();
-            icon.on('click', function () {
-                field.handler(value, assembledName || value.mRID);
-            });
+            if (Ext.isDefined(view) && Ext.isDefined(record)) {
+                try {
+                    parent = view.getCell(record, me);
+
+                    if (Ext.isDefined(parent)) {
+                        iconEl = parent.down('.uni-icon-info-small');
+                    }
+                } catch (ex) {
+                    // Fails for some reason sometimes.
+                }
+            } else {
+                parent = field.getEl();
+
+                if (Ext.isDefined(parent)) {
+                    iconEl = parent.down('.uni-icon-info-small');
+                }
+            }
+
+            if (Ext.isDefined(iconEl)) {
+                iconEl.clearListeners();
+                iconEl.on('click', function () {
+                    field.handler(value, assembledName || value.mRID);
+                });
+            }
         }, 1);
 
         return '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px">' +
@@ -8948,7 +9772,7 @@ Ext.define('Uni.grid.column.Duration', {
 Ext.define('Uni.grid.column.Edited', {
     extend: 'Ext.grid.column.Column',
     xtype: 'edited-column',
-    header: '',
+    header: '&nbsp',
     width: 30,
     align: 'left',
     emptyText: '',
@@ -9095,10 +9919,14 @@ Ext.define('Uni.grid.column.ReadingType', {
     ],
 
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = Ext.Array.findBy(this.columns, function (item) {
-                return item.$className === 'Uni.grid.column.ReadingType';
-            }),
-            field = new Uni.form.field.ReadingTypeDisplay();
+        if(this.$className  !== 'Uni.grid.column.ReadingType'){
+            var me = Ext.Array.findBy(this.columns, function (item) {
+                    return item.$className === 'Uni.grid.column.ReadingType';
+                })
+        } else {
+            me = this;
+        }
+        var field = new Uni.form.field.ReadingTypeDisplay();
         me.link = me.makeLink(record);
         return field.renderer.apply(me, [value, field, view, record]);
     },
@@ -9114,21 +9942,19 @@ Ext.define('Uni.grid.column.ValidationFlag', {
     extend: 'Ext.grid.column.Column',
     xtype: 'validation-flag-column',
     header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
-
     renderer: function (value, metaData, record) {
-        switch (record.get('validationResult')) {
-            case 'validationStatus.notValidated':
-                return '<span class="validation-column-align"><span class="uni-icon-validation uni-icon-validation-black"></span>';
-                break;
-            case 'validationStatus.ok':
-                return '<span class="validation-column-align"><span class="uni-icon-validation"></span>';
-                break;
-            case 'validationStatus.suspect':
-                return '<span class="validation-column-align"><span class="uni-icon-validation uni-icon-validation-red"></span>';
-                break;
-            default:
-                return '';
-                break;
+        if (record.get('validationResult')) {
+            var result = record.get('validationResult'),
+                status = result.split('.')[1],
+                cls = 'icon-validation-cell ';
+            if (status === 'suspect') {
+                cls += 'icon-validation-red'
+            }
+            if (status === 'notValidated') {
+                cls += 'icon-validation-black'
+            }
+            metaData.tdCls = cls;
+            return !Ext.isEmpty(value) ? value : '';
         }
     }
 });
@@ -9218,7 +10044,7 @@ Ext.define('Uni.property.view.DefaultButton', {
     width: 28,
     action: 'delete',
     margin: '0 0 0 5',
-    hidden: false
+    hidden: true
 });
 
 /**
@@ -9241,9 +10067,9 @@ Ext.define('Uni.property.view.property.Base', {
         'Uni.property.view.DefaultButton'
     ],
 
-    width: 320,
-//    resetButtonHidden: false,
+    width: 256,
     translationKey: 'UNI',
+    resetButtonHidden: false,
 
     layout: 'hbox',
     fieldLabel: '',
@@ -9251,8 +10077,7 @@ Ext.define('Uni.property.view.property.Base', {
 
     items: [
         {
-            xtype: 'uni-default-button',
-            visible: true
+            xtype: 'uni-default-button'
         }
     ],
 
@@ -9336,21 +10161,30 @@ Ext.define('Uni.property.view.property.Base', {
      * Updates the reset button state and tooltip
      */
     updateResetButton: function () {
+        var resetButtonHidden = this.resetButtonHidden;
         var button = this.getResetButton();
 
         if (this.isEdit) {
+            button.setVisible(!resetButtonHidden);
             if(!this.getProperty().get('isInheritedOrDefaultValue')){
-                button.setTooltip(
-                        Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
-                        + ' &quot; ' + this.getProperty().get('default') + '&quot;'
-                );
+                if (!this.getProperty().get('default')) {
+                    button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
+                } else {
+                    button.setTooltip(
+                            Uni.I18n.translate('general.restoreDefaultValue', this.translationKey, 'Restore to default value')
+                            + ' &quot; ' + this.getProperty().get('default') + '&quot;'
+                    );
+                }
 
                 button.setDisabled(false);
             } else {
-                button.setTooltip('bla');
+                button.setTooltip(null);
                 button.setDisabled(true);
             }
+        } else {
+            button.setVisible(false);
         }
+        
         this.fireEvent('checkRestoreAll', this);
     },
 
@@ -9425,7 +10259,8 @@ Ext.define('Uni.property.view.property.Base', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield'
+            itemId: this.key + 'displayfield',
+            cls: 'uni-property-displayfield'
         }
     },
 
@@ -9464,6 +10299,20 @@ Ext.define('Uni.property.view.property.Base', {
      * @returns {Uni.property.view.property.Base}
      */
     getField: function () {
+        return null;
+    },
+
+    /**
+     * Marking field as invalid and undo this
+     * Implement this methods on inheritance
+     *
+     */
+
+    markInvalid: function () {
+        return null;
+    },
+
+    clearInvalid: function (error) {
         return null;
     },
 
@@ -9521,19 +10370,24 @@ Ext.define('Uni.property.view.property.Base', {
                     me.getProperty().set('hasValue', false);
                     me.getProperty().set('propertyHasValue', false);
                 }
+                me.customHandlerLogic();
             });
             field.on('blur', function () {
-                if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                if (!field.hasNotValueSameAsDefaultMessage && field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
                 if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {
                     me.getProperty().set('isInheritedOrDefaultValue', true);
                     me.updateResetButton();
                 }
-
+                me.customHandlerLogic();
             })
         }
         this.getResetButton().setHandler(this.restoreDefault, this);
+    },
+
+    customHandlerLogic: function(){
+        //implement in propertycomponents that need custom logic on change;
     },
 
     /**
@@ -9625,19 +10479,21 @@ Ext.define('Uni.property.view.property.BaseCombo', {
 
     getComboCmp: function () {
         var me = this;
-
+        var sortedStore = me.getProperty().getPossibleValues().sort();
         return {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
             name: this.getName(),
-            store: me.getProperty().getPossibleValues(),
+            store: sortedStore,
             queryMode: 'local',
             displayField: 'value',
             valueField: 'key',
             value: me.getProperty().get('value'),
             width: me.width,
             forceSelection: me.getProperty().getExhaustive(),
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            editable: !me.getProperty().getExhaustive(),
+            allowBlank: !me.getProperty().data.required
         }
     },
 
@@ -9653,6 +10509,14 @@ Ext.define('Uni.property.view.property.BaseCombo', {
 
     getComboField: function () {
         return this.down('combobox');
+    },
+
+    markInvalid: function (error) {
+        this.down('combobox').markInvalid(error);
+    },
+
+    clearInvalid: function (error) {
+        this.down('combobox').clearInvalid();
     },
 
     initListeners: function () {
@@ -9696,12 +10560,13 @@ Ext.define('Uni.property.view.property.Combobox', {
 
     getEditCmp: function () {
         var me = this;
+        var sortedStore = me.getProperty().getPossibleValues().sort();
 
         return {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
             name: this.getName(),
-            store: me.getProperty().getPossibleValues(),
+            store: sortedStore,
             queryMode: 'local',
             displayField: 'value',
             valueField: 'key',
@@ -9924,6 +10789,14 @@ Ext.define('Uni.property.view.property.Number', {
         };
     },
 
+    getDisplayCmp: function () {
+        return {
+            xtype: 'displayfield',
+            name: this.getName(),
+            itemId: this.key + 'displayfield'
+        }
+    },
+
     getComboCmp: function () {
         var result = this.callParent(arguments);
         result.fieldStyle = 'text-align:right;';
@@ -10005,7 +10878,7 @@ Ext.define('Uni.property.view.property.NullableBoolean', {
 Ext.define('Uni.property.view.property.Date', {
     extend: 'Uni.property.view.property.Base',
 
-    format: 'd/m/Y',
+    format: 'd M \'y',
     formats: [
         'd.m.Y',
         'd m Y'
@@ -10032,6 +10905,14 @@ Ext.define('Uni.property.view.property.Date', {
         return this.down('datefield');
     },
 
+    markInvalid: function (error) {
+        this.down('datefield').markInvalid(error);
+    },
+
+    clearInvalid: function (error) {
+        this.down('datefield').clearInvalid();
+    },
+
     setValue: function (value) {
         if (value !== null && value !== '') {
             value = new Date(value);
@@ -10044,7 +10925,11 @@ Ext.define('Uni.property.view.property.Date', {
     },
 
     getValue: function () {
-        return this.getField().getValue().getTime()
+        if (this.getField().getValue() != null) {
+            return this.getField().getValue().getTime()
+        } else {
+            return null;
+        }
     }
 });
 
@@ -10090,13 +10975,13 @@ Ext.define('Uni.property.view.property.DateTime', {
             var date = new Date(value);
             dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
             timeValue = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), 0);
-        }
 
-        if (!this.isEdit) {
-            this.callParent([date.toLocaleString()]);
-        } else {
-            this.callParent([dateValue]);
-            this.getTimeField().setValue(timeValue);
+            if (!this.isEdit) {
+                this.callParent([date.toLocaleString()]);
+            } else {
+                this.callParent([dateValue]);
+                this.getTimeField().setValue(timeValue);
+            }
         }
     },
 
@@ -10152,22 +11037,24 @@ Ext.define('Uni.property.view.property.Period', {
             {
                 xtype: 'numberfield',
                 itemId: me.key + 'numberfield',
-                name: this.getName() + '.numberfield',
+                name: me.getName(),
                 width: me.width,
                 required: me.required,
-                readOnly: me.isReadOnly
+                readOnly: me.isReadOnly,
+                minValue: 1
             },
             {
                 xtype: 'combobox',
                 margin: '0 0 0 16',
                 itemId: me.key + 'combobox',
-                name: this.getName() + '.combobox',
+                name: me.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
-              //  queryMode: 'local',
+                //queryMode: 'local',
                 displayField: 'timeUnit',
                 valueField: 'timeUnit',
                 width: me.width,
                 forceSelection: false,
+                editable:false,
                 required: me.required,
                 readOnly: me.isReadOnly,
                 allowBlank: me.allowBlank
@@ -10186,7 +11073,7 @@ Ext.define('Uni.property.view.property.Period', {
         //clear store
         store.loadData([], false);
         this.getProperty().getPossibleValues().each(function (item) {
-            var timeDurationValue = item.get('count') + " " + item.get('timeUnit');
+            var timeDurationValue = item.get('count') + ' ' + item.get('timeUnit');
             store.add({key: timeDurationValue, value: timeDurationValue});
         });
 
@@ -10205,7 +11092,7 @@ Ext.define('Uni.property.view.property.Period', {
             count = null,
             timeDuration = null;
 
-        if (value != null) {
+        if (Ext.isObject(value)) {
             unit = value.timeUnit;
             count = value.count;
             timeDuration = count + ' ' + unit;
@@ -10223,17 +11110,58 @@ Ext.define('Uni.property.view.property.Period', {
         }
     },
 
-    getValue: function (values) {
-        var me = this;
-        if (!me.isCombo()) {
+    updateResetButton: function () {
+        var me = this,
+            button = me.getResetButton(),
+            countValue,
+            timeUnitValue;
+
+        if (me.isEdit) {
+            if (me.getField()) { countValue = me.getField().getValue(); }
+            if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
+            if (!me.getProperty().get('isInheritedOrDefaultValue')
+                && typeof countValue !== 'undefined' && countValue !== null
+                && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
+            ) {
+                if (!me.getProperty().get('default')) {
+                    button.setTooltip(Uni.I18n.translate('general.clear', 'UNI', 'Clear'));
+                } else {
+                    button.setTooltip(
+                        Uni.I18n.translate('general.restoreDefaultValue', me.translationKey, 'Restore to default value')
+                        + ' &quot; ' + me.getProperty().get('default') + '&quot;'
+                    );
+                }
+
+                button.setDisabled(false);
+            } else {
+                button.setTooltip(null);
+                button.setDisabled(true);
+            }
+        } else {
+            button.setVisible(false);
+        }
+
+        me.fireEvent('checkRestoreAll', me);
+    },
+
+    getValue: function () {
+        var me = this,
+            countValue = me.getField().getValue(),
+            timeUnitValue = me.getComboField().getValue();
+
+        if (!me.isCombo()
+            && typeof countValue !== 'undefined' && countValue !== null
+            && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
+        ) {
             var result = {};
-            result.count = me.getField().getValue();
-            result.timeUnit = me.getComboField().getValue();
+
+            result.count = countValue;
+            result.timeUnit = timeUnitValue;
 
             return result;
-        } else {
-            return value;
         }
+
+        return null;
     }
 });
 
@@ -10274,7 +11202,8 @@ Ext.define('Uni.property.view.property.Time', {
         this.callParent([value]);
     },
 
-    getValue: function (value) {
+    getValue: function () {
+        var value = this.getField().getValue();
         if (value != null && value != '') {
             var newDate = new Date(1970, 0, 1, value.getHours(), value.getMinutes(), value.getSeconds(), 0);
             return newDate.getTime() / 1000;
@@ -10912,8 +11841,17 @@ Ext.define('Uni.property.view.property.Multiselect', {
                             change: function (field, newValue) {
                                 var count = newValue.length;
 
-                                field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', count, 'UNI', '{0} items selected'), count));
-                            },
+                                if (me.itemId == 'intervalFlags') {
+                                    if (count == 1) {
+                                        field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected[1]', count, 'UNI', '{0} interval flag selected'), count));
+                                    } else {
+                                        field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected', count, 'UNI', '{0} interval flags selected'), count));
+                                    }
+                                } else {
+                                    field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', count, 'UNI', '{0} items selected'), count));
+
+                                }
+                                                            },
                             fieldvaliditychange: function (field, isValid) {
                                 field.nextSibling('#multiselectError').setVisible(!isValid);
                             }
@@ -10922,7 +11860,8 @@ Ext.define('Uni.property.view.property.Multiselect', {
                     {
                         xtype: 'component',
                         itemId: 'multiselectSelectedItemsInfo',
-                        html: Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', 0, 'UNI', '{0} items selected'), 0)
+                        html: (me.itemId == 'intervalFlags')? Ext.String.format(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected', 0, 'UNI', '{0} interval flags selected'), 0))
+                            :Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', 0, 'UNI', '{0} items selected'), 0)
                     },
                     {
                         xtype: 'component',
@@ -10974,6 +11913,564 @@ Ext.define('Uni.property.view.property.Multiselect', {
     }
 });
 
+Ext.define('Uni.property.model.RelativePeriod', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'id', type: 'int', useNull: true},
+        {name: 'name', type: 'string', useNull: true},
+        'from',
+        'to',
+        'categories',
+        {
+            name: 'listOfCategories',
+            persist: false,
+            mapping: function (data) {
+                var arr = data.categories;
+                if (!Ext.isEmpty(arr)) {
+                    var str = '';
+                    Ext.Array.each(arr, function (item) {
+                        if (item !== arr[arr.length - 1]) {
+                            str += item.name + ', ';
+                        } else {
+                            str += item.name;
+                        }
+                    });
+                    return str;
+                } else {
+                    return ''
+                }
+            }
+        }
+    ],
+
+    idProperty: 'id',
+    associations: [
+        {
+            name: 'categories',
+            type: 'hasMany',
+            model: 'Uni.property.model.Categories',
+            associationKey: 'categories',
+            getterName: 'getCategories',
+            setterName: 'setCategories',
+            foreignKey: 'relativePeriodCategories'
+        }
+    ],
+    proxy: {
+        type: 'rest',
+        url: '../../api/tmr/relativeperiods'
+    }
+});
+
+Ext.define('Uni.property.store.RelativePeriods', {
+    extend: 'Ext.data.Store',
+    model: 'Uni.property.model.RelativePeriod',
+    autoLoad: false,
+    //storeId: 'timeUnits',
+    proxy: {
+        type: 'rest',
+        url: '../../api/tmr/relativeperiods',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    }
+});
+
+Ext.define('Uni.property.view.property.RelativePeriod', {
+    extend: 'Uni.property.view.property.Base',
+    requires: [
+        'Uni.property.store.RelativePeriods'
+    ],
+    getEditCmp: function () {
+        var me = this;
+
+        return [
+            {
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'radiogroup',
+                        name: this.getName(),
+                        itemId: 'relativeRadioGroup',
+                        width: me.width,
+                        columns: 1,
+                        vertical: true,
+                        msgTarget: 'under',
+                        readOnly: me.isReadOnly,
+                        fieldLabel: me.boxLabel ? me.boxLabel : '',
+                        items: [
+                            {boxLabel: 'All', name: 'relative', inputValue: '1'},
+                            {boxLabel: 'Period', name: 'relative', inputValue: '2'}
+                        ]
+                    },
+                    {
+                        xtype: 'combobox',
+                        fieldLabel: '',
+                        width: me.width,
+                        displayField: 'name',
+                        valueField: 'id',
+                        store: 'Uni.property.store.RelativePeriods'
+                    }
+                ]
+            }
+        ];
+    },
+
+    initListeners: function () {
+        var me = this;
+        if (this.down('combobox')) {
+            this.down('combobox').on('change', function () {
+                me.getProperty().set('isInheritedOrDefaultValue', false);
+                me.updateResetButton();
+            });
+        }
+        this.callParent(arguments);
+    },
+
+    customHandlerLogic: function(){
+        var field = this.getField();
+        if(field.getValue().relative==='1'){
+            this.down('combobox').setDisabled(true);
+        } else {
+            this.down('combobox').setDisabled(false);
+        }
+    },
+
+    getField: function () {
+        return this.down('#relativeRadioGroup');
+    },
+
+    setValue: function (value) {
+        if (!this.isEdit) {
+            if(value.id !== 0){
+                this.getDisplayField().setValue(value.name);
+            } else {
+                this.getDisplayField().setValue('All');
+            }
+        } else {
+            if(value.id !== 0){
+                this.down('#relativeRadioGroup').setValue({relative:2});
+                this.down('combobox').setValue(value.id);
+            } else {
+                this.down('#relativeRadioGroup').setValue({relative:1});
+            }
+        }
+    },
+
+    getValue: function () {
+        var me = this;
+        if(me.down('#relativeRadioGroup').getValue().relative==='1'){
+            return {
+                id: 0
+            }
+        } else {
+            return {
+                id: me.down('combobox').getValue()
+            }
+        }
+
+    },
+
+    getDisplayCmp: function () {
+        var me = this;
+
+        return {
+            xtype: 'displayfield',
+            name: this.getName(),
+            itemId: me.key + 'displayfield',
+            width: me.width,
+            msgTarget: 'under'
+        }
+    },
+
+
+    getDisplayField: function () {
+        return this.down('displayfield');
+    },
+
+    initComponent: function(){
+        var periods = Ext.getStore('Uni.property.store.RelativePeriods');
+        periods.load();
+        this.callParent(arguments);
+    }
+});
+
+
+
+
+Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
+    extend: 'Uni.property.view.property.Base',
+    requires: [
+        'Uni.form.field.ReadingTypeCombo'
+    ],
+    getEditCmp: function () {
+        var me = this;
+
+        return [
+            {
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'radiogroup',
+                        name: this.getName(),
+                        itemId: 'readingRadioGroup',
+                        width: me.width,
+                        columns: 1,
+                        vertical: true,
+                        msgTarget: 'under',
+                        readOnly: me.isReadOnly,
+                        fieldLabel: me.boxLabel ? me.boxLabel : '',
+                        items: [
+                            {boxLabel: 'None', name: 'advanceRb', inputValue: '1'},
+                            {boxLabel: 'Bulk readings', name: 'advanceRb', inputValue: '2'},
+                            {boxLabel: 'Reading types', name: 'advanceRb', inputValue: '3'}
+                        ]
+                    },
+                    {
+                        itemId: 'readingTypeCombo',
+                        xtype: 'reading-type-combo',
+                        name: 'readingTypeCombo',
+                        fieldLabel: '',
+                        width: me.width,
+                        displayField: 'fullAliasName',
+                        valueField: 'mRID',
+                        forceSelection: true,
+                        store: this.readingTypes,//'Uni.property.store.PropertyReadingTypes',
+
+                        listConfig: {
+                            cls: 'isu-combo-color-list',
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                        },
+
+                        queryMode: 'remote',
+                        queryParam: 'like',
+                        queryDelay: 100,
+                        queryCaching: false,
+                        minChars: 1,
+                        editable:true,
+                        typeAhead:true,
+                        // anchor: '100%',
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                    }
+
+                ]
+            }
+        ];
+    },
+
+    initListeners: function () {
+        var me = this;
+        if (this.down('combobox')) {
+            this.down('combobox').on('change', function () {
+                me.getProperty().set('isInheritedOrDefaultValue', false);
+                me.updateResetButton();
+            });
+        }
+        this.callParent(arguments);
+    },
+
+    customHandlerLogic: function(){
+        var field = this.getField();
+        if(field.getValue().advanceRb==='1' || field.getValue().advanceRb==='2'){
+            this.down('combobox').setDisabled(true);
+        } else {
+            this.down('combobox').setDisabled(false);
+        }
+    },
+
+    getField: function () {
+        return this.down('radiogroup');
+    },
+
+    setValue: function (value) {
+        var me = this;
+        if (!this.isEdit) {
+            if(value.none){
+                this.getDisplayField().setValue('None');
+            } else if (value.bulk){
+                this.getDisplayField().setValue('Bulk');
+            } else {
+                this.getDisplayField().setValue(value.readingType.name);
+            }
+        } else {
+            if(value.none){
+                this.down('radiogroup').setValue({advanceRb:1});
+                this.down('combobox').setDisabled(true);
+            } else if (value.bulk) {
+                this.down('radiogroup').setValue({advanceRb:2});
+                this.down('combobox').setDisabled(true);
+            } else {
+                this.down('radiogroup').setValue({advanceRb:3});
+                var readingTypeStore = me.down('#readingTypeCombo').getStore();
+                readingTypeStore.load({
+                    callback: function () {
+                        var model = Ext.create('Mdc.model.ReadingType',value.readingType);
+                        me.down('#readingTypeCombo').setValue(model);
+                    }
+                });
+            }
+        }
+    },
+
+    getValue: function () {
+        var me = this;
+        if(me.down('#readingRadioGroup').getValue().advanceRb==='1'){
+            return {
+                none: true,
+                bulk: false
+            }
+        } else if(me.down('#readingRadioGroup').getValue().advanceRb==='2'){
+            return {
+                none: false,
+                bulk: true
+            }
+        } else {
+            return {
+                none: false,
+                bulk: false,
+                readingType: {
+                    mRID: me.down('#readingTypeCombo').getValue()
+                }
+            }
+        }
+
+
+    },
+
+    getDisplayCmp: function () {
+        var me = this;
+
+        return {
+            xtype: 'displayfield',
+            name: this.getName(),
+            itemId: me.key + 'displayfield',
+            width: me.width,
+            msgTarget: 'under'
+        }
+    },
+
+
+    getDisplayField: function () {
+        return this.down('displayfield');
+    },
+
+    initComponent: function(){
+        this.readingTypes = Ext.create('Uni.property.store.PropertyReadingTypes');
+
+        this.callParent(arguments);
+    }
+});
+
+Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
+    extend: 'Uni.property.view.property.Base',
+    requires: [
+        'Uni.form.field.ReadingTypeCombo'
+    ],
+    getEditCmp: function () {
+        var me = this;
+
+        return [
+            {
+                xtype: 'container',
+                layout: 'vbox',
+                items: [
+                    {
+                        xtype: 'radiogroup',
+                        name: this.getName(),
+                        itemId: 'readingRadioGroup',
+                        width: me.width,
+                        columns: 1,
+                        vertical: true,
+                        msgTarget: 'under',
+                        readOnly: me.isReadOnly,
+                        fieldLabel: me.boxLabel ? me.boxLabel : '',
+                        items: [
+                            {boxLabel: 'Bulk readings', name: 'advanceRbNone', inputValue: '2'},
+                            {boxLabel: 'Reading types', name: 'advanceRbNone', inputValue: '3'}
+                        ]
+                    },
+                    {
+                        itemId: 'readingTypeCombo',
+                        xtype: 'reading-type-combo',
+                        name: 'readingTypeCombo',
+                        fieldLabel: '',
+                        width: me.width,
+                        displayField: 'fullAliasName',
+                        valueField: 'mRID',
+                        forceSelection: true,
+                        store: this.readingTypes, //'Uni.property.store.PropertyReadingTypes',
+
+                        listConfig: {
+                            cls: 'isu-combo-color-list',
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                        },
+
+                        queryMode: 'remote',
+                        queryParam: 'like',
+                        queryDelay: 100,
+                        queryCaching: false,
+                        minChars: 1,
+                        editable:true,
+                        typeAhead:true,
+                        // anchor: '100%',
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                    }
+
+                ]
+            }
+        ];
+    },
+
+    initListeners: function () {
+        var me = this;
+        if (this.down('combobox')) {
+            this.down('combobox').on('change', function () {
+                me.getProperty().set('isInheritedOrDefaultValue', false);
+                me.updateResetButton();
+            });
+        }
+        this.callParent(arguments);
+    },
+
+    customHandlerLogic: function(){
+        var field = this.getField();
+        if(field.getValue().advanceRbNone==='2'){
+            this.down('combobox').setDisabled(true);
+        } else {
+            this.down('combobox').setDisabled(false);
+        }
+    },
+
+    getField: function () {
+        return this.down('radiogroup');
+    },
+
+    setValue: function (value) {
+        var me = this;
+        if (!this.isEdit) {
+            if (value.bulk){
+                this.getDisplayField().setValue('Bulk');
+            } else {
+                this.getDisplayField().setValue(value.readingType.name);
+            }
+        } else {
+            if (value.bulk) {
+                this.down('radiogroup').setValue({advanceRbNone:2});
+                this.down('combobox').setDisabled(true);
+            } else {
+                this.down('radiogroup').setValue({advanceRbNone:3});
+                var readingTypeStore = me.down('#readingTypeCombo').getStore();
+                readingTypeStore.load({
+                    callback: function () {
+                        var model = Ext.create('Mdc.model.ReadingType',value.readingType);
+                        me.down('#readingTypeCombo').setValue(model);
+                    }
+                });
+            }
+        }
+    },
+
+    getValue: function () {
+        var me = this;
+        if(me.down('#readingRadioGroup').getValue().advanceRbNone==='2'){
+            return {
+                bulk: true
+            }
+        } else {
+            return {
+                bulk: false,
+                readingType: {
+                    mRID: me.down('#readingTypeCombo').getValue()
+                }
+            }
+        }
+
+
+    },
+
+    getDisplayCmp: function () {
+        var me = this;
+
+        return {
+            xtype: 'displayfield',
+            name: this.getName(),
+            itemId: me.key + 'displayfield',
+            width: me.width,
+            msgTarget: 'under'
+        }
+    },
+
+
+    getDisplayField: function () {
+        return this.down('displayfield');
+    },
+
+    initComponent: function(){
+        this.readingTypes = Ext.create('Uni.property.store.PropertyReadingTypes');
+        this.callParent(arguments);
+    }
+});
+
+Ext.define('Uni.property.model.ReadingType', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'mRID', type: 'string'},
+        {name: 'aliasName', type: 'string'},
+        {name: 'name', type: 'string'},
+        {name: 'macroPeriod', type: 'string'},
+        {name: 'aggregate', type: 'string'},
+        {name: 'measuringPeriod', type: 'string'},
+        {name: 'accumulation', type: 'string'},
+        {name: 'flowDirection', type: 'string'},
+        {name: 'commodity', type: 'string'},
+        {name: 'measurementKind', type: 'string'},
+        {name: 'interHarmonicNumerator', type: 'number', useNull: true},
+        {name: 'interHarmonicDenominator', type: 'number', useNull: true},
+        {name: 'argumentNumerator', type: 'number', useNull: true},
+        {name: 'argumentDenominator', type: 'number', useNull: true},
+        {name: 'tou', type: 'number', useNull: true},
+        {name: 'cpp', type: 'number', useNull: true},
+        {name: 'consumptionTier', type: 'number', useNull: true},
+        {name: 'phases', type: 'string'},
+        {name: 'metricMultiplier', type: 'number', useNull: true},
+        {name: 'unit', type: 'string'},
+        {name: 'currency', type: 'string'},
+        {name: 'version', type: 'number', useNull: true},
+        {name: 'names', type: 'auto', useNull: true, defaultValue: {}},
+        {name: 'fullAliasName', type: 'string'}
+    ],
+    proxy: {
+        type: 'rest',
+        url: '../../api/dtc/readingtypes',
+        reader: {
+            type: 'json',
+            root: 'readingTypes'
+        }
+    }
+});
+
+Ext.define('Uni.property.store.PropertyReadingTypes', {
+    extend: 'Ext.data.Store',
+    requires: [
+        'Uni.property.model.ReadingType'
+    ],
+    model: 'Uni.property.model.ReadingType',
+    storeId: 'PropertyReadingTypes',
+    proxy: {
+        type: 'ajax',
+        url: '/api/mds/readingtypes',
+        reader: {
+            type: 'json',
+            root: 'readingTypes'
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
+    }
+});
+
 /**
  * @class Uni.property.controller.Registry
  * @singleton
@@ -11012,7 +12509,10 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.Time',
         'Uni.property.view.property.CodeTable',
         'Uni.property.view.property.Reference',
-        'Uni.property.view.property.Multiselect'
+        'Uni.property.view.property.Multiselect',
+        'Uni.property.view.property.RelativePeriod',
+        'Uni.property.view.property.AdvanceReadingsSettings',
+        'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
     ],
 
     /**
@@ -11035,18 +12535,24 @@ Ext.define('Uni.property.controller.Registry', {
         REFERENCE: 'Uni.property.view.property.Reference',
         LOGBOOK: 'Uni.property.view.property.Reference',
         LOADPROFILETYPE: 'Uni.property.view.property.Reference',
+        FIRMWAREVERSION: 'Uni.property.view.property.Reference',
         REGISTER: 'Uni.property.view.property.Reference',
         LOADPROFILE: 'Uni.property.view.property.Reference',
         EAN13: 'Uni.property.view.property.Text',
         EAN18: 'Uni.property.view.property.Text',
         ENCRYPTED_STRING: 'Uni.property.view.property.Password',
         UNKNOWN: 'Uni.property.view.property.Text',
-        LISTVALUE: 'Uni.property.view.property.Multiselect'
+        LISTVALUE: 'Uni.property.view.property.Multiselect',
+        RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',
+        ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
+        ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
     stores: [
-        'Uni.property.store.TimeUnits'
+        'Uni.property.store.TimeUnits',
+        'Uni.property.store.RelativePeriods',
+        'Uni.property.store.PropertyReadingTypes'
     ],
 
     /**
@@ -11088,23 +12594,11 @@ Ext.define('Uni.property.controller.Registry', {
 ;
 
 Ext.define('Uni.property.form.PropertyHydrator', {
-    extract: function(record) {
+    extract: function (record) {
         return record.getData(true);
     },
-    falseAndZeroChecker: function(value) {
-        if (null != value) {
-            if (value.toString() == "false") {
-                return false;
-            }
-            if (value.toString() == "0") {
-                return 0;
-            }
-        }
-        return value || null
-    },
-    hydrate: function(data, record) {
+    hydrate: function (data, record) {
         var values = data;
-        var me = this;
         if (typeof record === 'undefined' || !record.properties()) {
             return false;
         }
@@ -11114,15 +12608,15 @@ Ext.define('Uni.property.form.PropertyHydrator', {
                 propertyValue;
             if (property.get('isInheritedOrDefaultValue') === true) {
                 if (property.get('required') === true && property.get('hasDefaultValue')) {
-                    value = me.falseAndZeroChecker(values[property.get('key')]);
+                    value = values[property.get('key')];
                     propertyValue = Ext.create('Uni.property.model.PropertyValue');
                     property.setPropertyValue(propertyValue);
                     propertyValue.set('value', value);
                 } else {
-                    property.setPropertyValue(null);
+                    property.setPropertyValue(Ext.create('Uni.property.model.PropertyValue'));
                 }
             } else {
-                value = me.falseAndZeroChecker(values[property.get('key')]);
+                value = values[property.get('key')];
                 if (!property.raw['propertyValueInfo']) {
                     propertyValue = Ext.create('Uni.property.model.PropertyValue');
                     propertyValue.set('value', value);
@@ -11132,7 +12626,6 @@ Ext.define('Uni.property.form.PropertyHydrator', {
                 propertyValue.set('value', value);
                 propertyValue.set('propertyHasValue', property.get('hasValue'));
             }
-
         });
         record.endEdit();
     }
@@ -11241,14 +12734,14 @@ Ext.define('Uni.property.form.Property', {
                     userHasViewPrivilege: me.userHasViewPrivilege
                 }));
                 me.add(field);
-                field.on('checkRestoreAll', function() {
+                field.on('checkRestoreAll', function () {
                     me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
                 });
             }
             me.fireEvent('showRestoreAllBtn', me.checkAllIsDefault());
         });
 
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
 
         me.initialised = true;
     },
@@ -11274,9 +12767,10 @@ Ext.define('Uni.property.form.Property', {
         me.getRecord().properties().each(function (property) {
             var key = property.get('key');
             var field = me.getPropertyField(key);
-            values[key] = field.getValue(raw);
+            if (field !== undefined) {
+                values[key] = field.getValue(raw);
+            }
         });
-
         this.getForm().hydrator.hydrate(values, me.getRecord());
     },
 
@@ -11324,7 +12818,7 @@ Ext.define('Uni.property.form.Property', {
         me.items.each(function (item) {
             if (!item.getProperty().get('isInheritedOrDefaultValue')) {
                 isDefault = false;
-            };
+            }
         });
         return isDefault;
     },
@@ -11348,7 +12842,154 @@ Ext.define('Uni.property.form.Property', {
      */
     getPropertyField: function (key) {
         return this.getComponent(key);
+    },
+
+    clearInvalid: function () {
+        this.items.each(function (item) {
+            item.clearInvalid();
+        });
+    },
+
+    markInvalid: function (errors) {
+        var me = this;
+
+        Ext.each(errors, function (error) {
+            me.getPropertyField(error.id).markInvalid(error.msg);
+        });
     }
+});
+
+Ext.define('Uni.property.form.GroupedPropertyForm', {
+    extend: 'Uni.property.form.Property',
+    alias: 'widget.grouped-property-form',
+    addEditPage: false,
+
+    initProperties: function (properties) {
+        var me = this;
+        var registry = Uni.property.controller.Registry,
+            groups = {};
+        me.removeAll();
+        properties.each(function (property) {
+            if (!(property instanceof Uni.property.model.Property)) {
+                throw '!(entry instanceof Uni.property.model.Property)';
+            }
+
+            me.inheritedValues
+                ? property.initInheritedValues()
+                : property.initValues();
+
+            properties.commitChanges();
+
+            var type = property.getType();
+            var fieldType = registry.getProperty(type);
+
+            if (fieldType) {
+                var partitions = property.get('key').split('.');
+                partitions.pop();
+                var control = Ext.create(fieldType, {
+                        property: property,
+                        isEdit: me.isEdit,
+                        translationKey: 'DES',
+                        labelWidth: 250,
+                        width: 235,
+                        allowBlank: !property.get('required'),
+                        name: property.get('key'),
+                        itemId: property.get('key'),
+                        boxLabel: Uni.I18n.translate(property.get('key'), 'DES', property.get('key'))
+
+                    }),
+                    groupName = partitions.join('.');
+                if (type === 'BOOLEAN') {
+                    control.fieldLabel = '';
+                }
+
+                if (groups[groupName]) {
+                    groups[groupName].push(control);
+                } else {
+                    groups[groupName] = [control];
+                }
+            }
+        });
+        Ext.suspendLayouts();
+        Ext.iterate(groups, function (groupName, groupItems) {
+            var namesArray = groupName.split('.'),
+                fieldContainer = {
+                    xtype: 'fieldcontainer',
+                    itemId: 'group-fieldcontainer'
+                };
+            if (namesArray.length > 1) {
+                fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], 'DES', namesArray[1]);
+                fieldContainer.items = groupItems;
+                Ext.Array.each(groupItems, function (groupItem) {
+                    groupItem.setWidth(600);
+                    groupItem.labelAlign = 'left';
+                })
+            } else {
+                if (!me.addEditPage) {
+                    me.add({
+                        xtype: 'displayfield',
+                        renderer: function () {
+                            return '<b>' + Uni.I18n.translate(namesArray[0], 'DES', namesArray[0]) + '</b>'
+                        }
+                    });
+                } else {
+                    me.add({
+                        title: Uni.I18n.translate(namesArray[0], 'DES', namesArray[0]),
+                        ui: 'medium'
+                    });
+                }
+            }
+            me.add(fieldContainer.items ? fieldContainer : groupItems);
+        });
+        Ext.resumeLayouts();
+        this.initialised = true;
+    },
+
+    updateRecord: function() {
+        var me = this,
+            raw = me.getFieldValues(),
+            values = {},
+            key,
+            field;
+        _.each(raw.properties || [], function(firstValue, firstKey){
+            if (typeof firstValue == 'object') {
+                _.each(firstValue, function(secondValue, secondKey){
+                    if (typeof secondValue == 'object') {
+                        _.each(secondValue, function(thirdValue, thirdKey){
+                            key = firstKey + '.' + secondKey + '.' + thirdKey;
+                            field = me.getPropertyField(key);
+                            values[key] = field.getValue(thirdValue);
+                        });
+                    } else {
+                        key = firstKey + '.' + secondKey;
+                        field = me.getPropertyField(key);
+                        values[key] = field.getValue(secondValue);
+                    }
+                });
+            } else {
+                field = me.getPropertyField(firstKey);
+                values[firstKey] = field.getValue(firstValue);
+            }
+        });
+        this.getForm().hydrator.hydrate(values, me.getRecord());
+    },
+
+    getPropertyField: function(key) {
+        var me = this;
+        if (key.split('.').length === 3) {
+            return me.down('#group-fieldcontainer').getComponent(key);
+        } else {
+            return me.getComponent(key);
+        }
+    }
+});
+
+Ext.define('Uni.property.model.Categories', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'id', type: 'number', useNull: true},
+        {name: 'name', type: 'string', useNull: true}
+    ]
 });
 
 Ext.define('Uni.property.model.PossibleValue', {
@@ -11480,7 +13121,7 @@ Ext.define('Uni.property.model.Property', {
                 value = propertyValue.get('value');
                 isInheritedValue = false;
                 if (!propertyValue.get('propertyHasValue')) {
-                    if (value === propertyValue.get('defaultValue')) {
+                    if (_.isEqual(value, propertyValue.get('defaultValue'))) {
                         isInheritedValue = true;
                     }
 
@@ -11523,7 +13164,7 @@ Ext.define('Uni.property.model.Property', {
             if (null !== propertyValue) {
                 value = propertyValue.get('value');
                 if (!propertyValue.get('propertyHasValue')) {
-                    if (value === propertyValue.get('defaultValue')) {
+                    if (_.isEqual(value, propertyValue.get('defaultValue'))) {
                         isDefaultValue = true;
                     }
 
@@ -11761,6 +13402,7 @@ Ext.define('Uni.util.FormInfoMessage', {
         align: 'middle'
     },
     margin: '7 0 32 0',
+    iconCmp: null,
     beforeRender: function () {
         var me = this;
         me.renew();
@@ -11774,6 +13416,7 @@ Ext.define('Uni.util.FormInfoMessage', {
 
         me.removeAll(true);
         me.add([
+            me.iconCmp,
             {
                 ui: 'form-error',
                 name: 'errormsgpanel',
@@ -11793,12 +13436,11 @@ Ext.define('Uni.util.FormInfoMessage', {
 });
 
 /**
- * @class Uni.util.Hydrator
- * todo: rename on
+ * @class Uni.util.IdHydrator
  *
  * This is the hydrator which allows you to work with the associations of the Ext.data.model
  */
-Ext.define('Uni.util.Hydrator', {
+Ext.define('Uni.util.IdHydrator', {
 
     /**
      * Extracts data from the provided object
@@ -11851,12 +13493,96 @@ Ext.define('Uni.util.Hydrator', {
         return result;
     },
 
+    /**
+     * Hydrates data to the provided object
+     *
+     * @param data
+     * @param object
+     */
+    hydrate: function (data, object) {
+        var me = this,
+            fieldData = _.pick(data, object.fields.keys),
+            associationRawData = _.pick(data, object.associations.keys),
+            associatedData = {};
+
+        // set object fields
+        _.each(fieldData, function (item, key) {
+            object.set(key, item);
+        });
+
+        // set object associations
+        _.each(associationRawData, function (item, key) {
+            var association = object.associations.get(key),
+                idProperty = association.associatedModel.prototype.idProperty;
+
+            switch (association.type) {
+                case 'hasOne':
+                    associatedData[key] = me.itemToData(item, idProperty);
+                    break;
+                case 'hasMany':
+                    associatedData[key] = me.itemsToData(item, idProperty);
+                    break;
+            }
+        });
+
+        object.getProxy().getReader().readAssociated(object, associatedData);
+    },
+
+    /**
+     * Transforms id to model data
+     *
+     * @param item
+     * @param idProperty
+     * @returns {*}
+     */
+    itemToData: function (item, idProperty) {
+        if (item instanceof Ext.data.Model) {
+            return item;
+        } else {
+            var data = {};
+            data[idProperty] = item;
+            return data;
+        }
+    },
+
+    /**
+     * Transforms ids to model data
+     *
+     * @param data
+     * @param idProperty
+     */
+    itemsToData: function (data, idProperty) {
+        var me  = this;
+
+        if (!data) {
+            return false;
+        }
+
+        if (!_.isArray(data)) {
+            data = [data];
+        }
+
+        return  _.map(data, function (item) {
+            return me.itemToData(item, idProperty);
+        });
+    }
+});
+
+/**
+ * @class Uni.util.Hydrator
+ * todo: rename on Uni.util.lazyHydrator
+ *
+ * This is the hydrator which allows you to work with the associations of the Ext.data.model
+ */
+Ext.define('Uni.util.Hydrator', {
+    extend: 'Uni.util.IdHydrator',
+
     // todo: replace on normal promises
-    Promise: function(){
+    Promise: function () {
         return {
             callback: null,
             callbacks: [],
-            when: function(callbacks) {
+            when: function (callbacks) {
                 this.callbacks = callbacks;
                 return this;
             },
@@ -11864,7 +13590,7 @@ Ext.define('Uni.util.Hydrator', {
                 this.callbacks.length ? this.callback = callback : callback();
                 return this;
             },
-            resolve: function(fn) {
+            resolve: function (fn) {
                 var i = _.indexOf(this.callbacks, fn);
                 this.callbacks.splice(i, 1);
 
@@ -11873,7 +13599,7 @@ Ext.define('Uni.util.Hydrator', {
                 }
                 return this;
             }
-        }
+        };
     },
 
     /**
@@ -12266,6 +13992,7 @@ Ext.define('Uni.view.user.Menu', {
     menu: [
         {
             text: 'Logout',
+            itemId: 'user-log-out',
             listeners: {
                 'click': function () {
                     Ext.Ajax.request({
@@ -12351,7 +14078,8 @@ Ext.define('Uni.view.navigation.Header', {
             hidden: true
         },
         {
-            xtype: 'userMenu'
+            xtype: 'userMenu',
+            itemId: 'user-menu'
         }
     ],
 
@@ -12996,6 +14724,12 @@ Ext.define('Uni.view.container.PreviewContainer', {
      */
     selectByDefault: true,
 
+    /**
+     * @cfg {Boolean}
+     *
+     * Hide empty compoonent if set to true.
+     */
+    hasNotEmptyComponent: false,
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
@@ -13007,20 +14741,9 @@ Ext.define('Uni.view.container.PreviewContainer', {
         {
             xtype: 'container',
             itemId: 'wrapper-container',
-            items: [
-            ]
+            items: []
         }
     ],
-
-    listeners: {
-        afterlayout: function () {
-            var me = this;
-
-            if (me.lastGridScrollPosition) {
-                me.grid.view.getEl().scrollTo('top', me.lastGridScrollPosition.top, false);
-            }
-        }
-    },
 
     initComponent: function () {
         var me = this,
@@ -13060,9 +14783,6 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.grid = me.getWrapperCt().items.items[0];
         me.previewComponent = me.getWrapperCt().items.items[1];
-        me.hasBufferedRendererPlugin = Ext.Array.findBy(me.grid.plugins, function (item) {
-            return item.ptype === 'bufferedrenderer';
-        })
 
         me.bindStore(me.grid.store || 'ext-empty-store', true);
         me.initChildPagingBottom();
@@ -13127,9 +14847,6 @@ Ext.define('Uni.view.container.PreviewContainer', {
             selection = me.grid.view.getSelectionModel().getSelection();
 
         if (me.rendered) {
-            if (!me.hasBufferedRendererPlugin) {
-                me.lastGridScrollPosition = me.grid.view.getEl().getScroll();
-            }
             Ext.suspendLayouts();
         }
 
@@ -13139,7 +14856,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         me.resetChildPagingTop();
         me.resetChildPagingBottom();
-        me.grid.getView().focusRow(selection[0]);
+
         if (me.rendered) {
             Ext.resumeLayouts(true);
         }
@@ -13169,6 +14886,11 @@ Ext.define('Uni.view.container.PreviewContainer', {
             // Ignore exceptions for when the selection model is not ready yet.
         }
 
+        if (me.hasNotEmptyComponent) {
+            me.hide();
+            return;
+        }
+
         if (activeIndex !== 1) {
             me.getLayout().setActiveItem(1);
         }
@@ -13183,7 +14905,12 @@ Ext.define('Uni.view.container.PreviewContainer', {
         if (isEmpty && activeIndex !== 0) {
             me.getLayout().setActiveItem(0);
         } else if (!isEmpty && activeIndex !== 1) {
-            me.getLayout().setActiveItem(1);
+            if (me.hasNotEmptyComponent) {
+                me.show();
+                me.getLayout().setActiveItem(0);
+            } else {
+                me.getLayout().setActiveItem(1);
+            }
         }
 
         if (me.selectByDefault && !isEmpty) {
@@ -13303,500 +15030,6 @@ Ext.define('Uni.view.form.CheckboxGroup', {
         return {
             load: this.refresh
         };
-    }
-});
-
-/**
- * @class Uni.view.grid.SelectionGrid
- */
-Ext.define('Uni.view.grid.SelectionGrid', {
-    extend: 'Ext.grid.Panel',
-    xtype: 'selection-grid',
-
-    bottomToolbarHeight: 27,
-
-    selType: 'checkboxmodel',
-    selModel: {
-        mode: 'MULTI',
-        showHeaderCheckbox: false
-    },
-
-    overflowY: 'auto',
-    maxHeight: 450,
-
-    extraTopToolbarComponent: undefined,
-
-    /**
-     * @cfg counterTextFn
-     *
-     * The translation function to use to translate the selected count on top of the
-     * text above the grid.
-     *
-     * @param {Number} count Count to base the translation on.
-     * @returns {String} Translation value based on the count.
-     */
-    counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'grid.BulkSelection.counterText',
-            count,
-            'UNI',
-            '{0} items selected'
-        );
-    },
-
-    /**
-     * @cfg uncheckText
-     *
-     * Text used for the uncheck all button.
-     */
-    uncheckText: Uni.I18n.translate('general.uncheckAll', 'UNI', 'Uncheck all'),
-
-    initComponent: function () {
-        var me = this;
-
-        me.dockedItems = [
-            {
-                xtype: 'toolbar',
-                dock: 'top',
-                itemId: 'topToolbarContainer',
-                layout: {
-                    type: 'hbox',
-                    align: 'middle'
-                },
-                items: [
-                    {
-                        xtype: 'text',
-                        itemId: 'selectionCounter',
-                        text: me.counterTextFn(0),
-                        margin: '0 8 0 0'
-                    },
-                    {
-                        xtype: 'button',
-                        itemId: 'uncheckAllButton',
-                        text: me.uncheckText,
-                        action: 'uncheckAll',
-                        margin: '0 0 0 8',
-                        disabled: true
-                    }
-                ]
-            }
-        ];
-
-        me.callParent(arguments);
-
-        me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
-        me.on('selectionchange', me.onSelectionChange, me);
-
-        me.addComponentInToolbar();
-    },
-
-    onClickUncheckAllButton: function (button) {
-        var me = this;
-
-        me.view.getSelectionModel().deselectAll();
-        button.setDisabled(true);
-    },
-
-    onSelectionChange: function () {
-        var me = this,
-            selection = me.view.getSelectionModel().getSelection();
-
-        me.getSelectionCounter().setText(me.counterTextFn(selection.length));
-        me.getUncheckAllButton().setDisabled(selection.length === 0);
-        me.doLayout();
-    },
-
-    getSelectionCounter: function () {
-        return this.down('#selectionCounter');
-    },
-
-    getUncheckAllButton: function () {
-        return this.down('#uncheckAllButton');
-    },
-
-    getTopToolbarContainer: function () {
-        return this.down('#topToolbarContainer');
-    },
-
-    addComponentInToolbar: function () {
-        var me = this;
-        me.getTopToolbarContainer().add(
-            me.extraTopToolbarComponent
-        )
-    }
-});
-
-/**
- * @class Uni.view.grid.BulkSelection
- *
- * The bulk selection component is used for when all or selected items for a specific
- * screen need to be added. A checkbox is used to select the models in the infinite
- * scrolling grid below the radio options. You can either select all items or only
- * a few specific ones from the grid and then press the add button.
- *
- * The 'allitemsadd' or 'selecteditemsadd' event is fired respectively for the all
- * and selected items adding.
- *
- * Example:
- *     {
- *         xtype: 'Uni.view.grid.BulkSelection',
- *
- *         store: 'Mdc.store.ValidationRuleSetsForDeviceConfig',
- *
- *         counterTextFn: function (count) {
- *             return Uni.I18n.translatePlural(
- *                 'validation.noValidationRuleSetSelected',
- *                 count,
- *                 'MDC',
- *                 '{0} validation rule sets selected'
- *             );
- *         },
- *
- *         allLabel: Uni.I18n.translate('ruleset.allRuleSets', 'MDC', 'All validation rule sets'),
- *         allDescription: Uni.I18n.translate(
- *             'ruleset.selectAllRuleSets',
- *             'MDC',
- *             'Select all validation rule sets related to device configuration'
- *         ),
- *
- *         selectedLabel: Uni.I18n.translate('ruleset.selectedRuleSets', 'MDC', 'Selected validation rule sets'),
- *         selectedDescription: Uni.I18n.translate(
- *             'ruleset.selectRuleSets',
- *             'MDC',
- *             'Select validation rule sets in table'
- *         ),
- *
- *         columns: [
- *             {
- *                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
- *                 dataIndex: 'name',
- *                 renderer: function (value, metaData, record) {
- *                     metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
- *                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
- *                 },
- *                 flex: 1
- *             },
- *             {
- *                 header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
- *                 dataIndex: 'numberOfRules',
- *                 flex: 1,
- *                 renderer: function (value, b, record) {
- *                     var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
- *                     return numberOfActiveRules;
- *                 }
- *             },
- *             {
- *                 header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
- *                 dataIndex: 'numberOfInactiveRules',
- *                 flex: 1
- *             },
- *             {
- *                 xtype: 'uni-actioncolumn',
- *                 items: 'Mdc.view.setup.validation.AddRuleSetActionMenu'
- *             }
- *         ],
- *
- *         // Other code...
- *     }
- */
-Ext.define('Uni.view.grid.BulkSelection', {
-    extend: 'Uni.view.grid.SelectionGrid',
-    xtype: 'bulk-selection-grid',
-
-    loadMask: true,
-    autoScroll: true,
-    maxHeight: 600,
-
-    /**
-     * @cfg allLabel
-     *
-     * Text to show for the all items label.
-     */
-    allLabel: Uni.I18n.translate('grid.BulkSelection.allLabel', 'UNI', 'All items'),
-
-    /**
-     * @cfg allDescription
-     *
-     * Description to show under the all items label.
-     */
-    allDescription: Uni.I18n.translate(
-        'grid.BulkSelection.allDescription',
-        'UNI',
-        'Select all items'
-    ),
-
-    /**
-     * @cfg selectedLabel
-     *
-     * Text to show for the selected items label.
-     */
-    selectedLabel: Uni.I18n.translate('grid.BulkSelection.selectedLabel', 'UNI', 'Selected items'),
-
-    /**
-     * @cfg selectedDescription
-     *
-     * Description to show under the selected items label.
-     */
-    selectedDescription: Uni.I18n.translate(
-        'grid.BulkSelection.selectedDescription',
-        'UNI',
-        'Select items in table'
-    ),
-
-    /**
-     * @cfg addText
-     *
-     * Text used for the add button.
-     */
-    addText: Uni.I18n.translate('general.add', 'UNI', 'Add'),
-
-    /**
-     * @cfg cancelText
-     *
-     * Text used for the cancel button.
-     */
-    cancelText: Uni.I18n.translate('general.cancel', 'UNI', 'Cancel'),
-
-    /**
-     * @cfg cancelHref
-     *
-     * The URL to be used for the cancel button.
-     */
-    cancelHref: window.location.href,
-
-    /**
-     * @cfg allChosenByDefault
-     *
-     * The property that determines what radio button will be selected when using the
-     * bulk selection component. By default the all items option is chosen. Set this
-     * to 'false' to select the selected items option.
-     */
-    allChosenByDefault: true,
-
-    /**
-     * @cfg allInputValue
-     */
-    allInputValue: 'allItems',
-
-    /**
-     * @cfg selectedInputValue
-     */
-    selectedInputValue: 'selectedItems',
-
-    /**
-     * @cfg radioGroupName
-     */
-    radioGroupName: 'selectedGroupType-' + new Date().getTime() * Math.random(),
-
-    /**
-     * @cfg bottomToolbarHidden
-     */
-    bottomToolbarHidden: false,
-
-    gridHeight: 0,
-    gridHeaderHeight: 0,
-
-    initComponent: function () {
-        var me = this;
-
-        me.addEvents(
-            /**
-             * @event allitemsadd
-             *
-             * Fires after pressing the add button while having the all items option chosen.
-             */
-            'allitemsadd',
-            /**
-             * @event selecteditemsadd
-             *
-             * Fires after pressing the add button while having the selected items option chosen.
-             *
-             * @param {Ext.data.Model[]} The selected items.
-             */
-            'selecteditemsadd'
-        );
-
-        me.callParent(arguments);
-
-        me.addDocked({
-            xtype: 'radiogroup',
-            dock: 'top',
-            itemId: 'itemradiogroup',
-            columns: 1,
-            vertical: true,
-            submitValue: false,
-            defaults: {
-                padding: '0 0 16 0'
-            },
-            items: [
-                {
-                    name: me.radioGroupName,
-                    boxLabel: '<b>' + me.allLabel + '</b>',
-                    afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.allDescription + '</span>',
-                    inputValue: me.allInputValue,
-                    checked: me.allChosenByDefault
-                },
-                {
-                    name: me.radioGroupName,
-                    boxLabel: '<b>' + me.selectedLabel + '</b>',
-                    afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.selectedDescription + '</span>',
-                    inputValue: me.selectedInputValue,
-                    checked: !me.allChosenByDefault
-                }
-            ]
-        }, 0);
-
-        me.addDocked({
-            xtype: 'toolbar',
-            dock: 'bottom',
-            itemId: 'bottomToolbar',
-            layout: 'hbox',
-            items: [
-                {
-                    xtype: 'button',
-                    itemId: 'addButton',
-                    text: me.addText,
-                    action: 'add',
-                    ui: 'action'
-                },
-                {
-                    xtype: 'button',
-                    itemId: 'cancelButton',
-                    text: me.cancelText,
-                    action: 'cancel',
-                    ui: 'link',
-                    href: me.cancelHref
-                }
-            ]
-        });
-
-        me.getSelectionGroupType().on('change', me.onChangeSelectionGroupType, me);
-        me.getAddButton().on('click', me.onClickAddButton, me);
-        me.on('selectionchange', me.onBulkSelectionChange, me);
-
-        if (me.bottomToolbarHidden) {
-            me.hideBottomToolbar();
-        }
-
-        me.store.on('afterrender', me.onChangeSelectionGroupType, me, {
-            single: true
-        });
-
-        me.store.on('load', me.onSelectDefaultGroupType, me, {
-            single: true
-        });
-    },
-
-    onSelectDefaultGroupType: function () {
-        var me = this,
-            value = {};
-
-        if (me.rendered) {
-            value[me.radioGroupName] = me.allChosenByDefault ? me.allInputValue : me.selectedInputValue;
-            me.getSelectionGroupType().setValue(value);
-            me.getSelectionGroupType().fireEvent('change');
-        }
-
-        me.onChangeSelectionGroupType();
-    },
-
-    onChangeSelectionGroupType: function (radiogroup, value) {
-        var me = this;
-        if (me.view) {
-            var selection = me.view.getSelectionModel().getSelection();
-
-            me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
-            me.setGridVisible(!me.isAllSelected());
-        }
-    },
-
-    setGridVisible: function (visible) {
-        var me = this,
-            gridHeight = me.gridHeight,
-            gridHeaderHeight = me.gridHeaderHeight,
-            currentGridHeight,
-            currentGridHeaderHeight,
-            noBorderCls = 'force-no-border';
-
-        me.getTopToolbarContainer().setVisible(visible);
-
-        if (me.rendered) {
-            currentGridHeight = me.getView().height;
-            currentGridHeaderHeight = me.headerCt.height;
-
-            if (!visible) {
-                gridHeight = 0;
-                gridHeaderHeight = 0;
-
-                me.addCls(noBorderCls);
-            } else {
-                me.removeCls(noBorderCls);
-            }
-
-            if (currentGridHeight !== 0 && currentGridHeaderHeight !== 0) {
-                me.gridHeight = currentGridHeight;
-                me.gridHeaderHeight = currentGridHeaderHeight;
-            }
-
-            if (typeof gridHeight === 'undefined') {
-                var row = me.getView().getNode(0),
-                    rowElement = Ext.get(row);
-
-                if (rowElement !== null) {
-                    var count = me.store.getCount() > 10 ? 10 : me.store.getCount();
-                    gridHeight = count * rowElement.getHeight();
-                }
-            }
-
-            me.getView().height = gridHeight;
-            me.headerCt.height = gridHeaderHeight;
-            me.doLayout();
-        }
-    },
-
-    onClickAddButton: function () {
-        var me = this,
-            selection = me.view.getSelectionModel().getSelection();
-
-        if (me.isAllSelected()) {
-            me.fireEvent('allitemsadd');
-        } else if (selection.length > 0) {
-            me.fireEvent('selecteditemsadd', selection);
-        }
-    },
-
-    onBulkSelectionChange: function () {
-        var me = this,
-            selection = me.view.getSelectionModel().getSelection();
-
-        me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
-    },
-
-    isAllSelected: function () {
-        var me = this,
-            groupType = me.getSelectionGroupType().getValue();
-
-        return groupType[me.radioGroupName] === me.allInputValue;
-    },
-
-    getSelectionGroupType: function () {
-        return this.down('radiogroup');
-    },
-
-    getAddButton: function () {
-        return this.down('#addButton');
-    },
-
-    getCancelButton: function () {
-        return this.down('#cancelButton');
-    },
-
-    getBottomToolbar: function () {
-        return this.down('#bottomToolbar');
-    },
-
-    hideBottomToolbar: function () {
-        this.getBottomToolbar().setVisible(false);
     }
 });
 
@@ -13925,6 +15158,15 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                     },
                     {
                         xtype: 'button',
+                        itemId: 'selectItems',
+                        width: 50,
+                        text: '>',
+                        handler: function () {
+                            me.selectItems();
+                        }
+                    },
+                    {
+                        xtype: 'button',
                         itemId: 'selectAllItems',
                         width: 50,
                         text: '>>',
@@ -13934,11 +15176,11 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                     },
                     {
                         xtype: 'button',
-                        itemId: 'selectItems',
+                        itemId: 'deselectAllItems',
                         width: 50,
-                        text: '>',
+                        text: '<<',
                         handler: function () {
-                            me.selectItems();
+                            me.deselectAllItems();
                         }
                     },
                     {
@@ -13949,15 +15191,6 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
                         handler: function () {
                             me.deselectItems();
 
-                        }
-                    },
-                    {
-                        xtype: 'button',
-                        itemId: 'deselectAllItems',
-                        width: 50,
-                        text: '<<',
-                        handler: function () {
-                            me.deselectAllItems();
                         }
                     }
                 ]
@@ -14086,6 +15319,46 @@ Ext.define('Uni.view.grid.ConnectedGrid', {
     }
 });
 
+/**
+ * @class Uni.view.grid.ReorderableGrid
+ *
+ * Grid that allows dragging and dropping of rows in the same grid, used to reorder rows in a grid.
+ *
+ * Based on: http://stackoverflow.com/questions/10992180/extjs-4-drag-and-drop-in-the-same-grid
+ */
+Ext.define('Uni.view.grid.ReorderableGrid', {
+    extend: 'Ext.grid.Panel',
+    xtype: 'uni-grid-reorderablegrid',
+
+    viewConfig: {
+        plugins: {
+            ptype: 'gridviewdragdrop',
+            dragText: Uni.I18n.translate('grid.ReorderableGrid.dragtext', 'UNI', 'Reorder rows')
+        }
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.callParent(arguments);
+
+        me.getView().on('drop', me.onDropRow, me);
+    },
+
+    /**
+     * Template method to fill in to listen to changes whenever a row is dragged
+     * and dropped in a grid.
+     *
+     * @param node
+     * @param data
+     * @param overModel
+     * @param dropPosition
+     */
+    onDropRow: function (node, data, overModel, dropPosition) {
+        // Template method.
+    }
+});
+
 Ext.define('Uni.view.menu.NavigationItem', {
     extend: 'Ext.menu.Item',
     alias: 'widget.navigation-item',
@@ -14149,11 +15422,20 @@ Ext.define('Uni.view.menu.NavigationMenu', {
 
     updateItemCls: function (index) {
         var me = this,
-            item = me.items.getAt(index - 1);
-        item.removeCls(['step-completed', 'step-active', 'step-non-completed']);
-        index < me.activeStep ? item.addCls('step-completed') :
-            (index > me.activeStep ? item.addCls('step-non-completed') :
-                item.addCls('step-active'));
+            item = me.items.getAt(index - 1),
+            classesToAdd;
+
+        item.removeCls(['step-completed', 'step-active', 'step-non-completed', 'not-a-clickable']);
+
+        if (index < me.activeStep) {
+            classesToAdd = me.jumpBack ? 'step-completed' : ['step-completed', 'not-a-clickable'];
+        } else if (index > me.activeStep) {
+            classesToAdd = me.jumpForward ? 'step-non-completed' : ['step-non-completed', 'not-a-clickable'];
+        } else {
+            classesToAdd = ['step-active', 'not-a-clickable'];
+        }
+
+        item.addCls(classesToAdd);
     },
 
     moveTo: function (step) {
@@ -14244,6 +15526,7 @@ Ext.define('Uni.view.menu.SideMenu', {
     ui: 'menu-side',
     plain: true,
     width: 256,
+    router: null,
 
     defaults: {
         xtype: 'menuitem',
@@ -14286,6 +15569,11 @@ Ext.define('Uni.view.menu.SideMenu', {
         }
 
         me.checkNavigation(Ext.util.History.getToken());
+
+        // Takes dynamic changes to the menu into consideration.
+        me.on('add', function () {
+            me.checkNavigation(Ext.util.History.getToken());
+        });
     },
 
     buildMenuItems: function () {
@@ -14296,77 +15584,56 @@ Ext.define('Uni.view.menu.SideMenu', {
         Ext.resumeLayouts();
     },
 
-    addMenuItems: function (menuItems) {
+    addMenuItems: function (menuItems, parent) {
         var me = this;
-        Ext.suspendLayouts();
-        for (var i = 0; i < menuItems.length; i++) {
-            var item = menuItems[i],
-                subItems = item.items,
-                condition = item[me.showCondition];
+        parent = parent || me;
 
-            if ((typeof item.xtype === 'undefined' || item.xtype === 'menu')
-                && Ext.isDefined(subItems) && Ext.isArray(subItems)) {
-                me.applyMenuDefaults(item);
-                me.addSubMenuItems(item);
+        Ext.each(menuItems, function (item) {
+            var condition = item[me.showCondition];
 
-                // Do not bother adding the menu if there are no items in it.
-                if (item.items.length === 0) {
-                    continue;
-                }
-            }
+            if (typeof condition === 'undefined'
+                || (Ext.isFunction(condition) && condition() || condition)) {
 
-            if (typeof condition !== 'undefined') {
-                if (Ext.isFunction(condition) && condition() || condition) {
-                    me.add(item);
+                if (me.router && item.route) {
+                    var route = me.router.getRoute(item.route);
+                    item.href = route.buildUrl();
+                    item.text = item.text || route.getTitle();
                 }
 
-                // Do not add the item if the condition is not valid.
-                continue;
-            }
+                item.tooltip = item.text;
 
-            me.add(item);
-        }
-        Ext.resumeLayouts();
-    },
+                if (Ext.isDefined(item.items) && Ext.isArray(item.items)) {
+                    var items = item.items;
+                    delete item.items;
+                    item = me.applyMenuDefaults(item);
+                    if (items) {
+                        me.addMenuItems(items, item);
+                    }
+                }
 
-    applyMenuDefaults: function (config) {
-        Ext.applyIf(config, {
-            xtype: 'menu',
-            floating: false,
-            plain: true,
-            ui: 'menu-side-sub',
-
-            // TODO Make the menus collapsible.
-
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
+                parent.add(item);
             }
         });
     },
 
-    addSubMenuItems: function (menu) {
-        var me = this,
-            subItems = menu.items;
+    applyMenuDefaults: function (config) {
+        return Ext.widget('menu',
+            Ext.applyIf(config, {
+                floating: false,
+                plain: true,
+                ui: 'menu-side-sub',
 
-        // Reset menu items.
-        menu.items = [];
-
-        for (var i = 0; i < subItems.length; i++) {
-            var item = subItems[i],
-                condition = item[me.showCondition];
-
-            if (typeof condition !== 'undefined') {
-                if (Ext.isFunction(condition) && condition() || condition) {
-                    menu.items.push(item);
+                // TODO Make the menus collapsible.
+                defaults: {
+                    xtype: 'menuitem',
+                    hrefTarget: '_self'
+                },
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
                 }
-
-                // Do not add the item if the condition is not valid.
-                continue;
-            }
-
-            menu.items.push(item);
-        }
+            })
+        );
     },
 
     clearSelection: function (items) {
@@ -14667,6 +15934,313 @@ Ext.define('Uni.view.panel.StepPanel', {
 });
 
 /**
+ * @class Ext.ux.exporter.Exporter
+ * @author Ed Spencer (http://edspencer.net), with modifications from iwiznia, with modifications from yogesh
+ * Class providing a common way of downloading data in .xls or .csv format
+ */
+Ext.define("Ext.ux.exporter.Exporter", {
+    uses: [
+        "Ext.ux.exporter.ExporterButton",
+        "Ext.ux.exporter.csvformatter.CsvFormatter",
+        "Ext.ux.exporter.excelformatter.ExcelFormatter",
+        "Ext.ux.exporter.FileSaver"],
+
+    statics: {
+        /**
+         * Exports a grid, using formatter
+         * @param {Ext.grid.Panel/Ext.data.Store/Ext.tree.Panel} componet/store to export from
+         * @param {String/Ext.ux.exporter.Formatter} formatter
+         * @param {Object} config Optional config settings for the formatter
+         * @return {Object} with data, mimeType, charset, ext(extension)
+         */
+        exportAny: function(component, format, config) {
+
+            var func = "export";
+            if (!component.is) {
+                func = func + "Store";
+            } else if (component.is("gridpanel")) {
+                func = func + "Grid";
+            } else if (component.is("treepanel")) {
+                func = func + "Tree";
+            } else {
+                func = func + "Store";
+                component = component.getStore();
+            }
+            var formatter = this.getFormatterByName(format);
+            return this[func](component, formatter, config);
+        },
+
+        /**
+         * Exports a grid, using formatter
+         * @param {Ext.grid.Panel} grid The grid to export from
+         * @param {String/Ext.ux.exporter.Formatter} formatter
+         * @param {Object} config Optional config settings for the formatter
+         */
+        exportGrid: function(grid, formatter, config) {
+
+            config = config || {};
+            formatter = this.getFormatterByName(formatter);
+
+            var store = grid.getStore() || config.store;
+            var columns = Ext.Array.filter(grid.columns, function(col) {
+                return !col.hidden && (!col.xtype || col.xtype != "uni-actioncolumn");
+                //return !col.hidden; // && (!col.xtype || col.xtype != "actioncolumn");
+            });
+
+            Ext.applyIf(config, {
+                title: grid.title,
+                columns: columns
+            });
+
+            return {
+                data: formatter.format(store, config),
+                mimeType: formatter.mimeType,
+                charset: formatter.charset,
+                ext: formatter.extension
+            };
+        },
+
+        /**
+         * Exports a grid, using formatter
+         * @param {Ext.data.Store} store to export from
+         * @param {String/Ext.ux.exporter.Formatter} formatter
+         * @param {Object} config Optional config settings for the formatter
+         */
+        exportStore: function(store, formatter, config) {
+
+            config = config || {};
+            formatter = this.getFormatterByName(formatter);
+            Ext.applyIf(config, {
+                columns: store.fields ? store.fields.items : store.model.prototype.fields.items
+            });
+
+            return {
+                data: formatter.format(store, config),
+                mimeType: formatter.mimeType,
+                charset: formatter.charset,
+                ext: formatter.extension
+            };
+        },
+
+        /**
+         * Exports a tree, using formatter
+         * @param {Ext.tree.Panel} store to export from
+         * @param {String/Ext.ux.exporter.Formatter} formatter
+         * @param {Object} config Optional config settings for the formatter
+         */
+        exportTree: function(tree, formatter, config) {
+
+            config = config || {};
+            formatter = this.getFormatterByName(formatter);
+            var store = tree.getStore() || config.store;
+
+            Ext.applyIf(config, {
+                title: tree.title
+            });
+
+            return {
+                data: formatter.format(store, config),
+                mimeType: formatter.mimeType,
+                charset: formatter.charset,
+                ext: formatter.extension
+            };
+        },
+
+        /**
+         * Method returns the instance of {Ext.ux.exporter.Formatter} based on format
+         * @param {String/Ext.ux.exporter.Formatter} formatter
+         * @return {Ext.ux.exporter.Formatter}
+         */
+        getFormatterByName: function(formatter) {
+            formatter = formatter ? formatter : "excel";
+            formatter = !Ext.isString(formatter) ? formatter : Ext.create("Ext.ux.exporter." + formatter + "formatter." + Ext.String.capitalize(formatter) + "Formatter");
+            return formatter;
+        }
+    }
+});
+
+/**
+ * @Class Ext.ux.exporter.FileSaver
+ * @author Yogesh
+ * Class that allows saving file via blobs: URIs or data: URIs or download remotely from server
+ */
+Ext.define('Ext.ux.exporter.FileSaver', {
+    statics: {
+        saveAs: function(data, mimeType, charset, filename, link, remote, cb, scope) {
+                window.URL = window.URL || window.webkitURL;
+                try { //If browser supports Blob(Gecko,Chrome,IE10+)
+                    var blob = new Blob([data], { //safari 5 throws error
+                        type: mimeType + ";charset=" + charset + ","
+                    });
+                    if (link && "download" in link) {
+                        blobURL = window.URL.createObjectURL(blob);
+                        link.href = blobURL;
+                        link.download = filename;
+                        if(cb) cb.call(scope);
+                        this.cleanBlobURL(blobURL);
+                        return;
+                    } else if (window.navigator.msSaveOrOpenBlob) { //IE 10+
+                        window.navigator.msSaveOrOpenBlob(blob, filename);
+                        if(cb) cb.call(scope);
+                        return;
+                    }
+                } catch (e) { //open using data:URI 
+                	Ext.log("Browser doesn't support Blob: " + e.message);
+                }
+				//Browser doesn't support Blob save
+                if(remote) {//send data to sever to download
+                	this.downloadUsingServer(data, mimeType, charset, filename, cb, scope);
+                } else{//open data in new window
+                	this.openUsingDataURI(data, mimeType, charset);
+                	if(cb) cb.call(scope);
+                }
+        },
+        downloadUsingServer: function(data, mimeType, charset, filename, cb, scope) {
+        	var form = Ext.getDom('formDummy');
+        	if(!form) {
+	            form = document.createElement('form');
+	            form.id = 'formDummy';
+	            form.name = 'formDummy';
+	            form.className = 'x-hidden';
+	            document.body.appendChild(form);        	
+        	}
+            Ext.Ajax.request({
+                url: '/ExportFileAction',
+                method: 'POST',
+                form: form,
+                isUpload: true,
+                params: {
+                	userAction: 'download',
+                    data: data,
+                    mimeType: mimeType,
+                    charset: charset,
+                    filename: filename
+                },
+                callback: function() {
+                	if(cb) cb.call(scope);
+                }
+            });
+        },
+        openUsingDataURI: function(data, mimeType, charset) {
+        	if (Ext.isIE9m) { //for IE 9 or lesser
+                w = window.open();
+                doc = w.document;
+                doc.open(mimeType, 'replace');
+                doc.charset = charset;
+                doc.write(data);
+                doc.close();
+                doc.execCommand("SaveAs", null, filename);
+            } else {
+	            window.open("data:" + mimeType + ";charset=" + charset + "," + encodeURIComponent(data), "_blank");
+            }
+        },
+        cleanBlobURL: function(blobURL) {
+            // Need a some delay for the revokeObjectURL to work properly.
+            setTimeout(function() {
+                window.URL.revokeObjectURL(blobURL);
+            }, 10000);
+        }
+    }
+});
+
+/**
+ * @class Ext.ux.Exporter.Button
+ * @extends Ext.Button
+ * @author Nige White, with modifications from Ed Spencer, with modifications from iwiznia with modifications from yogesh
+ * Internally, this is just a link.
+ * Pass it either an Ext.Component subclass with a 'store' property, or componentQuery of that component or just a store or nothing and it will try to grab the first parent of this button that is a grid or tree panel:
+ * new Ext.ux.Exporter.ExporterButton({component: someGrid});
+ * new Ext.ux.Exporter.ExporterButton({store: someStore});
+ * new Ext.ux.Exporter.ExporterButton({component: '#itemIdSomeGrid'});
+ * @cfg {Ext.Component} component The component the store is bound to
+ * @cfg {Ext.data.Store} store The store to export (alternatively, pass a component with a getStore method)
+ */
+Ext.define("Ext.ux.exporter.ExporterButton", {
+    extend: "Ext.Button",
+    requires: ['Ext.ux.exporter.Exporter', 'Ext.ux.exporter.FileSaver'],
+    alias: "widget.exporterbutton",
+
+    /**
+     * @cfg {String} text
+     * The button text to be used as innerHTML (html tags are accepted).
+     */
+    text: 'Download',
+
+    /**
+     * @cfg {String} format
+     * The Exported File formatter
+     */
+    format: 'csv',
+
+    /**
+     * @cfg {Boolean} preventDefault
+     * False to allow default action when the {@link #clickEvent} is processed.
+     */
+    preventDefault: false,
+
+    /**
+     * @cfg {Number} saveDelay
+     * Increased buffer to avoid clickEvent fired many times within a short period.
+     */
+    saveDelay: 300,
+
+    //iconCls: 'save',
+
+    /**
+     * @cfg {Boolean} remote
+     * To remotely download file only if browser doesn't support locally
+     * otherwise it will try to open in new window
+     */
+    remote: false,
+    /**
+     * @cfg {String} title
+     * To set name to eported file, extension will be appended based on format
+     */
+    title: 'export',
+
+    constructor: function (config) {
+        var me = this;
+
+        Ext.ux.exporter.ExporterButton.superclass.constructor.call(me, config);
+
+        me.on("afterrender", function () { //wait for the button to be rendered, so we can look up to grab the component
+            if (me.component) {
+                me.component = !Ext.isString(me.component) ? me.component : Ext.ComponentQuery.query(me.component)[0];
+            }
+            me.setComponent(me.store || me.component || me.up("gridpanel") || me.up("treepanel"), config);
+        });
+    },
+
+    onClick: function (e) {
+        var me = this,
+            blobURL = "",
+            format = me.format,
+            title = me.title,
+            remote = me.remote,
+            dt = new Date(),
+            link = me.el.dom,
+            res, fullname;
+
+        me.fireEvent('start', me);
+        res = Ext.ux.exporter.Exporter.exportAny(me.component, format, {title: title});
+        filename = title + "_" + Ext.Date.format(dt, "Y-m-d h:i:s") + "." + res.ext;
+        Ext.ux.exporter.FileSaver.saveAs(res.data, res.mimeType, res.charset, filename, link, remote, me.onComplete, me);
+
+        me.callParent(arguments);
+    },
+
+    setComponent: function (component, config) {
+        var me = this;
+        me.component = component;
+        me.store = !component.is ? component : component.getStore(); // only components or stores, if it doesn't respond to is method, it's a store        
+    },
+
+    onComplete: function () {
+        this.fireEvent('complete', this);
+    }
+});
+
+/**
  * @class Uni.view.toolbar.PagingBottom
  */
 Ext.define('Uni.view.toolbar.PagingBottom', {
@@ -14678,7 +16252,8 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     requires: [
         'Uni.util.QueryString',
-        'Uni.util.History'
+        'Uni.util.History',
+        'Ext.ux.exporter.ExporterButton'
     ],
 
     /**
@@ -14916,6 +16491,10 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                 itemId: 'pagingCombo',
                 store: me.pageSizeStore,
                 width: 64,
+                fieldStyle: 'text-align:right; padding-right: 0',
+                listConfig: {
+                    style: 'text-align:right'
+                },
                 queryMode: 'local',
                 displayField: 'value',
                 valueField: 'value',
@@ -15249,9 +16828,12 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     emptyMsg: Uni.I18n.translate('general.noItemsToDisplay', 'UNI', 'There are no items to display'),
 
     isFullTotalCount: false,
+    noBottomPaging: false,
     totalCount: -1,
 
     defaultButtonUI: 'default',
+
+    exportButton: true,
 
     initComponent: function () {
         this.callParent(arguments);
@@ -15263,7 +16845,15 @@ Ext.define('Uni.view.toolbar.PagingTop', {
                 xtype: 'tbtext',
                 itemId: 'displayItem'
             },
-            '->'
+            '->',
+            {
+                xtype: 'exporterbutton',
+                ui: 'icon',
+                iconCls: 'icon-file-download',
+                text: '',
+                component: this.up('grid'),
+                hidden: !this.exportButton
+            }
         ];
     },
 
@@ -15279,13 +16869,17 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             if (me.usesExactCount) {
                 me.totalCount = store.getTotalCount();
             } else {
-                me.totalCount = me.totalCount < store.getTotalCount() ? store.getTotalCount() : me.totalCount;
+                if (!!me.noBottomPaging) {
+                    me.totalCount = store.getTotalCount();
+                } else {
+                    me.totalCount = me.totalCount <= store.getTotalCount() ? store.getTotalCount() : me.totalCount;
+                }
             }
             if (store.getCount() === 0) {
                 me.totalCount = -1;
                 msg = me.emptyMsg;
             } else {
-                totalCount = me.totalCount - 1;
+                totalCount = !!me.noBottomPaging ? me.totalCount : me.totalCount - 1;
                 msg = me.displayMoreMsg;
                 if (me.isFullTotalCount || store.pageSize * pageData.currentPage >= me.totalCount || me.usesExactCount) {
                     me.isFullTotalCount = true;
@@ -15295,7 +16889,7 @@ Ext.define('Uni.view.toolbar.PagingTop', {
                 msg = Ext.String.format(
                     msg,
                     pageData.fromRecord,
-                    pageData.toRecord,
+                    !!me.noBottomPaging ? store.getTotalCount() : pageData.toRecord,
                     totalCount
                 );
             }
@@ -15584,7 +17178,12 @@ Ext.define('Uni.view.window.Confirmation', {
     show: function (config) {
         if (!Ext.isDefined(config.icon)) {
             Ext.apply(config, {
-                icon: Ext.MessageBox.ERROR
+                icon: 'icon-warning'
+            });
+        }
+        if (!Ext.isDefined(config.closable)) {
+            Ext.apply(config, {
+                closable: true
             });
         }
 
@@ -17240,5 +18839,789 @@ Ext.define('Ext.ux.Rixo.form.field.GridPicker-4-2-0', {
 		}
 		return true;
 	}
+});
+
+/**
+ * @class Ext.ux.exporter.Formatter
+ * @author Ed Spencer (http://edspencer.net)
+ * @cfg {Ext.data.Store} store The store to export
+ */
+Ext.define("Ext.ux.exporter.Formatter", {
+    /**
+     * Performs the actual formatting. This must be overridden by a subclass
+     */
+    format: Ext.emptyFn,
+    constructor: function(config) {
+        config = config || {};
+
+        Ext.applyIf(config, {
+
+        });
+    }
+});
+
+/**
+ * @class Ext.ux.exporter.csvformatter.CsvFormatter
+ * @extends Ext.ux.Exporter.Formatter
+ * Specialised Format class for outputting .csv files
+ * modification from Yogesh to extract value if renderers returning html
+ */
+Ext.define("Ext.ux.exporter.csvformatter.CsvFormatter", {
+    extend: "Ext.ux.exporter.Formatter",
+    mimeType: 'text/csv',
+    charset:'UTF-8',
+    separator: ",",
+    extension: "csv",
+    format: function(store, config) {
+        this.columns = config.columns || (store.fields ? store.fields.items : store.model.prototype.fields.items);
+        this.parserDiv = document.createElement("div");
+        return this.getHeaders() + "\n" + this.getRows(store);
+    },
+    getHeaders: function(store) {
+        var columns = [],
+            title;
+        Ext.each(this.columns, function(col) {
+            var title;
+            if (col.getXType() != "rownumberer") {
+                if (col.text != undefined) {
+                    title = col.text;
+                } else if (col.name) {
+                    title = col.name.replace(/_/g, " ");
+                    title = Ext.String.capitalize(title);
+                }
+                columns.push(title);
+            }
+        }, this);
+        return columns.join(this.separator);
+    },
+    getRows: function(store) {
+        var rows = [];
+        store.each(function(record, index) {
+            rows.push(this.getCell(record, index));
+        }, this);
+
+        return rows.join("\n");
+    },
+    getCell: function(record, index) {
+        var cells = [];
+        Ext.each(this.columns, function(col) {
+            var name = col.name || col.dataIndex || col.stateId;
+            if (name && col.getXType() != "rownumberer") {
+                if (Ext.isFunction(col.renderer)) {
+                    var value = col.renderer(record.get(name), {}, record);
+                    //to handle specific case if renderer returning html(img tags inside div)
+                    this.parserDiv.innerHTML = value;
+                    var values = [];
+                    var divEls = this.parserDiv.getElementsByTagName('div');
+                    if(divEls && divEls.length > 0) {
+                        Ext.each(divEls, function(divEl) {
+                            var innerValues = [];
+                            var imgEls = divEl.getElementsByTagName('img');
+                            Ext.each(imgEls, function(imgEl) {
+                                innerValues.push(imgEl.getAttribute('title'));
+                            });
+                            innerValues.push(divEl.innerText || divEl.textContent);
+                            values.push(innerValues.join(':'));
+                        });
+                    } else {
+                        values.push(this.parserDiv.innerText || this.parserDiv.textContent);
+                    }
+                    value = values.join('\n');
+                } else {
+                    var value = record.get(name);
+                }
+                //cells.push("\""+value+"\"");
+                cells.push(value);
+            }
+        }, this);
+        return cells.join(this.separator);
+    }
+});
+
+/**
+ * @class Ext.ux.exporter.excelformatter.Cell
+ * @extends Object
+ * Represents a single cell in a worksheet
+ */
+
+Ext.define("Ext.ux.exporter.excelformatter.Cell", {
+    constructor: function(config) {
+        Ext.applyIf(config, {
+          type: "String"
+        });
+
+        Ext.apply(this, config);
+
+        Ext.ux.exporter.excelformatter.Cell.superclass.constructor.apply(this, arguments);
+    },
+
+    render: function() {
+        return this.tpl.apply(this);
+    },
+
+    tpl: new Ext.XTemplate(
+        '<ss:Cell ss:StyleID="{style}">',
+          '<ss:Data ss:Type="{type}">{value}</ss:Data>',
+        '</ss:Cell>'
+    )
+});
+
+/**
+ * @class Ext.ux.exporter.excelformatter.ExcelFormatter
+ * @extends Ext.ux.exporter.Formatter
+ * Specialised Format class for outputting .xls files
+ */
+Ext.define("Ext.ux.exporter.excelformatter.ExcelFormatter", {
+    extend: "Ext.ux.exporter.Formatter",
+    uses: [
+        "Ext.ux.exporter.excelformatter.Cell",
+        "Ext.ux.exporter.excelformatter.Style",
+        "Ext.ux.exporter.excelformatter.Worksheet",
+        "Ext.ux.exporter.excelformatter.Workbook"
+    ],
+    //contentType: 'data:application/vnd.ms-excel;base64,',
+    //contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8",
+    //mimeType: "application/vnd.ms-excel",
+   	mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+   	//charset:"base64",
+    charset:"UTF-8",
+    extension: "xls",
+	
+    format: function(store, config) {
+      var workbook = new Ext.ux.exporter.excelformatter.Workbook(config);
+      workbook.addWorksheet(store, config || {});
+
+      return workbook.render();
+    }
+});
+
+/**
+ * @class Ext.ux.exporter.excelformatter.Style
+ * @extends Object
+ * Represents a style declaration for a Workbook (this is like defining CSS rules). Example:
+ *
+ * new Ext.ux.exporter.excelformatter.Style({
+ *   attributes: [
+ *     {
+ *       name: "Alignment",
+ *       properties: [
+ *         {name: "Vertical", value: "Top"},
+ *         {name: "WrapText", value: "1"}
+ *       ]
+ *     },
+ *     {
+ *       name: "Borders",
+ *       children: [
+ *         name: "Border",
+ *         properties: [
+ *           {name: "Color", value: "#e4e4e4"},
+ *           {name: "Weight", value: "1"}
+ *         ]
+ *       ]
+ *     }
+ *   ]
+ * })
+ *
+ * @cfg {String} id The ID of this style (required)
+ * @cfg {Array} attributes The attributes for this style
+ * @cfg {String} parentStyle The (optional parentStyle ID)
+ */
+Ext.define("Ext.ux.exporter.excelformatter.Style", {
+  constructor: function(config) {
+    config = config || {};
+
+    Ext.apply(this, config, {
+      parentStyle: '',
+      attributes : []
+    });
+
+    Ext.ux.exporter.excelformatter.Style.superclass.constructor.apply(this, arguments);
+
+    if (this.id == undefined) throw new Error("An ID must be provided to Style");
+
+    this.preparePropertyStrings();
+  },
+
+  /**
+   * Iterates over the attributes in this style, and any children they may have, creating property
+   * strings on each suitable for use in the XTemplate
+   */
+  preparePropertyStrings: function() {
+    Ext.each(this.attributes, function(attr, index) {
+      this.attributes[index].propertiesString = this.buildPropertyString(attr);
+      this.attributes[index].children = attr.children || [];
+
+      Ext.each(attr.children, function(child, childIndex) {
+        this.attributes[index].children[childIndex].propertiesString = this.buildPropertyString(child);
+      }, this);
+    }, this);
+  },
+
+  /**
+   * Builds a concatenated property string for a given attribute, suitable for use in the XTemplate
+   */
+  buildPropertyString: function(attribute) {
+    var propertiesString = "";
+
+    Ext.each(attribute.properties || [], function(property) {
+      propertiesString += Ext.String.format('ss:{0}="{1}" ', property.name, property.value);
+    }, this);
+
+    return propertiesString;
+  },
+
+  render: function() {
+    return this.tpl.apply(this);
+  },
+
+  tpl: new Ext.XTemplate(
+    '<tpl if="parentStyle.length == 0">',
+      '<ss:Style ss:ID="{id}">',
+    '</tpl>',
+    '<tpl if="parentStyle.length != 0">',
+      '<ss:Style ss:ID="{id}" ss:Parent="{parentStyle}">',
+    '</tpl>',
+    '<tpl for="attributes">',
+      '<tpl if="children.length == 0">',
+        '<ss:{name} {propertiesString} />',
+      '</tpl>',
+      '<tpl if="children.length != 0">',
+        '<ss:{name} {propertiesString}>',
+          '<tpl for="children">',
+            '<ss:{name} {propertiesString} />',
+          '</tpl>',
+        '</ss:{name}>',
+      '</tpl>',
+    '</tpl>',
+    '</ss:Style>'
+  )
+});
+
+/**
+ * @class Ext.ux.exporter.excelformatter.Workbook
+ * @extends Object
+ * Represents an Excel workbook
+ */
+Ext.define("Ext.ux.exporter.excelformatter.Workbook", {
+
+  constructor: function(config) {
+    config = config || {};
+
+    Ext.apply(this, config, {
+      /**
+       * @property title
+       * @type String
+       * The title of the workbook (defaults to "Workbook")
+       */
+      title: "Workbook",
+
+      /**
+       * @property worksheets
+       * @type Array
+       * The array of worksheets inside this workbook
+       */
+      worksheets: [],
+
+      /**
+       * @property compileWorksheets
+       * @type Array
+       * Array of all rendered Worksheets
+       */
+      compiledWorksheets: [],
+
+      /**
+       * @property cellBorderColor
+       * @type String
+       * The colour of border to use for each Cell
+       */
+      cellBorderColor: "#e4e4e4",
+
+      /**
+       * @property styles
+       * @type Array
+       * The array of Ext.ux.Exporter.ExcelFormatter.Style objects attached to this workbook
+       */
+      styles: [],
+
+      /**
+       * @property compiledStyles
+       * @type Array
+       * Array of all rendered Ext.ux.Exporter.ExcelFormatter.Style objects for this workbook
+       */
+      compiledStyles: [],
+
+      /**
+       * @property hasDefaultStyle
+       * @type Boolean
+       * True to add the default styling options to all cells (defaults to true)
+       */
+      hasDefaultStyle: true,
+
+      /**
+       * @property hasStripeStyles
+       * @type Boolean
+       * True to add the striping styles (defaults to true)
+       */
+      hasStripeStyles: true,
+
+      windowHeight    : 9000,
+      windowWidth     : 50000,
+      protectStructure: false,
+      protectWindows  : false
+    });
+
+    if (this.hasDefaultStyle) this.addDefaultStyle();
+    if (this.hasStripeStyles) this.addStripedStyles();
+
+    this.addTitleStyle();
+    this.addHeaderStyle();
+  },
+
+  render: function() {
+    this.compileStyles();
+    this.joinedCompiledStyles = this.compiledStyles.join("");
+
+    this.compileWorksheets();
+    this.joinedWorksheets = this.compiledWorksheets.join("");
+
+    return this.tpl.apply(this);
+  },
+
+  /**
+   * Adds a worksheet to this workbook based on a store and optional config
+   * @param {Ext.data.Store} store The store to initialize the worksheet with
+   * @param {Object} config Optional config object
+   * @return {Ext.ux.Exporter.ExcelFormatter.Worksheet} The worksheet
+   */
+  addWorksheet: function(store, config) {
+    var worksheet = new Ext.ux.exporter.excelformatter.Worksheet(store, config);
+
+    this.worksheets.push(worksheet);
+
+    return worksheet;
+  },
+
+  /**
+   * Adds a new Ext.ux.Exporter.ExcelFormatter.Style to this Workbook
+   * @param {Object} config The style config, passed to the Style constructor (required)
+   */
+  addStyle: function(config) {
+    var style = new Ext.ux.exporter.excelformatter.Style(config || {});
+
+    this.styles.push(style);
+
+    return style;
+  },
+
+  /**
+   * Compiles each Style attached to this Workbook by rendering it
+   * @return {Array} The compiled styles array
+   */
+  compileStyles: function() {
+    this.compiledStyles = [];
+
+    Ext.each(this.styles, function(style) {
+      this.compiledStyles.push(style.render());
+    }, this);
+
+    return this.compiledStyles;
+  },
+
+  /**
+   * Compiles each Worksheet attached to this Workbook by rendering it
+   * @return {Array} The compiled worksheets array
+   */
+  compileWorksheets: function() {
+    this.compiledWorksheets = [];
+
+    Ext.each(this.worksheets, function(worksheet) {
+      this.compiledWorksheets.push(worksheet.render());
+    }, this);
+
+    return this.compiledWorksheets;
+  },
+
+  tpl: new Ext.XTemplate(
+    '<?xml version="1.0" encoding="utf-8"?>',
+    '<ss:Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:o="urn:schemas-microsoft-com:office:office">',
+      '<o:DocumentProperties>',
+        '<o:Title>{title}</o:Title>',
+      '</o:DocumentProperties>',
+      '<x:ExcelWorkbook>',
+         '<x:WindowHeight>{windowHeight}</x:WindowHeight>',
+         '<x:WindowWidth>{windowWidth}</x:WindowWidth>',
+         '<x:ProtectStructure>{protectStructure}</x:ProtectStructure>',
+         '<x:ProtectWindows>{protectWindows}</x:ProtectWindows>',
+      '</x:ExcelWorkbook>',
+      '<ss:Styles>',
+        '{joinedCompiledStyles}',
+      '</ss:Styles>',
+        '{joinedWorksheets}',
+    '</ss:Workbook>'
+  ),
+
+  /**
+   * Adds the default Style to this workbook. This sets the default font face and size, as well as cell borders
+   */
+  addDefaultStyle: function() {
+    var borderProperties = [
+      {name: "Color",     value: this.cellBorderColor},
+      {name: "Weight",    value: "1"},
+      {name: "LineStyle", value: "Continuous"}
+    ];
+
+    this.addStyle({
+      id: 'Default',
+      attributes: [
+        {
+          name: "Alignment",
+          properties: [
+            {name: "Vertical", value: "Top"},
+            {name: "WrapText", value: "1"}
+          ]
+        },
+        {
+          name: "Font",
+          properties: [
+            {name: "FontName", value: "arial"},
+            {name: "Size",     value: "10"}
+          ]
+        },
+        {name: "Interior"}, {name: "NumberFormat"}, {name: "Protection"},
+        {
+          name: "Borders",
+          children: [
+            {
+              name: "Border",
+              properties: [{name: "Position", value: "Top"}].concat(borderProperties)
+            },
+            {
+              name: "Border",
+              properties: [{name: "Position", value: "Bottom"}].concat(borderProperties)
+            },
+            {
+              name: "Border",
+              properties: [{name: "Position", value: "Left"}].concat(borderProperties)
+            },
+            {
+              name: "Border",
+              properties: [{name: "Position", value: "Right"}].concat(borderProperties)
+            }
+          ]
+        }
+      ]
+    });
+  },
+
+  addTitleStyle: function() {
+    this.addStyle({
+      id: "title",
+      attributes: [
+        {name: "Borders"},
+        {name: "Font"},
+        {
+          name: "NumberFormat",
+          properties: [
+            {name: "Format", value: "@"}
+          ]
+        },
+        {
+          name: "Alignment",
+          properties: [
+            {name: "WrapText",   value: "1"},
+            {name: "Horizontal", value: "Center"},
+            {name: "Vertical",   value: "Center"}
+          ]
+        }
+      ]
+    });
+  },
+
+  addHeaderStyle: function() {
+    this.addStyle({
+      id: "headercell",
+      attributes: [
+        {
+          name: "Font",
+          properties: [
+            {name: "Bold", value: "1"},
+            {name: "Size", value: "10"}
+          ]
+        },
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color",   value: "#A3C9F1"}
+          ]
+        },
+        {
+          name: "Alignment",
+          properties: [
+            {name: "WrapText",   value: "1"},
+            {name: "Horizontal", value: "Center"}
+          ]
+        }
+      ]
+    });
+  },
+
+  /**
+   * Adds the default striping styles to this workbook
+   */
+  addStripedStyles: function() {
+    this.addStyle({
+      id: "even",
+      attributes: [
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color",   value: "#CCFFFF"}
+          ]
+        }
+      ]
+    });
+
+    this.addStyle({
+      id: "odd",
+      attributes: [
+        {
+          name: "Interior",
+          properties: [
+            {name: "Pattern", value: "Solid"},
+            {name: "Color",   value: "#CCCCFF"}
+          ]
+        }
+      ]
+    });
+
+    Ext.each(['even', 'odd'], function(parentStyle) {
+      this.addChildNumberFormatStyle(parentStyle, parentStyle + 'date', "[ENG][$-409]dd\-mmm\-yyyy;@");
+      this.addChildNumberFormatStyle(parentStyle, parentStyle + 'int', "0");
+      this.addChildNumberFormatStyle(parentStyle, parentStyle + 'float', "0.00");
+    }, this);
+  },
+
+  /**
+   * Private convenience function to easily add a NumberFormat style for a given parentStyle
+   * @param {String} parentStyle The ID of the parentStyle Style
+   * @param {String} id The ID of the new style
+   * @param {String} value The value of the NumberFormat's Format property
+   */
+  addChildNumberFormatStyle: function(parentStyle, id, value) {
+    this.addStyle({
+      id: id,
+      parentStyle: "even",
+      attributes: [
+        {
+          name: "NumberFormat",
+          properties: [{name: "Format", value: value}]
+        }
+      ]
+    });
+  }
+});
+
+/**
+ * @class Ext.ux.exporter.excelformatter.Worksheet
+ * @extends Object
+ * Represents an Excel worksheet
+ * @cfg {Ext.data.Store} store The store to use (required)
+ */
+Ext.define("Ext.ux.exporter.excelformatter.Worksheet", {
+
+    constructor: function(store, config) {
+        config = config || {};
+
+        this.store = store;
+
+        Ext.applyIf(config, {
+            hasTitle: true,
+            hasHeadings: true,
+            stripeRows: true,
+			parserDiv: document.createElement("div"),
+            title: "Workbook",
+            columns: store.fields == undefined ? {} : store.fields.items
+        });
+
+        Ext.apply(this, config);
+
+        Ext.ux.exporter.excelformatter.Worksheet.superclass.constructor.apply(this, arguments);
+    },
+
+    /**
+     * @property dateFormatString
+     * @type String
+     * String used to format dates (defaults to "Y-m-d"). All other data types are left unmolested
+     */
+    dateFormatString: "Y-m-d",
+
+    worksheetTpl: new Ext.XTemplate(
+        '<ss:Worksheet ss:Name="{title}">',
+        '<ss:Names>',
+        '<ss:NamedRange ss:Name="Print_Titles" ss:RefersTo="=\'{title}\'!R1:R2" />',
+        '</ss:Names>',
+        '<ss:Table x:FullRows="1" x:FullColumns="1" ss:ExpandedColumnCount="{colCount}" ss:ExpandedRowCount="{rowCount}">',
+        '{columns}',
+        '<ss:Row ss:Height="38">',
+        '<ss:Cell ss:StyleID="title" ss:MergeAcross="{colCount - 1}">',
+        '<ss:Data xmlns:html="http://www.w3.org/TR/REC-html40" ss:Type="String">',
+        '<html:B><html:U><html:Font html:Size="15">{title}',
+        '</html:Font></html:U></html:B></ss:Data><ss:NamedCell ss:Name="Print_Titles" />',
+        '</ss:Cell>',
+        '</ss:Row>',
+        '<ss:Row ss:AutoFitHeight="1">',
+        '{header}',
+        '</ss:Row>',
+        '{rows}',
+        '</ss:Table>',
+        '<x:WorksheetOptions>',
+        '<x:PageSetup>',
+        '<x:Layout x:CenterHorizontal="1" x:Orientation="Landscape" />',
+        '<x:Footer x:Data="Page &amp;P of &amp;N" x:Margin="0.5" />',
+        '<x:PageMargins x:Top="0.5" x:Right="0.5" x:Left="0.5" x:Bottom="0.8" />',
+        '</x:PageSetup>',
+        '<x:FitToPage />',
+        '<x:Print>',
+        '<x:PrintErrors>Blank</x:PrintErrors>',
+        '<x:FitWidth>1</x:FitWidth>',
+        '<x:FitHeight>32767</x:FitHeight>',
+        '<x:ValidPrinterInfo />',
+        '<x:VerticalResolution>600</x:VerticalResolution>',
+        '</x:Print>',
+        '<x:Selected />',
+        '<x:DoNotDisplayGridlines />',
+        '<x:ProtectObjects>False</x:ProtectObjects>',
+        '<x:ProtectScenarios>False</x:ProtectScenarios>',
+        '</x:WorksheetOptions>',
+        '</ss:Worksheet>'),
+
+    /**
+     * Builds the Worksheet XML
+     * @param {Ext.data.Store} store The store to build from
+     */
+    render: function(store) {
+        return this.worksheetTpl.apply({
+            header: this.buildHeader(),
+            columns: this.buildColumns().join(""),
+            rows: this.buildRows().join(""),
+            colCount: this.columns.length,
+            rowCount: this.store.getCount() + 2,
+            title: this.title
+        });
+    },
+
+    buildColumns: function() {
+        var cols = [];
+
+        Ext.each(this.columns, function(column) {
+            cols.push(this.buildColumn());
+        }, this);
+
+        return cols;
+    },
+
+    buildColumn: function(width) {
+        return Ext.String.format('<ss:Column ss:AutoFitWidth="1" ss:Width="{0}" />', width || 164);
+    },
+
+    buildRows: function() {
+        var rows = [];
+
+        this.store.each(function(record, index) {
+            rows.push(this.buildRow(record, index));
+        }, this);
+
+        return rows;
+    },
+
+    buildHeader: function() {
+        var cells = [];
+
+        Ext.each(this.columns, function(col) {
+            var title;
+
+            //if(col.dataIndex) {
+            if (col.text != undefined) {
+                title = col.text;
+            } else if (col.name) {
+                //make columns taken from Record fields (e.g. with a col.name) human-readable
+                title = col.name.replace(/_/g, " ");
+                title = Ext.String.capitalize(title);
+            }
+
+            cells.push(Ext.String.format('<ss:Cell ss:StyleID="headercell"><ss:Data ss:Type="String">{0}</ss:Data><ss:NamedCell ss:Name="Print_Titles" /></ss:Cell>', title));
+            //}
+        }, this);
+
+        return cells.join("");
+    },
+
+    buildRow: function(record, index) {
+        var style,
+        cells = [];
+        if (this.stripeRows === true) style = index % 2 == 0 ? 'even' : 'odd';
+
+        Ext.each(this.columns, function(col) {
+            var name = col.name || col.dataIndex;
+
+            if (name) {
+                //if given a renderer via a ColumnModel, use it and ensure data type is set to String
+                if (Ext.isFunction(col.renderer)) {
+                    var value = col.renderer(record.get(name), {}, record),
+                        type = "String";
+                    var values = [];
+					//to extract value if renderers returning html
+                    this.parserDiv.innerHTML = value;
+                    var divEls = this.parserDiv.getElementsByTagName('div');
+                    if (divEls && divEls.length > 0) {
+                        Ext.each(divEls, function(divEl) {
+                            var innerValues = [];
+                            var imgEls = divEl.getElementsByTagName('img');
+                            Ext.each(imgEls, function(imgEl) {
+                                innerValues.push(imgEl.getAttribute('title'));
+                            });
+                            innerValues.push(divEl.innerText || divEl.textContent);
+                            values.push(innerValues.join(':'));
+                        });
+                    } else {
+                        values.push(this.parserDiv.innerText || this.parserDiv.textContent);
+                    }
+                    value = values.join(' ');
+
+                } else {
+                    var value = record.get(name),
+                        type = this.typeMappings[col.type || record.fields.get(name).type.type];
+                }
+
+                cells.push(this.buildCell(value, type, style).render());
+            }
+        }, this);
+
+        return Ext.String.format("<ss:Row>{0}</ss:Row>", cells.join(""));
+    },
+
+    buildCell: function(value, type, style) {
+        if (type == "DateTime" && Ext.isFunction(value.format)) value = value.format(this.dateFormatString);
+
+        return new Ext.ux.exporter.excelformatter.Cell({
+            value: value,
+            type: type,
+            style: style
+        });
+    },
+
+    /**
+     * @property typeMappings
+     * @type Object
+     * Mappings from Ext.data.Record types to Excel types
+     */
+    typeMappings: {
+        'int': "Number",
+        'string': "String",
+        'float': "Number",
+        'date': "DateTime"
+    }
 });
 
