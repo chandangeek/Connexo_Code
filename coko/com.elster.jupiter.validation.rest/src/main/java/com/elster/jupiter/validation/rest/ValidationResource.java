@@ -221,6 +221,22 @@ public class ValidationResource {
         return Response.ok(result).build();
     }
 
+    @GET
+    @Path("/{ruleSetId}/versions/{ruleSetVersionId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    public Response getValidationRule(@PathParam("ruleSetId") long ruleSetId,
+                                      @PathParam("ruleSetVersionId") final long ruleSetVersionId) {
+
+        ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
+                ()-> new WebApplicationException(Response.Status.NOT_FOUND));
+        ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSet, ruleSetVersionId);
+
+        ValidationRuleSetVersionInfo info = new ValidationRuleSetVersionInfo(ruleSetVersion);
+        return Response.ok(info).build();
+    }
+
     ////// RULES
     @GET
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules")
