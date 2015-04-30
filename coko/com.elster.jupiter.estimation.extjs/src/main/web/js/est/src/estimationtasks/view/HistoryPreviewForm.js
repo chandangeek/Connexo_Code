@@ -2,7 +2,7 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.estimationtasks-history-preview-form',
 
-    requires: [        
+    requires: [
         'Uni.form.field.Duration'
     ],
 
@@ -29,7 +29,7 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                     {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.deviceGroup', 'EST', 'Device group'),
                         name: 'deviceGroup'
-                    }                    
+                    }
                 ]
             },
             {
@@ -41,7 +41,7 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                     xtype: 'displayfield',
                     labelWidth: 250
                 },
-                items: [                   
+                items: [
                     {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.status', 'EST', 'Status'),
                         name: 'status'
@@ -59,6 +59,22 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                     {
                         xtype: 'uni-form-field-duration',
                         name: 'duration'
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('estimationtasks.general.dataOptions', 'EST', 'Data options'),
+                labelAlign: 'top',
+                layout: 'vbox',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 250
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.estimationPeriod', 'EST', 'Estimation period'),
+                        name: 'period_name'
                     }
                 ]
             }

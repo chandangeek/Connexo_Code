@@ -1,7 +1,6 @@
 Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
     extend: 'Ext.data.Model',
-    requires: [
-    ],
+    requires: [],
     fields: [
         {name: 'task', persist: false},
         {name: 'id', type: 'number'},
@@ -14,8 +13,8 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
         {name: 'statusPrefix', type: 'string'},
         {
             name: 'deviceGroup',
-            persist:false,
-            mapping:  function (data) {
+            persist: false,
+            mapping: function (data) {
 
                 if (data.task.deviceGroup && data.task.deviceGroup.name) {
                     return data.task.deviceGroup.name;
@@ -27,8 +26,8 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
         },
         {
             name: 'name',
-            persist:false,
-            mapping:  function (data) {
+            persist: false,
+            mapping: function (data) {
                 return data.task.name;
             }
         },
@@ -60,6 +59,17 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
                     return Uni.DateTime.formatDateTimeLong(new Date(data.finishedOn));
                 }
                 return '-';
+            }
+        },
+        {
+            name: 'period_name',
+            persist: false,
+            mapping: function (data) {
+                if (data.task.period && data.task.period.name) {
+                    return data.task.period.name;
+                } else {
+                    return 'All';
+                }
             }
         }
     ]
