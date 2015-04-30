@@ -323,7 +323,8 @@ public class EstimationResource {
     @GET
     @Path("/{ruleSetId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION,
+        Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
         EstimationRule rule = transactionService.execute((Transaction<EstimationRule>) () -> {
             EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
