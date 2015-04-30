@@ -267,6 +267,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         }
         updateReadingTypes(rule, mRIDs);
         rule.setProperties(properties);
+        rule.save();
 
         return rule;
     }

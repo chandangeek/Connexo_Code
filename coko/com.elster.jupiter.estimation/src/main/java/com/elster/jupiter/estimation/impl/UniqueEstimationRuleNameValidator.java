@@ -32,6 +32,6 @@ public class UniqueEstimationRuleNameValidator implements ConstraintValidator<Un
     }
 
     private boolean areDifferentWithSameName(EstimationRule rule, EstimationRule existingRule) {
-        return existingRule.getName().equals(rule.getName()) && (existingRule.getId() != rule.getId());
+        return existingRule.getId() != rule.getId() && existingRule.getName().equals(rule.getName());
     }
 }
