@@ -11,33 +11,11 @@ Ext.define('Mdc.view.setup.devicechannels.Data', {
 
     router: null,
     channel: null,
-    viewType: null,
 
     initComponent: function () {
         var me = this;
         me.content = {
             ui: 'large',
-            tools: [
-                {
-                    xtype: 'button',
-                    itemId: 'deviceLoadProfileChannelTableViewBtn',
-                    text: Uni.I18n.translate('deviceloadprofiles.tableView', 'MDC', 'Table view'),
-                    action: 'showTableView',
-                    ui: 'link'
-                },
-                {
-                    xtype: 'tbtext',
-                    text: '|'
-                },
-                {
-                    xtype: 'button',
-                    itemId: 'deviceLoadProfileChannelGraphViewBtn',
-                    text: Uni.I18n.translate('deviceloadprofiles.graphView', 'MDC', 'Graph view'),
-                    action: 'showGraphView',
-                    disabled: true,
-                    ui: 'link'
-                }
-            ],
             items: [
                 {
                     xtype: 'filter-top-panel',
@@ -47,20 +25,18 @@ Ext.define('Mdc.view.setup.devicechannels.Data', {
             ]
         };
 
-        switch (me.viewType) {
-            case 'table':
-                me.content.items.push({
-                    xtype: 'deviceLoadProfileChannelTableView',
-                    channel: me.channel,
-                    router: me.router
-                });
-                break;
-            case 'graph':
-                me.content.items.push({
-                    xtype: 'deviceLoadProfileChannelGraphView'
-                });
-                break;
-        }
+
+        me.content.items.push([
+//            {
+//                xtype: 'deviceLoadProfileChannelGraphView'
+//            },
+            {
+                xtype: 'deviceLoadProfileChannelTableView',
+                channel: me.channel,
+                router: me.router
+            }
+        ]);
+
 
         me.callParent(arguments);
     }

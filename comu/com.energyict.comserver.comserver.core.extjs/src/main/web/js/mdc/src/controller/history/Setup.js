@@ -1323,10 +1323,10 @@ Ext.define('Mdc.controller.history.Setup', {
                                 },
                                 channeldata: {
                                     title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                    route: '{channelId}/graph',
-                                    controller: 'Mdc.controller.setup.DeviceChannelTab',
+                                    route: '{channelId}/data',
+                                    controller: 'Mdc.controller.setup.DeviceChannelData',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
-                                    action: 'initTabChannelGraphView',
+                                    action: 'showDataView',
                                     filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
@@ -1334,31 +1334,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                             return true;
                                         }, {single: true});
                                         return this;
-                                    }
-                                },
-                                channeltableData: {
-                                    title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                    route: '{channelId}/table',
-                                    controller: 'Mdc.controller.setup.DeviceChannelTab',
-                                    privileges: Mdc.privileges.Device.viewDeviceCommunication,
-                                    action: 'initTabChannelDataView',
-                                    filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
-                                    callback: function (route) {
-                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
-                                            return true;
-                                        }, {single: true});
-                                        return this;
-                                    },
-                                    items: {
-                                        editreadings: {
-                                            title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
-                                            route: 'editreadings',
-                                            controller: 'Mdc.controller.setup.DeviceChannelDataEditReadings',
-
-                                            action: 'showOverview',
-                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
-                                        }
                                     }
                                 },
                                 channelvalidation: {

@@ -15,9 +15,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelTab', {
     init: function () {
         var me = this;
         me.control({
-            '#channelTabPanel': {
-                tabChange: this.changeTab
-            }
+//            '#channelTabPanel': {
+//                tabChange: this.changeTab
+//            }
         });
     },
 
@@ -60,13 +60,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelTab', {
                 route,
                 filterParams = {};
             if (tab.itemId === 'channel-data') {
-                routeParams.channelId = this.channelId;
+           //     routeParams.channelId = this.channelId;
                 filterParams.onlySuspect = false;
                 route = 'devices/device/channels/channeldata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
             } else if (tab.itemId === 'channel-specifications') {
-                routeParams.channelId = this.channelId;
+             //   routeParams.channelId = this.channelId;
                 route = 'devices/device/channels/channel';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);

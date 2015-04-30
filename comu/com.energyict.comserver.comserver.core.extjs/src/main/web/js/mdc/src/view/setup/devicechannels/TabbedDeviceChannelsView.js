@@ -4,10 +4,16 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     itemId: 'tabbedDeviceChannelsView',
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
-        'Mdc.view.setup.devicechannels.SideFilter'
+        'Mdc.view.setup.devicechannels.SideFilter',
+        'Mdc.view.setup.devicechannels.Data'
     ],
+
     router: null,
+    channel: null,
+    device: null,
     channelsListLink: null,
+    activeTab: null,
+
     initComponent: function () {
         var me = this;
         me.content = [
@@ -15,19 +21,34 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                 xtype: 'tabpanel',
                 ui: 'large',
                 itemId: 'channelTabPanel',
+                activeTab: me.activeTab,
                 items: [
                     {
                         title: Uni.I18n.translate('deviceloadprofiles.specifications', 'MDC', 'Specifications'),
-                        itemId: 'channel-specifications'
+                        itemId: 'channel-specifications',
+                        items: {
+                            xtype: 'deviceLoadProfileChannelOverview',
+                            router: me.router,
+                            device: me.device
+                        }
                     },
                     {
                         title: Uni.I18n.translate('deviceloadprofiles.readings', 'MDC', 'Readings'),
-                        itemId: 'channel-data'
-                    }],
+                        itemId: 'channel-data',
+                        items: [
+                            {
+                                xtype: 'deviceLoadProfileChannelData',
+                                router: me.router,
+                                device: me.device,
+                                channel: me.record
+                            }
+                        ]
+                    }
+                ],
                 listeners: {
-                    afterrender: function(panel){
+                    afterrender: function (panel) {
                         var bar = panel.tabBar;
-                        bar.insert(2,[
+                        bar.insert(2, [
                             {
                                 xtype: 'tbfill'
                             },
