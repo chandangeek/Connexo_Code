@@ -68,6 +68,11 @@ public class LoggingContext implements AutoCloseable {
         log(Level.SEVERE, logger, message, throwable, args);
     }
 
+    public void severe(Object logger, Throwable throwable) {
+        String message = throwable.getMessage() == null ? throwable.toString() : throwable.getMessage();
+        severe(logger, message, throwable);
+    }
+
     public void severe(Object logger, String message, Object... args) {
         log(Level.SEVERE, logger, message, null, args);
     }
