@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 xtype: 'deviceLoadProfileChannelData',
                                 router: me.router,
                                 device: me.device,
-                                channel: me.record
+                                channel: me.channel
                             }
                         ]
                     }

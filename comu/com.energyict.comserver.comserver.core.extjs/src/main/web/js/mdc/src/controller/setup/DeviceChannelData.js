@@ -32,11 +32,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    showSpecView: function () {
-
+    showSpecView: function (mRID, channelId) {
+        this.showOverview(mRID, channelId, 0)
     },
 
-    showOverview: function (mRID, channelId) {
+    showDataView: function (mRID, channelId) {
+        this.showOverview(mRID, channelId, 1)
+    },
+
+    showOverview: function (mRID, channelId, activeTab) {
         var me = this,
             device = me.getModel('Mdc.model.Device'),
             channel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
@@ -57,9 +61,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             channel: channel,
                             device: device,
                             channelsListLink: me.makeLinkToList(router),
-                            activeTab: 1
+                            activeTab: activeTab
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
+
+                        dataStore.getProxy().setUrl({
+                            mRID: mRID,
+                            channelId: channelId
+                        });
+               //         dataStore.load()
                     }
                 })
             }

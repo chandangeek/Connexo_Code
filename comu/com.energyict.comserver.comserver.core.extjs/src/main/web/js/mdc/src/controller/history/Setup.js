@@ -1310,9 +1310,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                 channel: {
                                     title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
                                     route: '{channelId}',
-                                    controller: 'Mdc.controller.setup.DeviceChannelTab',
+                                    controller: 'Mdc.controller.setup.DeviceChannelData',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
-                                    action: 'initTabDeviceChannelDetailsView',
+                                    action: 'showSpecView',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));
