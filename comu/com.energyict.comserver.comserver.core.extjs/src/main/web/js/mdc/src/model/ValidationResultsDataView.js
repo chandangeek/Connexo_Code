@@ -13,6 +13,12 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
                 return record.get('validationStatus').allDataValidated;
             }
         },
+		{
+            name: 'isActive',            
+            convert: function (value, record) {			
+				return record.get('validationStatus').isActive;               
+            }
+		},
         {
             name: 'allDataValidatedDisplay',
             convert: function (value, record) {
@@ -25,10 +31,7 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
         {
             name: 'total',
             convert: function (value, record) {
-                if (value) {
-                    return  Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);
-                }
-                return '';
+               return  Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);      
             }
         },
         {

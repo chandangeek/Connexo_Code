@@ -1,10 +1,7 @@
 Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceValidationResultsMainView',
-    itemId: 'deviceValidationResultsMainView',
-
+    alias: 'widget.mdc-device-validation-results-main-view',
     device: null,	
-
 	requires: [
 		'Mdc.view.setup.devicevalidationresults.SideFilter',
 		'Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset',
@@ -26,7 +23,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
 						items: [
 							{
 							xtype: 'deviceMenu',
-							itemId: 'stepsMenu',
+							itemId: 'steps-Menu',
 							device: me.device,
 							toggleId: 'validationResultsLink'
 						}
@@ -34,7 +31,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
                     },
                     {
 					      xtype: 'mdc-device-validation-results-side-filter',
-						  itemId: 'deviceValidationResultsSideFilter'
+						  itemId: 'device-validation-result-side-filter'
                     }
 
                 ]
@@ -45,7 +42,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
 				xtype: 'tabpanel',                
                 ui: 'large',
                 title: Uni.I18n.translate('validationResults.title', 'MDC', 'Validation results'),
-				itemId: 'validationResultsTabPanel',	
+				itemId: 'tab-validation-results',	
 				activeTab: -1,				
                 items: [
                     {
@@ -55,12 +52,12 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
 						items: [
 							{
 								xtype: 'filter-top-panel',
-								itemId: 'devicevalidationresultsfilterpanel',
+								itemId: 'pnl-device-validation-results-filter',
 								emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
 							},
 							{							
-								xtype: 'deviceValidationResultsRuleset',
-								itemId: 'devicevalidationresultsrulesetpanel'
+								xtype: 'mdc-device-validation-results-ruleset',
+								itemId: 'pnl-device-validation-results-ruleset'
 							}
 						]
                     },
@@ -75,8 +72,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
                                 emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                             },
                             {
-                                xtype: 'deviceValidationResultsLoadProfileRegister',
-                                itemId: 'deviceValidationResultsLoadProfileRegisterpanel'
+                                xtype: 'mdc-device-validation-results-load-profile-register',
+                                itemId: 'pnl-device-validation-results-loadprofile-register'
                             }
                         ]
                     }

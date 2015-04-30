@@ -1,9 +1,7 @@
 Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
-    //extend: 'Uni.view.container.ContentContainer',	   
-	  extend: 'Ext.container.Container',
-    alias: 'widget.deviceValidationResultsRuleset',    
-    //ui: 'medium',  
-	layout: {
+    extend: 'Ext.container.Container',
+    alias: 'widget.mdc-device-validation-results-ruleset',    
+    layout: {
         type: 'vbox',
         align: 'stretch'
     },
@@ -25,7 +23,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 				items: [
 					{
 						xtype: 'form',	
-						itemId: 'deviceValidationResultsRulesetForm',	
+						itemId: 'frm-device-validation-results-ruleset',	
 						flex: 1,						
 						layout: {
 							type: 'vbox',
@@ -38,7 +36,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 						items: [
 							{
 								xtype: 'displayfield',						
-								itemId: 'configuration-view-data-validated',
+								itemId: 'dpl-configuration-view-data-validated',
 								fieldLabel: Uni.I18n.translate('validationResults.dataValidated', 'MDC', 'Data validated'),
 								name: 'dataValidatedDisplay',
 								value: Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...')					
@@ -46,7 +44,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 							},
 							{
 								xtype: 'displayfield',						
-								itemId: 'configuration-view-validation-results',
+								itemId: 'dpl-configuration-view-validation-results',
 								fieldLabel: Uni.I18n.translate('validationResults.validationResults', 'MDC', 'Validation results'),
 								name: 'total',
 								value: Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...')					
@@ -63,7 +61,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 						items: [
 							{
 								xtype: 'button',
-								itemId: 'configurationViewValidateNow',
+								itemId: 'btn-configuration-view-validate-now',
 								text: Uni.I18n.translate('validationResults.validateNow', 'MDC', 'Validate now'),
 								disabled: true,
 								action: 'validateNow'								
@@ -79,21 +77,20 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
                         type: 'vbox',
                         align: 'stretch'
                  },
-				 ui: 'medium', 
-				// margin: '0 -16 0 -16',
+				 ui: 'medium', 				
 				 hidden: true,				 
-				 itemId: 'configurationViewValidationResultsBrowse',
+				 itemId: 'con-configuration-view-validation-results-browse',
 				 items: [
 					{
 						ui: 'medium',
 						margin: '0 -16 0 -16',
-						itemId: 'ruleSetList',
+						itemId: 'rule-set-list',
 						title: Uni.I18n.translate('validationResults.validationRuleSets', 'MDC', 'Validation rule sets'),
 						xtype: 'mdc-rule-set-list'
 					},
 					{
 						ui: 'medium',
-						itemId: 'ruleSetVersionList',
+						itemId: 'rule-set-version-list',
 						margin: '0 -16 0 -16',
 						title: Uni.I18n.translate('validationResults.validationRuleSetVersions', 'MDC', 'Validation rule set versions'),
 						xtype: 'mdc-rule-set-version-list'
@@ -101,12 +98,12 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
 					{
 						ui: 'medium',
 						margin: '0 -16 0 -16',
-						itemId: 'ruleSetVersionRuleList',
+						itemId: 'rule-set-version-rule-list',
 						title: Uni.I18n.translate('validationResults.validationRuleSetVersionRules', 'MDC', 'Validation rules'),
 						xtype: 'rule-set-version-rule-list'
 					},
 					{						
-						itemId: 'ruleSetVersionRulePreview',
+						itemId: 'rule-set-version-rule-preview',
 						xtype: 'deviceDataValidationRulePreview'
 					}
 				 ]
