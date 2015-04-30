@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationBlockFormatter;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -49,7 +50,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.validation.MessageInterpolator;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -57,7 +57,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -257,13 +256,16 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         determineEstimationRules(meterActivation)
                 .filter(EstimationRule::isActive)
                 .filter(rule -> rule.getReadingTypes().contains(readingType))
-                .peek(rule -> logger.log(Level.INFO, MessageFormat.format("Attempting rule {0}", rule.getName())))
                 .forEach(rule -> {
                     try (LoggingContext loggingContext = LoggingContext.get().with("rule", rule.getName())) {
+                        loggingContext.info(logger, "Attempting rule {rule}");
                         Estimator estimator = rule.createNewEstimator();
                         estimator.init(logger);
                         EstimationResult estimationResult = result.get();
-                        estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
+                        estimationResult.estimated().stream().forEach(block -> {
+                            loggingContext.info(logger, "Successful estimation with {rule}: block ", EstimationBlockFormatter.getInstance().format(block));
+                            report.reportEstimated(readingType, block);
+                        });
                         result.update(estimator.estimate(estimationResult.remainingToBeEstimated()));
                     }
                 });

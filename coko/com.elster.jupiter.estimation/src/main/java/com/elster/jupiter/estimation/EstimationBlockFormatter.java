@@ -24,6 +24,9 @@ public class EstimationBlockFormatter {
                 .append(" on ")
                 .append(estimationBlock.getReadingType().getAliasName())
                 .append(estimationBlock.getChannel().getMeterActivation().getMeter().map(meter -> " and device " + meter.getName()).orElse(""))
+                .append(" with ")
+                .append(estimationBlock.estimatables().size())
+                .append(" suspects")
                 .toString();
     }
 }
