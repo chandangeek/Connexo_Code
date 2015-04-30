@@ -320,7 +320,6 @@ public class EstimationResource {
                     }
                 }
                 rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
-                ruleSet.save();
                 return rule;
             }
         }));
