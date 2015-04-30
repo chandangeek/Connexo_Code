@@ -145,13 +145,14 @@ Ext.define('Uni.property.view.property.Base', {
      * setting the new (same value) on the property
      */
     showPopupEnteredValueEqualsInheritedValue: function (field, property) {
-        var me = this;
+        var me = this,
+            key = property.get('key');
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
             cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
         }).show({
-            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), property.get('key')),
-            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), property.get('key')),
+            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), Uni.I18n.translate(key, me.translationKey, key)),
+            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), Uni.I18n.translate(key, me.translationKey, key)),
             config: {
                 property: me,
                 field: field
