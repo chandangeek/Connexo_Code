@@ -31,7 +31,10 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     fieldLabel: Uni.I18n.translate('general.state', 'MDC', 'State'),
                     renderer: function (value) {
                         if (value) {
+                            this.show();
                             return value + ' (<a href="' + this.up('#devicegeneralinformationpanel').router.getRoute('devices/device/history').buildUrl() + '">' + Uni.I18n.translate('deviceHistory.viewHistory', 'MDC', 'View history') + ')</a>';
+                        } else {
+                            this.hide();
                         }
                     }
                 },
