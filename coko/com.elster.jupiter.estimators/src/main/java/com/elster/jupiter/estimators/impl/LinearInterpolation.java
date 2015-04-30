@@ -52,7 +52,12 @@ public class LinearInterpolation extends AbstractEstimator {
 
     @Override
     public String getPropertyDefaultFormat(String property) {
-        return null;
+        switch (property) {
+        case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
+            return "Max number of consecutive suspects";
+        default:
+            return "";
+        }
     }
 
     @Override

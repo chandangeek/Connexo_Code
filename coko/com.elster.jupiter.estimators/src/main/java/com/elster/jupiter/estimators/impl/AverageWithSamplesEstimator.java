@@ -104,7 +104,22 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public String getPropertyDefaultFormat(String property) {
-        return null;
+        switch (property) {
+        case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
+            return "Max number of consecutive suspects";
+        case MAX_NUMBER_OF_SAMPLES:
+            return "Max number of samples";
+        case MIN_NUMBER_OF_SAMPLES:
+            return "Min number of samples";
+        case ALLOW_NEGATIVE_VALUES:
+            return "Allow negative values";
+        case RELATIVE_PERIOD:
+            return "Relative period";
+        case ADVANCE_READINGS_SETTINGS:
+            return "Advance readings settings";
+        default:
+            return "";
+        }
     }
 
     @Override
