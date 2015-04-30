@@ -1,4 +1,4 @@
-Ext.define('Uni.property.view.property.Relativeperiod', {
+Ext.define('Uni.property.view.property.RelativePeriod', {
     extend: 'Uni.property.view.property.Base',
     requires: [
         'Uni.property.store.RelativePeriods'

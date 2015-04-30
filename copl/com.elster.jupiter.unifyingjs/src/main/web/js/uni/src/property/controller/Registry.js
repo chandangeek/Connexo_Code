@@ -37,7 +37,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.CodeTable',
         'Uni.property.view.property.Reference',
         'Uni.property.view.property.Multiselect',
-        'Uni.property.view.property.Relativeperiod'
+        'Uni.property.view.property.RelativePeriod'
     ],
 
     /**
@@ -68,7 +68,7 @@ Ext.define('Uni.property.controller.Registry', {
         ENCRYPTED_STRING: 'Uni.property.view.property.Password',
         UNKNOWN: 'Uni.property.view.property.Text',
         LISTVALUE: 'Uni.property.view.property.Multiselect',
-        RELATIVEPERIOD: 'Uni.property.view.property.Relativeperiod',
+        RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
     },
