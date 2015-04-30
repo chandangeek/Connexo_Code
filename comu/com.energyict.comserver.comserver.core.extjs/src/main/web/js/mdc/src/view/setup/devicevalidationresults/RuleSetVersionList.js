@@ -1,10 +1,8 @@
 Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
     extend: 'Ext.grid.Panel',
     border: true,
-    alias: 'widget.ruleSetVersionList',
-
+    alias: 'widget.mdc-rule-set-version-list',	
     store: 'Mdc.store.ValidationResultsVersions',
-
     requires: [
         'Mdc.store.ValidationResultsVersions'
     ],
@@ -28,12 +26,16 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
 				fixed: true,
 				renderer: function (value, meta, record) {					
 					var me = this,
-						href = me.router.getRoute('devices/device/validationresultsdata').buildUrl({mRID: record.get('mRID'), ruleSetVersionId: record.get('id')}, me.router.queryParams );
+						href = me.router.getRoute('devices/device/validationresultsdataversion').buildUrl(
+								{ mRID: record.get('mRID'), 
+									ruleSetId: record.get('ruleSetId'), 
+									ruleSetVersionId: record.get('id')}, 
+							me.router.queryParams );
 					return '<a href="' + href + '">' + value + '</a>'
 				}
             }
         ]
     }
-
+ 
 
 });

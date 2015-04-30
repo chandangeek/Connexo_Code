@@ -16,16 +16,25 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
         me.side = [
             {
                 xtype: 'panel',
-                ui: 'medium',
+				layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
                 items: [
                     {
-                        xtype: 'deviceMenu',
-                        itemId: 'stepsMenu',
-                        device: me.device,
-                        toggleId: 'validationResultsLink'
+						ui: 'medium',
+						items: [
+							{
+							xtype: 'deviceMenu',
+							itemId: 'stepsMenu',
+							device: me.device,
+							toggleId: 'validationResultsLink'
+						}
+						]
                     },
                     {
-                        xtype: 'deviceValidationResultsSideFilter'
+					      xtype: 'mdc-device-validation-results-side-filter',
+						  itemId: 'deviceValidationResultsSideFilter'
                     }
 
                 ]
@@ -37,9 +46,10 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
                 ui: 'large',
                 title: Uni.I18n.translate('validationResults.title', 'MDC', 'Validation results'),
 				itemId: 'validationResultsTabPanel',	
-				activeTab: -1,
+				activeTab: -1,				
                 items: [
                     {
+						ui: 'medium',
                         title: Uni.I18n.translate('validationResults.configurationView', 'MDC', 'Configuration view'),
                         itemId: 'validationResults-configuration',
 						items: [
@@ -48,13 +58,14 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
 								itemId: 'devicevalidationresultsfilterpanel',
 								emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
 							},
-							{
+							{							
 								xtype: 'deviceValidationResultsRuleset',
 								itemId: 'devicevalidationresultsrulesetpanel'
 							}
 						]
                     },
                     {
+						ui: 'medium',
                         title: Uni.I18n.translate('validationResults.dataView', 'MDC', 'Data view'),
                         itemId: 'validationResults-data',
                         items: [

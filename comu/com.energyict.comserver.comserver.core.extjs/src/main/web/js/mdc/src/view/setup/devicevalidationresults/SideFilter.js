@@ -4,8 +4,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
         'Uni.form.field.DateTime',
         'Mdc.store.ValidationResultsDurations'
     ],
-    alias: 'widget.deviceValidationResultsSideFilter',
-    itemId: 'deviceValidationResultsSideFilter',
+    alias: 'widget.mdc-device-validation-results-side-filter',
+    
     ui: 'medium',
     width: 288,
     cls: 'filter-form',
@@ -51,7 +51,15 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
                 valueField: 'id',
                 queryMode: 'local',
                 anchor: '100%'
+            },
+			 {
+                xtype: 'fieldcontainer',
+				hidden: true,
+                itemId: 'itemTypeContainer',
+				name: 'itemTypeContainer',
+				fieldLabel: ''                
             }
+
         ],
         dockedItems: [
             {

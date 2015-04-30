@@ -1,10 +1,8 @@
 Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetList', {
     extend: 'Ext.grid.Panel',
-    border: true,
-    alias: 'widget.ruleSetList',
-
+    border: true,	
+    alias: 'widget.mdc-rule-set-list',	
     store: 'Mdc.store.ValidationResultsRuleSets',
-
     requires: [
         'Mdc.store.ValidationResultsRuleSets'
     ],
@@ -29,7 +27,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetList', {
 				fixed: true,
 				renderer: function (value, meta, record) {					
 					var me = this,
-						href = me.router.getRoute('devices/device/validationresultsdata').buildUrl({mRID: record.get('mRID'), ruleSetId: record.get('id')}, me.router.queryParams );
+						href = me.router.getRoute('devices/device/validationresultsdataruleset').buildUrl({mRID: record.get('mRID'), ruleSetId: record.get('id')}, me.router.queryParams );
+					
 					return '<a href="' + href + '">' + value + '</a>'
 				}
 

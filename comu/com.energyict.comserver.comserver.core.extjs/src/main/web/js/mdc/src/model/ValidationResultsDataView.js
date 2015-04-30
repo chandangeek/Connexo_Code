@@ -57,8 +57,8 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
             }
         }
 
-    ],
-
+    ], 
+	
     proxy: {
         type: 'rest',
         urlTpl: '/api/ddr/devices/{mRID}/validationrulesets/validationmonitoring/dataview',
@@ -70,15 +70,21 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
             this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         },
 
-        setFilterModel: function (model) {
+        setFilterModel: function (model, router) {
             var data = model.getData(),
                 storeProxy = this;
-            durationStore = Ext.getStore('Mdc.store.ValidationResultsDurations'),
-                duration = durationStore.getById(data.duration);
-
+				durationStore = Ext.getStore('Mdc.store.ValidationResultsDurations'),
+                duration = durationStore.getById(data.duration),					
+				ruleSetId = router.arguments['ruleSetId'],
+				versionId = router.arguments['ruleSetVersionId'],
+				ruleId = router.arguments['ruleId'];
+			
             if (!Ext.isEmpty(data.intervalStart)) {
                 storeProxy.setExtraParam('intervalStart', data.intervalStart.getTime());
                 storeProxy.setExtraParam('intervalEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
+				storeProxy.setExtraParam('ruleSetId', ruleSetId);
+				storeProxy.setExtraParam('ruleSetVersionId', versionId);
+				storeProxy.setExtraParam('ruleId', ruleId);
             }
         }
     }
