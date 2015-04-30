@@ -337,23 +337,30 @@ Ext.define('Dxp.controller.Tasks', {
         me.fromEdit = false;
 
         readingTypesStore.removeAll();
-        exportPeriodCombo.store.load(function () {
-            deviceGroupCombo.store.load(function () {
-                if (this.getCount() === 0) {
-                    deviceGroupCombo.allowBlank = true;
-                    deviceGroupCombo.hide();
-                    view.down('#no-device').show();
-                }
-                fileFormatterCombo.store.load(function () {
-                    if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
-                        me.setFormValues(view);
-                    } else {
-                        fileFormatterCombo.setValue(this.getAt(0));
-                        recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+        exportPeriodCombo.store.load({
+            params: {
+                category: 'relativeperiod.category.dataExport'
+            },
+            callback: function () {
+                deviceGroupCombo.store.load(function () {
+                    if (this.getCount() === 0) {
+                        deviceGroupCombo.allowBlank = true;
+                        deviceGroupCombo.hide();
+                        view.down('#no-device').show();
                     }
+                    fileFormatterCombo.store.load(function () {
+                        if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
+                            me.setFormValues(view);
+                        } else {
+                            fileFormatterCombo.setValue(this.getAt(0));
+                            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+                        }
+                    });
                 });
-            });
+            }
         });
+
+
     },
 
     showEditExportTask: function (taskId) {
