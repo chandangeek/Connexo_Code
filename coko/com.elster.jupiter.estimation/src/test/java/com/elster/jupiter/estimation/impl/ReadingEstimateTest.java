@@ -36,6 +36,7 @@ import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -49,6 +50,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -149,6 +151,31 @@ public class ReadingEstimateTest {
 
                 @Override
                 public PropertySpec getPropertySpec(String name) {
+                    return null;
+                }
+
+                @Override
+                public NlsKey getNlsKey() {
+                    return null;
+                }
+
+                @Override
+                public NlsKey getPropertyNlsKey(String property) {
+                    return null;
+                }
+
+                @Override
+                public String getPropertyDefaultFormat(String property) {
+                    return null;
+                }
+
+                @Override
+                public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
+                    return null;
+                }
+
+                @Override
+                public List<String> getRequiredProperties() {
                     return null;
                 }
             };

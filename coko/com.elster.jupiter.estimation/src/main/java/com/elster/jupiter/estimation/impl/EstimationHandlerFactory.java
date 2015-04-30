@@ -15,6 +15,8 @@ import com.elster.jupiter.util.streams.Functions;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.logging.Logger;
+
 @Component(name = "com.elster.jupiter.estimation.impl.messagehandlerfactory", property = {"subscriber=" + EstimationServiceImpl.SUBSCRIBER_NAME, "destination="+EstimationServiceImpl.DESTINATION_NAME}, service = MessageHandlerFactory.class, immediate = true)
 public class EstimationHandlerFactory implements MessageHandlerFactory {
 
@@ -45,13 +47,20 @@ public class EstimationHandlerFactory implements MessageHandlerFactory {
     private class EstimationTaskExecutor implements TaskExecutor {
         @Override
         public void execute(TaskOccurrence occurrence) {
+            Logger taskLogger = createTaskLogger(occurrence);
             RecurrentTask recurrentTask = occurrence.getRecurrentTask();
             EstimationTask estimationTask = estimationService.findEstimationTask(recurrentTask).orElseThrow(IllegalArgumentException::new);
             estimationTask.getEndDeviceGroup().getMembers(occurrence.getTriggerTime()).stream()
                     .filter(device -> device instanceof Meter)
                     .map(device -> ((Meter) device).getMeterActivation(occurrence.getTriggerTime()))
                     .flatMap(Functions.asStream())
-                    .forEach(estimationService::estimate);
+                    .forEach((meterActivation) -> estimationService.estimate(meterActivation, taskLogger));
+        }
+
+        private Logger createTaskLogger(TaskOccurrence occurrence) {
+            Logger taskLogger = Logger.getLogger(EstimationTaskExecutor.class.getName() + '.' + occurrence.getId());
+            taskLogger.addHandler(occurrence.createTaskLogHandler().asHandler());
+            return taskLogger;
         }
 
         @Override

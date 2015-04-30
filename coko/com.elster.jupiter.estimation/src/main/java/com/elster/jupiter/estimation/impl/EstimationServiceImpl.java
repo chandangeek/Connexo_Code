@@ -38,9 +38,9 @@ import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -49,7 +49,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.validation.MessageInterpolator;
-
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -57,6 +57,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,6 +70,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     static final String DESTINATION_NAME = "EstimationTask";
     static final String SUBSCRIBER_NAME = "EstimationTask";
+    public static final Logger LOGGER = Logger.getLogger(EstimationService.class.getName());
     private final List<EstimatorFactory> estimatorFactories = new CopyOnWriteArrayList<>();
     private final List<EstimationResolver> resolvers = new CopyOnWriteArrayList<>();
     private final EstimationEngine estimationEngine = new EstimationEngine();
@@ -158,7 +161,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Reference
-     public void setTimeService(TimeService timeService) {
+    public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
 
@@ -213,17 +216,22 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public EstimationReport estimate(MeterActivation meterActivation) {
-        EstimationReportImpl report = previewEstimate(meterActivation);
+        return estimate(meterActivation, LOGGER);
+    }
+
+    @Override
+    public EstimationReport estimate(MeterActivation meterActivation, Logger logger) {
+        EstimationReportImpl report = previewEstimate(meterActivation, logger);
         estimationEngine.applyEstimations(report);
         return report;
     }
 
     @Override
-    public EstimationReportImpl previewEstimate(MeterActivation meterActivation) {
+    public EstimationReportImpl previewEstimate(MeterActivation meterActivation, Logger logger) {
         EstimationReportImpl report = new EstimationReportImpl();
 
         meterActivation.getReadingTypes().forEach(readingType -> {
-            EstimationReport subReport = this.estimate(meterActivation, readingType);
+            EstimationReport subReport = this.estimate(meterActivation, readingType, logger);
             report.add(subReport);
         });
 
@@ -231,7 +239,17 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
+    public EstimationReportImpl previewEstimate(MeterActivation meterActivation) {
+        return previewEstimate(meterActivation, LOGGER);
+    }
+
+    @Override
     public EstimationReport estimate(MeterActivation meterActivation, ReadingType readingType) {
+        return estimate(meterActivation, readingType, LOGGER);
+    }
+
+    @Override
+    public EstimationReport estimate(MeterActivation meterActivation, ReadingType readingType, Logger logger) {
         UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(getInitialBlocksToEstimateAsResult(meterActivation, readingType));
 
         EstimationReportImpl report = new EstimationReportImpl();
@@ -239,12 +257,15 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         determineEstimationRules(meterActivation)
                 .filter(EstimationRule::isActive)
                 .filter(rule -> rule.getReadingTypes().contains(readingType))
-                .map(IEstimationRule::createNewEstimator)
-                .forEach(estimator -> {
-                    estimator.init();
-                    EstimationResult estimationResult = result.get();
-                    estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
-                    result.update(estimator.estimate(estimationResult.remainingToBeEstimated()));
+                .peek(rule -> logger.log(Level.INFO, MessageFormat.format("Attempting rule {0}", rule.getName())))
+                .forEach(rule -> {
+                    try (LoggingContext loggingContext = LoggingContext.get().with("rule", rule.getName())) {
+                        Estimator estimator = rule.createNewEstimator();
+                        estimator.init(logger);
+                        EstimationResult estimationResult = result.get();
+                        estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
+                        result.update(estimator.estimate(estimationResult.remainingToBeEstimated()));
+                    }
                 });
         result.get().estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
         result.get().remainingToBeEstimated().stream().forEach(block -> report.reportUnableToEstimate(readingType, block));
@@ -372,11 +393,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     private Stream<IEstimationRule> determineEstimationRules(MeterActivation meterActivation) {
         return decorate(resolvers.stream())
-                    .sorted(Comparator.comparing(EstimationResolver::getPriority).reversed())
-                    .flatMap(resolver -> resolver.resolve(meterActivation).stream())
-                    .map(IEstimationRuleSet.class::cast)
-                    .distinct(EstimationRuleSet::getId)
-                    .flatMap(set -> set.getRules().stream());
+                .sorted(Comparator.comparing(EstimationResolver::getPriority).reversed())
+                .flatMap(resolver -> resolver.resolve(meterActivation).stream())
+                .map(IEstimationRuleSet.class::cast)
+                .distinct(EstimationRuleSet::getId)
+                .flatMap(set -> set.getRules().stream());
     }
 
     private List<EstimationBlock> getBlocksToEstimate(MeterActivation meterActivation, ReadingType readingType) {
@@ -402,17 +423,17 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
-    
+
     @Override
     public String getComponentName() {
         return COMPONENTNAME;
     }
-    
+
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(MessageSeeds.values());
     }
-    
+
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
