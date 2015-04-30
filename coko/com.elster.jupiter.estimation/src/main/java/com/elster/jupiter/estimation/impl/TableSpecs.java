@@ -3,7 +3,6 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.EstimationTaskOccurrence;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -121,29 +120,7 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
         }
-    },
-    EST_OCCURRENCE {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<EstimationTaskOccurrence> table = dataModel.addTable(name(), EstimationTaskOccurrence.class);
-            table.map(EstimationTaskOccurrenceImpl.class);
-            Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
-            Column estimationTask = table.column("ESTIMATIONTASK").number().notNull().add();
-            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
-            table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
-
-            table.primaryKey("EST_PK_ESTIMATIONOCC")
-                    .on(taskOccurrence)
-                    .add();
-            table.foreignKey("EST_FK_ESTOCC_TSKOCC")
-                    .on(taskOccurrence)
-                    .references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
-                    .map("taskOccurrence").refPartition().add();
-            table.foreignKey("EST_FK_OCC_ESTIMATIONTASK").on(estimationTask).references(EST_ESTIMATIONTASK.name())
-                    .map("estimationTask").add();
-
-
-        }
     };
+
     abstract void addTo(DataModel component);
 }
