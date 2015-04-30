@@ -16,8 +16,8 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.Communication',
         'Dvi.privileges.InventoryManagement',
         'Dxp.privileges.DataExport',
-        'Est.privileges.EstimationConfiguration',
-        'Mdc.privileges.DeviceConfigurationEstimations'
+        'Est.privileges.EstimationConfiguration'/*,
+        'Mdc.privileges.DeviceConfigurationEstimations'*/
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
