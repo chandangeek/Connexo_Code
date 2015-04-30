@@ -193,5 +193,12 @@ public class TimeServiceIT {
         assertThat(relativePeriods.get(1).getName()).isEqualTo("inB1");
         assertThat(relativePeriods.get(2).getName()).isEqualTo("inB2");
 
+        relativePeriodQuery = timeService.getRelativePeriodQuery();
+        relativePeriodQuery.setRestriction(hasB);
+        relativePeriods = ((Query<RelativePeriod>) relativePeriodQuery).select(Condition.TRUE);
+        assertThat(relativePeriods).hasSize(3);
+        assertThat(relativePeriods.get(0).getName()).isEqualTo("both");
+        assertThat(relativePeriods.get(1).getName()).isEqualTo("inB1");
+        assertThat(relativePeriods.get(2).getName()).isEqualTo("inB2");
     }
 }
