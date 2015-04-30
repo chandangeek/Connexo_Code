@@ -11,7 +11,7 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.DeviceSecurity',
         'Mdc.privileges.DeviceCommands',
         'Mdc.privileges.Communication',
-        'Mdc.privileges.DeviceConfigurationEstimations',
+        //'Mdc.privileges.DeviceConfigurationEstimations',
         'Dvi.privileges.InventoryManagement',
         'Yfn.privileges.Yellowfin',
         'Isu.privileges.Issue',
