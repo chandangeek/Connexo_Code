@@ -221,6 +221,10 @@
     protected *;
 }
 
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.events.EventsLog
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.DeviceMappingRange
+-keepnames class com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister
+
 -keepnames class com.energyict.protocolimpl.iec1107.iskraemeco.IskraEmeco
 
 -keepnames class com.energyict.protocolimpl.siemens7ED62.Siemens7ED62

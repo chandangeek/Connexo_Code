@@ -87,9 +87,9 @@
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am500.MBusDevice
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am130.AM130
 -keepnames class com.energyict.protocolimplv2.dlms.idis.am130.MBusDevice
--keepnames com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3
--keepnames com.energyict.protocolimplv2.eict.webrtuz3.MBusDevice
--keepnames com.energyict.protocolimplv2.eict.webrtuz3.EMeter
+-keepnames class com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3
+-keepnames class com.energyict.protocolimplv2.eict.webrtuz3.MBusDevice
+-keepnames class com.energyict.protocolimplv2.eict.webrtuz3.EMeter
 
 -keepnames class com.energyict.mdc.protocol.inbound.DlmsSerialNumberDiscover
 -keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
