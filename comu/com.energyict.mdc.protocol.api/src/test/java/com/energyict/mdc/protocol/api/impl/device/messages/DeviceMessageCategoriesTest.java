@@ -67,7 +67,7 @@ public class DeviceMessageCategoriesTest {
     private void deviceMessageSpecEnumValuesHaveAUniqueResourceKey(DeviceMessageSpecEnum... values) {
         // Business method
         Set<String> nameResourceKeys = Arrays.stream(values).
-                map(DeviceMessageSpecEnum::getNameResourceKey).
+                map(DeviceMessageSpecEnum::getKey).
                 collect(Collectors.toSet());
 
         // Asserts

@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:12)
  */
-public enum DeviceMessageCategories {
+public enum DeviceMessageCategories implements TranslationKey {
 
     /**
      * The category for all messages that relate to the Activity Calendar.
@@ -371,6 +372,8 @@ public enum DeviceMessageCategories {
         this.defaultTranslation = defaultTranslation;
     }
 
+
+
     /**
      * Gets the resource key that determines the name
      * of this category to the user's language settings.
@@ -379,10 +382,6 @@ public enum DeviceMessageCategories {
      */
     public String getNameResourceKey() {
         return DeviceMessageCategories.class.getSimpleName() + "." + this.toString();
-    }
-
-    public String defaultTranslation () {
-        return this.defaultTranslation;
     }
 
     /**
@@ -407,6 +406,16 @@ public enum DeviceMessageCategories {
         return new DeviceMessageSpecImpl(baseSpec, category, propertySpecService, thesaurus);
     }
 
+    @Override
+    public String getKey() {
+        return getNameResourceKey();
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return defaultTranslation;
+    }
+
 
     private class DeviceMessageSpecImpl implements DeviceMessageSpec {
         private final DeviceMessageSpecEnum baseSpec;
@@ -424,7 +433,7 @@ public enum DeviceMessageCategories {
 
         @Override
         public String getName() {
-            return this.thesaurus.getString(this.baseSpec.getNameResourceKey(), this.baseSpec.defaultTranslation());
+            return this.thesaurus.getString(this.baseSpec.getKey(), this.baseSpec.getDefaultFormat());
         }
 
         @Override

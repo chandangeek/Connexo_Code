@@ -60,12 +60,12 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
     }
 
     @Override
-    public String getNameResourceKey() {
+    public String getKey() {
         return MBusConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public String defaultTranslation() {
+    public String getDefaultFormat() {
         return this.defaultTranslation;
     }
 

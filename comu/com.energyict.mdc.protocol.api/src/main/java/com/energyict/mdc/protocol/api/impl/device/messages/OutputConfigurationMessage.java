@@ -116,12 +116,12 @@ public enum OutputConfigurationMessage implements DeviceMessageSpecEnum {
         this.defaultTranslation = defaultTranslation;
     }
 
-    public String getNameResourceKey() {
+    public String getKey() {
         return OutputConfigurationMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public String defaultTranslation() {
+    public String getDefaultFormat() {
         return this.defaultTranslation;
     }
 

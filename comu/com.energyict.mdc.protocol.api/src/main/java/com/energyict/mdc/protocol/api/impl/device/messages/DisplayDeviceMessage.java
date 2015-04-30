@@ -75,12 +75,12 @@ public enum DisplayDeviceMessage implements DeviceMessageSpecEnum {
     }
 
     @Override
-    public String getNameResourceKey() {
+    public String getKey() {
         return DisplayDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public String defaultTranslation() {
+    public String getDefaultFormat() {
         return this.defaultTranslation;
     }
 

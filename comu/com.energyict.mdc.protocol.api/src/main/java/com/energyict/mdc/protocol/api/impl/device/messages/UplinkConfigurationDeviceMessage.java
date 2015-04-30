@@ -53,12 +53,12 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         this.defaultTranslation = defaultTranslation;
     }
 
-    public String getNameResourceKey() {
+    public String getKey() {
         return UplinkConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public String defaultTranslation() {
+    public String getDefaultFormat() {
         return this.defaultTranslation;
     }
 

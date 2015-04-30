@@ -63,12 +63,12 @@ public enum SMSConfigurationDeviceMessage implements DeviceMessageSpecEnum {
     }
 
     @Override
-    public String getNameResourceKey() {
+    public String getKey() {
         return SMSConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public String defaultTranslation() {
+    public String getDefaultFormat() {
         return this.defaultTranslation;
     }
 

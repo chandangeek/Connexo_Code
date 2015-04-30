@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -15,16 +16,16 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (15:31)
  */
-public interface DeviceMessageSpecEnum {
+public interface DeviceMessageSpecEnum extends TranslationKey {
 
     /**
      * Returns the translation key for the name of this DeviceMessageSpec.
      *
      * @return the name of this DeviceMessageSpec
      */
-    public String getNameResourceKey();
+    public String getKey();
 
-    public String defaultTranslation();
+    public String getDefaultFormat();
 
     public DeviceMessageId getId();
 
