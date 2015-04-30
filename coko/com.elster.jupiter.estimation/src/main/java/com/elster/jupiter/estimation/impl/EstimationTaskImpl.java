@@ -2,6 +2,8 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.estimation.EstimationTaskOccurrence;
+import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -13,6 +15,8 @@ import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
@@ -20,6 +24,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class EstimationTaskImpl implements IEstimationTask {
 
@@ -237,8 +243,31 @@ public class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
-    public Optional<? extends TaskOccurrence> getLastOccurrence() {
-        return recurrentTask.get().getLastOccurrence();
+    public EstimationTaskOccurrenceFinder getOccurrencesFinder() {
+        Condition condition = where("estimationTask").isEqualTo(this);
+        Order order = Order.ascending("name");
+        return new EstimationTaskOccurrenceFinderImpl(dataModel, condition, order);
+    }
+
+    @Override
+    public Optional<EstimationTaskOccurrence> getOccurrence(Long id) {
+        return dataModel.mapper(EstimationTaskOccurrence.class).getOptional(id).filter(occ -> this.getId() == occ.getTask().getId());
+    }
+
+    @Override
+    public List<? extends EstimationTaskOccurrence> getOccurrences() {
+        return dataModel.stream(EstimationTaskOccurrence.class).filter(where("estimationTask").isEqualTo(this)).select();
+    }
+
+    @Override
+    public Optional<EstimationTaskOccurrence> getLastOccurrence() {
+        return dataModel.stream(EstimationTaskOccurrence.class)
+                .join(TaskOccurrence.class)
+                .skip(0)
+                .limit(1)
+                .filter(where("estimationTask").isEqualTo(this))
+                .sorted(Order.descending("taskOccurrence.startDate"))
+                .findFirst();
     }
 
     @Override

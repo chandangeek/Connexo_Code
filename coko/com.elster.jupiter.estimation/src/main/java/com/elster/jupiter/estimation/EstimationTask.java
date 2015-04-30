@@ -9,6 +9,7 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface EstimationTask extends HasName, HasAuditInfo {
@@ -35,10 +36,6 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     ScheduleExpression getScheduleExpression();
 
-//    Optional<? extends DataExportOccurrence> getLastOccurrence();
-//
-//    Optional<? extends DataExportOccurrence> getOccurrence(Long id);
-
     void setNextExecution(Instant instant);
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
@@ -57,7 +54,13 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     History<? extends EstimationTask> getHistory();
 
-    Optional<? extends TaskOccurrence> getLastOccurrence();
+    List<? extends EstimationTaskOccurrence> getOccurrences();
+
+    Optional<EstimationTaskOccurrence> getOccurrence(Long id);
+
+    Optional<EstimationTaskOccurrence> getLastOccurrence();
+
+    EstimationTaskOccurrenceFinder getOccurrencesFinder();
 
     boolean canBeDeleted();
 }
