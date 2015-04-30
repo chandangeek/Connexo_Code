@@ -4,7 +4,6 @@ import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.time.Never;
@@ -40,7 +39,7 @@ public class EstimationTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        lastEstimationOccurrence = estimationTask.getLastOccurrence().map(oc -> new EstimationTaskHistoryInfo(oc, thesaurus)).orElse(null);
+        lastEstimationOccurrence = estimationTask.getLastOccurrence().map(occurrence -> new EstimationTaskHistoryInfo(estimationTask, occurrence, thesaurus)).orElse(null);
     }
 
     void populate(EstimationTask estimationTask, Thesaurus thesaurus) {

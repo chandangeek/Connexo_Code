@@ -6,7 +6,6 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
-import com.elster.jupiter.estimation.EstimationTaskOccurrence;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
@@ -24,6 +23,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -328,9 +328,9 @@ public class EstimationResource {
 
     @GET
     @Path("/{ruleSetId}/rules/{ruleId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION,
-        Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+            Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
         EstimationRule rule = transactionService.execute((Transaction<EstimationRule>) () -> {
             EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -505,7 +505,7 @@ public class EstimationResource {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
 
-        List<? extends EstimationTaskOccurrence> occurrences = occurrencesFinder.find();
+        List<? extends TaskOccurrence> occurrences = occurrencesFinder.find();
 
         EstimationTaskHistoryInfos infos = new EstimationTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus);
         infos.total = queryParameters.determineTotal(occurrences.size());
@@ -520,7 +520,7 @@ public class EstimationResource {
                                                                      @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         EstimationTask task = fetchEstimationTask(id);
-        EstimationTaskOccurrence occurrence = fetchEstimationTaskOccurrence(occurrenceId, task);
+        TaskOccurrence occurrence = fetchTaskOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder().setStart(queryParameters.getStart()).setLimit(queryParameters.getLimit());
 
         List<? extends LogEntry> occurrences = finder.find();
@@ -554,7 +554,7 @@ public class EstimationResource {
         return estimationService.findEstimationTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    private EstimationTaskOccurrence fetchEstimationTaskOccurrence(long occurrenceId, EstimationTask task) {
+    private TaskOccurrence fetchTaskOccurrence(long occurrenceId, EstimationTask task) {
         return task.getOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
