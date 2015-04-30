@@ -101,29 +101,32 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     },
 
     configureMenu: function (menu) {
-        var changeItems = [];
-        var selection;
-        changeItems.push(menu.down('#changeConnectionMethodOfDeviceComTask'));
-        changeItems.push(menu.down('#changeProtocolDialectOfDeviceComTask'));
-        changeItems.push(menu.down('#changeUrgencyOfDeviceComTask'));
-        changeItems.push(menu.down('#runDeviceComTaskNow'));
-        changeItems.push(menu.down('#runDeviceComTask'));
-        changeItems.push(menu.down('#viewHistoryOfDeviceComTask'));
-        selection = menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
-        Ext.each(changeItems, function (item) {
-            item.hide();
-        });
+        var selection= menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
+        if(menu.down('#changeConnectionMethodOfDeviceComTask')) {
+            menu.down('#changeConnectionMethodOfDeviceComTask').show();
+        }
+        if(menu.down('#changeProtocolDialectOfDeviceComTask')) {
+            if (selection.data.scheduleTypeKey !== 'SHARED') {
+                menu.down('#changeProtocolDialectOfDeviceComTask').show();
+            }
+        }
+        if(menu.down('#changeUrgencyOfDeviceComTask')) {
+            menu.down('#changeUrgencyOfDeviceComTask').show();
+        }
+        if(menu.down('#runDeviceComTaskNow')) {
+            if (selection.data.connectionStrategyKey !== 'asSoonAsPossible') {
+                menu.down('#runDeviceComTaskNow').show();
+            }
+        }
+        if(menu.down('#runDeviceComTask')) {
+            if (selection.data.connectionStrategyKey !== 'asSoonAsPossible') {
+                menu.down('#runDeviceComTask').show();
+            }
+        }
+        if(menu.down('#viewHistoryOfDeviceComTask')) {
+            menu.down('#viewHistoryOfDeviceComTask').show();
+        }
 
-        changeItems[0].show();
-        changeItems[2].show();
-        if (selection.data.scheduleTypeKey !== 'SHARED') {
-            changeItems[1].show();
-        }
-        changeItems[3].show();
-        if (selection.data.connectionStrategyKey !== 'asSoonAsPossible') {
-            changeItems[4].show();
-        }
-        changeItems[5].show();
     },
 
     showDeviceCommunicationTaskPreview: function () {
