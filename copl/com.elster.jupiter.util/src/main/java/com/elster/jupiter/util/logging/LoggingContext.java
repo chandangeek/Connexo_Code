@@ -21,6 +21,7 @@ public class LoggingContext implements AutoCloseable {
     private LoggingContext() {
         this.parent = null;
     }
+
     private LoggingContext(LoggingContext parent) {
         this.parent = parent;
     }
@@ -92,11 +93,13 @@ public class LoggingContext implements AutoCloseable {
     }
 
     private void fillContext(StringBuilder message) {
-        parameters.forEach(pair -> {
-            String newString = message.toString().replace(pair.getFirst(), pair.getLast());
-            message.setLength(0);
-            message.append(newString);
-        });
+        parameters.stream()
+                .forEach(pair -> {
+                    String replacement = pair.getLast() == null ? "?" : pair.getLast();
+                    String newString = message.toString().replace(pair.getFirst(), replacement);
+                    message.setLength(0);
+                    message.append(newString);
+                });
         if (parent != null) {
             parent.fillContext(message);
         }
