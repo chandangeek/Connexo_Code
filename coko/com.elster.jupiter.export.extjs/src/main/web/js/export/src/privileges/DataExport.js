@@ -26,5 +26,8 @@ Ext.define('Dxp.privileges.DataExport', {
     },
     canView:function(){
         return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.view);
+    },
+    canUpdate:function(){
+        return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.update);
     }
 });

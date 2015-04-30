@@ -1,5 +1,8 @@
 Ext.define('Dxp.controller.history.Export', {
     extend: 'Uni.controller.history.Converter',
+    requires:[
+        'Dxp.privileges.DataExport'
+    ],
 
     rootToken: 'administration',
 

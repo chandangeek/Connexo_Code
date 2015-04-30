@@ -1,5 +1,8 @@
 Ext.define('Dxp.controller.Tasks', {
     extend: 'Ext.app.Controller',
+    requires:[
+        'Dxp.privileges.DataExport'
+    ],
     views: [
         'Dxp.view.tasks.Add',
         'Dxp.view.tasks.Setup',
