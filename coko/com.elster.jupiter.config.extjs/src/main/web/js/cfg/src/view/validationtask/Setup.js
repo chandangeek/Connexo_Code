@@ -21,7 +21,7 @@ Ext.define('Cfg.view.validationtask.Setup', {
                 {					
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'tasks-grid',
+                        xtype: 'cfg-validation-tasks-grid',
                         itemId: 'grd-validation-tasks',
                         router: me.router
                     },
@@ -44,7 +44,7 @@ Ext.define('Cfg.view.validationtask.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'tasks-preview',
+                        xtype: 'cfg-tasks-preview',
                         itemId: 'pnl-validation-task-preview'
                     }
                 }

@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.Add', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.validation-tasks-add',
+    alias: 'widget.cfg-validation-tasks-add',
     requires: [
         'Uni.form.field.DateTime',        
         'Uni.util.FormErrorMessage'
@@ -28,7 +28,7 @@ Ext.define('Cfg.view.validationtask.Add', {
             {
                 xtype: 'form',
                 title: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),
-                itemId: 'add-validation-task-form',
+                itemId: 'frm-add-validation-task',
                 ui: 'large',
                 width: '100%',
                 defaults: {
@@ -46,7 +46,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                     {
                         xtype: 'textfield',
                         name: 'name',
-                        itemId: 'task-name',
+                        itemId: 'txt-task-name',
                         width: 500,
                         required: true,
                         //maskRe: /[^:\\/*?"<>|]/,
@@ -67,7 +67,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                         items: [
                             {
                                 xtype: 'combobox',
-                                itemId: 'device-group-combo',
+                                itemId: 'cbo-validation-task-device-group',
                                 name: 'endDeviceGroup',
                                 width: 235,
                                 store: 'Cfg.store.DeviceGroups',
@@ -99,7 +99,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                         layout: 'hbox',
                         items: [
                             {
-                                itemId: 'recurrence-trigger',
+                                itemId: 'rgr-validation-tasks-recurrence-trigger',
                                 xtype: 'radiogroup',
                                 name: 'recurrenceTrigger',
                                 columns: 1,
@@ -110,13 +110,13 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 },
                                 items: [
                                     {
-                                        itemId: 'none-recurrence',
+                                        itemId: 'rbtn-none-recurrence',
                                         boxLabel: Uni.I18n.translate('validationTasks.general.none', 'CFG', 'None'),
                                         inputValue: false,
                                         checked: true
                                     },
                                     {
-                                        itemId: 'every',
+                                        itemId: 'rbtn-every',
                                         boxLabel: Uni.I18n.translate('validationTasks.general.every', 'CFG', 'Every'),
                                         inputValue: true
                                     }
@@ -130,7 +130,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 layout: 'hbox',
                                 items: [
                                     {
-                                        itemId: 'recurrence-number',
+                                        itemId: 'num-recurrence-number',
                                         xtype: 'numberfield',
                                         name: 'recurrence-number',
                                         allowDecimals: false,
@@ -141,7 +141,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         listeners: {
                                             focus: {
                                                 fn: function () {
-                                                    var radioButton = Ext.ComponentQuery.query('validation-tasks-add #every')[0];
+                                                    var radioButton = Ext.ComponentQuery.query('cfg-validation-tasks-add #rbtn-every')[0];
                                                     radioButton.setValue(true);
                                                 }
                                             },
@@ -149,7 +149,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         }
                                     },
                                     {
-                                        itemId: 'recurrence-type',
+                                        itemId: 'cbo-recurrence-type',
                                         xtype: 'combobox',
                                         name: 'recurrence-type',
                                         store: 'Cfg.store.DaysWeeksMonths',
@@ -161,7 +161,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         listeners: {
                                             focus: {
                                                 fn: function () {
-                                                    var radioButton = Ext.ComponentQuery.query('validation-tasks-add #every')[0];
+                                                    var radioButton = Ext.ComponentQuery.query('cfg-validation-tasks-add #rbtn-every')[0];
                                                     radioButton.setValue(true);
                                                 }
                                             }

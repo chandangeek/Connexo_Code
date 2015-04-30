@@ -30,7 +30,7 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                             title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
                             route: '{taskId}',
                             controller: 'Cfg.controller.Tasks',
-                            action: 'showTaskDetailsView',
+                            action: 'showValidationTaskDetailsView',
                             callback: function (route) {
                                 this.getApplication().on('validationtaskload', function (record) {
                                     route.setTitle(record.get('name'));

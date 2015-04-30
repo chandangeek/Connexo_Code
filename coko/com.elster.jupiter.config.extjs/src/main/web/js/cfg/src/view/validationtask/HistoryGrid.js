@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.HistoryGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.tasks-history-grid',
+    alias: 'widget.cfg-tasks-history-grid',
     store: 'Cfg.store.ValidationTasksHistory',
     router: null,
 
@@ -42,7 +42,7 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 xtype: 'uni-actioncolumn',
                 width: 100,
                 menu: {
-                    xtype: 'tasks-history-action-menu'              
+                    xtype: 'cfg-tasks-history-action-menu'
                 }
             }
         ];

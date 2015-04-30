@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.Menu', {
     extend: 'Uni.view.menu.SideMenu',
-    alias: 'widget.tasks-menu',
+    alias: 'widget.cfg-tasks-menu',
 
     router: null,
     title: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),

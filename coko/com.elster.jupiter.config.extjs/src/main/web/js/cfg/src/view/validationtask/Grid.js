@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.Grid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.tasks-grid',
+    alias: 'widget.cfg-validation-tasks-grid',
     store: 'Cfg.store.ValidationTasks',
     router: null,	
     requires: [
@@ -47,7 +47,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    xtype: 'tasks-action-menu',
+                    xtype: 'cfg-validation-tasks-action-menu',
                     itemId: 'tasks-action-menu'
                 }
             }
