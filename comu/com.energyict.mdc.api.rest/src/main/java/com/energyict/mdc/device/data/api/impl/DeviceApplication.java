@@ -292,6 +292,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(topologyService).to(TopologyService.class);
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(firmwareService).to(FirmwareService.class);
+            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
         }
     }
 
