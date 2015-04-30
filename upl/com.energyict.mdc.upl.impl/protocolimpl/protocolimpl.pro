@@ -220,6 +220,12 @@
     public *;
     protected *;
 }
+-keep public class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.DeviceMappingRange {
+    public *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister {
+    public *;
+}
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.events.EventsLog
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.DeviceMappingRange
