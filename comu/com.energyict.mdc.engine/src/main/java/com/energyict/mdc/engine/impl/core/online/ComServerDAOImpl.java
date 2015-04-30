@@ -1,25 +1,18 @@
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.topology.Modulation;
@@ -27,28 +20,12 @@ import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
-import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceMessageImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
+import com.energyict.mdc.engine.impl.commands.offline.*;
 import com.energyict.mdc.engine.impl.commands.store.DeviceFirmwareVersionStorageTransitions;
-import com.energyict.mdc.engine.impl.commands.store.FirmwareVersionStorageTransition;
-import com.energyict.mdc.engine.impl.core.ComJob;
-import com.energyict.mdc.engine.impl.core.ComJobFactory;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -58,29 +35,12 @@ import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.*;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -486,7 +446,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, final ComSession.SuccessIndicator successIndicator) {
         /* We should already be in a transaction so don't wrap it again */
-        return builder.endSession(serviceProvider.clock().instant(), successIndicator).create();
+        return builder.endSession(now(), successIndicator).create();
     }
 
     @Override
@@ -754,89 +714,19 @@ public class ComServerDAOImpl implements ComServerDAO {
         DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions = new DeviceFirmwareVersionStorageTransitions();
 
         optionalDevice.ifPresent(device -> {
-            defineMeterFirmwareVersionTransition(collectedFirmwareVersions, deviceFirmwareVersionStorageTransitions, device);
-            updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
-            defineCommunicationFirmwareVersionTransition(collectedFirmwareVersions, deviceFirmwareVersionStorageTransitions, device);
-            updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
+            FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider);
+            firmwareStorage.defineMeterFirmwareVersionTransition(collectedFirmwareVersions, deviceFirmwareVersionStorageTransitions, device);
+            firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
+            firmwareStorage.defineCommunicationFirmwareVersionTransition(collectedFirmwareVersions, deviceFirmwareVersionStorageTransitions, device);
+            firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
         });
 
         return deviceFirmwareVersionStorageTransitions;
     }
 
-    private void updateCommunicationFirmwareVersion(Optional<String> collectedCommunicationFirmwareVersion, Device device) {
-        collectedCommunicationFirmwareVersion.ifPresent(version -> {
-            if (!version.equals(FirmwareVersionStorageTransition.Constants.EMPTY)) {
-                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
-                existingFirmwareVersion.map(firmwareVersion -> createNewActiveVersion(device, firmwareVersion)).
-                        orElseGet(() -> createNewActiveVersion(device, createNewGhostFirmwareVersion(device, version, FirmwareType.COMMUNICATION)));
-            }
-        });
+    private Instant now() {
+        return this.serviceProvider.clock().instant();
     }
-
-    private void updateMeterFirmwareVersion(Optional<String> collectedMeterFirmwareVersion, Device device) {
-        collectedMeterFirmwareVersion.ifPresent(version -> {
-            if (!version.equals(FirmwareVersionStorageTransition.Constants.EMPTY)) {
-                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType());
-                existingFirmwareVersion.map(firmwareVersion -> createNewActiveVersion(device, firmwareVersion)).
-                        orElseGet(() -> createNewActiveVersion(device, createNewGhostFirmwareVersion(device, version, FirmwareType.METER)));
-            }
-        });
-    }
-
-    private FirmwareVersion createNewGhostFirmwareVersion(Device device, String version, FirmwareType firmwareType) {
-        FirmwareVersion ghostVersion = this.serviceProvider.firmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType);
-        this.serviceProvider.firmwareService().saveFirmwareVersion(ghostVersion);
-        return ghostVersion;
-    }
-
-    private ActivatedFirmwareVersion createNewActiveVersion(Device device, FirmwareVersion firmwareVersion) {
-        ActivatedFirmwareVersion activatedFirmwareVersion = this.serviceProvider.firmwareService().newActivatedFirmwareVersionFrom(device, firmwareVersion, now());
-        this.serviceProvider.firmwareService().saveActivatedFirmwareVersion(activatedFirmwareVersion);
-        return activatedFirmwareVersion;
-    }
-
-    private Interval now() {
-        return Interval.of(Range.atLeast(this.serviceProvider.clock().instant()));
-    }
-
-    private void defineCommunicationFirmwareVersionTransition(CollectedFirmwareVersion collectedFirmwareVersions, DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions, Device device) {
-        String currentCommunicationFirmwareVersionStatus = getCurrentCommunicationFirmwareVersionStatus(device);
-        String collectedMeterFirmwareVersionStatus = collectedFirmwareVersions.getActiveMeterFirmwareVersion().map(version -> getFirmwareStatus(device, version)).orElse(FirmwareVersionStorageTransition.Constants.EMPTY);
-        deviceFirmwareVersionStorageTransitions.setActiveCommunicationFirmwareVersionTransition(FirmwareVersionStorageTransition.from(currentCommunicationFirmwareVersionStatus, collectedMeterFirmwareVersionStatus));
-
-    }
-
-    private String getCurrentCommunicationFirmwareVersionStatus(Device device) {
-        Optional<ActivatedFirmwareVersion> currentCommunicationFirmwareVersionFor = this.serviceProvider.firmwareService().getCurrentCommunicationFirmwareVersionFor(device);
-        return currentCommunicationFirmwareVersionFor.map(activatedFirmwareVersion -> activatedFirmwareVersion.getFirmwareVersion().getFirmwareStatus().getStatus())
-                .orElseGet(() -> FirmwareVersionStorageTransition.Constants.EMPTY);
-    }
-
-    private void defineMeterFirmwareVersionTransition(CollectedFirmwareVersion collectedFirmwareVersions, DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions, Device device) {
-        String currentMeterFirmwareVersionStatus = getCurrentMeterFirmwareVersionStatus(device);
-        String collectedMeterFirmwareVersionStatus = collectedFirmwareVersions.getActiveMeterFirmwareVersion().map(version -> getFirmwareStatus(device, version)).orElse(FirmwareVersionStorageTransition.Constants.EMPTY);
-        deviceFirmwareVersionStorageTransitions.setActiveMeterFirmwareVersionTransition(FirmwareVersionStorageTransition.from(currentMeterFirmwareVersionStatus, collectedMeterFirmwareVersionStatus));
-    }
-
-    private String getCurrentMeterFirmwareVersionStatus(Device device) {
-        Optional<ActivatedFirmwareVersion> currentMeterFirmwareVersionFor = this.serviceProvider.firmwareService().getCurrentMeterFirmwareVersionFor(device);
-        return currentMeterFirmwareVersionFor.map(activatedFirmwareVersion -> activatedFirmwareVersion.getFirmwareVersion().getFirmwareStatus().getStatus())
-                .orElseGet(() -> FirmwareVersionStorageTransition.Constants.EMPTY);
-    }
-
-    private String getFirmwareStatus(Device device, String collectedVersion) {
-        Optional<FirmwareVersion> meterFirmwareVersionOnDeviceType = getFirmwareVersionFor(collectedVersion, device.getDeviceType());
-        return getFirmwareStatusFromOptionalVersion(meterFirmwareVersionOnDeviceType);
-    }
-
-    private Optional<FirmwareVersion> getFirmwareVersionFor(String collectedVersion, DeviceType deviceType) {
-        return this.serviceProvider.firmwareService().getFirmwareVersionByVersion(collectedVersion, deviceType);
-    }
-
-    private String getFirmwareStatusFromOptionalVersion(Optional<FirmwareVersion> firmwareVersionOnDeviceType) {
-        return firmwareVersionOnDeviceType.map(firmwareVersion -> firmwareVersion.getFirmwareStatus().getStatus()).orElse(FirmwareVersionStorageTransition.Constants.EMPTY);
-    }
-
 
     @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {

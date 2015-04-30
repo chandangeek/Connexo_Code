@@ -10,7 +10,6 @@ import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 /**
  * Provides functionality to update the FirmwareVersion(s) of a Device
@@ -33,18 +32,21 @@ public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl {
     }
 
     private void logAndCreateWarningsIfRequired(DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions) {
-        Stream.of(
-                deviceFirmwareVersionStorageTransitions.getActiveMeterFirmwareVersionTransition().getMessageSeed(),
-                deviceFirmwareVersionStorageTransitions.getActiveCommunicationFirmwareVersionTransition().getMessageSeed(),
-                deviceFirmwareVersionStorageTransitions.getPassiveMeterFirmwareVersionTransition().getMessageSeed(),
-                deviceFirmwareVersionStorageTransitions.getPassiveCommunicationFirmwareVersionTransition().getMessageSeed()).
+        deviceFirmwareVersionStorageTransitions.getActiveMeterFirmwareVersionTransition().getMessageSeed()
+                .ifPresent(logWarning(collectedFirmwareVersions.getActiveMeterFirmwareVersion().get()));
 
-                forEach(optionalMessageSeed -> optionalMessageSeed.ifPresent(messageSeed ->
-                        getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning, createWarning(messageSeed), comTaskExecution)));
+        deviceFirmwareVersionStorageTransitions.getActiveMeterFirmwareVersionTransition().getMessageSeed()
+                .ifPresent(logWarning(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion().get()));
     }
 
-    private Warning createWarning(MessageSeeds messageSeed) {
-        return getIssueService().newWarning(collectedFirmwareVersions.getDeviceIdentifier(), messageSeed.getKey());
+    private Consumer<MessageSeeds> logWarning(String currentFirmwareVersion) {
+        return messageSeeds ->
+                getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning,
+                        createWarning(messageSeeds, currentFirmwareVersion), comTaskExecution);
+    }
+
+    private Warning createWarning(MessageSeeds messageSeed, Object... arguments) {
+        return getIssueService().newWarning(collectedFirmwareVersions.getDeviceIdentifier(), messageSeed.getKey(), arguments);
     }
 
     @Override
