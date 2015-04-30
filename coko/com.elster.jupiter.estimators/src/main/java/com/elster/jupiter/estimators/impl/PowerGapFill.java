@@ -80,7 +80,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     private boolean isRegular(EstimationBlock estimationBlock) {
         boolean regular = estimationBlock.getReadingType().isRegular();
         if (!regular) {
-            String message = "Failed estimation: Block {block} since its reading type {readingType} is not regular.";
+            String message = "Failed estimation with {rule}: Block {block} since its reading type {readingType} is not regular.";
             LoggingContext.get().info(getLogger(), message);
         }
         return regular;
@@ -89,7 +89,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     private boolean isBlockSizeOk(EstimationBlock block) {
         boolean blockSizeOk = block.estimatables().size() <= maxNumberOfConsecutiveSuspects;
         if (!blockSizeOk) {
-            String message = "Failed estimation: Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
+            String message = "Failed estimation with {rule}: Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
             LoggingContext.get().info(getLogger(), message, block.estimatables().size(), maxNumberOfConsecutiveSuspects);
         }
         return blockSizeOk;
@@ -107,7 +107,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
             return false;
         }
         if (!successiveReading.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERUP)) {
-            String message = "Failed estimation: Block {block} since the successive reading does not have the power up flag.";
+            String message = "Failed estimation with {rule}: Block {block} since the successive reading does not have the power up flag.";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
@@ -116,7 +116,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
             return false;
         }
         if (!precedingReading.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERDOWN)) {
-            String message = "Failed estimation: Block {block} since the preceding reading does not have the power down flag.";
+            String message = "Failed estimation with {rule}: Block {block} since the preceding reading does not have the power down flag.";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
@@ -127,7 +127,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
         return cimChannel.get().getReading(previousDateTime)
                     .map(IntervalReadingRecord.class::cast)
                     .orElseGet(() -> {
-                        String message = "Failed estimation: Block {block} since the preceding reading is missing.";
+                        String message = "Failed estimation with {rule}: Block {block} since the preceding reading is missing.";
                         LoggingContext.get().info(getLogger(), message);
                         return null;
                     });
@@ -138,7 +138,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
         return cimChannel.get().getReading(nextDateTime)
                 .map(IntervalReadingRecord.class::cast)
                 .orElseGet(() -> {
-                    String message = "Failed estimation: Block {block} since the successive reading is missing.";
+                    String message = "Failed estimation with {rule}: Block {block} since the successive reading is missing.";
                     LoggingContext.get().info(getLogger(), message);
                     return null;
                 });
@@ -147,7 +147,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     private boolean doEstimateBulk(List<? extends Estimatable> estimatables, BaseReadingRecord baseReadingRecord) {
         BigDecimal value = baseReadingRecord.getValue();
         if (value == null) {
-            String message = "Failed estimation: Block {block} since the preceding reading has no value.";
+            String message = "Failed estimation with {rule}: Block {block} since the preceding reading has no value.";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
@@ -188,7 +188,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
             return null;
         }
         return channel.getCimChannel(bulkReadingType).orElseGet(() -> {
-            String message = "Failed estimation: Block {block} since the reading type {readingType} has no bulk reading type.";
+            String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} has no bulk reading type.";
             LoggingContext.get().info(getLogger(), message);
             return null;
         });
@@ -196,7 +196,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
 
     private ReadingType getBulkReadingType(ReadingType readingType) {
         return readingType.getBulkReadingType().orElseGet(() -> {
-            String message = "Failed estimation: Block {block} since the reading type {readingType} has no bulk reading type.";
+            String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} has no bulk reading type.";
             LoggingContext.get().info(getLogger(), message);
             return null;
         });
@@ -233,19 +233,19 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     private Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Estimatable last) {
         Optional<BaseReadingRecord> reading = bulkCimChannel.getReading(last.getTimestamp());
         if (!reading.isPresent()) {
-            String message = "Failed estimation: Block {block} since there is no reading at the end of the block.";
+            String message = "Failed estimation with {rule}: Block {block} since there is no reading at the end of the block.";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }
         IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) reading.get();
         if (!intervalReadingRecord.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERUP)) {
-            String message = "Failed estimation: Block {block} since the reading at the end of the block does not have the power up flag.";
+            String message = "Failed estimation with {rule}: Block {block} since the reading at the end of the block does not have the power up flag.";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }
         BigDecimal value = intervalReadingRecord.getValue();
         if (value == null) {
-            String message = "Failed estimation: Block {block} since the reading at the end of the block does not have a bulk value.";
+            String message = "Failed estimation with {rule}: Block {block} since the reading at the end of the block does not have a bulk value.";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }
@@ -256,18 +256,18 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
         Instant timestampBefore = cimChannel.getPreviousDateTime(first.getTimestamp());
         Optional<BaseReadingRecord> reading = cimChannel.getReading(timestampBefore);
         if (!reading.isPresent()) {
-            String message = "Failed estimation: Block {block} since there is no reading preceding the block.";
+            String message = "Failed estimation with {rule}: Block {block} since there is no reading preceding the block.";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }
         IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) reading.get();
         if (!intervalReadingRecord.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERDOWN)) {
-            String message = "Failed estimation: Block {block} since the reading preceding the block does not have the power down flag.";
+            String message = "Failed estimation with {rule}: Block {block} since the reading preceding the block does not have the power down flag.";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }
         if (intervalReadingRecord.getValue() == null) {
-            String message = "Failed estimation: Block {block} since the reading preceding the block does not have a bulk value.";
+            String message = "Failed estimation with {rule}: Block {block} since the reading preceding the block does not have a bulk value.";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }
