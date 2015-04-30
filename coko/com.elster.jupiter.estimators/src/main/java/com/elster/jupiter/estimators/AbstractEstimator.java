@@ -1,6 +1,9 @@
-package com.elster.jupiter.estimators.impl;
+package com.elster.jupiter.estimators;
 
+import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationBlockFormatter;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.MissingRequiredProperty;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -9,20 +12,21 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.logging.LoggingContext;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
-/**
- * Created by igh on 3/03/2015.
- */
-public abstract class AbstractEstimator implements IEstimator {
+public abstract class AbstractEstimator implements Estimator {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final Map<String, Object> properties;
+    private Logger logger;
 
     protected AbstractEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
@@ -35,6 +39,18 @@ public abstract class AbstractEstimator implements IEstimator {
         this.propertySpecService = propertySpecService;
         getRequiredProperties().forEach(propertyName -> checkRequiredProperty(propertyName, properties));
         this.properties = properties;
+    }
+
+    @Override
+    public final void init(Logger logger) {
+        this.logger = logger == null ? Logger.getLogger(this.getClass().getName()) : logger;
+        init();
+    }
+
+    protected abstract void init();
+
+    protected final Logger getLogger() {
+        return logger == null ? Logger.getLogger(this.getClass().getName()) : logger;
     }
 
     private void checkRequiredProperty(String propertyName, Map<String, Object> properties) {
@@ -107,4 +123,13 @@ public abstract class AbstractEstimator implements IEstimator {
         return Collections.emptyList();
     }
 
+    protected final String format(EstimationBlock block) {
+        return EstimationBlockFormatter.getInstance().format(block);
+    }
+
+    protected final LoggingContext initLoggingContext(EstimationBlock block) {
+        return LoggingContext.get().with(ImmutableMap.of(
+                "block", EstimationBlockFormatter.getInstance().format(block),
+                "readingType", block.getReadingType().getMRID()));
+    }
 }
