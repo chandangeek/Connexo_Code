@@ -13,15 +13,18 @@ import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.*;
 
 class Installer {
 
@@ -104,17 +107,18 @@ class Installer {
                 {Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.VIEW_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK});
     }
 
-    private List<RelativePeriodCategory> getCategories() {
-        List<RelativePeriodCategory> categories = new ArrayList<>();
-        categories.add(timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY).orElseThrow(IllegalArgumentException::new));
-        return categories;
+    private RelativePeriodCategory getCategory() {
+        return timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY).orElseThrow(IllegalArgumentException::new);
     }
 
     private void createRelativePeriods() {
-        List<RelativePeriodCategory> categories = getCategories();
+        RelativePeriodCategory category = getCategory();
 
-        Arrays.stream(DefaultRelativePeriodDefinition.values())
-                .forEach(definition -> definition.create(timeService, categories));
+        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, TODAY, YESTERDAY).stream()
+                .forEach(definition -> {
+                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName()).orElseThrow(IllegalArgumentException::new);
+                    relativePeriod.addRelativePeriodCategory(category);
+                });
 
     }
 
