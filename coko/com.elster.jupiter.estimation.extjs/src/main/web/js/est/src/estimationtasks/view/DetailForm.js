@@ -66,6 +66,22 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                         name: 'nextRun_formatted_long'
                     }
                 ]
+            },
+            {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('estimationtasks.general.dataOptions', 'EST', 'Data options'),
+                labelAlign: 'top',
+                layout: 'vbox',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 250
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.estimationPeriod', 'EST', 'Estimation period'),
+                        name: 'period_name'
+                    }
+                ]
             }
         ];
         me.callParent();

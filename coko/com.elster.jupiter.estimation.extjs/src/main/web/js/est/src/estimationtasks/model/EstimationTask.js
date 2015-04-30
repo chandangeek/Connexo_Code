@@ -18,9 +18,8 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
                 if (data.deviceGroup && data.deviceGroup.name) {
                     return data.deviceGroup.name;
                 } else {
-                    result = '-'
+                    return '-'
                 }
-                return result;
             }
         },
         {
@@ -122,7 +121,18 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
                     return '-';
                 }
             }
-        }
+        },
+        {
+            name: 'period_name',
+            persist: false,
+            mapping: function (data) {
+                if (data.period && data.period.name) {
+                    return data.period.name;
+                } else {
+                    return 'All';
+                }
+            }
+        },
     ],
     proxy: {
         type: 'rest',
