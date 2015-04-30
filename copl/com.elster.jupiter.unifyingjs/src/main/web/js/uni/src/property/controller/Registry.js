@@ -37,7 +37,9 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.CodeTable',
         'Uni.property.view.property.Reference',
         'Uni.property.view.property.Multiselect',
-        'Uni.property.view.property.RelativePeriod'
+        'Uni.property.view.property.RelativePeriod',
+        'Uni.property.view.property.AdvanceReadingsSettings',
+        'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
     ],
 
     /**
