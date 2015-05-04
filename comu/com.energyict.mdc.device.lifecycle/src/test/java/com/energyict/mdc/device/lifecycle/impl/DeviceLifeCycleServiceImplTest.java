@@ -11,11 +11,11 @@ import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionPropertySupport;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -73,6 +73,7 @@ import static org.mockito.Mockito.when;
 public class DeviceLifeCycleServiceImplTest {
 
     public static final long DEVICE_LIFE_CYCLE_ID = 1L;
+    public static final long EVENT_TYPE_ID = 11L;
     public static final long STATE_ID = 97L;
     public static final long DEVICE_ID = 111L;
 
@@ -138,6 +139,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
         when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), anyMap())).thenReturn(this.event);
+        when(this.eventType.getId()).thenReturn(EVENT_TYPE_ID);
         for (MicroCheck microCheck : MicroCheck.values()) {
             ServerMicroCheck serverMicroCheck = mock(ServerMicroCheck.class);
             when(serverMicroCheck.evaluate(any(Device.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
@@ -465,7 +467,7 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     @Test
-    public void getExecutableStatesWithoutAuthorizedActions() {
+    public void getExecutableActionsWithoutAuthorizedActions() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(Collections.emptyList());
 
@@ -477,7 +479,7 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     @Test
-    public void getExecutableStatesForUserWithAllWrongPrivileges() {
+    public void getExecutableActionsForUserWithAllWrongPrivileges() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         AuthorizedBusinessProcessAction businessProcessAction = mock(AuthorizedBusinessProcessAction.class);
@@ -493,7 +495,7 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     @Test
-    public void getExecutableStatesForUserWithSomeWrongPrivileges() {
+    public void getExecutableActionsForUserWithSomeWrongPrivileges() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.THREE));
         AuthorizedBusinessProcessAction businessProcessAction = mock(AuthorizedBusinessProcessAction.class);
@@ -515,7 +517,7 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     @Test
-    public void getExecutableStatesForUserWithAllPrivileges() {
+    public void getExecutableActionsForUserWithAllPrivileges() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.THREE));
         AuthorizedBusinessProcessAction businessProcessAction = mock(AuthorizedBusinessProcessAction.class);
@@ -533,6 +535,97 @@ public class DeviceLifeCycleServiceImplTest {
         assertThat(executableActions).hasSize(2);
         List<AuthorizedAction> actions = executableActions.stream().map(ExecutableAction::getAction).collect(Collectors.toList());
         assertThat(actions).containsOnly(this.action, businessProcessAction);
+    }
+
+    @Test
+    public void getExecutableActionsForEventTypeWithoutAuthorizedActions() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(Collections.emptyList());
+
+        // Business method
+        Optional<ExecutableAction> executableAction = service.getExecutableActions(this.device, mock(StateTransitionEventType.class));
+
+        // Asserts
+        assertThat(executableAction.isPresent()).isFalse();
+    }
+
+    @Test
+    public void getExecutableActionsForEventTypeWithOnlyBusinessProcessActions() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        Privilege allowed = mock(Privilege.class);
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+        AuthorizedBusinessProcessAction action = mock(AuthorizedBusinessProcessAction.class);
+        when(action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        List<AuthorizedAction> actions = Arrays.asList(action);
+        when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(actions);
+
+        // Business method
+        Optional<ExecutableAction> executableAction = service.getExecutableActions(this.device, mock(StateTransitionEventType.class));
+
+        // Asserts
+        assertThat(executableAction.isPresent()).isFalse();
+    }
+
+    @Test
+    public void getExecutableActionsForEventTypeWithNoMatchingEventType() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        Privilege allowed = mock(Privilege.class);
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+        StateTransition stateTransition1 = mock(StateTransition.class);
+        StateTransitionEventType eventType1 = mock(StateTransitionEventType.class);
+        when(eventType1.getId()).thenReturn(1L);
+        when(stateTransition1.getEventType()).thenReturn(eventType1);
+        AuthorizedTransitionAction action1 = mock(AuthorizedTransitionAction.class);
+        when(action1.getStateTransition()).thenReturn(stateTransition1);
+        when(action1.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        StateTransition stateTransition2 = mock(StateTransition.class);
+        StateTransitionEventType eventType2 = mock(StateTransitionEventType.class);
+        when(eventType2.getId()).thenReturn(2L);
+        when(stateTransition2.getEventType()).thenReturn(eventType2);
+        AuthorizedTransitionAction action2 = mock(AuthorizedTransitionAction.class);
+        when(action2.getStateTransition()).thenReturn(stateTransition2);
+        when(action2.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        List<AuthorizedAction> actions = Arrays.asList(action1, action2);
+        when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(actions);
+
+        // Business method
+        Optional<ExecutableAction> executableAction = service.getExecutableActions(this.device, this.eventType);
+
+        // Asserts
+        assertThat(executableAction.isPresent()).isFalse();
+    }
+
+    @Test
+    public void getExecutableActionsForEventTypeWithMatchingEventType() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        Privilege allowed = mock(Privilege.class);
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.FOUR.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(AuthorizedAction.Level.THREE.getPrivilege())).thenReturn(Optional.of(allowed));
+        when(this.user.hasPrivilege(allowed)).thenReturn(true);
+        StateTransition stateTransition1 = mock(StateTransition.class);
+        StateTransitionEventType eventType1 = mock(StateTransitionEventType.class);
+        when(eventType1.getId()).thenReturn(1L);
+        when(stateTransition1.getEventType()).thenReturn(eventType1);
+        AuthorizedStandardTransitionAction action1 = mock(AuthorizedStandardTransitionAction.class);
+        when(action1.getStateTransition()).thenReturn(stateTransition1);
+        when(action1.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        StateTransition stateTransition2 = mock(StateTransition.class);
+        when(stateTransition2.getEventType()).thenReturn(this.eventType);
+        AuthorizedStandardTransitionAction action2 = mock(AuthorizedStandardTransitionAction.class);
+        when(action2.getStateTransition()).thenReturn(stateTransition2);
+        when(action2.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        List<AuthorizedAction> actions = Arrays.asList(action1, action2);
+        when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(actions);
+
+        // Business method
+        Optional<ExecutableAction> executableAction = service.getExecutableActions(this.device, this.eventType);
+
+        // Asserts
+        assertThat(executableAction.isPresent()).isTrue();
     }
 
     @Test

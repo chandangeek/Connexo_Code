@@ -18,6 +18,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -150,6 +151,25 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         else {
             AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
             return new ExecutableBusinessProcessActionImpl(device, businessProcessAction, this);
+        }
+    }
+
+    @Override
+    public Optional<ExecutableAction> getExecutableActions(Device device, StateTransitionEventType eventType) {
+        return this
+                .getExecutableActions(device)
+                .stream()
+                .filter(each -> isTransitionAction(each, eventType))
+                .findAny();
+    }
+
+    private boolean isTransitionAction(ExecutableAction executableAction, StateTransitionEventType eventType) {
+        if (executableAction.getAction() instanceof AuthorizedTransitionAction) {
+            AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) executableAction.getAction();
+            return transitionAction.getStateTransition().getEventType().getId() == eventType.getId();
+        }
+        else {
+            return false;
         }
     }
 

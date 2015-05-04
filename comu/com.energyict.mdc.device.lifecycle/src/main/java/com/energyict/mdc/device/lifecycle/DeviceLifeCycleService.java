@@ -9,9 +9,11 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Supports the life cycle of a {@link Device} as defined by the
@@ -66,6 +68,17 @@ public interface DeviceLifeCycleService {
      * @return The List of ExecutableAction
      */
     public List<ExecutableAction> getExecutableActions(Device device);
+
+    /**
+     * Gets the {@link ExecutableAction} for the current user
+     * against the specified {@link Device} that relates to
+     * the specified {@link StateTransitionEventType}.
+     *
+     * @param device The Device
+     * @param eventType The StateTransitionEventType
+     * @return The ExecutableAction
+     */
+    public Optional<ExecutableAction> getExecutableActions(Device device, StateTransitionEventType eventType);
 
     /**
      * Gets the {@link PropertySpec}s for the specified {@link MicroAction}.
