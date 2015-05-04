@@ -299,7 +299,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
             check.getChecks()
                 .stream()
                 .map(this.microCheckFactory::from)
-                .map(a -> this.execute(a, device))
+                .map(microCheck -> this.execute(microCheck, device))
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
         if (!violations.isEmpty()) {
