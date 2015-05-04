@@ -1,10 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -16,7 +19,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -44,11 +46,12 @@ public class DeviceInfo {
     public Boolean isGateway;
     public String serviceCategory;
     public String usagePoint;
+    public DeviceLifeCycleStateInfo state;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, MeteringService meteringService) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, MeteringService meteringService, Thesaurus thesaurus) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -78,15 +81,19 @@ public class DeviceInfo {
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
         deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().isDirectlyAddressable();
         deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway();
-        device
-            .getCurrentMeterActivation()
-            .map(MeterActivation::getUsagePoint)
-            .ifPresent(up ->
-                    up.ifPresent(usagePoint -> {
-                        deviceInfo.usagePoint = usagePoint.getMRID();
-                        deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
+        Optional<? extends MeterActivation> meterActivation = device.getCurrentMeterActivation();
+        if (meterActivation.isPresent()) {
+            meterActivation.map(MeterActivation::getUsagePoint)
+                    .ifPresent(up ->
+                            up.ifPresent(usagePoint -> {
+                                deviceInfo.usagePoint = usagePoint.getMRID();
+                                deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
                     }));
-
+            Optional<Meter> meter = device.getCurrentMeterActivation().get().getMeter();
+            if (meter.isPresent() && meter.get().getState().isPresent()) {
+                deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, meter.get().getState().get());
+            }
+        }
         return deviceInfo;
     }
 
@@ -101,9 +108,4 @@ public class DeviceInfo {
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         return deviceInfo;
     }
-
-    public static List<DeviceInfo> from(List<Device> devices) {
-        return devices.stream().map(DeviceInfo::from).collect(Collectors.toList());
-    }
-
 }

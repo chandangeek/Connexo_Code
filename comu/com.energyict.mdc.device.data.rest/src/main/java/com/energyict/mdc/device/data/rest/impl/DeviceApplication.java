@@ -36,7 +36,9 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
+import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -366,6 +368,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceGroupInfoFactory.class).to(DeviceGroupInfoFactory.class);
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(firmwareService).to(FirmwareService.class);
+            bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
+            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
         }
     }
 
