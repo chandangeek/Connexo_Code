@@ -6,8 +6,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -186,21 +184,16 @@ public class FirmwareUtils {
     public void createFirmwareMessageFor(String mridOfDevice, String firwareVersion) {
         Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
         if (device.isPresent()) {
-            Condition where = Where.where("firmwareVersion").isEqualTo(firwareVersion).and(Where.where("deviceType").isEqualTo(device.get().getDeviceType()));
-            List<FirmwareVersion> firmwareVersions = this.firmwareService.findAllFirmwareVersions(where).find();
-            if (firmwareVersions.size() > 0) {
-                executeTransaction(() -> {
-                    Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
-                    DeviceMessage<Device> deviceMessage = deviceMessageBuilder
-                            .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersions.get(0))
-                            .setReleaseDate(clock.instant())
-                            .add();
-                    System.out.println("Create message for " + mridOfDevice + " with id " + deviceMessage.getId());
-                    return null;
-                });
-            } else {
-                System.out.println("No firmware version found with the name " + firwareVersion + " for device " + mridOfDevice);
-            }
+            Optional<FirmwareVersion> firmwareVersionByVersion = this.firmwareService.getFirmwareVersionByVersion(firwareVersion, device.get().getDeviceType());
+            firmwareVersionByVersion.ifPresent(firmwareVersion -> executeTransaction(() -> {
+                Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
+                DeviceMessage<Device> deviceMessage = deviceMessageBuilder
+                        .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersion)
+                        .setReleaseDate(clock.instant())
+                        .add();
+                System.out.println("Create message for " + mridOfDevice + " with id " + deviceMessage.getId());
+                return null;
+            }));
         } else {
             System.out.println("No Device found with the mrid '" + mridOfDevice + "'");
         }
