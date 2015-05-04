@@ -15,7 +15,7 @@ Ext.define('Cfg.controller.Log', {
     refs: [
         {
             ref: 'page',
-            selector: 'log-setup'
+            selector: 'cfg-log-setup'
         }
     ],
 
@@ -42,7 +42,7 @@ Ext.define('Cfg.controller.Log', {
                     occurrenceTask = this.getById(parseInt(occurrenceId));
                     //runStartedOn = moment(occurrenceTask.startedOn).valueOf();
                     runStartedOnFormatted = occurrenceTask.data.startedOn_formatted;
-                    view = Ext.widget('log-setup', {
+                    view = Ext.widget('cfg-log-setup', {
                         router: router,
                         task: record,
                         runStartedOn: runStartedOnFormatted

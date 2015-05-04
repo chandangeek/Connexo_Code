@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.log.Setup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.log-setup',
+    alias: 'widget.cfg-log-setup',
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Cfg.view.log.Menu',
@@ -33,14 +33,14 @@ Ext.define('Cfg.view.log.Setup', {
             title: Uni.I18n.translate('validationTasks.general.log', 'CFG', 'Log'),
             items: [
                 {
-                    xtype: 'log-preview',
+                    xtype: 'cfg-log-preview',
                     router: me.router,
                     margin: '10 0 20 0'
                 },
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'log-grid'
+                        xtype: 'cfg-log-grid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
