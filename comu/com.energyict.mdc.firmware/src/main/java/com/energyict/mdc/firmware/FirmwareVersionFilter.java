@@ -11,6 +11,7 @@ public class FirmwareVersionFilter {
     private DeviceType deviceType;
     private List<FirmwareType> firmwareTypes = new ArrayList<>();
     private List<FirmwareStatus> firmwareStatuses = new ArrayList<>();
+    private List<String> firmwareVersions = new ArrayList<>();
 
     public FirmwareVersionFilter (DeviceType deviceType) {
         this.deviceType = deviceType;
@@ -23,6 +24,14 @@ public class FirmwareVersionFilter {
 
     public void setFirmwareStatuses(List<FirmwareStatus> firmwareStatuses) {
         this.firmwareStatuses.addAll(firmwareStatuses);
+    }
+
+    public void setFirmwareVersions(List<String> firmwareVersions) {
+        this.firmwareVersions.addAll(firmwareVersions);
+    }
+
+    public List<String> getFirmwareVersions() {
+        return firmwareVersions;
     }
 
     public List<FirmwareType> getFirmwareTypes() {
