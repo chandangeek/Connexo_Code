@@ -86,7 +86,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceChannelTab',
         'Mdc.controller.setup.DevicesEditGroupController',
         'Mdc.controller.setup.DeviceLogbookData',
-        'Mdc.controller.setup.DataCollectionKpi'
+        'Mdc.controller.setup.DataCollectionKpi',
+		'Mdc.controller.setup.DeviceValidationResults'		
     ],
 
     refs: [
@@ -100,7 +101,7 @@ Ext.define('Mdc.controller.Main', {
         var me = this,
             historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup', 'privilege.administrate.deviceOfEnumeratedGroup', 'privilege.view.deviceGroupDetail'])) {
+        if (Mdc.privileges.DeviceGroup.canView()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
                 href: '#/devices',
@@ -129,10 +130,8 @@ Ext.define('Mdc.controller.Main', {
             );
         }
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType',
-                'privilege.administrate.masterData', 'privilege.view.masterData',
-                'privilege.administrate.communicationAdministration', 'privilege.view.communicationAdministration',
-                'privilege.administrate.sharedCommunicationSchedule', 'privilege.view.sharedCommunicationSchedule'])) {
+        if (Mdc.privileges.DeviceType.canView() || Mdc.privileges.MasterData.canView() ||
+            Mdc.privileges.Communication.canView() || Mdc.privileges.CommunicationSchedule.canView()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
                 href: me.getApplication().getController('Mdc.controller.history.Setup').tokenizeShowOverview(),
@@ -144,8 +143,7 @@ Ext.define('Mdc.controller.Main', {
             Uni.store.MenuItems.add(menuItem);
 
             var deviceManagementItem = null;
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType',
-                    'privilege.administrate.masterData', 'privilege.view.masterData'])) {
+            if (Mdc.privileges.DeviceType.canView() || Mdc.privileges.MasterData.canView()){
                 deviceManagementItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('general.deviceManagement', 'MDC', 'Device management'),
                     portal: 'administration',
@@ -155,35 +153,35 @@ Ext.define('Mdc.controller.Main', {
                             text: Uni.I18n.translate('devicetype.deviceTypes', 'MDC', 'Device types'),
                             href: '#/administration/devicetypes',
                             itemId: 'lnk-device-types',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType']),
+                            privileges:Mdc.privileges.DeviceType.view,
                             route: 'devicetypes'
                         },
                         {
                             text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
                             href: '#/administration/registertypes',
                             itemId: 'lnk-register-types',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.masterData', 'privilege.view.masterData']),
+                            privileges:Mdc.privileges.MasterData.view,
                             route: 'registertypes'
                         },
                         {
                             text: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
                             href: '#/administration/registergroups',
                             itemId: 'lnk-register-groups',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.masterData', 'privilege.view.masterData']),
+                            privileges:Mdc.privileges.MasterData.view,
                             route: 'registergroups'
                         },
                         {
                             text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
                             href: '#/administration/logbooktypes',
                             itemId: 'lnk-logbook-types',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.masterData', 'privilege.view.masterData']),
+                            privileges:Mdc.privileges.MasterData.view,
                             route: 'logbooktypes'
                         },
                         {
                             text: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
                             href: '#/administration/loadprofiletypes',
                             itemId: 'lnk-load-profile-types',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.masterData', 'privilege.view.masterData']),
+                            privileges:Mdc.privileges.MasterData.view,
                             route: 'loadprofiletypes'
                         }
                     ]
@@ -191,8 +189,7 @@ Ext.define('Mdc.controller.Main', {
             }
 
             var deviceCommunicationItem = null;
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationAdministration', 'privilege.view.communicationAdministration',
-                    'privilege.administrate.sharedCommunicationSchedule', 'privilege.view.sharedCommunicationSchedule'])) {
+            if (Mdc.privileges.Communication.canView() || Mdc.privileges.CommunicationSchedule.canView()){
                 deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
                     portal: 'administration',
@@ -201,31 +198,31 @@ Ext.define('Mdc.controller.Main', {
                         {
                             text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
                             href: '#/administration/comservers',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationAdministration', 'privilege.view.communicationAdministration']),
+                            privileges:Mdc.privileges.Communication.view,
                             route: 'comservers'
                         },
                         {
                             text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
                             href: '#/administration/comportpools',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationAdministration', 'privilege.view.communicationAdministration']),
+                            privileges:Mdc.privileges.Communication.view,
                             route: 'comportpools'
                         },
                         {
                             text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Communication protocols'),
                             href: '#/administration/devicecommunicationprotocols',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationAdministration', 'privilege.view.communicationAdministration']),
+                            privileges:Mdc.privileges.Communication.view,
                             route: 'devicecommunicationprotocols'
                         },
                         {
                             text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.sharedCommunicationSchedule', 'privilege.view.sharedCommunicationSchedule']),
+                            privileges:Mdc.privileges.CommunicationSchedule.view,
                             href: '#/administration/communicationschedules',
                             route: 'communicationschedules'
                         },
                         {
                             text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
                             href: '#/administration/communicationtasks',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationAdministration', 'privilege.view.communicationAdministration']),
+                            privileges:Mdc.privileges.Communication.view,
                             route: 'communicationtasks'
                         },
                         {
@@ -235,6 +232,7 @@ Ext.define('Mdc.controller.Main', {
                         }
                     ]
                 });
+
             }
             if (deviceCommunicationItem !== null) {
                 Uni.store.PortalItems.add(deviceCommunicationItem);

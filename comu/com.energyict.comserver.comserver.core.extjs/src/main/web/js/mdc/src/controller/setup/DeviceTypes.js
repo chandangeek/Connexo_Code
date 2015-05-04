@@ -212,6 +212,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeEditView: function (deviceTypeId) {
         var me = this,
             protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols'),
+            confugurationStore = me.getStore('Mdc.store.DeviceConfigurations'),
+            lifeCycleStore = me.getStore('Mdc.store.DeviceLifeCycles'),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('deviceTypeEdit', {
                 edit: true,
@@ -221,12 +223,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
-
+        confugurationStore.getProxy().url = confugurationStore.getProxy().url.replace('{deviceType}', deviceTypeId);
         var when = new Uni.util.When();
         when.when([
             {action: Ext.ModelManager.getModel('Mdc.model.DeviceType').load, context: Ext.ModelManager.getModel('Mdc.model.DeviceType'), args: [deviceTypeId]},
-            {action: protocolStore.load, context: protocolStore, simple: true}
-
+            {action: protocolStore.load, context: protocolStore, simple: true},
+            {action: lifeCycleStore.load, context: lifeCycleStore, simple: true},
+            {action: confugurationStore.load, context: confugurationStore, simple: true}
         ]).then(
             {
                 success: function (results) {
@@ -235,6 +238,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     Ext.suspendLayouts();
                     me.getDeviceTypeEditForm().loadRecord(deviceType);
                     me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                    me.modifyEditView(widget, confugurationStore);
                     Ext.resumeLayouts(true);
                     widget.setLoading(false);
                 },
@@ -264,16 +268,40 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     },
 
+    modifyEditView: function (widget, store) {
+        var me = this,
+            form = widget.down('#deviceTypeEditForm'),
+            infoPanel = widget.down('#info-panel'),
+            commProtocolField = form.down('#communicationProtocolComboBox'),
+            lifeCycleField = form.down('#device-life-cycle-field'),
+            activeConfig = store.find('active', true);
+        if (store.getCount() > 0) {
+            if (activeConfig < 0) {
+                commProtocolField.disable();
+                infoPanel.show();
+                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg1', 'MDC', 'This device type has one or more device configurations. Only fields name and device life cycle are editable'))
+            } else {
+                commProtocolField.disable();
+                lifeCycleField.disable();
+                infoPanel.show();
+                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg2', 'MDC', 'This device type has one or more active device configurations. Only the name field is editable'))
+            }
+        } else {
+            commProtocolField.enable();
+            lifeCycleField.enable();
+        }
+    },
+
     showDeviceTypeCreateView: function () {
         var me = this,
             protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols'),
             deviceLifeCyclesStore = me.getStore('Mdc.store.DeviceLifeCycles'),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('deviceTypeEdit', {
-            edit: false,
-            cancelLink: router.getRoute('administration/devicetypes').buildUrl(),
-            deviceCommunicationProtocols: protocolStore
-        });
+                edit: false,
+                cancelLink: router.getRoute('administration/devicetypes').buildUrl(),
+                deviceCommunicationProtocols: protocolStore
+            });
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);

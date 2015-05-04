@@ -28,6 +28,19 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 },
                 items: [
                     {
+                        xtype: 'uni-form-info-message',
+                        itemId: 'info-panel',
+                        hidden: true,
+                        maxWidth: 800,
+                        minWidth: 650,
+                        iconCmp: {
+                            xtype: 'box',
+                            height: 16,
+                            width: 16,
+                            cls: 'uni-icon-info-small'
+                        }
+                    },
+                    {
                         xtype: 'combobox',
                         name: 'deviceProtocolPluggableClass',
                         fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
@@ -58,7 +71,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
                         required: true,
-                        hidden: me.edit,
+                        itemId: 'device-life-cycle-field',
                         layout: 'hbox',
                         items: [
                             {

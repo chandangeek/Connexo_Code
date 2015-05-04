@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('device.dataValidation', 'MDC', 'Data validation'),
+                title: Uni.I18n.translate('device.dataValidation', 'MDC', 'Validation configuration'),
                 items: [
                     {
                         xtype: 'container',
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                     {
                                         xtype: 'button',
                                         itemId: 'deviceDataValidationStateChangeBtn',
-                                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration.onDevice'),
+                                        privileges:Cfg.privileges.Validation.device,
                                         action: ''
                                     }
                                 ]

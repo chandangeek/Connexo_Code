@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationBrowse
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('validation.deviceconfiguration.add', 'CFG', 'Add device configuration'),
-                                    privileges: ['privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
+                                    privileges : Cfg.privileges.Validation.deviceConfiguration,
                                     itemId: 'addDeviceConfiguration',
                                     listeners: {
                                         click: {

@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     deviceTypeId: null,
     deviceConfigId: null,
     channelConfigId: null,
-    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration']),
+    privileges: Cfg.privileges.Validation.fineTuneOnDeviceConfiguration,
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'validation-rule-actionmenu'
                 }

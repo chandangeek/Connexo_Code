@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
     alias: 'widget.group-details',
     xtype: 'device-groups-details',
     requires: [
+        'Yfn.privileges.Yellowfin',
         'Mdc.view.setup.devicegroup.Menu',
         'Mdc.view.setup.devicegroup.DeviceGroupPreview',
         'Mdc.view.setup.devicegroup.DeviceGroupActionMenu',
@@ -39,7 +40,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                     {
                         xtype:'button',
                         itemId:'generate-report',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
+                        privileges: Yfn.privileges.Yellowfin.view,
                         margin: '20 10 0 0',
                         text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
                     },

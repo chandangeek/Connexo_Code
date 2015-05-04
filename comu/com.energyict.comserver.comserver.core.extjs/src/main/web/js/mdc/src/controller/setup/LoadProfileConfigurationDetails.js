@@ -2,6 +2,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     extend: 'Ext.app.Controller',
     requires: [
         'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailRulesGrid',
+        'Cfg.privileges.Validation',
         'Cfg.view.validation.RulePreview',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -347,7 +348,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     itemId: 'rulesForChannelPreviewContainer',
                     grid: {
                         xtype: 'load-profile-configuration-detail-rules-grid',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration']),
+                        privileges: Cfg.privileges.Validation.viewOrAdmin,
                         deviceTypeId: me.deviceTypeId,
                         deviceConfigId: me.deviceConfigurationId,
                         channelConfigId: channelId

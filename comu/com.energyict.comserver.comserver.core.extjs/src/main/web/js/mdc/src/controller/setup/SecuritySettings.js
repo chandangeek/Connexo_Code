@@ -194,8 +194,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         var executionLevelsgrid = Ext.ComponentQuery.query('securitySettingSetup execution-level-grid')[0];
         var executionLevelscontainer = Ext.ComponentQuery.query('securitySettingSetup #execution-levels-grid-preview-container')[0];
         var executionLevelsTitle = Ext.ComponentQuery.query('securitySettingSetup #execution-level-grid-title')[0];
-        this.getExecutionLevelGridAddLink().getEl().set({href: executionLevelscontainer.emptyComponent.stepItems[0].href + record.get('id') + '/privileges/add'});
-        this.getExecutionLevelAddLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + record.get('id') + '/privileges/add'});
+        this.getExecutionLevelGridAddLink() &&
+            this.getExecutionLevelGridAddLink().getEl().set({href: executionLevelscontainer.emptyComponent.stepItems[0].href + record.get('id') + '/privileges/add'});
+        this.getExecutionLevelAddLink() &&
+            this.getExecutionLevelAddLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + record.get('id') + '/privileges/add'});
 
         var preview = Ext.ComponentQuery.query('securitySettingSetup #execution-levels-grid-preview-container')[0];
         preview.bindStore(record.executionLevels());

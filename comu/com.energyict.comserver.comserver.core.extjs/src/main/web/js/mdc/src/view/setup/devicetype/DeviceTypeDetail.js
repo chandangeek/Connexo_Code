@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                                     iconCls: 'x-uni-action-iconD',
-                                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                                    privileges: Mdc.privileges.DeviceType.admin,
                                     menu: {
                                         xtype: 'device-type-action-menu'
                                     }

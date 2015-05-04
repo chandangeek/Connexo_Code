@@ -117,7 +117,9 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                     record.get('direction').toLowerCase() == 'outbound' ? form.down('displayfield[name=discoveryProtocolPluggableClassId]').hide() :
                         form.down('displayfield[name=discoveryProtocolPluggableClassId]').show() ;
                     form.loadRecord(record);
-                    form.up('panel').down('menu').record = record;
+                    var menuItem = form.up('panel').down('menu');
+                    if(menuItem)
+                        menuItem.record = record;
                     itemPanel.setLoading(false);
                     itemPanel.setTitle(record.get('name'));
                 }

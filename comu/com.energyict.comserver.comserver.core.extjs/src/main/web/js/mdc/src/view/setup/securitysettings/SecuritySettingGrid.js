@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 items: 'Mdc.view.setup.securitysettings.SecuritySettingsActionMenu'
             }
         ];
@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                     {
                         xtype: 'button',
                         text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                        privileges: Mdc.privileges.DeviceType.admin,
                         action: 'addsecurityaction',                       
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/add'
                     }

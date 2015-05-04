@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('deviceconnectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
+                        privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                         iconCls: 'x-uni-action-iconD',
                         menu: {
                             plain: true,

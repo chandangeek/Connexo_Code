@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.sharedCommunicationSchedule'),
+                privileges: Mdc.privileges.CommunicationSchedule.admin,
                 items: 'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
             }
 
@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                 items: [
                     {
                         text: Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add shared communication schedule'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.sharedCommunicationSchedule'),
+                        privileges: Mdc.privileges.CommunicationSchedule.admin,
                         itemId: 'createCommunicationSchedule',
                         xtype: 'button',
                         action: 'createCommunicationSchedule'

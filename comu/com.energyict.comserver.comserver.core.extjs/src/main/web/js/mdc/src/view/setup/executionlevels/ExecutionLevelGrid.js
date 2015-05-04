@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                privileges: Mdc.privileges.DeviceType.admin,
                 items: 'Mdc.view.setup.executionlevels.ExecutionLevelActionMenu'
             }
 
@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
                     {
                         text: Uni.I18n.translate('executionLevel.addExecutionLevel', 'MDC', 'Add privileges'),
                         itemId: 'createExecutionLevel',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
+                        privileges: Mdc.privileges.DeviceType.admin,
                         xtype: 'button',
                         action: 'createExecutionLevel',
                         href: ''
