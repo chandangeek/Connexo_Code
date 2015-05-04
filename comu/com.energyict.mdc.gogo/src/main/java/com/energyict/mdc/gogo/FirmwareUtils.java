@@ -1,11 +1,5 @@
 package com.energyict.mdc.gogo;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -21,6 +15,13 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -34,7 +35,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,6 +49,7 @@ import java.util.Optional;
                 "osgi.command.function=triggerFirmwareTaskFor",
                 "osgi.command.function=createFirmwareVersionFor"},
         immediate = true)
+@SuppressWarnings("unused")
 public class FirmwareUtils {
 
     private volatile FirmwareService firmwareService;
@@ -60,9 +61,6 @@ public class FirmwareUtils {
     private volatile DeviceService deviceService;
     private volatile UserService userService;
     private volatile TaskService taskService;
-
-    public FirmwareUtils() {
-    }
 
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
@@ -110,7 +108,7 @@ public class FirmwareUtils {
     }
 
     /**
-     * Creates an options file
+     * Creates an options file.
      */
     public void createFirmwareUpgradeOptionsFor(String deviceTypeName) {
         Optional<DeviceType> deviceTypeOptional = this.deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
