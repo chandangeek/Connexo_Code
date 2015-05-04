@@ -74,8 +74,34 @@ public class Installer {
                 PRIVILEGES_COMPONENT,
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations",
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
-                deviceLifeCyclePrivileges());
-        this.userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), deviceLifeCyclePrivileges());
+                this.deviceLifeCycleAdministrationPrivileges());
+        this.userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), this.deviceLifeCycleAdministrationPrivileges());
+        this.userService.createResourceWithPrivileges(
+                PRIVILEGES_COMPONENT,
+                "deviceLifeCycle.deviceLifeCycle",
+                "deviceLifeCycle.deviceLifeCycle.description",
+                this.allDeviceLifeCycleActionPrivileges());
+        this.userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), this.allDeviceLifeCycleActionPrivileges());
+        this.userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), this.meterOperatorDeviceLifeCycleActionPrivileges());
+    }
+
+    private String[] deviceLifeCycleAdministrationPrivileges(){
+        return new String[] {Privileges.VIEW_DEVICE_LIFE_CYCLE, Privileges.CONFIGURE_DEVICE_LIFE_CYCLE};
+    }
+
+    private String[] allDeviceLifeCycleActionPrivileges() {
+        return new String[]{
+                Privileges.INITIATE_ACTION_1,
+                Privileges.INITIATE_ACTION_2,
+                Privileges.INITIATE_ACTION_3,
+                Privileges.INITIATE_ACTION_4};
+    }
+
+    private String[] meterOperatorDeviceLifeCycleActionPrivileges() {
+        return new String[]{
+                Privileges.INITIATE_ACTION_1,
+                Privileges.INITIATE_ACTION_2,
+                Privileges.INITIATE_ACTION_3};
     }
 
     private DeviceLifeCycle installDefaultLifeCycle() {
@@ -175,10 +201,6 @@ public class Installer {
 
     private Set<MicroAction> applicableActionsFor(StateTransition transition) {
         return TransitionType.from(transition).get().supportedActions();
-    }
-
-    private String[] deviceLifeCyclePrivileges(){
-        return new String[] {Privileges.VIEW_DEVICE_LIFE_CYCLE, Privileges.CONFIGURE_DEVICE_LIFE_CYCLE};
     }
 
 }
