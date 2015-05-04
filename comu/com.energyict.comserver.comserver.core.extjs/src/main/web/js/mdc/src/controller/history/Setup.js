@@ -963,6 +963,12 @@ Ext.define('Mdc.controller.history.Setup', {
                         return this;
                     },
                     items: {
+                        history: {
+                            title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                            route: 'history',
+                            controller: 'Mdc.controller.setup.DeviceHistory',
+                            action: 'showDeviceHistory'
+                        },
                         commands: {
                             title: 'Commands',
                             route: 'commands',

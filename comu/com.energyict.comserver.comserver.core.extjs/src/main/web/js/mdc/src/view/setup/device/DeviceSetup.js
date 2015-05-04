@@ -233,7 +233,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 },
                 items: [
                     {
-                        xtype: 'deviceGeneralInformationPanel'
+                        xtype: 'deviceGeneralInformationPanel',
+                        router: me.router
                     },
                     {
                         xtype: 'deviceCommunicationTopologyPanel',
