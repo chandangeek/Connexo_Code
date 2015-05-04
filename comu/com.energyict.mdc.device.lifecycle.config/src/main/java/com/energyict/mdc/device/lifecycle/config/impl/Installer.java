@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -73,18 +74,8 @@ public class Installer {
                 PRIVILEGES_COMPONENT,
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations",
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
-                new String[]{
-                        Privileges.CONFIGURE_DEVICE_LIFE_CYCLE,
-                        Privileges.VIEW_DEVICE_LIFE_CYCLE});
-        this.userService.createResourceWithPrivileges(
-                PRIVILEGES_COMPONENT,
-                "deviceLifeCycle.deviceLifeCycle",
-                "deviceLifeCycle.deviceLifeCycle.description",
-                new String[]{
-                        Privileges.INITIATE_ACTION_1,
-                        Privileges.INITIATE_ACTION_2,
-                        Privileges.INITIATE_ACTION_3,
-                        Privileges.INITIATE_ACTION_4});
+                deviceLifeCyclePrivileges());
+        this.userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), deviceLifeCyclePrivileges());
     }
 
     private DeviceLifeCycle installDefaultLifeCycle() {
@@ -184,6 +175,10 @@ public class Installer {
 
     private Set<MicroAction> applicableActionsFor(StateTransition transition) {
         return TransitionType.from(transition).get().supportedActions();
+    }
+
+    private String[] deviceLifeCyclePrivileges(){
+        return new String[] {Privileges.VIEW_DEVICE_LIFE_CYCLE, Privileges.CONFIGURE_DEVICE_LIFE_CYCLE};
     }
 
 }
