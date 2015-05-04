@@ -4,7 +4,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -158,11 +157,7 @@ public class DeviceLifeCycleCommands {
 
     private void triggerAction(StateTransitionEventType eventType, Device device) {
         this.executeTransaction(() -> {
-            Optional<ExecutableAction> executableAction = this.deviceLifeCycleService
-                    .getExecutableActions(device)
-                    .stream()
-                    .filter(each -> isTransitionAction(each, eventType))
-                    .findAny();
+            Optional<ExecutableAction> executableAction = this.deviceLifeCycleService.getExecutableActions(device, eventType);
             if (executableAction.isPresent()) {
                 executableAction.get().execute(Collections.emptyList());
             }
@@ -171,16 +166,6 @@ public class DeviceLifeCycleCommands {
             }
             return null;
         });
-    }
-
-    private boolean isTransitionAction(ExecutableAction executableAction, StateTransitionEventType eventType) {
-        if (executableAction.getAction() instanceof AuthorizedTransitionAction) {
-            AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) executableAction.getAction();
-            return transitionAction.getStateTransition().getEventType().getId() == eventType.getId();
-        }
-        else {
-            return false;
-        }
     }
 
     @SuppressWarnings("unused")
