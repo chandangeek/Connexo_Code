@@ -1,40 +1,27 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
-import com.energyict.mdc.engine.impl.tools.Counter;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
+import com.energyict.mdc.engine.impl.tools.Counter;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.*;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.Transaction;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -283,6 +270,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
+        //
+    }
+
+    @Override
     public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
         return this.actual.createComSession(builder, successIndicator);
     }
@@ -363,6 +355,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation) {
 
+        }
+
+        @Override
+        public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
+//
         }
 
         @Override

@@ -93,6 +93,13 @@ public enum EventType {
         this.addCustomProperties(builder).create().save();
     }
 
+    @TransactionRequired
+    void createIfNotExists(EventService eventService) {
+        if (!eventService.getEventType(topic()).isPresent()) {
+            install(eventService);
+        }
+    }
+
     protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
         return eventTypeBuilder;
     }

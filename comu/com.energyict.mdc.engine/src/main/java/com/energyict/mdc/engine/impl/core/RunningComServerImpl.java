@@ -32,6 +32,7 @@ import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
@@ -70,31 +71,33 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     public interface ServiceProvider extends ComServerDAOImpl.ServiceProvider {
 
-        public DeviceConfigurationService deviceConfigurationService();
+        DeviceConfigurationService deviceConfigurationService();
 
-        public LogBookService logBookService();
+        LogBookService logBookService();
 
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
-        public IssueService issueService();
+        IssueService issueService();
 
-        public ManagementBeanFactory managementBeanFactory();
+        ManagementBeanFactory managementBeanFactory();
 
-        public ThreadPrincipalService threadPrincipalService();
+        ThreadPrincipalService threadPrincipalService();
 
-        public UserService userService();
+        UserService userService();
 
-        public NlsService nlsService();
+        NlsService nlsService();
 
-        public ProtocolPluggableService protocolPluggableService();
+        ProtocolPluggableService protocolPluggableService();
 
-        public SocketService socketService();
+        SocketService socketService();
 
-        public HexService hexService();
+        HexService hexService();
 
-        public SerialComponentService serialAtComponentService();
+        SerialComponentService serialAtComponentService();
 
-        public MeteringService meteringService();
+        MeteringService meteringService();
+
+        FirmwareService getFirmwareService();
 
     }
 
