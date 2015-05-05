@@ -393,6 +393,9 @@
                         <_sources>${include.source}</_sources>
                         <_include>bnd.bnd</_include>
                     </instructions>
+                    <supportedProjectTypes>
+                        <supportedProjectType>bundle</supportedProjectType>
+                    </supportedProjectTypes>
                 </configuration>
                 <executions>
                     <execution>
