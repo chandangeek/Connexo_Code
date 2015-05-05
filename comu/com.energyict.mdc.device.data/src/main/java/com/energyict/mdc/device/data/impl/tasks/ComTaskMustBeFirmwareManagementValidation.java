@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -34,6 +34,6 @@ public class ComTaskMustBeFirmwareManagementValidation implements ConstraintVali
     }
 
     private boolean containsFirmwareProtocolTask(ComTask comTask) {
-        return comTask.getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof FirmwareUpgradeTask).count() != 0;
+        return comTask.getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof FirmwareManagementTask).count() != 0;
     }
 }
