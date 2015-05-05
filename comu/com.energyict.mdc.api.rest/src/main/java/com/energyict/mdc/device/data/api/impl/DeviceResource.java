@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +60,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
     public Response getDevice(@PathParam("mrid") String mRID) {
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(deviceInfoFactory::from).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(deviceInfoFactory::plain).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceInfo).build();
     }
 
@@ -70,7 +69,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
     public Response getHypermediaDevice(@PathParam("mrid") String mRID, @Context UriInfo uriInfo) {
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d->deviceInfoFactory.from(d,uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceInfo).build();
     }
 
@@ -79,20 +78,17 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
     public Response getHalDevice(@PathParam("mrid") String mRID, @Context UriInfo uriInfo) {
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(deviceInfoFactory::from).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-        URI uri = uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").build(deviceInfo.mIRD);
+        HalInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHal(d, uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
 
-
-        HalInfo wrap = HalInfo.wrap(deviceInfo, uri);
-        return Response.ok(wrap).build();
+        return Response.ok(deviceInfo).build();
     }
 
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getDevices(@BeanParam QueryParameters queryParameters,@Context UriInfo uriInfo) {
-        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(d -> deviceInfoFactory.from(d, uriInfo)).collect(toList());
+        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo)).collect(toList());
 
         return Response.ok(PagedInfoList.asJson("devices", infos, queryParameters)).build();
     }
@@ -121,7 +117,7 @@ public class DeviceResource {
             newDevice.setYearOfCertification(2015);
             newDevice.save();
 
-            return deviceInfoFactory.from(newDevice);
+            return deviceInfoFactory.plain(newDevice);
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
                 javax.validation.Path propertyPath = constraintViolation.getPropertyPath();
@@ -133,12 +129,6 @@ public class DeviceResource {
             }
             throw e;
         }
-    }
-
-    @Path("/registers/{mrid}")
-    public RegisterResource getRegisterResource(@PathParam("mrid") String mRID) {
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-        return this.registerResourceProvider.get().init(device);
     }
 
 }

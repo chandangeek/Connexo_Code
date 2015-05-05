@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.api.impl;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class DeviceInfo extends LinkedInfo {
+public class DeviceInfo extends LinkInfo {
     public long id;
     public String mIRD;
     public String serialNumber;

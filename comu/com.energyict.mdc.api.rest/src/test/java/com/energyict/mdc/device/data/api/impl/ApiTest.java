@@ -6,9 +6,11 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Register;
 import com.jayway.jsonpath.JsonModel;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.MediaType;
@@ -55,6 +57,9 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         when(deviceConfig.getName()).thenReturn("Default configuration");
         when(deviceConfig.getId()).thenReturn(34L);
         when(mock.getDeviceConfiguration()).thenReturn(deviceConfig);
+        Register register = mock(Register.class);
+        when(register.getRegisterSpecId()).thenReturn(666L);
+        when(mock.getRegisters()).thenReturn(Collections.singletonList(register));
         return mock;
     }
 
@@ -88,6 +93,14 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     public void testLinkJsonCallSingle() throws Exception {
 
         Response response = target("/devices/XAS").request("application/h+json").get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+
+    }
+
+    @Test
+    public void testLinkJsonCallSingleRegister() throws Exception {
+
+        Response response = target("/devices/XAS/registers/0").request("application/h+json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }

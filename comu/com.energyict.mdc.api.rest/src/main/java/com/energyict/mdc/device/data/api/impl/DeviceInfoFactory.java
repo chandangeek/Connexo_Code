@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.api.impl;
 
 import com.energyict.mdc.device.data.Device;
+import java.net.URI;
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriInfo;
@@ -14,7 +15,7 @@ public class DeviceInfoFactory {
     public DeviceInfoFactory() {
     }
 
-    public DeviceInfo from(Device device) {
+    public DeviceInfo plain(Device device) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mIRD = device.getmRID();
@@ -26,10 +27,17 @@ public class DeviceInfoFactory {
         return deviceInfo;
     }
 
-    public DeviceInfo from(Device device, UriInfo uriInfo) {
-        DeviceInfo deviceInfo = from(device);
+    public DeviceInfo asHypermedia(Device device, UriInfo uriInfo) {
+        DeviceInfo deviceInfo = plain(device);
         deviceInfo.self = Link.fromUri(uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").build(device.getmRID())).rel("self").build();
         return deviceInfo;
+    }
+
+    public HalInfo asHal(Device device, UriInfo uriInfo) {
+        DeviceInfo deviceInfo = plain(device);
+        URI uri = uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").build(deviceInfo.mIRD);
+        HalInfo wrap = HalInfo.wrap(deviceInfo, uri);
+        return wrap;
     }
 
 }

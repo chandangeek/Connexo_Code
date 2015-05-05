@@ -5,6 +5,6 @@ import javax.ws.rs.core.Link;
 /**
  * Created by bvn on 4/30/15.
  */
-public class LinkedInfo {
+public class LinkInfo {
     public Link self;
 }
