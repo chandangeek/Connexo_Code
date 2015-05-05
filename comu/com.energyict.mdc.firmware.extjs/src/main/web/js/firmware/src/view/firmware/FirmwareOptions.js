@@ -34,7 +34,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                 xtype: 'form',
                 ui: 'large',
                 layout: 'hbox',
-                title: Uni.I18n.translate('deviceType.firmwareupgradeoptions.title', 'FWC', 'Firmware upgrade options'),
+                title: Uni.I18n.translate('deviceType.firmwaremanagementoptions.title', 'FWC', 'Firmware management options'),
                 items: [
                     {
                         xtype: 'container',
@@ -48,7 +48,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'displayfield',
                                 name: 'isAllowed',
                                 itemId: 'is-allowed',
-                                fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.allowed', 'FWC', 'Firmware upgrade allowed'),
+                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.allowed', 'FWC', 'Firmware management allowed'),
                                 renderer: function (value) {
                                     return value ? Uni.I18n.translate('general.yes', 'FWC', 'Yes') : Uni.I18n.translate('general.no', 'FWC', 'No');
                                 }
@@ -56,7 +56,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'field-fw-upgrade-opts',
-                                fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.options', 'FWC', 'Firmware upgrade options'),
+                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.options', 'FWC', 'Firmware management options'),
                                 items: [
                                     {
                                         xtype: 'emptygridcontainer',

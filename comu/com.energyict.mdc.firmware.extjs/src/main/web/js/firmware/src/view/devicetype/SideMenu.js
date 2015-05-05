@@ -7,7 +7,7 @@ Ext.define('Fwc.view.devicetype.SideMenu', {
             title: Uni.I18n.translate('firmware.navigation.title', 'FWC', 'Firmware'),
             items: [
                 {
-                    text: Uni.I18n.translate('firmware.upgradeoptions', 'FWC', 'Firmware upgrade options'),
+                    text: Uni.I18n.translate('firmware.management.options', 'FWC', 'Firmware management options'),
                     itemId: 'firmwareoptionsLink',
                     href: '#/administration/devicetypes/' + this.deviceTypeId + '/firmware/options'
                 },

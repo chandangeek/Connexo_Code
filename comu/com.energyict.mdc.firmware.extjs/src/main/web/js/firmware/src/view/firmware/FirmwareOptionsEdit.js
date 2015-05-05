@@ -13,7 +13,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
             {
                 xtype: 'form',
                 hydrator: 'Fwc.form.OptionsHydrator',
-                title: Uni.I18n.translate('deviceType.firmwareupgradeoptions.edit', 'FWC', 'Edit firmware upgrade options'),
+                title: Uni.I18n.translate('deviceType.firmwareupgradeoptions.edit', 'FWC', 'Edit firmware management options'),
                 ui: 'large',
                 border: false,
                 width: 850,

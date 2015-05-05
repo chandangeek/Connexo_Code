@@ -5,7 +5,7 @@ Ext.define('Fwc.view.firmware.SideFilter', {
         'Fwc.view.firmware.field.FirmwareType',
         'Fwc.view.firmware.field.FirmwareStatus'
     ],
-    title: Uni.I18n.translate('firmware.sideFilter.title', 'FWC', 'Filter'),
+    title: Uni.I18n.translate('firmware.sideFilter.title', 'FWC', 'FilterX'),
     cls: 'filter-form',
     itemId: 'filter-form',
     ui: 'filter',
