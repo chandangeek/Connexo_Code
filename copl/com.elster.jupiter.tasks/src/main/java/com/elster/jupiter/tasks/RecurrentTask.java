@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
@@ -13,6 +14,7 @@ import java.util.Optional;
 /**
  * Models a task that should put a message on the task queue recurrently.
  */
+@ProviderType
 public interface RecurrentTask extends HasName, HasAuditInfo {
 
     long getId();
