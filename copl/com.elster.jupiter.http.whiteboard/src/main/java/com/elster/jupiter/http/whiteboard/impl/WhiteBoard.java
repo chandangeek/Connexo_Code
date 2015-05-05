@@ -14,14 +14,22 @@ import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import javax.ws.rs.core.Application;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -138,7 +146,7 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
     }
 
     public void removeApplication(App app) {
-        if(app.getMainResource() != null){
+        if (app.getMainResource() != null) {
             removeResource(app.getMainResource());
         }
         apps.remove(app);
@@ -150,7 +158,7 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, SessionResource.class, PluggableResource.class);
+        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, SessionResource.class);
     }
 
     List<HttpResource> getResources() {
