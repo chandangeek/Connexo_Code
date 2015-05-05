@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateConnectionTasks;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetLastReading;
@@ -28,6 +29,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case DISABLE_VALIDATION: {
                 return new DisableValidation();
+            }
+            case ACTIVATE_CONNECTION_TASK: {
+                return new ActivateConnectionTasks();
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
