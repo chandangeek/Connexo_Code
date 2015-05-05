@@ -4,11 +4,13 @@ import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
+import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -20,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by igh on 3/03/2015.
@@ -34,7 +34,7 @@ public class ValueFillEstimator extends AbstractEstimator {
     static final String FILL_VALUE = "valuefill.fillValue";
     private static final BigDecimal DEFAULT_FILL_VALUE = BigDecimal.ZERO;
 
-    private BigDecimal numberOfConsecutiveSuspects;
+    private BigDecimal maxNumberOfConsecutiveSuspects;
     private BigDecimal fillValue;
 
     ValueFillEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
@@ -47,7 +47,7 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     @Override
     public void init() {
-        numberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+        maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
         fillValue = getProperty(FILL_VALUE, BigDecimal.class)
                 .orElse(DEFAULT_FILL_VALUE);
@@ -80,26 +80,35 @@ public class ValueFillEstimator extends AbstractEstimator {
         return SimpleEstimationResult.of(remain, estimated);
     }
 
-    public void estimate(EstimationBlock estimationBlock, List<EstimationBlock> remain, List<EstimationBlock> estimated) {
-        if (isEstimatable(estimationBlock)) {
-            estimationBlock.estimatables().forEach(this::estimate);
+    public void estimate(EstimationBlock block, List<EstimationBlock> remain, List<EstimationBlock> estimated) {
+        try (LoggingContext context = initLoggingContext(block)) {
+            if (canEstimate(block)) {
+                block.estimatables().forEach(this::estimate);
 
-            estimated.add(estimationBlock);
-        } else {
-            remain.add(estimationBlock);
+                estimated.add(block);
+            } else {
+                remain.add(block);
+            }
         }
     }
 
     private void estimate(Estimatable estimatable) {
         estimatable.setEstimation(fillValue);
-        Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
+//        Logger.getAnonymousLogger().log(Level.FINE, "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp());
     }
 
-    private boolean isEstimatable(EstimationBlock block) {
-        return (block.estimatables().size() <= numberOfConsecutiveSuspects.intValue());
+    private boolean canEstimate(EstimationBlock block) {
+        return isBlockSizeOk(block);
     }
 
-
+    private boolean isBlockSizeOk(EstimationBlock block) {
+        boolean blockSizeOk = block.estimatables().size() <= maxNumberOfConsecutiveSuspects.intValue();
+        if (!blockSizeOk) {
+            String message = "Failed estimation with {rule} : Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
+            LoggingContext.get().info(getLogger(), message, block.estimatables().size(), maxNumberOfConsecutiveSuspects);
+        }
+        return blockSizeOk;
+    }
 
     @Override
     public String getDefaultFormat() {

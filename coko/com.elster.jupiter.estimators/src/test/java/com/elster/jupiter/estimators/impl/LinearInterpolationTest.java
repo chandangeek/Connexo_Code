@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.estimators.impl.LinearInterpolation.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
@@ -97,7 +98,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -116,7 +117,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -133,7 +134,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -150,7 +151,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -167,7 +168,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -184,7 +185,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -201,7 +202,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 

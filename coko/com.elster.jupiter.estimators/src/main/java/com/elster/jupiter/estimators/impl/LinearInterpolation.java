@@ -4,6 +4,7 @@ import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
+import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -11,6 +12,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Quantity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -34,7 +36,7 @@ public class LinearInterpolation extends AbstractEstimator {
     public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "linearinterpolation.maxNumberOfConsecutiveSuspects";
     private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
 
-    private BigDecimal numberOfConsecutiveSuspects;
+    private BigDecimal maxNumberOfConsecutiveSuspects;
 
     LinearInterpolation(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -46,7 +48,7 @@ public class LinearInterpolation extends AbstractEstimator {
 
     @Override
     public void init() {
-        this.numberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+        this.maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
     }
 
@@ -70,10 +72,12 @@ public class LinearInterpolation extends AbstractEstimator {
         List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
         List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
         for (EstimationBlock block : estimationBlocks) {
-            if (isEstimatable(block)) {
-                estimate(block, remain, estimated);
-            } else {
-                remain.add(block);
+            try (LoggingContext context = initLoggingContext(block)) {
+                if (canEstimate(block)) {
+                    estimate(block, remain, estimated);
+                } else {
+                    remain.add(block);
+                }
             }
         }
         return SimpleEstimationResult.of(remain, estimated);
@@ -93,11 +97,17 @@ public class LinearInterpolation extends AbstractEstimator {
                         channel.getNextDateTime(
                                 estimatables.get(estimatables.size() - 1).getTimestamp())).orElse(null);
         if ((recordBefore == null) || (recordAfter == null)) {
+            String message = (recordBefore == null) ? "Failed estimation with {rule}: Block {block} since there is no reading just before the block."
+                    : "Failed estimation with {rule}: Block {block} since there is no reading just after the block.";
+            LoggingContext.get().info(getLogger(), message);
             remain.add(block);
         } else {
             Quantity qtyBefore = recordBefore.getQuantity(block.getReadingType());
             Quantity qtyAfter = recordAfter.getQuantity(block.getReadingType());
             if ((qtyBefore == null) || (qtyAfter == null)) {
+                String message = (qtyBefore == null) ? "Failed estimation with {rule}: Block {block} since there is no reading value just before the block."
+                        : "Failed estimation with {rule}: Block {block} since there is no reading value just after the block.";
+                LoggingContext.get().info(getLogger(), message);
                 remain.add(block);
             } else {
                 estimate(block, qtyBefore, qtyAfter);
@@ -119,9 +129,26 @@ public class LinearInterpolation extends AbstractEstimator {
         }
     }
 
-    private boolean isEstimatable(EstimationBlock block) {
-        return ((block.getReadingType().isCumulative()) &&
-                (block.estimatables().size() <= numberOfConsecutiveSuspects.intValue()));
+    private boolean canEstimate(EstimationBlock block) {
+        return isCumulative(block) && isBlockSizeOk(block);
+    }
+
+    private boolean isCumulative(EstimationBlock block) {
+        boolean cumulative = block.getReadingType().isCumulative();
+        if (!cumulative) {
+            String message = "Failed estimation with {rule}: Block {block} since it contains its reading type {readingType} is not cumulative.";
+            LoggingContext.get().info(getLogger(), message, block.estimatables().size(), maxNumberOfConsecutiveSuspects);
+        }
+        return cumulative;
+    }
+
+    private boolean isBlockSizeOk(EstimationBlock block) {
+        boolean blockSizeOk = block.estimatables().size() <= maxNumberOfConsecutiveSuspects.intValue();
+        if (!blockSizeOk) {
+            String message = "Failed estimation with {rule}: Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
+            LoggingContext.get().info(getLogger(), message, block.estimatables().size(), maxNumberOfConsecutiveSuspects);
+        }
+        return blockSizeOk;
     }
 
     @Override
