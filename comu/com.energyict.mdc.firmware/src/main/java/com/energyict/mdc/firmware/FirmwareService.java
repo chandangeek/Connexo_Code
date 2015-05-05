@@ -7,7 +7,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
