@@ -81,7 +81,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
         ExceptionCatcher.executing(() -> {
             List<Translation> translations = new ArrayList<>();
             for (EstimatorDefinition estimatorDefinition : EstimatorDefinition.values()) {
-                IEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService);
+                IEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService, timeService);
                 Translation translation = SimpleTranslation.translation(estimator.getNlsKey(), Locale.ENGLISH, estimator.getDefaultFormat());
                 translations.add(translation);
                 estimator.getPropertySpecs()
@@ -106,45 +106,45 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     private enum EstimatorDefinition {
         VALUE_FILL(VALUE_FILL_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
                 return new ValueFillEstimator(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
+            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
                 return new ValueFillEstimator(thesaurus, propertySpecService);
             }
         },
         LINEAR_INTERPOLATION(LINEAR_INTERPOLATION_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
                 return new LinearInterpolation(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
+            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
                 return new LinearInterpolation(thesaurus, propertySpecService);
             }
         },
         AVG_WITH_SAMPLES(AVG_WITH_SAMPLES_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
-                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, sdqfdsqfsqf, props);
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
+                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
             }
 
             @Override
-            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
-                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, sdfsdqfqs);
+            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService);
             }
         },
         POWER_GAP_FILL(POWER_GAP_FILL_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
                 return new PowerGapFill(thesaurus, propertySpecService, props);
             }
 
             @Override
-            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
+            IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
                 return new PowerGapFill(thesaurus, propertySpecService);
             }
         };
@@ -159,9 +159,9 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
             this.implementation = implementation;
         }
 
-        abstract Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props);
+        abstract Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props);
 
-        abstract IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService);
+        abstract IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService);
 
         public boolean matches(String implementation) {
             return this.implementation.equals(implementation);
@@ -184,7 +184,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
         return estimatorDefinitions()
                 .filter(estimatorDefinition -> estimatorDefinition.matches(implementation))
                 .findFirst()
-                .map(estimatorDefinition -> estimatorDefinition.create(thesaurus, propertySpecService, validationService, meteringService, props))
+                .map(estimatorDefinition -> estimatorDefinition.create(thesaurus, propertySpecService, validationService, meteringService, timeService, props))
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported implementation " + implementation));
     }
 
@@ -193,7 +193,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
         return estimatorDefinitions()
                 .filter(estimatorDefinition -> estimatorDefinition.matches(implementation))
                 .findFirst()
-                .map(estimatorDefinition -> estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService))
+                .map(estimatorDefinition -> estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService, timeService))
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported implementation " + implementation));
     }
 }
