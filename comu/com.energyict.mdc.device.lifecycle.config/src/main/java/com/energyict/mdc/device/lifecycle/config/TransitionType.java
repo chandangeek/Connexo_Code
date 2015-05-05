@@ -38,7 +38,9 @@ public enum TransitionType {
 
         @Override
         public Set<MicroAction> optionalActions() {
-            return EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS);
+            return EnumSet.of(
+                    MicroAction.ACTIVATE_CONNECTION_TASKS,
+                    MicroAction.CREATE_METER_ACTIVATION);
         }
     },
     INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
