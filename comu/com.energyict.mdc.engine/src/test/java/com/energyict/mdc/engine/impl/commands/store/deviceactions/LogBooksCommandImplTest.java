@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -11,7 +12,6 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -20,7 +20,6 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -187,9 +186,9 @@ public class LogBooksCommandImplTest {
         assertThat(logBooksCommand.getCommandType()).isEqualTo(ComCommandTypes.LOGBOOKS_COMMAND);
         assertThat(logBooksCommand.getLogBooksTask()).isNotNull();
         assertThat(logBookReaders.size()).isEqualTo(logBooksForDevice.size());
-        assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
-        assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_2);
-        assertThat(logBookReaders.get(2)).isEqualsToByComparingFields(expectedLogBookReader_3);
+        assertThat(logBookReaders.get(0)).isEqualToComparingFieldByField(expectedLogBookReader_1);
+        assertThat(logBookReaders.get(1)).isEqualToComparingFieldByField(expectedLogBookReader_2);
+        assertThat(logBookReaders.get(2)).isEqualToComparingFieldByField(expectedLogBookReader_3);
 
         assertThat(logBooksCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logBookObisCodes: 1.1.1.1.1.1, 2.2.2.2.2.2, 3.3.3.3.3.3}");
     }
@@ -222,8 +221,8 @@ public class LogBooksCommandImplTest {
         assertThat(logBooksCommand.getCommandType()).isEqualTo(ComCommandTypes.LOGBOOKS_COMMAND);
         assertThat(logBooksCommand.getLogBooksTask()).isNotNull();
         assertThat(logBookReaders.size()).isEqualTo(logBooksTask.getLogBookTypes().size());
-        assertThat(logBookReaders.get(0)).isEqualsToByComparingFields(expectedLogBookReader_1);
-        assertThat(logBookReaders.get(1)).isEqualsToByComparingFields(expectedLogBookReader_3);
+        assertThat(logBookReaders.get(0)).isEqualToComparingFieldByField(expectedLogBookReader_1);
+        assertThat(logBookReaders.get(1)).isEqualToComparingFieldByField(expectedLogBookReader_3);
     }
 
 }
