@@ -360,9 +360,9 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         // Asserts
         Device reloadedDevice = getReloadedDevice(device);
         List<ComTaskExecution> comTaskExecutions = reloadedDevice.getComTaskExecutions();
-        assertThat(comTaskExecutions).is(new Condition<List<ComTaskExecution>>() {
+        assertThat(comTaskExecutions).is(new Condition<List<? extends ComTaskExecution>>() {
             @Override
-            public boolean matches(List<ComTaskExecution> comTaskExecutions) {
+            public boolean matches(List<? extends ComTaskExecution> comTaskExecutions) {
                 for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                     if (!comTaskExecution.getNextExecutionTimestamp().equals(triggerDate)) {
                         return false;
