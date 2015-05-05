@@ -771,25 +771,25 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         List<?> infos = (List<?>) response.get("data");
         assertThat(infos).hasSize(1);
-        assertThat((Map<?, ?>) infos.get(0))
+        assertThat((Map<String, Object>) infos.get(0))
                 .contains(MapEntry.entry("eventDate", start.toEpochMilli()))
                 .contains(MapEntry.entry("deviceCode", deviceCode))
                 .contains(MapEntry.entry("eventLogId", eventLogId))
                 .contains(MapEntry.entry("readingDate", start.toEpochMilli()))
                 .contains(MapEntry.entry("message", message));
 
-        Map<?, ?> eventType = (Map<?, ?>) ((Map<?, ?>) infos.get(0)).get("eventType");
+        Map<String, Object> eventType = (Map<String, Object>) ((Map<String, Object>) infos.get(0)).get("eventType");
         assertThat(eventType).contains(MapEntry.entry("code", eventTypeCode));
-        Map<?, ?> deviceTypeMap = (Map<?, ?>) eventType.get("deviceType");
+        Map<String, Object> deviceTypeMap = (Map<String, Object>) eventType.get("deviceType");
         assertThat(deviceTypeMap).contains(MapEntry.entry("id", type.getValue())).contains(MapEntry.entry("name", type.getMnemonic()));
 
-        Map<?, ?> domainTypeMap = (Map<?, ?>) eventType.get("domain");
+        Map<String, Object> domainTypeMap = (Map<String, Object>) eventType.get("domain");
         assertThat(domainTypeMap).contains(MapEntry.entry("id", domain.getValue())).contains(MapEntry.entry("name", domain.getMnemonic()));
 
-        Map<?, ?> subDomainMap = (Map<?, ?>) eventType.get("subDomain");
+        Map<String, Object> subDomainMap = (Map<String, Object>) eventType.get("subDomain");
         assertThat(subDomainMap).contains(MapEntry.entry("id", subDomain.getValue())).contains(MapEntry.entry("name", subDomain.getMnemonic()));
 
-        Map<?, ?> eventOrActionMap = (Map<?, ?>) eventType.get("eventOrAction");
+        Map<String, Object> eventOrActionMap = (Map<String, Object>) eventType.get("eventOrAction");
         assertThat(eventOrActionMap).contains(MapEntry.entry("id", eventorAction.getValue())).contains(MapEntry.entry("name", eventorAction.getMnemonic()));
     }
 
