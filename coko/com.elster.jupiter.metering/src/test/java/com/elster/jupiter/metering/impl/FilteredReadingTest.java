@@ -1,14 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ProcessStatus;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Arrays;
-
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,11 +19,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.util.units.Unit;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FilteredReadingTest {
@@ -42,10 +46,16 @@ public class FilteredReadingTest {
 
     @Before
     public void setUp() {
-    	readingType1 = new ReadingTypeImpl(dataModel, thesaurus);
-    	readingType2 = new ReadingTypeImpl(dataModel, thesaurus);
-    	readingType3 = new ReadingTypeImpl(dataModel, thesaurus);
-    	readingType4 = new ReadingTypeImpl(dataModel, thesaurus);
+
+        ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .in(MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
+
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.code(), "");
+    	readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.in(MetricMultiplier.KILO).code(), "");
+    	readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.in(MetricMultiplier.MEGA).code(), "");
+    	readingType4 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.in(MetricMultiplier.GIGA).code(), "");
     	
         filteredReading = new FilteredIntervalReadingRecord(source, 1, 3, 0);
 
@@ -58,6 +68,11 @@ public class FilteredReadingTest {
         when(source.getQuantity(2)).thenReturn(VALUE2);
         when(source.getQuantity(3)).thenReturn(VALUE3);
         when(source.getQuantity(4)).thenReturn(VALUE4);
+
+        when(source.getQuantity(readingType1)).thenReturn(VALUE1);
+        when(source.getQuantity(readingType2)).thenReturn(VALUE2);
+        when(source.getQuantity(readingType3)).thenReturn(VALUE3);
+        when(source.getQuantity(readingType4)).thenReturn(VALUE4);
 
         when(source.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType2, readingType3, readingType4));
         when(source.getQuantities()).thenReturn(Arrays.asList(VALUE1, VALUE2, VALUE3, VALUE4));
@@ -93,7 +108,7 @@ public class FilteredReadingTest {
 
     @Test
     public void testGetReadingTypeSimplyDelegates() {
-        assertThat(filteredReading.getReadingType()).isEqualTo(readingType1);
+        assertThat(filteredReading.getReadingType()).isEqualTo(readingType2);
     }
 
     @Test
@@ -121,7 +136,7 @@ public class FilteredReadingTest {
     public void testGetValue() {
         when(source.getValue()).thenReturn(VALUE1.getValue());
 
-        assertThat(filteredReading.getValue()).isEqualTo(VALUE1.getValue());
+        assertThat(filteredReading.getValue()).isEqualTo(VALUE2.getValue());
     }
 
     @Test
