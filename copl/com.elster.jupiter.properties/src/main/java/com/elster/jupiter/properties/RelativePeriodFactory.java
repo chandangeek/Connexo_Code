@@ -1,11 +1,10 @@
 package com.elster.jupiter.properties;
 
-import java.math.BigDecimal;
-import java.sql.SQLException;
-
-import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
 
 /**
  * Provides an implementation for the {@link ValueFactory} interface
@@ -63,7 +62,7 @@ public class RelativePeriodFactory extends AbstractValueFactory<RelativePeriod> 
 
     private RelativePeriod getRelativePeriod(long id) {
         if (id == 0) {
-            return new AllRelativePeriod();
+            return timeService.getAllRelativePeriod();
         } else {
             return timeService.findRelativePeriod(id).orElse(null);
         }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.properties;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.RelativePeriod;
 
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (10:54)
  */
+@ProviderType
 public interface PropertySpecService {
 
     public PropertySpec basicPropertySpec (String name, boolean required, ValueFactory valueFactory);
