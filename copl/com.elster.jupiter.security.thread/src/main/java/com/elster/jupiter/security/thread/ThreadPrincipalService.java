@@ -1,10 +1,13 @@
 package com.elster.jupiter.security.thread;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Locale;
 
+@ProviderType
 public interface ThreadPrincipalService {
 
     /**
