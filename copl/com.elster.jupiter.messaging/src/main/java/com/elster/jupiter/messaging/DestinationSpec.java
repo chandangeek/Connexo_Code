@@ -77,8 +77,17 @@ public interface DestinationSpec extends HasName {
     
     boolean isBuffered();
 
+    /**
+     * Unsubscribes the subscriber with the passed name
+     *
+     * @param subscriberSpecName the name of the subscriber
+     * @since 2.0
+     */
     @TransactionRequired
     void unSubscribe(String subscriberSpecName);
 
+    /**
+     * since 2.0
+     */
     void delete();
 }
