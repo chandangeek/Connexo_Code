@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -75,14 +74,11 @@ public class Installer {
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations",
                 "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
                 this.deviceLifeCycleAdministrationPrivileges());
-        this.userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), this.deviceLifeCycleAdministrationPrivileges());
         this.userService.createResourceWithPrivileges(
                 PRIVILEGES_COMPONENT,
                 "deviceLifeCycle.deviceLifeCycle",
                 "deviceLifeCycle.deviceLifeCycle.description",
                 this.allDeviceLifeCycleActionPrivileges());
-        this.userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), this.allDeviceLifeCycleActionPrivileges());
-        this.userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), this.meterOperatorDeviceLifeCycleActionPrivileges());
     }
 
     private String[] deviceLifeCycleAdministrationPrivileges(){
@@ -95,13 +91,6 @@ public class Installer {
                 Privileges.INITIATE_ACTION_2,
                 Privileges.INITIATE_ACTION_3,
                 Privileges.INITIATE_ACTION_4};
-    }
-
-    private String[] meterOperatorDeviceLifeCycleActionPrivileges() {
-        return new String[]{
-                Privileges.INITIATE_ACTION_1,
-                Privileges.INITIATE_ACTION_2,
-                Privileges.INITIATE_ACTION_3};
     }
 
     private DeviceLifeCycle installDefaultLifeCycle() {
