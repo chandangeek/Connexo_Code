@@ -31,12 +31,12 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 var res = Ext.JSON.decode(response.responseText);
                 if (view.down('#dataValidationStatusPanel')) {
                     view.down('#deviceDataValidationStatusField').setValue(res.isActive ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
+                            Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                            Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
                     view.down('#deviceDataValidationStateChangeBtn').setText((res.isActive ?
-                        Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-                        Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
+                            Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+                            Uni.I18n.translate('general.activate', 'MDC', 'Activate')) +
                         ' ' + Uni.I18n.translate('device.dataValidation.statusSection.buttonAppendix', 'MDC', 'data validation')
                     );
                     view.down('#deviceDataValidationStateChangeBtn').action = res.isActive ? 'deactivate' : 'activate';
@@ -128,8 +128,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         var me = this;
 
         confWindow.down('#validationProgress').add(Ext.create('Ext.ProgressBar', {
-                margin: '5 0 15 0'
-            })).wait({
+            margin: '5 0 15 0'
+        })).wait({
             duration: 120000,
             text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
             fn: function () {

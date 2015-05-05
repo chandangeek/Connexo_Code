@@ -438,6 +438,24 @@ Ext.define('Mdc.controller.history.Setup', {
                                                         }
                                                     }
                                                 },
+                                                //Estimation rule sets
+
+                                                estimationrulesets: {
+                                                    title: Uni.I18n.translate('estimation.title', 'MDC', 'Estimation rule sets'),
+                                                    route: 'estimationrulesets',
+                                                    controller: 'Mdc.deviceconfigurationestimationrules.controller.RuleSets',
+                                                    //privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
+                                                    action: 'showEstimationRuleSets',
+                                                    items: {
+                                                        add: {
+                                                            title: Uni.I18n.translate('estimation.rule.set.add.title', 'MDC', 'Add estimation rule sets'),
+                                                            route: 'add',
+                                                            controller: 'Mdc.deviceconfigurationestimationrules.controller.AddRuleSets',
+                                                            //privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
+                                                            action: 'showAddEstimationRuleSetsView'
+                                                        }
+                                                    }
+                                                },
                                                 //messages routes
                                                 messages: {
                                                     title: 'Commands',
@@ -1182,6 +1200,12 @@ Ext.define('Mdc.controller.history.Setup', {
 							params: {
 								'activeTab': 1	
 								}
+                        },
+                        dataestimation: {
+                            title: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
+                            route: 'dataestimation',
+                            controller: 'Mdc.controller.setup.DeviceDataEstimation',
+                            action: 'showDeviceDataEstimationMainView'
                         },
                         communicationschedules: {
                             title: 'Communication planning',
