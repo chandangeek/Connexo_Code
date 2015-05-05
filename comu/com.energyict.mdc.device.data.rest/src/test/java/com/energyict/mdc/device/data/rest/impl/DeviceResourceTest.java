@@ -1039,7 +1039,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mockDeviceForTopologyTest("device");
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         Device gateway = mockDeviceForTopologyTest("gateway");
-        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
@@ -1047,7 +1047,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
-        info.version = 1L;
+        info.version = 13L;
         info.masterDeviceId = gateway.getId();
         info.masterDevicemRID = gateway.getmRID();
 
@@ -1063,13 +1063,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
         when(deviceConfig.isDirectlyAddressable()).thenReturn(true);
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
-        info.version = 1l;
-        info.masterDeviceId = 1L;
-        info.masterDevicemRID = "1";
+        info.version = 13l;
+        info.masterDeviceId = 2L;
+        info.masterDevicemRID = "2";
 
         Response response = target("/devices/1").request().put(Entity.json(info));
 
@@ -1081,14 +1081,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mockDeviceForTopologyTest("device");
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
-        info.version = 1l;
+        info.version = 13l;
         info.masterDevicemRID = null;
 
         Response response = target("/devices/1").request().put(Entity.json(info));
@@ -1100,14 +1100,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testActivateEstimationOnDevice() {
         Device device = mockDeviceForTopologyTest("device");
-        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
-        info.version = 1l;
+        info.version = 13l;
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = true;
         
@@ -1120,14 +1120,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testDeactivateEstimationOnDevice() {
         Device device = mockDeviceForTopologyTest("device");
-        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
-        info.version = 1l;
+        info.version = 13l;
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = false;
         

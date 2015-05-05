@@ -190,7 +190,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
     public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
-        Device device = deviceService.findAndLockDeviceByIdAndVersion(info.id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
+        Device device = deviceService.findAndLockDeviceByIdAndVersion(id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
         updateGateway(info, device);
         if (info.estimationStatus != null) {
             updateEstimationStatus(info.estimationStatus, device);

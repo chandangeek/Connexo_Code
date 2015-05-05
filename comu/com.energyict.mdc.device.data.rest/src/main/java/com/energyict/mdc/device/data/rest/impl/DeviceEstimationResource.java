@@ -51,13 +51,13 @@ public class DeviceEstimationResource {
     }
 
     @PUT
-    @Path("/{id}")
+    @Path("/{ruleSetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE)
-    public Response toggleEstimationRuleSetActivation(@PathParam("mRID") String mRID, @PathParam("id") long id, DeviceEstimationRuleSetRefInfo info) {
+    public Response toggleEstimationRuleSetActivation(@PathParam("mRID") String mRID, @PathParam("ruleSetId") long ruleSetId, DeviceEstimationRuleSetRefInfo info) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(info.parent.id, info.parent.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
-        EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(info.id).orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+        EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
         if (info.active) {
             device.forEstimation().activateEstimationRuleSet(estimationRuleSet);
         } else {
