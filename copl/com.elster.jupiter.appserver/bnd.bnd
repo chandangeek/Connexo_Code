@@ -1,5 +1,0 @@
--classpath: target/classes
--dsannotations: *
-Include-Resource: README.HTML
-Private-Package: com.elster.jupiter.appserver.impl
-Export-Package: com.elster.jupiter.appserver
