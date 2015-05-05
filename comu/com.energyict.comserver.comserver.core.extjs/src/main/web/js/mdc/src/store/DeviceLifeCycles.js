@@ -10,7 +10,7 @@ Ext.define('Mdc.store.DeviceLifeCycles', {
     proxy: {
         type: 'rest',
         url: '/api/dld/devicelifecycles',
-        timeout: 100000,
+        timeout: 300000,
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
