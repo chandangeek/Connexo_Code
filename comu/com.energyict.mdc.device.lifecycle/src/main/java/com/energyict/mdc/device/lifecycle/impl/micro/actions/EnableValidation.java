@@ -16,6 +16,7 @@ import static com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionP
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will enable validation on the Device.
+ * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#ENABLE_VALIDATION}
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-20 (09:29)

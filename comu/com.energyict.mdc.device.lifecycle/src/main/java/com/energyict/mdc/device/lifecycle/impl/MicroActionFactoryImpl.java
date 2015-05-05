@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetLastReading;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -19,6 +20,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     @Override
     public ServerMicroAction from(MicroAction microAction) {
         switch (microAction) {
+            case SET_LAST_READING: {
+                return new SetLastReading();
+            }
             case ENABLE_VALIDATION: {
                 return new EnableValidation();
             }

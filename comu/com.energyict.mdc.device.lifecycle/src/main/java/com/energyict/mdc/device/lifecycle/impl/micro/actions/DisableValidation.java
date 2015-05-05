@@ -13,6 +13,7 @@ import java.util.List;
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will disable validation on the Device.
+ * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DISABLE_VALIDATION}
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-05 (08:43)
