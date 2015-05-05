@@ -6,8 +6,12 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
+import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
+import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -67,6 +71,9 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
@@ -87,7 +94,10 @@ import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.templates.AbstractTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDatacollectionRuleTemplate;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -136,6 +146,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -221,7 +232,6 @@ public class DemoTest {
                 new TimeModule(),
                 new ExportModule(),
                 new MeteringModule(true),
-
                 new MdcIOModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
@@ -244,7 +254,6 @@ public class DemoTest {
                 new IssueDataCollectionModule(),
                 new TopologyModule(),
                 new FavoritesModule(),
-
                 new DemoModule()
         );
         doPreparations();
@@ -309,11 +318,15 @@ public class DemoTest {
     @Test
     public void testCreateG3Devices() {
         String MRID_GATEWAY = "123-4567-89";
+        String MRID_SLAVE1 = "E0023000520685414";
+        String MRID_SLAVE2 = "123457S";
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createG3Gateway(MRID_GATEWAY);
         demoService.createG3SlaveDevice();
 
         checkCreatedG3Gateway(MRID_GATEWAY);
+        checkCreatedG3SlaveDevice(MRID_SLAVE1);
+        checkCreatedG3SlaveDevice(MRID_SLAVE2);
     }
 
     private void checkCreatedG3Gateway(String mridGateway) {
@@ -335,7 +348,7 @@ public class DemoTest {
         assertThat(configuration.isDirectlyAddressable()).isTrue();
         assertThat(configuration.canActAsGateway()).isTrue();
         assertThat(configuration.getGetwayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
-        assertThat(configuration.getSecurityPropertySets().size()==1).isTrue();
+        assertThat(configuration.getSecurityPropertySets().size()).isEqualTo(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_PROPERTY_SET_NAME);
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
@@ -343,50 +356,178 @@ public class DemoTest {
         assertThat(securityPropertySet.getUserActions()).containsExactly(
             DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
             DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-        assertThat(configuration.getPartialOutboundConnectionTasks().size()==1).isTrue();
+        assertThat(configuration.getPartialOutboundConnectionTasks().size()).isEqualTo(1);
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         assertThat(connectionTask.getName()).isEqualTo(CONNECTION_METHOD_NAME);
         assertThat(connectionTask.isDefault()).isTrue();
         assertThat(connectionTask.getComPortPool().getName()).isEqualTo(OutboundTCPComPortPoolTpl.ORANGE.getName());
         assertThat(connectionTask.getRescheduleDelay().getCount()).isEqualTo(5);
         assertThat(connectionTask.getRescheduleDelay().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.MINUTES);
-        assertThat(configuration.getComTaskEnablements().size()==1).isTrue();
+        assertThat(configuration.getComTaskEnablements().size()).isEqualTo(1);
         ComTaskEnablement enablement = configuration.getComTaskEnablements().get(0);
         assertThat(enablement.getComTask().getName()).isEqualTo(ComTaskTpl.TOPOLOGY_UPDATE.getName());
         assertThat(enablement.getSecurityPropertySet().getId()).isEqualTo(securityPropertySet.getId());
         assertThat(enablement.usesDefaultConnectionTask()).isTrue();
         assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isTrue();
         assertThat(enablement.getPriority()==100).isTrue();
-        assertThat(gateway.getConnectionTasks().size()==1).isTrue();
-        ConnectionTask<?, ?> connTask = gateway.getConnectionTasks().get(0);
+        assertThat(gateway.getConnectionTasks().size()).isEqualTo(1);
+        ConnectionTask connTask = gateway.getConnectionTasks().get(0);
         assertThat(connTask instanceof ScheduledConnectionTask).isTrue();
         ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask)connTask;
         assertThat(scheduledConnectionTask.getComPortPool().getName()).isEqualTo(OutboundTCPComPortPoolTpl.ORANGE.getName());
         assertThat(scheduledConnectionTask.isDefault()).isTrue();
-        assertThat(scheduledConnectionTask.allowsSimultaneousConnections()).isTrue();
+        assertThat(scheduledConnectionTask.isSimultaneousConnectionsAllowed()).isFalse();
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
             assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
-            assertThat(gateway.getAllSecurityProperties(securityPropertySet).size()==3).isTrue();
+            assertThat(gateway.getAllSecurityProperties(securityPropertySet).size()).isEqualTo(3);
             for (SecurityProperty securityProperty : gateway.getAllSecurityProperties(securityPropertySet)) {
-                if (securityProperty.getName().equals("ClientMacAddress")) {
+                if ("ClientMacAddress".equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue()).isEqualTo(new BigDecimal(1));
-                } else if (securityProperty.getName().equals("AuthenticationKey")) {
+                } else if ("AuthenticationKey".equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("00112233445566778899AABBCCDDEEFF");
-                } else if (securityProperty.getName().equals("EncryptionKey")) {
+                } else if ("EncryptionKey".equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("11223344556677889900AABBCCDDEEFF");
                 }
             }
             ctx.commit();
         }
         assertThat(gateway.getDeviceProtocolProperties().getProperty("Short_MAC_address")).isEqualTo(new BigDecimal(0));
-        assertThat(gateway.getComTaskExecutions().size()==1).isTrue();
+        assertThat(gateway.getComTaskExecutions().size()).isEqualTo(1);
+    }
+
+    private void checkCreatedG3SlaveDevice(String mridDevice) {
+        String SERIAL_NUMBER = "E0023000520685414".equals(mridDevice) ? "05206854" : "35075302";
+        String MAC_ADDRESS = "E0023000520685414".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
+        String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
+
+        DeviceService deviceService = injector.getInstance(DeviceService.class);
+        Optional<Device> deviceOptional = deviceService.findByUniqueMrid(mridDevice);
+        assertThat(deviceOptional.isPresent()).isTrue();
+        Device device = deviceOptional.get();
+        assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
+
+        DeviceType deviceType = device.getDeviceType();
+        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.AM540.getName());
+        List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
+        assertThat(loadProfileTypes.size()).isEqualTo(3);
+        for (LoadProfileType loadProfileType : loadProfileTypes) {
+            if (LoadProfileTypeTpl._15_MIN_ELECTRICITY.getName().equals(loadProfileType.getName())) {
+                assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
+                assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.minutes(15));
+                assertThat(LoadProfileTypeTpl._15_MIN_ELECTRICITY.getRegisterTypes()).containsExactly(
+                    RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E);
+            } else if (LoadProfileTypeTpl.DAILY_ELECTRICITY.getName().equals(loadProfileType.getName())) {
+                assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
+                assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.days(1));
+                assertThat(LoadProfileTypeTpl.DAILY_ELECTRICITY.getRegisterTypes()).containsExactly(
+                    RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
+            } else if (LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName().equals(loadProfileType.getName())) {
+                assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getObisCode()).isEqualTo(loadProfileType.getObisCode().toString());
+                assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getInterval()).isEqualTo(TimeDuration.months(1));
+                assertThat(LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getRegisterTypes()).containsExactly(
+                    RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2);
+            } else {
+                fail("The device type of device with MRID = "+ mridDevice +" contains an unwanted loadprofile: " + loadProfileType.getName());
+            }
+        }
+        List<RegisterType> registerTypes = deviceType.getRegisterTypes();
+        assertThat(registerTypes.size()).isEqualTo(6);
+        for (RegisterType registerType : registerTypes) {
+            if ( !RegisterTypeTpl.B_F_E_S_M_E.getObisCode().equals(registerType.getObisCode().toString()) &&
+                 !RegisterTypeTpl.B_R_E_S_M_E.getObisCode().equals(registerType.getObisCode().toString()) &&
+                 !RegisterTypeTpl.S_F_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
+                 !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString()) &&
+                 !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(registerType.getObisCode().toString()) &&
+                 !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(registerType.getObisCode().toString()) ) {
+                fail("The device type of device with MRID = "+ mridDevice +" contains an unwanted register type: " + registerType.getObisCode());
+            }
+        }
+        assertThat(deviceType.getLogBookTypes().size()).isEqualTo(1);
+        LogBookType logBookType = deviceType.getLogBookTypes().get(0);
+        assertThat(logBookType.getName()).isEqualTo(LogBookTypeTpl.GENERIC.getName());
+        assertThat(logBookType.getObisCode().toString()).isEqualTo(LogBookTypeTpl.GENERIC.getObisCode());
+        assertThat(deviceType.getConfigurations().size()).isEqualTo(1);
+
+        DeviceConfiguration configuration = deviceType.getConfigurations().get(0);
+        assertThat(configuration.getName()).isEqualTo(DeviceConfigurationTpl.AM540.getName());
+        assertThat(configuration.isDirectlyAddressable()).isFalse();
+        assertThat(configuration.canActAsGateway()).isTrue();
+        assertThat(configuration.getGetwayType()).isEqualTo(GatewayType.HOME_AREA_NETWORK);
+        assertThat(configuration.getSecurityPropertySets().size()).isEqualTo(1);
+        SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
+        assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_SET_NAME);
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
+        assertThat(securityPropertySet.getUserActions()).containsExactly(
+            DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
+            DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+        assertThat(configuration.getPartialOutboundConnectionTasks().isEmpty()).isTrue();
+        assertThat(configuration.getComTaskEnablements().size()).isEqualTo(4);
+        for (ComTaskEnablement enablement : configuration.getComTaskEnablements()) {
+            if ( ComTaskTpl.TOPOLOGY_UPDATE.getName().equals(enablement.getComTask().getName()) ||
+                 ComTaskTpl.READ_LOAD_PROFILE_DATA.getName().equals(enablement.getComTask().getName()) ||
+                 ComTaskTpl.READ_LOG_BOOK_DATA.getName().equals(enablement.getComTask().getName()) ||
+                 ComTaskTpl.READ_REGISTER_DATA.getName().equals(enablement.getComTask().getName()) ) {
+                assertThat(enablement.getSecurityPropertySet().getId()).isEqualTo(securityPropertySet.getId());
+                assertThat(enablement.usesDefaultConnectionTask()).isTrue();
+                assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isTrue();
+                assertThat(enablement.getPriority()==100).isTrue();
+            } else {
+                fail("The device type of device with MRID = "+ mridDevice +" contains an unwanted com task configuration : " + enablement.getComTask().getName());
+            }
+        }
+
+        List<LoadProfile> loadProfiles = device.getLoadProfiles();
+        assertThat(loadProfiles.size()).isEqualTo(3);
+        for (LoadProfile loadProfile : loadProfiles) {
+            if (LoadProfileTypeTpl._15_MIN_ELECTRICITY.getName().equals(loadProfile.getLoadProfileSpec().getLoadProfileType().getName())) {
+                assertThat(loadProfile.getChannels().size()).isEqualTo(2);
+            } else if (LoadProfileTypeTpl.DAILY_ELECTRICITY.getName().equals(loadProfile.getLoadProfileSpec().getLoadProfileType().getName())) {
+                assertThat(loadProfile.getChannels().size()).isEqualTo(4);
+            } else if (LoadProfileTypeTpl.MONTHLY_ELECTRICITY.getName().equals(loadProfile.getLoadProfileSpec().getLoadProfileType().getName())) {
+                assertThat(loadProfile.getChannels().size()).isEqualTo(4);
+            } else {
+                fail("The device with MRID = "+ mridDevice +" contains an unwanted loadprofile: " + loadProfile.getLoadProfileSpec().getLoadProfileType().getName());
+            }
+        }
+        assertThat(device.getLogBooks().size()).isEqualTo(1);
+        LogBook logBook = device.getLogBooks().get(0);
+        assertThat(LogBookTypeTpl.GENERIC.getName()).isEqualTo(logBook.getLogBookType().getName());
+        assertThat(LogBookTypeTpl.GENERIC.getObisCode()).isEqualTo(logBook.getLogBookType().getObisCode().toString());
+        List<Register> registers = device.getRegisters();
+        assertThat(registers.size()).isEqualTo(6);
+        for (Register register : registers) {
+            if ( !RegisterTypeTpl.B_F_E_S_M_E.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                 !RegisterTypeTpl.B_R_E_S_M_E.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                 !RegisterTypeTpl.S_F_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                 !RegisterTypeTpl.S_F_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                 !RegisterTypeTpl.S_R_E_S_M_E_T1.getObisCode().equals(register.getRegisterSpecObisCode().toString()) &&
+                 !RegisterTypeTpl.S_R_E_S_M_E_T2.getObisCode().equals(register.getRegisterSpecObisCode().toString()) ) {
+                fail("The device with MRID = "+ mridDevice +" contains an unwanted register : " + register.getRegisterSpecObisCode());
+            }
+        }
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
+                if ("ClientMacAddress".equals(securityProperty.getName())) {
+                    assertThat(securityProperty.getValue()).isEqualTo(new BigDecimal(1));
+                } else if ("Password".equals(securityProperty.getName())) {
+                    assertThat(securityProperty.getValue().toString()).isEqualTo("1234567890123456");
+                }
+            }
+            ctx.commit();
+        }
+        assertThat(device.getDeviceProtocolProperties().getProperty("MAC_address")).isEqualTo(MAC_ADDRESS);
+
     }
 
     @Test
     public void testExecuteCreateG3DevicesTwice() {
         String MRID_GATEWAY = "123-4567-89";
+        String MRID_SLAVE1 = "E0023000520685414";
+        String MRID_SLAVE2 = "123457S";
+
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createG3Gateway(MRID_GATEWAY);
         demoService.createG3SlaveDevice();
@@ -394,6 +535,8 @@ public class DemoTest {
         demoService.createG3SlaveDevice();
         // Calling the commands 'createG3Gateway' and 'createG3SlaveDevice' twice shouldn't produce errors
         checkCreatedG3Gateway(MRID_GATEWAY);
+        checkCreatedG3SlaveDevice(MRID_SLAVE1);
+        checkCreatedG3SlaveDevice(MRID_SLAVE2);
     }
 
     @Test

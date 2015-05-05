@@ -39,6 +39,10 @@ public enum RegisterTypeTpl implements Template<RegisterType, RegisterTypeBuilde
         return mrid;
     }
 
+    public String getObisCode(){
+        return obisCode;
+    }
+
     @Override
     public Class<RegisterTypeBuilder> getBuilderClass() {
         return RegisterTypeBuilder.class;
