@@ -13,7 +13,16 @@ import java.util.Set;
 public enum MicroAction {
 
     /**
+     * Sets the last reading timestamp on all
+     * load profiles and log books of the device.
+     * Requires that the user specifies that last reading timestamp.
+     */
+    SET_LAST_READING,
+
+    /**
      * Enables data validation on the device.
+     * Requires that the user specifies the timestamp
+     * from which data should be validated.
      */
     ENABLE_VALIDATION,
 
