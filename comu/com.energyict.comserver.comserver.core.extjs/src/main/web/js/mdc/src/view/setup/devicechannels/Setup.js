@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.devicechannels.Grid',
         'Mdc.view.setup.devicechannels.Preview',
-        'Mdc.view.setup.devicechannels.ChannelsFilter',
         'Mdc.view.setup.devicechannels.ChannelsTopFilter'
     ],
 
