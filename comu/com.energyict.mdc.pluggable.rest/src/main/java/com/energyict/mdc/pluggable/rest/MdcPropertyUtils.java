@@ -1,6 +1,8 @@
 package com.energyict.mdc.pluggable.rest;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
@@ -18,6 +20,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.pluggable.rest.impl.MdcPluggableRestApplication;
 import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
@@ -43,12 +46,14 @@ import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.
 public class MdcPropertyUtils {
 
     private FirmwareService firmwareService;
+    private final NlsService nlsService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public MdcPropertyUtils(FirmwareService firmwareService, Thesaurus thesaurus) {
+    public MdcPropertyUtils(FirmwareService firmwareService, NlsService nlsService) {
         this.firmwareService = firmwareService;
-        this.thesaurus = thesaurus;
+        this.nlsService = nlsService;
+        this.thesaurus = this.nlsService.getThesaurus(MdcPluggableRestApplication.COMPONENT_NAME, Layer.REST);
     }
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
