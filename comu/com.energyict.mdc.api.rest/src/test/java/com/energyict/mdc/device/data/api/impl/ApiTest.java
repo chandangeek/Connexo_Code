@@ -13,12 +13,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -59,26 +57,9 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         when(mock.getDeviceConfiguration()).thenReturn(deviceConfig);
         Register register = mock(Register.class);
         when(register.getRegisterSpecId()).thenReturn(666L);
+        when(register.getDevice()).thenReturn(mock);
         when(mock.getRegisters()).thenReturn(Collections.singletonList(register));
         return mock;
-    }
-
-    @Test
-    public void testJsonCall() throws Exception {
-
-        Response response = target("/devices").request(MediaType.APPLICATION_JSON_TYPE).get();
-        JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<Integer>get("$.total")).isEqualTo(3);
-        assertThat(model.<List>get("$.devices")).hasSize(3);
-
-    }
-
-    @Test
-    public void testHalJsonCall() throws Exception {
-
-        Response response = target("/devices").request("application/hal+json").get();
-        JsonModel model = JsonModel.model((InputStream) response.getEntity());
-
     }
 
     @Test

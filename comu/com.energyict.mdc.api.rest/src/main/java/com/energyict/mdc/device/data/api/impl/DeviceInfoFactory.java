@@ -29,13 +29,17 @@ public class DeviceInfoFactory {
 
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo) {
         DeviceInfo deviceInfo = plain(device);
-        deviceInfo.self = Link.fromUri(uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").build(device.getmRID())).rel("self").build();
+        deviceInfo.self = Link.fromUri(getUri(device.getmRID(), uriInfo)).rel("self").build();
         return deviceInfo;
+    }
+
+    private URI getUri(String mrid, UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").build(mrid);
     }
 
     public HalInfo asHal(Device device, UriInfo uriInfo) {
         DeviceInfo deviceInfo = plain(device);
-        URI uri = uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").build(deviceInfo.mRID);
+        URI uri = getUri(deviceInfo.mRID, uriInfo);
         HalInfo wrap = HalInfo.wrap(deviceInfo, uri);
         return wrap;
     }
