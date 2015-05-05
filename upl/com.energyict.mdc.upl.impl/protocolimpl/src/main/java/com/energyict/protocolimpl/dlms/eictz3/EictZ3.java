@@ -10,6 +10,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -1408,8 +1409,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
 
         // the NTA meters normally use the global keys to encrypt
-        this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(SecurityContext.CIPHERING_TYPE_GLOBAL)));
-        if (cipheringType != SecurityContext.CIPHERING_TYPE_GLOBAL && cipheringType != SecurityContext.CIPHERING_TYPE_DEDICATED) {
+        this.cipheringType = Integer.parseInt(properties.getProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
+        if (cipheringType != CipheringType.GLOBAL.getType() && cipheringType != CipheringType.DEDICATED.getType()) {
             throw new InvalidPropertyException("Only 0 or 1 is allowed for the CipheringType property");
         }
 

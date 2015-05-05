@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * Copyrights EnergyICT
@@ -26,7 +27,8 @@ public class AM130Properties extends IDISProperties {
     @Override
     public ConformanceBlock getConformanceBlock() {
         ConformanceBlock conformanceBlock = super.getConformanceBlock();
-        conformanceBlock.setGeneralBlockTransfer(useGeneralBlockTransfer()); // Advertise the support for general block transfer
+        conformanceBlock.setGeneralBlockTransfer(useGeneralBlockTransfer());
+        conformanceBlock.setGeneralProtection(getCipheringType().equals(CipheringType.GENERAL_DEDICATED) || getCipheringType().equals(CipheringType.GENERAL_GLOBAL));
         return conformanceBlock;
     }
 
@@ -38,5 +40,16 @@ public class AM130Properties extends IDISProperties {
     @Override
     public int getGeneralBlockTransferWindowSize() {
         return getProperties().getTypedProperty(GBT_WINDOW_SIZE, AM130ConfigurationSupport.DEFAULT_GBT_WINDOW_SIZE).intValue();
+    }
+
+    @ProtocolProperty
+    public CipheringType getCipheringType() {
+        String cipheringDescription = getProperties().getTypedProperty(CIPHERING_TYPE, AM130ConfigurationSupport.DEFAULT_CIPHERING_TYPE.getDescription());
+        for (CipheringType cipheringType : CipheringType.values()) {
+            if (cipheringType.getDescription().equals(cipheringDescription)) {
+                return cipheringType;
+            }
+        }
+        return AM130ConfigurationSupport.DEFAULT_CIPHERING_TYPE;
     }
 }

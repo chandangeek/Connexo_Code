@@ -46,7 +46,7 @@ public class ConformanceBlock{
 	 */
 
 //    public static final int BIT_RESERVED_ZERO = 0;
-//    public static final int BIT_RESERVED_ONE = 1;
+    public static final int BIT_GENERAL_PROTECTION = 1;
     public static final int BIT_GENERAL_BLOCK_TRANSFER = 2;
 	public static final int BIT_READ = 3;
 	public static final int BIT_WRITE = 4;
@@ -76,8 +76,8 @@ public class ConformanceBlock{
 
     private static final String[] NAMES = {
             "RESERVED_ZERO",
-            "RESERVED_ONE",
-            "RESERVED_TWO",
+            "GENERAL_PROTECTION",
+            "GENERAL_BLOCK_TRANSFER",
             "READ",
             "WRITE",
             "UNCONFIRMED_WRITE",
@@ -254,6 +254,14 @@ public class ConformanceBlock{
 
     public void setWrite(boolean value) {
         setBit(BIT_WRITE, value);
+    }
+
+    public boolean isGeneralProtection() {
+        return block[BIT_GENERAL_PROTECTION];
+    }
+
+    public void setGeneralProtection(boolean value) {
+        setBit(BIT_GENERAL_PROTECTION, value);
     }
 
     public boolean isGeneralBlockTransfer(){

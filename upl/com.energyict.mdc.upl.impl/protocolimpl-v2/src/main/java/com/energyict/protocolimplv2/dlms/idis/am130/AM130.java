@@ -1,14 +1,21 @@
 package com.energyict.protocolimplv2.dlms.idis.am130;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
@@ -17,10 +24,13 @@ import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFacto
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Extension of the old AM500 protocol (IDIS package 1), adding extra features (IDIS package 2)
@@ -31,8 +41,9 @@ import java.util.List;
  */
 public class AM130 extends AM500 {
 
+    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
+
     private AM130RegisterFactory registerFactory = null;
-    private long initialFrameCounter = -1;
 
     /**
      * The version date
@@ -73,17 +84,6 @@ public class AM130 extends AM500 {
         return "AM130 DLMS (IDIS P2)";
     }
 
-    @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
-            AM540Cache am540Cache = (AM540Cache) deviceProtocolCache;
-            super.setDeviceCache(am540Cache);
-            if (initialFrameCounter == -1) {
-                initialFrameCounter = am540Cache.getFrameCounter();
-            }
-        }
-    }
-
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
@@ -100,20 +100,40 @@ public class AM130 extends AM500 {
     }
 
     @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        super.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Set the frameCounter from last session (which has been loaded from cache)
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
+        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        initDlmsSession(comChannel);
     }
 
-    @Override
-    public DeviceProtocolCache getDeviceCache() {
-        DeviceProtocolCache deviceCache = super.getDeviceCache();
-        if (deviceCache == null || !(deviceCache instanceof AM540Cache)) {
-            deviceCache = new AM540Cache();
+    private void initDlmsSession(ComChannel comChannel) {
+        readFrameCounter(comChannel);
+        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+    }
+
+    /**
+     * First read out the frame counter for the management client, using the public client.
+     */
+    protected void readFrameCounter(ComChannel comChannel) {
+        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
+        AM130Properties publicClientProperties = new AM130Properties();
+        publicClientProperties.addProperties(clone);
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+
+        long frameCounter;
+        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        connectWithRetries(publicDlmsSession, publicClientProperties);
+        try {
+            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
+        } catch (DataAccessResultException | ProtocolException e) {
+            frameCounter = new Random().nextInt();
+        } catch (IOException e) {
+            throw IOExceptionHandler.handle(e, publicDlmsSession);
         }
-        ((AM540Cache) deviceCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
-        setDeviceCache(deviceCache);
-        return deviceCache;
+        publicDlmsSession.disconnect();
+
+        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
     protected IDISLogBookFactory getIDISLogBookFactory() {

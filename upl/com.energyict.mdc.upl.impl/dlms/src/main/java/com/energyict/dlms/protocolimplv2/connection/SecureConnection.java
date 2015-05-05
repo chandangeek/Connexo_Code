@@ -3,6 +3,8 @@ package com.energyict.dlms.protocolimplv2.connection;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
@@ -10,11 +12,15 @@ import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * A DLMSConnection acting as a gateway.
@@ -100,9 +106,17 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                 byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
 
                 if (!isAlreadyEncrypted) {     //Don't encrypt the request again if it's already encrypted
-                    final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
-                    securedRequest = encrypt(securedRequest);
-                    securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                    if (useGeneralGloOrGeneralDedCiphering(this.aso.getSecurityContext().getCipheringType())) {
+                        final byte tag = (this.aso.getSecurityContext().getCipheringType() == CipheringType.GENERAL_GLOBAL.getType())
+                                ? DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING
+                                : DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING;
+                        securedRequest = encryptGeneralCiphering(securedRequest);
+                        securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                    } else {
+                        final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
+                        securedRequest = encrypt(securedRequest);
+                        securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                    }
                 } else {
                     //No encryption, only increase the frame counter
                     aso.getSecurityContext().incFrameCounter();
@@ -115,11 +129,19 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                 final byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
 
                 // check if the response tag is know and decrypt the data if necessary
-                if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
+                byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+                if (XdlmsApduTags.contains(cipheredTag)) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
                     final byte[] decryptedResponse;
                     decryptedResponse = decrypt(ProtocolUtils.getSubArray(securedResponse, 3));
+
+                    // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
+                    return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
+                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
+                    // Strip the 3 leading bytes before encrypting
+                    final byte[] decryptedResponse;
+                    decryptedResponse = decryptGeneralCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
 
                     // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
                     return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
@@ -131,6 +153,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         } else { /* During association request (AARQ and AARE) the request just needs to be forwarded */
             return getTransportConnection().sendRequest(byteRequestBuffer);
         }
+    }
+
+    private boolean useGeneralGloOrGeneralDedCiphering(int cipheringType) {
+        return cipheringType == CipheringType.GENERAL_GLOBAL.getType() || cipheringType == CipheringType.GENERAL_DEDICATED.getType();
     }
 
     public byte[] sendRequest(final byte[] encryptedRequest) {
@@ -156,9 +182,17 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                 byte[] securedRequest = ProtocolUtils.getSubArray(retryRequest, 3);
 
                 if (!isAlreadyEncrypted) {     //Don't encrypt the request again if it's already encrypted
-                    final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
-                    securedRequest = encrypt(securedRequest);
-                    securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                    if (useGeneralGloOrGeneralDedCiphering(this.aso.getSecurityContext().getCipheringType())) {
+                        final byte tag = (this.aso.getSecurityContext().getCipheringType() == CipheringType.GENERAL_GLOBAL.getType())
+                                ? DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING
+                                : DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING;
+                        securedRequest = encryptGeneralCiphering(securedRequest);
+                        securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                    } else {
+                        final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
+                        securedRequest = encrypt(securedRequest);
+                        securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                    }
                 } else {
                     //No encryption, only increase the frame counter
                     aso.getSecurityContext().incFrameCounter();
@@ -171,11 +205,19 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                 final byte[] securedResponse = getTransportConnection().readResponseWithRetries(securedRequest);
 
                 // check if the response tag is know and decrypt the data if necessary
-                if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
+                byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+                if (XdlmsApduTags.contains(cipheredTag)) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
                     final byte[] decryptedResponse;
                     decryptedResponse = decrypt(ProtocolUtils.getSubArray(securedResponse, 3));
+
+                    // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
+                    return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
+                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
+                    // Strip the 3 leading bytes before encrypting
+                    final byte[] decryptedResponse;
+                    decryptedResponse = decryptGeneralCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
 
                     // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
                     return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
@@ -202,11 +244,48 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         try {
             return this.aso.getSecurityContext().dataTransportDecryption(securedResponse);
         } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
+            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
         } catch (DLMSConnectionException e) {          //Invalid frame counter
             throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
+        }
+    }
+
+    private byte[] decryptGeneralCiphering(byte[] securedResponse) {
+        try {
+            int ptr = 0;
+            ptr++;  // Skip the tag
+            int systemTitleLength = securedResponse[ptr++];
+            byte[] systemTitleBytes = ProtocolTools.getSubArray(securedResponse, ptr, ptr + systemTitleLength);
+            ptr += systemTitleLength;
+            if (!Arrays.equals(systemTitleBytes, this.aso.getSecurityContext().getResponseSystemTitle())) {
+                throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(new ProtocolException("The system-title of the response doesn't corresponds to the system-title used during association establishment"));
+            }
+            byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00}, ProtocolTools.getSubArray(securedResponse, ptr)); // First byte is reserved for the tag, here we just insert a dummy byte
+            return this.aso.getSecurityContext().dataTransportDecryption(fullCipherFrame);                                                     // Decryption will start from position 1
+        } catch (ConnectionException e) {              //Failed to decrypt data
+            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
+        } catch (DLMSConnectionException e) {          //Invalid frame counter
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
+        } catch (UnsupportedException e) {             //Unsupported security policy
+            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
+        }
+    }
+
+    private byte[] encryptGeneralCiphering(byte[] request) {
+        byte[] systemIdentifier = this.aso.getSecurityContext().getSystemTitle();
+
+        try {
+            ByteArrayOutputStream securedRequestStream = new ByteArrayOutputStream();
+            securedRequestStream.write(systemIdentifier.length);
+            securedRequestStream.write(systemIdentifier);
+            securedRequestStream.write(this.aso.getSecurityContext().dataTransportEncryption(request));
+            return securedRequestStream.toByteArray();
+        } catch (UnsupportedException e) {  //Unsupported security policy
+            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
+        } catch (IOException e) {           // Error while writing to the stream
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
         }
     }
 
@@ -220,10 +299,17 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                 final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
                 byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
 
-                final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
-
-                securedRequest = encrypt(securedRequest);
-                securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                if (useGeneralGloOrGeneralDedCiphering(this.aso.getSecurityContext().getCipheringType())) {
+                    final byte tag = (this.aso.getSecurityContext().getCipheringType() == CipheringType.GENERAL_GLOBAL.getType())
+                            ? DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING
+                            : DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING;
+                    securedRequest = encryptGeneralCiphering(securedRequest);
+                    securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                } else {
+                    final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
+                    securedRequest = encrypt(securedRequest);
+                    securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
+                }
 
                 // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
                 securedRequest = ProtocolUtils.concatByteArrays(leading, securedRequest);

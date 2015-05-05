@@ -1,6 +1,7 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
@@ -38,9 +39,6 @@ public class SecurityContext {
     public static final int SYSTEM_TITLE_LENGTH = 8;
     public static final int CB_LENGTH = 1;
     public static final int FC_LENGTH = 4;
-
-    public static final int CIPHERING_TYPE_GLOBAL = 0;
-    public static final int CIPHERING_TYPE_DEDICATED = 1;
 
     /**
      * Holds the securityLevel for the DataTransport.
@@ -665,21 +663,23 @@ public class SecurityContext {
     }
 
     /**
-     * Checks whether Global ciphering is used ({@link #cipheringType} equals {@link #CIPHERING_TYPE_GLOBAL})
+     * Checks whether Global ciphering is used<br/>
+     * This could be either global or general-global ciphering.
      *
      * @return true if it is, false otherwise
      */
     public boolean isGlobalCiphering() {
-        return this.cipheringType == CIPHERING_TYPE_GLOBAL;
+        return this.cipheringType == CipheringType.GLOBAL.getType() || this.cipheringType == CipheringType.GENERAL_GLOBAL.getType();
     }
 
     /**
-     * Checks whether Dedicated ciphering is used ({@link #cipheringType} equals {@link #CIPHERING_TYPE_DEDICATED})
+     * Checks whether Dedicated ciphering is used <br/>
+     * This could be either dedicated or general-dedicated ciphering.
      *
      * @return true if it is, false otherwise
      */
     public boolean isDedicatedCiphering() {
-        return this.cipheringType == CIPHERING_TYPE_DEDICATED;
+        return this.cipheringType == CipheringType.DEDICATED.getType() || this.cipheringType == CipheringType.GENERAL_DEDICATED.getType();
     }
 
     public boolean isFrameCounterInitialized() {

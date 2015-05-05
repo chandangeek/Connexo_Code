@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.exceptions.ConnectionTimeOutException;
+import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
@@ -90,7 +91,7 @@ public class AM500 extends AbstractDlmsProtocol {
      */
     @Override
     public void logOn() {
-        connectWithRetries();
+        connectWithRetries(getDlmsSession(), getDlmsSessionProperties());
         checkCacheObjects();
         getMeterTopology().searchForSlaveDevices();
     }
@@ -98,14 +99,15 @@ public class AM500 extends AbstractDlmsProtocol {
     /**
      * Add extra retries to the association request.
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
+     * @param dlmsSession
      */
-    private void connectWithRetries() {
+    protected void connectWithRetries(DlmsSession dlmsSession, IDISProperties dlmsSessionProperties) {
         int tries = 0;
         while (true) {
             ComServerRuntimeException exception;
             try {
-                if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
-                    getDlmsSession().createAssociation();
+                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    dlmsSession.createAssociation();
                 }
                 return;
             } catch (ComServerRuntimeException e) {
@@ -113,20 +115,22 @@ public class AM500 extends AbstractDlmsProtocol {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
                 } else if (e instanceof ConnectionTimeOutException) {
                     throw e;
+                } else if (e instanceof DataEncryptionException) {
+                    throw e;
                 }
                 exception = e;
             }
 
             //Release and retry the AARQ in case of ACSE exception
-            if (++tries > getDlmsSessionProperties().getRetries()) {
-                getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getRetries() + 1) + "] tries.");
+            if (++tries > dlmsSessionProperties.getRetries()) {
+                getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSessionProperties.getRetries() + 1) + "] tries.");
                 throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
             } else {
-                getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSessionProperties.getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
-                    getDlmsSession().getAso().releaseAssociation();
+                    dlmsSession.getAso().releaseAssociation();
                 } catch (ComServerRuntimeException e) {
-                    getDlmsSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+                    dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
             }
