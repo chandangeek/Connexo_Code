@@ -1,10 +1,12 @@
 package com.elster.jupiter.time;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface TimeService {
     static String COMPONENT_NAME = "TME";
 
@@ -21,4 +23,6 @@ public interface TimeService {
     Query<? extends RelativePeriod> getRelativePeriodQuery();
 
     String toLocalizedString(PeriodicalScheduleExpression expression);
+
+    RelativePeriod getAllRelativePeriod();
 }

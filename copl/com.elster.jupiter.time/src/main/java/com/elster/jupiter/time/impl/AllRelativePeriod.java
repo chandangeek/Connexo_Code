@@ -1,5 +1,8 @@
-package com.elster.jupiter.time;
+package com.elster.jupiter.time.impl;
 
+import com.elster.jupiter.time.RelativeDate;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
 import com.google.common.collect.Range;
 
 import java.time.Instant;

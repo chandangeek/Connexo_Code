@@ -17,14 +17,15 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.time", service = {TimeService.class, InstallService.class}, property = "name=" + TimeService.COMPONENT_NAME, immediate = true)
 public class TimeServiceImpl implements TimeService, InstallService {
@@ -148,6 +149,11 @@ public class TimeServiceImpl implements TimeService, InstallService {
     @Override
     public String toLocalizedString(PeriodicalScheduleExpression expression) {
         return expression.toString(thesaurus);
+    }
+
+    @Override
+    public RelativePeriod getAllRelativePeriod() {
+        return new AllRelativePeriod();
     }
 
     @Reference
