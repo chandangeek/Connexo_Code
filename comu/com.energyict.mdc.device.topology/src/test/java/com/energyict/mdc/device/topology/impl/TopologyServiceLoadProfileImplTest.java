@@ -134,9 +134,9 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
 
         // Asserts
         assertThat(allChannels).hasSize(4);
-        assertThat(allChannels).has(new Condition<List<Channel>>() {
+        assertThat(allChannels).has(new Condition<List<? extends Channel>>() {
             @Override
-            public boolean matches(List<Channel> value) {
+            public boolean matches(List<? extends Channel> value) {
                 int masterChannels = 0;
                 int slaveChannels = 0;
                 int obisCode1Match = 0;
@@ -172,9 +172,9 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
 
         // Asserts
         assertThat(allChannels).hasSize(2);
-        assertThat(allChannels).has(new Condition<List<Channel>>() {
+        assertThat(allChannels).has(new Condition<List<? extends Channel>>() {
             @Override
-            public boolean matches(List<Channel> value) {
+            public boolean matches(List<? extends Channel> value) {
                 boolean bothMatch = true;
                 for (Channel channel : value) {
                     bothMatch &= (channel.getRegisterTypeObisCode().equals(obisCode1) || channel.getRegisterTypeObisCode().equals(obisCode2));
