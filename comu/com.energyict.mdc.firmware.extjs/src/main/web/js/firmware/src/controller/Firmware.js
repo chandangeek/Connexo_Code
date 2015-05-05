@@ -407,6 +407,7 @@ Ext.define('Fwc.controller.Firmware', {
                     if (record.get('supportedOptions').length === 0) {
                         widget.down('button').disable();
                         widget.down('grid').getStore().loadData([]);
+                        widget.down('grid').el.down('.x-grid-empty').dom.innerHTML = Uni.I18n.translate('deviceType.firmwareupgradeoptions.notsupported', 'FWC', 'No options supported by current device type');
                     }
                 },
                 callback: function () {
