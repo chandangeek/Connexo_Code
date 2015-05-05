@@ -83,7 +83,12 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         loadProfilesStore.getProxy().setUrl(mRID);
         channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl(mRID);
 
-        showPage();
+        Uni.util.Common.loadNecessaryStores([
+            'Mdc.store.LoadProfilesOfDevice',
+            'TimeUnits'
+        ], function () {
+            showPage();
+        });
     },
 
     showPreview: function (selectionModel, record) {

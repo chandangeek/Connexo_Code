@@ -52,7 +52,8 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         reasons: [
                             Uni.I18n.translate('devicechannels.empty.list.item1', 'MDC', 'No channels have been defined yet.'),
                             Uni.I18n.translate('devicechannels.empty.list.item2', 'MDC', 'No channels comply to the filter.')
-                        ]
+                        ],
+                        margins: '16 0 0 0'
                     },
                     previewComponent: {
                         xtype: 'deviceLoadProfileChannelsPreview',
