@@ -631,6 +631,31 @@ public class SmartMeterProtocolAdapterTest {
         verify(collectedFirmwareVersion).setActiveMeterFirmwareVersion(myTestFirmwareVersion);
     }
 
+    @Test
+    public void getFirmwareVersionLegacyExceptionTest() throws IOException {
+        SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
+        IOException expectedException = createGetFirmwareVersionIOException();
+        when(smartMeterProtocol.getFirmwareVersion()).thenThrow(expectedException);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
+
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class);
+        when(collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier)).thenReturn(collectedFirmwareVersion);
+        try {
+            CollectedFirmwareVersion firmwareVersions = smartMeterProtocolAdapter.getFirmwareVersions();
+            fail("Shoud not get here!");
+        } catch (LegacyProtocolException e) {
+            assertThat(e.getCause()).isEqualTo(expectedException);
+        }
+    }
+
+    private IOException createGetFirmwareVersionIOException() {
+        return new IOException("MyExpectedIoException");
+    }
+
     protected SmartMeterProtocolAdapter newSmartMeterProtocolAdapter(SmartMeterProtocol smartMeterProtocol) {
         return new SmartMeterProtocolAdapter(smartMeterProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService(), collectedDataFactory, meteringService);
     }
