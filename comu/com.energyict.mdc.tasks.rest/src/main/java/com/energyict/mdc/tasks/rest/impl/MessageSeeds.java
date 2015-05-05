@@ -1,0 +1,53 @@
+package com.energyict.mdc.tasks.rest.impl;
+
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.tasks.rest.ComTasksApplication;
+
+import java.util.logging.Level;
+
+public enum MessageSeeds implements MessageSeed, TranslationKey {
+
+    LOGBOOKS(1, "logbooks", "Logbooks"),
+    REGISTERS(2, "registers", "Registers"),
+    TOPOLOGY(3, "topology", "Topology"),
+    LOADPROFILES(4, "loadprofiles", "Load profiles"),
+    CLOCK(5, "clock", "Clock"),
+    STATUS(6, "status", "Status"),
+    ;
+
+    private final int number;
+    private final String key;
+    private final String format;
+
+    private MessageSeeds(int number, String key, String format) {
+        this.number = number;
+        this.key = key;
+        this.format = format;
+    }
+
+    @Override
+    public String getModule() {
+        return ComTasksApplication.COMPONENT_NAME;
+    }
+
+    @Override
+    public int getNumber() {
+        return number;
+    }
+
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return format;
+    }
+
+    @Override
+    public Level getLevel() {
+        return Level.SEVERE;
+    }
+}
