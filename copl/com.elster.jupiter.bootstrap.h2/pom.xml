@@ -21,7 +21,11 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <_include>bnd.bnd</_include>
+                        <!--<_include>bnd.bnd</_include>-->
+                        <Export-Package>com.elster.jupiter.appserver</Export-Package>
+                        <Private-Package>com.elster.jupiter.appserver.impl</Private-Package>
+                        <_classpath>target/classes</_classpath>
+                        <_dsannotations>*</_dsannotations>
                     </instructions>
                 </configuration>
             </plugin>
