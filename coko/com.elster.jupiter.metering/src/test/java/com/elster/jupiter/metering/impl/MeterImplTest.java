@@ -67,8 +67,7 @@ public class MeterImplTest {
 
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(START.toInstant()));
         assertThat(meterActivation.getMeter()).contains(meter);
-        assertThat(meterActivation.getUsagePoint()).isAbsent();
-
+        assertThat(meterActivation.getUsagePoint()).isEmpty();
     }
 
     @Test

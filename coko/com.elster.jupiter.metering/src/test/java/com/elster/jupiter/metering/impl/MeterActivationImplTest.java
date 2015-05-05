@@ -151,7 +151,7 @@ public class MeterActivationImplTest {
     public void testSetUsagePoint() {
         meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, ACTIVATION_TIME);
 
-        assertThat(meterActivation.getUsagePoint()).isAbsent();
+        assertThat(meterActivation.getUsagePoint()).isEmpty();
 
         meterActivation.setUsagePoint(usagePoint);
 
