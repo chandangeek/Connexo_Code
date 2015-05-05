@@ -8,7 +8,15 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import com.google.common.base.Strings;
-
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Application;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.message.GZipEncoder;
@@ -17,24 +25,14 @@ import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Application;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Component (name = "com.elster.jupiter.rest.whiteboard.implementation" , immediate = true , service = {}  )
 public class WhiteBoard {
@@ -168,7 +166,9 @@ public class WhiteBoard {
     }
     
     private Optional<String> getAlias(Map<String,Object> properties) {
-    	return Optional.ofNullable(properties.get("alias")).map(alias ->  "/api" + alias);
+		String version = Optional.ofNullable(properties.get("version")).map(v -> "/" + v).orElse("");
+		String published = Optional.ofNullable(properties.get("version")).map(p -> "/public").orElse("");
+		return Optional.ofNullable(properties.get("alias")).map(alias -> published + "/api" + alias + version);
     }
 
     @Activate
