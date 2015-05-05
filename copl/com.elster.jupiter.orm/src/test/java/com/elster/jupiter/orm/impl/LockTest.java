@@ -137,7 +137,7 @@ public class LockTest {
             dataModel.touch(lockVersion.get());
         });
         Optional<LockVersion> lockVersion = future.get();
-        assertThat(lockVersion).isAbsent();
+        assertThat(lockVersion).isEmpty();
     }
 
     @Test
