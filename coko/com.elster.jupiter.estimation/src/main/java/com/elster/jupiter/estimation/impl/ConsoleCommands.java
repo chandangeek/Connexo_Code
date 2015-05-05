@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -260,7 +261,7 @@ public class ConsoleCommands {
         for (ReadingType readingType : channel.getReadingTypes()) {
             System.out.println("Handling reading type " + readingType.getAliasName());
             List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, readingType);
-            estimator.init();
+            estimator.init(Logger.getLogger(ConsoleCommands.class.getName()));
             EstimationResult result = estimator.estimate(blocks);
             List<EstimationBlock> estimated = result.estimated();
             List<EstimationBlock> remaining = result.remainingToBeEstimated();
