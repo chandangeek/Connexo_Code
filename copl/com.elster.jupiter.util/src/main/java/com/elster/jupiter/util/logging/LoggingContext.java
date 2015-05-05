@@ -27,7 +27,12 @@ public class LoggingContext implements AutoCloseable {
     }
 
     public static LoggingContext get() {
-        return context.get();
+        LoggingContext context = LoggingContext.context.get();
+        if (context == null) {
+            context = new LoggingContext();
+            LoggingContext.context.set(context);
+        }
+        return context;
     }
 
     public LoggingContext with(String key, String value) {
