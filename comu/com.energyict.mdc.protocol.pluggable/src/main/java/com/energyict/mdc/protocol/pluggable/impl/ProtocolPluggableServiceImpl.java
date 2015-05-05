@@ -918,7 +918,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.userService).install(true, true);
+        if (!dataModel.isInstalled()) {
+            new Installer(this.dataModel, this.eventService, this.userService).install(true, true);
+        }
     }
 
     @Override
