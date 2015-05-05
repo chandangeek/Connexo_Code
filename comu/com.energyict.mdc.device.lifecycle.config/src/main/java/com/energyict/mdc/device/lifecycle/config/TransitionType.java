@@ -32,8 +32,8 @@ public enum TransitionType {
         }
 
         @Override
-        public Set<MicroAction> supportedActions() {
-            return EnumSet.of(MicroAction.ENABLE_VALIDATION);
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(MicroAction.SET_LAST_READING);
         }
     },
     INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
@@ -170,12 +170,40 @@ public enum TransitionType {
     }
 
     /**
-     * Gets the Set of {@link MicroAction}s that are supported by this TransitionType.
+     * Gets the Set of {@link MicroAction}s that are required
+     * by this TransitionType and can therefore not be switched
+     * off by the user. These actions will always be executed
+     * when the transition is triggered by the user.
+     *
+     * @return The Set of MicroAction
+     */
+    public Set<MicroAction> requiredActions() {
+        return EnumSet.noneOf(MicroAction.class);
+    }
+
+    /**
+     * Gets the Set of {@link MicroAction}s that are optional
+     * by this TransitionType and can therefore not be switched
+     * on or off by the user. These actions will only be executed
+     * when switched on by the user and when the transition is triggered by the user.
+     *
+     * @return The Set of MicroAction
+     */
+    public Set<MicroAction> optionalActions() {
+        return EnumSet.noneOf(MicroAction.class);
+    }
+
+    /**
+     * Gets the Set of {@link MicroAction}s that are supported
+     * by this TransitionType. This should be the union
+     * of the required and option actions.
      *
      * @return The Set of MicroAction
      */
     public Set<MicroAction> supportedActions() {
-        return EnumSet.noneOf(MicroAction.class);
+        EnumSet<MicroAction> supportedActions = EnumSet.copyOf(this.requiredActions());
+        supportedActions.addAll(this.requiredActions());
+        return supportedActions;
     }
 
     public DefaultState getFrom() {
