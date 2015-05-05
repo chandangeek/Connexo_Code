@@ -45,8 +45,10 @@ import java.util.Optional;
 
 import javax.ws.rs.core.Application;
 
+import org.junit.Before;
 import org.mockito.Mock;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -104,6 +106,11 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     YellowfinGroupsService yellowfinGroupsService;
     @Mock
     FirmwareService firmwareService;
+
+    @Before
+    public void setup() {
+        when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+    }
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
