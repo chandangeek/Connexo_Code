@@ -1,7 +1,10 @@
 package com.elster.jupiter.events;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
+@ProviderType
 public interface EventType {
 
     String getTopic();

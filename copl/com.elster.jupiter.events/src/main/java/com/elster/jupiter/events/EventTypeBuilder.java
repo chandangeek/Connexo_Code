@@ -1,5 +1,8 @@
 package com.elster.jupiter.events;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface EventTypeBuilder {
 
     EventTypeBuilder component(String component);
