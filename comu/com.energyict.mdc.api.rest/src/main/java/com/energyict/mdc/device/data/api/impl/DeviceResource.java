@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.api.impl;
 
-import com.elster.jupiter.rest.util.LegacyPropertyMapper;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
@@ -9,6 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.ElementKind;
 import javax.validation.metadata.ConstraintDescriptor;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -119,15 +120,7 @@ public class DeviceResource {
 
             return deviceInfoFactory.plain(newDevice);
         } catch (ConstraintViolationException e) {
-            for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
-                javax.validation.Path propertyPath = constraintViolation.getPropertyPath();
-                if (propertyPath != null) {
-                    if (constraintViolation.getLeafBean() instanceof LegacyPropertyMapper) {
-                        propertyPath = ((LegacyPropertyMapper) constraintViolation.getLeafBean()).getLegacyPropertyPath(propertyPath);
-                    }
-                }
-            }
-            throw e;
+            throw new LegacyConstraintViolationException(e, new HashMap<>());
         }
     }
 
@@ -144,26 +137,55 @@ class LegacyConstraintViolationException extends ConstraintViolationException {
 class LegacyConstraintViolation<T> implements ConstraintViolation<T> {
     private final ConstraintViolation<T> violation;
     private final Map<String, String> renames = new HashMap<>();
+    private final javax.validation.Path rewrittenPath;
 
     public LegacyConstraintViolation(ConstraintViolation<T> violation, Map<String, String> renames) {
         this.violation = violation;
         this.renames.putAll(renames);
-//        for (javax.validation.Path.Node node : path) {
-//            if (renames.containsKey(node.getName()) {
-//                string.append(".")
-//            }
-//        }
+        RewrittenPath nodes = new RewrittenPath();
+        for (javax.validation.Path.Node node : violation.getPropertyPath()) {
+            if (renames.containsKey(node.getName())) {
+                nodes.add(new javax.validation.Path.Node() {
+                    @Override
+                    public String getName() {
+                        return renames.get(node.getName());
+                    }
+
+                    @Override
+                    public boolean isInIterable() {
+                        return false;
+                    }
+
+                    @Override
+                    public Integer getIndex() {
+                        return null;
+                    }
+
+                    @Override
+                    public Object getKey() {
+                        return null;
+                    }
+
+                    @Override
+                    public ElementKind getKind() {
+                        return null;
+                    }
+
+                    @Override
+                    public <T extends javax.validation.Path.Node> T as(Class<T> aClass) {
+                        return null;
+                    }
+                });
+            } else {
+                nodes.add(node);
+            }
+        }
+        this.rewrittenPath = nodes;
 
     }
 
+    class RewrittenPath extends ArrayList<javax.validation.Path.Node> implements javax.validation.Path {
 
-
-    /**
-     * Search new property names and replace them with the original values for backwards compatibility
-     */
-    private javax.validation.Path searchAndReplaceNewPropertyNames(javax.validation.Path path) {
-        StringBuilder string = new StringBuilder();
-        return null;
     }
 
     @Override
@@ -203,7 +225,7 @@ class LegacyConstraintViolation<T> implements ConstraintViolation<T> {
 
     @Override
     public javax.validation.Path getPropertyPath() {
-        return violation.getPropertyPath();
+        return this.rewrittenPath;
     }
 
     @Override
