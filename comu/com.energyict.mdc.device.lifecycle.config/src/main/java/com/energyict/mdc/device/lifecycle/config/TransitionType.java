@@ -35,6 +35,11 @@ public enum TransitionType {
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(MicroAction.SET_LAST_READING);
         }
+
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS);
+        }
     },
     INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.ACTIVE) {
         @Override

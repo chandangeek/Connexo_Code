@@ -34,7 +34,14 @@ public enum MicroAction {
     /**
      * Activates all connection tasks on the device.
      */
-    ACTIVATE_CONNECTION_TASK,
+    ACTIVATE_CONNECTION_TASKS,
+
+    /**
+     * Creates a meter activation for the device.
+     * Requires that the user specifies the timestamp
+     * on which the meter activation should start.
+     */
+    CREATE_METER_ACTIVATION ,
 
     /**
      * Removes the device from all enumerated device groups
