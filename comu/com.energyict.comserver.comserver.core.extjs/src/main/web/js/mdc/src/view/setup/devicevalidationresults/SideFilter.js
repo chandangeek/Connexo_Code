@@ -4,20 +4,20 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
         'Uni.form.field.DateTime',
         'Mdc.store.ValidationResultsDurations'
     ],
-    alias: 'widget.deviceValidationResultsSideFilter',
-    itemId: 'deviceValidationResultsSideFilter',
+    alias: 'widget.mdc-device-validation-results-side-filter',
+    
     ui: 'medium',
     width: 288,
     cls: 'filter-form',
     title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
     items: {
         xtype: 'form',
-        itemId: 'deviceValidationResultsFilterForm',
+        itemId: 'frm-device-validation-results-filter',
         ui: 'filter',
         items: [
             {
                 xtype: 'fieldcontainer',
-                itemId: 'dateContainer',
+                itemId: 'fco-date-container',
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
                 labelAlign: 'top',
                 defaults: {
@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
                 items: [
                     {
                         xtype: 'date-time',
-                        itemId: 'endOfInterval',
+                        itemId: 'dtm-end-of-interval',
                         name: 'intervalStart',
                         fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
                         labelAlign: 'top',
@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
             },
             {
                 xtype: 'combobox',
-                itemId: 'sideFilterDuration',
+                itemId: 'cbo-side-filter-duration',
                 name: 'duration',
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.duration', 'MDC', 'Duration'),
                 labelAlign: 'top',
@@ -51,7 +51,15 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
                 valueField: 'id',
                 queryMode: 'local',
                 anchor: '100%'
+            },
+			 {
+                xtype: 'fieldcontainer',
+				hidden: true,
+                itemId: 'fco-item-type',
+				name: 'itemTypeContainer',
+				fieldLabel: ''                
             }
+
         ],
         dockedItems: [
             {
@@ -59,13 +67,13 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
                 dock: 'bottom',
                 items: [
                     {
-                        itemId: 'deviceValidationResultsFilterApplyBtn',
+                        itemId: 'btn-device-validation-results-filter-apply',
                         ui: 'action',
                         text: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
                         action: 'applyfilter'
                     },
                     {
-                        itemId: 'deviceValidationResultsFilterResetBtn',
+                        itemId: 'btn-device-validation-results-filter-reset',
                         text: Uni.I18n.translate('general.reset', 'MDC', 'Reset'),
                         action: 'resetfilter'
                     }
