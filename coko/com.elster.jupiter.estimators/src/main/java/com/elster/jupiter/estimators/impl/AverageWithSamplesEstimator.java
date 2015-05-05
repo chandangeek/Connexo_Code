@@ -7,9 +7,9 @@ import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
-import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
@@ -21,8 +21,8 @@ import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
@@ -49,6 +49,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private final ValidationService validationService;
     private final MeteringService meteringService;
+    private final TimeService timeService;
 
     private static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "averagewithsamples.maxNumberOfConsecutiveSuspects";
     private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
@@ -70,16 +71,18 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private AdvanceReadingsSettings advanceReadingsSettings;
 
 
-    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
+    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
         super(thesaurus, propertySpecService);
         this.validationService = validationService;
         this.meteringService = meteringService;
+        this.timeService = timeService;
     }
 
-    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> properties) {
+    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.validationService = validationService;
         this.meteringService = meteringService;
+        this.timeService = timeService;
     }
 
     @Override
@@ -370,7 +373,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, false, new BooleanFactory()));
 
-        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
+        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, timeService.getAllRelativePeriod()));
 
         PropertySpecBuilder propertySpecBuilder = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService));
         propertySpecBuilder.markRequired();

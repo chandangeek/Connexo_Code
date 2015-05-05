@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.validation.ValidationService;
 import org.osgi.service.component.annotations.Component;
@@ -37,6 +38,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     private volatile PropertySpecService propertySpecService;
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
+    private volatile TimeService timeService;
 
     public DefaultEstimatorFactory() {
     }
@@ -67,6 +69,11 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Override
@@ -122,12 +129,12 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
         AVG_WITH_SAMPLES(AVG_WITH_SAMPLES_ESTIMATOR) {
             @Override
             Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
-                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, sdqfdsqfsqf, props);
             }
 
             @Override
             IEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
-                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService);
+                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, sdfsdqfqs);
             }
         },
         POWER_GAP_FILL(POWER_GAP_FILL_ESTIMATOR) {
