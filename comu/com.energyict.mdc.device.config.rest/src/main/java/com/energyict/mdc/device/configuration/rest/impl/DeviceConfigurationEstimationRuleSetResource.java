@@ -32,13 +32,13 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 @Path("/estimationrulesets")
-public class DeviceConfigEstimationRuleSetResource {
+public class DeviceConfigurationEstimationRuleSetResource {
 
     private final EstimationService estimationService;
     private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public DeviceConfigEstimationRuleSetResource(EstimationService estimationService, DeviceConfigurationService deviceConfigurationService) {
+    public DeviceConfigurationEstimationRuleSetResource(EstimationService estimationService, DeviceConfigurationService deviceConfigurationService) {
         this.estimationService = estimationService;
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -49,9 +49,8 @@ public class DeviceConfigEstimationRuleSetResource {
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getDeviceConfigurationsForEstimationRuleSet(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam QueryParameters queryParameters) {
         EstimationRuleSet estimationRuleSet = findEstimationRuleSetByIdOrThrowException(estimationRuleSetId);
-        List<DeviceConfiguration> deviceConfigs = deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet);
-        List<DeviceConfiguration> pagedDeviceConfigs = ListPager.of(deviceConfigs).from(queryParameters).find();
-        List<DeviceConfigurationRefInfo> infos = pagedDeviceConfigs.stream().map(DeviceConfigurationRefInfo::from).collect(Collectors.toList());
+        List<DeviceConfiguration> deviceConfigurations = deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        List<DeviceConfigurationRefInfo> infos = deviceConfigurations.stream().map(DeviceConfigurationRefInfo::from).collect(Collectors.toList());
         return PagedInfoList.asJson("deviceConfigurations", infos, queryParameters);
     }
     

@@ -104,7 +104,7 @@ public class DeviceConfigurationApplication extends Application implements Trans
                 DeviceMessagesResource.class,
                 DeviceMessagePrivilegesResource.class,
                 ProtocolPropertiesResource.class,
-                DeviceConfigEstimationRuleSetResource.class
+                DeviceConfigurationEstimationRuleSetResource.class
         );
     }
 

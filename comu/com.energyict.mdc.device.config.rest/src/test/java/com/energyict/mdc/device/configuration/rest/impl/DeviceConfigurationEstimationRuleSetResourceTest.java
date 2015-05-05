@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.junit.Test;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -26,14 +27,17 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.jayway.jsonpath.JsonModel;
 
-public class DeviceConfigEstimationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
+public class DeviceConfigurationEstimationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
     @Test
     public void testGetDeviceConfigurationsForEstimationRuleSet() {
         EstimationRuleSet ruleSet = mock(EstimationRuleSet.class);
         doReturn(Optional.of(ruleSet)).when(estimationService).getEstimationRuleSet(1L);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class, Answers.RETURNS_DEEP_STUBS.get());
-        when(deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(ruleSet)).thenReturn(Arrays.asList(deviceConfig));
+        Finder<DeviceConfiguration> finder = mock(Finder.class);
+        when(deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(ruleSet)).thenReturn(finder);
+        when(finder.find()).thenReturn(Arrays.asList(deviceConfig));
+        when(finder.paged(Matchers.anyInt(), Matchers.anyInt())).thenReturn(finder);
         when(deviceConfig.getId()).thenReturn(18L);
         when(deviceConfig.getName()).thenReturn("Device Config");
         when(deviceConfig.getLoadProfileSpecs().size()).thenReturn(5);
@@ -88,11 +92,11 @@ public class DeviceConfigEstimationRuleSetResourceTest extends DeviceConfigurati
         EstimationRuleSet ruleSet = mock(EstimationRuleSet.class);
         doReturn(Optional.of(ruleSet)).when(estimationService).getEstimationRuleSet(1L);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1l, 1l)).thenReturn(Optional.of(deviceConfig));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1l, 13l)).thenReturn(Optional.of(deviceConfig));
         
         DeviceConfigurationRefInfo info = new DeviceConfigurationRefInfo();
         info.id = 1;
-        info.version = 1;
+        info.version = 13;
         
         Response response = target("estimationrulesets/1/deviceconfigurations").request().post(Entity.json(Arrays.asList(info)));
 
