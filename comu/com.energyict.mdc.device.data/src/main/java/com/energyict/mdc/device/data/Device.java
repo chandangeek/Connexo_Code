@@ -185,6 +185,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     boolean hasData();
 
+    public MeterActivation activate(Instant start);
+
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
     List<MeterActivation> getMeterActivationsMostRecentFirst();
