@@ -6,7 +6,8 @@ Ext.define('Fwc.controller.Main', {
     controllers: [
         'Fwc.controller.History',
         'Fwc.controller.Firmware',
-        'Fwc.devicefirmware.controller.DeviceFirmware'
+        'Fwc.devicefirmware.controller.DeviceFirmware',
+        'Fwc.devicefirmware.controller.FirmwareLog'
     ],
 
     refs: [
