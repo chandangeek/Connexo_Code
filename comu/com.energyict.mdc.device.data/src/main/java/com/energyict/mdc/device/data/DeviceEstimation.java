@@ -18,6 +18,4 @@ public interface DeviceEstimation {
 
     void deactivateEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 
-    void save();
-
 }

@@ -73,7 +73,7 @@ public class DeviceEstimationImpl implements DeviceEstimation {
     public void activateEstimation() {
         if (!active) {
             active = true;
-            save();
+            saveAndTouchParent();
         }
     }
     
@@ -81,7 +81,7 @@ public class DeviceEstimationImpl implements DeviceEstimation {
     public void deactivateEstimation() {
         if (active) {
             active = false;
-            save();
+            saveAndTouchParent();
         }
     }
     
@@ -99,7 +99,7 @@ public class DeviceEstimationImpl implements DeviceEstimation {
                 .collect(Collectors.toList());
         boolean removed = estimationRuleSetActivations.removeAll(removedFromDeviceConfiguration);
         if (removed) {
-            save(false);//don't touch parent because nothing has been changed, just the lists were synchronized
+            save();//don't touch parent because nothing has been changed, just the lists were synchronized
         }
         
         return returnList;
@@ -124,11 +124,11 @@ public class DeviceEstimationImpl implements DeviceEstimation {
         if (ruleSetActivation.isPresent()) {
             if (ruleSetActivation.get().isActive() != active) {
                 ruleSetActivation.get().setActive(active);
-                save();
+                saveAndTouchParent();
             }
         } else {
             estimationRuleSetActivations.add(dataModel.getInstance(DeviceEstimationRuleSetActivationImpl.class).init(estimationRuleSet, active, this));
-            save();
+            saveAndTouchParent();
         }
     }
     
@@ -136,19 +136,16 @@ public class DeviceEstimationImpl implements DeviceEstimation {
         return estimationRuleSetActivations.stream().filter(er -> er.getEstimationRuleSet().getId() == estimationRuleSet.getId()).findAny();
     }
     
-    @Override
-    public void save() {
-        save(true);
-    }
-    
-    private void save(boolean touchParent) {
+    private void save() {
         if (createTime != null) {
             dataModel.update(this);
         } else {
             dataModel.persist(this);
         }
-        if (touchParent) {
-            dataModel.touch(device.get());
-        }
+    }
+    
+    private void saveAndTouchParent() {
+        save();
+        dataModel.touch(device.get());
     }
 }

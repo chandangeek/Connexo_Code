@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -18,7 +19,7 @@ import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceService;
 
 @Component(name = "com.energyict.mdc.device.data.EstimationRuleSetResolver", service = EstimationResolver.class)
-public class DeviceConfigEstimationRuleSetResolver implements EstimationResolver {
+public class DeviceConfigurationEstimationRuleSetResolver implements EstimationResolver {
     
     private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
@@ -36,24 +37,21 @@ public class DeviceConfigEstimationRuleSetResolver implements EstimationResolver
     @Override
     public List<EstimationRuleSet> resolve(MeterActivation meterActivation) {
         if (hasMdcMeter(meterActivation)) {
-            DeviceEstimation deviceEstimation = deviceService
-                    .findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()))
+            return deviceService.findDeviceById(Long.valueOf(meterActivation.getMeter().get().getAmrId()))
                     .map(device -> device.forEstimation())
-                    .orElse(null);
-            if (deviceEstimation != null && deviceEstimation.isEstimationActive()) {
-                return deviceEstimation.getEstimationRuleSetActivations().stream()
-                        .filter(DeviceEstimationRuleSetActivation::isActive)
-                        .map(DeviceEstimationRuleSetActivation::getEstimationRuleSet)
-                        .collect(Collectors.toList());
-            }
-
+                        .filter(DeviceEstimation::isEstimationActive)
+                        .map(deviceEstimation -> deviceEstimation.getEstimationRuleSetActivations().stream())
+                        .orElseGet(Stream::empty)
+                    .filter(DeviceEstimationRuleSetActivation::isActive)
+                    .map(DeviceEstimationRuleSetActivation::getEstimationRuleSet)
+                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
 
     @Override
     public boolean isInUse(EstimationRuleSet estimationRuleSet) {
-        return !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet).isEmpty();
+        return !deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet).find().isEmpty();
     }
 
     @Override

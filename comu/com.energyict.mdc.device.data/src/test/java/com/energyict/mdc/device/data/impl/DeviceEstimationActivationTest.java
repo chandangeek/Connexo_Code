@@ -88,6 +88,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         ruleSetActivations = device.forEstimation().getEstimationRuleSetActivations();
         
         assertThat(device.getVersion()).isEqualTo(1l);
+        assertThat(device.forEstimation().isEstimationActive()).isFalse();
         assertThat(ruleSetActivations.stream().map(rs -> rs.getEstimationRuleSet()).collect(Collectors.toList())).containsExactly(rs1, rs2, rs3);
         assertThat(ruleSetActivations.stream().map(rs -> rs.isActive()).collect(Collectors.toList())).containsExactly(true, true, true);
         
@@ -115,7 +116,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testEstimationRuleSetResolver() {
-        DeviceConfigEstimationRuleSetResolver resolver = new DeviceConfigEstimationRuleSetResolver();
+        DeviceConfigurationEstimationRuleSetResolver resolver = new DeviceConfigurationEstimationRuleSetResolver();
         resolver.setDeviceConfigurationService(inMemoryPersistence.getDeviceConfigurationService());
         resolver.setDeviceService(inMemoryPersistence.getDeviceService());
         
