@@ -21,6 +21,8 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -32,6 +34,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
@@ -658,6 +661,24 @@ public class MeterProtocolAdapterTest {
 
         // Asserts
         verify(adaptedProtocol).getSecurityRelationTypeName();
+    }
+
+    @Test
+    public void getFirmwareVersionTest() throws IOException {
+        String myTestFirmwareVersion = "jslmjksdfjjL1321";
+        MeterProtocol    meterProtocol = getMockedMeterProtocol();
+        when(meterProtocol.getFirmwareVersion()).thenReturn(myTestFirmwareVersion);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        MeterProtocolAdapter meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
+        meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
+
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class);
+        when(collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier)).thenReturn(collectedFirmwareVersion);
+        CollectedFirmwareVersion firmwareVersions = meterProtocolAdapter.getFirmwareVersions();
+
+        verify(collectedFirmwareVersion).setActiveMeterFirmwareVersion(myTestFirmwareVersion);
     }
 
     protected MeterProtocolAdapterImpl newMeterProtocolAdapter(MeterProtocol meterProtocol) {

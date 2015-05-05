@@ -18,6 +18,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -609,6 +611,24 @@ public class SmartMeterProtocolAdapterTest {
 
         // Asserts
         verify(adaptedProtocol).getSecurityRelationTypeName();
+    }
+
+    @Test
+    public void getFirmwareVersionTest() throws IOException {
+        String myTestFirmwareVersion = "jslmjksdfjjL1321";
+        SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
+        when(smartMeterProtocol.getFirmwareVersion()).thenReturn(myTestFirmwareVersion);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
+
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class);
+        when(collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier)).thenReturn(collectedFirmwareVersion);
+        CollectedFirmwareVersion firmwareVersions = smartMeterProtocolAdapter.getFirmwareVersions();
+
+        verify(collectedFirmwareVersion).setActiveMeterFirmwareVersion(myTestFirmwareVersion);
     }
 
     protected SmartMeterProtocolAdapter newSmartMeterProtocolAdapter(SmartMeterProtocol smartMeterProtocol) {
