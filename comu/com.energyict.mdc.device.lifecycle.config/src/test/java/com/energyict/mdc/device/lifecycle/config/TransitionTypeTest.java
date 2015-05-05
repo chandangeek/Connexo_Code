@@ -3,7 +3,6 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 
-import java.util.EnumSet;
 import java.util.Optional;
 
 import org.junit.*;
