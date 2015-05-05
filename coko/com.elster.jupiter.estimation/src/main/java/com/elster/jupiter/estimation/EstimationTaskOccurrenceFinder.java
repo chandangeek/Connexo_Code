@@ -1,10 +1,10 @@
 package com.elster.jupiter.estimation;
 
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
-
 
 public interface EstimationTaskOccurrenceFinder {
 
@@ -16,5 +16,5 @@ public interface EstimationTaskOccurrenceFinder {
 
     EstimationTaskOccurrenceFinder withEndDateIn(Range<Instant> interval);
 
-    List<? extends EstimationTaskOccurrence> find();
+    List<? extends TaskOccurrence> find();
 }

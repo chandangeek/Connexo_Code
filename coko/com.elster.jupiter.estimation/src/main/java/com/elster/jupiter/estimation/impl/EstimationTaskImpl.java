@@ -2,7 +2,6 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationTask;
-import com.elster.jupiter.estimation.EstimationTaskOccurrence;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -76,18 +75,6 @@ public class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
-    public void activate() {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    @Override
-    public void deactivate() {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    @Override
     public Optional<Instant> getLastRun() {
         return Optional.ofNullable(lastRun);
     }
@@ -136,7 +123,6 @@ public class EstimationTaskImpl implements IEstimationTask {
         }
         Save.UPDATE.save(dataModel, this);
     }
-
 
     @Override
     public void delete() {
@@ -237,36 +223,29 @@ public class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
-    public History<? extends EstimationTask> getHistory() {
+    public History<EstimationTask> getHistory() {
         List<JournalEntry<IEstimationTask>> journal = dataModel.mapper(IEstimationTask.class).getJournal(getId());
         return new History<>(journal, this);
     }
 
     @Override
     public EstimationTaskOccurrenceFinder getOccurrencesFinder() {
-        Condition condition = where("estimationTask").isEqualTo(this);
-        Order order = Order.ascending("name");
-        return new EstimationTaskOccurrenceFinderImpl(dataModel, condition, order);
+        Condition condition = where("recurrentTask").isEqualTo(getRecurrentTask());
+        Order order = Order.ascending("triggerTime");
+        return new EstimationTaskOccurrenceFinderImpl(taskService, condition, order);
     }
 
     @Override
-    public Optional<EstimationTaskOccurrence> getOccurrence(Long id) {
-        return dataModel.mapper(EstimationTaskOccurrence.class).getOptional(id).filter(occ -> this.getId() == occ.getTask().getId());
+    public Optional<TaskOccurrence> getOccurrence(Long id) {
+        return taskService.getTaskOccurrenceQueryExecutor().getOptional(id);
     }
 
     @Override
-    public List<? extends EstimationTaskOccurrence> getOccurrences() {
-        return dataModel.stream(EstimationTaskOccurrence.class).filter(where("estimationTask").isEqualTo(this)).select();
-    }
-
-    @Override
-    public Optional<EstimationTaskOccurrence> getLastOccurrence() {
-        return dataModel.stream(EstimationTaskOccurrence.class)
-                .join(TaskOccurrence.class)
-                .skip(0)
-                .limit(1)
-                .filter(where("estimationTask").isEqualTo(this))
-                .sorted(Order.descending("taskOccurrence.startDate"))
+    public Optional<TaskOccurrence> getLastOccurrence() {
+        return taskService.getTaskOccurrenceQueryExecutor()
+                .select(where("recurrentTask").isEqualTo(getRecurrentTask()),
+                        new Order[]{Order.descending("startDate")}, false, null, 0, 1)
+                .stream()
                 .findFirst();
     }
 
@@ -275,6 +254,7 @@ public class EstimationTaskImpl implements IEstimationTask {
         return true; // TODO
     }
 
+    @Override
     public RecurrentTask getRecurrentTask() {
         return recurrentTask.get();
     }

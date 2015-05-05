@@ -1,9 +1,8 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.estimation.EstimationTaskOccurrence;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.Range;
@@ -14,7 +13,7 @@ import java.util.List;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurrenceFinder {
-    private DataModel dataModel;
+    private TaskService taskService;
     private Condition condition;
     private Order order;
     private Integer start;
@@ -23,8 +22,8 @@ public class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurre
     public EstimationTaskOccurrenceFinderImpl() {
     }
 
-    public EstimationTaskOccurrenceFinderImpl(DataModel dataModel, Condition condition, Order order) {
-        this.dataModel = dataModel;
+    public EstimationTaskOccurrenceFinderImpl(TaskService taskService, Condition condition, Order order) {
+        this.taskService = taskService;
         this.condition = condition;
         this.order = order;
     }
@@ -43,24 +42,18 @@ public class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurre
 
     @Override
     public EstimationTaskOccurrenceFinder withStartDateIn(Range<Instant> interval) {
-        this.condition = this.condition.and(where("taskOccurrence.startDate").in(interval));
+        this.condition = this.condition.and(where("startDate").in(interval));
         return this;
     }
 
     @Override
     public EstimationTaskOccurrenceFinder withEndDateIn(Range<Instant> interval) {
-        this.condition = this.condition.and(where("taskOccurrence.endDate").in(interval));
+        this.condition = this.condition.and(where("endDate").in(interval));
         return this;
     }
 
     @Override
-    public List<? extends EstimationTaskOccurrence> find() {
-        return dataModel.stream(EstimationTaskOccurrence.class)
-                .join(TaskOccurrence.class)
-                .filter(condition)
-//                .sorted(order)
-                .skip(start)
-                .limit(limit)
-                .select();
+    public List<? extends TaskOccurrence> find() {
+        return taskService.getTaskOccurrenceQueryExecutor().select(condition, new Order[]{order}, false, null, start, limit);
     }
 }

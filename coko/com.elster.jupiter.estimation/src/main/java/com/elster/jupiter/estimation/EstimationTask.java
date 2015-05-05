@@ -9,58 +9,52 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 public interface EstimationTask extends HasName, HasAuditInfo {
 
     long getId();
 
-    void activate(); // resume
+    boolean isActive();
 
-    void deactivate(); // suspend
+    boolean canBeDeleted();
 
-    Optional<RelativePeriod> getPeriod();
-
-    Optional<Instant> getLastRun();
+    Instant getNextExecution();
 
     EndDeviceGroup getEndDeviceGroup();
 
-    Instant getNextExecution();
+    Optional<Instant> getLastRun();
+
+    Optional<RelativePeriod> getPeriod();
+
+    ScheduleExpression getScheduleExpression();
+
+    Optional<ScheduleExpression> getScheduleExpression(Instant at);
+
+    Optional<TaskOccurrence> getOccurrence(Long id);
+
+    Optional<TaskOccurrence> getLastOccurrence();
+
+    EstimationTaskOccurrenceFinder getOccurrencesFinder();
+
+    History<EstimationTask> getHistory();
+
+    void setName(String name);
+
+    void setNextExecution(Instant instant);
+
+    void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+    void setPeriod(RelativePeriod relativePeriod);
+
+    void setScheduleExpression(ScheduleExpression scheduleExpression);
+
 
     void save();
 
     void delete();
 
-    boolean isActive();
-
-    ScheduleExpression getScheduleExpression();
-
-    void setNextExecution(Instant instant);
-
-    void setScheduleExpression(ScheduleExpression scheduleExpression);
-
-    void setName(String name);
-
-    void setPeriod(RelativePeriod relativePeriod);
-
-    void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
-
     void triggerNow();
 
     void updateLastRun(Instant triggerTime);
-
-    Optional<ScheduleExpression> getScheduleExpression(Instant at);
-
-    History<? extends EstimationTask> getHistory();
-
-    List<? extends EstimationTaskOccurrence> getOccurrences();
-
-    Optional<EstimationTaskOccurrence> getOccurrence(Long id);
-
-    Optional<EstimationTaskOccurrence> getLastOccurrence();
-
-    EstimationTaskOccurrenceFinder getOccurrencesFinder();
-
-    boolean canBeDeleted();
 }

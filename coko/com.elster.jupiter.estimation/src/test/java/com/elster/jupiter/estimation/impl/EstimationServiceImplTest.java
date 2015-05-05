@@ -16,6 +16,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -91,6 +92,8 @@ public class EstimationServiceImplTest {
     private UserService userService;
     @Mock
     private CimChannel cimChannel1, cimChannel2;
+    @Mock
+    private Meter meter;
 
     @Before
     public void setUp() {
@@ -118,6 +121,8 @@ public class EstimationServiceImplTest {
         doReturn(estimator2).when(rule2).createNewEstimator();
         doReturn(true).when(rule1).isActive();
         doReturn(true).when(rule2).isActive();
+        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(Optional.of(meter)).when(meterActivation).getMeter();
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
