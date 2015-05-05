@@ -6,14 +6,12 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -228,8 +226,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         ComTask firmwareComTask = mock(ComTask.class);
         when(firmwareComTask.getId()).thenReturn(firmwareComTaskId);
         when(firmwareComTask.getName()).thenReturn(firmwareComTaskName);
-        FirmwareUpgradeTask firmwareUpgradeTask = mock(FirmwareUpgradeTask.class);
-        when(firmwareComTask.getProtocolTasks()).thenReturn(Arrays.asList(firmwareUpgradeTask));
+        FirmwareManagementTask firmwareManagementTask = mock(FirmwareManagementTask.class);
+        when(firmwareComTask.getProtocolTasks()).thenReturn(Arrays.asList(firmwareManagementTask));
         when(taskService.findFirmwareComTask()).thenReturn(Optional.of(firmwareComTask));
         return firmwareComTask;
     }

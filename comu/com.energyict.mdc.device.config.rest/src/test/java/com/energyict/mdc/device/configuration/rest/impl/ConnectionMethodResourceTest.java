@@ -108,6 +108,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
 
     @Before
     public void setup() {
+        super.setup();
         DeviceType deviceType = mockDeviceType("device", 11);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 12);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));

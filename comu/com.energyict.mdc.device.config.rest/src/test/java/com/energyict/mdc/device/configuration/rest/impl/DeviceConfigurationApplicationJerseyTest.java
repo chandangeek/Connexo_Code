@@ -17,9 +17,13 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 
+import org.junit.Before;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 9/19/14.
@@ -53,6 +57,11 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     FirmwareService firmwareService;
     @Mock
     DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+
+    @Before
+    public void setup() {
+        when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+    }
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
