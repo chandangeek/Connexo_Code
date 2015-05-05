@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -42,12 +43,14 @@ public class ComTaskResource {
     private TaskService taskService;
     private MasterDataService masterDataService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
         this.taskService = taskService;
         this.masterDataService = masterDataService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -145,7 +148,7 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getCategories(@BeanParam QueryParameters queryParameters) {
-        List<CategoryInfo> categoryInfos = CategoryInfo.from(ListPager.of(Arrays.asList(Categories.values())).from(queryParameters).find());
+        List<CategoryInfo> categoryInfos = CategoryInfo.from(ListPager.of(Arrays.asList(Categories.values())).from(queryParameters).find(), thesaurus);
         return PagedInfoList.fromPagedList("data", categoryInfos, queryParameters);
     }
 

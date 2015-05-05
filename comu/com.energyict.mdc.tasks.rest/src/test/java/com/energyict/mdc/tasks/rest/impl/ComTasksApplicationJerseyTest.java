@@ -31,6 +31,8 @@ public class ComTasksApplicationJerseyTest extends FelixRestApplicationJerseyTes
     @Override
     protected Application getApplication() {
         ComTasksApplication comTasksApplication = new ComTasksApplication();
+        comTasksApplication.setTransactionService(transactionService);
+        comTasksApplication.setNlsService(nlsService);
         comTasksApplication.setTaskService(taskService);
         comTasksApplication.setMasterDataService(masterDataService);
         comTasksApplication.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
