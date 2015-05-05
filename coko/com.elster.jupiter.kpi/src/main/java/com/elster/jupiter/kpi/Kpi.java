@@ -1,5 +1,6 @@
 package com.elster.jupiter.kpi;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 
 import java.time.temporal.TemporalAmount;
@@ -9,6 +10,7 @@ import java.util.TimeZone;
 /**
  * A Kpi models a set of metrics (key performance indicators) to be monitored at set interval lengths.
  */
+@ProviderType
 public interface Kpi extends HasName {
 
     /**
