@@ -32,6 +32,11 @@ public enum MicroAction {
     DISABLE_VALIDATION,
 
     /**
+     * Activates all connection tasks on the device.
+     */
+    ACTIVATE_CONNECTION_TASK,
+
+    /**
      * Removes the device from all enumerated device groups
      * it is contained in.
      */
