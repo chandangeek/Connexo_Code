@@ -354,7 +354,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, messageService, userService).install();
+        new InstallerImpl(dataModel, messageService, userService, timeService).install();
     }
 
     @Override
