@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -37,10 +38,12 @@ public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
     private String userName;
 
     private final DataModel dataModel;
+    private final EventService eventService;
 
     @Inject
-    public ActivatedFirmwareVersionImpl(DataModel dataModel) {
+    public ActivatedFirmwareVersionImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
     public ActivatedFirmwareVersion init(Device device, FirmwareVersion firmwareVersion, Interval interval) {
@@ -64,10 +67,20 @@ public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
 
     private void doPersist() {
         Save.CREATE.save(dataModel, this);
+        notifyCreated();
     }
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
+        notifyUpdated();
+    }
+
+    private void notifyCreated() {
+        this.eventService.postEvent(EventType.ACTIVATED_FIRMWARE_VERSION_CREATED.topic(), this);
+    }
+
+    private void notifyUpdated() {
+        this.eventService.postEvent(EventType.ACTIVATED_FIRMWARE_VERSION_UPDATED.topic(), this);
     }
 
     @Override

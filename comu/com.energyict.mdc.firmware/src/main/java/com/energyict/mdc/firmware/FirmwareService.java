@@ -47,9 +47,11 @@ import java.util.Set;
 
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareUpgradeOptionsFor(DeviceType deviceType);
 
-    FirmwareUpgradeOptions getFirmwareUpgradeOptions(DeviceType deviceType);
+    FirmwareUpgradeOptions findOrCreateFirmwareUpgradeOptions(DeviceType deviceType);
 
     void saveFirmwareUpgradeOptions(FirmwareUpgradeOptions firmwareOptions);
+
+    boolean isFirmwareUpgradeAllowedFor(DeviceType deviceType);
 
     // Firmware versions on a device
 
@@ -74,4 +76,6 @@ import java.util.Set;
     PassiveFirmwareVersion newPassiveFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
 
     void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion);
+
+    Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
 }
