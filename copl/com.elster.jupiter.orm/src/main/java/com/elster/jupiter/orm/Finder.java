@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.conditions.Order;
 
 import java.time.Instant;
@@ -13,6 +14,7 @@ import java.util.Optional;
  * Finder contains simple find methods. More advanced criteria can be specified on a Query object.
  * Also a Query object can join in other tables to avoid the N+1 ORM performance issue
  */
+@ProviderType
 public interface Finder<T> extends BasicQuery<T> {
 
     /**

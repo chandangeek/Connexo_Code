@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.callback;
 
+import aQute.bnd.annotation.ConsumerType;
+
 /*
  *  If a persistent object implements this interface, the postLoad method
  *  will be called after the object's fields have been set to the database values
@@ -11,6 +13,7 @@ package com.elster.jupiter.orm.callback;
  *  and avoid lazy initialization of associated objects.
  *      
  */
+@ConsumerType
 public interface PersistenceAware {
 	void postLoad();
 }

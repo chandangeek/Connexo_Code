@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -12,6 +13,7 @@ import java.util.Optional;
  * Defines the common methods between DataMapper and QueryExecutor
  * 
  */
+@ProviderType
 public interface BasicQuery<T> {
 	Optional<T> getOptional(Object... values);
 	T getExisting(Object... values);

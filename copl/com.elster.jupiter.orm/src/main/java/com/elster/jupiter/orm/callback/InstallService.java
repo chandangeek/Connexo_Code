@@ -1,7 +1,11 @@
 package com.elster.jupiter.orm.callback;
 
+
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 
+@ConsumerType
 public interface InstallService {
     void install();
 
