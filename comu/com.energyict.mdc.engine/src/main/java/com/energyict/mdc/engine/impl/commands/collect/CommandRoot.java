@@ -12,11 +12,10 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
@@ -35,7 +34,6 @@ import java.time.Clock;
  * @since 10/05/12 - 11:58
  */
 public interface CommandRoot extends CompositeComCommand {
-
 
     public interface ServiceProvider {
 
@@ -259,7 +257,7 @@ public interface CommandRoot extends CompositeComCommand {
      */
     public CreateComTaskExecutionSessionCommand createComTaskSessionTask(CreateComTaskExecutionSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
-    public FirmwareUpgradeCommand getFirmwareCommand(FirmwareUpgradeTask firmwareUpgradeTask, CommandRoot possibleCommandOwner, ComTaskExecution comTaskExecution);
+    public FirmwareManagementCommand getFirmwareCommand(FirmwareManagementTask firmwareManagementTask, CommandRoot possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * Executes the ComCommands related to the given preparedComTaskExecution

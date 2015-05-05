@@ -2,11 +2,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 
 import java.util.function.Consumer;
@@ -27,26 +24,7 @@ public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl {
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
-        DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions = comServerDAO.updateFirmwareVersions(collectedFirmwareVersions);
-        logAndCreateWarningsIfRequired(deviceFirmwareVersionStorageTransitions);
-    }
-
-    private void logAndCreateWarningsIfRequired(DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions) {
-        deviceFirmwareVersionStorageTransitions.getActiveMeterFirmwareVersionTransition().getMessageSeed()
-                .ifPresent(logWarning(collectedFirmwareVersions.getActiveMeterFirmwareVersion().get()));
-
-        deviceFirmwareVersionStorageTransitions.getActiveMeterFirmwareVersionTransition().getMessageSeed()
-                .ifPresent(logWarning(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion().get()));
-    }
-
-    private Consumer<MessageSeeds> logWarning(String currentFirmwareVersion) {
-        return messageSeeds ->
-                getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning,
-                        createWarning(messageSeeds, currentFirmwareVersion), comTaskExecution);
-    }
-
-    private Warning createWarning(MessageSeeds messageSeed, Object... arguments) {
-        return getIssueService().newWarning(collectedFirmwareVersions.getDeviceIdentifier(), messageSeed.getKey(), arguments);
+        comServerDAO.updateFirmwareVersions(collectedFirmwareVersions);
     }
 
     @Override

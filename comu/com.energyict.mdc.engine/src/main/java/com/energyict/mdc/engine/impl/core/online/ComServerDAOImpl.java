@@ -23,7 +23,6 @@ import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.*;
-import com.energyict.mdc.engine.impl.commands.store.DeviceFirmwareVersionStorageTransitions;
 import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.UserFile;
@@ -223,7 +222,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ConnectionTaskProperty> findProperties(final ConnectionTask connectionTask) {
-        return this.serviceProvider.transactionService().execute(() -> connectionTask.getProperties());
+        return this.serviceProvider.transactionService().execute(connectionTask::getProperties);
     }
 
     @Override
@@ -709,19 +708,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public DeviceFirmwareVersionStorageTransitions updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
+    public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedFirmwareVersions.getDeviceIdentifier());
-        DeviceFirmwareVersionStorageTransitions deviceFirmwareVersionStorageTransitions = new DeviceFirmwareVersionStorageTransitions();
-
         optionalDevice.ifPresent(device -> {
             FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider);
-            firmwareStorage.defineMeterFirmwareVersionTransition(collectedFirmwareVersions, deviceFirmwareVersionStorageTransitions, device);
             firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
-            firmwareStorage.defineCommunicationFirmwareVersionTransition(collectedFirmwareVersions, deviceFirmwareVersionStorageTransitions, device);
             firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
         });
-
-        return deviceFirmwareVersionStorageTransitions;
     }
 
     private Instant now() {
