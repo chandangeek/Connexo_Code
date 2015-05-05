@@ -97,6 +97,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 DeviceResource.class,
+                RegisterResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
@@ -292,6 +293,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(topologyService).to(TopologyService.class);
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(firmwareService).to(FirmwareService.class);
+            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
+            bind(RegisterInfoFactory.class).to(RegisterInfoFactory.class);
         }
     }
 
