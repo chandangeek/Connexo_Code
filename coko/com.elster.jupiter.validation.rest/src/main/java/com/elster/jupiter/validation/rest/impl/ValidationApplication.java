@@ -1,4 +1,4 @@
-package com.elster.jupiter.validation.rest;
+package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -79,7 +79,7 @@ public class ValidationApplication extends Application implements BinderProvider
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(validationService.COMPONENTNAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST);
    }
 	
     @Override
