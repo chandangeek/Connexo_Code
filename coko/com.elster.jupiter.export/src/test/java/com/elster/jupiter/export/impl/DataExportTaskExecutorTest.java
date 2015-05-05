@@ -624,7 +624,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasCommitted();
     }
 
-    private static class IntervalReadingFor extends Condition<List<IntervalReading>> {
+    private static class IntervalReadingFor extends Condition<List<? extends IntervalReading>> {
         private final IntervalReading intervalReading;
 
         private IntervalReadingFor(Object intervalReading) {
@@ -632,12 +632,12 @@ public class DataExportTaskExecutorTest {
         }
 
         @Override
-        public boolean matches(List<IntervalReading> intervalReadings) {
+        public boolean matches(List<? extends IntervalReading> intervalReadings) {
             return intervalReadings.stream().anyMatch(r -> r.getSource().equals(intervalReading.getSource()));
         }
     }
 
-    private static class ReadingFor extends Condition<List<Reading>> {
+    private static class ReadingFor extends Condition<List<? extends Reading>> {
         private final Reading reading;
 
         private ReadingFor(Reading reading) {
@@ -645,7 +645,7 @@ public class DataExportTaskExecutorTest {
         }
 
         @Override
-        public boolean matches(List<Reading> intervalReadings) {
+        public boolean matches(List<? extends Reading> intervalReadings) {
             return intervalReadings.stream().anyMatch(r -> r.getSource().equals(reading.getSource()));
         }
     }
