@@ -45,7 +45,7 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
         IMPLEMENTERS.put(REGISTER_TASK_DISCRIMINATOR, RegistersTaskImpl.class);
         IMPLEMENTERS.put(STATUS_INFORMATION_DISCRIMINATOR, StatusInformationTaskImpl.class);
         IMPLEMENTERS.put(TOPOLOGY_DISCRIMINATOR, TopologyTaskImpl.class);
-        IMPLEMENTERS.put(FIRMWARE_DISCRIMINATOR, FirmwareUpgradeTaskImpl.class);
+        IMPLEMENTERS.put(FIRMWARE_DISCRIMINATOR, FirmwareManagementTaskImpl.class);
     }
 
     private final DataModel dataModel;

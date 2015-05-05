@@ -4,19 +4,19 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 
 import javax.inject.Inject;
 
 /**
  * Straightforward implementation of the FirmwareUpgradeTask
  */
-public class FirmwareUpgradeTaskImpl extends ProtocolTaskImpl implements FirmwareUpgradeTask {
+public class FirmwareManagementTaskImpl extends ProtocolTaskImpl implements FirmwareManagementTask {
 
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Inject
-    FirmwareUpgradeTaskImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    FirmwareManagementTaskImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(dataModel);
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         setFlags(new DeviceOfflineFlags(DeviceOfflineFlags.PENDING_MESSAGES_FLAG, DeviceOfflineFlags.SENT_MESSAGES_FLAG));

@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
  *
  * @since 1.1
  */
-public interface FirmwareUpgradeTask extends ProtocolTask {
+public interface FirmwareManagementTask extends ProtocolTask {
 
     boolean isValidFirmwareCommand(DeviceMessageSpec deviceMessageId);
 }

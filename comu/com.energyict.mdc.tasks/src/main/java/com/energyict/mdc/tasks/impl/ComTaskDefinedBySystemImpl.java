@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -16,7 +16,7 @@ import javax.inject.Inject;
 @OnlyOneProtocolTaskIfFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
 public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
 
-    private final Provider<FirmwareUpgradeTaskImpl> firmwareUpgradeTaskProvider;
+    private final Provider<FirmwareManagementTaskImpl> firmwareUpgradeTaskProvider;
 
     @Inject
     public ComTaskDefinedBySystemImpl(DataModel dataModel, Thesaurus thesaurus,
@@ -29,14 +29,14 @@ public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemCom
                                     Provider<RegistersTaskImpl> registersTaskProvider,
                                     Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
                                     Provider<TopologyTaskImpl> topologyTaskProvider,
-                                    Provider<FirmwareUpgradeTaskImpl> firmwareUpgradeTaskProvider) {
+                                    Provider<FirmwareManagementTaskImpl> firmwareUpgradeTaskProvider) {
         super(logBooksTaskProvider, dataModel, statusInformationTaskProvider, messagesTaskProvider, basicCheckTaskProvider, registersTaskProvider, eventService, clockTaskProvider, topologyTaskProvider, thesaurus, loadProfilesTaskProvider);
         this.firmwareUpgradeTaskProvider = firmwareUpgradeTaskProvider;
     }
 
     @Override
-    public FirmwareUpgradeTask createFirmwareUpgradeTask() {
-        FirmwareUpgradeTaskImpl firmwareUpgradeTask = firmwareUpgradeTaskProvider.get();
+    public FirmwareManagementTask createFirmwareUpgradeTask() {
+        FirmwareManagementTaskImpl firmwareUpgradeTask = firmwareUpgradeTaskProvider.get();
         firmwareUpgradeTask.ownedBy(this);
         addProtocolTask(firmwareUpgradeTask);
         return firmwareUpgradeTask;

@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -174,7 +174,7 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
                 bind(LogBooksTask.class).to(LogBooksTaskImpl.class);
                 bind(TopologyTask.class).to(TopologyTaskImpl.class);
                 bind(MessagesTask.class).to(MessagesTaskImpl.class);
-                bind(FirmwareUpgradeTask.class).to(FirmwareUpgradeTaskImpl.class);
+                bind(FirmwareManagementTask.class).to(FirmwareManagementTaskImpl.class);
             }
         };
     }
