@@ -207,7 +207,7 @@ public class EstimationTaskImplIT {
         EstimationTask readingTypeDataExportTask = found.get();
 
         Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
-        assertThat(readingTypeDataExportTask.getLastRun()).isAbsent();
+        assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         Assertions.assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
     }
 
