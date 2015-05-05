@@ -1,8 +1,11 @@
 package com.elster.jupiter.ids;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
+@ProviderType
 public interface TimeSeriesDataStorer {
     void add(TimeSeries timeSeries, Instant instant, Object... values);
 

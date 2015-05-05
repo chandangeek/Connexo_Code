@@ -1,5 +1,6 @@
 package com.elster.jupiter.ids;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface TimeSeries {
 	long getId();
 	Instant getFirstDateTime();

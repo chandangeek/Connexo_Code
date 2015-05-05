@@ -1,9 +1,12 @@
 package com.elster.jupiter.ids;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+@ProviderType
 public interface IdsService {
 	public static final String COMPONENTNAME = "IDS";
 	
