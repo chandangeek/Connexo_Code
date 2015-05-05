@@ -3,17 +3,15 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.FirmwareUpgradeTask;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,18 +23,18 @@ import static org.mockito.Mockito.when;
 
 public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
-    private final long firmwareComTaskId = 103;
-    private final long loadProfilesComTaskId = 16;
-    private final long registersComTaskId = 645;
-    private final long topologyComTaskId = 46;
-    private final String topologyComTaskName = "TopologyComTask";
-    private final String registersComTaskName = "RegistersComTask";
-    private final String loadProfilesComTaskName = "LoadProfilesComTask";
-    private final String firmwareComTaskName = "Firmware management";
+    private final static long firmwareComTaskId = 103;
+    private final static long loadProfilesComTaskId = 16;
+    private final static long registersComTaskId = 645;
+    private final static long topologyComTaskId = 46;
+    private final static String topologyComTaskName = "TopologyComTask";
+    private final static String registersComTaskName = "RegistersComTask";
+    private final static String loadProfilesComTaskName = "LoadProfilesComTask";
+    private final static String firmwareComTaskName = "Firmware management";
 
     @Before
     public void initBefore() {
-        when(firmwareService.findFirmwareUpgradeOptionsByDeviceType(any(DeviceType.class))).thenReturn(Optional.<FirmwareUpgradeOptions>empty());
+        when(firmwareService.findFirmwareManagementOptionsByDeviceType(any(DeviceType.class))).thenReturn(Optional.<FirmwareManagementOptions>empty());
     }
 
     @Test
@@ -211,8 +209,8 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
 
     private DeviceType mockDeviceTypeWithConfigWhichAllowsFirmwareUpgrade() {
         DeviceType deviceType = mockSimpleDeviceTypeAndConfig();
-        FirmwareUpgradeOptions firmwareUpgradeOption = mock(FirmwareUpgradeOptions.class);
-        when(firmwareService.findFirmwareUpgradeOptionsByDeviceType(deviceType)).thenReturn(Optional.of(firmwareUpgradeOption));
+        FirmwareManagementOptions firmwareUpgradeOption = mock(FirmwareManagementOptions.class);
+        when(firmwareService.findFirmwareManagementOptionsByDeviceType(deviceType)).thenReturn(Optional.of(firmwareUpgradeOption));
         return deviceType;
     }
 
