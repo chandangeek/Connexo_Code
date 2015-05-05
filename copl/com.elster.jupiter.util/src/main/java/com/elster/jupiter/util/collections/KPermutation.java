@@ -1,5 +1,6 @@
 package com.elster.jupiter.util.collections;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 
@@ -13,6 +14,7 @@ import java.util.stream.IntStream;
  * A k-permutation of a List is a reordering of k elements of the n elements of the given list.
  * This class models one such selection and reordering.
  */
+@ProviderType
 public final class KPermutation {
 
     private final int[] indices;
