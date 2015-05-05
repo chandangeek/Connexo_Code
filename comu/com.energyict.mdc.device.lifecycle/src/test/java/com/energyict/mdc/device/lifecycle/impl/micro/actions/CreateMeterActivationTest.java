@@ -61,7 +61,7 @@ public class CreateMeterActivationTest {
         CreateMeterActivation microAction = this.getTestInstance();
         ExecutableActionProperty property = mock(ExecutableActionProperty.class);
         PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key());
+        when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
         when(property.getPropertySpec()).thenReturn(propertySpec);
         when(property.getValue()).thenReturn(now);
 

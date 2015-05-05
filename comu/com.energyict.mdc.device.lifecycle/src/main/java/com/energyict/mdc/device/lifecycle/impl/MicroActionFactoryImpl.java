@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateConnectionTasks;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.CreateMeterActivation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetLastReading;
@@ -32,6 +33,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case ACTIVATE_CONNECTION_TASKS: {
                 return new ActivateConnectionTasks();
+            }
+            case CREATE_METER_ACTIVATION: {
+                return new CreateMeterActivation();
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
