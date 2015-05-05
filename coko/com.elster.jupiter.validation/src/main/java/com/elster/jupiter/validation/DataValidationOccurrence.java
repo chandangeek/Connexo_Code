@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 
+@ProviderType
 public interface DataValidationOccurrence {
 
     public DataValidationTask getTask();

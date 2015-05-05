@@ -1,12 +1,12 @@
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.google.common.collect.Range;
@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface ValidationService {
 
     String COMPONENTNAME = "VAL";

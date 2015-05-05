@@ -1,17 +1,19 @@
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.HasDynamicProperties;
-import java.util.Optional;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
+@ConsumerType
 public interface Validator extends HasDynamicProperties {
 
     Optional<ReadingQualityType> getReadingQualityTypeCode();

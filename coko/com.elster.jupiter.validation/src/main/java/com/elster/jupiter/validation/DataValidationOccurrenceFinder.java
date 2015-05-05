@@ -1,11 +1,12 @@
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 
-
+@ProviderType
 public interface DataValidationOccurrenceFinder {
     DataValidationOccurrenceFinder setStart(Integer start);
 
