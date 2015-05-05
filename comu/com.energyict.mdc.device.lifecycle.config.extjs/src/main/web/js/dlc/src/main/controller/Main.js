@@ -24,20 +24,22 @@ Ext.define('Dlc.main.controller.Main', {
     },
 
     initMenu: function () {
-        var deviceLifeCycleItem = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.deviceLifeCycleManagement', 'DLC', 'Device life cycle management'),
-            portal: 'administration',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.deviceLifeCycles', 'DLC', 'Device life cycles'),
-                    href: '#/administration/devicelifecycles',
-                    route: 'devicelifecycles'
-                }
-            ]
-        });
+        if (Dlc.privileges.DeviceLifeCycle.canView()) {
+            var deviceLifeCycleItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.deviceLifeCycleManagement', 'DLC', 'Device life cycle management'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.deviceLifeCycles', 'DLC', 'Device life cycles'),
+                        href: '#/administration/devicelifecycles',
+                        route: 'devicelifecycles'
+                    }
+                ]
+            });
 
-        Uni.store.PortalItems.add(
-            deviceLifeCycleItem
-        );
+            Uni.store.PortalItems.add(
+                deviceLifeCycleItem
+            );
+        }
     }
 });

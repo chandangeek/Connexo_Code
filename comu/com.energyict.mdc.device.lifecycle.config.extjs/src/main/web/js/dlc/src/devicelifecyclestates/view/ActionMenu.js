@@ -14,6 +14,11 @@ Ext.define('Dlc.devicelifecyclestates.view.ActionMenu', {
             text: Uni.I18n.translate('deviceLifeCycleStates.setAsInitial', 'DLC', 'Set as initial state'),
             itemId: 'initialAction',
             action: 'setAsInitial'
+        },
+        {
+            text: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
+            itemId: 'remove-state',
+            action: 'removeState'
         }
     ]
 });

@@ -12,6 +12,7 @@ Ext.define('Dlc.devicelifecycles.view.Preview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'DLC', 'Actions'),
+            privileges: Dlc.privileges.DeviceLifeCycle.configure,
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'device-life-cycles-action-menu',
@@ -22,6 +23,7 @@ Ext.define('Dlc.devicelifecycles.view.Preview', {
 
     items: {
         xtype: 'device-life-cycles-preview-form',
-        itemId: 'device-life-cycles-preview-form'
+        itemId: 'device-life-cycles-preview-form',
+        isOverview: false
     }
 });

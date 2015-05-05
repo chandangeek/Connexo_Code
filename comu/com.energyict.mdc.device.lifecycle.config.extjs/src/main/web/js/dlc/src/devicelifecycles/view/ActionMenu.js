@@ -10,6 +10,10 @@ Ext.define('Dlc.devicelifecycles.view.ActionMenu', {
             action: 'clone'
         },
         {
+            text: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
+            action: 'edit'
+        },
+        {
             text: Uni.I18n.translate('general.Remove', 'DLC', 'Remove'),
             action: 'remove'
         }
