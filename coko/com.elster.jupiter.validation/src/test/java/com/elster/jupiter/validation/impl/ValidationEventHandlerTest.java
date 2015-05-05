@@ -114,13 +114,13 @@ public class ValidationEventHandlerTest {
     }
 
     @Test
-    public void testOnEventDoesNotValidateOnEdit() {
+    public void testOnEventDoesValidateOnEdit() {
         when(readingStorer.getStorerProcess()).thenReturn(StorerProcess.EDIT);
 
         handler.handle(localEvent);
 
-        verify(validationService, never()).validate(meterActivation1, ImmutableMap.of(channel1, interval(date1,date2), channel2 , interval(date3, date5)));
-        verify(validationService, never()).validate(meterActivation2, ImmutableMap.of(channel3, interval(date4,date5)));
+        verify(validationService).validate(meterActivation1, ImmutableMap.of(channel1, interval(date1,date2), channel2 , interval(date3, date5)));
+        verify(validationService).validate(meterActivation2, ImmutableMap.of(channel3, interval(date4,date5)));
     }
 
 
