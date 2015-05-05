@@ -38,7 +38,8 @@ Ext.define('MdcApp.controller.Main', {
         Mdc.privileges.Device.all(),
         Dvi.privileges.InventoryManagement.all(),
         Isu.privileges.Issue.all(),
-        Dxp.privileges.DataExport.all()/*,
+        Dxp.privileges.DataExport.all(),
+        Dlc.privileges.DeviceLifeCycle.all()/*,
         Mdc.privileges.DeviceConfigurationEstimations.all()*/
     ),
     controllers: [
