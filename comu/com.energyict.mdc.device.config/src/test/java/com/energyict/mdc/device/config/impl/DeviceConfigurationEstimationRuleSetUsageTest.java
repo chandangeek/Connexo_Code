@@ -19,7 +19,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
-public class DeviceConfigEstimationRuleSetUsageTest extends PersistenceTest {
+public class DeviceConfigurationEstimationRuleSetUsageTest extends PersistenceTest {
 
     DeviceType deviceType;
 
@@ -115,7 +115,7 @@ public class DeviceConfigEstimationRuleSetUsageTest extends PersistenceTest {
         DeviceConfiguration notLinked = createDeviceConfiguration("dc1", deviceType);
         notLinked.save();
         
-        List<DeviceConfiguration> result = deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet);
+        List<DeviceConfiguration> result = deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet).find();
         
         assertThat(result).hasSize(3);
         assertThat(result.stream().map(DeviceConfiguration::getName).toArray()).containsExactly("dcA", "dcB", "dcC");

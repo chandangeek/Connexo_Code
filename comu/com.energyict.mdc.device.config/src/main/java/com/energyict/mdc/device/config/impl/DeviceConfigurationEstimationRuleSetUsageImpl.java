@@ -3,12 +3,13 @@ package com.energyict.mdc.device.config.impl;
 import java.time.Instant;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.DeviceConfigEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 
-public class DeviceConfigEstimationRuleSetUsageImpl implements DeviceConfigEstimationRuleSetUsage {
+public class DeviceConfigurationEstimationRuleSetUsageImpl implements DeviceConfigurationEstimationRuleSetUsage {
     
     enum Fields {
         DEVICECONFIGURATION("deviceConfiguration"),
@@ -27,8 +28,10 @@ public class DeviceConfigEstimationRuleSetUsageImpl implements DeviceConfigEstim
         }
     }
 
+    @IsPresent
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
+    @IsPresent
     private Reference<EstimationRuleSet> estimationRuleSet = ValueReference.absent();
 
     @SuppressWarnings("unused")
@@ -43,7 +46,7 @@ public class DeviceConfigEstimationRuleSetUsageImpl implements DeviceConfigEstim
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    DeviceConfigEstimationRuleSetUsage init(DeviceConfiguration deviceConfiguration, EstimationRuleSet estimationRuleSet) {
+    DeviceConfigurationEstimationRuleSetUsage init(DeviceConfiguration deviceConfiguration, EstimationRuleSet estimationRuleSet) {
         this.deviceConfiguration.set(deviceConfiguration);
         this.estimationRuleSet.set(estimationRuleSet);
         return this;
@@ -51,11 +54,11 @@ public class DeviceConfigEstimationRuleSetUsageImpl implements DeviceConfigEstim
 
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
-        return deviceConfiguration.orNull();
+        return deviceConfiguration.get();
     }
 
     @Override
     public EstimationRuleSet getEstimationRuleSet() {
-        return estimationRuleSet.orNull();
+        return estimationRuleSet.get();
     }
 }

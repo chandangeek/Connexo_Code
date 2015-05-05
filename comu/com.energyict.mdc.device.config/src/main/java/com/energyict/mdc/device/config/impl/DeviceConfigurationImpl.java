@@ -22,7 +22,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
-import com.energyict.mdc.device.config.DeviceConfigEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -110,7 +110,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         COM_TASK_ENABLEMENTS("comTaskEnablements"),
         SECURITY_PROPERTY_SETS("securityPropertySets"),
         DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements"),
-        DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigEstimationRuleSetUsages")
+        DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigurationEstimationRuleSetUsages")
         ;
         private final String javaFieldName;
 
@@ -153,7 +153,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private int communicationFunctionMask;
     @SuppressWarnings("unused")
     private String userName;
-    @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -175,8 +174,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private List<DeviceConfValidationRuleSetUsage> deviceConfValidationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory;
     
-    private List<DeviceConfigEstimationRuleSetUsage> deviceConfigEstimationRuleSetUsages = new ArrayList<>();
-    private final Provider<DeviceConfigEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
+    private List<DeviceConfigurationEstimationRuleSetUsage> deviceConfigurationEstimationRuleSetUsages = new ArrayList<>();
+    private final Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
 
     @Inject
     protected DeviceConfigurationImpl(
@@ -187,7 +186,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                         Provider<LogBookSpecImpl> logBookSpecProvider,
                         Provider<ChannelSpecImpl> channelSpecProvider,
                         Provider<DeviceConfValidationRuleSetUsageImpl> deviceConfValidationRuleSetUsageFactory,
-                        Provider<DeviceConfigEstimationRuleSetUsageImpl> deviceConfEstimationRuleSetUsageFactory,
+                        Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfEstimationRuleSetUsageFactory,
                         DeviceConfigurationService deviceConfigurationService,
                         SchedulingService schedulingService,
                         ThreadPrincipalService threadPrincipalService) {
@@ -1163,46 +1162,46 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
     
     @Override
-    public DeviceConfigEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
+    public DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         return findEstimationRuleSetUsage(estimationRuleSet).orElseGet(() -> {
-            DeviceConfigEstimationRuleSetUsage usage = deviceConfigEstimationRuleSetUsageFactory.get().init(this, estimationRuleSet);
-            deviceConfigEstimationRuleSetUsages.add(usage);
+            DeviceConfigurationEstimationRuleSetUsage usage = deviceConfigEstimationRuleSetUsageFactory.get().init(this, estimationRuleSet);
+            deviceConfigurationEstimationRuleSetUsages.add(usage);
             return usage;
         });
     }
     
-    private Optional<DeviceConfigEstimationRuleSetUsage> findEstimationRuleSetUsage(EstimationRuleSet estimationRuleSet) {
-        return deviceConfigEstimationRuleSetUsages.stream().filter(usage -> usage.getEstimationRuleSet().getId() == estimationRuleSet.getId()).findFirst();
+    private Optional<DeviceConfigurationEstimationRuleSetUsage> findEstimationRuleSetUsage(EstimationRuleSet estimationRuleSet) {
+        return deviceConfigurationEstimationRuleSetUsages.stream().filter(usage -> usage.getEstimationRuleSet().getId() == estimationRuleSet.getId()).findFirst();
     }
     
     @Override
     public void removeEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
-        deviceConfigEstimationRuleSetUsages.stream()
+        deviceConfigurationEstimationRuleSetUsages.stream()
             .filter((usage) -> usage.getEstimationRuleSet().getId() == estimationRuleSet.getId())
             .findFirst()
-            .ifPresent(usage -> deviceConfigEstimationRuleSetUsages.remove(usage));
+            .ifPresent(usage -> deviceConfigurationEstimationRuleSetUsages.remove(usage));
     }
     
     @Override
     public List<EstimationRuleSet> getEstimationRuleSets() {
-        return deviceConfigEstimationRuleSetUsages.stream()
+        return deviceConfigurationEstimationRuleSetUsages.stream()
                 .filter(usage -> usage.getEstimationRuleSet() != null)
-                .map(DeviceConfigEstimationRuleSetUsage::getEstimationRuleSet)
+                .map(DeviceConfigurationEstimationRuleSetUsage::getEstimationRuleSet)
                 .collect(Collectors.toList());
     }
     
     @Override
-    public List<DeviceConfigEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages() {
-        return deviceConfigEstimationRuleSetUsages;
+    public List<DeviceConfigurationEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages() {
+        return deviceConfigurationEstimationRuleSetUsages;
     }
     
     @Override
     public void reorderEstimationRuleSets(KPermutation kpermutation) {
-        List<DeviceConfigEstimationRuleSetUsage> usages = getDeviceConfigEstimationRuleSetUsages();
+        List<DeviceConfigurationEstimationRuleSetUsage> usages = getDeviceConfigEstimationRuleSetUsages();
         if (!kpermutation.isPermutation(usages)) {
             throw new IllegalArgumentException();
         }
-        List<DeviceConfigEstimationRuleSetUsage> target = kpermutation.perform(usages);
+        List<DeviceConfigurationEstimationRuleSetUsage> target = kpermutation.perform(usages);
         dataModel.reorder(usages, target);
     }
 

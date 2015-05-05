@@ -228,6 +228,6 @@ public interface DeviceConfigurationService {
 
     public List<SecurityPropertySet> findUniqueSecurityPropertySets();
     
-    public List<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);
+    public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 
 }

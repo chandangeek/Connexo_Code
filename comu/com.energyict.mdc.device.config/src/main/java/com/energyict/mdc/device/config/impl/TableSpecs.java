@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfigEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -581,12 +581,12 @@ public enum TableSpecs {
     DTC_DEVCFGESTRULESETUSAGE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<DeviceConfigEstimationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfigEstimationRuleSetUsage.class);
-            table.map(DeviceConfigEstimationRuleSetUsageImpl.class);
+            Table<DeviceConfigurationEstimationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfigurationEstimationRuleSetUsage.class);
+            table.map(DeviceConfigurationEstimationRuleSetUsageImpl.class);
             table.setJournalTableName(name() + "JRNL");
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").type("number").notNull().conversion(NUMBER2LONG).add();
             Column deviceConfigurationColumn = table.column("DEVICECONFIG").type("number").notNull().conversion(NUMBER2LONG).add();
-            table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(DeviceConfigEstimationRuleSetUsageImpl.Fields.POSITION.fieldName()).add();
+            table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName()).add();
             table.addAuditColumns();
             
             table.primaryKey("DTC_PK_ESTRULESETUSAGE").on(estimationRuleSetColumn, deviceConfigurationColumn).add();
@@ -594,15 +594,15 @@ public enum TableSpecs {
             table.foreignKey("DTC_FK_ESTIMATIONRULESET").
                     references(EstimationService.COMPONENTNAME, "EST_ESTIMATIONRULESET").
                     onDelete(RESTRICT).
-                    map(DeviceConfigEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).on(estimationRuleSetColumn).
+                    map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).on(estimationRuleSetColumn).
                     add();
             
             table.foreignKey("DTC_FK_ESTRSUSAGE_DEVICECONF").
                     references(DTC_DEVICECONFIG.name()).
                     reverseMap(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName()).
                     composition().
-                    reverseMapOrder(DeviceConfigEstimationRuleSetUsageImpl.Fields.POSITION.fieldName()).
-                    map(DeviceConfigEstimationRuleSetUsageImpl.Fields.DEVICECONFIGURATION.fieldName()).on(deviceConfigurationColumn).
+                    reverseMapOrder(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName()).
+                    map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.DEVICECONFIGURATION.fieldName()).on(deviceConfigurationColumn).
                     add();
         }
     },

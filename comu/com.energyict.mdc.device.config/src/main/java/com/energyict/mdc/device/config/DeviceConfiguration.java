@@ -129,7 +129,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
     
-    DeviceConfigEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet);
+    DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet);
     
     void removeEstimationRuleSet(EstimationRuleSet estimationRuleSet);
     
@@ -137,7 +137,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     
     List<EstimationRuleSet> getEstimationRuleSets();
     
-    List<DeviceConfigEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages();
+    List<DeviceConfigurationEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages();
 
     public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes);
 
