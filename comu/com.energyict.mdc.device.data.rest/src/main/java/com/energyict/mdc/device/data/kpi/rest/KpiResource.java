@@ -7,7 +7,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
@@ -51,7 +51,7 @@ public class KpiResource {
     @GET
     @Path("/groups")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getAvailableDeviceGroups(@BeanParam QueryParameters queryParameters){
+    public Response getAvailableDeviceGroups(@BeanParam JsonQueryParameters queryParameters){
         List<EndDeviceGroup> allGroups = meteringGroupsService.getEndDeviceGroupQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
         List<Long> usedGroupIds = dataCollectionKpiService.findAllDataCollectionKpis().stream().map(kpi -> kpi.getDeviceGroup().getId()).collect(Collectors.toList());
         Iterator<EndDeviceGroup> groupIterator = allGroups.iterator();
@@ -68,7 +68,7 @@ public class KpiResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public PagedInfoList getAllKpis(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getAllKpis(@BeanParam JsonQueryParameters queryParameters) {
         List<DataCollectionKpiInfo> collection = dataCollectionKpiService.dataCollectionKpiFinder().
                 from(queryParameters).
                 stream().

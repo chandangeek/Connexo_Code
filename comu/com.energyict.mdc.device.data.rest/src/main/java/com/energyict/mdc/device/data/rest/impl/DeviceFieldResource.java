@@ -20,7 +20,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -74,7 +74,7 @@ public class DeviceFieldResource extends FieldResource {
     @Path("/gateways")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
-    public PagedInfoList getGateways(@QueryParam("search") String search, @QueryParam("excludeDeviceMRID") String excludeDeviceMRID, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getGateways(@QueryParam("search") String search, @QueryParam("excludeDeviceMRID") String excludeDeviceMRID, @BeanParam JsonQueryParameters queryParameters) {
         Condition condition = Condition.TRUE;
         if (!Checks.is(search).emptyOrOnlyWhiteSpace()) {
             condition = condition.and(Where.where("mRID").likeIgnoreCase('%' + search + '%'));

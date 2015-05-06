@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
@@ -53,7 +53,7 @@ public class LogBookResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getAllLogBooks(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
+    public Response getAllLogBooks(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<LogBook> allLogBooks = device.getLogBooks();
         List<LogBook> logBooksOnPage = ListPager.of(allLogBooks, LOG_BOOK_COMPARATOR_BY_NAME).from(queryParameters).find();
@@ -75,7 +75,7 @@ public class LogBookResource {
     @Path("{lbid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getLogBookDataForSpecificLogbook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters){
+    public Response getLogBookDataForSpecificLogbook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters){
         return this.getLogBookData(mrid, (d, f) -> {
             LogBook logBook = findLogBookOrThrowException(d, logBookId);
             return logBook.getEndDeviceEventsByFilter(f);
@@ -86,11 +86,11 @@ public class LogBookResource {
     @Path("/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getLogBookDataForDevice(@PathParam("mRID") String mrid, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters){
+    public Response getLogBookDataForDevice(@PathParam("mRID") String mrid, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters){
         return this.getLogBookData(mrid, Device::getDeviceEventsByFilter, jsonQueryFilter, queryParameters);
     }
 
-    private Response getLogBookData(String mrid, BiFunction<Device, EndDeviceEventRecordFilterSpecification, List<EndDeviceEventRecord>> eventProvider, JsonQueryFilter jsonQueryFilter, QueryParameters queryParameters){
+    private Response getLogBookData(String mrid, BiFunction<Device, EndDeviceEventRecordFilterSpecification, List<EndDeviceEventRecord>> eventProvider, JsonQueryFilter jsonQueryFilter, JsonQueryParameters queryParameters){
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         try {
             EndDeviceEventRecordFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);

@@ -18,7 +18,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -88,13 +88,11 @@ public class DeviceGroupResource {
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({ Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL })
-    public PagedInfoList getDevices(@PathParam("id") long deviceGroupId, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getDevices(@PathParam("id") long deviceGroupId, @BeanParam JsonQueryParameters queryParameters) {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
-        Integer start = queryParameters.getStart();
-        Integer limit = queryParameters.getLimit();
         List<? extends EndDevice> endDevices;
-        if (start != null && limit != null) {
-            endDevices= endDeviceGroup.getMembers(Instant.now(), start, limit);
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            endDevices= endDeviceGroup.getMembers(Instant.now(), queryParameters.getStart().get(), queryParameters.getLimit().get());
         } else {
             endDevices= endDeviceGroup.getMembers(Instant.now());
         }
@@ -110,7 +108,7 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     // not protected by privileges yet because a combo-box containing all the groups needs to be shown when creating an export task
-    public PagedInfoList getDeviceGroups(@BeanParam QueryParameters queryParameters, @QueryParam("type") String typeName, @Context UriInfo uriInfo) {
+    public PagedInfoList getDeviceGroups(@BeanParam JsonQueryParameters queryParameters, @QueryParam("type") String typeName, @Context UriInfo uriInfo) {
 
         com.elster.jupiter.rest.util.QueryParameters koreQueryParameters =
                 com.elster.jupiter.rest.util.QueryParameters.wrap(uriInfo.getQueryParameters());

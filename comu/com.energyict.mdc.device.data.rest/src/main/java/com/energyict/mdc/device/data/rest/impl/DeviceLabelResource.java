@@ -23,7 +23,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -49,7 +49,7 @@ public class DeviceLabelResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
-    public PagedInfoList getDeviceLabels(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @Context SecurityContext securityContext) {
+    public PagedInfoList getDeviceLabels(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         User user = (User) securityContext.getUserPrincipal();
         List<DeviceLabel> deviceLabels = favoritesService.getDeviceLabels(device, user);

@@ -15,7 +15,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.jayway.jsonpath.JsonModel;
@@ -63,7 +63,7 @@ public class DeviceFieldTest extends DeviceDataRestApplicationJerseyTest {
     public void testGetGateways() {
         Finder<Device> finder = mock(Finder.class);
         when(deviceService.findAllDevices(Matchers.any(Condition.class))).thenReturn(finder);
-        when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.sorted("mRID", true)).thenReturn(finder);
         
         Device device1 = mockDevice(1L, "device1", true);
@@ -83,7 +83,7 @@ public class DeviceFieldTest extends DeviceDataRestApplicationJerseyTest {
     public void testGetGatewaysEmptyResult() {
         Finder<Device> finder = mock(Finder.class);
         when(deviceService.findAllDevices(Matchers.any(Condition.class))).thenReturn(finder);
-        when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.sorted("mRID", true)).thenReturn(finder);
         
         when(finder.find()).thenReturn(Arrays.asList());
