@@ -382,6 +382,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         var self = this,
             editView = self.getTaskEdit(),
             model = self.getModel('Mdc.model.CommunicationTask'),
+            categoriesStore = this.getStore('Mdc.store.CommunicationTasksCategories'),
             form = editView.down('form').getForm();
 
         widget.setLoading(true);
@@ -402,7 +403,15 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             selectedMessagesStore.add(message);
                         });
                         self.commands = record.get('commands');
-                        widget.setLoading(false);
+                        categoriesStore.load({
+                            scope: this,
+                            callback: function () {
+                                if (self.commands.length === categoriesStore.totalCount) {
+                                    widget.down('#addAnotherCommandsButton').hide();
+                                }
+                                widget.setLoading(false);
+                            }
+                        });
                     }
                 })
             }
@@ -713,8 +722,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             if (self.commands.length === 1) {
                 editView.down('#addCommandsToTask').hide();
                 editView.down('#addAnotherCommandsButton').show();
-            } else {
-                self.commands.length === 5 && editView.down('#addAnotherCommandsButton').hide();
+            } else if (self.commands.length === categoryContainer.getStore().totalCount) {
+                editView.down('#addAnotherCommandsButton').hide();
             }
 
             self.addTagButton(protocol);
@@ -864,7 +873,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         self.getCommandNames().add({
             xtype: 'tag-button',
             itemId: 'tagBtn' + command.category,
-            text: command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1),
+            text: Uni.I18n.translate('comtask.action.' + command.category + '.' + command.action, 'MDC', command.category + ' - ' + command.action),
             margin: '5 0 5 0',
             width: 180,
             category: command.category,
