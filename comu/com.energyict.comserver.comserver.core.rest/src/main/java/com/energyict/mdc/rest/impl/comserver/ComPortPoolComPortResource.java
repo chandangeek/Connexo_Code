@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -39,7 +39,7 @@ public class ComPortPoolComPortResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getComPorts(@PathParam("comPortPoolId") long comPortPoolId, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getComPorts(@PathParam("comPortPoolId") long comPortPoolId, @BeanParam JsonQueryParameters queryParameters) {
         ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
         List<ComPort> comPorts = new ArrayList<>(comPortPool.getComPorts());
 

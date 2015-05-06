@@ -1,32 +1,21 @@
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
-import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
-import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
-import com.energyict.mdc.io.SerialPortConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -48,14 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +73,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         Finder<ComServer> finder = mock(Finder.class);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(comServers);
         when(engineConfigurationService.findAllComServers()).thenReturn(finder);
         when(mock.getName()).thenReturn("Test");
@@ -357,12 +341,12 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         when(engineConfigurationService.findAllComServers()).thenReturn(finder);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.<ComServer>emptyList());
 
         final Response response = target("/comservers/").queryParam("start", 10).queryParam("limit", 20).queryParam("sort", "name").queryParam("dir", "ASC").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        ArgumentCaptor<QueryParameters> argumentCaptor = ArgumentCaptor.forClass(QueryParameters.class);
+        ArgumentCaptor<JsonQueryParameters> argumentCaptor = ArgumentCaptor.forClass(JsonQueryParameters.class);
         verify(finder).from(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).isNotNull();
     }

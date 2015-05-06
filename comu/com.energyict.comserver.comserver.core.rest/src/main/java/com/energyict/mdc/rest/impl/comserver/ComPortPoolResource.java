@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -79,7 +79,7 @@ public class ComPortPoolResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getAllComPortPools(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getAllComPortPools(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<ComPortPoolInfo<?>> comPortPoolInfos = new ArrayList<>();
         List<ComPortPool> comPortPools = new ArrayList<>();
         String compatibleWithConnectionType = uriInfo.getQueryParameters().getFirst("compatibleWithConnectionType");

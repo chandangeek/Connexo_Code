@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -39,7 +39,7 @@ public class ComServerComPortResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getComPorts(@PathParam("comServerId") long comServerId, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getComPorts(@PathParam("comServerId") long comServerId, @BeanParam JsonQueryParameters queryParameters) {
         ComServer comServer = findComServerOrThrowException(comServerId);
         List<ComPort> comPorts = ListPager.of(comServer.getComPorts(), new Comparator<ComPort>() {
             @Override

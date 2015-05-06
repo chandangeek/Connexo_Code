@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -47,7 +47,7 @@ public class ComServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getComServers(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getComServers(@BeanParam JsonQueryParameters queryParameters) {
         List<ComServerInfo<?>> comServers = new ArrayList<>();
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
 
@@ -58,7 +58,7 @@ public class ComServerResource {
         return PagedInfoList.fromPagedList("data", comServers, queryParameters);
     }
 
-    private List<ComServer> getSortedComServers(QueryParameters queryParameters) {
+    private List<ComServer> getSortedComServers(JsonQueryParameters queryParameters) {
         List<ComServer> comServers = engineConfigurationService.findAllComServers().from(queryParameters).find();
         Collections.sort(
                 comServers,

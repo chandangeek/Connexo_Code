@@ -2,7 +2,7 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -35,7 +35,7 @@ public class ComPortResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getComPorts(@BeanParam JsonQueryFilter comPortFilter, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getComPorts(@BeanParam JsonQueryFilter comPortFilter, @BeanParam JsonQueryParameters queryParameters) {
         List<ComPortInfo> comPortInfos = new ArrayList<>();
         if (comPortFilter.hasFilters()) {
             Long comserverIdProperty = comPortFilter.hasProperty("comserver_id") ? comPortFilter.getLong("comserver_id") : null;
