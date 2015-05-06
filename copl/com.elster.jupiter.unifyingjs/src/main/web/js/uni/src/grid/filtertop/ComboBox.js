@@ -15,6 +15,7 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
     valueField: 'value',
     displayField: 'display',
     forceSelection: true,
+    margins: '0 16 0 0',
 
     initComponent: function () {
         var me = this;
@@ -43,6 +44,35 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
                 me.fireFilterUpdateEvent();
             }
         }, me);
+    },
+
+    setFilterValue: function (data) {
+        var me = this;
+
+        if (Ext.isArray(data) && me.isArrayOfNumbers(data)) {
+            for (var i = 0; i < data.length; i++) {
+                data[i] = parseInt(data[i]);
+            }
+        }
+        //if (me.store.loading) {
+        //    me.store.on('load', function () {
+        //        me.setValue(data);
+        //    }, {scope: me, single: true});
+        //
+        //    return
+        //}
+        debugger;
+        me.setValue(data);
+    },
+
+    isArrayOfNumbers: function (array) {
+        for (var i = 0; i < array.length; i++) {
+            if (!Ext.isNumeric(array[i])) {
+                return false;
+            }
+        }
+
+        return true;
     },
 
     createStoreFromOptions: function () {

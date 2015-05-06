@@ -41,12 +41,15 @@ Ext.define('Uni.grid.FilterPanelTop', {
     filterObjectParam: 'filter',
 
     layout: {
-        type: 'hbox'
+        type: 'column',
+        tdAttrs: {
+            style: 'padding: 10px;'
+        }
     },
 
     defaults: {
         labelAlign: 'top',
-        margins: '0 16 0 0'
+        padding: '0 4 8 4'
     },
 
     items: [],
