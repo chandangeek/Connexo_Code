@@ -26,7 +26,7 @@ public enum TableSpecs {
         }
     },
 
-    FWC_FIRMWAREUPGRADEOPTIONS {
+    FWC_FIRMWAREMANAGEMENTOPTIONS {
         @Override
         void addTo(DataModel dataModel) {
             Table<FirmwareManagementOptions> table = dataModel.addTable(name(),FirmwareManagementOptions.class);
@@ -36,7 +36,7 @@ public enum TableSpecs {
             table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName()).add();
             table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).add();
             table.addAuditColumns();
-            table.primaryKey("FWC_PK_FIRMWAREUPGRADEOPTIONS").on(deviceTypeColumn).add();
+            table.primaryKey("FWC_PK_FIRMWAREMGTOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE").on(deviceTypeColumn).map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName()).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
         }
     },
