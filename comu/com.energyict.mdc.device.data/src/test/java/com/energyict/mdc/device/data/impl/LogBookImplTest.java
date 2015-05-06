@@ -10,11 +10,10 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 
 import java.time.Instant;
-import java.util.Optional;
 
 import org.junit.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the {@link com.energyict.mdc.device.data.impl.LogBookImpl} component

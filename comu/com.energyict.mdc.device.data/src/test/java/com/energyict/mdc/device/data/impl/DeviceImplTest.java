@@ -1,34 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -46,7 +19,6 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
@@ -64,7 +36,11 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -74,17 +50,12 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -92,7 +63,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import org.junit.*;
+import org.junit.rules.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -176,6 +150,14 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         assertThat(device).isNotNull();
         assertThat(device.getName()).isEqualTo(DEVICENAME);
         assertThat(device.getSerialNumber()).isNullOrEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void noMeterActivationAfterInitialCreation() {
+        Device device = createSimpleDevice();
+
+        assertThat(device.getCurrentMeterActivation()).isEmpty();
     }
 
     @Test
@@ -674,7 +656,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Instant start = LocalDateTime.of(2014, 8, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
         Instant end = LocalDateTime.of(2014, 8, 1, 16, 0, 0).toInstant(ZoneOffset.UTC);
         List<LoadProfileReading> readings = reloadedDevice.getChannels().get(0).getChannelData(Ranges.openClosed(start, end));
-        assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4*4);
+        assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4 * 4);
     }
 
     // JP-5583
@@ -812,7 +794,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
         assertThat(readings).describedAs("There should be no data(holders) for the interval 21:00->00:00").hasSize(24 * 4 - 12); // 3 times 4 intervals/hour missing
         assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(lastReading);
-        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(requestIntervalStart);
+        assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(requestIntervalStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
             if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
@@ -1050,6 +1032,34 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).hasSize(4 * 6);  // 4 per hour, during 6 hours
+    }
+
+    @Test
+    @Transactional
+    public void activateMeter() {
+        Device device = this.createSimpleDevice();
+        Instant expectedStart = Instant.ofEpochMilli(97L);
+
+        // Business method
+        device.activate(expectedStart);
+
+        // Asserts
+        assertThat(device.getCurrentMeterActivation()).isPresent();
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
+    }
+
+    @Test(expected = MeterAlreadyActive.class)
+    @Transactional
+    public void activateMeterAgain() {
+        Device device = this.createSimpleDevice();
+        Instant initialStart = Instant.ofEpochMilli(97L);
+        Instant restart = Instant.ofEpochMilli(970079L);
+        device.activate(initialStart);
+
+        // Business method
+        device.activate(restart);
+
+        // Asserts: see expected exception rule
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {

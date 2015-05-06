@@ -15,8 +15,8 @@ import com.energyict.mdc.tasks.ComTask;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
-import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Tests the FirmwareComTaskExecutionImpl object
@@ -74,7 +74,7 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
 
         // Asserts
         Device reloadedDevice = getReloadedDevice(device);
-        Assertions.assertThat(reloadedDevice.getComTaskExecutions()).isEmpty();
+        assertThat(reloadedDevice.getComTaskExecutions()).isEmpty();
     }
 
     @Test

@@ -19,7 +19,7 @@ import java.util.Iterator;
 
 import org.junit.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScheduleQueryTest extends ConnectionTaskImplIT {
 
