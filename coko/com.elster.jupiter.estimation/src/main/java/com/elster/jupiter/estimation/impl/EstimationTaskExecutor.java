@@ -37,7 +37,6 @@ class EstimationTaskExecutor implements TaskExecutor {
                 tryExecute(occurrence, taskLogger);
             } catch (Exception e) {
                 loggingContext.severe(taskLogger, e);
-                throw e;
             }
         }
     }
@@ -49,6 +48,7 @@ class EstimationTaskExecutor implements TaskExecutor {
                 .map(device -> ((Meter) device).getMeterActivation(occurrence.getTriggerTime()))
                 .flatMap(Functions.asStream())
                 .forEach((meterActivation) -> estimationService.estimate(meterActivation, taskLogger));
+        estimationTask.updateLastRun(occurrence.getTriggerTime());
     }
 
     private EstimationTask getEstimationTask(TaskOccurrence occurrence) {
@@ -64,9 +64,6 @@ class EstimationTaskExecutor implements TaskExecutor {
 
     @Override
     public void postExecute(TaskOccurrence occurrence) {
-        RecurrentTask recurrentTask = occurrence.getRecurrentTask();
-        EstimationTask estimationTask = estimationService.findEstimationTask(recurrentTask).orElseThrow(IllegalArgumentException::new);
-        transactionService.builder().run(() -> estimationTask.updateLastRun(occurrence.getTriggerTime()));
     }
 
 }
