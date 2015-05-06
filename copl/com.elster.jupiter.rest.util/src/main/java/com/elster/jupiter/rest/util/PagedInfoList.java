@@ -25,7 +25,7 @@ public class PagedInfoList {
     public int getTotal() {
         return totalCount.orElseGet(() -> {
             int total = infos.size();
-            total+=queryParameters.getStart();
+            total+=queryParameters.getStartInt();
             if (couldHaveNextPage) {
                 total++;
             }

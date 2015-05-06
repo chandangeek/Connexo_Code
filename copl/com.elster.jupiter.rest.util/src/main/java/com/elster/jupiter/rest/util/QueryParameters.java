@@ -11,11 +11,13 @@ import javax.ws.rs.core.UriInfo;
 
 /**
  */
+@Deprecated // use JsonQueryParameters from now on, will also be replaced by Query once ready
 public final class QueryParameters implements MultivaluedMap<String, String> {
 
     private final MultivaluedMap<String, String> map;
 
     @Inject
+    @Deprecated
     public QueryParameters(@Context UriInfo uriInfo) {
         map = uriInfo.getQueryParameters();
     }
@@ -113,7 +115,7 @@ public final class QueryParameters implements MultivaluedMap<String, String> {
         return map.values();
     }
 
-    public int getStart() {
+    public int getStartInt() {
         return Math.max(0, getLastValue(map, "start"));
     }
 
@@ -123,9 +125,9 @@ public final class QueryParameters implements MultivaluedMap<String, String> {
 
     public int determineTotal(int resultSize) {
         if (resultSize == getLimit() + 1) {
-            return getStart() + resultSize;
+            return getStartInt() + resultSize;
         }
-        return getStart() + resultSize;
+        return getStartInt() + resultSize;
     }
 
     public <T> List<T> clipToLimit(List<T> result) {
@@ -152,7 +154,7 @@ public final class QueryParameters implements MultivaluedMap<String, String> {
 	@Override
 	public void addAll(String arg0, String... arg1) {
 		map.addAll(arg0,arg1);
-		
+
 	}
 
 	@Override

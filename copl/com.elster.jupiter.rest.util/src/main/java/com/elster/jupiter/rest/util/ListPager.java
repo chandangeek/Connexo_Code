@@ -32,7 +32,7 @@ public class ListPager<T> {
         return this;
     }
     public ListPager<T> from(QueryParameters queryParameters) {
-        this.paged(queryParameters.getStart(), queryParameters.getLimit()==-1?null:queryParameters.getLimit());
+        this.paged(queryParameters.getStartInt(), queryParameters.getLimit()==-1?null:queryParameters.getLimit());
         return this;
     }
 
