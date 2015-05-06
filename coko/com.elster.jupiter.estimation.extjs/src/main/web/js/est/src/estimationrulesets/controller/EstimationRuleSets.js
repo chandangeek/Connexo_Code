@@ -95,7 +95,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
                     ruleSet.beginEdit();
                     ruleSet.set(record.getData());
                     ruleSet.endEdit();
-                    ruleSetStore.commitChanges();
+                    ruleSetStore.commitChanges()
                 }
                 rulesetGrid.setLoading(false);
             }
@@ -106,7 +106,8 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
     toggleActivation: function (record) {
         var me = this,
             isActive = record.get('active'),
-            ruleSetId = record.get('ruleSet').id;
+            ruleSetId = record.get('ruleSet').id,
+            rulePreview = me.getRuleSetRulePreview();
 
         record.set('active', !isActive);
         record.getProxy().setUrl(ruleSetId);
@@ -115,6 +116,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
                 if (success) {
                     record.commit();
                     me.refreshRuleSetRecord(record.get('ruleSet').id);
+                    rulePreview.updateForm(record);
                     me.getApplication().fireEvent('acknowledge', isActive
                         ? Uni.I18n.translate('estimationrules.deactivateRuleSuccess', 'EST', 'Estimation rule deactivated')
                         : Uni.I18n.translate('estimationrules.activateRuleSuccess', 'EST', 'Estimation rule activated'));
