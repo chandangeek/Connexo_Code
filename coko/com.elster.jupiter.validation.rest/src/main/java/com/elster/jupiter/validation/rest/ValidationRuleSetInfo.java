@@ -2,10 +2,13 @@ package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationVersionStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 
@@ -15,16 +18,26 @@ public class ValidationRuleSetInfo {
     public long id;
 	public String name;
 	public String description;
-    public int numberOfInactiveRules;
-    public int numberOfRules;
+    public Long startDate;
+    public Long endDate;
+    public int numberOfVersions;
 
 	public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet) {
         id = validationRuleSet.getId();
         name = validationRuleSet.getName();
         description = validationRuleSet.getDescription();
-        List<? extends ValidationRule> rules = validationRuleSet.getRules();
-        numberOfRules = rules.size();
-        numberOfInactiveRules = (int) rules.stream().filter(r -> !r.isActive()).count();
+        validationRuleSet.getRuleSetVersions().stream()
+                .filter(v -> v.getStatus().equals(ValidationVersionStatus.CURRENT))
+                .findFirst()
+                .ifPresent(ver -> {
+                    Optional.ofNullable(ver.getStartDate()).ifPresent(sd->{
+                        this.startDate = sd.toEpochMilli();
+                    });
+                    Optional.ofNullable(ver.getEndDate()).ifPresent(ed->{
+                        this.endDate = ed.toEpochMilli();
+                    });
+                });
+        numberOfVersions = validationRuleSet.getRuleSetVersions().size();
     }
 
     public ValidationRuleSetInfo() {
