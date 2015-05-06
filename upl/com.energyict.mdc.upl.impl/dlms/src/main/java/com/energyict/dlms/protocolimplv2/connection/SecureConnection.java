@@ -1,26 +1,19 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.protocol.ProtocolException;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * A DLMSConnection acting as a gateway.
@@ -99,7 +92,9 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
             /* If no security is applied, then just forward the requests and responses */
             if (this.aso.getSecurityContext().getSecurityPolicy() == SecurityContext.SECURITYPOLICY_NONE) {
                 return getTransportConnection().sendRequest(byteRequestBuffer);
-            } else {
+            } else if (byteRequestBuffer[3] == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                return getTransportConnection().sendRequest(byteRequestBuffer); // As ComServer doesn't send any content, but only request next blocks, no encryption has to be applied
+            } else {                                                            // If ComServer would send actual content, then this content should be encrypted!
 
                 // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
                 final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
@@ -145,6 +140,9 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
                     // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
                     return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
+                } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                    return securedResponse; // Return the secured response as-is - it can only be decrypted after all blocks have been received
+                                            // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
                 } else {
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
                     throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
@@ -175,7 +173,9 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
             /* If no security is applied, then just forward the requests and responses */
             if (this.aso.getSecurityContext().getSecurityPolicy() == SecurityContext.SECURITYPOLICY_NONE) {
                 return getTransportConnection().readResponseWithRetries(retryRequest);
-            } else {
+            } else if (retryRequest[3] == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                return getTransportConnection().readResponseWithRetries(retryRequest);  // As ComServer doesn't send any content, but only request next blocks, no encryption has to be applied
+            } else {                                                                    // If ComServer would send actual content, then this content should be encrypted!
 
                 // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
                 final byte[] leading = ProtocolUtils.getSubArray(retryRequest, 0, 2);
@@ -221,7 +221,9 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
                     // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
                     return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
-                } else {
+                } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                    return securedResponse; // Return as-is, content can only be decrypted once all blocks are received
+                } else {                    // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
                     throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
                 }
@@ -233,60 +235,19 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
     //Subclasses can override encryption implementation
     protected byte[] encrypt(byte[] securedRequest) {
-        try {
-            return this.aso.getSecurityContext().dataTransportEncryption(securedRequest);
-        } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
-        }
+        return SecurityContextV2EncryptionHandler.dataTransportEncryption(this.aso.getSecurityContext(), securedRequest);
     }
 
     protected byte[] decrypt(byte[] securedResponse) {
-        try {
-            return this.aso.getSecurityContext().dataTransportDecryption(securedResponse);
-        } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
-        } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
-        }
+        return SecurityContextV2EncryptionHandler.dataTransportDecryption(this.aso.getSecurityContext(), securedResponse);
     }
 
     private byte[] decryptGeneralCiphering(byte[] securedResponse) {
-        try {
-            int ptr = 0;
-            ptr++;  // Skip the tag
-            int systemTitleLength = securedResponse[ptr++];
-            byte[] systemTitleBytes = ProtocolTools.getSubArray(securedResponse, ptr, ptr + systemTitleLength);
-            ptr += systemTitleLength;
-            if (!Arrays.equals(systemTitleBytes, this.aso.getSecurityContext().getResponseSystemTitle())) {
-                throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(new ProtocolException("The system-title of the response doesn't corresponds to the system-title used during association establishment"));
-            }
-            byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00}, ProtocolTools.getSubArray(securedResponse, ptr)); // First byte is reserved for the tag, here we just insert a dummy byte
-            return this.aso.getSecurityContext().dataTransportDecryption(fullCipherFrame);                                                     // Decryption will start from position 1
-        } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
-        } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
-        }
+        return SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(this.aso.getSecurityContext(), securedResponse);
     }
 
     private byte[] encryptGeneralCiphering(byte[] request) {
-        byte[] systemIdentifier = this.aso.getSecurityContext().getSystemTitle();
-
-        try {
-            ByteArrayOutputStream securedRequestStream = new ByteArrayOutputStream();
-            securedRequestStream.write(systemIdentifier.length);
-            securedRequestStream.write(systemIdentifier);
-            securedRequestStream.write(this.aso.getSecurityContext().dataTransportEncryption(request));
-            return securedRequestStream.toByteArray();
-        } catch (UnsupportedException e) {  //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
-        } catch (IOException e) {           // Error while writing to the stream
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
-        }
+        return SecurityContextV2EncryptionHandler.dataTransportGeneralEncryption(this.aso.getSecurityContext(), request);
     }
 
     public void sendUnconfirmedRequest(final byte[] byteRequestBuffer) {
@@ -294,7 +255,11 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
 
             /* If no security is applied, then just forward the requests and responses */
-            if (this.aso.getSecurityContext().getSecurityPolicy() != SecurityContext.SECURITYPOLICY_NONE) {
+            if (this.aso.getSecurityContext().getSecurityPolicy() == SecurityContext.SECURITYPOLICY_NONE) {
+                getTransportConnection().sendUnconfirmedRequest(byteRequestBuffer);
+            } else if (byteRequestBuffer[3] == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                getTransportConnection().sendUnconfirmedRequest(byteRequestBuffer); // As ComServer doesn't send any content, but only request next blocks, no encryption has to be applied
+            } else {                                                                 // If ComServer would send actual content, then this content should be encrypted!
                 // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
                 final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
                 byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
@@ -316,8 +281,6 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
                 // send the encrypted request to the DLMSConnection
                 getTransportConnection().sendUnconfirmedRequest(securedRequest);
-            } else {
-                getTransportConnection().sendUnconfirmedRequest(byteRequestBuffer);
             }
         } else { /* During association request (AARQ and AARE) the request just needs to be forwarded */
             getTransportConnection().sendUnconfirmedRequest(byteRequestBuffer);
@@ -370,5 +333,9 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         getTransportConnection().prepareComChannelForReceiveOfNextPacket();
+    }
+
+    public ApplicationServiceObject getAso() {
+        return aso;
     }
 }

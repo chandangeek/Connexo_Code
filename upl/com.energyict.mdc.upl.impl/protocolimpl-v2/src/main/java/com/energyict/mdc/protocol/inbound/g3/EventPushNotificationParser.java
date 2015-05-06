@@ -1,11 +1,9 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -29,7 +27,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
@@ -111,16 +108,7 @@ public class EventPushNotificationParser {
         byte[] cipherFrame = new byte[inboundFrame.remaining()];
         inboundFrame.get(cipherFrame);
         byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00, (byte) remainingLength, (byte) securityPolicy}, cipherFrame);
-        try {
-            decryptedFrame = ByteBuffer.wrap(securityContext.dataTransportDecryption(fullCipherFrame));
-        } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
-        } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
-        }
-
+        decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
         byte plainTag = decryptedFrame.get();
         if (plainTag != getCosemNotificationAPDUTag()) {
             throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemNotificationAPDUTag()));

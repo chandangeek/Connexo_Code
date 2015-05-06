@@ -2,14 +2,19 @@ package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.encryption.AesGcm128;
 import com.energyict.encryption.BitVector;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -263,6 +268,24 @@ public class SecurityContext {
     }
 
     /**
+     * Constructs a ciphered general-global/general-dedicated xDLMS APDU. The general-globalCiphering-PDU-Tag is NOT included.
+     * The returned byteArray will contain the:
+     * 	- Length of system-title
+     * 	- System-title
+     * 	- ciphered APDU
+     *
+     * @param plainText - the text to encrypt
+     * @return the cipherText
+     */
+    public byte[] dataTransportGeneralEncryption(byte[] plainText) throws IOException {
+        ByteArrayOutputStream securedRequestStream = new ByteArrayOutputStream();
+        securedRequestStream.write(getSystemTitle().length);
+        securedRequestStream.write(getSystemTitle());
+        securedRequestStream.write(dataTransportEncryption(plainText));
+        return securedRequestStream.toByteArray();
+    }
+
+    /**
      * Wrap a given frame (plain or encrypted) with the control byte, the frame counter and (in case of authentication policy) the authentication tag
      */
     public byte[] createSecuredApdu(byte[] frame, byte[] authTag) {
@@ -457,6 +480,28 @@ public class SecurityContext {
                 throw new UnsupportedException("Unknown securityPolicy: "
                         + this.securityPolicy);
         }
+    }
+
+    /**
+     * Decrypts the ciphered general-global or general-dedicated APDU
+     *
+     * @param cipherFrame - the text to decrypt
+     * @return the plainText
+     */
+    public byte[] dataTransportGeneralDecryption(byte[] cipherFrame) throws UnsupportedException, DLMSConnectionException, ConnectionException {
+        int ptr = 0;
+        if (cipherFrame[ptr] != DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING && cipherFrame[ptr] != DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
+            throw new ConnectionException("Invalid General-Global Ciphering-Tag :" + cipherFrame[ptr]);
+        }
+        ptr++;
+        int systemTitleLength = cipherFrame[ptr++];
+        byte[] systemTitleBytes = ProtocolTools.getSubArray(cipherFrame, ptr, ptr + systemTitleLength);
+        ptr += systemTitleLength;
+        if (!Arrays.equals(systemTitleBytes, getResponseSystemTitle())) {
+            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(new ProtocolException("The system-title of the response doesn't corresponds to the system-title used during association establishment"));
+        }
+        byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00}, ProtocolTools.getSubArray(cipherFrame, ptr));  // First byte is reserved for the tag, here we just insert a dummy byte
+        return dataTransportDecryption(fullCipherFrame);                                                                                // Decryption will start from position 1
     }
 
     public byte[] getApdu(byte[] cipherFrame, boolean containsAuthTag) throws DLMSConnectionException {

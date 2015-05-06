@@ -1,9 +1,13 @@
 package com.energyict.dlms.cosem.generalblocktransfer;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.XdlmsApduTags;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
+import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.mdc.protocol.exceptions.ConnectionTimeOutException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -23,7 +27,9 @@ import java.util.logging.Logger;
  */
 public class GeneralBlockTransferHandler {
 
+    private static final int LOCATION_SECURED_XDLMS_APDU_TAG = 0;
     private static final byte[] LEGACY_HDLC_HEADER_BYTES = new byte[]{0, 0, 0};
+
     /**
      * The head-end last send block number
      */
@@ -96,7 +102,7 @@ public class GeneralBlockTransferHandler {
      * @return the full COSEM APDU, that can be passed on to the application layer
      * @throws IOException
      */
-    public byte[] handleGeneralBlockTransfer(byte[] rawResponse, byte[] retryRequest, boolean isAlreadyEncrypted) throws IOException {
+    public byte[] handleGeneralBlockTransfer(byte[] rawResponse, byte[] retryRequest, boolean isAlreadyEncrypted) {
         int axdrTagPosition = useLegacyHDLCHeader ? 3 : 0;
         if (generalBlockTransferEnabled
                 && rawResponse != null
@@ -175,6 +181,7 @@ public class GeneralBlockTransferHandler {
             }
         }
 
+        decryptResponseData();
         return getResponseData();
     }
 
@@ -212,7 +219,7 @@ public class GeneralBlockTransferHandler {
                 throw e;    // went wrong during missing block receive, do throw the error
             } else {
                 // Absorb exception, during missing block check - in method fetchAllMissingBlocks we will request the missing blocks again
-                getLogger().warning("GeneralBlockTransferHandler, receiveNextBlocksFromDevice, got exception, will switch to lost block recovery!");
+                getLogger().warning("GeneralBlockTransferHandler, receiveNextBlocksFromDevice failed, will switch to lost block recovery!");
             }
         }
 
@@ -234,7 +241,9 @@ public class GeneralBlockTransferHandler {
         int oldNumberOfRetries = getDlmsV2Connection().getMaxRetries();
         try {
             getDlmsV2Connection().setRetries(0);  // Disable retries for this call
-            byte[] rawResponse = getDlmsV2Connection().readResponseWithRetries(new byte[20]); // RetryRequest is just a dummy byte array, as we actually will not do any retries
+            byte[] dummyRetryRequest = new byte[20];
+            dummyRetryRequest[3] = DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER;   // Should be the General-block-transfer tag
+            byte[] rawResponse = getDlmsV2Connection().readResponseWithRetries(dummyRetryRequest); // RetryRequest is just a dummy byte array, as we actually will not do any retries
             validateRawResponse(rawResponse);
             return removeLegacyHDLCHeadersFromRawResponse(rawResponse); // First 3 bytes are always legacy HDLC headers, these should be stripped of
         } finally {
@@ -303,6 +312,36 @@ public class GeneralBlockTransferHandler {
         requestFrame.setBlockNumber(increaseAndGetNextBlockNumber());
         requestFrame.setAcknowledgedBlockNumber(blockNumberOfMissingBlock - 1);
         return requestFrame;
+    }
+
+    /**
+     * Check if ciphering is applied, and if so, then decrypt the response data
+     */
+    private void decryptResponseData() {
+        if (getDlmsV2Connection() instanceof SecureConnection) {
+            SecureConnection secureConnection = (SecureConnection) getDlmsV2Connection();
+
+            /* Check if security is applied or not */
+            if (secureConnection.getAso().getSecurityContext().getSecurityPolicy() != SecurityContext.SECURITYPOLICY_NONE) {
+                byte cipheredTag = getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG];
+                if (XdlmsApduTags.contains(cipheredTag)) {
+                    this.responseData = decrypt(secureConnection, getResponseData());
+                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
+                    this.responseData = decryptGeneralCiphering(secureConnection, getResponseData());
+                } else {
+                    IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG]);
+                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
+                }
+            }
+        }
+    }
+
+    private byte[] decrypt(SecureConnection secureConnection, byte[] securedResponse) {
+        return SecurityContextV2EncryptionHandler.dataTransportDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+    }
+
+    private byte[] decryptGeneralCiphering(SecureConnection secureConnection, byte[] securedResponse) {
+        return SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
     }
 
     /**

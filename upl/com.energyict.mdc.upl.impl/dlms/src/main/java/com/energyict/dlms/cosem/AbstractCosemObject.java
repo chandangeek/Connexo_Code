@@ -1173,7 +1173,7 @@ public abstract class AbstractCosemObject {
     }
 
     /**
-     * If necesairy, do handle general-block-transfer
+     * If necessary, do handle general-block-transfer
      */
     private byte[] handleGeneralBlockTransfer(byte[] request, boolean isAlreadyEncrypted, byte[] responseData) throws IOException {
         return getGeneralBlockTransferHandler() != null
