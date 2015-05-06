@@ -27,7 +27,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         },
         {
             ref: 'page',
-            selector: 'deviceLoadProfileChannelData'
+            selector: '#deviceLoadProfileChannelData'
+        },
+        {
+            ref: 'sideFilter',
+            selector: '#deviceLoadProfileChannelDataSideFilter'
         }
     ],
 
@@ -35,7 +39,28 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     init: function () {
         this.control({
-
+            'deviceLoadProfileChannelData #deviceLoadProfileChannelTableViewBtn': {
+                click: this.toggleView
+            },
+            'deviceLoadProfileChannelData #deviceLoadProfileChannelGraphViewBtn': {
+                click: this.toggleView
+            },
+            'deviceLoadProfileChannelData #deviceLoadProfileChannelDataGrid': {
+                select: this.showPreview
+            },
+            'deviceLoadProfileChannelDataSideFilter #deviceLoadProfileDataFilterApplyBtn': {
+                click: this.applyFilter
+            },
+            'deviceLoadProfileChannelDataSideFilter #deviceLoadProfileDataFilterResetBtn': {
+                click: this.clearFilter
+            },
+            'deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {
+                resize: this.onGraphResize
+            },
+            'deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel': {
+                removeFilter: this.removeFilterItem,
+                clearAllFilters: this.clearFilter
+            }
         });
     },
 
@@ -70,24 +95,47 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             channelsListLink: me.makeLinkToList(router),
                             activeTab: activeTab
                         });
+
+                        var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(channel.get('interval')),
+                            durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
+                            viewOnlySuspects;
+
+                        durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
+                        widget.down('#deviceLoadProfileChannelDataSideFilter').setVisible(true);
+
+                        if (Ext.isEmpty(router.filter.data.intervalStart)) {
+                            viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
+                            me.setDefaults(channel, dataIntervalAndZoomLevels, viewOnlySuspects);
+                            router.queryParams.onlySuspect = undefined;
+                        }
+
                         me.getApplication().fireEvent('changecontentevent', widget);
 
-                        dataStore.getProxy().setUrl({
-                            mRID: mRID,
-                            channelId: channelId
-                        });
-                        dataStore.setFilterModel(router.filter);
-                        dataStore.load({
-                            success: function () {
-                                me.showGraphView(channel, dataStore);
-                                me.getSideFilterForm().loadRecord(router.filter);
-                            }
-                        })
+                       me.loadReadings(channel, device)
 
                     }
                 })
             }
         })
+    },
+
+    loadReadings: function (channel, device) {
+        var me =this,
+            dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
+            router = me.getController('Uni.controller.history.Router'),
+            mRID = device.get('mRID'),
+            channelId = channel.getId();
+        dataStore.setFilterModel(router.filter);
+        dataStore.getProxy().setUrl({
+            mRID: mRID,
+            channelId: channelId
+        });
+        dataStore.load({
+            success: function () {
+                me.showGraphView(channel, dataStore);
+                me.getSideFilterForm().loadRecord(router.filter);
+            }
+        });
     },
 
     makeLinkToList: function (router) {
@@ -165,11 +213,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
 
-    setDefaults: function (dataIntervalAndZoomLevels, viewOnlySuspects) {
+    setDefaults: function (channel, dataIntervalAndZoomLevels, viewOnlySuspects) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             all = dataIntervalAndZoomLevels.get('all'),
-            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.channelModel.get('lastReading') || new Date().getTime()));
+            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((channel.get('lastReading') || new Date().getTime()));
         router.filter = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter');
         router.filter.beginEdit();
         router.filter.set('intervalStart', intervalStart);
@@ -203,7 +251,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
         }
 
-
+    }
 
 });
 
@@ -267,6 +315,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 //
 //            durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
 //            dataStore.loadData([], false);
+
 //            tabWidget = Ext.widget('tabbedDeviceChannelsView', {
 //                router: router,
 //                device: device,
@@ -284,8 +333,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 //
 //            tabWidget.down('#channel-data').add(widget);
 //            tabWidget.down('#deviceLoadProfileChannelDataSideFilter').setVisible(true);
+
 //            me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
 //            me.getApplication().fireEvent('changecontentevent', tabWidget);
+
 //            tabController.showTab(1);
 //
 //            Ext.suspendLayouts();

@@ -23,9 +23,9 @@ Ext.define('Mdc.view.setup.devicechannels.Data', {
                         itemId: 'deviceloadprofileschanneldatafilterpanel',
                         emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                     },
-                    {
-                        xtype: 'deviceLoadProfileChannelGraphView'
-                    },
+//                    {
+//                        xtype: 'deviceLoadProfileChannelGraphView'
+//                    },
                     {
                         xtype: 'deviceLoadProfileChannelTableView',
                         channel: me.channel,
