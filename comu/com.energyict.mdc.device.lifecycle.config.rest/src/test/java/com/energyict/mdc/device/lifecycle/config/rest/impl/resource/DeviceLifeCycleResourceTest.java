@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
@@ -26,7 +26,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     public void testDeviceLifeCycleJsonModel(){
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
         Finder<DeviceLifeCycle> finder = mock(Finder.class);
-        when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.stream()).thenReturn(Collections.singletonList(dlc).stream());
         when(deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()).thenReturn(finder);
 
@@ -43,7 +43,7 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
     @Test
     public void testEmptyDeviceLifeCycleList(){
         Finder<DeviceLifeCycle> finder = mock(Finder.class);
-        when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.stream()).thenReturn(Collections.<DeviceLifeCycle>emptyList().stream());
         when(deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()).thenReturn(finder);
 
