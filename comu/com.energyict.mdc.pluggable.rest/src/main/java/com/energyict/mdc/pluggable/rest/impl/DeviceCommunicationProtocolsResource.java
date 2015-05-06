@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -53,7 +53,7 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getDeviceCommunicationProtocols(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getDeviceCommunicationProtocols(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = this.protocolPluggableService.findAllDeviceProtocolPluggableClasses().from(queryParameters).find();
         List<DeviceCommunicationProtocolInfo> deviceCommunicationProtocolInfos = new ArrayList<>(deviceProtocolPluggableClasses.size());
         for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : deviceProtocolPluggableClasses) {
