@@ -141,16 +141,44 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     initComponent: function () {
         var me = this,
             associatedData = me.record.getAssociatedData(),
-            pendingVersion = associatedData.pendingVersion,
-            ongoingVersion = associatedData.ongoingVersion,
-            failedVersion = associatedData.failedVersion,
-            verificationVersion = associatedData.needVerificationVersion,
-            failedVerificationVersion = associatedData.failedVerificationVersion,
+            record, status,
             formPending,
             formFailed,
             formOngoing,
+            upgradeOption,
             FirmwareVersion = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion')
             ;
+
+        switch (true) {
+            case !!associatedData.pendingVersion:
+                status = 'pendingVersion';
+                record = me.record.getPendingVersion();
+                break;
+            case !!associatedData.ongoingVersion:
+                status = 'ongoingVersion';
+                record = me.record.getOngoingVersion();
+                break;
+            case !!associatedData.failedVersion:
+                status = 'failedVersion';
+                record = me.record.getFailedVersion();
+                break;
+            case !!associatedData.needVerificationVersion:
+                status = 'needVerificationVersion';
+                record = me.record.getVerificationVersion();
+                break;
+            case !!associatedData.wrongVerificationVersion:
+                status = 'wrongVerificationVersion';
+                record = me.record.getWrongVerificationVersion();
+                break;
+            case !!associatedData.failedVerificationVersion:
+                status = 'failedVerificationVersion';
+                record = me.record.getFailedVerificationVersion();
+                break;
+        }
+
+        if (status) {
+            upgradeOption = record.getAssociatedData().firmwareUpgradeOption;
+        }
 
         me.title = me.record.get('type');
         me.callParent(arguments);
@@ -161,49 +189,47 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         formFailed = me.down('#message-failed');
         formOngoing = me.down('#message-ongoing');
 
-        if (pendingVersion) {
-            formPending.record = me.record.getPendingVersion();
+        if (status === 'pendingVersion') {
+            formPending.record = record;
             formPending.show();
-            formPending.setText(Uni.I18n.translate('device.firmware.' + pendingVersion.firmwareUpgradeOption.id + '.deprecated',
+            formPending.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
                 'FWC', 'Upload and activation of version {0} pending (Planned on {1})', [
-                    pendingVersion.firmwareVersion,
-                    Uni.DateTime.formatDateTimeShort(pendingVersion.plannedDate)
+                    record.get('firmwareVersion'),
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
                 ]));
         }
 
-        if (failedVersion || failedVerificationVersion) {
-            formFailed.record = failedVersion ? me.record.getFailedVersion() : me.record.getFailedVerificationVersion();
+        if (status === 'failedVersion' || status === 'failedVerificationVersion' || status === 'wrongVerificationVersion') {
+            formFailed.record = record;
             formFailed.show();
-            formFailed.setText(Uni.I18n.translate(['device','firmware',
-                formFailed.record.getAssociatedData().firmwareUpgradeOption.id,
-                failedVersion ? 'failed' : 'failedVerification'].join('.'),
+            formFailed.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
                 'FWC', 'Upload and activation of version {0} failed', [
-                    formFailed.record.get('firmwareVersion')
+                    record.get('firmwareVersion')
                 ]));
 
-            formFailed.down('#retryBtn').setVisible(!!failedVersion);
-            formFailed.down('#checkBtn').setVisible(!!failedVerificationVersion);
-            formFailed.down('#logBtn').setVisible(formFailed.record.get('firmwareComTaskId') && formFailed.record.get('firmwareComTaskSessionId'));
+            formFailed.down('#retryBtn').setVisible(status === 'failedVersion');
+            formFailed.down('#checkBtn').setVisible(status === 'failedVerificationVersion');
+            formFailed.down('#logBtn').setVisible(record.get('firmwareComTaskId') && record.get('firmwareComTaskSessionId'));
         }
 
-        if (ongoingVersion) {
-            formOngoing.record = me.record.getOngoingVersion();
+        if (status === 'ongoingVersion') {
+            formOngoing.record = record;
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate('device.firmware.' + ongoingVersion.firmwareUpgradeOption.id + '.ongoing',
+            formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
                 'FWC', 'Upload and activation of version {0} ongoing (upload started on {1})', [
-                    ongoingVersion.firmwareVersion,
-                    Uni.DateTime.formatDateTimeShort(ongoingVersion.uploadStartDate)
+                    record.get('firmwareVersion'),
+                    Uni.DateTime.formatDateTimeShort(record.get('uploadStartDate'))
                 ]));
         }
 
-        if (verificationVersion) {
-            formOngoing.record = me.record.getVerificationVersion();
+        if (status === 'needVerificationVersion') {
+            formOngoing.record = record;
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate('device.firmware.' + verificationVersion.firmwareUpgradeOption.id + '.needVerification',
+            formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
                 'FWC', 'Upload and activation of version {0} completed on {1}. Verification scheduled on {2}', [
-                    verificationVersion.firmwareVersion,
-                    Uni.DateTime.formatDateTimeShort(verificationVersion.lastCheckedDate),
-                    Uni.DateTime.formatDateTimeShort(verificationVersion.plannedDate)
+                    record.get('firmwareVersion'),
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
+                    Uni.DateTime.formatDateTimeShort(record.get('lastCheckedDate'))
                 ]));
         }
     }
