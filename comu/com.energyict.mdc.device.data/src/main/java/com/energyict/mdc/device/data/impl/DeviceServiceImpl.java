@@ -158,6 +158,11 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public Optional<Device> findDeviceById(long id) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id);
     }
+    
+    @Override
+    public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, id);
+    }
 
     @Override
     public Optional<Device> findByUniqueMrid(String mrId) {

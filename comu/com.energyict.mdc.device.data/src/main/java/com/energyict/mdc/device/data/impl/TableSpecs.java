@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
@@ -10,6 +11,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -36,6 +39,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
@@ -586,7 +590,56 @@ public enum TableSpecs {
                     .add();
             table.unique("UK_DDC_DEVMESATTR_NAME").on(deviceMessage, name).add();
         }
-    }
+    },
+    
+    DDC_DEVICEESTACTIVATION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceEstimation> table = dataModel.addTable(name(), DeviceEstimation.class);
+            table.map(DeviceEstimationImpl.class);
+            Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationImpl.Fields.ACTIVE.fieldName()).add();
+            table.addAuditColumns();
+            
+            table.primaryKey("PK_DDC_DEVESTACTIVATION").on(device).add();
+            table.foreignKey("FK_DDC_DEVESTACTIVATION_DEVICE")
+                 .on(device)
+                 .references(DDC_DEVICE.name())
+                 .map(DeviceEstimationImpl.Fields.DEVICE.fieldName())
+                 .reverseMap("deviceEstimation")
+                 .onDelete(CASCADE)
+                 .add();
+        }
+    },
+    
+    DDC_DEVICEESTRULESETACTIVATION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceEstimationRuleSetActivation> table = dataModel.addTable(name(), DeviceEstimationRuleSetActivation.class);
+            table.map(DeviceEstimationRuleSetActivationImpl.class);
+            
+            Column estimationActivationColumn = table.column("ESTIMATIONACTIVATION").number().conversion(NUMBER2LONG).notNull().add();
+            Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationRuleSetActivationImpl.Fields.ACTIVE.fieldName()).add();
+            table.addAuditColumns();
+            
+            table.primaryKey("PK_DDC_DEVICEESTRULESETACT").on(estimationActivationColumn, estimationRuleSetColumn).add();
+            table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
+                 .on(estimationRuleSetColumn)
+                 .references(EstimationService.COMPONENTNAME, "EST_ESTIMATIONRULESET")
+                 .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONRULESET.fieldName())
+                 .add();
+            table.foreignKey("FK_DDC_ESTRSACTIVATION_ESTACT")
+                 .on(estimationActivationColumn)
+                 .references(DDC_DEVICEESTACTIVATION.name())
+                 .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONACTIVATION.fieldName())
+                 .reverseMap(DeviceEstimationImpl.Fields.ESTRULESETACTIVATIONS.fieldName())
+                 .composition()
+                 .onDelete(CASCADE)
+                 .add();
+        }
+    },
+    
     ;
 
     abstract void addTo(DataModel component);
