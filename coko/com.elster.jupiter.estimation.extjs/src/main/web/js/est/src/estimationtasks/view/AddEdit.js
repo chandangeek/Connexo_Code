@@ -242,9 +242,6 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                         displayField: 'name',
                                         valueField: 'id',
                                         listeners: {
-                                            afterrender: function (combo) {
-                                                combo.store.load();
-                                            },
                                             focus: function () {
                                                 Ext.ComponentQuery.query('estimationtasks-addedit #period')[0].setValue(true);
                                             }

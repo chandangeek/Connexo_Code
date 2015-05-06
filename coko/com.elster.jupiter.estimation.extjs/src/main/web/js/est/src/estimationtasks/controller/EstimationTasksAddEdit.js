@@ -35,15 +35,24 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     },
 
     showAddEstimationTasksView: function () {
-        var me = this, widget = Ext.widget('estimationtasks-addedit');
+        var me = this,
+            widget = Ext.widget('estimationtasks-addedit');
         me.getApplication().fireEvent('changecontentevent', widget);
-        me.getDeviceGroupCombo().store.load(function () {
-            if (this.getCount() === 0) {
-                me.getDeviceGroupCombo().allowBlank = true;
-                me.getDeviceGroupCombo().hide();
-                me.getNoDeviceGroupBlock().show();
+        me.getEstimationPeriodCombo().store.load({
+            params: {
+                category: 'relativeperiod.category.estimation'
+            },
+            callback: function () {
+                me.getDeviceGroupCombo().store.load(function () {
+                    if (this.getCount() === 0) {
+                        me.getDeviceGroupCombo().allowBlank = true;
+                        me.getDeviceGroupCombo().hide();
+                        me.getNoDeviceGroupBlock().show();
+                    }
+                });
             }
         });
+
         me.getRecurrenceTypeCombo().setValue(me.getRecurrenceTypeCombo().store.getAt(2));
     },
 
@@ -189,12 +198,12 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         me.taskId = currentTaskId;
 
         if (me.fromDetails) {
-            widget = Ext.widget('estimationtasks-addedit',{
+            widget = Ext.widget('estimationtasks-addedit', {
                 edit: true,
                 returnLink: router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: currentTaskId})
             })
         } else {
-            widget = Ext.widget('estimationtasks-addedit',{
+            widget = Ext.widget('estimationtasks-addedit', {
                 edit: true,
                 returnLink: router.getRoute('administration/estimationtasks').buildUrl()
             })
