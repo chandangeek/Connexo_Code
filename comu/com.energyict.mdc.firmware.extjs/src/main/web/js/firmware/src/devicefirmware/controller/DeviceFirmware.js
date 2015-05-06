@@ -45,6 +45,9 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             'device-firmware-setup button[action=retry]': {
                 click: this.doRetry
             },
+            'device-firmware-setup button[action=check]': {
+                click: this.doRetry
+            },
             'device-firmware-setup button[action=viewLog]': {
                 click: function (el) {
                     var record = el.up('#message-failed').record;

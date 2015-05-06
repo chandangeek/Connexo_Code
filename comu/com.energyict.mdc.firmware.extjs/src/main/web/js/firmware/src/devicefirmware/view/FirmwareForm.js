@@ -50,18 +50,28 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                         defaultMargins: '5 10 5 5'
                     },
                     buttonAlign: 'left',
-                    buttons: [{
-                        margin: '0 0 0 46',
-                        text: Uni.I18n.translate('device.firmware.failed.retry', 'MDC', 'Retry'),
-                        ui: 'action',
-                        action: 'retry',
-                        itemId: 'retryBtn'
-                    }, {
-                        text: Uni.I18n.translate('device.firmware.failed.log', 'MDC', 'View log'),
-                        ui: 'link',
-                        action: 'viewLog',
-                        itemId: 'logBtn'
-                    }]
+                    buttons: [
+                        {
+                            margin: '0 0 0 46',
+                            text: Uni.I18n.translate('device.firmware.failed.retry', 'MDC', 'Retry'),
+                            ui: 'action',
+                            action: 'retry',
+                            itemId: 'retryBtn'
+                        },
+                        {
+                            margin: '0 0 0 46',
+                            text: Uni.I18n.translate('device.firmware.failed.check', 'MDC', 'Check Version'),
+                            ui: 'action',
+                            action: 'check',
+                            itemId: 'checkBtn'
+                        },
+                        {
+                            text: Uni.I18n.translate('device.firmware.failed.log', 'MDC', 'View log'),
+                            ui: 'link',
+                            action: 'viewLog',
+                            itemId: 'logBtn'
+                        }
+                    ]
                 },
                 {
                     xtype: 'uni-form-error-message',
@@ -135,20 +145,21 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             ongoingVersion = associatedData.ongoingVersion,
             failedVersion = associatedData.failedVersion,
             verificationVersion = associatedData.needVerificationVersion,
+            failedVerificationVersion = associatedData.failedVerificationVersion,
             formPending,
             formFailed,
             formOngoing,
             FirmwareVersion = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareVersion')
-        ;
+            ;
 
         me.title = me.record.get('type');
         me.callParent(arguments);
 
         me.loadRecord(me.record.getActiveVersion() || new FirmwareVersion({firmwareVersion: Uni.I18n.translate('device.firmware.version.unknown', 'FWC', 'Unknown')}));
 
-        formPending  = me.down('#message-pending');
-        formFailed   = me.down('#message-failed');
-        formOngoing  = me.down('#message-ongoing');
+        formPending = me.down('#message-pending');
+        formFailed = me.down('#message-failed');
+        formOngoing = me.down('#message-ongoing');
 
         if (pendingVersion) {
             formPending.record = me.record.getPendingVersion();
@@ -160,19 +171,23 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 ]));
         }
 
-        if (failedVersion) {
-            formFailed.record = me.record.getFailedVersion();
+        if (failedVersion || failedVerificationVersion) {
+            formFailed.record = failedVersion ? me.record.getFailedVersion() : me.record.getFailedVerificationVersion();
             formFailed.show();
-            formFailed.setText(Uni.I18n.translate('device.firmware.' + failedVersion.firmwareUpgradeOption.id + '.failed',
+            formFailed.setText(Uni.I18n.translate(['device','firmware',
+                formFailed.record.getAssociatedData().firmwareUpgradeOption.id,
+                failedVersion ? 'failed' : 'failedVerification'].join('.'),
                 'FWC', 'Upload and activation of version {0} failed', [
-                    failedVersion.firmwareVersion
+                    formFailed.record.get('firmwareVersion')
                 ]));
 
-            formFailed.down('#logBtn').setVisible(failedVersion.firmwareComTaskId && failedVersion.firmwareComTaskSessionId);
+            formFailed.down('#retryBtn').setVisible(!!failedVersion);
+            formFailed.down('#checkBtn').setVisible(!!failedVerificationVersion);
+            formFailed.down('#logBtn').setVisible(formFailed.record.get('firmwareComTaskId') && formFailed.record.get('firmwareComTaskSessionId'));
         }
 
         if (ongoingVersion) {
-            formOngoing.record =  me.record.getOngoingVersion();
+            formOngoing.record = me.record.getOngoingVersion();
             formOngoing.show();
             formOngoing.setText(Uni.I18n.translate('device.firmware.' + ongoingVersion.firmwareUpgradeOption.id + '.ongoing',
                 'FWC', 'Upload and activation of version {0} ongoing (upload started on {1})', [
@@ -182,7 +197,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         }
 
         if (verificationVersion) {
-            formOngoing.record =  me.record.getVerificationVersion();
+            formOngoing.record = me.record.getVerificationVersion();
             formOngoing.show();
             formOngoing.setText(Uni.I18n.translate('device.firmware.' + verificationVersion.firmwareUpgradeOption.id + '.needVerification',
                 'FWC', 'Upload and activation of version {0} completed on {1}. Verification scheduled on {2}', [

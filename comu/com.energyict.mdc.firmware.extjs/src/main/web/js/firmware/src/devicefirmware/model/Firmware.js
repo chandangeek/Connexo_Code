@@ -71,7 +71,16 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
             associatedName: 'needVerificationVersion',
             associationKey: 'needVerificationVersion',
             getterName: 'getVerificationVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'failedVerificationVersion',
+            associatedName: 'failedVerificationVersion',
+            associationKey: 'failedVerificationVersion',
+            getterName: 'getFailedVerificationVersion'
         }
+
     ],
 
     proxy: {
