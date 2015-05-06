@@ -249,15 +249,6 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                                 Ext.ComponentQuery.query('estimationtasks-addedit #period')[0].setValue(true);
                                             }
                                         }
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        itemId: 'add-period-link',
-                                        //hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.period'),
-                                        margin: '0 0 0 10',
-                                        ui: 'link',
-                                        text: Uni.I18n.translate('estimationtasks.general.addPeriodLabel', 'EST', 'Add estimation period'),
-                                        href: '../admin/index.html#/administration/relativeperiods/add'
                                     }
                                 ]
                             }
