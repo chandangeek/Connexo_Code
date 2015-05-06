@@ -223,21 +223,25 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         ]).then(
             {
                 success: function (results) {
-                    var deviceType = results[0][0];
-                    me.getApplication().fireEvent('loadDeviceType', deviceType);
-                    Ext.suspendLayouts();
-                    me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
-                    me.modifyEditView(widget, confugurationStore);
-                    Ext.resumeLayouts(true);
-                    widget.setLoading(false);
+                    if (widget.rendered) {
+                        var deviceType = results[0][0];
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        Ext.suspendLayouts();
+                        me.getDeviceTypeEditForm().loadRecord(deviceType);
+                        me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                        me.modifyEditView(widget, confugurationStore);
+                        Ext.resumeLayouts(true);
+                        widget.setLoading(false);
+                    }
                 },
                 failure: function () {
-                    Ext.suspendLayouts();
-                    me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
-                    Ext.resumeLayouts(true);
-                    widget.setLoading(false);
+                    if (widget.rendered) {
+                        Ext.suspendLayouts();
+                        me.getDeviceTypeEditForm().loadRecord(deviceType);
+                        me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                        Ext.resumeLayouts(true);
+                        widget.setLoading(false);
+                    }
                 }
             }
         );

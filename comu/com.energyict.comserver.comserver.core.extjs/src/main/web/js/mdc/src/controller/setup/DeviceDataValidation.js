@@ -67,7 +67,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 Ext.Ajax.request({
-                    url: '/api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
+                    url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
                     method: 'GET',
                     timeout: 60000,
                     success: function () {
