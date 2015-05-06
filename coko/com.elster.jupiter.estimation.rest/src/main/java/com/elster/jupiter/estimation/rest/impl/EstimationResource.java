@@ -129,8 +129,8 @@ public class EstimationResource {
             EstimationRuleInfos infos = new EstimationRuleInfos();
             EstimationRuleSet set = optional.get();
             List<? extends EstimationRule> rules;
-            if ((params.getLimit() > 0) && (params.getStart() >= 0)) {
-                rules = set.getRules(params.getStart(), params.getLimit());
+            if ((params.getLimit() > 0) && (params.getStartInt() >= 0)) {
+                rules = set.getRules(params.getStartInt(), params.getLimit());
             } else {
                 rules = set.getRules();
             }
@@ -491,7 +491,7 @@ public class EstimationResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         EstimationTask task = fetchEstimationTask(id);
 
-        EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(queryParameters.getStart()).setLimit(queryParameters.getLimit() + 1);
+        EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(queryParameters.getStartInt()).setLimit(queryParameters.getLimit() + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
@@ -521,7 +521,7 @@ public class EstimationResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         EstimationTask task = fetchEstimationTask(id);
         TaskOccurrence occurrence = fetchTaskOccurrence(occurrenceId, task);
-        LogEntryFinder finder = occurrence.getLogsFinder().setStart(queryParameters.getStart()).setLimit(queryParameters.getLimit());
+        LogEntryFinder finder = occurrence.getLogsFinder().setStart(queryParameters.getStartInt()).setLimit(queryParameters.getLimit());
 
         List<? extends LogEntry> occurrences = finder.find();
 
