@@ -1,5 +1,6 @@
 package com.energyict.mdc.common.services;
 
+import com.elster.jupiter.domain.util.QueryParameters;
 import java.util.List;
 
 /**
