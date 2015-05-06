@@ -213,7 +213,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
-        confugurationStore.getProxy().url = confugurationStore.getProxy().url.replace('{deviceType}', deviceTypeId);
+        confugurationStore.getProxy().url = confugurationStore.getProxy().baseUrl.replace('{deviceType}', deviceTypeId);
         var when = new Uni.util.When();
         when.when([
             {action: Ext.ModelManager.getModel('Mdc.model.DeviceType').load, context: Ext.ModelManager.getModel('Mdc.model.DeviceType'), args: [deviceTypeId]},
