@@ -100,7 +100,13 @@ Ext.define('Cfg.controller.Tasks', {
             });
 
         me.fromDetails = false;
-        me.getApplication().fireEvent('changecontentevent', view);        
+        me.getApplication().fireEvent('changecontentevent', view);   
+		if ( Cfg.privileges.Validation.canRun()) {
+            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                item.show();
+            });
+        }
+		
     },
 
     showTaskDetailsView: function (currentTaskId) {
@@ -128,7 +134,11 @@ Ext.define('Cfg.controller.Tasks', {
                 if (record.get('status') !== 'Busy') {
                     if (record.get('status') === 'Failed') {
                         view.down('#reason-field').show();
-                    }               
+                    }  
+					if (Cfg.privileges.Validation.canRun()) {
+                        view.down('#run').show();
+                    }
+					
                 }              
             }
         });
@@ -283,7 +293,13 @@ Ext.define('Cfg.controller.Tasks', {
                 previewForm.down('#reason-field').show();
             } else {
                 previewForm.down('#reason-field').hide();
-            }   
+            }  
+			if ( Cfg.privileges.Validation.canRun()) {
+                Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                    item.show();
+                });
+            }
+
         }
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
@@ -302,8 +318,6 @@ Ext.define('Cfg.controller.Tasks', {
             router.arguments.taskId = menu.record.getId();
         }
         
-        
-
         switch (item.action) {
             case 'viewDetails':
                 route = 'administration/validationtasks/validationtask';
@@ -320,10 +334,90 @@ Ext.define('Cfg.controller.Tasks', {
             case 'viewHistory':
                 route = 'administration/validationtasks/validationtask/history';
                 break;
+			case 'run':
+                me.runTask(menu.record);
+                break;
+
         }
 
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments);
+    },
+	
+	runTask: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('validationTasks.general.run', 'CFG', 'Run'),
+                confirmation: function () {
+                    me.submitRunTask(record, this);
+                }
+            });
+
+        confirmationWindow.insert(1,
+            {
+                xtype: 'panel',
+                itemId: 'date-errors',
+                hidden: true,
+                bodyStyle: {
+                    color: '#eb5642',
+                    padding: '0 0 15px 65px'
+                },
+                html: ''
+            }
+        );
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('validationTasks.runMsg', 'CFG', 'This validation task will be queued to run at the earliest possible time.'),
+			title: Ext.String.format(Uni.I18n.translate('validationTasks.runTask', 'CFG', "Run validation task {0}?'"), record.data.name)			
+        });
+    },
+
+    submitRunTask: function (record, confWindow) {
+        var me = this,
+            id = record.get('id'),
+            taskModel = me.getModel('Cfg.model.ValidationTask'),
+            grid,
+            store,
+            index,
+            view;
+
+        Ext.Ajax.request({			
+            url: '/api/val/validationtasks/' + id + '/trigger',
+            method: 'POST',
+            success: function () {
+                confWindow.destroy();
+                if (me.getPage()) {
+                    view = me.getPage();
+                    grid = view.down('grid');
+                    store = grid.getStore();
+                    index = store.indexOf(record);
+                    view.down('preview-container').selectByDefault = false;
+                    store.load(function () {
+                        grid.getSelectionModel().select(index);
+                    });
+                } else {
+                    taskModel.load(id, {
+                        success: function (rec) {
+                            view = me.getDetailsPage();
+                            view.down('dxp-tasks-action-menu').record = rec;
+                            view.down('dxp-tasks-preview-form').loadRecord(rec);
+                            if (record.get('status') === 'Busy') {
+                                view.down('#run').hide();
+                            }
+                            if (rec.properties() && rec.properties().count()) {
+                                view.down('property-form').loadRecord(rec);
+                            }
+                        }
+                    });
+                }
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.run', 'CFG', 'Data validation task run'));
+            },
+            failure: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+                confWindow.update(res.errors[0].msg);
+                confWindow.setVisible(true);
+            }
+        });
     },
 
 	initFilter: function () {

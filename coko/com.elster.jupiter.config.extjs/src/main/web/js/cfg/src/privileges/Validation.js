@@ -28,10 +28,12 @@ Ext.define('Cfg.privileges.Validation', {
             Cfg.privileges.Validation.admin,
             Cfg.privileges.Validation.validateManual);
     },
+	canRun:function(){
+        return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.validateManual);
+    },
     canView:function(){
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.view);
     },
-
     canAdministrate:function(){
         return Uni.Auth.checkPrivileges(Cfg.privileges.Validation.admin);
     },
