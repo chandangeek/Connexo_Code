@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.api.impl;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
@@ -40,7 +40,7 @@ public class RegisterResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getRegisters(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
+    public Response getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         List<RegisterInfo> registers = device.getRegisters().stream().map(registerInfoFactory::plain).collect(toList());
         return Response.ok(PagedInfoList.fromCompleteList("registers", registers, queryParameters)).build();
