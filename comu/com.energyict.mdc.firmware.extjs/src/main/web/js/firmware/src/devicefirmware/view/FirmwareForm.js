@@ -56,6 +56,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                             text: Uni.I18n.translate('device.firmware.failed.retry', 'MDC', 'Retry'),
                             ui: 'action',
                             action: 'retry',
+                            hidden: true,
                             itemId: 'retryBtn'
                         },
                         {
@@ -63,12 +64,21 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                             text: Uni.I18n.translate('device.firmware.failed.check', 'MDC', 'Check Version'),
                             ui: 'action',
                             action: 'check',
+                            hidden: true,
                             itemId: 'checkBtn'
+                        },
+                        {
+                            text: Uni.I18n.translate('device.firmware.failed.deviceEvents', 'MDC', 'View device events'),
+                            ui: 'link',
+                            action: 'viewDeviceEvents',
+                            hidden: true,
+                            itemId: 'deviceEventsBtn'
                         },
                         {
                             text: Uni.I18n.translate('device.firmware.failed.log', 'MDC', 'View log'),
                             ui: 'link',
                             action: 'viewLog',
+                            hidden: true,
                             itemId: 'logBtn'
                         }
                     ]
@@ -204,11 +214,13 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formFailed.show();
             formFailed.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
                 'FWC', 'Upload and activation of version {0} failed', [
-                    record.get('firmwareVersion')
+                    record.get('firmwareVersion'),
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
                 ]));
 
             formFailed.down('#retryBtn').setVisible(status === 'failedVersion');
             formFailed.down('#checkBtn').setVisible(status === 'failedVerificationVersion');
+            formFailed.down('#deviceEventsBtn').setVisible(status === 'wrongVerificationVersion');
             formFailed.down('#logBtn').setVisible(record.get('firmwareComTaskId') && record.get('firmwareComTaskSessionId'));
         }
 
