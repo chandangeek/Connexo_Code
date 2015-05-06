@@ -12,11 +12,13 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 import org.junit.After;
 import org.junit.Before;
@@ -72,9 +74,15 @@ public class PowerGapFillTest {
     private IntervalReadingRecord readingRecord1, readingRecord2;
     @Mock
     private CimChannel bulkCimChannel;
+    @Mock
+    private MeterActivation meterActivation;
 
     @Before
     public void setUp() {
+        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(Optional.empty()).when(meterActivation).getMeter();
+        doReturn("deltaReadingType").when(deltaReadingType).getMRID();
+        doReturn("bulkReadingType").when(bulkReadingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
         doReturn(Optional.of(bulkCimChannel)).when(channel).getCimChannel(bulkReadingType);
@@ -107,11 +115,14 @@ public class PowerGapFillTest {
 
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
+
+        LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
         LOGGER.removeHandler(logRecorder);
+        LoggingContext.get().close();
     }
 
     @Test

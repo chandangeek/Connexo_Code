@@ -76,7 +76,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     public String getPropertyDefaultFormat(String property) {
         switch (property) {
             case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
-                return "Maximum consecutive suspects";
+                return "Max number of consecutive suspects";
             case ADVANCE_READINGS_SETTINGS:
                 return "Use advance readings";
             default:
@@ -253,7 +253,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 .collect(Collectors.toList());
 
         if (neededConsumption.stream().anyMatch(invalidsByTimestamp::containsKey)) {
-            boolean suspects = neededConsumption.stream().anyMatch(instant -> invalidsByTimestamp.get(instant).stream().anyMatch(ReadingQualityRecord::isSuspect));
+            boolean suspects = neededConsumption.stream().anyMatch(instant -> Optional.ofNullable(invalidsByTimestamp.get(instant)).orElse(Collections.emptyList()).stream().anyMatch(ReadingQualityRecord::isSuspect));
             String message = suspects ? "Failed estimation with {rule}: Block {block} since there are additional suspects between the advance readings"
                     : "Failed estimation with {rule}: Block {block} since there are estimated consumptions between the advance readings";
             LoggingContext.get().info(getLogger(), message);

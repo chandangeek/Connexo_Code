@@ -12,11 +12,13 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 import org.junit.After;
 import org.junit.Before;
@@ -68,9 +70,14 @@ public class LinearInterpolationTest {
     private Estimatable estimatable1, estimatable2;
     @Mock
     private BaseReadingRecord readingRecord1, readingRecord2;
+    @Mock
+    private MeterActivation meterActivation;
 
     @Before
     public void setUp() {
+        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(Optional.empty()).when(meterActivation).getMeter();
+        doReturn("readingType").when(readingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
         doReturn(readingType).when(estimationBlock).getReadingType();
@@ -84,11 +91,13 @@ public class LinearInterpolationTest {
 
         doReturn(BEFORE.toInstant()).when(channel).getPreviousDateTime(ESTIMATABLE1.toInstant());
         doReturn(AFTER.toInstant()).when(channel).getNextDateTime(ESTIMATABLE2.toInstant());
+
+        LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
-
+        LoggingContext.get().close();
     }
 
     @Test

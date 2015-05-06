@@ -120,7 +120,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
-        return doEstimateBulk(estimatables, precedingReading);
+        return doEstimateBulk(estimatables, precedingReading, successiveReading);
     }
 
     private IntervalReadingRecord getPrecedingReading(Optional<CimChannel> cimChannel, Instant previousDateTime) {
@@ -144,10 +144,16 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
                 });
     }
 
-    private boolean doEstimateBulk(List<? extends Estimatable> estimatables, BaseReadingRecord baseReadingRecord) {
-        BigDecimal value = baseReadingRecord.getValue();
+    private boolean doEstimateBulk(List<? extends Estimatable> estimatables, BaseReadingRecord precedingReadingRecord, BaseReadingRecord successiveReadingRecord) {
+        BigDecimal value = precedingReadingRecord.getValue();
         if (value == null) {
             String message = "Failed estimation with {rule}: Block {block} since the preceding reading has no value.";
+            LoggingContext.get().info(getLogger(), message);
+            return false;
+        }
+        BigDecimal successiveValue = successiveReadingRecord.getValue();
+        if (successiveValue == null) {
+            String message = "Failed estimation with {rule}: Block {block} since the successive reading has no value.";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
@@ -219,7 +225,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     public String getPropertyDefaultFormat(String property) {
         switch (property) {
             case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
-                return "Maximum consecutive suspects";
+                return "Max number of consecutive suspects";
             default:
                 return "";
         }

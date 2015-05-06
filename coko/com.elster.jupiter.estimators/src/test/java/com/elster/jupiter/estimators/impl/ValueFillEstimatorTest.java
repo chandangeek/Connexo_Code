@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,11 +65,17 @@ public class ValueFillEstimatorTest {
     public void setUp() {
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
+        doReturn("readingType").when(readingType).getMRID();
+        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(Optional.of(meter)).when(meterActivation).getMeter();
+
+        LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
         LOGGER.removeHandler(logRecorder);
+        LoggingContext.get().close();
     }
 
     @Test
@@ -77,6 +84,10 @@ public class ValueFillEstimatorTest {
         Estimatable estimatable1 = mock(Estimatable.class);
         Estimatable estimatable2 = mock(Estimatable.class);
         doReturn(Arrays.asList(estimatable1, estimatable2)).when(estimationBlock).estimatables();
+        doReturn(readingType).when(estimationBlock).getReadingType();
+        doReturn(channel).when(estimationBlock).getChannel();
+        doReturn(Instant.ofEpochMilli(50000L)).when(estimatable1).getTimestamp();
+        doReturn(Instant.ofEpochMilli(75000L)).when(estimatable2).getTimestamp();
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ValueFillEstimator.FILL_VALUE, new BigDecimal(5));
@@ -119,7 +130,7 @@ public class ValueFillEstimatorTest {
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation: ")).atLevel(Level.INFO);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule :")).atLevel(Level.INFO);
     }
 
     @Test(expected = LocalizedFieldValidationException.class)

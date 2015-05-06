@@ -28,6 +28,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 import com.google.common.collect.Range;
 import org.junit.After;
@@ -106,6 +107,7 @@ public class EqualDistributionTest {
         doReturn(Arrays.asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
         doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(Optional.empty()).when(meterActivation).getMeter();
         doReturn(Arrays.asList(channel, otherChannel)).when(meterActivation).getChannels();
         doReturn(Arrays.asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
         doReturn(Collections.singletonList(advanceReadingType)).when(otherChannel).getReadingTypes();
@@ -123,6 +125,9 @@ public class EqualDistributionTest {
         doReturn(ReadingTypeUnit.WATTHOUR).when(advanceReadingType).getUnit();
         doReturn(MetricMultiplier.KILO).when(advanceReadingType).getMultiplier();
         doReturn(TimeZoneNeutral.getMcMurdo()).when(deltaCimChannel).getZoneId();
+        doReturn("deltaReadingType").when(deltaReadingType).getMRID();
+        doReturn("bulkReadingType").when(bulkReadingType).getMRID();
+        doReturn("advanceReadingType").when(advanceReadingType).getMRID();
 
         // for bulk reading based tests
         doReturn(ESTIMATABLE1.toInstant()).when(estimatable1).getTimestamp();
@@ -186,11 +191,12 @@ public class EqualDistributionTest {
         doReturn(AFTER.toInstant()).when(channel).getNextDateTime(ESTIMATABLE3.toInstant());
         doReturn(BEFORE.toInstant()).when(bulkCimChannel).getPreviousDateTime(ESTIMATABLE1.toInstant());
         doReturn(AFTER.toInstant()).when(bulkCimChannel).getNextDateTime(ESTIMATABLE3.toInstant());
+        LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
-
+        LoggingContext.get().close();
     }
 
     @Test
