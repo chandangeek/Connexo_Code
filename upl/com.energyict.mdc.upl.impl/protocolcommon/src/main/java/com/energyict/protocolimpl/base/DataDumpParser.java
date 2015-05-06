@@ -181,7 +181,7 @@ public class DataDumpParser {
     private String searchRegister(String strRegister) throws NoSuchRegisterException {
        int iIndex = strFrame.indexOf(strRegister+"(");
        if (iIndex == -1) {
-			throw new NoSuchRegisterException("DataDumpParser, searchRegister, register not found");
+           throw new NoSuchRegisterException("DataDumpParser, searchRegister, register '" + strRegister + "'not found");
        }
        return strFrame.substring(iIndex);
     }
