@@ -36,30 +36,6 @@ public class PagedInfoList {
     }
 
     /**
-     * Create a Json serialized object for paged search results.
-     * E.g.
-     *    ("deviceTypes", {deviceTypeInfo1, deviceTypeInfo2}, queryParameters}
-     *    with queryParameters,limit=2 (TWO)
-     *    returning 2 results when 2 were asked implicates a full page and the the field 'total' is increased by 1 to indicate there could be a next page.
-     *
-     * will end up serialized into the following JSON
-     *
-     *   {
-     *       "total":3,
-     *       "deviceTypes":[{"name":"...",...},{"name":"...",...}]
-     *   }
-     * @param jsonListName The name of the list property in JSON
-     * @param infos The search results to assign to the list property
-     * @param queryParameters The original query parameters used for building the list that is being returned. This is required as it is used to determine
-     *                        if the returned 'page' was full, if so, total is incremented by 1 to indicate to ExtJS there could be a next page.
-     * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
-     */
-    @Deprecated // use fromPagedList() from now on
-    public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters) {
-        return fromPagedList(jsonListName, infos, queryParameters);
-    }
-
-    /**
      * Create a Json serialized object for paged search results. Paging has to be done with a Finder beforehand.
      * E.g.
      *    ("deviceTypes", {deviceTypeInfo1, deviceTypeInfo2}, queryParameters}
