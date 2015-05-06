@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -20,6 +21,7 @@ import java.util.List;
  *
  * @author Karel
  */
+@ProviderType
 public interface DeviceType extends HasId, HasName {
 
     /**

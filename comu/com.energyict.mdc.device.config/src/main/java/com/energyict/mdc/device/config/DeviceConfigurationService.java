@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.services.Finder;
@@ -24,6 +25,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:34)
  */
+@ProviderType
 public interface DeviceConfigurationService {
 
     public static String COMPONENTNAME = "DTC";
