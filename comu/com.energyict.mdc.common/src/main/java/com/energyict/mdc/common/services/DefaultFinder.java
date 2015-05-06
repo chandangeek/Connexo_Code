@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.ArrayList;
 import java.util.List;
 

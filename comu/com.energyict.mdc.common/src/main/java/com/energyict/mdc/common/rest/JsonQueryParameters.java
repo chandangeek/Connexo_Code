@@ -1,6 +1,7 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.conditions.Order;
+import com.energyict.mdc.common.services.QueryParameters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

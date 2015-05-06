@@ -1,6 +1,5 @@
 package com.energyict.mdc.common.services;
 
-import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.List;
 
 /**
