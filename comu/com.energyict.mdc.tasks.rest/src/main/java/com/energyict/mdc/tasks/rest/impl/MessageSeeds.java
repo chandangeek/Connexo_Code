@@ -13,7 +13,14 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     TOPOLOGY(3, "topology", "Topology"),
     LOADPROFILES(4, "loadprofiles", "Load profiles"),
     CLOCK(5, "clock", "Clock"),
-    STATUS(6, "status", "Status"),
+    STATUS_INFORMATION(6, "statusInformation", "Status information"),
+
+    READ(20, "read", "Read"),
+    UPDATE(21, "update", "Update"),
+    VERIFY(22, "verify", "Verify"),
+    SET(23, "set", "Set"),
+    FORCE(24, "force", "Force"),
+    SYNCHRONIZE(25, "synchronize", "Synchronize"),
     ;
 
     private final int number;

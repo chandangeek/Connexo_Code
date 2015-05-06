@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +56,7 @@ public class ComTasksApplication extends Application implements TranslationKeyPr
     public Set<Object> getSingletons() {
         Set<Object> singletons = new HashSet<>(super.getSingletons());
         singletons.add(new HK2Binder());
-        return singletons;
+        return Collections.unmodifiableSet(singletons);
     }
 
     class HK2Binder extends AbstractBinder {

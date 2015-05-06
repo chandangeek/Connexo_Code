@@ -407,7 +407,7 @@ public enum Categories {
         }
     },
 
-    STATUS("status") {
+    STATUSINFORMATION("statusInformation") {
         @Override
         public Class<? extends ProtocolTask> getProtocolTaskClass() {
             return StatusInformationTask.class;
