@@ -129,6 +129,15 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <!-- we need version 2.5.3 for baselining
+                     but that version gives error on this bundle
+                     but 2.5.4 baselining does not work
+                     -->
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.5.4</version>
+            </plugin>
         </plugins>
     </build>
 
