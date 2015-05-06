@@ -34,12 +34,15 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.Status;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -67,6 +70,7 @@ public class DeviceResource {
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
     private final Provider<DeviceValidationResource> deviceValidationResourceProvider;
+    private final Provider<DeviceEstimationResource> deviceEstimationResourceProvider;
     private final Provider<RegisterResource> registerResourceProvider;
     private final Provider<BulkScheduleResource> bulkScheduleResourceProvider;
     private final Provider<DeviceScheduleResource> deviceScheduleResourceProvider;
@@ -97,6 +101,7 @@ public class DeviceResource {
             Provider<LogBookResource> logBookResourceProvider,
             Provider<RegisterResource> registerResourceProvider,
             Provider<DeviceValidationResource> deviceValidationResourceProvider,
+            Provider<DeviceEstimationResource> deviceEstimationResourceProvider,
             Provider<BulkScheduleResource> bulkScheduleResourceProvider,
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
             Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
@@ -124,6 +129,7 @@ public class DeviceResource {
         this.logBookResourceProvider = logBookResourceProvider;
         this.registerResourceProvider = registerResourceProvider;
         this.deviceValidationResourceProvider = deviceValidationResourceProvider;
+        this.deviceEstimationResourceProvider = deviceEstimationResourceProvider;
         this.bulkScheduleResourceProvider = bulkScheduleResourceProvider;
         this.deviceScheduleResourceProvider = deviceScheduleResourceProvider;
         this.deviceComTaskResourceProvider = deviceComTaskResourceProvider;
@@ -178,19 +184,34 @@ public class DeviceResource {
         return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService, meteringService);
     }
 
-    @PUT
-    @Path("/{mRID}")
+    @PUT//the method designed like 'PATCH'
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public DeviceInfo updateDevice(@PathParam("mRID") String id, DeviceInfo info, @Context SecurityContext securityContext) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
+        Device device = deviceService.findAndLockDeviceByIdAndVersion(id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
+        updateGateway(info, device);
+        if (info.estimationStatus != null) {
+            updateEstimationStatus(info.estimationStatus, device);
+        }
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
+    }
+
+    private void updateGateway(DeviceInfo info, Device device) {
         if (info.masterDevicemRID != null) {
             updateGateway(device, info.masterDevicemRID);
         } else {
             removeGateway(device);
         }
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
+    }
+    
+    private void updateEstimationStatus(DeviceEstimationStatusInfo info, Device device) {
+        if (info.active) {
+            device.forEstimation().activateEstimation();
+        } else {
+            device.forEstimation().deactivateEstimation();
+        }
     }
 
     private void updateGateway(Device device, String gatewayMRID) {
@@ -303,8 +324,13 @@ public class DeviceResource {
     }
 
     @Path("/{mRID}/validationrulesets")
-    public DeviceValidationResource getDeviceConfigurationResource() {
+    public DeviceValidationResource getDeviceValidationResource() {
         return deviceValidationResourceProvider.get();
+    }
+    
+    @Path("/{mRID}/estimationrulesets")
+    public DeviceEstimationResource getDeviceEstimationResource() {
+        return deviceEstimationResourceProvider.get();
     }
 
     @Path("/{mRID}/loadprofiles")

@@ -44,6 +44,8 @@ public class DeviceInfo {
     public Boolean isGateway;
     public String serviceCategory;
     public String usagePoint;
+    public DeviceEstimationStatusInfo estimationStatus;
+    public long version;
 
     public DeviceInfo() {
     }
@@ -87,6 +89,8 @@ public class DeviceInfo {
                         deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
                     }));
 
+        deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
+        deviceInfo.version = device.getVersion();
         return deviceInfo;
     }
 
