@@ -14,7 +14,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -122,7 +122,7 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         Finder<T> finder = mock(Finder.class);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         when(finder.stream()).thenReturn(list.stream());
         return finder;

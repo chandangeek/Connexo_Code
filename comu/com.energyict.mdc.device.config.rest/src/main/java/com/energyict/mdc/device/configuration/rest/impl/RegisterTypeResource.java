@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -54,15 +54,15 @@ public class RegisterTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public PagedInfoList getRegisterTypes(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+    public PagedInfoList getRegisterTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Stream<RegisterType> registerTypeStream = null;
         if (filter.hasProperty("ids")) {
             // case for remote filtering for buffered store
             List<Long> registerTypesAlreadyInUse = filter.getLongList("ids");
             registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
                     .filter(regType -> !registerTypesAlreadyInUse.contains(regType.getId()))
-                    .skip(queryParameters.getStart())
-                    .limit(queryParameters.getLimit() + 1);
+                    .skip(queryParameters.getStart().get())
+                    .limit(queryParameters.getLimit().get() + 1);
         } else {
             registerTypeStream = this.masterDataService.findAllRegisterTypes().from(queryParameters).stream();
         }

@@ -23,7 +23,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -38,7 +38,6 @@ import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
@@ -220,10 +219,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(100);
         assertThat((List) map.get("deviceTypes")).isEmpty();
-        ArgumentCaptor<QueryParameters> queryParametersArgumentCaptor = ArgumentCaptor.forClass(QueryParameters.class);
+        ArgumentCaptor<JsonQueryParameters> queryParametersArgumentCaptor = ArgumentCaptor.forClass(JsonQueryParameters.class);
         verify(finder).from(queryParametersArgumentCaptor.capture());
-        assertThat(queryParametersArgumentCaptor.getValue().getStart()).isEqualTo(100);
-        assertThat(queryParametersArgumentCaptor.getValue().getLimit()).isEqualTo(20);
+        assertThat(queryParametersArgumentCaptor.getValue().getStart().get()).isEqualTo(100);
+        assertThat(queryParametersArgumentCaptor.getValue().getLimit().get()).isEqualTo(20);
     }
 
     @Test
@@ -1348,7 +1347,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.defaultSortColumn(anyString())).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         return finder;

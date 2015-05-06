@@ -11,7 +11,7 @@ import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -88,7 +88,7 @@ public class DeviceConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
+    public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfiguration> deviceConfigurations;
         if (queryFilter.hasProperty("active") && queryFilter.getBoolean("active")) {
@@ -126,7 +126,7 @@ public class DeviceConfigurationResource {
     public Response getDeviceConfigurationsLogBookConfigurations(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam QueryParameters queryParameters,
+            @BeanParam JsonQueryParameters queryParameters,
             @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -316,7 +316,7 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/comtasks")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getComTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
+    public PagedInfoList getComTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         return comTaskEnablementResourceProvider.get().getAllowedComTasksWhichAreNotDefinedYetFor(deviceTypeId, deviceConfigurationId, queryParameters, uriInfo);
     }
 
@@ -328,7 +328,7 @@ public class DeviceConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("registerId") long registerId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
@@ -344,7 +344,7 @@ public class DeviceConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("channelId") long channelId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findChannelSpec(channelId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
@@ -360,7 +360,7 @@ public class DeviceConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileId") long loadProfileId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
 
         List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
@@ -393,7 +393,7 @@ public class DeviceConfigurationResource {
     public Response getLinkableValidationsRuleSets(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSetInfos validationRuleSetInfos = new ValidationRuleSetInfos();
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);

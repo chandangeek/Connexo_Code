@@ -9,7 +9,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.rest.ReadingTypeComparator;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -43,7 +43,7 @@ public class ReadingTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
+    public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (queryFilter.hasFilters()) {
             ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter());

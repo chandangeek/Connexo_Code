@@ -3,7 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -59,7 +59,7 @@ public class LoadProfileConfigurationResource {
     public Response getLoadProfileSpecsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>(deviceConfiguration.getLoadProfileSpecs());
@@ -78,7 +78,7 @@ public class LoadProfileConfigurationResource {
     public Response getAvailableLoadProfileSpecsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         Collection<LoadProfileType> loadProfileTypes = findAvailableLoadProfileTypesForDeviceConfiguration(deviceType, deviceConfiguration);
@@ -93,7 +93,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec), mdcReadingTypeUtilService), queryParameters)).build();
     }
@@ -130,7 +130,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
-            @BeanParam QueryParameters queryParameters,
+            @BeanParam JsonQueryParameters queryParameters,
             LoadProfileSpecInfo request) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -148,7 +148,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
@@ -164,7 +164,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         List<ChannelSpec> channelSpecs = loadProfileSpec.getChannelSpecs();
         Collections.sort(channelSpecs, new LoadProfileChannelComparator());
@@ -180,7 +180,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @PathParam("channelId") long channelId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         ChannelSpec channelSpec = findChannelSpecByIdOrThrowException(channelId);
@@ -223,7 +223,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @PathParam("channelId") long channelId,
-            @BeanParam QueryParameters queryParameters,
+            @BeanParam JsonQueryParameters queryParameters,
             ChannelSpecFullInfo request) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -248,7 +248,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @PathParam("channelId") long channelId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         ChannelSpec channelSpec = findChannelSpecByIdOrThrowException(channelId);
@@ -264,7 +264,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
         Map<Long, ChannelType> channelTypes = new HashMap<>();
         for (ChannelType measurementType : loadProfileSpec.getLoadProfileType().getChannelTypes()) {

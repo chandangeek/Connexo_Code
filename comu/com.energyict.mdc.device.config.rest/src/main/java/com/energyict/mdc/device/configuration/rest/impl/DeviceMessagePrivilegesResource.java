@@ -15,7 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.google.common.collect.ArrayListMultimap;
@@ -36,7 +36,7 @@ public class DeviceMessagePrivilegesResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getDeviceMessagePrivileges(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getDeviceMessagePrivileges(@BeanParam JsonQueryParameters queryParameters) {
         Multimap<DeviceMessageUserAction, Group> privilegesMap = ArrayListMultimap.create();
 
         for (Group group : userService.getGroups()) {

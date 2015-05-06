@@ -7,7 +7,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -57,10 +57,10 @@ public class DeviceConfigsValidationRuleSetResource {
     @Path("/{validationRuleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public Response getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam QueryParameters queryParameters) {
+    public Response getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         List<DeviceConfiguration> configs = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(validationRuleSetId);
         DeviceConfigurationInfos.DeviceConfigAndTypeInfo[] infos = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo[configs.size()];
-        for (int i = queryParameters.getStart(); i < queryParameters.getStart() + queryParameters.getLimit() + 1; i++) {
+        for (int i = queryParameters.getStart().get(); i < queryParameters.getStart().get() + queryParameters.getLimit().get() + 1; i++) {
             if (i < infos.length) {
                 infos[i] = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo(configs.get(i));
             }
@@ -113,7 +113,7 @@ public class DeviceConfigsValidationRuleSetResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getLinkableDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId,
-                                                    @BeanParam QueryParameters queryParameters) {
+                                                    @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
         ValidationRuleSet validationRuleSet = getValidationRuleSet(validationRuleSetId);
         //List<DeviceConfiguration> allLinkableDeviceConfigurations = deviceConfigurationService.getLinkableDeviceConfigurations(validationRuleSet);
@@ -121,7 +121,7 @@ public class DeviceConfigsValidationRuleSetResource {
 
         DeviceConfigurationInfos.DeviceConfigAndTypeInfo[] infos = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo[allLinkableDeviceConfigurations.size()];
 
-        for (int i = queryParameters.getStart(); i < queryParameters.getStart() + queryParameters.getLimit() + 1; i++) {
+        for (int i = queryParameters.getStart().get(); i < queryParameters.getStart().get() + queryParameters.getLimit().get() + 1; i++) {
             if (i < infos.length) {
                 infos[i] = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo(allLinkableDeviceConfigurations.get(i));
 
