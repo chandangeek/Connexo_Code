@@ -1,4 +1,4 @@
-Ext.define('Fwc.model.FirmwareUpgradeOptions', {
+Ext.define('Fwc.model.FirmwareManagementOptions', {
     extend: 'Ext.data.Model',
     fields: [
         {
@@ -20,7 +20,7 @@ Ext.define('Fwc.model.FirmwareUpgradeOptions', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/fwc/devicetypes/{deviceTypeId}/firmwareupgradeoptions',
+        urlTpl: '/api/fwc/devicetypes/{deviceTypeId}/firmwaremanagementoptions',
         reader: {
             type: 'json'
         },

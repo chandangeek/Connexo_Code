@@ -12,7 +12,7 @@ Ext.define('Fwc.controller.Firmware', {
 
     requires: [
         'Mdc.model.DeviceType',
-        'Fwc.model.FirmwareUpgradeOptions',
+        'Fwc.model.FirmwareManagementOptions',
         'Fwc.form.OptionsHydrator',
         'Fwc.form.Hydrator'
     ],
@@ -391,7 +391,7 @@ Ext.define('Fwc.controller.Firmware', {
     showFirmwareOptions: function (deviceTypeId) {
         var me = this,
             container = this.getContainer(),
-            model = me.getModel('Fwc.model.FirmwareUpgradeOptions');
+            model = me.getModel('Fwc.model.FirmwareManagementOptions');
 
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             me.getApplication().fireEvent('changecontentevent', 'firmware-options', {deviceType: deviceType});
@@ -407,7 +407,7 @@ Ext.define('Fwc.controller.Firmware', {
                     if (record.get('supportedOptions').length === 0) {
                         widget.down('button').disable();
                         widget.down('grid').getStore().loadData([]);
-                        widget.down('grid').el.down('.x-grid-empty').dom.innerHTML = Uni.I18n.translate('deviceType.firmwareupgradeoptions.notsupported', 'FWC', 'No options supported by current device type');
+                        widget.down('grid').el.down('.x-grid-empty').dom.innerHTML = Uni.I18n.translate('deviceType.firmwaremanagementoptions.notsupported', 'FWC', 'No options supported by current device type');
                     }
                 },
                 callback: function () {
@@ -420,7 +420,7 @@ Ext.define('Fwc.controller.Firmware', {
     editFirmwareOptions: function (deviceTypeId) {
         var me = this,
             container = this.getContainer(),
-            model = me.getModel('Fwc.model.FirmwareUpgradeOptions');
+            model = me.getModel('Fwc.model.FirmwareManagementOptions');
 
         model.getProxy().setUrl(deviceTypeId);
         me.loadDeviceType(deviceTypeId, function (deviceType) {
@@ -447,7 +447,7 @@ Ext.define('Fwc.controller.Firmware', {
         form.updateRecord();
         form.getRecord().save({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware upgrade options saved'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware management options saved'));
                 router.getRoute('administration/devicetypes/view/firmwareoptions').forward();
             },
             failure: function (record, operation) {

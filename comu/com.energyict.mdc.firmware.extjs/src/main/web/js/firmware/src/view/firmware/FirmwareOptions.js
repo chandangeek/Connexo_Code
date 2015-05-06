@@ -4,7 +4,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
     itemId: 'firmware-options',
     requires: [
         'Mdc.view.setup.devicetype.SideMenu',
-        'Fwc.model.FirmwareUpgradeOptions',
+        'Fwc.model.FirmwareManagementOptions',
         'Fwc.view.firmware.OptionsGrid',
         'Fwc.view.firmware.FirmwareOptionsEdit'
     ],
@@ -68,7 +68,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                             store: Ext.create('Ext.data.Store', {
                                                 fields: ['localizedValue']
                                             }),
-                                            emptyText: Uni.I18n.translate('deviceType.firmwareupgradeoptions.off', 'FWC', 'Firmware upgrade is off')
+                                            emptyText: Uni.I18n.translate('deviceType.firmwaremanagementoptions.off', 'FWC', 'Firmware management is off')
                                         }
                                     }
 
@@ -83,7 +83,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'button',
                                 itemId: 'button-edit',
                                 name: 'Edit',
-                                text: Uni.I18n.translate('deviceType.firmwareupgradeoptions.edit', 'FWC', 'Edit'),
+                                text: Uni.I18n.translate('deviceType.firmwaremanagementoptions.edit', 'FWC', 'Edit'),
                                 action: 'editFirmwareOptions'
                             }
                         ]

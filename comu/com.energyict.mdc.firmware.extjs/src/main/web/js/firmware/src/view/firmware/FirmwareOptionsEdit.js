@@ -1,7 +1,7 @@
 Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Fwc.model.FirmwareUpgradeOptions',
+        'Fwc.model.FirmwareManagementOptions',
         'Fwc.form.OptionsHydrator'
     ],
     alias: 'widget.firmware-options-edit',
@@ -13,7 +13,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
             {
                 xtype: 'form',
                 hydrator: 'Fwc.form.OptionsHydrator',
-                title: Uni.I18n.translate('deviceType.firmwareupgradeoptions.edit', 'FWC', 'Edit firmware management options'),
+                title: Uni.I18n.translate('deviceType.firmwaremanagemenoptions.edit', 'FWC', 'Edit firmware management options'),
                 ui: 'large',
                 border: false,
                 width: 850,
@@ -38,7 +38,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     {
 
                         xtype: 'radiogroup',
-                        fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.allowed', 'FWC', 'Firmware upgrade allowed'),
+                        fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.allowed', 'FWC', 'Firmware management allowed'),
                         itemId: 'allowedCombo',
                         required: true,
                         columns: 1,
@@ -74,7 +74,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     },
                     {
                         xtype: 'checkboxgroup',
-                        fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.options', 'FWC', 'Firmware upgrade options'),
+                        fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.options', 'FWC', 'Firmware management options'),
                         required: true,
                         itemId: 'firmwareUpgradeOptions',
                         columns: 1,
