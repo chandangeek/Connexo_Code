@@ -4,10 +4,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -37,7 +36,7 @@ public class ReadingTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public ReadingTypeInfos getReadingTypes(@BeanParam QueryParameters queryParameters) {
+    public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
         String searchText = queryParameters.getLike();
         if (searchText != null && !searchText.isEmpty()) {
             String dbSearchText = searchText;

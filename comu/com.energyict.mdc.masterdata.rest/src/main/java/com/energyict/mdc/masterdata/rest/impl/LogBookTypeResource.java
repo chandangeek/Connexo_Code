@@ -1,7 +1,7 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -42,7 +42,7 @@ public class LogBookTypeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public PagedInfoList getLogbookTypes(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getLogbookTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<LogBookTypeInfo> logbookTypeInfos = new ArrayList<>();
         // TODO it will be better to change the result type of masterDataService.findAllLogBookTypes() to Finder, as for masterDataService.findAllMeasurementTypes
         List<LogBookType> logbookTypes = this.masterDataService.findAllLogBookTypes().from(queryParameters).find();
@@ -59,7 +59,7 @@ public class LogBookTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public PagedInfoList getLogbookType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getLogbookType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
         if (!logBookRef.isPresent()) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);

@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -66,7 +66,7 @@ public class LoadProfileTypeResource {
     @Path("/intervals")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public Response getIntervals(@BeanParam QueryParameters queryParameters) {
+    public Response getIntervals(@BeanParam JsonQueryParameters queryParameters) {
         List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
         for (Map.Entry<Integer, LocalizedTimeDuration> timeDurationEntry : LocalizedTimeDuration.intervals.entrySet()) {
             LocalizedTimeDuration.TimeDurationInfo info = new LocalizedTimeDuration.TimeDurationInfo();
@@ -80,7 +80,7 @@ public class LoadProfileTypeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public Response getAllProfileTypes(@BeanParam QueryParameters queryParameters) {
+    public Response getAllProfileTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
 
         allProfileTypes = ListPager.of(allProfileTypes, (lp1, lp2) -> lp1.getName().compareToIgnoreCase(lp2.getName())).from(queryParameters).find();
@@ -152,12 +152,12 @@ public class LoadProfileTypeResource {
     @Path("/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
-    public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam JsonQueryParameters queryParameters) {
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
                 .filter(filterOutReadingTypesWithInterval())
                 .filter(filterOnCommodity())
-                .skip(queryParameters.getStart())
-                .limit(queryParameters.getLimit() + 1);
+                .skip(queryParameters.getStart().get())
+                .limit(queryParameters.getLimit().get() + 1);
 
         List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
                 .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
@@ -169,14 +169,14 @@ public class LoadProfileTypeResource {
     @Path("{id}/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
-    public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam QueryParameters queryParameters, @PathParam("id") long loadProfileId) {
+    public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = this.findLoadProfileTypeByIdOrThrowException(loadProfileId);
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
                 .filter(filterOutReadingTypesWithInterval())
                 .filter(filterOnCommodity())
                 .filter(filterExistingRegisterTypesOnLoadProfileType(loadProfileType))
-                .skip(queryParameters.getStart())
-                .limit(queryParameters.getLimit() + 1);
+                .skip(queryParameters.getStart().get())
+                .limit(queryParameters.getLimit().get() + 1);
 
         List<RegisterTypeInfo> registerTypeInfos = registerTypeStream
                 .map(registerType -> new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false))
