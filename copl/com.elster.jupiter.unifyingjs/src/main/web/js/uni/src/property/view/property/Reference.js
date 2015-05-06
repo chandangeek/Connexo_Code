@@ -13,9 +13,9 @@ Ext.define('Uni.property.view.property.Reference', {
 
         // clear store
         me.referencesStore.loadData([], false);
-        for (var i = 0; i < me.getProperty().getPossibleValues().length; i++) {
-            me.referencesStore.add({key: me.getProperty().getPossibleValues()[i].id, value: me.getProperty().getPossibleValues()[i].name})
-        }
+        _.map(me.getProperty().getPossibleValues(), function (item) {
+            me.referencesStore.add({key: item.id, value: item.name});
+        });
 
         return {
             xtype: 'combobox',
