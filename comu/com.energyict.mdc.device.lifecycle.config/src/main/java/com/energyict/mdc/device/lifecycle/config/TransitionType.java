@@ -151,6 +151,22 @@ public enum TransitionType {
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
+
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(
+                    MicroAction.DISABLE_COMMUNICATION,
+                    MicroAction.ENABLE_VALIDATION,
+                    MicroAction.DISABLE_VALIDATION);
+        }
+
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(
+                    MicroAction.CREATE_METER_ACTIVATION,
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS);
+        }
     },
     ACTIVATE(DefaultState.INACTIVE, DefaultState.ACTIVE) {
         @Override
@@ -172,9 +188,41 @@ public enum TransitionType {
                     MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.VEE_PROPERTIES_ARE_ALL_VALID);
         }
+
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(
+                    MicroAction.ACTIVATE_CONNECTION_TASKS,
+                    MicroAction.ENABLE_VALIDATION);
+        }
+
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(MicroAction.SET_LAST_READING);
+        }
     },
-    DEACTIVATE(DefaultState.ACTIVE, DefaultState.INACTIVE),
-    DEACTIVATE_AND_DECOMMISSION(DefaultState.ACTIVE, DefaultState.DECOMMISSIONED),
+    DEACTIVATE(DefaultState.ACTIVE, DefaultState.INACTIVE) {
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(
+                    MicroAction.DISABLE_COMMUNICATION,
+                    MicroAction.DISABLE_VALIDATION);
+        }
+    },
+    DEACTIVATE_AND_DECOMMISSION(DefaultState.ACTIVE, DefaultState.DECOMMISSIONED) {
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS);
+        }
+
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(
+                    MicroAction.DETACH_SLAVE_FROM_MASTER,
+                    MicroAction.DETACH_USAGE_POINT,
+                    MicroAction.CLOSE_METER_ACTIVATION);
+        }
+    },
     DECOMMISSION(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED) {
         @Override
         public Set<MicroCheck> optionalChecks() {

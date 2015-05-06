@@ -47,13 +47,30 @@ public enum MicroAction {
      * Requires that the user specifies the timestamp
      * on which the meter activation should start.
      */
-    CREATE_METER_ACTIVATION ,
+    CREATE_METER_ACTIVATION,
+
+    /**
+     * Closes the current meter activation on the device.
+     * Requires that the user specifies the timestamp
+     * on which the meter activation should end.
+     */
+    CLOSE_METER_ACTIVATION,
 
     /**
      * Removes the device from all enumerated device groups
      * it is contained in.
      */
-    REMOVE_DEVICE_FROM_STATIC_GROUPS;
+    REMOVE_DEVICE_FROM_STATIC_GROUPS,
+
+    /**
+     * Detaches a slave device from its physical gateway.
+     */
+    DETACH_SLAVE_FROM_MASTER,
+
+    /**
+     * Detaches the device from its usage point.
+     */
+    DETACH_USAGE_POINT;
 
     /**
      * Gets the Set of {@link MicroCheck}s that are implied
