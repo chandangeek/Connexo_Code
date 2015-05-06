@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateConnectionTasks;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.CloseMeterActivation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CreateMeterActivation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableValidation;
@@ -37,6 +38,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case CREATE_METER_ACTIVATION: {
                 return new CreateMeterActivation();
+            }
+            case CLOSE_METER_ACTIVATION: {
+                return new CloseMeterActivation();
             }
             case DISABLE_COMMUNICATION: {
                 return new DisableCommunication();
