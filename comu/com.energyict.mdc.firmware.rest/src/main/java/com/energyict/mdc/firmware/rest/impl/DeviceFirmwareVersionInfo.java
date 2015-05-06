@@ -35,7 +35,9 @@ public class DeviceFirmwareVersionInfo {
             jgen.writeObjectField("activeVersion", value.activeVersion);
             if (value.upgradeVersions != null) {
                 for (Map.Entry<String, Map<String, Object>> upgradeVersion : value.upgradeVersions.entrySet()) {
-                    jgen.writeObjectField(upgradeVersion.getKey(), upgradeVersion.getValue());
+                    if (upgradeVersion.getKey() != null) {
+                        jgen.writeObjectField(upgradeVersion.getKey(), upgradeVersion.getValue());
+                    }
                 }
             }
             jgen.writeEndObject();

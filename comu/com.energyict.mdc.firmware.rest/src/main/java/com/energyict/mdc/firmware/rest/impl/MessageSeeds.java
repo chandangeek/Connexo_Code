@@ -34,6 +34,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     MAX_FILE_SIZE_EXCEEDED(15, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb"),
     FILE_IO(16, Keys.FILE_IO, "Failure while doing IO on file"),
     FIRMWARE_VERSION_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No firmware version with id {0} could be found"),
+    FIRMWARE_ACTION_CHECK_VERSION (15, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version"),
+    FIRMWARE_ACTION_CHECK_VERSION_NOW (16, Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW, "Check firmware version now"),
 
     SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND(1001, "SupportedFirmwareUpgradeOptionsNotFound", "There is no such supported firmware upgrade option"),
     FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE(1002, "FirmwareUpgradeOptionsAreDisabledForDeviceType", "Firmware upgrade options are disabled for device type"),
@@ -105,6 +107,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DEVICE_NOT_FOUND = "deviceNotFound";
         public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
         public static final String FILE_IO = "FileIO";
-        public static final String FIRMWARE_VERSION_NOT_FOUND = "FirmwareVersionNotFound";
+        public static final String FIRMWARE_ACTION_CHECK_VERSION = "FirmwareActionCheckVersion";
+        public static final String FIRMWARE_ACTION_CHECK_VERSION_NOW = "FirmwareActionCheckVersionNow";
     }
 }

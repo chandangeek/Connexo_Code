@@ -158,8 +158,7 @@ public class DeviceFirmwareMessagesResource {
         return convertedProperties;
     }
 
-    private void
-    prepareCommunicationTask(Device device, Map<String, Object> convertedProperties) {
+    private void prepareCommunicationTask(Device device, Map<String, Object> convertedProperties) {
         Optional<ComTaskExecution> fuComTaskExecutionRef = findFirmwareComTaskExecution(device);
         if (!fuComTaskExecutionRef.isPresent()){
             createFirmwareComTaskExecution(device);
@@ -212,19 +211,28 @@ public class DeviceFirmwareMessagesResource {
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
     public Response getDynamicActions(@PathParam("mrid") String mrid, @BeanParam QueryParameters queryParameters){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
-        List<UpgradeOptionInfo> upgradeOptionActions = new ArrayList<>();
-        DeviceFirmwareVersionUtils versionUtils = utilProvider.get().onDevice(device);
-        boolean hasActiveUpgradeMessages = versionUtils.getFirmwareMessages().stream()
-                .filter(message -> DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(message.getStatus()))
-                .count() != 0;
-        if (!hasActiveUpgradeMessages) {
-            upgradeOptionActions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(device.getDeviceType())
+        List<DeviceFirmwareActionInfo> deviceFirmwareActions = new ArrayList<>();
+        DeviceFirmwareVersionUtils helper = utilProvider.get().onDevice(device);
+        if (isDeviceFirmwareUpgradeAllowed(helper)) {
+            deviceFirmwareActions = firmwareService.getAllowedFirmwareUpgradeOptionsFor(device.getDeviceType())
                     .stream()
-                    .map(option -> new UpgradeOptionInfo(option.getId(), thesaurus.getString(option.getId(), option.getId())))
+                    .map(option -> new DeviceFirmwareActionInfo(option.getId(), thesaurus.getString(option.getId(), option.getId())))
                     .collect(Collectors.toList());
         }
-        // TODO add actions for basic checks here
-        return Response.ok(PagedInfoList.fromPagedList("firmwareactions", upgradeOptionActions, queryParameters)).build();
+        Optional<ComTask> statusCheckComTask = helper.getStatusCheckComTask();
+        if (statusCheckComTask.isPresent()){
+            deviceFirmwareActions.add(new DeviceFirmwareActionInfo("run", thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getDefaultFormat()), statusCheckComTask.get().getId()));
+            deviceFirmwareActions.add(new DeviceFirmwareActionInfo("runnow", thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW.getDefaultFormat()), statusCheckComTask.get().getId()));
+        }
+        return Response.ok(PagedInfoList.fromPagedList("firmwareactions", deviceFirmwareActions, queryParameters)).build();
+    }
+
+    private boolean isDeviceFirmwareUpgradeAllowed(DeviceFirmwareVersionUtils helper) {
+        FirmwareComTaskExecution firmwareUpgradeExecution = helper.getComTaskExecution();
+        return helper.getFirmwareMessages().stream()
+                .filter(message -> DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(message.getStatus()))
+                .filter(message -> firmwareUpgradeExecution == null || firmwareUpgradeExecution.getLastExecutionStartTimestamp() == null || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.getLastExecutionStartTimestamp()))
+                .count() == 0;
     }
 
     /** Returns the appropriate DeviceMessageId which corresponds with the uploadOption */

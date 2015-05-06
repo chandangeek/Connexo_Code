@@ -21,9 +21,9 @@ import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -54,11 +54,11 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     @Mock
     private FirmwareComTaskExecution firmwareExecution;
     @Mock
-    private BasicCheckTask basicCheckTask;
+    private StatusInformationTask statusCheckTask;
     @Mock
-    private ComTask basicCheckComTask;
+    private ComTask statusCheckComTask;
     @Mock
-    private ComTaskExecution basicCheckExecution;
+    private ComTaskExecution statusCheckExecution;
     @Mock
     private ActivatedFirmwareVersion activatedCommunicationVersion;
     @Mock
@@ -73,9 +73,9 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     public void setupEnvironment() {
         messages = new ArrayList<>();
 
-        when(basicCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheckTask));
-        when(basicCheckExecution.getComTasks()).thenReturn(Collections.singletonList(basicCheckComTask));
-        when(basicCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
+        when(statusCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusCheckTask));
+        when(statusCheckExecution.getComTasks()).thenReturn(Collections.singletonList(statusCheckComTask));
+        when(statusCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
         ComTask firmwareComTask = mock(ComTask.class);
         when(firmwareComTask.getId()).thenReturn(101L);
         ComTaskExecutionSession session = mock(ComTaskExecutionSession.class);
@@ -86,7 +86,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(device.getId()).thenReturn(1L);
         when(device.getmRID()).thenReturn("upgrade");
         when(device.getMessages()).thenReturn(messages);
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(firmwareExecution, basicCheckExecution));
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(firmwareExecution, statusCheckExecution));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);

@@ -16,13 +16,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -164,14 +163,20 @@ public class DeviceFirmwareVersionUtils {
         return comTaskExecution;
     }
 
-    public Optional<ComTaskExecution> getBasicCheckExecution(){
+    public Optional<ComTaskExecution> getStatusCheckExecution(){
         return device.getComTaskExecutions().stream()
-                .filter(execution -> execution.getComTasks().stream().filter(getComTaskHasBasicCheckAction()).findAny().isPresent())
+                .filter(execution -> execution.getComTasks().stream().filter(getComTaskHasStatusCheckAction()).findAny().isPresent())
                 .findFirst();
     }
 
-    private Predicate<ComTask> getComTaskHasBasicCheckAction() {
-        return task -> task.getProtocolTasks().stream().filter(action -> action instanceof BasicCheckTask).findAny().isPresent();
+    public Optional<ComTask> getStatusCheckComTask(){
+        return device.getComTaskExecutions().stream()
+                .flatMap(execution -> execution.getComTasks().stream())
+                .filter(getComTaskHasStatusCheckAction())
+                .findFirst();
+    }
+    private Predicate<ComTask> getComTaskHasStatusCheckAction() {
+        return task -> task.getProtocolTasks().stream().filter(action -> action instanceof StatusInformationTask).findAny().isPresent();
     }
 
     public List<DeviceMessage<Device>> getFirmwareMessages() {
