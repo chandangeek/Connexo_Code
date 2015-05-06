@@ -102,7 +102,7 @@ Ext.define('Cfg.controller.Tasks', {
         me.fromDetails = false;
         me.getApplication().fireEvent('changecontentevent', view);   
 		if ( Cfg.privileges.Validation.canRun()) {
-            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+            Ext.Array.each(Ext.ComponentQuery.query('#run-task'), function (item) {
                 item.show();
             });
         }
@@ -136,7 +136,7 @@ Ext.define('Cfg.controller.Tasks', {
                         view.down('#lbl-reason-field').show();
                     }  
 					if (Cfg.privileges.Validation.canRun()) {
-                        view.down('#run').show();
+                        view.down('#run-task').show();
                     }
                 }              
             }
@@ -284,7 +284,7 @@ Ext.define('Cfg.controller.Tasks', {
 
         Ext.suspendLayouts();
         if (record.get('status') === 'Busy') {
-            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+            Ext.Array.each(Ext.ComponentQuery.query('#run-task'), function (item) {
                 item.hide();
             });
         } else {
@@ -294,7 +294,7 @@ Ext.define('Cfg.controller.Tasks', {
                 previewForm.down('#lbl-reason-field').hide();
             }  
 			if ( Cfg.privileges.Validation.canRun()) {
-                Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                Ext.Array.each(Ext.ComponentQuery.query('#run-task'), function (item) {
                     item.show();
                 });
             }
@@ -332,7 +332,7 @@ Ext.define('Cfg.controller.Tasks', {
             case 'viewHistory':
                 route = 'administration/validationtasks/validationtask/history';
                 break;
-			case 'run':
+			case 'runTask':
                 me.runTask(menu.record);
                 break;
 
@@ -400,7 +400,7 @@ Ext.define('Cfg.controller.Tasks', {
                             view.down('dxp-tasks-action-menu').record = rec;
                             view.down('dxp-tasks-preview-form').loadRecord(rec);
                             if (record.get('status') === 'Busy') {
-                                view.down('#run').hide();
+                                view.down('#run-task').hide();
                             }
                             if (rec.properties() && rec.properties().count()) {
                                 view.down('property-form').loadRecord(rec);
