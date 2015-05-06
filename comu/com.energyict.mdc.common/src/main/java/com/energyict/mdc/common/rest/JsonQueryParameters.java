@@ -16,7 +16,7 @@ import org.json.JSONObject;
  * Convenience class to wrap all supported ExtJS constructs regarding paging and sorting (both simple sort and multi sort)
  * Can be passed as-is to the {@link com.energyict.mdc.common.services.Finder} who knows what to do with it
  */
-public class JsonQueryParameters {
+public class JsonQueryParameters implements QueryParameters {
 
     // Below are the fields as they are added to the query by ExtJS
     private static final String EXTJS_ASCENDING = "ASC";
@@ -35,14 +35,17 @@ public class JsonQueryParameters {
         queryParameters = uriInfo.getQueryParameters();
     }
 
+    @Override
     public Optional<Integer> getStart() {
         return getIntegerOrEmpty(EXTJS_START);
     }
 
+    @Override
     public Optional<Integer> getLimit() {
         return getIntegerOrEmpty(EXTJS_LIMIT);
     }
 
+    @Override
     public List<Order> getSortingColumns() {
         try {
             List<Order> sortingColumns = new ArrayList<>();

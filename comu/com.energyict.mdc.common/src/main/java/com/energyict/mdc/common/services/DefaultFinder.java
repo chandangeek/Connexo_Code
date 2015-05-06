@@ -4,7 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.common.rest.JsonQueryParameters;
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +69,7 @@ public class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> from(JsonQueryParameters queryParameters) {
+    public Finder<T> from(QueryParameters queryParameters) {
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
         }

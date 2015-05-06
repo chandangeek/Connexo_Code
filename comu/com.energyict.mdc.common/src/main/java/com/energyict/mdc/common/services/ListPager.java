@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.services;
 
-import com.energyict.mdc.common.rest.JsonQueryParameters;
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -61,7 +61,7 @@ public class ListPager<T> implements Finder<T> {
         }
     }
 
-    public ListPager<T> from(JsonQueryParameters queryParameters) {
+    public ListPager<T> from(QueryParameters queryParameters) {
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
         }

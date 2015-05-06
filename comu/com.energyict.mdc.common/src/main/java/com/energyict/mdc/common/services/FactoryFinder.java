@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.services;
 
-import com.energyict.mdc.common.rest.JsonQueryParameters;
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.List;
 
 /**
@@ -19,7 +19,7 @@ public class FactoryFinder<T> implements Finder<T> {
         return new FactoryFinder<T>(callback);
     }
     @Override
-    public Finder<T> paged(Integer start, Integer pageSize) {
+    public Finder<T> paged(int start, int pageSize) {
         return this;
     }
 
@@ -39,7 +39,7 @@ public class FactoryFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> from(JsonQueryParameters queryParameters) {
+    public Finder<T> from(QueryParameters queryParameters) {
         return this;
     }
 

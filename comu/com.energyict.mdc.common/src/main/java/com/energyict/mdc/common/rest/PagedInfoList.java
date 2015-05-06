@@ -54,7 +54,7 @@ public class PagedInfoList {
      * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
      */
     @Deprecated // use fromPagedList() from now on
-    public static PagedInfoList asJson(String jsonListName, List<?> infos, JsonQueryParameters queryParameters) {
+    public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters) {
         return fromPagedList(jsonListName, infos, queryParameters);
     }
 
@@ -77,7 +77,7 @@ public class PagedInfoList {
      *                        if the returned 'page' was full, if so, total is incremented by 1 to indicate to ExtJS there could be a next page.
      * @return A PagedInfoList that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static PagedInfoList fromPagedList(String jsonListName, List<?> infos, JsonQueryParameters queryParameters) {
+    public static PagedInfoList fromPagedList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
         boolean couldHaveNextPage=queryParameters.getLimit().isPresent() && infos.size()>queryParameters.getLimit().get();
         if (couldHaveNextPage) {
             infos=infos.subList(0,queryParameters.getLimit().get());
@@ -104,7 +104,7 @@ public class PagedInfoList {
      *                        the list if infos,
      * @return A PagedInfoList that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static PagedInfoList fromCompleteList(String jsonListName, List<?> infos, JsonQueryParameters queryParameters) {
+    public static PagedInfoList fromCompleteList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
         int totalCount = infos.size();
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() < infos.size()) {
             int startIndex = queryParameters.getStart().get();

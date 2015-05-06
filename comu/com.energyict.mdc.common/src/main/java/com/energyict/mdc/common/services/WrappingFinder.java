@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.services;
 
-import com.energyict.mdc.common.rest.JsonQueryParameters;
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.List;
 
 /**
@@ -40,7 +40,7 @@ public abstract class WrappingFinder<T, S> implements Finder<T> {
     public abstract List<T> convert(List<S> list);
 
     @Override
-    public Finder<T> from(JsonQueryParameters uriInfo) {
+    public Finder<T> from(QueryParameters uriInfo) {
         delegate.from(uriInfo);
         return this;
     }
