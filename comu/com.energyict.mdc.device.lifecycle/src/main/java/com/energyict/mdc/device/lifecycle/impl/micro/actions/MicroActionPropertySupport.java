@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -23,7 +24,7 @@ import java.util.function.Predicate;
 public final class MicroActionPropertySupport {
 
     /**
-     * Creates a {@link PropertySpec} for the
+     * Creates a mandatory {@link PropertySpec} for the
      * {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP effective timestamp}
      * property used by {@link MicroAction}s.
      *
@@ -38,6 +39,21 @@ public final class MicroActionPropertySupport {
     }
 
     /**
+     * Creates an optional {@link PropertySpec} for the
+     * {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP effective timestamp}
+     * property used by {@link MicroAction}s.
+     *
+     * @param service The PropertySpecService that effectively creates the PropertySpec
+     * @return The PropertySpec
+     */
+    public static PropertySpec optionalEffectiveTimestamp(PropertySpecService service) {
+        return service.basicPropertySpec(
+                DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
+                false,
+                new InstantFactory());
+    }
+
+    /**
      * Gets the value for the
      * {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP effective timestamp}
      * property, assuming that it has already been validated that it is effectively in the list
@@ -48,6 +64,18 @@ public final class MicroActionPropertySupport {
      */
     public static Instant getEffectiveTimestamp(List<ExecutableActionProperty> properties) {
         return getTimestamp(properties, propertySpecMatchPredicate(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP));
+    }
+
+    /**
+     * Gets the value for the optional
+     * {@link DeviceLifeCycleService.MicroActionPropertyName#EFFECTIVE_TIMESTAMP effective timestamp}
+     * property.
+     *
+     * @param properties The List of {@link ExecutableActionProperty properties}
+     * @return The effective timestamp
+     */
+    public static Optional<Instant> getOptionalEffectiveTimestamp(List<ExecutableActionProperty> properties) {
+        return getOptionalTimestamp(properties, propertySpecMatchPredicate(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP));
     }
 
     /**
@@ -86,14 +114,17 @@ public final class MicroActionPropertySupport {
         return property.getPropertySpec().getName().equals(name);
     }
 
-    private static Instant getTimestamp(List<ExecutableActionProperty> properties, Predicate<ExecutableActionProperty> predicate) {
+    private static Optional<Instant> getOptionalTimestamp(List<ExecutableActionProperty> properties, Predicate<ExecutableActionProperty> predicate) {
         return properties
                 .stream()
                 .filter(predicate)
                 .map(ExecutableActionProperty::getValue)
                 .map(Instant.class::cast)
-                .findAny()
-                .get();
+                .findAny();
+    }
+
+    private static Instant getTimestamp(List<ExecutableActionProperty> properties, Predicate<ExecutableActionProperty> predicate) {
+        return getOptionalTimestamp(properties, predicate).get();
     }
 
     // Hide constructor for static utility class

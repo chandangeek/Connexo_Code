@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.ValueFactory;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.*;
@@ -26,13 +27,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link CreateMeterActivation} component.
+ * Tests the {@link CloseMeterActivation} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-05-2 5(14:30)
+ * @since 2015-05-06 (14:47)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CreateMeterActivationTest {
+public class CloseMeterActivationTest {
 
     @Mock
     private PropertySpecService propertySpecService;
@@ -41,7 +42,7 @@ public class CreateMeterActivationTest {
 
     @Test
     public void testGetPropertySpecsDelegatesToPropertySpecService() {
-        CreateMeterActivation microAction = this.getTestInstance();
+        CloseMeterActivation microAction = this.getTestInstance();
 
         // Business method
         List<PropertySpec> propertySpecs = microAction.getPropertySpecs(this.propertySpecService);
@@ -56,9 +57,9 @@ public class CreateMeterActivationTest {
     }
 
     @Test
-    public void executeCreatesMeterActivation() {
+    public void executeWithEffectiveTimeClosesMeterActivation() {
         Instant now = Instant.ofEpochSecond(97L);
-        CreateMeterActivation microAction = this.getTestInstance();
+        CloseMeterActivation microAction = this.getTestInstance();
         ExecutableActionProperty property = mock(ExecutableActionProperty.class);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key());
@@ -69,11 +70,22 @@ public class CreateMeterActivationTest {
         microAction.execute(this.device, Arrays.asList(property));
 
         // Asserts
-        verify(this.device).activate(now);
+        verify(this.device).deactivate(now);
     }
 
-    private CreateMeterActivation getTestInstance() {
-        return new CreateMeterActivation();
+    @Test
+    public void executeWithoutEffectiveTimeClosesMeterActivation() {
+        CloseMeterActivation microAction = this.getTestInstance();
+
+        // Business method
+        microAction.execute(this.device, Collections.emptyList());
+
+        // Asserts
+        verify(this.device).deactivateNow();
+    }
+
+    private CloseMeterActivation getTestInstance() {
+        return new CloseMeterActivation();
     }
 
 }
