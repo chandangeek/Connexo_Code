@@ -14,6 +14,7 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
@@ -127,6 +128,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,6 +140,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -229,7 +232,6 @@ public class DemoTest {
                 new TimeModule(),
                 new ExportModule(),
                 new MeteringModule(true),
-
                 new MdcIOModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
@@ -240,6 +242,7 @@ public class DemoTest {
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
+                new EstimationModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new DeviceDataModule(),
@@ -251,7 +254,6 @@ public class DemoTest {
                 new IssueDataCollectionModule(),
                 new TopologyModule(),
                 new FavoritesModule(),
-
                 new DemoModule()
         );
         doPreparations();
@@ -368,7 +370,6 @@ public class DemoTest {
         assertThat(enablement.usesDefaultConnectionTask()).isTrue();
         assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isTrue();
         assertThat(enablement.getPriority()==100).isTrue();
-
         assertThat(gateway.getConnectionTasks().size()).isEqualTo(1);
         ConnectionTask connTask = gateway.getConnectionTasks().get(0);
         assertThat(connTask instanceof ScheduledConnectionTask).isTrue();
