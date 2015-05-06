@@ -340,25 +340,19 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
 
     updateDevice: function (data) {
         var me = this;
-
         me.setLoading(true);
-
-        Ext.Ajax.request({
-            url: '/api/ddr/devices/' + me.device.get('mRID'),
-            method: 'PUT',
-            jsonData: data,
-            success: function (response) {
-                var deviceData = Ext.JSON.decode(response.responseText, true);
-                if (!Ext.isEmpty(deviceData)) {
-                    Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.mRID, {
-                        success: function (device) {
-                            me.setRecord(device);
-                        },
-                        callback: function () {
-                            me.setLoading(false);
-                        }
-                    });
-                }
+        me.device.set('masterDeviceId', data.masterDeviceId);
+        me.device.set('masterDevicemRID', data.masterDevicemRID);
+        me.device.save({
+            success: function (deviceData) {
+                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.get('mRID'), {
+                    success: function (device) {
+                        me.setRecord(device);
+                    },
+                    callback: function () {
+                        me.setLoading(false);
+                    }
+                });
             }
         });
     }
