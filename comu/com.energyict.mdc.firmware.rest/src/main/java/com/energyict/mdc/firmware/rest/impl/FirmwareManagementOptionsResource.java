@@ -45,14 +45,14 @@ public class FirmwareManagementOptionsResource {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareManagementOptionsInfo firmwareManagementOptionsInfo = new FirmwareManagementOptionsInfo();
-        Set<ProtocolSupportedFirmwareOptions> supportedFirmwareUpgradeOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
-        Set<ProtocolSupportedFirmwareOptions> allowedFirmwareUpgradeOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> supportedFirmwareMgtOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> allowedFirmwareMgtOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType);
 
-        supportedFirmwareUpgradeOptions.stream().forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new UpgradeOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        supportedFirmwareMgtOptions.stream().forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
 
-        allowedFirmwareUpgradeOptions.stream().forEach(op ->
-                firmwareManagementOptionsInfo.allowedOptions.add(new UpgradeOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
-        if (!allowedFirmwareUpgradeOptions.isEmpty()) {
+        allowedFirmwareMgtOptions.stream().forEach(op ->
+                firmwareManagementOptionsInfo.allowedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        if (!allowedFirmwareMgtOptions.isEmpty()) {
             firmwareManagementOptionsInfo.isAllowed = true;
         }
         return firmwareManagementOptionsInfo;
@@ -66,25 +66,25 @@ public class FirmwareManagementOptionsResource {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareManagementOptionsInfo firmwareManagementOptionsInfo = new FirmwareManagementOptionsInfo();
-        Set<ProtocolSupportedFirmwareOptions> supportedFirmwareUpgradeOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
+        Set<ProtocolSupportedFirmwareOptions> supportedFirmwareMgtOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
 
-        Set<ProtocolSupportedFirmwareOptions> allowedFirmwareUpgradeOptions = new LinkedHashSet<>();
+        Set<ProtocolSupportedFirmwareOptions> allowedFirmwareMgtOptions = new LinkedHashSet<>();
         inputOptions.allowedOptions.stream().forEach(op ->
             {
                 Optional<ProtocolSupportedFirmwareOptions> optionRef = ProtocolSupportedFirmwareOptions.from(op.id);
                 if(optionRef.isPresent()) {
-                    allowedFirmwareUpgradeOptions.add(optionRef.get());
+                    allowedFirmwareMgtOptions.add(optionRef.get());
                 }
             });
-        if (allowedFirmwareUpgradeOptions.isEmpty() && inputOptions.isAllowed) {
+        if (allowedFirmwareMgtOptions.isEmpty() && inputOptions.isAllowed) {
             throw exceptionFactory.newException(MessageSeeds.UPGRADE_OPTIONS_REQUIRED);
         }
         FirmwareManagementOptions options = firmwareService.getFirmwareManagementOptions(deviceType);
-        options.setOptions(allowedFirmwareUpgradeOptions);
+        options.setOptions(allowedFirmwareMgtOptions);
         firmwareService.saveFirmwareManagementOptions(options);
 
-        supportedFirmwareUpgradeOptions.stream().forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new UpgradeOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
-        allowedFirmwareUpgradeOptions.stream().forEach(op -> firmwareManagementOptionsInfo.allowedOptions.add(new UpgradeOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        supportedFirmwareMgtOptions.stream().forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        allowedFirmwareMgtOptions.stream().forEach(op -> firmwareManagementOptionsInfo.allowedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
 
         return firmwareManagementOptionsInfo;
     }
