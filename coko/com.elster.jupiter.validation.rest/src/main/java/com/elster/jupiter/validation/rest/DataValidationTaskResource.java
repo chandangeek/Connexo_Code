@@ -144,7 +144,7 @@ public class DataValidationTaskResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         DataValidationTask task = fetchDataValidationTask(id);
         DataValidationOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-                .setStart(queryParameters.getStart())
+                .setStart(queryParameters.getStartInt())
                 .setLimit(queryParameters.getLimit() + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
@@ -180,7 +180,7 @@ public class DataValidationTaskResource {
         DataValidationTask task = fetchDataValidationTask(id);
         DataValidationOccurrence occurrence = fetchDataValidationOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder()
-                .setStart(queryParameters.getStart())
+                .setStart(queryParameters.getStartInt())
                 .setLimit(queryParameters.getLimit());
 
         List<? extends LogEntry> occurrences = finder.find();
