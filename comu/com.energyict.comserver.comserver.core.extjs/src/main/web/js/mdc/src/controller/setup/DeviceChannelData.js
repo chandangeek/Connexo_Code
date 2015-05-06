@@ -21,7 +21,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     ],
 
     refs: [
-
+        {ref: 'deviceLoadProfileChannelGraphView', selector: '#deviceLoadProfileChannelGraphView'}
     ],
 
     channelModel: null,
@@ -70,6 +70,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             channelId: channelId
                         });
                //         dataStore.load()
+                        me.showGraphView(channel);
                     }
                 })
             }
@@ -81,8 +82,78 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter'),
             queryParams = filter ? {filter: filter} : null;
         return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl(null, queryParams));
+    },
+
+    showGraphView: function (channelRecord) {
+    var me = this,
+        container = this.getDeviceLoadProfileChannelGraphView(),
+        dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
+        zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+        channelName = channelRecord.get('name'),
+        unitOfMeasure = channelRecord.get('unitOfMeasure').unit,
+        seriesObject = {marker: {
+            enabled: false
+        },
+            name: channelName
+        },
+        yAxis = {
+            opposite: false,
+            gridLineDashStyle: 'Dot',
+            showEmpty: false,
+            title: {
+                rotation: 270,
+                text: unitOfMeasure
+            }
+        },
+        series = [],
+        intervalRecord,
+        zoomLevels,
+        intervalLengthInMs;
+
+    seriesObject['data'] = [];
+
+    intervalRecord = zoomLevelsStore.getIntervalRecord(channelRecord.get('interval'));
+    intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channelRecord.get('interval'));
+    zoomLevels = intervalRecord.get('zoomLevels');
+
+    switch (channelRecord.get('flowUnit')) {
+        case 'flow':
+            seriesObject['type'] = 'line';
+            seriesObject['step'] = false;
+            break;
+        case 'volume':
+            seriesObject['type'] = 'column';
+            seriesObject['step'] = true;
+            break;
     }
+
+//    if (dataStore.getTotalCount() > 0) {
+    if (true) {
+        dataStore.each(function (record) {
+            if (record.get('value')) {
+                seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
+            } else {
+                seriesObject['data'].unshift([record.get('interval').start, null]);
+            }
+        });
+        series.push(seriesObject);
+        Ext.suspendLayouts();
+        container.down('#graphContainer').show();
+        container.down('#ctr-graph-no-data').hide();
+        container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
+        Ext.resumeLayouts(true);
+    } else {
+        Ext.suspendLayouts();
+        container.down('#graphContainer').hide();
+        container.down('#ctr-graph-no-data').show();
+        Ext.resumeLayouts(true);
+    }
+    me.getPage().doLayout();
+}
+
 });
+
+
 
 //
 //

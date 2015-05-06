@@ -146,5 +146,5 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             series: series
         });
 
-    },
+    }
 });
