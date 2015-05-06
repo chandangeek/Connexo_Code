@@ -54,14 +54,7 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
                 data[i] = parseInt(data[i]);
             }
         }
-        //if (me.store.loading) {
-        //    me.store.on('load', function () {
-        //        me.setValue(data);
-        //    }, {scope: me, single: true});
-        //
-        //    return
-        //}
-        debugger;
+
         me.setValue(data);
     },
 
