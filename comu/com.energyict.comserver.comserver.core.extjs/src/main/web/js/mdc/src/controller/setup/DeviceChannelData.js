@@ -162,9 +162,56 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             Ext.resumeLayouts(true);
         }
         me.getPage().doLayout();
-    }
+    },
+
+
+    setDefaults: function (dataIntervalAndZoomLevels, viewOnlySuspects) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            all = dataIntervalAndZoomLevels.get('all'),
+            intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.channelModel.get('lastReading') || new Date().getTime()));
+        router.filter = Ext.create('Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter');
+        router.filter.beginEdit();
+        router.filter.set('intervalStart', intervalStart);
+        router.filter.set('duration', all.count + all.timeUnit);
+        router.filter.set('onlySuspect', viewOnlySuspects);
+        router.filter.set('onlyNonSuspect', false);
+        router.filter.endEdit();
+        me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
+    },
+
+    setFilterView: function () {
+        var filterForm = this.getSideFilterForm(),
+            filterView = this.getFilterPanel(),
+            intervalStartField = filterForm.down('[name=intervalStart]'),
+            intervalEndField = filterForm.down('[name=duration]'),
+            suspectField = filterForm.down('#suspect'),
+            nonSuspectField = filterForm.down('#nonSuspect'),
+            intervalStart = intervalStartField.getValue(),
+            intervalEnd = intervalEndField.getRawValue(),
+            suspect = suspectField.boxLabel,
+            nonSuspect = nonSuspectField.boxLabel,
+            eventDateText = '';
+        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
+            + Uni.DateTime.formatDateShort(intervalStart);
+        filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
+        filterView.down('#Reset').setText('Reset');
+        if (suspectField.getValue()) {
+            filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
+        }
+        if (nonSuspectField.getValue()) {
+            filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
+        }
+
+
 
 });
+
+
+
+
+
+
 
 
 //
@@ -436,3 +483,31 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 //    if (nonSuspectField.getValue()) {
 //        filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
 //    }
+
+//refs: [
+//    {
+//        ref: 'page',
+//        selector: 'deviceLoadProfileChannelData'
+//    },
+//    {
+//        ref: 'deviceLoadProfileChannelGraphView',
+//        selector: '#deviceLoadProfileChannelGraphView'
+//    },
+//    {
+//        ref: 'readingsCount',
+//        selector: 'deviceLoadProfileChannelData #readingsCount'
+//    },
+//    {ref: 'deviceLoadProfileChannelDataPreview', selector: '#deviceLoadProfileChannelDataPreview'},
+//    {
+//        ref: 'sideFilter',
+//        selector: '#deviceLoadProfileChannelDataSideFilter'
+//    },
+//    {
+//        ref: 'sideFilterForm',
+//        selector: '#deviceLoadProfileChannelDataFilterForm'
+//    },
+//    {
+//        ref: 'filterPanel',
+//        selector: 'deviceLoadProfileChannelData filter-top-panel'
+//    }
+//],
