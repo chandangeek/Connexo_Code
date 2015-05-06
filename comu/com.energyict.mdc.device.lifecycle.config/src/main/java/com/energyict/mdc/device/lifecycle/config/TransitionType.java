@@ -63,6 +63,18 @@ public enum TransitionType {
                     MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.VEE_PROPERTIES_ARE_ALL_VALID);
         }
+
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(MicroAction.ENABLE_VALIDATION);
+        }
+
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(
+                    MicroAction.ACTIVATE_CONNECTION_TASKS,
+                    MicroAction.SET_LAST_READING);
+        }
     },
     INSTALL_INACTIVE_WITHOUT_COMMISSIONING(DefaultState.IN_STOCK, DefaultState.INACTIVE) {
         @Override
@@ -79,6 +91,21 @@ public enum TransitionType {
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
+
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(
+                    MicroAction.ENABLE_VALIDATION,
+                    MicroAction.DISABLE_VALIDATION);
+        }
+
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(
+                    MicroAction.CREATE_METER_ACTIVATION,
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS);
+        }
     },
     INSTALL_AND_ACTIVATE(DefaultState.COMMISSIONED, DefaultState.ACTIVE) {
         @Override
@@ -94,6 +121,19 @@ public enum TransitionType {
                     MicroCheck.VEE_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
+        }
+
+        @Override
+        public Set<MicroAction> optionalActions() {
+            return EnumSet.of(MicroAction.ENABLE_VALIDATION);
+        }
+
+        @Override
+        public Set<MicroAction> requiredActions() {
+            return EnumSet.of(
+                    MicroAction.CREATE_METER_ACTIVATION,
+                    MicroAction.SET_LAST_READING,
+                    MicroAction.ACTIVATE_CONNECTION_TASKS);
         }
     },
     INSTALL_INACTIVE(DefaultState.COMMISSIONED, DefaultState.INACTIVE) {

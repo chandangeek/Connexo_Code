@@ -37,6 +37,12 @@ public enum MicroAction {
     ACTIVATE_CONNECTION_TASKS,
 
     /**
+     * Disable communication on the device
+     * by putting all connection and communication tasks on hold.
+     */
+    DISABLE_COMMUNICATION,
+
+    /**
      * Creates a meter activation for the device.
      * Requires that the user specifies the timestamp
      * on which the meter activation should start.
