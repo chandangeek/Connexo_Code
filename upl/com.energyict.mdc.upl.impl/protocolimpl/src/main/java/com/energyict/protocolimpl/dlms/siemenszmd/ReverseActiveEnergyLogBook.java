@@ -3,10 +3,7 @@ package com.energyict.protocolimpl.dlms.siemenszmd;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.DedicatedEventLogSimple;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.obis.ObisCode;
@@ -45,7 +42,16 @@ public class ReverseActiveEnergyLogBook {
             return meterEvents; //Logbook does not exist
         }
 
-        DataContainer buffer = readBuffer(dedicatedEventLogSimple);
+        DataContainer buffer;
+        try {
+            buffer = readBuffer(dedicatedEventLogSimple);
+        } catch (DataAccessResultException e) {
+            if (e.getCode() == DataAccessResultCode.OBJECT_UNDEFINED || e.getCode() == DataAccessResultCode.OBJECT_UNAVAILABLE) {
+                return meterEvents; //Logbook does not exist
+            } else {
+                throw e;
+            }
+        }
         List<CapturedObject> capturedObjects = readCapturedObjects(dedicatedEventLogSimple);
 
         List<CapturedObject> startEnergyRegisters = new ArrayList<CapturedObject>();
