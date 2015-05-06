@@ -16,7 +16,6 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import org.fest.assertions.core.Condition;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -27,10 +26,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.assertj.core.api.Condition;
 import org.junit.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -146,7 +146,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         // Asserts
         Device reloadedSlave = getReloadedDevice(slave);
         Optional<Device> reloadedPhysicalGateway = getTopologyService().getPhysicalGateway(reloadedSlave);
-        assertThat(reloadedPhysicalGateway.isPresent()).isFalse();
+        assertThat(reloadedPhysicalGateway).isEmpty();
     }
 
     @Test
@@ -158,7 +158,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Optional<Device> gateway = this.getTopologyService().getPhysicalGateway(simpleDevice);
 
         // Asserts
-        assertThat(gateway.isPresent()).isFalse();
+        assertThat(gateway).isEmpty();
     }
 
     @Test
@@ -189,9 +189,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(downstreamDevices).hasSize(2);
-        assertThat(downstreamDevices).has(new Condition<List<Device>>() {
+        assertThat(downstreamDevices).has(new Condition<List<? extends Device>>() {
             @Override
-            public boolean matches(List<Device> value) {
+            public boolean matches(List<? extends Device> value) {
                 boolean bothMatch = true;
                 for (BaseDevice baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == device1.getId()) || (baseDevice.getId() == device2.getId()));
@@ -330,7 +330,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(segment.getCost()).isEqualTo(expectedCost);
         assertThat(segment.getTimeToLive()).isEqualTo(expectedTimeToLive);
         assertThat(segment.getNextHopDevice()).isNotNull();
-        assertThat(segment.getNextHopDevice().isPresent()).isFalse();
+        assertThat(segment.getNextHopDevice()).isEmpty();
     }
 
     @Test
@@ -989,7 +989,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Optional<G3DeviceAddressInformation> addressInformation = topologyService.getG3DeviceAddressInformation(device);
 
         // Asserts
-        assertThat(addressInformation.isPresent()).isFalse();
+        assertThat(addressInformation).isEmpty();
     }
 
     @Test

@@ -26,7 +26,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.assertj.core.api.Condition;
-import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -195,7 +194,7 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(slaveWithLoadProfile);
 
-        Assertions.assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();
+        assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();
     }
 
     private TopologyService getTopologyService() {
