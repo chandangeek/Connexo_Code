@@ -37,6 +37,7 @@ class EstimationTaskExecutor implements TaskExecutor {
                 tryExecute(occurrence, taskLogger);
             } catch (Exception e) {
                 loggingContext.severe(taskLogger, e);
+                throw e;
             }
         }
     }
@@ -65,7 +66,7 @@ class EstimationTaskExecutor implements TaskExecutor {
     public void postExecute(TaskOccurrence occurrence) {
         RecurrentTask recurrentTask = occurrence.getRecurrentTask();
         EstimationTask estimationTask = estimationService.findEstimationTask(recurrentTask).orElseThrow(IllegalArgumentException::new);
-        estimationTask.updateLastRun(occurrence.getTriggerTime());
+        transactionService.builder().run(() -> estimationTask.updateLastRun(occurrence.getTriggerTime()));
     }
 
 }
