@@ -4,7 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,11 +36,9 @@ public class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> paged(Integer start, Integer pageSize) {
-        if (start!=null && pageSize!=null) {
-            this.start=start;
-            this.pageSize=pageSize;
-        }
+    public Finder<T> paged(int start, int pageSize) {
+        this.start=start;
+        this.pageSize=pageSize;
         return this;
     }
 
@@ -71,8 +69,10 @@ public class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> from(QueryParameters queryParameters) {
-        this.paged(queryParameters.getStart(), queryParameters.getLimit());
+    public Finder<T> from(JsonQueryParameters queryParameters) {
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+        }
         for (Order columnSort : queryParameters.getSortingColumns()) {
             this.sorted(columnSort.getName(), columnSort.ascending());
         }

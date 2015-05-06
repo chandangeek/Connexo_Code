@@ -54,7 +54,7 @@ public class PagedInfoList {
      * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
      */
     @Deprecated // use fromPagedList() from now on
-    public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters) {
+    public static PagedInfoList asJson(String jsonListName, List<?> infos, JsonQueryParameters queryParameters) {
         return fromPagedList(jsonListName, infos, queryParameters);
     }
 
@@ -77,14 +77,14 @@ public class PagedInfoList {
      *                        if the returned 'page' was full, if so, total is incremented by 1 to indicate to ExtJS there could be a next page.
      * @return A PagedInfoList that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static PagedInfoList fromPagedList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
-        boolean couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()>queryParameters.getLimit();
+    public static PagedInfoList fromPagedList(String jsonListName, List<?> infos, JsonQueryParameters queryParameters) {
+        boolean couldHaveNextPage=queryParameters.getLimit().isPresent() && infos.size()>queryParameters.getLimit().get();
         if (couldHaveNextPage) {
-            infos=infos.subList(0,queryParameters.getLimit());
+            infos=infos.subList(0,queryParameters.getLimit().get());
         }
         int total = infos.size();
-        if (queryParameters.getStart()!=null) {
-            total+=queryParameters.getStart();
+        if (queryParameters.getStart().isPresent()) {
+            total+=queryParameters.getStart().get();
         }
         if (couldHaveNextPage) {
             total++;
@@ -104,13 +104,13 @@ public class PagedInfoList {
      *                        the list if infos,
      * @return A PagedInfoList that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static PagedInfoList fromCompleteList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
+    public static PagedInfoList fromCompleteList(String jsonListName, List<?> infos, JsonQueryParameters queryParameters) {
         int totalCount = infos.size();
-        if (queryParameters.getStart() != null && queryParameters.getStart() < infos.size()) {
-            int startIndex = queryParameters.getStart();
+        if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() < infos.size()) {
+            int startIndex = queryParameters.getStart().get();
             int endIndex = infos.size();
-            if(null != queryParameters.getLimit()) {
-                endIndex = queryParameters.getStart()+queryParameters.getLimit();
+            if(queryParameters.getLimit().isPresent()) {
+                endIndex = queryParameters.getStart().get()+queryParameters.getLimit().get();
                 if( endIndex > infos.size())
                     endIndex = infos.size();
             }

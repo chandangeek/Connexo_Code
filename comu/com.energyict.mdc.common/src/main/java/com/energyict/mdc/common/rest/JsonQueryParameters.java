@@ -1,22 +1,22 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.conditions.Order;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Convenience class to wrap all supported ExtJS constructs regarding paging and sorting (both simple sort and multi sort)
  * Can be passed as-is to the {@link com.energyict.mdc.common.services.Finder} who knows what to do with it
  */
-public class QueryParameters {
+public class JsonQueryParameters {
 
     // Below are the fields as they are added to the query by ExtJS
     private static final String EXTJS_ASCENDING = "ASC";
@@ -31,16 +31,16 @@ public class QueryParameters {
     private final MultivaluedMap<String, String> queryParameters;
 
     @Inject
-    public QueryParameters(@Context UriInfo uriInfo) {
+    public JsonQueryParameters(@Context UriInfo uriInfo) {
         queryParameters = uriInfo.getQueryParameters();
     }
 
-    public Integer getStart() {
-        return getIntegerOrNull(EXTJS_START);
+    public Optional<Integer> getStart() {
+        return getIntegerOrEmpty(EXTJS_START);
     }
 
-    public Integer getLimit() {
-        return getIntegerOrNull(EXTJS_LIMIT);
+    public Optional<Integer> getLimit() {
+        return getIntegerOrEmpty(EXTJS_LIMIT);
     }
 
     public List<Order> getSortingColumns() {
@@ -63,20 +63,16 @@ public class QueryParameters {
         }
     }
 
-    public Integer getIntegerOrNull(String name) {
+    private Optional<Integer> getIntegerOrEmpty(String name) {
         String start = queryParameters.getFirst(name);
         if (start != null) {
-            return Integer.parseInt(start);
+            return Optional.of(Integer.parseInt(start));
         }
-        return null;
+        return Optional.empty();
     }
 
     public String getLike() {
         return queryParameters.getFirst(EXTJS_LIKE);
     }
 
-    public Boolean getBoolean(String name) {
-        String value = queryParameters.getFirst(name);
-        return Boolean.parseBoolean(value);
-    }
 }

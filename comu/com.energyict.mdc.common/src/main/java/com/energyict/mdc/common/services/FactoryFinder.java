@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.services;
 
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public class FactoryFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> from(QueryParameters queryParameters) {
+    public Finder<T> from(JsonQueryParameters queryParameters) {
         return this;
     }
 

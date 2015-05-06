@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.services;
 
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import java.util.List;
 
 /**
@@ -14,7 +14,7 @@ public abstract class WrappingFinder<T, S> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> paged(Integer start, Integer pageSize) {
+    public Finder<T> paged(int start, int pageSize) {
         delegate.paged(start, pageSize);
         return this;
     }
@@ -40,7 +40,7 @@ public abstract class WrappingFinder<T, S> implements Finder<T> {
     public abstract List<T> convert(List<S> list);
 
     @Override
-    public Finder<T> from(QueryParameters uriInfo) {
+    public Finder<T> from(JsonQueryParameters uriInfo) {
         delegate.from(uriInfo);
         return this;
     }
