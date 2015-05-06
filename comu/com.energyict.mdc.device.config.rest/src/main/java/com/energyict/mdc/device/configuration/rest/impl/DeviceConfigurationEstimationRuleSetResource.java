@@ -1,11 +1,19 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -20,16 +28,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.security.Privileges;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 @Path("/estimationrulesets")
 public class DeviceConfigurationEstimationRuleSetResource {
@@ -47,23 +45,23 @@ public class DeviceConfigurationEstimationRuleSetResource {
     @Path("/{ruleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public PagedInfoList getDeviceConfigurationsForEstimationRuleSet(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getDeviceConfigurationsForEstimationRuleSet(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         EstimationRuleSet estimationRuleSet = findEstimationRuleSetByIdOrThrowException(estimationRuleSetId);
-        List<DeviceConfiguration> deviceConfigurations = deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        List<DeviceConfiguration> deviceConfigurations = deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(estimationRuleSet).from(queryParameters).find();
         List<DeviceConfigurationRefInfo> infos = deviceConfigurations.stream().map(DeviceConfigurationRefInfo::from).collect(Collectors.toList());
-        return PagedInfoList.asJson("deviceConfigurations", infos, queryParameters);
+        return PagedInfoList.fromPagedList("deviceConfigurations", infos, queryParameters);
     }
     
     @GET
     @Path("{ruleSetId}/linkabledeviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public PagedInfoList getLinkableDeviceConfigurations(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getLinkableDeviceConfigurations(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         EstimationRuleSet estimationRuleSet = findEstimationRuleSetByIdOrThrowException(estimationRuleSetId);
         List<DeviceConfiguration> linkableDeviceConfigs = computeLinkableDeviceConfigs(estimationRuleSet);
         List<DeviceConfiguration> pagedLinkableDeviceConfigs = ListPager.of(linkableDeviceConfigs).from(queryParameters).find();
         List<DeviceConfigurationRefInfo> infos = pagedLinkableDeviceConfigs.stream().map(DeviceConfigurationRefInfo::from).collect(Collectors.toList());
-        return PagedInfoList.asJson("deviceConfigurations", infos, queryParameters);
+        return PagedInfoList.fromPagedList("deviceConfigurations", infos, queryParameters);
     }
     
     @POST
