@@ -59,7 +59,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                 store: 'Est.estimationtasks.store.DeviceGroups',
                                 editable: false,
                                 disabled: false,
-                                emptyText: Uni.I18n.translate('estimationtasks.addEstimationTask.deviceGroupPrompt', 'EST', 'select a device group...'),
+                                emptyText: Uni.I18n.translate('estimationtasks.addEstimationTask.deviceGroupPrompt', 'EST', 'Select a device group...'),
                                 allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'name',
@@ -238,7 +238,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                         store: 'Uni.property.store.RelativePeriods',
                                         editable: false,
                                         disabled: false,
-                                        emptyText: Uni.I18n.translate('estimationtasks.general.selectPeriodLabel', 'EST', 'select an estimation period...'),
+                                        emptyText: Uni.I18n.translate('estimationtasks.general.selectPeriodLabel', 'EST', 'Select an estimation period...'),
                                         displayField: 'name',
                                         valueField: 'id',
                                         listeners: {
