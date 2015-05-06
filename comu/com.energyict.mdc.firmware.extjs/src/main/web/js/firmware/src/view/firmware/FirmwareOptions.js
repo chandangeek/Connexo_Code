@@ -82,6 +82,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                             {
                                 xtype: 'button',
                                 itemId: 'button-edit',
+                                hidden: true,
                                 name: 'Edit',
                                 text: Uni.I18n.translate('deviceType.firmwareupgradeoptions.edit', 'FWC', 'Edit'),
                                 action: 'editFirmwareOptions'

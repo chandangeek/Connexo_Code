@@ -157,7 +157,7 @@ Ext.define('Fwc.controller.Firmware', {
 
         var data = firmware.getAssociatedData().firmwareType;
         Ext.create('Uni.view.window.Confirmation', {
-            confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate'),
+            confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate')
         }).show({
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'It will not be possible to upload this firmware version on devices.'),
             title: Uni.I18n.translate('firmware.deprecate.title.' + data.id, 'FWC', 'Deprecate') + " '" + firmware.get('firmwareVersion') + "'?",
@@ -402,12 +402,17 @@ Ext.define('Fwc.controller.Firmware', {
             model.getProxy().setUrl(deviceTypeId);
             model.load(1, {
                 success: function (record) {
-                    widget.down('form').loadRecord(record);
-                    widget.down('grid').getStore().loadData(record.get('allowedOptions'));
-                    if (record.get('supportedOptions').length === 0) {
-                        widget.down('button').disable();
-                        widget.down('grid').getStore().loadData([]);
-                        widget.down('grid').el.down('.x-grid-empty').dom.innerHTML = Uni.I18n.translate('deviceType.firmwareupgradeoptions.notsupported', 'FWC', 'No options supported by current device type');
+                    if (widget.rendered) {
+                        Ext.suspendLayouts();
+                        widget.down('form').loadRecord(record);
+                        widget.down('grid').getStore().loadData(record.get('allowedOptions'));
+                        if (record.get('supportedOptions').length === 0) {
+                            widget.down('grid').getStore().loadData([]);
+                            widget.down('grid').el.down('.x-grid-empty').dom.innerHTML = Uni.I18n.translate('deviceType.firmwareupgradeoptions.notsupported', 'FWC', 'No options supported by current device type');
+                        } else {
+                            widget.down('button').show();
+                        }
+                        Ext.resumeLayouts(true);
                     }
                 },
                 callback: function () {
