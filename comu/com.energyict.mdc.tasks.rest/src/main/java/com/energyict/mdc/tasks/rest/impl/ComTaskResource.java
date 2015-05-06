@@ -1,7 +1,7 @@
 package com.energyict.mdc.tasks.rest.impl;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -53,7 +53,7 @@ public class ComTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getComTasks(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getComTasks(@BeanParam JsonQueryParameters queryParameters) {
         List<ComTaskInfo> comTaskInfos =
                 ComTaskInfo.from(ListPager.of(taskService.findAllUserComTasks(), new ComTaskComparator()).from(queryParameters).find());
         return PagedInfoList.fromPagedList("data", comTaskInfos, queryParameters);
@@ -144,7 +144,7 @@ public class ComTaskResource {
     @Path("/categories")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getCategories(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getCategories(@BeanParam JsonQueryParameters queryParameters) {
         List<CategoryInfo> categoryInfos = CategoryInfo.from(ListPager.of(Arrays.asList(Categories.values())).from(queryParameters).find());
         return PagedInfoList.fromPagedList("data", categoryInfos, queryParameters);
     }
@@ -153,7 +153,7 @@ public class ComTaskResource {
     @Path("/actions")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getActions(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getActions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Optional<String> categoryParameter = Optional.ofNullable(uriInfo.getQueryParameters().getFirst("category"));
         if (categoryParameter.isPresent()) {
             List<ActionInfo> actionInfos = ActionInfo.from(ListPager.of(
@@ -168,7 +168,7 @@ public class ComTaskResource {
     @Path("/messages")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
-    public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
+    public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream();
         String availableFor = uriInfo.getQueryParameters().getFirst("availableFor");
         if (availableFor != null) {
