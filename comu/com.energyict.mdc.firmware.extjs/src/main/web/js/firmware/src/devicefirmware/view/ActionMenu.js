@@ -40,7 +40,8 @@ Ext.define('Fwc.devicefirmware.view.ActionMenu', {
             me.add({
                 text: record.get('localizedValue'),
                 itemId: record.getId(),
-                action: record.getId()
+                action: record.getId(),
+                record: record
             });
         });
 

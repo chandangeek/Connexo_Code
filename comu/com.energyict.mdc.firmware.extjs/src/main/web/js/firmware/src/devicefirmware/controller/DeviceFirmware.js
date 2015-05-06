@@ -34,9 +34,13 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         this.control({
             'device-firmware-setup device-firmware-action-menu': {
                 click: function (menu, item) {
-                    this.getController('Uni.controller.history.Router')
-                        .getRoute('devices/device/firmware/upload')
-                        .forward(null, {action: item.action});
+                    if (item.action === 'run' || item.action === 'runnow') {
+                        this.doRun(item.record, item.action);
+                    } else {
+                        this.getController('Uni.controller.history.Router')
+                            .getRoute('devices/device/firmware/upload')
+                            .forward(null, {action: item.action});
+                    }
                 }
             },
             'device-firmware-setup button[action=cancelUpgrade]': {
@@ -125,6 +129,29 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     }
                     container.setLoading(false);
                 }
+            }
+        });
+    },
+
+    doRun: function (record, action) {
+        var me = this,
+            container = this.getContainer(),
+            router = this.getController('Uni.controller.history.Router');
+
+        container.setLoading();
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ddr/devices/{mrid}/comtasks/{id}/{action}'
+                .replace('{action}', action)
+                .replace('{mrid}', router.arguments.mRID)
+                .replace('{id}', record.get('comTaskId')),
+            callback: function (operation, success) {
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.' + action, 'FWC', 'Firmware upgrade retried.'));
+                    router.getRoute().forward();
+                }
+
+                container.setLoading(false);
             }
         });
     },
