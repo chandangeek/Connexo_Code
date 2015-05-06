@@ -9,12 +9,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-
 import java.time.Instant;
+import java.util.Optional;
 
 public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
 
@@ -39,11 +41,13 @@ public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final FirmwareService firmwareService;
 
     @Inject
-    public ActivatedFirmwareVersionImpl(DataModel dataModel, EventService eventService) {
+    public ActivatedFirmwareVersionImpl(DataModel dataModel, EventService eventService, FirmwareService firmwareService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.firmwareService = firmwareService;
     }
 
     public ActivatedFirmwareVersion init(Device device, FirmwareVersion firmwareVersion, Interval interval) {
@@ -66,8 +70,30 @@ public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
     }
 
     private void doPersist() {
-        Save.CREATE.save(dataModel, this);
+        Save.CREATE.validate(dataModel, this);
+        getActivatedFirmwareVersionWithTheSameType().ifPresent(activeFirmwareVersion -> {
+            ((ActivatedFirmwareVersionImpl) activeFirmwareVersion).expiredAt(this.getInterval().getStart());
+        });
+        dataModel.persist(this);
         notifyCreated();
+    }
+
+    private Optional<ActivatedFirmwareVersion> getActivatedFirmwareVersionWithTheSameType() {
+        Optional<ActivatedFirmwareVersion> activeFirmwareVersion = Optional.empty();
+        FirmwareType firmwareType = this.getFirmwareVersion().getFirmwareType();
+        if (firmwareType.equals(FirmwareType.METER)) {
+            activeFirmwareVersion = this.firmwareService.getCurrentMeterFirmwareVersionFor(this.getDevice());
+        } else if (firmwareType.equals(FirmwareType.COMMUNICATION)) {
+            activeFirmwareVersion = this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.getDevice());
+        }
+        return activeFirmwareVersion;
+    }
+
+    private void expiredAt(Instant end){
+        if (this.isEffectiveAt(end)) {
+            this.interval = this.interval.withEnd(end);
+            dataModel.update(this);
+        }
     }
 
     private void doUpdate() {
