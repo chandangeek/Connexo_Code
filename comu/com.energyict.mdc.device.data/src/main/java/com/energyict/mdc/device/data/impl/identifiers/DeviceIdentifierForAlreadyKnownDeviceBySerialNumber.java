@@ -8,33 +8,35 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
-* Copyrights EnergyICT
-* Date: 8/1/14
-* Time: 8:50 AM
-*/
+ * This is a DeviceIdentifier that uniquely identifies a Device which you have given in the Constructor.
+ * The {@link #getIdentifier()} method will return the <b>SerialNumber</b> of the device!
+ */
 @XmlRootElement
-public final class DeviceIdentifierForAlreadyKnownDevice implements DeviceIdentifier<Device> {
+public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements DeviceIdentifier<Device> {
 
     private Device device;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    public DeviceIdentifierForAlreadyKnownDevice() {
+    public DeviceIdentifierForAlreadyKnownDeviceBySerialNumber() {
     }
 
-    public DeviceIdentifierForAlreadyKnownDevice(Device device) {
+    public DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(Device device) {
         this.device = device;
     }
 
+    /**
+     * @return the SERIALNUMBER of the device
+     */
     @Override
     public String getIdentifier() {
-        return this.device.getmRID();
+        return this.device.getSerialNumber();
     }
 
     @Override
     public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.ActualDevice;
+        return DeviceIdentifierType.SerialNumber;
     }
 
     @Override
@@ -53,3 +55,4 @@ public final class DeviceIdentifierForAlreadyKnownDevice implements DeviceIdenti
         return this.device;
     }
 }
+
