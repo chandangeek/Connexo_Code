@@ -1,10 +1,13 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Copyrights EnergyICT
  * Date: 19/03/13
  * Time: 8:45
  */
+@ProviderType
 public class DeviceMessageConstants {
 
     public static final String contactorActivationDateAttributeName = "ContactorDeviceMessage.activationdate";

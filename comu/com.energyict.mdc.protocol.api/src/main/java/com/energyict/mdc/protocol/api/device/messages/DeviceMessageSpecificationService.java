@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -12,6 +13,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (13:30)
  */
+@ProviderType
 public interface DeviceMessageSpecificationService {
 
     public static final String COMPONENT_NAME = "DMC";

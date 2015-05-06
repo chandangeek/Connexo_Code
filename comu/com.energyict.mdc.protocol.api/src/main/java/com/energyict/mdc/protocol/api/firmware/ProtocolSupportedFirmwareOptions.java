@@ -1,10 +1,13 @@
 package com.energyict.mdc.protocol.api.firmware;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
 /**
  * Provides a plain summary of all FirmwareUpgrade options which a DeviceProtocol can support
  */
+@ProviderType
 public enum ProtocolSupportedFirmwareOptions {
 
     UPLOAD_FIRMWARE_AND_ACTIVATE_LATER("install"),

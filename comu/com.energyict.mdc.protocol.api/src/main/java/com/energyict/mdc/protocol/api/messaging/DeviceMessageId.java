@@ -1,11 +1,14 @@
 package com.energyict.mdc.protocol.api.messaging;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models the unique identifier of a {@link MessageSpec}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-15 (09:22)
  */
+@ProviderType
 public enum DeviceMessageId {
 
     ACTIVITY_CALENDAR_READ(1),
