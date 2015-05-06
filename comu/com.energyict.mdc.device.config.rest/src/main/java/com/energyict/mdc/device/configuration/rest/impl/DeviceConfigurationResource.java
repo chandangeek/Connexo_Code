@@ -54,6 +54,7 @@ public class DeviceConfigurationResource {
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider;
     private final Provider<ValidationRuleSetResource> validationRuleSetResourceProvider;
+    private final Provider<EstimationRuleSetResource> estimationRuleSetResourceProvider;
     private final Provider<DeviceMessagesResource> deviceMessagesResourceProvider;
     private final Provider<ProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider;
     private final Thesaurus thesaurus;
@@ -69,6 +70,7 @@ public class DeviceConfigurationResource {
                                        Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
                                        Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider,
                                        Provider<ValidationRuleSetResource> validationRuleSetResourceProvider,
+                                       Provider<EstimationRuleSetResource> estimationRuleSetResourceProvider,
                                        Provider<DeviceMessagesResource> deviceMessagesResourceProvider, Thesaurus thesaurus, Provider<ProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -80,6 +82,7 @@ public class DeviceConfigurationResource {
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.comTaskEnablementResourceProvider = comTaskEnablementResourceProvider;
         this.validationRuleSetResourceProvider = validationRuleSetResourceProvider;
+        this.estimationRuleSetResourceProvider = estimationRuleSetResourceProvider;
         this.deviceMessagesResourceProvider = deviceMessagesResourceProvider;
         this.thesaurus = thesaurus;
         this.deviceProtocolPropertiesResourceProvider = deviceProtocolPropertiesResourceProvider;
@@ -379,6 +382,11 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/validationrulesets")
     public ValidationRuleSetResource getValidationsRuleSetResource() {
         return validationRuleSetResourceProvider.get();
+    }
+    
+    @Path("/{deviceConfigurationId}/estimationrulesets")
+    public EstimationRuleSetResource getEstimationRuleSetResource() {
+        return estimationRuleSetResourceProvider.get();
     }
 
     @Path("/{deviceConfigurationId}/devicemessageenablements")
