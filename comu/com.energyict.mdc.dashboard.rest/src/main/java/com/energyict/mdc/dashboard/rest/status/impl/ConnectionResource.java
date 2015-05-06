@@ -11,7 +11,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.QueueMessage;
@@ -112,12 +112,12 @@ public class ConnectionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
+    public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
-        if (queryParameters.getStart() == null || queryParameters.getLimit() == null) {
+        if (!queryParameters.getStart().isPresent() || !queryParameters.getLimit().isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ConnectionTask> connectionTasksByFilter = connectionTaskService.findConnectionTasksByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
+        List<ConnectionTask> connectionTasksByFilter = connectionTaskService.findConnectionTasksByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
         List<ConnectionTaskInfo> connectionTaskInfos = new ArrayList<>(connectionTasksByFilter.size());
         for (ConnectionTask<?, ?> connectionTask : connectionTasksByFilter) {
             Optional<ComSession> lastComSession = connectionTask.getLastComSession();
@@ -230,7 +230,7 @@ public class ConnectionResource {
     @Path("/{connectionId}/latestcommunications")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam JsonQueryParameters queryParameters) {
         ConnectionTask connectionTask =
                 connectionTaskService
                         .findConnectionTask(connectionId)

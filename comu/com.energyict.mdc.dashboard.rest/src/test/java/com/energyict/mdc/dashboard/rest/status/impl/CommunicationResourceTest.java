@@ -8,7 +8,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -443,7 +443,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
         when(finder.defaultSortColumn(anyString())).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         return finder;
