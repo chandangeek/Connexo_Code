@@ -80,6 +80,9 @@ public class InstallerImpl {
             SimpleNlsKey nlsKey = SimpleNlsKey.key(ValidationService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
             translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
         }
+        for (MessageSeeds.Labels label : MessageSeeds.Labels.values()) {
+            translations.add(label.toDefaultTransation());
+        }
         try {
             thesaurus.addTranslations(translations);
         } catch (Exception ex) {
