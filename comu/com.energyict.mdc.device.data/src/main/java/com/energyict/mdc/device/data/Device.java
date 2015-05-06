@@ -187,6 +187,18 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     public MeterActivation activate(Instant start);
 
+    /**
+     * Terminates the current MeterActivation on this Device.
+     *
+     * @param when The instant in time when the MeterActivation will end
+     */
+    public void deactivate(Instant when);
+
+    /**
+     * Terminates the current MeterActivation on this Device right now.
+     */
+    public void deactivateNow();
+
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
     List<MeterActivation> getMeterActivationsMostRecentFirst();

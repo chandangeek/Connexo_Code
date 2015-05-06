@@ -1252,6 +1252,16 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public void deactivate(Instant when) {
+        this.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(when));
+    }
+
+    @Override
+    public void deactivateNow() {
+        this.deactivate(this.clock.instant());
+    }
+
+    @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
         return this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
     }

@@ -1050,7 +1050,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test(expected = MeterAlreadyActive.class)
     @Transactional
-    public void activateMeterAgain() {
+    public void activateMeterSecondTime() {
         Device device = this.createSimpleDevice();
         Instant initialStart = Instant.ofEpochMilli(97L);
         Instant restart = Instant.ofEpochMilli(970079L);
@@ -1060,6 +1060,64 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device.activate(restart);
 
         // Asserts: see expected exception rule
+    }
+
+    @Test
+    @Transactional
+    public void deactivateNowOnMeterThatWasNotActive() {
+        Device device = this.createSimpleDevice();
+
+        // Business method
+        device.deactivateNow();
+
+        // Asserts
+        assertThat(device.getCurrentMeterActivation()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void deactivateMeterThatWasNotActive() {
+        Device device = this.createSimpleDevice();
+        Instant instant = Instant.ofEpochMilli(97L);
+
+        // Business method
+        device.deactivate(instant);
+
+        // Asserts
+        assertThat(device.getCurrentMeterActivation()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void deactivateMeter() {
+        Device device = this.createSimpleDevice();
+        Instant initialStart = Instant.ofEpochMilli(1000L);
+        device.activate(initialStart);
+        Instant end = Instant.ofEpochMilli(2000L);
+
+        // Business method
+        device.deactivate(end);
+
+        // Asserts
+        assertThat(device.getCurrentMeterActivation()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void reactivateMeter() {
+        Device device = this.createSimpleDevice();
+        Instant initialStart = Instant.ofEpochMilli(1000L);
+        device.activate(initialStart);
+        Instant end = Instant.ofEpochMilli(2000L);
+        device.deactivate(end);
+        Instant expectedStart = Instant.ofEpochMilli(3000L);
+
+        // Business method
+        device.activate(expectedStart);
+
+        // Asserts
+        assertThat(device.getCurrentMeterActivation()).isPresent();
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
