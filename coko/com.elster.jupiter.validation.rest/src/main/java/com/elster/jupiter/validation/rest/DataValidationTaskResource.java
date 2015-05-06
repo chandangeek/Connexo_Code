@@ -65,7 +65,7 @@ public class DataValidationTaskResource {
             dataValidationTask.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).build();
 
     }
 
@@ -77,7 +77,7 @@ public class DataValidationTaskResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
         return PagedInfoList.asJson("dataValidationTasks", list.stream().map(dataValidationTask ->
-                new DataValidationTaskInfo(dataValidationTask, thesaurus)).collect(Collectors.toList())
+                new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).collect(Collectors.toList())
                 , queryParameters);
     }
 
@@ -104,7 +104,7 @@ public class DataValidationTaskResource {
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public DataValidationTaskInfo getDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, @Context SecurityContext securityContext) {
         DataValidationTask task = validationService.findValidationTask(dataValidationTaskId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return new DataValidationTaskInfo(task, thesaurus);//, thesaurus, timeService);
+        return new DataValidationTaskInfo(task, thesaurus, timeService);
     }
 
     @PUT
@@ -122,7 +122,7 @@ public class DataValidationTaskResource {
             task.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(task, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(task, thesaurus, timeService)).build();
 
     }
 
@@ -131,7 +131,7 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        //transactionService.execute(VoidTransaction.of(() -> fetchDataValidationtTask(id).triggerNow()));
+        transactionService.execute(VoidTransaction.of(() -> fetchDataValidationTask(id).triggerNow()));
         return Response.status(Response.Status.OK).build();
     }
 

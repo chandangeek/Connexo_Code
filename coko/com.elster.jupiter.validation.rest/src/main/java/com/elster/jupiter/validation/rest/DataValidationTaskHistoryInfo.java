@@ -1,7 +1,5 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
@@ -14,14 +12,17 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Optional;
 
+import static com.elster.jupiter.validation.MessageSeeds.Labels.ON_REQUEST;
+import static com.elster.jupiter.validation.MessageSeeds.Labels.SCHEDULED;
+
 public class DataValidationTaskHistoryInfo {
 
     public Long id;
+    public String trigger;
     public Long startedOn;
     public Long finishedOn;
     public Long duration;
@@ -35,17 +36,24 @@ public class DataValidationTaskHistoryInfo {
     public DataValidationTaskHistoryInfo() {
     }
 
-    public DataValidationTaskHistoryInfo(DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
-        populate((History<DataValidationTask>) dataValidationOccurrence.getTask().getHistory(), dataValidationOccurrence, thesaurus);
+    public DataValidationTaskHistoryInfo(DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
+        populate((History<DataValidationTask>) dataValidationOccurrence.getTask().getHistory(), dataValidationOccurrence, thesaurus, timeService);
     }
 
-    public DataValidationTaskHistoryInfo(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
-        populate((History<DataValidationTask>) history, dataValidationOccurrence, thesaurus);
+    public DataValidationTaskHistoryInfo(History<? extends DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
+        populate((History<DataValidationTask>) history, dataValidationOccurrence, thesaurus, timeService);
     }
 
-    private void populate(History<DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus) {
+    private void populate(History<DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
         this.id = dataValidationOccurrence.getId();
 
+        this.trigger = (dataValidationOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
+        if (dataValidationOccurrence.wasScheduled()) {
+            String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataValidationOccurrence, thesaurus, timeService);
+            if (scheduledTriggerDescription != null) {
+                this.trigger = this.trigger + " (" + scheduledTriggerDescription + ")";
+            }
+        }
         this.startedOn = dataValidationOccurrence.getStartDate().map(this::toLong).orElse(null);
         this.finishedOn = dataValidationOccurrence.getEndDate().map(this::toLong).orElse(null);
         this.duration = calculateDuration(startedOn, finishedOn);
