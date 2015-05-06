@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.log.Grid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.log-grid',
+    alias: 'widget.cfg-log-grid',
     store: 'Cfg.store.Logs',
     requires: [
         'Uni.view.toolbar.PagingTop',

@@ -32,19 +32,19 @@ Ext.define('Cfg.controller.Tasks', {
         },
         {
             ref: 'addPage',
-            selector: 'validation-tasks-add'
+            selector: 'cfg-validation-tasks-add'
         },
         {
             ref: 'detailsPage',
-            selector: 'validation-tasks-details'
+            selector: 'cfg-validation-tasks-details'
         },
         {
             ref: 'actionMenu',
-            selector: 'tasks-action-menu'
+            selector: 'cfg-validation-tasks-action-menu'
         },
 		{
             ref: 'history',
-            selector: 'validation-tasks-history'
+            selector: 'cfg-validation-tasks-history'
         },
 		   {
             ref: 'filterTopPanel',
@@ -62,28 +62,28 @@ Ext.define('Cfg.controller.Tasks', {
 
     init: function () {
         this.control({
-            'validation-tasks-add #recurrence-trigger': {
+            'cfg-validation-tasks-add #rgr-validation-tasks-recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
             },
-            'validation-tasks-add #add-button': {
+            'cfg-validation-tasks-add #add-button': {
                 click: this.addTask
             },
-			'validation-tasks-setup tasks-grid': {
+			'validation-tasks-setup cfg-validation-tasks-grid': {
                 select: this.showPreview
             },
-            'tasks-action-menu': {
+            'cfg-validation-tasks-action-menu': {
                 click: this.chooseAction
             },
-            'tasks-history-action-menu': {
+            'cfg-tasks-history-action-menu': {
                 click: this.chooseAction
             },
-            'validation-tasks-history tasks-history-grid': {
+            'cfg-validation-tasks-history cfg-tasks-history-grid': {
                 select: this.showHistoryPreview
             },
-			 'history-filter-form  button[action=applyfilter]': {
+			 'cfg-history-filter-form  button[action=applyfilter]': {
                 click: this.applyHistoryFilter
             },
-            'history-filter-form  button[action=clearfilter]': {
+            'cfg-history-filter-form  button[action=clearfilter]': {
                 click: this.clearHistoryFilter
             },
             '#tasks-history-filter-top-panel': {
@@ -109,21 +109,21 @@ Ext.define('Cfg.controller.Tasks', {
 		
     },
 
-    showTaskDetailsView: function (currentTaskId) {
+    showValidationTaskDetailsView: function (currentTaskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Cfg.model.ValidationTask'),
-            view = Ext.widget('validation-tasks-details', {
+            view = Ext.widget('cfg-validation-tasks-details', {
                 router: router,
                 taskId: currentTaskId
             }),
-            actionsMenu = view.down('tasks-action-menu');
+            actionsMenu = view.down('cfg-validation-tasks-action-menu');
 
         me.fromDetails = true;
         me.getApplication().fireEvent('changecontentevent', view);
         taskModel.load(currentTaskId, {
             success: function (record) {
-                var detailsForm = view.down('tasks-preview-form'),
+                var detailsForm = view.down('cfg-tasks-preview-form'),
                     propertyForm = detailsForm.down('property-form');
 
                 actionsMenu.record = record;
@@ -133,12 +133,11 @@ Ext.define('Cfg.controller.Tasks', {
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
                     if (record.get('status') === 'Failed') {
-                        view.down('#reason-field').show();
+                        view.down('#lbl-reason-field').show();
                     }  
 					if (Cfg.privileges.Validation.canRun()) {
                         view.down('#run').show();
                     }
-					
                 }              
             }
         });
@@ -152,7 +151,7 @@ Ext.define('Cfg.controller.Tasks', {
             view;
 
         store.getProxy().setUrl(router.arguments);
-        view = Ext.widget('validation-tasks-history', {
+        view = Ext.widget('cfg-validation-tasks-history', {
             router: router,
             taskId: currentTaskId
         });
@@ -169,8 +168,8 @@ Ext.define('Cfg.controller.Tasks', {
     showHistoryPreview: function (selectionModel, record) {
         var me = this,
             page = me.getHistory(),
-            preview = page.down('tasks-history-preview'),
-            previewForm = page.down('tasks-history-preview-form');
+            preview = page.down('cfg-tasks-history-preview'),
+            previewForm = page.down('cfg-tasks-history-preview-form');
 
         if (record) {
             Ext.suspendLayouts();
@@ -178,11 +177,11 @@ Ext.define('Cfg.controller.Tasks', {
             previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
             previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
             previewForm.loadRecord(record);
-            preview.down('tasks-history-action-menu').record = record;
+            preview.down('cfg-tasks-history-action-menu').record = record;
             if (record.get('status') === 'Failed') {
-                previewForm.down('#reason-field').show();
+                previewForm.down('#lbl-reason-field').show();
             } else {
-                previewForm.down('#reason-field').hide();
+                previewForm.down('#lbl-reason-field').hide();
             }
 
             previewForm.loadRecord(record);
@@ -193,8 +192,8 @@ Ext.define('Cfg.controller.Tasks', {
     showAddValidationTask: function () {
         var me = this,
             view = Ext.create('Cfg.view.validationtask.Add'),            
-            deviceGroupCombo = view.down('#device-group-combo'),            
-            recurrenceTypeCombo = view.down('#recurrence-type');
+            deviceGroupCombo = view.down('#cbo-validation-task-device-group'),
+            recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
         me.getApplication().fireEvent('changecontentevent', view);
 
@@ -229,11 +228,11 @@ Ext.define('Cfg.controller.Tasks', {
             })
         }
         var taskModel = me.getModel('Cfg.model.ValidationTask'),
-            taskForm = view.down('#add-validation-task-form'),            
-            deviceGroupCombo = view.down('#device-group-combo'),            
-            recurrenceTypeCombo = view.down('#recurrence-type');
+            taskForm = view.down('#frm-add-validation-task'),
+            deviceGroupCombo = view.down('#cbo-validation-task-device-group'),
+            recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 			
-        if (Cfg.privileges.Validation.canAdministrate()) {
+        if (!Cfg.privileges.Validation.canAdministrate()) {
             deviceGroupCombo.disabled = true;         
         }
         me.fromEdit = true;
@@ -259,8 +258,8 @@ Ext.define('Cfg.controller.Tasks', {
                             });      
 							if (record.data.nextRun && (record.data.nextRun !== 0)) {
 							//if (schedule) {
-                                view.down('#recurrence-trigger').setValue({recurrence: true});
-                                view.down('#recurrence-number').setValue(schedule.count);
+                                view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
+                                view.down('#num-recurrence-number').setValue(schedule.count);
                                 recurrenceTypeCombo.setValue(schedule.timeUnit);
                                 view.down('#start-on').setValue(record.data.nextRun);
                             } else {
@@ -279,8 +278,8 @@ Ext.define('Cfg.controller.Tasks', {
     showPreview: function (selectionModel, record) {	
         var me = this,
             page = me.getPage(),
-            preview = page.down('tasks-preview'),
-            previewForm = page.down('tasks-preview-form'),
+            preview = page.down('cfg-tasks-preview'),
+            previewForm = page.down('cfg-tasks-preview-form'),
             propertyForm = previewForm.down('property-form');
 
         Ext.suspendLayouts();
@@ -290,20 +289,19 @@ Ext.define('Cfg.controller.Tasks', {
             });
         } else {
             if (record.get('status') === 'Failed') {
-                previewForm.down('#reason-field').show();
+                previewForm.down('#lbl-reason-field').show();
             } else {
-                previewForm.down('#reason-field').hide();
+                previewForm.down('#lbl-reason-field').hide();
             }  
 			if ( Cfg.privileges.Validation.canRun()) {
                 Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
                     item.show();
                 });
             }
-
         }
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
-        preview.down('tasks-action-menu').record = record;
+        preview.down('cfg-validation-tasks-action-menu').record = record;
         Ext.resumeLayouts();
     },
 
@@ -478,7 +476,7 @@ Ext.define('Cfg.controller.Tasks', {
         record.destroy({
             success: function () {
                 if (me.getPage()) {
-                    var grid = me.getPage().down('tasks-grid');
+                    var grid = me.getPage().down('cfg-validation-tasks-grid');
                     grid.down('pagingtoolbartop').totalCount = 0;
                     grid.down('pagingtoolbarbottom').resetPaging();
                     grid.getStore().load();
@@ -531,7 +529,7 @@ Ext.define('Cfg.controller.Tasks', {
     addTask: function (button) {
         var me = this,
             page = me.getAddPage(),
-            form = page.down('#add-validation-task-form'),
+            form = page.down('#frm-add-validation-task'),
             formErrorsPanel = form.down('#form-errors'),           
             lastDayOfMonth = false,
             startOnDate,
@@ -548,14 +546,14 @@ Ext.define('Cfg.controller.Tasks', {
                 formErrorsPanel.hide();
             }
           
-			record.set('name', form.down('#task-name').getValue());
+			record.set('name', form.down('#txt-task-name').getValue());
             record.set('deviceGroup', {
-                id: form.down('#device-group-combo').getValue(),
-                name: form.down('#device-group-combo').getRawValue()
+                id: form.down('#cbo-validation-task-device-group').getValue(),
+                name: form.down('#cbo-validation-task-device-group').getRawValue()
             });
-            if (form.down('#recurrence-trigger').getValue().recurrence) {
+            if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
                 startOnDate = moment(form.down('#start-on').getValue()).valueOf();
-                timeUnitValue = form.down('#recurrence-type').getValue();
+                timeUnitValue = form.down('#cbo-recurrence-type').getValue();
                 dayOfMonth = moment(startOnDate).date();
                 if (dayOfMonth >= 29) {
                     lastDayOfMonth = true;
@@ -565,7 +563,7 @@ Ext.define('Cfg.controller.Tasks', {
                 switch (timeUnitValue) {
                     case 'years':
                         record.set('schedule', {
-                            count: form.down('#recurrence-number').getValue(),
+                            count: form.down('#num-recurrence-number').getValue(),
                             timeUnit: timeUnitValue,
                             offsetMonths: moment(startOnDate).month() + 1,
                             offsetDays: dayOfMonth,
@@ -578,7 +576,7 @@ Ext.define('Cfg.controller.Tasks', {
                         break;
                     case 'months':
                         record.set('schedule', {
-                            count: form.down('#recurrence-number').getValue(),
+                            count: form.down('#num-recurrence-number').getValue(),
                             timeUnit: timeUnitValue,
                             offsetMonths: 0,
                             offsetDays: dayOfMonth,
@@ -591,7 +589,7 @@ Ext.define('Cfg.controller.Tasks', {
                         break;
                     case 'weeks':
                         record.set('schedule', {
-                            count: form.down('#recurrence-number').getValue(),
+                            count: form.down('#num-recurrence-number').getValue(),
                             timeUnit: timeUnitValue,
                             offsetMonths: 0,
                             offsetDays: 0,
@@ -604,7 +602,7 @@ Ext.define('Cfg.controller.Tasks', {
                         break;
                     case 'days':
                         record.set('schedule', {
-                            count: form.down('#recurrence-number').getValue(),
+                            count: form.down('#num-recurrence-number').getValue(),
                             timeUnit: timeUnitValue,
                             offsetMonths: 0,
                             offsetDays: 0,
@@ -652,8 +650,8 @@ Ext.define('Cfg.controller.Tasks', {
    onRecurrenceTriggerChange: function (field, newValue, oldValue) {
         var me = this,
             page = me.getAddPage(),
-            recurrenceNumberField = page.down('#recurrence-number'),
-            recurrenceTypeCombo = page.down('#recurrence-type');
+            recurrenceNumberField = page.down('#num-recurrence-number'),
+            recurrenceTypeCombo = page.down('#cbo-recurrence-type');
 
         if (newValue.recurrence && !recurrenceNumberField.getValue()) {
             recurrenceNumberField.setValue(recurrenceNumberField.minValue);            

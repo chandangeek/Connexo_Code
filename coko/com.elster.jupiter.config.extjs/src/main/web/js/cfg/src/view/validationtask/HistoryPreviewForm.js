@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.tasks-history-preview-form',
+    alias: 'widget.cfg-tasks-history-preview-form',
 
     requires: [        
         'Uni.form.field.Duration'
@@ -56,7 +56,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('validationTasks.general.reason', 'CFG', 'Reason'),
-                        itemId: 'reason-field',
+                        itemId: 'lbl-reason-field',
                         name: 'reason',
                         hidden: true
                     },

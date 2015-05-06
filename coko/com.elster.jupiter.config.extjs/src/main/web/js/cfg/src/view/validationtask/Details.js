@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.Details', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.validation-tasks-details',
+    alias: 'widget.cfg-validation-tasks-details',
     requires: [
         'Cfg.view.validationtask.Menu',
         'Cfg.view.validationtask.PreviewForm',
@@ -19,8 +19,8 @@ Ext.define('Cfg.view.validationtask.Details', {
                 title: Uni.I18n.translate('validationTasks.general.overview', 'CFG', 'Overview'),
                 flex: 1,
                 items: {
-                    xtype: 'tasks-preview-form',
-                    itemId: 'detail-tasks-preview-form',
+                    xtype: 'cfg-tasks-preview-form',
+                    itemId: 'frm-validation-task-details',
                     margin: '0 0 0 100'
                 }
             },
@@ -30,7 +30,7 @@ Ext.define('Cfg.view.validationtask.Details', {
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
                 menu: {
-                    xtype: 'tasks-action-menu'
+                    xtype: 'cfg-validation-tasks-action-menu'
                 }
             }
         ]
@@ -45,7 +45,7 @@ Ext.define('Cfg.view.validationtask.Details', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'tasks-menu',
+                        xtype: 'cfg-tasks-menu',
                         itemId: 'tasks-view-menu',
                         router: me.router,
                         taskId: me.taskId

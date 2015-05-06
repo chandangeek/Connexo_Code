@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.validationtask.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    alias: 'widget.tasks-preview',
+    alias: 'widget.cfg-tasks-preview',
 
     requires: [
         'Cfg.view.validationtask.PreviewForm'
@@ -13,13 +13,13 @@ Ext.define('Cfg.view.validationtask.Preview', {
             text: Uni.I18n.translate('validationTasks.general.actions', 'CFG', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
-                xtype: 'tasks-action-menu'
+                xtype: 'cfg-validation-tasks-action-menu'
             }
         }
     ],
 
     items: {
-        xtype: 'tasks-preview-form',
+        xtype: 'cfg-tasks-preview-form',
         itemId: 'pnl-validation-task-preview-form'
     }
 });

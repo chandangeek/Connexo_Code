@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.log.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    alias: 'widget.log-preview',
+    alias: 'widget.cfg-log-preview',
     router: null,
     initComponent: function () {
         var me = this;

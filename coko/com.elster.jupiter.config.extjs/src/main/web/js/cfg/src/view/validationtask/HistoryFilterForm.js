@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.HistoryFilterForm', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.history-filter-form',
+    alias: 'widget.cfg-history-filter-form',
 
     requires: [
         'Uni.component.filter.view.Filter',

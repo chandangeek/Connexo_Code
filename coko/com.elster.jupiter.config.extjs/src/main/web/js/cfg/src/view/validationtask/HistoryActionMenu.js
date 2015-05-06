@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.HistoryActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.tasks-history-action-menu',
+    alias: 'widget.cfg-tasks-history-action-menu',
     plain: true,
     border: false,
     shadow: false,

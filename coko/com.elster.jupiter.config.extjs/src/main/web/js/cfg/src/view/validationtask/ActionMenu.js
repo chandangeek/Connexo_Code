@@ -4,7 +4,7 @@ Ext.define('Cfg.view.validationtask.ActionMenu', {
         'Uni.Auth'
     ],
     extend: 'Ext.menu.Menu',
-    alias: 'widget.tasks-action-menu',
+    alias: 'widget.cfg-validation-tasks-action-menu',
     plain: true,
     border: false,
     shadow: false,
