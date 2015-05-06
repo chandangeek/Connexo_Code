@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -17,6 +18,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (08:56)
  */
+@ProviderType
 public interface ConnectionTaskService {
 
     public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeConnFilterQD";

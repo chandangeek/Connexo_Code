@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.data;
 
-import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
-
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -16,6 +16,7 @@ import java.util.Optional;
 /**
  * Created by tgr on 9/09/2014.
  */
+@ProviderType
 public interface DeviceValidation {
 
     Device getDevice();

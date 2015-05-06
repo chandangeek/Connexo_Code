@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.data.kpi;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.services.Finder;
+
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-06 (11:30)
  */
+@ProviderType
 public interface DataCollectionKpiService {
 
     public DataCollectionKpiBuilder newDataCollectionKpi(EndDeviceGroup group);

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
@@ -20,8 +21,8 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.google.common.collect.Range;
+
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (13:30)
  */
+@ProviderType
 public interface CommunicationTaskService {
     public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeCommFilterQD";
     public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeCommFilterQS";
