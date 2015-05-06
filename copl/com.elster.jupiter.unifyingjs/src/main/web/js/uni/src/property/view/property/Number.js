@@ -28,7 +28,8 @@ Ext.define('Uni.property.view.property.Number', {
             msgTarget: 'under',
             readOnly: me.isReadOnly,
             inputType: me.inputType,
-            allowBlank: me.allowBlank
+            allowBlank: me.allowBlank,
+            decimalPrecision: 20
         };
     },
 
