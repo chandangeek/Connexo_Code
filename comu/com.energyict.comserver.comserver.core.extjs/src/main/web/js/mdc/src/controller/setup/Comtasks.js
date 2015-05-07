@@ -254,11 +254,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         this.getTaskEdit().down('toolbar').getComponent('createEditTask').action = Ext.isEmpty(taskId) ? 'add' : 'save';
 
         if (taskId) {
-            this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + Uni.I18n.translate('comtask.comtask', 'MDC', 'communication task'));
+            this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('comtask.edit', 'MDC', 'Edit communication task'));
             this.commands = [];
             this.loadModelToEditForm(taskId, widget, selectedMessagesStore, allMessagesStore);
         } else {
-            this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + Uni.I18n.translate('comtask.comtask', 'MDC', 'communication task'));
+            this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'));
             this.commands = [];
             allMessagesStore.load();
         }
