@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config;
 
 
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.HasId;
@@ -126,6 +128,16 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     public List<ValidationRuleSet> getValidationRuleSets();
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
+    
+    DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet);
+    
+    void removeEstimationRuleSet(EstimationRuleSet estimationRuleSet);
+    
+    void reorderEstimationRuleSets(KPermutation kpermutation);
+    
+    List<EstimationRuleSet> getEstimationRuleSets();
+    
+    List<DeviceConfigurationEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages();
 
     public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes);
 
@@ -141,5 +153,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
      * @return The {@link DeviceProtocolConfigurationProperties}
      */
     public DeviceProtocolConfigurationProperties getDeviceProtocolProperties();
+
+    public long getVersion();
 
 }

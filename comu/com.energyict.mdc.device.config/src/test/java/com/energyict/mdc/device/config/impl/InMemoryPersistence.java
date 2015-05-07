@@ -4,6 +4,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -26,10 +27,11 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.events.impl.EventServiceImpl;
@@ -50,9 +52,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -68,6 +68,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -75,18 +76,12 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.Optional;
-
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -113,6 +108,7 @@ public class InMemoryPersistence {
     private DataModel dataModel;
     private Injector injector;
     private ValidationService validationService;
+    private EstimationService estimationService;
 
     private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
@@ -161,6 +157,7 @@ public class InMemoryPersistence {
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);
+            this.estimationService = injector.getInstance(EstimationService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
@@ -201,6 +198,7 @@ public class InMemoryPersistence {
                 new ProtocolApiModule(),
                 new TasksModule(),
                 new ValidationModule(),
+                new EstimationModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new MeteringGroupsModule(),
                 new TaskModule(),
@@ -208,7 +206,8 @@ public class InMemoryPersistence {
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new PluggableModule(),
-                new SchedulingModule()));
+                new SchedulingModule(),
+                new TimeModule()));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());
             modules.add(new BasicPropertiesModule());
@@ -264,6 +263,10 @@ public class InMemoryPersistence {
 
     public ValidationService getValidationService() {
         return validationService;
+    }
+    
+    public EstimationService getEstimationService() {
+        return estimationService;
     }
 
     public MasterDataService getMasterDataService() {

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.services.Finder;
@@ -86,6 +87,14 @@ public interface DeviceConfigurationService {
      */
     public Optional<DeviceConfiguration> findDeviceConfiguration(long id);
 
+    /**
+     * Finds and locks a {@link DeviceConfiguration} which is uniquely identified by the given ID and with the given VERSION
+     *
+     * @param id the id of the DeviceConfiguration
+     * @param version the version of the DeviceConfiguration
+     * @return the DeviceConfiguration or <code>null</code> if there is no such DeviceConfiguration
+     */
+    public Optional<DeviceConfiguration> findAndLockDeviceConfigurationByIdAndVersion(long id, long version);
     /**
      * Finds a {@link ChannelSpec} which is uniquely identified by the given ID.
      *
@@ -220,5 +229,7 @@ public interface DeviceConfigurationService {
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
 
     public List<SecurityPropertySet> findUniqueSecurityPropertySets();
+    
+    public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 
 }

@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
@@ -37,8 +38,9 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -62,12 +64,14 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -108,6 +112,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile UserService userService;
     private volatile TaskService taskService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile QueryService queryService;
 
     private final Set<Privilege> privileges = new HashSet<>();
@@ -117,7 +122,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, MasterDataService masterDataService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setOrmService(ormService);
         this.setUserService(userService);
@@ -130,6 +135,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setMasterDataService(masterDataService);
         this.setSchedulingService(schedulingService);
         this.setValidationService(validationService);
+        this.setEstimationService(estimationService);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.activate();
         this.install();
@@ -163,6 +169,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<DeviceConfiguration> findDeviceConfiguration(long id) {
         return this.getDataModel().mapper((DeviceConfiguration.class)).getUnique("id", id);
+    }
+    
+    @Override
+    public Optional<DeviceConfiguration> findAndLockDeviceConfigurationByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(DeviceConfiguration.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -417,6 +428,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(UserService.class).toInstance(userService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(EstimationService.class).toInstance(estimationService);
             }
         };
     }
@@ -449,7 +461,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "NLS", "USR", "MDS", "CPC", "MDC", "SCH", "CTS", "VAL");
+        return Arrays.asList("ORM", "EVT", "NLS", "USR", "MDS", "CPC", "MDC", "SCH", "CTS", "VAL", "EST");
     }
 
     @Reference
@@ -467,6 +479,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public void setValidationService(ValidationService validationService) {
         // Not actively used but required for foreign keys in TableSpecs
         this.validationService = validationService;
+    }
+    
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        // Not actively used but required for foreign keys in TableSpecs
+        this.estimationService = estimationService;
     }
 
     @Reference
@@ -563,6 +581,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
                 select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("name"));
+    }
+    
+    @Override
+    public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
+        Condition condition = where(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName() + "." + 
+                                    DeviceConfigurationEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).isEqualTo(estimationRuleSet); 
+        return DefaultFinder.of(DeviceConfiguration.class, condition, dataModel, DeviceConfigurationEstimationRuleSetUsage.class).sorted("name", true);
     }
 
     @Override
