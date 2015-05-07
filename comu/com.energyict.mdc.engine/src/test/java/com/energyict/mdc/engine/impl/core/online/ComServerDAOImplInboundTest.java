@@ -314,7 +314,6 @@ public class ComServerDAOImplInboundTest {
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
         when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         return finder;
     }
