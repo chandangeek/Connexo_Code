@@ -5,7 +5,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         'Fwc.devicefirmware.view.Setup',
         'Fwc.devicefirmware.view.Upload',
         'Fwc.devicefirmware.view.DeviceSideMenu',
-        'Fwc.devicefirmware.view.FirmwareForm'
+        'Fwc.devicefirmware.view.FirmwareForm',
+        'Fwc.devicefirmware.view.ConfirmActivateVersionWindow'
     ],
 
     requires: [
@@ -73,6 +74,9 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             },
             '#device-firmware-upload-form button[action=uploadFirmware]': {
                 click: this.uploadFirmware
+            },
+            'device-firmware-setup button[action=activateVersion]': {
+                click: this.doActivateVersion
             }
         });
     },
@@ -281,5 +285,42 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                 });
             }
         });
+    },
+
+    doActivateVersion: function (btn) {
+        var me = this,
+            form = btn.up('form'),
+            record = form.down('#message-pending').record,
+            router = me.getController('Uni.controller.history.Router'),
+            Model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
+            devicemessageId = record.get('firmwareDeviceMessageId'),
+            message = new Model(),
+            confirmationMessage = Ext.widget('confirm-activate-version-window', {
+                itemId: 'activate-version-confirm-window',
+                versionName: record.get('firmwareVersion'),
+                activateHandler: function () {
+                    var releaseDate = confirmationMessage.down('upload-field-container').getValue();
+
+                    form.setLoading();
+                    message.getProxy().setUrl(router.arguments.mRID);
+                    message.setId(devicemessageId);
+                    message.set('releaseDate', releaseDate ? releaseDate.getTime() : new Date().getTime());
+                    Ext.Ajax.request({
+                        url: message.getProxy().url + '/' + devicemessageId + '/activate',
+                        method: 'PUT',
+                        jsonData: Ext.encode(message.getData()),
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.activation.success', 'FWC', 'Firmware activation has started.'));
+                            router.getRoute().forward();
+                        },
+                        callback: function () {
+                            form.setLoading(false);
+                        }
+                    });
+                    confirmationMessage.close();
+                }
+            });
+
+        confirmationMessage.show();
     }
 });

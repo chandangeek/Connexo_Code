@@ -184,6 +184,18 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 status = 'failedVerificationVersion';
                 record = me.record.getFailedVerificationVersion();
                 break;
+            case !!associatedData.needActivationVersion:
+                status = 'needActivationVersion';
+                record = me.record.getNeedActivationVersion();
+                break;
+            case !!associatedData.ongoingActivatingVersion:
+                status = 'ongoingActivatingVersion';
+                record = me.record.getOngoingActivatingVersion();
+                break;
+            case !!associatedData.failedActivatingVersion:
+                status = 'failedActivatingVersion';
+                record = me.record.getFailedActivatingVersion();
+                break;
         }
 
         if (status) {
@@ -209,16 +221,23 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 ]));
         }
 
-        if (status === 'failedVersion' || status === 'failedVerificationVersion' || status === 'wrongVerificationVersion') {
+        if (status === 'failedVersion' || status === 'failedVerificationVersion' || status === 'wrongVerificationVersion' || status === 'failedActivatingVersion') {
             formFailed.record = record;
             formFailed.show();
-            formFailed.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
-                'FWC', 'Upload and activation of version {0} failed', [
-                    record.get('firmwareVersion'),
-                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
-                ]));
+            if (status === 'failedActivatingVersion') {
+                formFailed.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
+                    'FWC', 'Activation to version {0} failed', [
+                        record.get('firmwareVersion')
+                    ]));
+            } else {
+                formFailed.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
+                    'FWC', 'Upload and activation of version {0} failed', [
+                        record.get('firmwareVersion'),
+                        Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
+                    ]));
+            }
 
-            formFailed.down('#retryBtn').setVisible(status === 'failedVersion');
+            formFailed.down('#retryBtn').setVisible(status === 'failedVersion' || status === 'failedActivatingVersion');
             formFailed.down('#checkBtn').setVisible(status === 'failedVerificationVersion');
             formFailed.down('#deviceEventsBtn').setVisible(status === 'wrongVerificationVersion');
             formFailed.down('#logBtn').setVisible(record.get('firmwareComTaskId') && record.get('firmwareComTaskSessionId'));
@@ -242,6 +261,27 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     record.get('firmwareVersion'),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
                     Uni.DateTime.formatDateTimeShort(record.get('lastCheckedDate'))
+                ]));
+        }
+
+        if (status === 'needActivationVersion') {
+            formPending.record = record;
+            formPending.show();
+            formPending.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
+                'FWC', 'Upload of version {0} completed on {1}. Version has not been activated yet', [
+                    record.get('firmwareVersion'),
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
+                ]));
+            formPending.down('#cancelBtn').setText(Uni.I18n.translate('general.activate', 'FWC', 'Activate'));
+            formPending.down('#cancelBtn').action = 'activateVersion';
+        }
+
+        if (status === 'ongoingActivatingVersion') {
+            formOngoing.record = record;
+            formOngoing.show();
+            formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
+                'FWC', 'Activating version {0}', [
+                    record.get('firmwareVersion')
                 ]));
         }
     }
