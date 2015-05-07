@@ -7,7 +7,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -47,7 +46,6 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 TransactionWrapper.class,
-                JsonMappingExceptionMapper.class,
                 ComServerResource.class,
                 ComServerComPortResource.class,
                 ComPortResource.class,
