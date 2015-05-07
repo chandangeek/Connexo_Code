@@ -9,10 +9,10 @@ import org.glassfish.jersey.server.monitoring.RequestEvent;
 import org.glassfish.jersey.server.monitoring.RequestEventListener;
 
 /**
- * This listener automatically closes DB connection after EVERY REST call
+ * This listener writes all exceptions to a logger
  */
 public class ExceptionLogger implements ApplicationEventListener {
-    private static final Logger LOGGER = Logger.getLogger("CoreRest");
+    private static final Logger LOGGER = Logger.getLogger("ExceptionLogger");
     private final ExceptionLoggingRequestEventListener requestEventListener = new ExceptionLoggingRequestEventListener();
 
     @Override
