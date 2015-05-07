@@ -118,7 +118,7 @@ public class DeviceFirmwareMessagesResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response activateFirmwareOnDevice(@PathParam("mrid") String mrid, @PathParam("messageId") Long messageId) {
+    public Response activateFirmwareOnDevice(@PathParam("mrid") String mrid, @PathParam("messageId") Long messageId, FirmwareMessageInfo info) {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
 
         DeviceMessage<Device> upgradeMessage = device.getMessages().stream()
@@ -134,7 +134,8 @@ public class DeviceFirmwareMessagesResource {
         }
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
         deviceMessageBuilder.setTrackingId(String.valueOf(messageId));
-        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, new Date(clock.instant().toEpochMilli()));
+        deviceMessageBuilder.setReleaseDate(Instant.ofEpochMilli(info.releaseDate));
+        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, new Date(info.releaseDate));
         deviceMessageBuilder.add();
         rescheduleFirmwareUpgradeTask(device);
         return Response.ok().build();

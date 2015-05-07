@@ -73,13 +73,15 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     public void setupEnvironment() {
         messages = new ArrayList<>();
 
+        ComTaskExecutionSession session = mock(ComTaskExecutionSession.class);
+        when(session.getId()).thenReturn(102L);
+        when(statusCheckComTask.getId()).thenReturn(201L);
         when(statusCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusCheckTask));
         when(statusCheckExecution.getComTasks()).thenReturn(Collections.singletonList(statusCheckComTask));
         when(statusCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
+        when(statusCheckExecution.getLastSession()).thenReturn(Optional.of(session));
         ComTask firmwareComTask = mock(ComTask.class);
         when(firmwareComTask.getId()).thenReturn(101L);
-        ComTaskExecutionSession session = mock(ComTaskExecutionSession.class);
-        when(session.getId()).thenReturn(102L);
         when(firmwareExecution.getComTask()).thenReturn(firmwareComTask);
         when(firmwareExecution.getLastSession()).thenReturn(Optional.of(session));
         when(deviceService.findByUniqueMrid("upgrade")).thenReturn(Optional.of(device));
@@ -283,12 +285,107 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[0].needActivationVersion")).isNull();
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
+    }
+
+    @Test
+    public void testNeedVerificationForInstallEvenIfStatusCheckIsPassed() {
+        DeviceMessage<Device> firmwareMessage = mockUploadAndActivateImmediateFirmwareMessage();
+
+        when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
+        when(firmwareMessage.getReleaseDate()).thenReturn(TIME);
+        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.minusSeconds(1));
+        when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.minusSeconds(1));
+        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
+        messages.add(firmwareMessage);
+
+        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
+        assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
+    }
+
+    @Test
+    public void testInstallVerificationOngoing() {
+        DeviceMessage<Device> firmwareMessage = mockUploadAndActivateImmediateFirmwareMessage();
+
+        when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
+        when(firmwareMessage.getReleaseDate()).thenReturn(TIME);
+        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.plusSeconds(1));
+        when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(1));
+        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
+        when(statusCheckExecution.getStatus()).thenReturn(TaskStatus.Busy);
+        messages.add(firmwareMessage);
+
+        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[0].ongoingVerificationVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].ongoingVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
+        assertThat(model.<String>get("$.firmwares[0].ongoingVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].ongoingVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].ongoingVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
+    }
+
+    @Test
+    public void testInstallVerificationFailed() {
+        DeviceMessage<Device> firmwareMessage = mockUploadAndActivateImmediateFirmwareMessage();
+
+        when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
+        when(firmwareMessage.getReleaseDate()).thenReturn(TIME);
+        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.plusSeconds(1));
+        when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(1));
+        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
+        when(statusCheckExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(statusCheckExecution.isLastExecutionFailed()).thenReturn(true);
+        messages.add(firmwareMessage);
+
+        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[0].failedVerificationVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].failedVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
+        assertThat(model.<String>get("$.firmwares[0].failedVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].failedVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].failedVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
+        assertThat(model.<Number>get("$.firmwares[0].failedVerificationVersion.firmwareComTaskId")).isEqualTo(201);
+        assertThat(model.<Number>get("$.firmwares[0].failedVerificationVersion.firmwareComTaskSessionId")).isEqualTo(102);
+    }
+
+
+    @Test
+    public void testInstallVerificationMismatch() {
+        DeviceMessage<Device> firmwareMessage = mockUploadAndActivateImmediateFirmwareMessage();
+
+        when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
+        when(firmwareMessage.getReleaseDate()).thenReturn(TIME);
+        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.plusSeconds(1));
+        when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(1));
+        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.plusSeconds(10));
+        when(statusCheckExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(10));
+        when(statusCheckExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(statusCheckExecution.isLastExecutionFailed()).thenReturn(true);
+        messages.add(firmwareMessage);
+
+        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[0].wrongVerificationVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].wrongVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
+        assertThat(model.<String>get("$.firmwares[0].wrongVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].wrongVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].wrongVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -428,7 +525,6 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
     }
 
-
     @Test
     public void testSuccessUploadWithActivationDateFirmwareState() {
         DeviceMessage<Device> firmwareMessage = mockUploadWithActivationDateFirmwareMessage();
@@ -438,6 +534,29 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.minusSeconds(1));
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.minusSeconds(1));
+        messages.add(firmwareMessage);
+
+        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
+        assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
+    }
+
+
+    @Test
+    public void testSuccessUploadWithActivationDateFirmwareStateEvenIfStatusCheckWasPassedBefore() {
+        DeviceMessage<Device> firmwareMessage = mockUploadWithActivationDateFirmwareMessage();
+
+        when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
+        when(firmwareMessage.getModTime()).thenReturn(NOW);
+        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME.minusSeconds(1));
+        when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.minusSeconds(1));
+        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -551,15 +670,13 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessage<Device> firmwareMessage = mockInstallAndActivateLaterFirmwareMessage();
 
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
-        when(firmwareMessage.getModTime()).thenReturn(TIME);
-        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Busy);
+        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
         DeviceMessage<Device> activationMessage = mockFirmwareMessage();
         when(activationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
-        when(activationMessage.getTrackingId()).thenReturn("1001");
-        when(activationMessage.getModTime()).thenReturn(TIME.minus(1, ChronoUnit.DAYS));
+        when(activationMessage.getTrackingId()).thenReturn("1002");
         messages.add(activationMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -644,6 +761,36 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(activationMessage);
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME);
+
+        JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
+        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
+        assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
+    }
+
+    @Test
+    public void testSuccessActivationFirmwareStateEvenIfStatusCheckWasPassedBefore() {
+        DeviceMessage<Device> firmwareMessage = mockInstallAndActivateLaterFirmwareMessage();
+
+        when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
+        when(firmwareMessage.getModTime()).thenReturn(TIME);
+        messages.add(firmwareMessage);
+
+        DeviceMessage<Device> activationMessage = mockFirmwareMessage();
+        when(activationMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
+        when(activationMessage.getTrackingId()).thenReturn("1001");
+        when(activationMessage.getModTime()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
+        when(activationMessage.getReleaseDate()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
+        when(activationMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
+        when(activationMessage.getId()).thenReturn(1002L);
+        messages.add(activationMessage);
+        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME);
+        when(statusCheckExecution.getLastExecutionStartTimestamp()).thenReturn(TIME.minusSeconds(10));
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");

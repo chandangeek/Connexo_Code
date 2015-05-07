@@ -1,9 +1,9 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.tasks.TaskStatus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -144,6 +144,7 @@ public class DeviceFirmwareVersionInfoFactory {
             if (firmwareVersion.isPresent()){
                 properties.put(FIRMWARE_VERSION, firmwareVersion.get().getFirmwareVersion());
             }
+            properties.put(FIRMWARE_PLANNED_DATE, message.getReleaseDate());
             return properties;
         }
     }
@@ -160,13 +161,6 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public String getFirmwareVersionName() {
             return "pendingVersion";
-        }
-
-        @Override
-        public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
-            Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
-            properties.put(FIRMWARE_PLANNED_DATE, message.getReleaseDate());
-            return properties;
         }
     }
 
@@ -372,9 +366,8 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
-                    && helper.getUploadMessageForActivationMessage(message).isPresent()
-                    && helper.taskIsBusy()
-                    && DeviceMessageStatus.PENDING.equals(message.getStatus());
+                    && DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(message.getStatus())
+                    && helper.getUploadMessageForActivationMessage(message).isPresent();
         }
 
         @Override
@@ -398,17 +391,10 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return super.validateMessage(message, helper)
+                    && !DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
                     && DeviceMessageStatus.CONFIRMED.equals(message.getStatus())
                     && ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(helper.getUploadOptionFromMessage(message).get())
-                    && thereIsNoActivationMessageYet(message, helper);
-        }
-
-        private boolean thereIsNoActivationMessageYet(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
-            return !helper.getFirmwareMessages().stream()
-                    .filter(msg -> DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(msg.getDeviceMessageId()))
-                    .filter(msg -> msg.getModTime().isAfter(message.getModTime()))
-                    .findFirst()
-                    .isPresent();
+                    && !helper.getActivationMessageForUploadMessage(message).isPresent();
         }
 
         @Override
@@ -484,7 +470,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return super.validateMessage(message, helper)
-                    && TaskStatus.BUSY.equals(helper.getStatusCheckExecution().get());
+                    && TaskStatus.Busy.equals(helper.getStatusCheckExecution().get().getStatus());
         }
 
         @Override
@@ -497,7 +483,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return super.validateMessage(message, helper)
-                    && !TaskStatus.BUSY.equals(helper.getStatusCheckExecution().get())
+                    && !TaskStatus.Busy.equals(helper.getStatusCheckExecution().get())
                     && helper.getStatusCheckExecution().get().isLastExecutionFailed();
         }
 
@@ -529,13 +515,6 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public String getFirmwareVersionName() {
             return "wrongVerificationVersion";
-        }
-
-        @Override
-        public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
-            Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
-            properties.put(FIRMWARE_PLANNED_DATE, message.getReleaseDate());
-            return properties;
         }
     }
 
