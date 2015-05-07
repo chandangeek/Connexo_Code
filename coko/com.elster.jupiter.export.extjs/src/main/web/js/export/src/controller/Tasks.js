@@ -388,8 +388,8 @@ Ext.define('Dxp.controller.Tasks', {
             exportPeriodCombo = view.down('#export-period-combo'),
             recurrenceTypeCombo = view.down('#recurrence-type');
         if ( Dxp.privileges.DataExport.canUpdate()) {
-            deviceGroupCombo.disabled = true;
-            exportPeriodCombo.disabled = true;
+            deviceGroupCombo.disabled = false;
+            exportPeriodCombo.disabled = false;
         }
         me.fromEdit = true;
         me.taskId = taskId;
@@ -415,6 +415,9 @@ Ext.define('Dxp.controller.Tasks', {
                                 readingTypesGrid.getStore().add({readingType: readingType})
                             });
                             exportPeriodCombo.store.load({
+                                params: {
+                                    category: 'relativeperiod.category.dataExport'
+                                },
                                 callback: function () {
                                     exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.data.exportperiod.id));
                                 }
