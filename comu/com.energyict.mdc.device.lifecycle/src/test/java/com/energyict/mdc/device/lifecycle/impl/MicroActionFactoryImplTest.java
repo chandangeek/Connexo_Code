@@ -1,8 +1,16 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.topology.TopologyService;
+
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 
 import org.junit.*;
+import org.junit.runner.*;
+
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +20,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-06 (09:10)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class MicroActionFactoryImplTest {
+
+    @Mock
+    private MeteringService meteringService;
+    @Mock
+    private MeteringGroupsService meteringGroupsService;
+    @Mock
+    private TopologyService topologyService;
 
     @Test
     public void allMicroActionsAreCovered() {
@@ -29,7 +45,7 @@ public class MicroActionFactoryImplTest {
     }
 
     private MicroActionFactoryImpl getTestInstance() {
-        return new MicroActionFactoryImpl();
+        return new MicroActionFactoryImpl(this.meteringService, this.meteringGroupsService, this.topologyService);
     }
 
 }

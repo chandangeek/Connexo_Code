@@ -4,12 +4,20 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateConnectionTasks;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CloseMeterActivation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CreateMeterActivation;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.DetachSlaveFromMaster;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveDeviceFromStaticGroups;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetLastReading;
+import com.energyict.mdc.device.topology.TopologyService;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link ServerMicroActionFactory} interface.
@@ -20,6 +28,39 @@ import org.osgi.service.component.annotations.Component;
 @Component(name = "com.energyict.device.lifecycle.micro.action.factory", service = ServerMicroActionFactory.class)
 @SuppressWarnings("unused")
 public class MicroActionFactoryImpl implements ServerMicroActionFactory {
+
+    private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
+    private volatile TopologyService topologyService;
+
+    // For OSGi purposes only
+    public MicroActionFactoryImpl() {
+        super();
+    }
+
+    // For unit testing purposes
+    @Inject
+    public MicroActionFactoryImpl(MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService) {
+        this();
+        this.setMeteringService(meteringService);
+        this.setMeteringGroupsService(meteringGroupsService);
+        this.setTopologyService(topologyService);
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
 
     @Override
     public ServerMicroAction from(MicroAction microAction) {
@@ -44,6 +85,12 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case DISABLE_COMMUNICATION: {
                 return new DisableCommunication();
+            }
+            case DETACH_SLAVE_FROM_MASTER: {
+                return new DetachSlaveFromMaster(this.topologyService);
+            }
+            case REMOVE_DEVICE_FROM_STATIC_GROUPS: {
+                return new RemoveDeviceFromStaticGroups(this.meteringService, this.meteringGroupsService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
