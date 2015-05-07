@@ -39,8 +39,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 FirmwareUpgradeOptionsResource.class,
                 DeviceFirmwareVersionResource.class,
                 TransactionWrapper.class,
-                MultiPartFeature.class,
-                JsonMappingExceptionMapper.class
+                MultiPartFeature.class
         );
     }
 
