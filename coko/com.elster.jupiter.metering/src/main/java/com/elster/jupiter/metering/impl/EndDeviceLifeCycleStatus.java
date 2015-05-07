@@ -3,8 +3,10 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.users.User;
 
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Models the {@link State} of an {@link EndDevice} over time.
@@ -28,6 +30,8 @@ public interface EndDeviceLifeCycleStatus extends Effectivity {
      * @return The EndDevice
      */
     public State getState();
+
+    public Optional<User> getUser();
 
     /**
      * Closes this EndDeviceLifeCycleStatus so that it is
