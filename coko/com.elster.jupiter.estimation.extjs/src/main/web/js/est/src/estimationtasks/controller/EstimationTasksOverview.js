@@ -34,11 +34,19 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksOverview', {
     showPreview: function (selectionModel, record) {
         var me = this;
 
-        Ext.Array.each(Ext.ComponentQuery.query('#run-estimation-task'), function (item) {
-            item.setVisible(record.get('status') !== 'Busy');
-        });
-
         Ext.suspendLayouts();
+
+        if (record.get('status') === 'Busy') {
+            Ext.Array.each(Ext.ComponentQuery.query('#run-estimation-task'), function (item) {
+                item.hide();
+            });
+        } else {
+            if ( Est.privileges.EstimationConfiguration.canRun()) {
+                Ext.Array.each(Ext.ComponentQuery.query('#run-estimation-task'), function (item) {
+                    item.show();
+                });
+            }
+        }
 
         me.getPreview().setTitle(record.get('name'));
         me.getPreviewForm().loadRecord(record);

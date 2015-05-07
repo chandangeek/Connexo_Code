@@ -8,14 +8,14 @@ Ext.define('Est.estimationtasks.view.ActionMenu', {
         {
             itemId: 'edit-estimation-task',
             text: Uni.I18n.translate('general.edit', 'EST', 'Edit'),
-//            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.estimationConfiguration'),
-            action: 'editEstimationTask'
+            action: 'editEstimationTask',
+            privileges: Est.privileges.EstimationConfiguration.update
         },
         {
             itemId: 'remove-estimation-task',
             text: Uni.I18n.translate('general.remove', 'EST', 'Remove'),
-//            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.estimationConfiguration'),
-            action: 'removeEstimationTask'
+            action: 'removeEstimationTask',
+            privileges: Est.privileges.EstimationConfiguration.administrate
         },
 		{
             itemId: 'view-estimation-task-history',
@@ -25,7 +25,8 @@ Ext.define('Est.estimationtasks.view.ActionMenu', {
         {
             itemId: 'run-estimation-task',
             text: Uni.I18n.translate('estimationtasks.general.run', 'EST', 'Run'),
-            action: 'runEstimationTask'
+            action: 'runEstimationTask',
+            hidden: true
         }
 
     ]

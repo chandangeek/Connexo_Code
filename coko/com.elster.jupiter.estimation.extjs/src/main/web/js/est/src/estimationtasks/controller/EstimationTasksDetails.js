@@ -34,7 +34,13 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksDetails', {
                 me.getOverviewLink().setText(record.get('name'));
                 me.getDetailForm().getForm().loadRecord(record);
                 me.getActionMenu().record = record;
-                me.getActionMenu().down('#run-estimation-task').setVisible(record.get('status') !== 'Busy');
+                if (record.get('status') !== 'Busy') {
+                    if (Est.privileges.EstimationConfiguration.canRun()) {
+                        widget.down('#run-estimation-task').show();
+                    }
+                } else {
+                    widget.down('#run-estimation-task').hide();
+                }
             },
             callback: function () {
                 widget.setLoading(false);
