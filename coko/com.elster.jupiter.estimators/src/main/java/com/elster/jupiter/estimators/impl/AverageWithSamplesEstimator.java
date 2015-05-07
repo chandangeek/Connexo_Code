@@ -340,7 +340,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private Range<Instant> getPeriod(Channel channel, Instant referenceTime) {
-        if (relativePeriod != null) {
+        if (relativePeriod != null && !(relativePeriod instanceof AllRelativePeriod)) {
             Range<ZonedDateTime> range = relativePeriod.getInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
             Instant start = range.lowerEndpoint().toInstant();
             Instant end = range.upperEndpoint().toInstant();
