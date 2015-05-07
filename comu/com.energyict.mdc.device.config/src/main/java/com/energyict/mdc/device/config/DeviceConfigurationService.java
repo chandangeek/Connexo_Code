@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Provides services that relate to {@link DeviceType}s, {@link DeviceConfiguration}s?
+ * Provides services that relate to {@link DeviceType}s and {@link DeviceConfiguration}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:34)
@@ -101,8 +101,10 @@ public interface DeviceConfigurationService {
     public Optional<RegisterSpec> findRegisterSpec(long id);
 
     /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given RegisterType
-     * where the register spec if owned by an active device configuration
+     * Finds a list of {@link RegisterSpec RegisterSpecs}
+     * that are owned by the given {@link DeviceType}
+     * and modelled by the given RegisterType where the
+     * register spec if owned by an active device configuration.
      *
      * @param deviceType      the DeviceType
      * @param registerType the list of RegisterType
@@ -111,8 +113,10 @@ public interface DeviceConfigurationService {
     public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType);
 
     /**
-     * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given RegisterType
-     * where the register spec if owned by an inactive device configuration
+     * Finds a list of {@link RegisterSpec RegisterSpecs}
+     * that are owned by the given {@link DeviceType}
+     * and modelled by the given RegisterType where the
+     * register spec if owned by an inactive device configuration.
      *
      * @param deviceType      the DeviceType
      * @param registerType the list of RegisterType
@@ -129,7 +133,7 @@ public interface DeviceConfigurationService {
     public List<RegisterSpec> findRegisterSpecsByMeasurementType(MeasurementType measurementType);
 
     /**
-     * Find the {@link LoadProfileSpec} with the given ID
+     * Find the {@link LoadProfileSpec} with the given ID.
      *
      * @param loadProfileSpecId the ID of the LoadProfileSpec
      * @return the LoadProfileSpec or <code>null</code> if there is no such LoadProfileSpec
@@ -138,7 +142,7 @@ public interface DeviceConfigurationService {
 
     /**
      * Find a {@link LoadProfileSpec} which is modeled by the given {@link LoadProfileType} for the given
-     * {@link DeviceConfiguration}
+     * {@link DeviceConfiguration}.
      *
      * @param deviceConfig    the DeviceConfiguration
      * @param loadProfileType the LoadProfileType which models the LoadProfileSpec
@@ -149,7 +153,7 @@ public interface DeviceConfigurationService {
     public List<LoadProfileSpec> findLoadProfileSpecsByLoadProfileType(LoadProfileType loadProfileType);
 
     /**
-     * Find a {@link LogBookSpec} with the given ID
+     * Find a {@link LogBookSpec} with the given ID.
      *
      * @param id the ID of the LogBookSpec
      * @return the LogBookSpec or <code>null</code> if there is no such LogBookSpec
@@ -170,7 +174,7 @@ public interface DeviceConfigurationService {
 
     public List<DeviceType> findDeviceTypesUsingRegisterType(MeasurementType measurementType);
 
-    List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
+    public List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
@@ -206,7 +210,7 @@ public interface DeviceConfigurationService {
     public List<ComTask> findAvailableComTasks(ComSchedule comSchedule);
 
     /**
-     * Finds all currently <i>active</i> DeviceConfigurations for the given DeviceType
+     * Finds all currently <i>active</i> DeviceConfigurations for the given DeviceType.
      *
      * @param deviceType the DeviceType
      * @return the list of <i>active</i> DeviceConfigurations
