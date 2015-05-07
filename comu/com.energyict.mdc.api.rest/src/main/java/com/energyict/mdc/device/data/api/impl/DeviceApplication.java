@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -96,7 +95,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ExceptionLogger.class,
                 DeviceResource.class,
                 RegisterResource.class,
-                ConstraintViolationExceptionMapper.class,
                 JsonMappingExceptionMapper.class
         );
     }
