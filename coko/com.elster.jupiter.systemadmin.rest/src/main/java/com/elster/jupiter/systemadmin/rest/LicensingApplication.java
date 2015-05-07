@@ -48,9 +48,7 @@ public class LicensingApplication extends Application implements TranslationKeyP
         return ImmutableSet.<Class<?>>of(LicenseResource.class,
                 DataPurgeResource.class,
                 MultiPartFeature.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class);
+                ConstraintViolationExceptionMapper.class);
     }
 
     @Reference
