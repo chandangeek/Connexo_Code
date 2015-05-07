@@ -109,7 +109,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ExceptionLogger.class,
                 DeviceResource.class,
                 ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 LocalizedExceptionMapper.class,
                 ProtocolDialectResource.class,
