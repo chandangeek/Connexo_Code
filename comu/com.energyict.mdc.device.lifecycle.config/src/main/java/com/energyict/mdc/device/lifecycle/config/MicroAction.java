@@ -65,12 +65,7 @@ public enum MicroAction {
     /**
      * Detaches a slave device from its physical gateway.
      */
-    DETACH_SLAVE_FROM_MASTER,
-
-    /**
-     * Detaches the device from its usage point.
-     */
-    DETACH_USAGE_POINT;
+    DETACH_SLAVE_FROM_MASTER;
 
     /**
      * Gets the Set of {@link MicroCheck}s that are implied

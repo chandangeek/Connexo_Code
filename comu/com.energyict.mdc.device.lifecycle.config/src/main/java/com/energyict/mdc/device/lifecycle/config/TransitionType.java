@@ -60,8 +60,7 @@ public enum TransitionType {
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.VEE_PROPERTIES_ARE_ALL_VALID);
+                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
         }
 
         @Override
@@ -87,7 +86,6 @@ public enum TransitionType {
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.VEE_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
@@ -118,7 +116,6 @@ public enum TransitionType {
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.VEE_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
@@ -147,7 +144,6 @@ public enum TransitionType {
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.VEE_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SLAVE_DEVICE_HAS_GATEWAY,
                     MicroCheck.LINKED_WITH_USAGE_POINT);
         }
@@ -185,8 +181,7 @@ public enum TransitionType {
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.VEE_PROPERTIES_ARE_ALL_VALID);
+                    MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID);
         }
 
         @Override
@@ -219,7 +214,6 @@ public enum TransitionType {
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
                     MicroAction.DETACH_SLAVE_FROM_MASTER,
-                    MicroAction.DETACH_USAGE_POINT,
                     MicroAction.CLOSE_METER_ACTIVATION);
         }
     },
