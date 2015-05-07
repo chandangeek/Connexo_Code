@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.impl.i18n.TranslationInstaller;
@@ -39,7 +38,6 @@ public class TimeApplication extends Application implements InstallService {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                JsonMappingExceptionMapper.class,
                 RelativePeriodResource.class
         );
     }
