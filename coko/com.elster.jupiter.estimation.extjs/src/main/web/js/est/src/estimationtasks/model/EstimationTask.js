@@ -37,10 +37,9 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             name: 'status_formatted',
             persist: false,
             mapping: function (data) {
-                if (data.lastEstimationOccurrence && data.lastEstimationOccurrence.status) {
-                    if (data.lastEstimationOccurrence.statusPrefix && data.lastEstimationOccurrence.statusDate) {
-                        return data.lastEstimationOccurrence.status + ' '
-                            + data.lastEstimationOccurrence.statusPrefix + ' '
+                if (data.lastEstimationOccurrence) {
+                    if (data.lastEstimationOccurrence.statusPrefix && data.lastEstimationOccurrence.statusDate && data.lastEstimationOccurrence.statusDate != 0) {
+                        return data.lastEstimationOccurrence.statusPrefix + ' '
                             + Uni.DateTime.formatDateTimeShort(new Date(data.lastEstimationOccurrence.statusDate));
                     } else {
                         return data.lastEstimationOccurrence.status;
@@ -132,7 +131,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
                     return 'All';
                 }
             }
-        },
+        }
     ],
     proxy: {
         type: 'rest',
