@@ -39,9 +39,7 @@ public class ComTasksApplication extends Application implements BinderProvider {
                 ComTaskResource.class,
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class
+                JsonMappingExceptionMapper.class
         );
     }
 
