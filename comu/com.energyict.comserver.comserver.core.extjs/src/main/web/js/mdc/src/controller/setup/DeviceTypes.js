@@ -226,7 +226,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
-        confugurationStore.getProxy().url = confugurationStore.getProxy().url.replace('{deviceType}', deviceTypeId);
+        confugurationStore.getProxy().url = confugurationStore.getProxy().baseUrl.replace('{deviceType}', deviceTypeId);
         var when = new Uni.util.When();
         when.when([
             {action: Ext.ModelManager.getModel('Mdc.model.DeviceType').load, context: Ext.ModelManager.getModel('Mdc.model.DeviceType'), args: [deviceTypeId]},
@@ -236,21 +236,25 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         ]).then(
             {
                 success: function (results) {
-                    var deviceType = results[0][0];
-                    me.getApplication().fireEvent('loadDeviceType', deviceType);
-                    Ext.suspendLayouts();
-                    me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
-                    me.modifyEditView(widget, confugurationStore);
-                    Ext.resumeLayouts(true);
-                    widget.setLoading(false);
+                    if (widget.rendered) {
+                        var deviceType = results[0][0];
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        Ext.suspendLayouts();
+                        me.getDeviceTypeEditForm().loadRecord(deviceType);
+                        me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                        me.modifyEditView(widget, confugurationStore);
+                        Ext.resumeLayouts(true);
+                        widget.setLoading(false);
+                    }
                 },
                 failure: function () {
-                    Ext.suspendLayouts();
-                    me.getDeviceTypeEditForm().loadRecord(deviceType);
-                    me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
-                    Ext.resumeLayouts(true);
-                    widget.setLoading(false);
+                    if (widget.rendered) {
+                        Ext.suspendLayouts();
+                        me.getDeviceTypeEditForm().loadRecord(deviceType);
+                        me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                        Ext.resumeLayouts(true);
+                        widget.setLoading(false);
+                    }
                 }
             }
         );

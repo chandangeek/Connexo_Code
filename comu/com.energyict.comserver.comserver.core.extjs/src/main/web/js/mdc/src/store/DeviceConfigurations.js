@@ -8,6 +8,7 @@ Ext.define('Mdc.store.DeviceConfigurations', {
     proxy: {
         type: 'rest',
         url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations',
+        baseUrl: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations',
         reader: {
             type: 'json',
             root: 'deviceConfigurations'
