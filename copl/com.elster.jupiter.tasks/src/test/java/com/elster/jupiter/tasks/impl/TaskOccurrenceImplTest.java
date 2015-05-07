@@ -10,20 +10,21 @@ import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.anyObject;
@@ -74,19 +75,19 @@ public class TaskOccurrenceImplTest {
     public void testStart() {
         TaskOccurrenceImpl taskOccurrence = TaskOccurrenceImpl.createScheduled(dataModel, recurrentTask, Instant.EPOCH);
         assertThat(taskOccurrence.getStatus()).isEqualTo(TaskStatus.NOT_EXECUTED_YET);
-        assertThat(taskOccurrence.getStartDate()).isAbsent();
-        assertThat(taskOccurrence.getEndDate()).isAbsent();
+        assertThat(taskOccurrence.getStartDate()).isEmpty();
+        assertThat(taskOccurrence.getEndDate()).isEmpty();
 
         taskOccurrence.start();
         assertThat(taskOccurrence.getStatus()).isEqualTo(TaskStatus.BUSY);
         assertThat(taskOccurrence.getStartDate()).contains(now);
-        assertThat(taskOccurrence.getEndDate()).isAbsent();
+        assertThat(taskOccurrence.getEndDate()).isEmpty();
 
         //next is noop
         taskOccurrence.start();
         assertThat(taskOccurrence.getStatus()).isEqualTo(TaskStatus.BUSY);
         assertThat(taskOccurrence.getStartDate()).contains(now);
-        assertThat(taskOccurrence.getEndDate()).isAbsent();
+        assertThat(taskOccurrence.getEndDate()).isEmpty();
 
         // goto final state
         taskOccurrence.hasRun(true);
@@ -105,16 +106,16 @@ public class TaskOccurrenceImplTest {
     public void testHasRun() {
         TaskOccurrenceImpl taskOccurrence = TaskOccurrenceImpl.createScheduled(dataModel, recurrentTask, Instant.EPOCH);
         assertThat(taskOccurrence.getStatus()).isEqualTo(TaskStatus.NOT_EXECUTED_YET);
-        assertThat(taskOccurrence.getStartDate()).isAbsent();
-        assertThat(taskOccurrence.getEndDate()).isAbsent();
+        assertThat(taskOccurrence.getStartDate()).isEmpty();
+        assertThat(taskOccurrence.getEndDate()).isEmpty();
 
         taskOccurrence.hasRun(true);
         assertThat(taskOccurrence.getStatus()).isEqualTo(TaskStatus.SUCCESS);
-        assertThat(taskOccurrence.getStartDate()).isAbsent();
+        assertThat(taskOccurrence.getStartDate()).isEmpty();
         assertThat(taskOccurrence.getEndDate()).contains(now);
         taskOccurrence.hasRun(false);
         assertThat(taskOccurrence.getStatus()).isEqualTo(TaskStatus.SUCCESS);
-        assertThat(taskOccurrence.getStartDate()).isAbsent();
+        assertThat(taskOccurrence.getStartDate()).isEmpty();
         assertThat(taskOccurrence.getEndDate()).contains(now);
     }
 
