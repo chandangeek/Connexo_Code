@@ -14,6 +14,37 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     channelsListLink: null,
     activeTab: null,
 
+    setFilterView: function (filterModel) {
+        console.log(filterModel);
+        var me = this,
+            filterView = me.down('#deviceloadprofileschanneldatafilterpanel'),
+            filterForm = me.down('#deviceLoadProfileChannelDataFilterForm'),
+
+            intervalStartField = filterForm.down('[name=intervalStart]'),
+            intervalEndField = filterForm.down('[name=duration]'),
+
+            suspectField = filterForm.down('#suspect'),
+            nonSuspectField = filterForm.down('#nonSuspect'),
+            intervalStart = intervalStartField.getValue(),
+            intervalEnd = intervalEndField.getRawValue(),
+            suspect = suspectField.boxLabel,
+            nonSuspect = nonSuspectField.boxLabel,
+            eventDateText = '';
+        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
+            + Uni.DateTime.formatDateShort(intervalStart);
+
+        filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
+        filterView.down('#Reset').setText('Reset');
+
+        if (suspectField.getValue()) {
+            filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
+        }
+
+        if (nonSuspectField.getValue()) {
+            filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
+        }
+    },
+
     initComponent: function () {
         var me = this;
         me.content = [
@@ -34,13 +65,20 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                     },
                     {
                         title: Uni.I18n.translate('deviceloadprofiles.readings', 'MDC', 'Readings'),
-                        itemId: 'channel-data',
+                        itemId: 'deviceLoadProfileChannelData',
                         items: [
                             {
-                                xtype: 'deviceLoadProfileChannelData',
-                                router: me.router,
-                                device: me.device,
-                                channel: me.channel
+                                xtype: 'filter-top-panel',
+                                itemId: 'deviceloadprofileschanneldatafilterpanel',
+                                emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
+                            },
+//                    {
+//                        xtype: 'deviceLoadProfileChannelGraphView'
+//                    },
+                            {
+                                xtype: 'deviceLoadProfileChannelTableView',
+                                channel: me.channel,
+                                router: me.router
                             }
                         ]
                     }

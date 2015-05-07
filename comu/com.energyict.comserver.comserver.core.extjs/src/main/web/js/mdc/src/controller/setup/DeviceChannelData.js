@@ -26,6 +26,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             selector: '#deviceLoadProfileChannelGraphView'
         },
         {
+            ref: 'tabbedDeviceChannelsView',
+            selector: '#tabbedDeviceChannelsView'
+        },
+        {
             ref: 'page',
             selector: '#deviceLoadProfileChannelData'
         },
@@ -86,10 +90,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showOverview: function (mRID, channelId, activeTab) {
         var me = this,
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             device = me.getModel('Mdc.model.Device'),
             channel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router');
-
+        viewport.setLoading(true);
         device.load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
@@ -118,7 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             router.queryParams.onlySuspect = undefined;
                         }
                         me.getSideFilterForm().loadRecord(router.filter);
-                        me.setFilterView();
+                        me.getTabbedDeviceChannelsView().setFilterView(router.filter);
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.loadChannelReadings(channel, device, widget)
                     }
@@ -129,6 +134,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     loadChannelReadings: function (channel, device, widget) {
         var me = this,
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
             mRID = device.get('mRID'),
@@ -140,7 +146,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
         dataStore.load({
             callback: function () {
-                widget.setLoading(false);
+                viewport.setLoading(false);
                 me.showGraphView(channel, dataStore);
                 me.getSideFilterForm().loadRecord(router.filter);
             }
@@ -236,39 +242,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
     },
 
-    setFilterView: function () {
 
-        var filterForm = this.getSideFilterForm(),
-            filterView = this.getFilterPanel(),
-
-            intervalStartField = filterForm.down('[name=intervalStart]'),
-            intervalEndField = filterForm.down('[name=duration]'),
-
-            suspectField = filterForm.down('#suspect'),
-            nonSuspectField = filterForm.down('#nonSuspect'),
-
-            intervalStart = intervalStartField.getValue(),
-            intervalEnd = intervalEndField.getRawValue(),
-
-            suspect = suspectField.boxLabel,
-            nonSuspect = nonSuspectField.boxLabel,
-
-            eventDateText = '';
-
-        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-            + Uni.DateTime.formatDateShort(intervalStart);
-
-        filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
-        filterView.down('#Reset').setText('Reset');
-
-        if (suspectField.getValue()) {
-            filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
-        }
-
-        if (nonSuspectField.getValue()) {
-            filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
-        }
-    },
 
     showPreview: function (selectionModel, record) {
         var me = this,
