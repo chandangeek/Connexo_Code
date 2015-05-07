@@ -89,7 +89,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService, T
 
     @Override
     public Finder<PluggableClass> findAllByType(PluggableClassType type) {
-        return DefaultFinder.of(PluggableClass.class, Where.where("pluggableType").isEqualTo(PersistentPluggableClassType.forActualType(type)), this.dataModel);
+        return DefaultFinder.of(PluggableClass.class, Where.where("pluggableType").isEqualTo(PersistentPluggableClassType.forActualType(type)), this.dataModel).defaultSortColumn("name");
     }
 
     @Override
