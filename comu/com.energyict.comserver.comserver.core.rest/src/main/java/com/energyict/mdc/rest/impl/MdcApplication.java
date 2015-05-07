@@ -10,7 +10,6 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -51,8 +50,6 @@ public class MdcApplication extends Application implements TranslationKeyProvide
         return ImmutableSet.of(
                 TransactionWrapper.class,
                 ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 ComServerResource.class,
                 ComServerComPortResource.class,
