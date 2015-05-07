@@ -209,6 +209,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             })
         }
 
+        me.getEstimationPeriodCombo().store.load();
+
         var taskForm = widget.down('#add-edit-estimationtask-form'),
             deviceGroupCombo = widget.down('#device-group-id'),
             recurrenceTypeCombo = widget.down('#recurrence-type');
