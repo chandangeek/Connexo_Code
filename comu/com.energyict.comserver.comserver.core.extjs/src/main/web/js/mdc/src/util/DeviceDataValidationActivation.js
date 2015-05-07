@@ -7,6 +7,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 
     mRID: null,
     dataValidationLastChecked: null,
+	validationOnStorage: null,
 
     updateDataValidationStatusSection: function (mRID, view) {
         var me = this;
@@ -56,9 +57,14 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'activationConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
+				confirmAndRunText: Uni.I18n.translate('general.activateAndRun', 'MDC', 'Activate & Run'),
                 confirmation: function () {
-                    me.activateDataValidation(view, this);
+                    me.activateDataValidation(view, this, false);
+                },
+				confirmationAndRun: function () {
+                    me.activateDataValidation(view, this, true);
                 }
+				
             });
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
@@ -72,8 +78,27 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 } else {
                     me.dataValidationLastChecked = new Date();
                 }
+				if (res.onStorage) {
+                    me.validationOnStorage = true;
+                } else {
+                    me.validationOnStorage = false;
+                }
+				
+				
                 if (res.hasValidation) {
                     confirmationWindow.insert(1,me.getActivationConfirmationContent());
+					
+					// remove confirm and cancel buttons
+					var buttonConfirm = confirmationWindow.down('button[name=confirm]'),
+						buttonCancel = confirmationWindow.down('button[name=cancel]'),
+						owner = buttonConfirm.ownerCt;
+					
+                    owner.remove(buttonConfirm);
+                    owner.remove(buttonCancel);		
+
+					// add 3 new buttons		
+					owner.insert(1, me.getButtonContent(confirmationWindow));
+					
                     confirmationWindow.show({
                         title: Uni.I18n.translatePlural('device.dataValidation.activateConfirmation.title', me.mRID, 'MDC', 'Activate data validation on device {0}?'),
                         msg: ''
@@ -91,23 +116,25 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         });
     },
 
-    activateDataValidation: function (view, confWindow) {
+    activateDataValidation: function (view, confWindow, runNow) {
         var me = this;
-        if (me.hasValidation) {
+        /*if (me.hasValidation) {
             var isValidationRunImmediately = confWindow.down('#validationRunRg').getValue().validationRun === 'now';
             var isWaitForNewData = confWindow.down('#validationRunRg').getValue().validationRun === 'waitForNewData';
-        }
+        }*/
+		var isValidationOnStorage = confWindow.down('#validationOnStorage').getValue();
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'PUT',
             jsonData: {
                 isActive: 'true',
+				isStorage: isValidationOnStorage,
                 lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : null)
             },
             success: function () {
                 me.updateDataValidationStatusSection(me.mRID, view);
-                if (isValidationRunImmediately) {
+                if (runNow) {
                     me.isValidationRunImmediately = true;
                     me.validateData(confWindow);
                 } else {
@@ -188,6 +215,49 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         });
     },
 
+	getButtonContent: function (confWindow) {
+        var me = this;
+        return Ext.create('Ext.container.Container', {
+			layout: {
+                    type: 'hbox'
+            },
+			items: [
+				{
+					xtype: 'button',
+					action: 'confirm',
+					name: 'confirm',
+					scope: confWindow,
+					text: confWindow.confirmText,
+					ui: confWindow.confirmBtnUi,
+					handler: confWindow.confirmation,
+					margin: '0 0 0 ' + confWindow.iconWidth
+				},
+				{
+					xtype: 'button',
+					action: 'confirmAndRun',
+					name: 'confirmAndRun',
+					scope: confWindow,
+					text: confWindow.confirmAndRunText,
+					ui: confWindow.confirmBtnUi,
+					handler: confWindow.confirmationAndRun,		
+					margin: '0 0 0 10'				
+				},
+				{
+					xtype: 'button',
+					action: 'cancel',
+					name: 'cancel',
+					scope: confWindow,
+					text: confWindow.cancelText,
+					ui: 'link',
+					handler: confWindow.cancellation
+				}				
+            ]
+
+
+           
+        });
+    },
+	
     getActivationConfirmationContent: function () {
         var me = this;
         return Ext.create('Ext.container.Container', {
@@ -202,7 +272,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     editable: false,
                     showToday: false,
                     value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item1', 'MDC', '1. Validate data from'),
+                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item', 'MDC', 'Validate data from'),
                     labelWidth: 175,
                     labelPad: 1
                 },
@@ -216,33 +286,15 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     },
                     html: ''
                 },
-                {
-                    xtype: 'displayfield',
-                    value: '',
-                    padding: '0 0 -10 0',
-                    fieldLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2', 'MDC', '2. When do you want to run the data validation?'),
-                    labelWidth: 350
-                },
-                {
-                    xtype: 'radiogroup',
-                    itemId: 'validationRunRg',
-                    columns: 1,
-                    defaults: {
-                        name: 'validationRun',
-                        padding: '-10 0 0 60'
-                    },
-                    items: [
-                        {
-                            boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2.1', 'MDC', 'Run now'),
-                            inputValue: 'now'
-                        },
-                        {
-                            boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.item2.2', 'MDC', 'Wait for new data'),
-                            inputValue: 'waitForNewData',
-                            checked: true
-                        }
-                    ]
-                },
+				{
+					xtype: 'checkboxfield',                
+					boxLabel: Uni.I18n.translate('device.dataValidation.activateConfirmation.onStorage', 'MDC', 'Validate data on storage'),
+					itemId: 'validationOnStorage',
+					checked: me.validationOnStorage,
+					labelWidth: 175,
+                    labelPad: 1,
+					padding: '0 0 15px 48px'
+				},				
                 {
                     xtype: 'panel',
                     itemId: 'validationProgress',
@@ -294,6 +346,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     confirmationWindowButtonsDisable: function (value) {
         if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('button[name=confirm]').setDisabled(value);
+			Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('button[name=confirmAndRun]').setDisabled(value);			
             Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('button[name=cancel]').setDisabled(value);
         }
     },
