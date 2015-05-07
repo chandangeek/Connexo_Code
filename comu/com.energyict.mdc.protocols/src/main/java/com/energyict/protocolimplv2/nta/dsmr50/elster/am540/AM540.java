@@ -314,4 +314,9 @@ public class AM540 extends AbstractDlmsProtocol {
         }
         return (DSMR50Properties) dlmsProperties;
     }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
 }

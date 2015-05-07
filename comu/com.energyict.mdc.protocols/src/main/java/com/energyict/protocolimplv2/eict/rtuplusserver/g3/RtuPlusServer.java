@@ -443,4 +443,9 @@ public class RtuPlusServer implements DeviceProtocol {
 
         return firmwareVersionsCollectedData;
     }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
 }
