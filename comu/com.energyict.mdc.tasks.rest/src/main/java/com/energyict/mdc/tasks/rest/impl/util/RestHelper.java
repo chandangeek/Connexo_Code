@@ -1,4 +1,4 @@
-package com.energyict.mdc.tasks.rest.util;
+package com.energyict.mdc.tasks.rest.impl.util;
 
 import com.elster.jupiter.time.TimeDuration;
 

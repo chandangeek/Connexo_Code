@@ -1,7 +1,6 @@
 package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.tasks.rest.util.RestHelper;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;

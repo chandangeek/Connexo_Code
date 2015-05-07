@@ -15,7 +15,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import com.energyict.mdc.tasks.rest.util.RestHelper;
+import com.energyict.mdc.tasks.rest.impl.util.RestHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;

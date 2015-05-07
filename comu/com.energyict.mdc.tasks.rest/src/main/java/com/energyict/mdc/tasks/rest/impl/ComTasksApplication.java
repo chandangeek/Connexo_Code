@@ -1,4 +1,4 @@
-package com.energyict.mdc.tasks.rest;
+package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
@@ -6,16 +6,17 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.rest.impl.ComTaskResource;
-import com.energyict.mdc.tasks.rest.impl.MessageSeeds;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

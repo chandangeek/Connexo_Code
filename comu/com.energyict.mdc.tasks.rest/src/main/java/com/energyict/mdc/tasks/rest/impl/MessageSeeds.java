@@ -2,7 +2,6 @@ package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.tasks.rest.ComTasksApplication;
 
 import java.util.logging.Level;
 
