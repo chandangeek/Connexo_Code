@@ -8,24 +8,21 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.google.common.collect.ImmutableSet;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.elster.jupiter.appserver.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/apr", "app=SYS", "name=" + AppServerApplication.COMPONENT_NAME})
 public class AppServerApplication extends Application implements InstallService {
@@ -42,8 +39,6 @@ public class AppServerApplication extends Application implements InstallService 
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                LocalizedExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class,
                 AppServerResource.class);
     }
