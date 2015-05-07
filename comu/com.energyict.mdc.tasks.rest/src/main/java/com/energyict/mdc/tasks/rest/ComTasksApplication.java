@@ -38,7 +38,6 @@ public class ComTasksApplication extends Application implements BinderProvider {
         return ImmutableSet.of(
                 ComTaskResource.class,
                 TransactionWrapper.class,
-                ConstraintViolationExceptionMapper.class,
                 JsonMappingExceptionMapper.class
         );
     }
