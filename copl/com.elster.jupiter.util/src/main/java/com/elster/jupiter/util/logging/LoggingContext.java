@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LoggingContext implements AutoCloseable {
+public final class LoggingContext implements AutoCloseable {
 
     private static ThreadLocal<LoggingContext> context = ThreadLocal.withInitial(LoggingContext::new);
 
