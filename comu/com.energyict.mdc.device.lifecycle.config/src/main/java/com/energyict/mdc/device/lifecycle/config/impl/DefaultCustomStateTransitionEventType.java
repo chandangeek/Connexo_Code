@@ -12,7 +12,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
  */
 public enum DefaultCustomStateTransitionEventType {
 
-    COMMISSIONED("#commissioned"),
+    COMMISSIONING("#commissioning"),
     ACTIVATED("#activated"),
     DEACTIVATED("#deactivated"),
     DECOMMISSIONED("#decommissioned"),

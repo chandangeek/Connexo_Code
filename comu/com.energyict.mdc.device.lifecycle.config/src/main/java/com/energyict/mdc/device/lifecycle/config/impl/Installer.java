@@ -130,7 +130,7 @@ public class Installer {
     }
 
     private FiniteStateMachine createDefaultFiniteStateMachine(String name, Map<String, CustomStateTransitionEventType> eventTypes) {
-        StateTransitionEventType commissionedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.COMMISSIONED.getSymbol());
+        StateTransitionEventType commissioningEventType = eventTypes.get(DefaultCustomStateTransitionEventType.COMMISSIONING.getSymbol());
         StateTransitionEventType activated = eventTypes.get(DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol());
         StateTransitionEventType deactivated = eventTypes.get(DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol());
         StateTransitionEventType decommissionedEventType = eventTypes.get(DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol());
@@ -158,14 +158,14 @@ public class Installer {
                 .on(decommissionedEventType).transitionTo(decommissioned)
                 .complete();
         State commissioned = builder
-                .newStandardState(DefaultState.COMMISSIONED.getKey())
+                .newStandardState(DefaultState.COMMISSIONING.getKey())
                 .on(activated).transitionTo(active)
                 .on(deactivated).transitionTo(inactive)
                 .complete();
         State inStock = inStockBuilder
                 .on(activated).transitionTo(active)
                 .on(deactivated).transitionTo(inactive)
-                .on(commissionedEventType).transitionTo(commissioned)
+                .on(commissioningEventType).transitionTo(commissioned)
                 .on(revoked).transitionTo(deleted)
                 .complete();
         FiniteStateMachine stateMachine = builder.complete(inStock);

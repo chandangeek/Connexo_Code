@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  */
 public enum TransitionType {
 
-    COMMISSION(DefaultState.IN_STOCK, DefaultState.COMMISSIONED) {
+    COMMISSION(DefaultState.IN_STOCK, DefaultState.COMMISSIONING) {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
@@ -105,7 +105,7 @@ public enum TransitionType {
                     MicroAction.ACTIVATE_CONNECTION_TASKS);
         }
     },
-    INSTALL_AND_ACTIVATE(DefaultState.COMMISSIONED, DefaultState.ACTIVE) {
+    INSTALL_AND_ACTIVATE(DefaultState.COMMISSIONING, DefaultState.ACTIVE) {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(
@@ -133,7 +133,7 @@ public enum TransitionType {
                     MicroAction.ACTIVATE_CONNECTION_TASKS);
         }
     },
-    INSTALL_INACTIVE(DefaultState.COMMISSIONED, DefaultState.INACTIVE) {
+    INSTALL_INACTIVE(DefaultState.COMMISSIONING, DefaultState.INACTIVE) {
         @Override
         public Set<MicroCheck> optionalChecks() {
             return EnumSet.of(

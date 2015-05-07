@@ -88,11 +88,11 @@ public class TransitionTypeTest {
 
     @Test
     public void testWithStandardTransition() {
-        this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.COMMISSIONED, TransitionType.COMMISSION);
+        this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.COMMISSIONING, TransitionType.COMMISSION);
         this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.ACTIVE, TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING);
         this.testStandardTransition(DefaultState.IN_STOCK, DefaultState.INACTIVE, TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING);
-        this.testStandardTransition(DefaultState.COMMISSIONED, DefaultState.ACTIVE, TransitionType.INSTALL_AND_ACTIVATE);
-        this.testStandardTransition(DefaultState.COMMISSIONED, DefaultState.INACTIVE, TransitionType.INSTALL_INACTIVE);
+        this.testStandardTransition(DefaultState.COMMISSIONING, DefaultState.ACTIVE, TransitionType.INSTALL_AND_ACTIVATE);
+        this.testStandardTransition(DefaultState.COMMISSIONING, DefaultState.INACTIVE, TransitionType.INSTALL_INACTIVE);
         this.testStandardTransition(DefaultState.ACTIVE, DefaultState.INACTIVE, TransitionType.DEACTIVATE);
         this.testStandardTransition(DefaultState.INACTIVE, DefaultState.ACTIVE, TransitionType.ACTIVATE);
         this.testStandardTransition(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED, TransitionType.DECOMMISSION);
