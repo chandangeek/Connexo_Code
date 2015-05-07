@@ -13,6 +13,7 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
@@ -113,7 +114,7 @@ public class TimeServiceImpl implements TimeService, InstallService {
 
     @Override
     public Query<? extends RelativePeriod> getRelativePeriodQuery() {
-        return queryService.wrap(dataModel.query(RelativePeriod.class));
+        return queryService.wrap(dataModel.query(RelativePeriod.class, RelativePeriodCategoryUsage.class, RelativePeriodCategory.class));
     }
 
     Module getModule() {
@@ -143,7 +144,7 @@ public class TimeServiceImpl implements TimeService, InstallService {
 
     @Override
     public void install() {
-        new Installer(dataModel, thesaurus, userService, eventService).install(true);
+        new Installer(dataModel, this, thesaurus, userService, eventService).install(true);
     }
 
     @Override
