@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -39,7 +38,6 @@ public class AppServerApplication extends Application implements InstallService 
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                ConstraintViolationExceptionMapper.class,
                 AppServerResource.class);
     }
     @Reference
