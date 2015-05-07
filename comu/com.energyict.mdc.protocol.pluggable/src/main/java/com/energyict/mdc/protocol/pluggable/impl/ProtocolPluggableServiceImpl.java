@@ -306,7 +306,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses() {
-        return new WrappingFinder<DeviceProtocolPluggableClass, PluggableClass>(this.pluggableService.findAllByType(PluggableClassType.DeviceProtocol).defaultSortColumn("name")) {
+        return new WrappingFinder<DeviceProtocolPluggableClass, PluggableClass>(this.pluggableService.findAllByType(PluggableClassType.DeviceProtocol)) {
             @Override
             public List<DeviceProtocolPluggableClass> convert(List<PluggableClass> pluggableClasses) {
                 List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = new ArrayList<>(pluggableClasses.size());
