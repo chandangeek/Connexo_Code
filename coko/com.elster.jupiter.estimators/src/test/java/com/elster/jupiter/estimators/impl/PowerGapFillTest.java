@@ -1,7 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.Estimatable;
@@ -13,12 +12,13 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +36,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.estimators.impl.PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +46,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PowerGapFillTest {
+    private static final Logger LOGGER = Logger.getLogger(PowerGapFillTest.class.getName());
 
     private static final ZonedDateTime BEFORE = ZonedDateTime.of(2015, 3, 11, 20, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime ESTIMATABLE1 = BEFORE.plusHours(1);
@@ -54,7 +57,7 @@ public class PowerGapFillTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public static final ReadingQualityType SUSPECT = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT);
+    public LogRecorder logRecorder;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -71,9 +74,15 @@ public class PowerGapFillTest {
     private IntervalReadingRecord readingRecord1, readingRecord2;
     @Mock
     private CimChannel bulkCimChannel;
+    @Mock
+    private MeterActivation meterActivation;
 
     @Before
     public void setUp() {
+        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(Optional.empty()).when(meterActivation).getMeter();
+        doReturn("deltaReadingType").when(deltaReadingType).getMRID();
+        doReturn("bulkReadingType").when(bulkReadingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
         doReturn(Optional.of(bulkCimChannel)).when(channel).getCimChannel(bulkReadingType);
@@ -103,11 +112,17 @@ public class PowerGapFillTest {
         doReturn(AFTER.toInstant()).when(channel).getNextDateTime(ESTIMATABLE3.toInstant());
         doReturn(BEFORE.toInstant()).when(bulkCimChannel).getPreviousDateTime(ESTIMATABLE1.toInstant());
         doReturn(AFTER.toInstant()).when(bulkCimChannel).getNextDateTime(ESTIMATABLE3.toInstant());
+
+        logRecorder = new LogRecorder(Level.ALL);
+        LOGGER.addHandler(logRecorder);
+
+        LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
-
+        LOGGER.removeHandler(logRecorder);
+        LoggingContext.get().close();
     }
 
     @Test
@@ -117,7 +132,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -138,7 +153,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -158,7 +173,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(1));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -176,7 +191,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -194,7 +209,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -212,7 +227,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -230,7 +245,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -247,7 +262,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -264,7 +279,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -281,7 +296,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -298,7 +313,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -317,7 +332,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -336,7 +351,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -355,7 +370,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -374,7 +389,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -392,7 +407,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -410,7 +425,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -428,7 +443,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -500,7 +515,6 @@ public class PowerGapFillTest {
             }
         };
     }
-
 
 
 }

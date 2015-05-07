@@ -12,11 +12,13 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 import org.junit.After;
 import org.junit.Before;
@@ -34,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.estimators.impl.LinearInterpolation.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
@@ -67,9 +70,14 @@ public class LinearInterpolationTest {
     private Estimatable estimatable1, estimatable2;
     @Mock
     private BaseReadingRecord readingRecord1, readingRecord2;
+    @Mock
+    private MeterActivation meterActivation;
 
     @Before
     public void setUp() {
+        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(Optional.empty()).when(meterActivation).getMeter();
+        doReturn("readingType").when(readingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
         doReturn(readingType).when(estimationBlock).getReadingType();
@@ -83,11 +91,13 @@ public class LinearInterpolationTest {
 
         doReturn(BEFORE.toInstant()).when(channel).getPreviousDateTime(ESTIMATABLE1.toInstant());
         doReturn(AFTER.toInstant()).when(channel).getNextDateTime(ESTIMATABLE2.toInstant());
+
+        LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
-
+        LoggingContext.get().close();
     }
 
     @Test
@@ -97,7 +107,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -116,7 +126,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(1));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -133,7 +143,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -150,7 +160,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -167,7 +177,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -184,7 +194,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -201,7 +211,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 

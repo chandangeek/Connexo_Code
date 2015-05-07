@@ -28,6 +28,7 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
 import com.google.common.collect.Range;
 import org.junit.After;
@@ -47,14 +48,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.estimators.impl.EqualDistribution.ADVANCE_READINGS_SETTINGS;
 import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.cmpEq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EqualDistributionTest {
@@ -107,6 +107,7 @@ public class EqualDistributionTest {
         doReturn(Arrays.asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
         doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(Optional.empty()).when(meterActivation).getMeter();
         doReturn(Arrays.asList(channel, otherChannel)).when(meterActivation).getChannels();
         doReturn(Arrays.asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
         doReturn(Collections.singletonList(advanceReadingType)).when(otherChannel).getReadingTypes();
@@ -124,6 +125,9 @@ public class EqualDistributionTest {
         doReturn(ReadingTypeUnit.WATTHOUR).when(advanceReadingType).getUnit();
         doReturn(MetricMultiplier.KILO).when(advanceReadingType).getMultiplier();
         doReturn(TimeZoneNeutral.getMcMurdo()).when(deltaCimChannel).getZoneId();
+        doReturn("deltaReadingType").when(deltaReadingType).getMRID();
+        doReturn("bulkReadingType").when(bulkReadingType).getMRID();
+        doReturn("advanceReadingType").when(advanceReadingType).getMRID();
 
         // for bulk reading based tests
         doReturn(ESTIMATABLE1.toInstant()).when(estimatable1).getTimestamp();
@@ -187,11 +191,12 @@ public class EqualDistributionTest {
         doReturn(AFTER.toInstant()).when(channel).getNextDateTime(ESTIMATABLE3.toInstant());
         doReturn(BEFORE.toInstant()).when(bulkCimChannel).getPreviousDateTime(ESTIMATABLE1.toInstant());
         doReturn(AFTER.toInstant()).when(bulkCimChannel).getNextDateTime(ESTIMATABLE3.toInstant());
+        LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
-
+        LoggingContext.get().close();
     }
 
     @Test
@@ -202,7 +207,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -223,7 +228,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -245,7 +250,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -264,7 +269,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -283,7 +288,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -302,7 +307,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -321,7 +326,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -338,7 +343,7 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -356,7 +361,7 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -374,7 +379,7 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -392,7 +397,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -410,7 +415,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -427,7 +432,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -446,7 +451,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -465,7 +470,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init();
+        estimator.init(Logger.getAnonymousLogger());
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 

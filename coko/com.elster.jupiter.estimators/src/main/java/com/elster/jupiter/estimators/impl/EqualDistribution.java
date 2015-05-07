@@ -10,6 +10,7 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CimChannel;
@@ -21,6 +22,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -74,7 +76,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     public String getPropertyDefaultFormat(String property) {
         switch (property) {
             case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
-                return "Maximum consecutive suspects";
+                return "Max number of consecutive suspects";
             case ADVANCE_READINGS_SETTINGS:
                 return "Use advance readings";
             default:
@@ -91,10 +93,12 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
         SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
         estimationBlocks.forEach(block -> {
-            if (estimate(block)) {
-                builder.addEstimated(block);
-            } else {
-                builder.addRemaining(block);
+            try (LoggingContext context = initLoggingContext(block)) {
+                if (estimate(block)) {
+                    builder.addEstimated(block);
+                } else {
+                    builder.addRemaining(block);
+                }
             }
         });
         return builder.build();
@@ -113,8 +117,27 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     private boolean canEstimate(EstimationBlock block) {
-        return block.estimatables().size() <= maxNumberOfConsecutiveSuspects && block.getReadingType().isRegular();
+        return isBlockSizeOk(block) && isRegular(block);
     }
+
+    private boolean isRegular(EstimationBlock block) {
+        boolean regular = block.getReadingType().isRegular();
+        if (!regular) {
+            String message = "Failed estimation with {rule}: Block {block} since it has a reading type that is not regular : {readingType}";
+            LoggingContext.get().info(getLogger(), message);
+        }
+        return regular;
+    }
+
+    private boolean isBlockSizeOk(EstimationBlock block) {
+        boolean blockSizeOk = block.estimatables().size() <= maxNumberOfConsecutiveSuspects;
+        if (!blockSizeOk) {
+            String message = "Failed estimation with {rule}: Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
+            LoggingContext.get().info(getLogger(), message, block.estimatables().size(), maxNumberOfConsecutiveSuspects);
+        }
+        return blockSizeOk;
+    }
+
 
     private boolean estimateUsingAdvances(EstimationBlock block, ReadingType readingType) {
         return block.getChannel().getMeterActivation().getChannels().stream()
@@ -133,22 +156,19 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 .flatMap(priorReading -> advanceCimChannel.getReadings(Range.atLeast(lastOf(block.estimatables()).getTimestamp())).stream()
                         .findFirst()
                         .map(laterReading -> estimateUsingAdvances(block, priorReading, laterReading, advanceCimChannel.getReadingType(), advanceCimChannel)))
-                .orElse(false);
+                .orElseGet(() -> {
+                    String message = "Failed estimation with {rule}: Block {block} since there was no prior and later advance reading.";
+                    LoggingContext.get().info(getLogger(), message);
+                    return false;
+                });
     }
 
     private boolean estimateUsingAdvances(EstimationBlock block, BaseReadingRecord priorReading, BaseReadingRecord laterReading, ReadingType advanceReadingType, CimChannel advanceCimChannel) {
-        // get consumption spanning those readings
-        // divide by number of estimatables
-        // assignes to each estimatable
-        if (!block.getReadingType().getUnit().equals(advanceReadingType.getUnit())) {
-            return false;
-        }
-        if (!isValidReading(advanceCimChannel, priorReading) || !isValidReading(advanceCimChannel, laterReading)) {
+        if (!canEstimate(block, priorReading, laterReading, advanceReadingType, advanceCimChannel)) {
             return false;
         }
 
-        int metricMultiplierConversion = advanceReadingType.getMultiplier().getMultiplier() - block.getReadingType().getMultiplier().getMultiplier();
-        BigDecimal conversionFactor = BigDecimal.valueOf(1, -metricMultiplierConversion).setScale(10, RoundingMode.HALF_UP);
+        BigDecimal conversionFactor = calculateConversionFactor(block, advanceReadingType);
 
         BigDecimal advance = laterReading.getValue().subtract(priorReading.getValue()).setScale(10, RoundingMode.HALF_UP).multiply(conversionFactor);
 
@@ -160,6 +180,38 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                             block.estimatables().forEach(estimatable -> estimatable.setEstimation(perInterval));
                             return true;
                         })).orElse(false);
+    }
+
+    private BigDecimal calculateConversionFactor(EstimationBlock block, ReadingType advanceReadingType) {
+        int metricMultiplierConversion = advanceReadingType.getMultiplier().getMultiplier() - block.getReadingType().getMultiplier().getMultiplier();
+        return BigDecimal.valueOf(1, -metricMultiplierConversion).setScale(10, RoundingMode.HALF_UP);
+    }
+
+    private boolean canEstimate(EstimationBlock block, BaseReadingRecord priorReading, BaseReadingRecord laterReading, ReadingType advanceReadingType, CimChannel advanceCimChannel) {
+        if (!block.getReadingType().getUnit().equals(advanceReadingType.getUnit())) {
+            return false;
+        }
+        if (!isValidReading(advanceCimChannel, priorReading)) {
+            String message = "Failed estimation with {rule}: Block {block} since the prior advance reading is suspect or estimated";
+            LoggingContext.get().info(getLogger(), message);
+            return false;
+        }
+        if (!isValidReading(advanceCimChannel, laterReading)) {
+            String message = "Failed estimation with {rule}: Block {block} since the later advance reading is suspect or estimated";
+            LoggingContext.get().info(getLogger(), message);
+            return false;
+        }
+        if (priorReading.getValue() == null) {
+            String message = "Failed estimation with {rule}: Block {block} since the prior advance reading has no value";
+            LoggingContext.get().info(getLogger(), message);
+            return false;
+        }
+        if (laterReading.getValue() == null) {
+            String message = "Failed estimation with {rule}: Block {block} since the later advance reading has no value";
+            LoggingContext.get().info(getLogger(), message);
+            return false;
+        }
+        return true;
     }
 
     private boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate) {
@@ -201,6 +253,10 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 .collect(Collectors.toList());
 
         if (neededConsumption.stream().anyMatch(invalidsByTimestamp::containsKey)) {
+            boolean suspects = neededConsumption.stream().anyMatch(instant -> Optional.ofNullable(invalidsByTimestamp.get(instant)).orElse(Collections.emptyList()).stream().anyMatch(ReadingQualityRecord::isSuspect));
+            String message = suspects ? "Failed estimation with {rule}: Block {block} since there are additional suspects between the advance readings"
+                    : "Failed estimation with {rule}: Block {block} since there are estimated consumptions between the advance readings";
+            LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }
 
@@ -215,13 +271,21 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     private boolean estimateUsingBulk(EstimationBlock block) {
         return block.getReadingType().getBulkReadingType()
                 .map(bulkReadingType -> estimate(block, bulkReadingType))
-                .orElse(false);
+                .orElseGet(() -> {
+                    String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} has no bulk reading type.";
+                    LoggingContext.get().info(getLogger(), message);
+                    return false;
+                });
     }
 
     private boolean estimate(EstimationBlock block, ReadingType bulkReadingType) {
         return block.getChannel().getCimChannel(bulkReadingType)
                 .map(cimChannel -> estimate(block, cimChannel))
-                .orElse(false);
+                .orElseGet(() -> {
+                    String message = "Failed estimation with {rule}: Block {block} since the channel has no bulk reading type.";
+                    LoggingContext.get().info(getLogger(), message);
+                    return false;
+                });
     }
 
     private boolean estimate(EstimationBlock block, CimChannel bulkCimChannel) {
@@ -233,7 +297,11 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                     block.estimatables().forEach(estimatable -> estimatable.setEstimation(equalValue));
                     return true;
                 })
-                .orElse(false);
+                .orElseGet(() -> {
+                    String message = "Failed estimation with {rule}: Block {block} since the surrounding bulk readings are not available.";
+                    LoggingContext.get().info(getLogger(), message);
+                    return false;
+                });
     }
 
     private <T> T lastOf(List<? extends T> elements) {
