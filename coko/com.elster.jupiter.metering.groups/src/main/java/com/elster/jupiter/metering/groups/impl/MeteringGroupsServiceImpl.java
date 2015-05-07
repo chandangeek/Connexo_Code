@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.groups.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
@@ -37,6 +38,9 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
 public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService {
@@ -158,6 +162,18 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Override
+    public List<EnumeratedEndDeviceGroup> findEnumeratedEndDeviceGroupsContaining(EndDevice endDevice) {
+        return this.dataModel
+                .query(EnumeratedEndDeviceGroupImpl.EntryImpl.class)
+                .select(
+                         where("endDevice").isEqualTo(endDevice)
+                    .and(where("interval").isEffective()))
+                .stream()
+                .map(EnumeratedEndDeviceGroupImpl.EntryImpl::getEndDeviceGroup)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<QueryEndDeviceGroup> findQueryEndDeviceGroup(long id) {
         return dataModel.mapper(QueryEndDeviceGroup.class).getOptional(id);
     }
@@ -169,14 +185,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public Query<EndDeviceGroup> getEndDeviceGroupQuery() {
-        Query<EndDeviceGroup> ruleSetQuery = queryService.wrap(dataModel.query(EndDeviceGroup.class));
-        return ruleSetQuery;
+        return queryService.wrap(dataModel.query(EndDeviceGroup.class));
     }
 
     @Override
     public Query<EndDeviceGroup> getQueryEndDeviceGroupQuery() {
         Query<EndDeviceGroup> endDeviceGroupQuery = queryService.wrap(dataModel.query(EndDeviceGroup.class));
-        endDeviceGroupQuery.setRestriction(Where.where("class").isEqualTo(QueryEndDeviceGroup.TYPE_IDENTIFIER).and(Where.where("label").isEqualTo("MDC")));
+        endDeviceGroupQuery.setRestriction(where("class").isEqualTo(QueryEndDeviceGroup.TYPE_IDENTIFIER).and(where("label").isEqualTo("MDC")));
         return endDeviceGroupQuery;
     }
 
