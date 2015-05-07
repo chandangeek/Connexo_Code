@@ -3,6 +3,8 @@ package com.elster.jupiter.rest.whiteboard.impl;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -140,6 +142,8 @@ public class WhiteBoard {
         secureConfig.register(JacksonFeature.class);
         secureConfig.register(new RoleFilter(threadPrincipalService));
         secureConfig.register(RolesAllowedDynamicFeature.class);
+        secureConfig.register(LocalizedFieldValidationExceptionMapper.class);
+        secureConfig.register(LocalizedExceptionMapper.class);
         if (application instanceof BinderProvider) {
             secureConfig.register(((BinderProvider) application).getBinder());
         }
