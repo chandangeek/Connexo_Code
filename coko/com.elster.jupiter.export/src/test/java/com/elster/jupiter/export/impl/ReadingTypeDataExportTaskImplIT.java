@@ -244,7 +244,7 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getExportPeriod().getId()).isEqualTo(lastYear.getId());
         assertThat(readingTypeDataExportTask.getUpdatePeriod()).isPresent();
         assertThat(readingTypeDataExportTask.getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
-        assertThat(readingTypeDataExportTask.getLastRun()).isAbsent();
+        assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
         assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
         assertThat(readingTypeDataExportTask.getStrategy()).isNotNull();
@@ -356,7 +356,7 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(found.get().getNextExecution()).isEqualTo(instant);
         assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
         assertThat(found.get().getExportPeriod().getId()).isEqualTo(oneYearBeforeLastYear.getId());
-        assertThat(found.get().getUpdatePeriod()).isAbsent();
+        assertThat(found.get().getUpdatePeriod()).isEmpty();
         assertThat(found.get().getEndDeviceGroup().getId()).isEqualTo(anotherEndDeviceGroup.getId());
         assertThat(found.get().getProperties().get("propy")).isEqualTo(BigDecimal.valueOf(20000, 2));
         assertThat(found.get().getReadingTypes()).containsExactly(anotherReadingType);
@@ -441,8 +441,8 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(exportItem.getReadingContainer()).isEqualTo(meter);
         assertThat(exportItem.getTask().getId()).isEqualTo(task.getId());
         assertThat(exportItem.getReadingType()).isEqualTo(readingType);
-        assertThat(exportItem.getLastRun()).isAbsent();
-        assertThat(exportItem.getLastExportedDate()).isAbsent();
+        assertThat(exportItem.getLastRun()).isEmpty();
+        assertThat(exportItem.getLastExportedDate()).isEmpty();
         assertThat(exportItem.isActive()).isTrue();
     }
 
