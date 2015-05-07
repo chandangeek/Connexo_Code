@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
@@ -48,11 +49,13 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,6 +89,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
@@ -129,7 +133,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ConnectionResource.class,
                 DeviceProtocolPropertyResource.class,
                 KpiResource.class,
-                AdhocGroupResource.class
+                AdhocGroupResource.class,
+                DeviceEstimationResource.class
         );
     }
 
@@ -260,6 +265,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
     }
+    
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
+    }
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
@@ -340,6 +350,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(schedulingService).to(SchedulingService.class);
             bind(validationService).to(ValidationService.class);
+            bind(estimationService).to(EstimationService.class);
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);
