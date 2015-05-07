@@ -50,7 +50,7 @@ public class CopyOnWriteServiceContainerTest {
 
         serviceContainer.unregister("A");
 
-        assertThat(serviceContainer.poll(Predicate.isEqual("A"))).isAbsent();
+        assertThat(serviceContainer.poll(Predicate.isEqual("A"))).isEmpty();
     }
 
     @Test
@@ -100,7 +100,7 @@ public class CopyOnWriteServiceContainerTest {
                 // expected
             }
 
-            assertThat(future.get()).isAbsent();
+            assertThat(future.get()).isEmpty();
 
         } finally {
             executorService.shutdown();
