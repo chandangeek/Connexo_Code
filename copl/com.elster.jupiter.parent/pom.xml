@@ -381,6 +381,7 @@
                         <Bundle-Vendor>Elster</Bundle-Vendor>
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
                         <Git-SHA-1>${buildNumber}</Git-SHA-1>
+                        <Git-branch>${scmBranch}</Git-branch>
                         <Build-timestamp>${timestamp}</Build-timestamp>
                         <_sources>${include.source}</_sources>
                         <_include>bnd.bnd</_include>
