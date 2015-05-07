@@ -1,6 +1,8 @@
 package com.energyict.mdc.common.services;
 
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.List;
 
 /**
@@ -34,11 +36,6 @@ public class FactoryFinder<T> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> defaultSortColumn(String sortColumn) {
-        return this;
-    }
-
-    @Override
     public Finder<T> from(QueryParameters queryParameters) {
         return this;
     }
@@ -46,4 +43,15 @@ public class FactoryFinder<T> implements Finder<T> {
     public interface Callback<T> {
         public List<T> getDataFromFactory();
     }
+
+    @Override
+    public Subquery asSubQuery(String... fieldNames) {
+        throw new IllegalStateException("Not implemented");
+    }
+
+    @Override
+    public SqlFragment asFragment(String... fieldNames) {
+        throw new IllegalStateException("Not implemented");
+    }
+
 }

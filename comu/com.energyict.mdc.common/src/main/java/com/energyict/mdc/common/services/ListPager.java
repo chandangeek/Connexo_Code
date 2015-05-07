@@ -1,6 +1,8 @@
 package com.energyict.mdc.common.services;
 
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,11 +43,6 @@ public class ListPager<T> implements Finder<T> {
         throw new RuntimeException("Sorting not supported yet. Use DefaultFinder instead");
     }
 
-    @Override
-    public Finder<T> defaultSortColumn(String sortColumn) {
-        throw new RuntimeException("Sorting not supported yet. Use DefaultFinder instead");
-    }
-
     public List<T> find() {
         if (start!=null && pageSize!=null) {
             if (start>=elements.size()) {
@@ -67,4 +64,15 @@ public class ListPager<T> implements Finder<T> {
         }
         return this;
     }
+
+    @Override
+    public Subquery asSubQuery(String... fieldNames) {
+        throw new IllegalStateException("Not implemented");
+    }
+
+    @Override
+    public SqlFragment asFragment(String... fieldNames) {
+        throw new IllegalStateException("Not implemented");
+    }
+
 }

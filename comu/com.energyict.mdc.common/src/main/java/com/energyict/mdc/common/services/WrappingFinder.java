@@ -1,6 +1,8 @@
 package com.energyict.mdc.common.services;
 
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.List;
 
 /**
@@ -26,12 +28,6 @@ public abstract class WrappingFinder<T, S> implements Finder<T> {
     }
 
     @Override
-    public Finder<T> defaultSortColumn(String sortColumn) {
-        delegate.defaultSortColumn(sortColumn);
-        return this;
-    }
-
-    @Override
     public List<T> find() {
         List<S> list = delegate.find();
         return convert(list);
@@ -40,9 +36,19 @@ public abstract class WrappingFinder<T, S> implements Finder<T> {
     public abstract List<T> convert(List<S> list);
 
     @Override
-    public Finder<T> from(QueryParameters uriInfo) {
-        delegate.from(uriInfo);
+    public Finder<T> from(QueryParameters queryParameters) {
+        delegate.from(queryParameters);
         return this;
+    }
+
+    @Override
+    public Subquery asSubQuery(String... fieldNames) {
+        throw new IllegalStateException("Not implemented");
+    }
+
+    @Override
+    public SqlFragment asFragment(String... fieldNames) {
+        throw new IllegalStateException("Not implemented");
     }
 }
 

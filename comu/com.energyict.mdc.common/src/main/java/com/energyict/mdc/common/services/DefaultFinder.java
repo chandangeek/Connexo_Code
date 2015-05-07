@@ -5,6 +5,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +24,11 @@ public class DefaultFinder<T> implements Finder<T> {
     private List<Order> sortingColumns = new ArrayList<>();
     private Order defaultSort;
 
-    public static <T> Finder<T> of(Class<T> clazz, DataModel dataModel, Class<?> ... eagers) {
+    public static <T> DefaultFinder<T> of(Class<T> clazz, DataModel dataModel, Class<?> ... eagers) {
         return of(clazz, Condition.TRUE, dataModel, eagers);
     }
 
-    public static <T> Finder<T> of(Class<T> clazz, Condition condition, DataModel dataModel, Class<?> ... eagers) {
+    public static <T> DefaultFinder<T> of(Class<T> clazz, Condition condition, DataModel dataModel, Class<?> ... eagers) {
         return new DefaultFinder<>(clazz, condition, dataModel, eagers);
     }
 
@@ -50,7 +52,6 @@ public class DefaultFinder<T> implements Finder<T> {
         return this;
     }
 
-    @Override
     public Finder<T> defaultSortColumn(String sortColumn) {
         this.defaultSort = Order.ascending(sortColumn).toLowerCase();
         return this;
@@ -80,4 +81,13 @@ public class DefaultFinder<T> implements Finder<T> {
         return this;
     }
 
+    @Override
+    public Subquery asSubQuery(String... fieldNames) {
+        return query.asSubquery(condition,fieldNames);
+    }
+
+    @Override
+    public SqlFragment asFragment(String... fieldNames) {
+        return query.asFragment(condition, fieldNames);
+    }
 }
