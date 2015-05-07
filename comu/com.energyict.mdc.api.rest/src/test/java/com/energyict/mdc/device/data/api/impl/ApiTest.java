@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.api.impl;
 
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -110,8 +110,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
 
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.defaultSortColumn(anyString())).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(list);
         when(finder.stream()).thenReturn(list.stream());
         return finder;

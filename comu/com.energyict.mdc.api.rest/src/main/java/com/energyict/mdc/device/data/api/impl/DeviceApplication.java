@@ -12,8 +12,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
@@ -99,9 +97,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceResource.class,
                 RegisterResource.class,
                 ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class
+                JsonMappingExceptionMapper.class
         );
     }
 
