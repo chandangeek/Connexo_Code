@@ -45,7 +45,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         assertThat(model.<List<?>>get("$.deviceLifeCycleStates")).isNotNull();
         assertThat(model.<List<?>>get("$.deviceLifeCycleStates")).hasSize(3);
         assertThat(model.<Number>get("$.deviceLifeCycleStates[0].id")).isEqualTo(1);
-        assertThat(model.<String>get("$.deviceLifeCycleStates[0].name")).isEqualTo("Commissioned");
+        assertThat(model.<String>get("$.deviceLifeCycleStates[0].name")).isEqualTo("Commissioning");
         assertThat(model.<Number>get("$.deviceLifeCycleStates[2].id")).isEqualTo(3);
         assertThat(model.<String>get("$.deviceLifeCycleStates[2].name")).isEqualTo("In stock");
         assertThat(model.<Boolean>get("$.deviceLifeCycleStates[2].isCustom")).isEqualTo(true);

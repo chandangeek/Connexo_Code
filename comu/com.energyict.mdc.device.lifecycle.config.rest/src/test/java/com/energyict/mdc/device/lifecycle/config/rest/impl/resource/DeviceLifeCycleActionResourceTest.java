@@ -31,13 +31,13 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).isNotNull();
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions")).hasSize(2);
         assertThat(model.<Number>get("$.deviceLifeCycleActions[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.deviceLifeCycleActions[0].name")).isEqualTo(MessageSeeds.TRANSITION_COMMISSIONED.getDefaultFormat());
+        assertThat(model.<String>get("$.deviceLifeCycleActions[0].name")).isEqualTo(MessageSeeds.TRANSITION_COMMISSIONING.getDefaultFormat());
         assertThat(model.<Object>get("$.deviceLifeCycleActions[0].fromState")).isNotNull();
         assertThat(model.<Number>get("$.deviceLifeCycleActions[0].fromState.id")).isEqualTo(3);
         assertThat(model.<String>get("$.deviceLifeCycleActions[0].fromState.name")).isEqualTo("In stock");
         assertThat(model.<Object>get("$.deviceLifeCycleActions[0].toState")).isNotNull();
         assertThat(model.<Number>get("$.deviceLifeCycleActions[0].toState.id")).isEqualTo(1);
-        assertThat(model.<String>get("$.deviceLifeCycleActions[0].toState.name")).isEqualTo("Commissioned");
+        assertThat(model.<String>get("$.deviceLifeCycleActions[0].toState.name")).isEqualTo("Commissioning");
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions[0].privileges")).isNotNull();
         assertThat(model.<List<?>>get("$.deviceLifeCycleActions[0].privileges")).hasSize(1);
         assertThat(model.<String>get("$.deviceLifeCycleActions[0].privileges[0].privilege")).isEqualTo("ONE");

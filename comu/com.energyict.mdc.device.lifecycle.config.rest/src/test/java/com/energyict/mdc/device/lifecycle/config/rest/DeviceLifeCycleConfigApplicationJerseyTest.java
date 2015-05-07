@@ -91,7 +91,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     public List<State> mockDefaultStates(){
         List<State> states = new ArrayList<>(3);
         states.add(mockSimpleState(2, "Decommissioned"));
-        states.add(mockSimpleState(1, "Commissioned"));
+        states.add(mockSimpleState(1, "Commissioning"));
         states.add(mockSimpleState(3, "In stock"));
         return states;
     }
@@ -117,7 +117,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         List<State> states = mockDefaultStates();
         List<AuthorizedAction> actions = new ArrayList<>(2);
         actions.add(mockSimpleAction(1, "#decommissioned", states.get(1), states.get(0)));
-        actions.add(mockSimpleAction(2, "#commissioned", states.get(2), states.get(1)));
+        actions.add(mockSimpleAction(2, "#commissioning", states.get(2), states.get(1)));
         return actions;
     }
 }
