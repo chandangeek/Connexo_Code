@@ -43,6 +43,21 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         ]
     },
 
+    updateForm: function (record) {
+        var me = this,
+            intervalEnd = record.get('interval_end'),
+            bulkValueField = me.down('displayfield[name=collectedValue]');
+
+        Ext.suspendLayouts();
+        me.setTitle(Uni.DateTime.formatDateLong(intervalEnd)
+            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+            + Uni.DateTime.formatTimeLong(intervalEnd));
+
+        bulkValueField.setVisible(record.get('isBulk'));
+        me.down('form').loadRecord(record);
+        Ext.resumeLayouts(true);
+    },
+
     initComponent: function () {
         var me = this;
 

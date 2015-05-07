@@ -32,6 +32,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         {
             ref: 'sideFilter',
             selector: '#deviceLoadProfileChannelDataSideFilter'
+        },
+        {
+            ref: 'deviceLoadProfileChannelDataPreview',
+            selector: '#deviceLoadProfileChannelDataPreview'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: '#deviceLoadProfileChannelDataFilterForm'
+        },
+        {
+            ref: 'filterPanel',
+            selector: '#deviceLoadProfileChannelData #deviceloadprofileschanneldatafilterpanel'
         }
     ],
 
@@ -76,8 +88,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             device = me.getModel('Mdc.model.Device'),
             channel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
-            router = me.getController('Uni.controller.history.Router'),
-            dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData');
+            router = me.getController('Uni.controller.history.Router');
 
         device.load(mRID, {
             success: function (device) {
@@ -99,28 +110,25 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(channel.get('interval')),
                             durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
                             viewOnlySuspects;
-
                         durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
                         widget.down('#deviceLoadProfileChannelDataSideFilter').setVisible(true);
-
                         if (Ext.isEmpty(router.filter.data.intervalStart)) {
                             viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
                             me.setDefaults(channel, dataIntervalAndZoomLevels, viewOnlySuspects);
                             router.queryParams.onlySuspect = undefined;
                         }
-
+                        me.getSideFilterForm().loadRecord(router.filter);
+                        me.setFilterView();
                         me.getApplication().fireEvent('changecontentevent', widget);
-
-                       me.loadReadings(channel, device)
-
+                        me.loadChannelReadings(channel, device, widget)
                     }
                 })
             }
         })
     },
 
-    loadReadings: function (channel, device) {
-        var me =this,
+    loadChannelReadings: function (channel, device, widget) {
+        var me = this,
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
             mRID = device.get('mRID'),
@@ -131,7 +139,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             channelId: channelId
         });
         dataStore.load({
-            success: function () {
+            callback: function () {
+                widget.setLoading(false);
                 me.showGraphView(channel, dataStore);
                 me.getSideFilterForm().loadRecord(router.filter);
             }
@@ -148,7 +157,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     showGraphView: function (channelRecord, dataStore) {
         var me = this,
             container = this.getDeviceLoadProfileChannelGraphView(),
-//        dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
             channelName = channelRecord.get('name'),
             unitOfMeasure = channelRecord.get('unitOfMeasure').unit,
@@ -199,9 +207,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             });
             series.push(seriesObject);
             Ext.suspendLayouts();
-            container.down('#graphContainer').show();
-            container.down('#ctr-graph-no-data').hide();
-            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
+//            container.down('#graphContainer').show();
+//            container.down('#ctr-graph-no-data').hide();
+//            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
             Ext.resumeLayouts(true);
         } else {
             Ext.suspendLayouts();
@@ -229,37 +237,67 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     setFilterView: function () {
+
         var filterForm = this.getSideFilterForm(),
             filterView = this.getFilterPanel(),
+
             intervalStartField = filterForm.down('[name=intervalStart]'),
             intervalEndField = filterForm.down('[name=duration]'),
+
             suspectField = filterForm.down('#suspect'),
             nonSuspectField = filterForm.down('#nonSuspect'),
+
             intervalStart = intervalStartField.getValue(),
             intervalEnd = intervalEndField.getRawValue(),
+
             suspect = suspectField.boxLabel,
             nonSuspect = nonSuspectField.boxLabel,
+
             eventDateText = '';
+
         eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
             + Uni.DateTime.formatDateShort(intervalStart);
+
         filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
         filterView.down('#Reset').setText('Reset');
+
         if (suspectField.getValue()) {
             filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
         }
+
         if (nonSuspectField.getValue()) {
             filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
         }
+    },
 
+    showPreview: function (selectionModel, record) {
+        var me = this,
+            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
+        previewPanel.updateForm(record)
+
+    },
+
+    applyFilter: function () {
+        var filterForm = this.getSideFilterForm();
+        filterForm.updateRecord();
+        filterForm.getRecord().save();
+    },
+
+    clearFilter: function () {
+        this.getSideFilterForm().getRecord().getProxy().destroy();
+    },
+
+    removeFilterItem: function (key) {
+        var router = this.getController('Uni.controller.history.Router'),
+            record = router.filter;
+
+        if (key === 'onlySuspect' || key === 'onlyNonSuspect') {
+            record.set(key, false);
+        }
+        record.save();
     }
 
 });
-
-
-
-
-
-
 
 
 //
