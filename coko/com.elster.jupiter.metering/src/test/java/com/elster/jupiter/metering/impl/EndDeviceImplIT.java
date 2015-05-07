@@ -8,6 +8,8 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -26,6 +28,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -46,6 +50,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -248,6 +253,49 @@ public class EndDeviceImplIT {
         assertThat(endDevice.getState(march1st).get().getId()).isEqualTo(initialStateId);
         assertThat(endDevice.getState(april1st).isPresent()).isTrue();
         assertThat(endDevice.getState(april1st).get().getId()).isEqualTo(changedStateId);
+    }
+
+    @Test
+    public void getStateTimeline() {
+        Instant march1st = Instant.ofEpochMilli(1425168000000L);    // Midnight of March 1st, 2015 (GMT)
+        Instant april1st = Instant.ofEpochMilli(1427846400000L);    // Midnight of April 1st, 2015 (GMT)
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        long deviceId;
+        long initialStateId;
+        long changedStateId;
+        try (TransactionContext context = transactionService.getContext()) {
+            when(this.clock.instant()).thenReturn(march1st);
+            FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
+            State initialState = stateMachine.getInitialState();
+            initialStateId = initialState.getId();
+            State changedState = stateMachine.getState("Second").get();
+            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
+            endDevice.save();
+            deviceId = endDevice.getId();
+            changedStateId = changedState.getId();
+            when(this.clock.instant()).thenReturn(april1st);
+            endDevice.changeState(changedState);
+            context.commit();
+        }
+        EndDevice endDevice = meteringService.findEndDevice(deviceId).get();
+
+        // Business method
+        Optional<StateTimeline> stateTimeline = endDevice.getStateTimeline();
+
+        // Asserts
+        assertThat(stateTimeline).isPresent();
+        List<StateTimeSlice> slices = stateTimeline.get().getSlices();
+        assertThat(slices).hasSize(2);
+        assertThat(slices.get(0).getState().getId()).isEqualTo(initialStateId);
+        assertThat(slices.get(0).getPeriod().lowerEndpoint()).isEqualTo(march1st);
+        assertThat(slices.get(0).getPeriod().lowerBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(slices.get(0).getPeriod().upperEndpoint()).isEqualTo(april1st);
+        assertThat(slices.get(0).getPeriod().upperBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(slices.get(1).getState().getId()).isEqualTo(changedStateId);
+        assertThat(slices.get(1).getPeriod().lowerEndpoint()).isEqualTo(april1st);
+        assertThat(slices.get(1).getPeriod().lowerBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(slices.get(1).getPeriod().hasUpperBound()).isFalse();
     }
 
     private FiniteStateMachine createTinyFiniteStateMachine() {

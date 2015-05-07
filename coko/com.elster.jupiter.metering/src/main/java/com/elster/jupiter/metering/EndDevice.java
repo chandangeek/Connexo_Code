@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.google.common.collect.Range;
@@ -62,5 +63,12 @@ public interface EndDevice extends IdentifiedObject {
      * @return The State
      */
     Optional<State> getState(Instant instant);
+
+    /**
+     * Gets the {@link StateTimeline} for this EndDevice.
+     *
+     * @return The StateTimeline or empty when the life cycle of this EndDevice is not managed
+     */
+    Optional<StateTimeline> getStateTimeline();
 
 }

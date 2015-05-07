@@ -4,6 +4,8 @@ import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
@@ -17,6 +19,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
@@ -31,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -212,6 +217,22 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     public Optional<State> getState(Instant instant) {
         if (this.isDeviceLifeCycleManaged()) {
             return this.status.effective(instant).map(EndDeviceLifeCycleStatus::getState);
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<StateTimeline> getStateTimeline() {
+        if (this.isDeviceLifeCycleManaged()) {
+            return Optional.of(
+                StateTimelineImpl.from(
+                    this.status
+                            .effective(Range.atLeast(Instant.EPOCH))
+                            .stream()
+                            .map(StateTimeSliceImpl::from)
+                            .collect(Collectors.toList())));
         }
         else {
             return Optional.empty();
