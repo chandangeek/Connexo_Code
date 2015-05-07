@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.eict.webrtuz3;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -11,6 +13,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
@@ -30,6 +33,7 @@ import com.energyict.protocolimplv2.eict.webrtuz3.properties.WebRTUZ3Properties;
 import com.energyict.protocolimplv2.eict.webrtuz3.registers.WebRTUZ3RegisterFactory;
 import com.energyict.protocolimplv2.eict.webrtuz3.topology.WebRTUZ3MeterTopology;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +44,7 @@ import java.util.List;
  * @author khe
  * @since 22/04/2015 - 16:37
  */
-public class WebRTUZ3 extends AbstractDlmsProtocol {
+public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Protocol {
 
     private LoadProfileBuilder loadProfileBuilder;
     private LogBookParser logBookParser;
@@ -176,5 +180,35 @@ public class WebRTUZ3 extends AbstractDlmsProtocol {
     @Override
     public String getVersion() {
         return "$Date$";
+    }
+
+    @Override
+    public TypedProperties formatLegacyProperties(TypedProperties legacyProperties) {
+        TypedProperties result = TypedProperties.empty();
+
+        // Map 'ServerMacAddress' to 'ServerUpperMacAddress' and 'ServerLowerMacAddress'
+        Object serverMacAddress = legacyProperties.getProperty(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
+        if (serverMacAddress != null) {
+            String[] macAddress = ((String) serverMacAddress).split(":");
+            if (macAddress.length >= 1) {
+                String upperMacAddress = macAddress[0];
+                result.setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, mapToBigDecimal(upperMacAddress));
+            }
+
+            if (macAddress.length >= 2) {
+                String lowerMacAddress = macAddress[1];
+                result.setProperty(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, mapToBigDecimal(lowerMacAddress));
+            }
+        }
+
+        return result;
+    }
+
+    private BigDecimal mapToBigDecimal(String text) {
+        try {
+            return new BigDecimal(text);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }
