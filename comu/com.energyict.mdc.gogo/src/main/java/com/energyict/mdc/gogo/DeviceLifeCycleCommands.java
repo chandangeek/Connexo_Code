@@ -217,7 +217,7 @@ public class DeviceLifeCycleCommands {
         System.out.println("triggerEvent <event type> <device mRID>");
         System.out.println("triggerAction <event type> <device mRID>");
         System.out.println("     where <event type> is one of:");
-        System.out.println("       #commissioned");
+        System.out.println("       #commissioning");
         System.out.println("       #activated");
         System.out.println("       #deactivated");
         System.out.println("       #decommissioned");
