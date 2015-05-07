@@ -135,7 +135,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
 
             @Override
             AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
-                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService);
+                return new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService);
             }
         },
         POWER_GAP_FILL(POWER_GAP_FILL_ESTIMATOR) {
