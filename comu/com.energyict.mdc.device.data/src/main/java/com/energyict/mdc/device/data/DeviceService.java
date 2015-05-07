@@ -37,6 +37,15 @@ public interface DeviceService {
      * @return the requested Device or null if none was found
      */
     public Optional<Device> findDeviceById(long id);
+    
+    /**
+     * Finds and locks the Device based on his unique ID and VERSION.
+     *
+     * @param id the unique ID of the device
+     * @param version the version of the device
+     * @return the requested Device or null if none was found
+     */
+    public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
 
     /**
      * Finds the Device based on his unique External name.

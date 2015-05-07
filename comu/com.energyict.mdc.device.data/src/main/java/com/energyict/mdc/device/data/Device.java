@@ -7,22 +7,10 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -44,7 +32,10 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.util.HasName;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -300,6 +291,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range);
 
     DeviceValidation forValidation();
+    
+    DeviceEstimation forEstimation();
 
     public Optional<UsagePoint> getUsagePoint();
 
@@ -331,6 +324,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The State
      */
     public Optional<State> getState(Instant instant);
+    
+    public long getVersion();
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
@@ -434,4 +429,5 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          */
         DeviceMessage<Device> add();
     }
+
 }

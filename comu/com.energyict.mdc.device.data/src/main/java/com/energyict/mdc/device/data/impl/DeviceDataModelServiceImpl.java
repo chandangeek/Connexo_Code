@@ -1,6 +1,32 @@
 package com.energyict.mdc.device.data.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
@@ -48,31 +74,6 @@ import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
 /**
  * Provides an implementation for the {@link DeviceDataModelService} interface.
  *
@@ -90,6 +91,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile com.elster.jupiter.tasks.TaskService taskService;
     private volatile Clock clock;
     private volatile KpiService kpiService;
@@ -122,7 +124,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
-                                      MeteringService meteringService, ValidationService validationService,
+                                      MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
                                       SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this();
@@ -139,6 +141,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setMeteringService(meteringService);
         this.setValidationService(validationService);
+        this.setEstimationService(estimationService);
         this.setSchedulingService(schedulingService);
         this.setMessagingService(messageService);
         this.setSecurityPropertyService(securityPropertyService);
@@ -165,7 +168,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 OrmService.COMPONENTNAME,
                 EventService.COMPONENTNAME,
                 NlsService.COMPONENTNAME,
-                MessageService.COMPONENTNAME
+                MessageService.COMPONENTNAME,
+                EstimationService.COMPONENTNAME
         );
     }
 
@@ -228,6 +232,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+    
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference
@@ -354,6 +363,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(EstimationService.class).toInstance(estimationService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(MessageService.class).toInstance(messagingService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);

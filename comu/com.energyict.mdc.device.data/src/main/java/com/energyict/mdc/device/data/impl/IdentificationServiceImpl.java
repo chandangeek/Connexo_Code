@@ -7,20 +7,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByMRID;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByPropertyValue;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierFirstOnDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierForAlreadyKnownLoadProfile;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierByDeviceAndObisCode;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
+import com.energyict.mdc.device.data.impl.identifiers.*;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -84,7 +71,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device) {
-        return new DeviceIdentifierForAlreadyKnownDevice((Device) device);
+        return new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber((Device) device);
     }
 
     @Override
