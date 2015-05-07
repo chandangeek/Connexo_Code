@@ -12,4 +12,14 @@ public interface DeviceFirmwareSupport {
      */
     CollectedFirmwareVersion getFirmwareVersions();
 
+    /**
+     * Indication whether or not the FirmwareType 'Communication' is supported.
+     * Most meter only have one <i>adjustable</i> firmware so by default it is set to false.
+     *
+     * @return FALSE by default
+     */
+    default boolean supportsCommunicationFirmwareVersion() {
+        return false;
+    }
+
 }
