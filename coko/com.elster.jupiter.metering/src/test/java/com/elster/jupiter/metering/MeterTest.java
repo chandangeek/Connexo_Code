@@ -118,7 +118,7 @@ public class MeterTest {
             meter.getCurrentMeterActivation().get().endAt(deactivateDate);
             ctx.commit();
         }
-        JupiterAssertions.assertThat(meter.getCurrentMeterActivation()).isAbsent();
+        JupiterAssertions.assertThat(meter.getCurrentMeterActivation()).isEmpty();
         assertThat(meter.getMeterActivations()).hasSize(1);
         assertThat(meter.getMeterActivations().get(0).getStart()).isEqualTo(installDate1);
         assertThat(meter.getMeterActivations().get(0).getEnd()).isEqualTo(deactivateDate);

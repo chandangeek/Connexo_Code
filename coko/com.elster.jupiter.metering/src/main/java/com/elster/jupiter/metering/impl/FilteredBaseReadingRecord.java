@@ -38,7 +38,7 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
 
     @Override
     public ReadingType getReadingType() {
-        return filtered.getReadingType();
+        return view.perform(filtered.getReadingTypes()).get(0);
     }
 
     @Override
@@ -63,7 +63,8 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
 
     @Override
     public BigDecimal getValue() {
-        return filtered.getValue();
+        Quantity quantity = filtered.getQuantity(getReadingType());
+        return quantity == null ? null : quantity.getValue();
     }
 
     @Override
