@@ -222,7 +222,7 @@ public class KpiServiceImplIT {
             context.commit();
         }
 
-        assertThat(kpiService.getKpi(id)).isAbsent();
+        assertThat(kpiService.getKpi(id)).isEmpty();
 
     }
 
