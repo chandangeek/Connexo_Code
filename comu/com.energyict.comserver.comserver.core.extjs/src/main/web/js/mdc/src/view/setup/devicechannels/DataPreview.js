@@ -39,7 +39,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 },
                 items: []
             },
-            { xtype: 'deviceloadprofilechannelspreview-validation' }
+            {
+                xtype: 'deviceloadprofilechannelspreview-validation'
+            }
         ]
     },
 

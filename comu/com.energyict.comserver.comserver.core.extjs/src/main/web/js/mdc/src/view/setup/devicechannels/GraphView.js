@@ -1,5 +1,6 @@
 Ext.define('Mdc.view.setup.devicechannels.GraphView', {
     extend: 'Mdc.view.setup.highstock.GraphView',
+
     alias: 'widget.deviceLoadProfileChannelGraphView',
     itemId: 'deviceLoadProfileChannelGraphView',
 

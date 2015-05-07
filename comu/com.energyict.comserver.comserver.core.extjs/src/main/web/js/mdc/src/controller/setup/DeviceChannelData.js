@@ -85,25 +85,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         this.showOverview(mRID, channelId, 1)
     },
 
-    onTabChange: function (tabPanel, newTab) {
-        var router = this.getController('Uni.controller.history.Router'),
-            routeParams = router.arguments,
-            route,
-            filterParams = {};
-        if (newTab.itemId === 'deviceLoadProfileChannelData') {
-
-            filterParams.onlySuspect = false;
-            route = 'devices/device/channels/channeldata';
-            route && (route = router.getRoute(route));
-            route && route.forward(routeParams, filterParams);
-
-        } else if (newTab.itemId === 'channel-specifications') {
-            route = 'devices/device/channels/channel';
-            route && (route = router.getRoute(route));
-            route && route.forward(routeParams, filterParams);
-        }
-    },
-
     showOverview: function (mRID, channelId, activeTab) {
         var me = this,
             device = me.getModel('Mdc.model.Device'),
@@ -131,7 +112,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                         if (activeTab == 1) {
                             me.setupReadingsTab(device, channel, widget);
-                        } else if (activeTab == 0){
+                        } else if (activeTab == 0) {
                             me.setupSpecificationsTab(device, channel, widget);
                         }
                     }
@@ -148,7 +129,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         widget.down('#deviceLoadProfileChannelsActionMenu').record = channel;
     },
 
-    setupReadingsTab: function (device, channel, widget) {
+    setupReadingsTab: function (device, channel) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
@@ -175,7 +156,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             me.showGraphView(channel, dataStore)
         });
     },
-
 
 
     makeLinkToList: function (router) {
@@ -227,20 +207,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
         }
 
-//    if (dataStore.getTotalCount() > 0) {
-        if (true) {
-            dataStore.each(function (record) {
-                if (record.get('value')) {
-                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
-                } else {
-                    seriesObject['data'].unshift([record.get('interval').start, null]);
-                }
-            });
+        if (dataStore.getTotalCount() > 0) {
+            seriesObject['data'] = me.formatData(dataStore);
             series.push(seriesObject);
             Ext.suspendLayouts();
-//            container.down('#graphContainer').show();
-//            container.down('#ctr-graph-no-data').hide();
-//            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
+            container.down('#graphContainer').show();
+            container.down('#ctr-graph-no-data').hide();
+            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
             Ext.resumeLayouts(true);
         } else {
             Ext.suspendLayouts();
@@ -251,6 +224,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.getPage().doLayout();
     },
 
+    formatData : function (dataStore) {
+        var data = [];
+
+        dataStore.each(function (record) {
+            if (record.get('value')) {
+                data.unshift([record.get('interval').start, parseFloat(record.get('value'))]);
+            } else {
+                data.unshift([record.get('interval').start, null]);
+            }
+        });
+        return data;
+    },
 
     setDefaults: function (channel, dataIntervalAndZoomLevels, viewOnlySuspects) {
         var me = this,
@@ -267,6 +252,24 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
     },
 
+    onTabChange: function (tabPanel, newTab) {
+        var router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
+            route,
+            filterParams = {};
+        if (newTab.itemId === 'deviceLoadProfileChannelData') {
+
+            filterParams.onlySuspect = false;
+            route = 'devices/device/channels/channeldata';
+            route && (route = router.getRoute(route));
+            route && route.forward(routeParams, filterParams);
+
+        } else if (newTab.itemId === 'channel-specifications') {
+            route = 'devices/device/channels/channel';
+            route && (route = router.getRoute(route));
+            route && route.forward(routeParams, filterParams);
+        }
+    },
 
     showPreview: function (selectionModel, record) {
         var me = this,
@@ -293,7 +296,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             record.set(key, false);
         }
         record.save();
-    }
+    },
+
+    onGraphResize: function (graphView, width, height) {
+        if (graphView.chart) {
+            graphView.chart.setSize(width, height, false);
+        }
+    },
+
 
 });
 

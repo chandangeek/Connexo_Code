@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
         'Mdc.view.setup.devicechannels.SideFilter',
-        'Mdc.view.setup.devicechannels.TableView'
+        'Mdc.view.setup.devicechannels.TableView',
+        'Mdc.view.setup.devicechannels.GraphView'
     ],
 
     router: null,
@@ -60,9 +61,9 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 itemId: 'deviceloadprofileschanneldatafilterpanel',
                                 emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                             },
-//                            {
-//                                xtype: 'deviceLoadProfileChannelGraphView'
-//                            },
+                            {
+                                xtype: 'deviceLoadProfileChannelGraphView'
+                            },
                             {
                                 xtype: 'deviceLoadProfileChannelTableView',
                                 channel: me.channel,
