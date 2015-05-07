@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -40,7 +39,6 @@ public class TimeApplication extends Application implements InstallService {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                ConstraintViolationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 RelativePeriodResource.class
         );
