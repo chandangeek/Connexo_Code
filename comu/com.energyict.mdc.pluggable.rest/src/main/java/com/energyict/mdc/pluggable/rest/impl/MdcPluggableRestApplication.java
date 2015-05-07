@@ -54,8 +54,7 @@ public class MdcPluggableRestApplication extends Application implements Translat
                 TimeZoneInUseResource.class,
                 UserFileReferenceResource.class,
                 LoadProfileTypeResource.class,
-                CodeTableResource.class,
-                JsonMappingExceptionMapper.class);
+                CodeTableResource.class);
     }
 
     @Override
