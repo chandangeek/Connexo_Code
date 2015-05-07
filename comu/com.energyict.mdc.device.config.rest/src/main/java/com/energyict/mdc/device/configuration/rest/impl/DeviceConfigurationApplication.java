@@ -79,7 +79,6 @@ public class DeviceConfigurationApplication extends Application implements Trans
                 DeviceConfigurationResource.class,
                 RegisterConfigurationResource.class,
                 ReadingTypeResource.class,
-                JsonMappingExceptionMapper.class,
                 ProtocolDialectResource.class,
                 ConnectionMethodResource.class,
                 RegisterTypeResource.class,
