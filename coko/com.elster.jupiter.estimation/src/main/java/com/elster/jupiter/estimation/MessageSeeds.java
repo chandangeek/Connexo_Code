@@ -1,12 +1,12 @@
 package com.elster.jupiter.estimation;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_ESTIMATOR(1001, Constants.NO_SUCH_ESTIMATOR, "Estimator {0} does not exist.", Level.SEVERE),
@@ -22,7 +22,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     
     ESTIMATOR_PROPERTY_NOT_IN_SPEC(1005, Constants.ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY, "The estimator ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     ESTIMATOR_PROPERTY_INVALID_VALUE(1006, Constants.ESTIMATOR_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of estimator ''{2}''", Level.SEVERE),
-    ESTIMATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of estimator ''{1}''", Level.SEVERE),
+    ESTIMATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
 
     ;
     
