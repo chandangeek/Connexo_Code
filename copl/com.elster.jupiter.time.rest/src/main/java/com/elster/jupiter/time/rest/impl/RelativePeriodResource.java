@@ -19,7 +19,7 @@ import com.elster.jupiter.time.rest.RelativePeriodPreviewInfo;
 import com.elster.jupiter.time.rest.impl.i18n.MessageSeeds;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -70,10 +70,17 @@ public class RelativePeriodResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     // not protected by privileges yet because a combobox containing all the relative periods needs to be shown when creating an export task
     public RelativePeriodInfos getRelativePeriods(@Context UriInfo uriInfo) {
+
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         Query<? extends RelativePeriod> query = timeService.getRelativePeriodQuery();
+        List<String> category = queryParameters.get("category");
+        Condition condition = Condition.TRUE;
+        if(category !=null && !category.isEmpty()){
+            condition = Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name").isEqualTo(category.get(0));
+        }
+        query.setRestriction(condition);
         RestQuery<? extends RelativePeriod> restQuery = restQueryService.wrap(query);
-        List<? extends RelativePeriod> relativePeriods = restQuery.select(queryParameters, Order.ascending("upper(name)"));
+        List<? extends RelativePeriod> relativePeriods = restQuery.select(queryParameters, Order.ascending("name").toUpperCase());
         relativePeriods.sort((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()));
         RelativePeriodInfos relativePeriodInfos = new RelativePeriodInfos(queryParameters.clipToLimit(relativePeriods), thesaurus);
         relativePeriodInfos.total = queryParameters.determineTotal(relativePeriods.size());
