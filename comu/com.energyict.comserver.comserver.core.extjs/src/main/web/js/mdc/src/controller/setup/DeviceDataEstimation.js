@@ -45,7 +45,7 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                var view = Ext.widget('deviceDataEstimationRulesSetMainView', {device: device}),
+                var view = Ext.widget('deviceDataEstimationRulesSetMainView', {device: device, router: me.getController('Uni.controller.history.Router')}),
                     status = device.get('estimationStatus').active;
 
                 me.device = device;

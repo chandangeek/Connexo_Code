@@ -31,7 +31,6 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
 
     init: function () {
         var me = this;
-
         me.control({
             'estimation-deviceconfigurations-setup estimation-deviceconfigurations-grid': {
                 select: me.showEstimationDeviceConfigurationPreview
@@ -39,19 +38,29 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
             'estimation-deviceconfigurations-add #add-deviceconfigurations-grid': {
                 allitemsadd: me.onAllDeviceConfigurationsAdd,
                 selecteditemsadd: me.onSelectedDeviceConfigurationsAdd
+            },
+            'estimation-rule-set-side-menu[sharedForMdc=true]': {
+                beforerender: me.onEstimationRuleSetMenuBeforeRender
             }
         });
 
-        me.getApplication().on('estimationrulesetmenurender', function (menu) {
-            menu.add(
-                {
-                    text: Uni.I18n.translate('estimationDeviceConfigurations.deviceConfigurations', 'MDC', 'Device configurations'),
-                    itemId: 'estimation-device-configurations-link',
-                    href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/deviceconfigurations').buildUrl()
-                }
-            );
-        });
+        var menu = Ext.ComponentQuery.query('estimation-rule-set-side-menu[sharedForMdc=true]')[0];
+        if (menu && menu.rendered) {
+            me.onEstimationRuleSetMenuBeforeRender(menu);
+        }
     },
+
+    onEstimationRuleSetMenuBeforeRender: function (menu) {
+        var me = this;
+        menu.add(
+            {
+                text: Uni.I18n.translate('estimationDeviceConfigurations.deviceConfigurations', 'MDC', 'Device configurations'),
+                itemId: 'estimation-device-configurations-link',
+                href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/deviceconfigurations').buildUrl()
+            }
+        );
+    },
+
 
     showEstimationDeviceConfigurations: function (ruleSetId) {
         var me = this,
