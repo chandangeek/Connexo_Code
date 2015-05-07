@@ -1312,7 +1312,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: '{channelId}',
                                     controller: 'Mdc.controller.setup.DeviceChannelData',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
-                                    action: 'showSpecView',
+                                    action: 'showSpecifications',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));
@@ -1326,7 +1326,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: '{channelId}/data',
                                     controller: 'Mdc.controller.setup.DeviceChannelData',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
-                                    action: 'showDataView',
+                                    action: 'showData',
                                     filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {

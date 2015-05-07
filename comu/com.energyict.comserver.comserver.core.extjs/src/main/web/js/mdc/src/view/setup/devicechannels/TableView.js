@@ -30,7 +30,8 @@ Ext.define('Mdc.view.setup.devicechannels.TableView', {
 
         me.previewComponent = {
             xtype: 'deviceLoadProfileChannelDataPreview',
-            channelRecord: this.channel
+            channelRecord: this.channel,
+            hidden: true
         };
 
         me.callParent(arguments);

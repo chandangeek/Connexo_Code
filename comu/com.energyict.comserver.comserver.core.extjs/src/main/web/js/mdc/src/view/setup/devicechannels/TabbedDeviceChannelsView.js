@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                     },
                     {
                         xtype: 'deviceLoadProfileChannelDataSideFilter',
-                        hidden: true
+                        hidden: (me.activeTab === 0)
                     }
                 ]
             }
