@@ -44,17 +44,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
                     emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                 },
                 {
-                    tbar: {
-                        xtype: 'toolbar',
-                        items: [
-                            {
-                                xtype: 'container',
-                                itemId: 'readingsCount',
-                                hidden: true,
-                                flex: 1
-                            }
-                        ]
-                    },
                     items: [
 
                         {
