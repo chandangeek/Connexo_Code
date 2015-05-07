@@ -1,8 +1,10 @@
 package com.elster.jupiter.fsm;
 
+import com.elster.jupiter.users.User;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Models a slice of the {@link StateTimeline}
@@ -20,5 +22,7 @@ public interface StateTimeSlice {
     public Range<Instant> getPeriod();
 
     public State getState();
+
+    public Optional<User> getUser();
 
 }
