@@ -83,10 +83,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -1748,6 +1750,11 @@ public class DeviceImpl implements Device, CanLock {
         else {
             throw new IllegalStateException("MDC AMR system does not exist");
         }
+    }
+
+    @Override
+    public StateTimeline getStateTimeline() {
+        return this.getOptionalMeterAspect(EndDevice::getStateTimeline).get();
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{

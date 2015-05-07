@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -352,6 +353,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The State
      */
     public Optional<State> getState(Instant instant);
+
+    /**
+     * Gets the {@link StateTimeline} for this Device.
+     *
+     * @return The StateTimeline
+     */
+    public StateTimeline getStateTimeline();
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
