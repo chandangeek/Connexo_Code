@@ -5,6 +5,8 @@ import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.jayway.jsonpath.JsonModel;
@@ -13,48 +15,99 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
+    private final String meterVersion = "FWC.12-SNAPSHOT";
+    private final String communicationVersion = "COM.321-456";
+
     @Mock
     private Device device;
     @Mock
-    private ActivatedFirmwareVersion activatedFirmwareVersion;
+    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
-    private FirmwareVersion firmwareVersion;
+    private DeviceProtocol deviceProtocol;
+    @Mock
+    private ActivatedFirmwareVersion activatedMeterFirmwareVersion;
+    @Mock
+    private ActivatedFirmwareVersion activatedCommunicationFirmwareVersion;
+    @Mock
+    private FirmwareVersion meterFirmwareVersion;
+    @Mock
+    private FirmwareVersion communicationFirmwareVersion;
     @Mock
     private DeviceMessageCategory deviceMessageCategory;
 
     @Before
     public void setUpStubs() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(firmwareService.getCurrentMeterFirmwareVersionFor(device)).thenReturn(Optional.of(activatedMeterFirmwareVersion));
+        when(firmwareService.getCurrentCommunicationFirmwareVersionFor(device)).thenReturn(Optional.empty());
 
-        when(firmwareService.getCurrentMeterFirmwareVersionFor(device)).thenReturn(Optional.of(activatedFirmwareVersion));
-        when(firmwareService.getCurrentCommunicationFirmwareVersionFor(device)).thenReturn(Optional.of(activatedFirmwareVersion));
+        when(activatedMeterFirmwareVersion.getFirmwareVersion()).thenReturn(meterFirmwareVersion);
 
-        when(activatedFirmwareVersion.getFirmwareVersion()).thenReturn(firmwareVersion);
+        when(meterFirmwareVersion.getId()).thenReturn(1L);
+        when(meterFirmwareVersion.getFirmwareVersion()).thenReturn(meterVersion);
+        when(meterFirmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
+        when(meterFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
 
-        when(firmwareVersion.getId()).thenReturn(1L);
-        when(firmwareVersion.getFirmwareVersion()).thenReturn("firmwareVersion");
-        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
-        when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(device.getMessages()).thenReturn(Collections.<DeviceMessage<Device>>emptyList());
         when(deviceMessageSpecificationService.getFirmwareCategory()).thenReturn(deviceMessageCategory);
         when(deviceMessageCategory.getId()).thenReturn(8);
     }
 
     @Test
-    public void testGetFirmwareVersionsOnDevice() {
+    public void testGetOnlyMeterFirmwareVersionsOnDevice() {
+        when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(false);
         String json = target("device/1/firmwares").request().get(String.class);
 
-        System.out.println(json);
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
-        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo("firmwareVersion");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(meterVersion);
+    }
+
+    @Test
+    public void getMeterAndCommunicationFirmwareVersionsOnDeviceNoCommunicationDefinedTest() {
+        when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
+        String json = target("device/1/firmwares").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(2);
+        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(meterVersion);
+        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion")).isNull();
+    }
+
+    @Test
+    public void getMeterAndCommunicationFirmwareVersionsOnDeviceWhenCommunicationIsAlsoDefinedTest() {
+        when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
+        when(firmwareService.getCurrentCommunicationFirmwareVersionFor(device)).thenReturn(Optional.of(activatedCommunicationFirmwareVersion));
+
+        when(activatedCommunicationFirmwareVersion.getFirmwareVersion()).thenReturn(communicationFirmwareVersion);
+
+        when(communicationFirmwareVersion.getId()).thenReturn(2L);
+        when(communicationFirmwareVersion.getFirmwareVersion()).thenReturn(communicationVersion);
+        when(communicationFirmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
+        when(communicationFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
+
+        String json = target("device/1/firmwares").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<List<?>>get("$.firmwares")).hasSize(2);
+        assertThat(jsonModel.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
+        assertThat(jsonModel.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo(meterVersion);
+        assertThat(jsonModel.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
+        assertThat(jsonModel.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo(communicationVersion);
     }
 
 }
