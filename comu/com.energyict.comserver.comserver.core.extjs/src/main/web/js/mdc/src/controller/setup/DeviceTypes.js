@@ -78,6 +78,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             },
             '#deviceTypeEdit #communicationProtocolComboBox': {
                 change: this.proposeDeviceTypeName
+            },
+            'device-type-action-menu': {
+                click: this.chooseAction
             }
         });
     },
@@ -468,5 +471,20 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 widget.setLoading(false);
             }
         });
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+
+        switch (item.action) {
+            case 'changeDeviceLifeCycle':
+                route = 'administration/devicetypes/view/change';
+                break;
+        }
+
+        route && (route = router.getRoute(route));
+        route && route.forward({deviceTypeId: menu.record.getId()});
     }
 });
