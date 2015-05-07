@@ -60,7 +60,6 @@ public class MdcPluggableRestApplication extends Application implements Translat
                 UserFileReferenceResource.class,
                 LoadProfileTypeResource.class,
                 CodeTableResource.class,
-                LocalizedFieldValidationExceptionMapper.class,
                 JsonMappingExceptionMapper.class);
     }
 
