@@ -8,9 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -46,8 +44,7 @@ public class DataExportApplication extends Application implements InstallService
                 DataExportTaskResource.class,
                 ExportDirectoryResource.class,
                 MeterGroupsResource.class,
-                ProcessorsResource.class,
-                ConstraintViolationExceptionMapper.class);
+                ProcessorsResource.class);
     }
 
     @Reference
