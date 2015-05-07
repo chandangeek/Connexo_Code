@@ -10,10 +10,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -233,7 +231,6 @@ public class DashboardApplication extends Application implements TranslationKeyP
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 TransactionWrapper.class,
-                ConstraintViolationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 ExceptionLogger.class,
                 ComServerStatusResource.class,
