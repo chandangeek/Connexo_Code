@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -50,8 +49,7 @@ public class MasterDataApplication extends Application implements TranslationKey
                 LogBookTypeResource.class,
                 LoadProfileTypeResource.class,
                 TransactionWrapper.class,
-                ExceptionLogger.class,
-                JsonMappingExceptionMapper.class
+                ExceptionLogger.class
         );
     }
 
