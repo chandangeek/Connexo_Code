@@ -127,7 +127,7 @@ Ext.define('Est.estimationrules.controller.Overview', {
                 break;
             case 'edit':
                 router.arguments.ruleId = menu.record.getId();
-                router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+                router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward(router.arguments);
                 break;
         }
     },

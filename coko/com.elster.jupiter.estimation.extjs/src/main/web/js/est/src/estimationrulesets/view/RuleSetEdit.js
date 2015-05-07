@@ -2,6 +2,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.rule-set-edit',
     itemId: 'rule-set-edit',
+    returnLink: null,
     initComponent: function () {
         var me = this;
         me.content = [
@@ -50,7 +51,8 @@ Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
                     {
                         text: Uni.I18n.translate('general.cancel', 'EST', 'Cancel'),
                         ui: 'link',
-                        itemId: 'cancel-button'
+                        itemId: 'cancel-button',
+                        href: me.returnLink
                     }
                 ]
             }

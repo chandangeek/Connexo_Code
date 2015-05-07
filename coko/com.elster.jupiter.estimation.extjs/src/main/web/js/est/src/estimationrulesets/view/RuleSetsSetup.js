@@ -76,7 +76,8 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                                 {
                                     text: Uni.I18n.translate('estimationrulesets.add.title', 'EST', 'Add estimation rule set'),
                                     itemId: 'add-estimation-rule-set-button',
-                                    privileges: Est.privileges.EstimationConfiguration.administrate
+                                    privileges: Est.privileges.EstimationConfiguration.administrate,
+                                    href: me.router.getRoute(me.router.currentRoute + '/addruleset').buildUrl()
                                 }
                             ]
                         }

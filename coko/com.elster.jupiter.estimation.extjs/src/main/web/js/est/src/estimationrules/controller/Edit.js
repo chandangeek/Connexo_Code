@@ -1,7 +1,8 @@
 Ext.define('Est.estimationrules.controller.Edit', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.controller.history.Router'
+        'Uni.controller.history.Router',
+        'Uni.util.History'
     ],
 
     views: [
@@ -42,12 +43,10 @@ Ext.define('Est.estimationrules.controller.Edit', {
     },
 
     showOverview: function (ruleSetId, ruleId) {
-
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             clipboard = me.getStore('Est.main.store.Clipboard'),
             savedState = clipboard.get('estimationRule'),
-
             widget = Ext.widget('estimation-rule-edit', {
                 edit: !!ruleId,
                 returnLink: router.queryParams.previousRoute
@@ -66,6 +65,11 @@ Ext.define('Est.estimationrules.controller.Edit', {
             },
             ruleModel = me.getModel('Est.estimationrules.model.Rule'),
             rule;
+
+        if (router.queryParams.previousRoute) {
+            Uni.util.History.suspendEventsForNextCall();
+            window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+        }
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
