@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
@@ -80,7 +79,6 @@ public class DeviceConfigurationApplication extends Application implements Trans
                 DeviceConfigurationResource.class,
                 RegisterConfigurationResource.class,
                 ReadingTypeResource.class,
-                ConstraintViolationExceptionMapper.class,
                 JsonMappingExceptionMapper.class,
                 ProtocolDialectResource.class,
                 ConnectionMethodResource.class,
