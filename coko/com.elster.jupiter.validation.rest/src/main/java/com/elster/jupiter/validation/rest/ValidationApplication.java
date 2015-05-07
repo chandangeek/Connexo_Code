@@ -9,19 +9,17 @@ import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
-import java.util.Set;
 
 @Component(name = "com.elster.jupiter.validation.rest" , service=Application.class , immediate = true , property = {"alias=/val", "app=SYS", "name=" + ValidationApplication.COMPONENT_NAME} )
 public class ValidationApplication extends Application implements BinderProvider {
@@ -41,8 +39,6 @@ public class ValidationApplication extends Application implements BinderProvider
         return ImmutableSet.<Class<?>>of(
                 ValidationResource.class,
                 DataValidationTaskResource.class,
-                LocalizedExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class);
 	}
 
