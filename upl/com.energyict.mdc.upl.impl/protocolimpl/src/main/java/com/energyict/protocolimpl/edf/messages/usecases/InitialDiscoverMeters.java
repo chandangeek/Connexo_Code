@@ -15,7 +15,7 @@ public class InitialDiscoverMeters extends AbstractFolderAction {
         
         try {
             
-            Iterator i = folder.getRtus().iterator();
+            Iterator i = folder.getDevices().iterator();
             while( i.hasNext() ) {
             
                 Device rtu = (Device)i.next();

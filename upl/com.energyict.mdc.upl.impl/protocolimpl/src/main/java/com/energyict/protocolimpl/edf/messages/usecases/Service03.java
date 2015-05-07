@@ -17,7 +17,7 @@ public class Service03 extends AbstractFolderAction {
         
         try {
             
-            Iterator i = folder.getRtus().iterator();
+            Iterator i = folder.getDevices().iterator();
             
             while( i.hasNext() ) {
             

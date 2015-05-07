@@ -180,7 +180,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         for (Channel channel : this.loadProfile.getAllChannels()) {
             boolean contains = false;
             for (Register allRegister : allRegisters) {
-                contains |= allRegister.getRegisterMapping().equals(channel.getRtuRegisterMapping());
+                contains |= allRegister.getRegisterMapping().equals(channel.getDeviceRegisterMapping());
             }
             if (!contains) {
                 throw new BusinessException("notAllRegisterMappingsDefined", "Not all RegisterMappings from {0} are defined on {1}", this.loadProfile, rtu);
@@ -264,7 +264,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     private List<com.energyict.protocol.Register> createRegisterList(final LoadProfile loadProfile) {
         List<com.energyict.protocol.Register> registers = new ArrayList<com.energyict.protocol.Register>();
         for (Channel channel : loadProfile.getAllChannels()) {
-            registers.add(new com.energyict.protocol.Register(-1, channel.getRtuRegisterMapping().getObisCode(), channel.getRtu().getSerialNumber()));
+            registers.add(new com.energyict.protocol.Register(-1, channel.getDeviceRegisterMapping().getObisCode(), channel.getDevice().getSerialNumber()));
         }
         return registers;
     }
@@ -277,8 +277,8 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     public int getRtuRegisterIdForRegister(com.energyict.protocol.Register register) {
         Device device = null;
         for (Channel channel : getLoadProfile().getAllChannels()) {
-            if (channel.getRtu().getSerialNumber().equals(register.getSerialNumber())) {
-                device = channel.getRtu();
+            if (channel.getDevice().getSerialNumber().equals(register.getSerialNumber())) {
+                device = channel.getDevice();
                 break;
             }
         }

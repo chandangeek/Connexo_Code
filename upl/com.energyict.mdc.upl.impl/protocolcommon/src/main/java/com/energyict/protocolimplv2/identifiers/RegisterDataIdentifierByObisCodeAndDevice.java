@@ -49,7 +49,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     @Override
     public Register findRegister () {
         if(this.register == null){
-            final List<Register> registers = getRegisterFactory().findByRtu(deviceIdentifier.findDevice());
+            final List<Register> registers = getRegisterFactory().findByDevice(deviceIdentifier.findDevice());
             for (Register register : registers) {
                 if (register.getDeviceObisCode().equals(registerObisCode)){
                     this.register = register;

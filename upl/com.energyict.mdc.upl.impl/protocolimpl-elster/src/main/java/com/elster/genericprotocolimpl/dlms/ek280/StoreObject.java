@@ -45,7 +45,7 @@ public class StoreObject implements Transaction {
             if (key instanceof Device) {
                 ((Device) key).store((ProfileData) storeObjectItem.getValue(), false);
             } else if (key instanceof Channel) {
-                (((Channel) key).getRtu()).store((ProfileData) storeObjectItem.getValue(), false);
+                (((Channel) key).getDevice()).store((ProfileData) storeObjectItem.getValue(), false);
             } else if (key instanceof Register) {
                 ((com.energyict.mdw.amr.Register) key).store((RegisterValue) storeObjectItem.getValue());
             } else if (key instanceof ProfileData) {

@@ -16,7 +16,7 @@ public class ReadBillingValues extends AbstractFolderAction {
     
         try {
             
-            Iterator i = folder.getRtus().iterator();
+            Iterator i = folder.getDevices().iterator();
             
             while( i.hasNext() ) {
             

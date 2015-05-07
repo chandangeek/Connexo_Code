@@ -152,8 +152,8 @@ public class LoadProfileMessageUtils {
         Element registers = document.createElement(RtuRegistersTag);
         for (Channel channel : allChannels) {
             Element registerElement = document.createElement(RegisterTag);
-            registerElement.setAttribute(RegisterObiscodeTag, channel.getRtuRegisterMapping().getObisCode().toString());
-            registerElement.setAttribute(RtuRegisterSerialNumber, channel.getRtu().getSerialNumber());
+            registerElement.setAttribute(RegisterObiscodeTag, channel.getDeviceRegisterMapping().getObisCode().toString());
+            registerElement.setAttribute(RtuRegisterSerialNumber, channel.getDevice().getSerialNumber());
             registers.appendChild(registerElement);
         }
         return registers;
@@ -165,9 +165,9 @@ public class LoadProfileMessageUtils {
         for (Channel channel : allChannels) {
             Element channelElement = document.createElement(ChannelTag);
             channelElement.setAttribute(ChannelIdTag, String.valueOf(counter++));
-            channelElement.setAttribute(ChannelNametag, channel.getRtuRegisterMapping().getObisCode().toString());
-            channelElement.setAttribute(ChannelUnitTag, channel.getRtuRegisterMapping().getUnit().toString());
-            channelElement.setAttribute(ChannelMeterIdentifier, channel.getRtu().getSerialNumber());
+            channelElement.setAttribute(ChannelNametag, channel.getDeviceRegisterMapping().getObisCode().toString());
+            channelElement.setAttribute(ChannelUnitTag, channel.getDeviceRegisterMapping().getUnit().toString());
+            channelElement.setAttribute(ChannelMeterIdentifier, channel.getDevice().getSerialNumber());
             channels.appendChild(channelElement);
         }
         return channels;

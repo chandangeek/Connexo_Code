@@ -56,8 +56,8 @@ public class LoadProfileMessageUtilsTest {
     private Channel createdMockedChannel(Device device, ObisCode obisCode) {
         Channel channel = mock(Channel.class);
         RegisterMapping registerMapping = createMockedRegisterMapping(obisCode);
-        when(channel.getRtu()).thenReturn(device);
-        when(channel.getRtuRegisterMapping()).thenReturn(registerMapping);
+        when(channel.getDevice()).thenReturn(device);
+        when(channel.getDeviceRegisterMapping()).thenReturn(registerMapping);
         return channel;
     }
 

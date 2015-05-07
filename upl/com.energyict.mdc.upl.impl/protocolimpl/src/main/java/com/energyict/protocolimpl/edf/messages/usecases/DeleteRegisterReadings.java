@@ -45,7 +45,7 @@ public class DeleteRegisterReadings extends AbstractFolderAction implements Tran
             MeteringWarehouse.getCurrent().getRegisterReadingFactory();
         
         
-        Iterator fi = folder.getRtus().iterator();
+        Iterator fi = folder.getDevices().iterator();
         
         while( fi.hasNext() ) {
         

@@ -260,7 +260,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (Channel lpChannel : lpt.getAllChannels()) {
             if (lpChannel.isStoreData()) {
-                channelInfos.add(new ChannelInfo(channelInfos.size(), lpChannel.getRtuRegisterMapping().getObisCode().toString(), lpChannel.getRtuRegisterMapping().getUnit(), lpChannel.getRtu().getSerialNumber()));
+                channelInfos.add(new ChannelInfo(channelInfos.size(), lpChannel.getDeviceRegisterMapping().getObisCode().toString(), lpChannel.getDeviceRegisterMapping().getUnit(), lpChannel.getDevice().getSerialNumber()));
             }
         }
         return channelInfos;
