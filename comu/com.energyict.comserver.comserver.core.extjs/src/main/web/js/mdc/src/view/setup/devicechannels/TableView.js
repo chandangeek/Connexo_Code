@@ -22,7 +22,6 @@ Ext.define('Mdc.view.setup.devicechannels.TableView', {
 
     initComponent: function () {
         var me = this;
-
         me.grid = {
             xtype: 'deviceLoadProfileChannelDataGrid',
             channelRecord: this.channel,

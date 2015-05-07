@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
         'Mdc.view.setup.devicechannels.SideFilter',
-        'Mdc.view.setup.devicechannels.Data'
+        'Mdc.view.setup.devicechannels.TableView'
     ],
 
     router: null,
@@ -14,34 +14,22 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     channelsListLink: null,
     activeTab: null,
 
-    setFilterView: function (filterModel) {
-        console.log(filterModel);
+    setFilterView: function (filter, durationsStore) {
         var me = this,
             filterView = me.down('#deviceloadprofileschanneldatafilterpanel'),
-            filterForm = me.down('#deviceLoadProfileChannelDataFilterForm'),
-
-            intervalStartField = filterForm.down('[name=intervalStart]'),
-            intervalEndField = filterForm.down('[name=duration]'),
-
-            suspectField = filterForm.down('#suspect'),
-            nonSuspectField = filterForm.down('#nonSuspect'),
-            intervalStart = intervalStartField.getValue(),
-            intervalEnd = intervalEndField.getRawValue(),
-            suspect = suspectField.boxLabel,
-            nonSuspect = nonSuspectField.boxLabel,
-            eventDateText = '';
-        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-            + Uni.DateTime.formatDateShort(intervalStart);
-
-        filterView.setFilter('eventDateChanged', filterForm.down('#dateContainer').getFieldLabel(), eventDateText, true);
+            intervalStart = filter.get('intervalStart'),
+            intervalEnd = durationsStore.getById(filter.get('duration')).get('localizeValue'),
+            suspect = Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
+            nonSuspect = Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect'),
+            eventDateText = intervalEnd + ' ' + Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From').toLowerCase() + ' '
+                + Uni.DateTime.formatDateShort(intervalStart);
+        filterView.setFilter('eventDateChanged', Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'), eventDateText, true);
         filterView.down('#Reset').setText('Reset');
-
-        if (suspectField.getValue()) {
-            filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
+        if (filter.get('onlySuspect')) {
+            filterView.setFilter('onlySuspect', Uni.I18n.translate('deviceregisterconfiguration.validation.result', 'MDC', 'Validation result'), suspect);
         }
-
-        if (nonSuspectField.getValue()) {
-            filterView.setFilter('onlyNonSuspect', filterForm.down('#suspectContainer').getFieldLabel(), nonSuspect);
+        if (filter.get('onlyNonSuspect')) {
+            filterView.setFilter('onlyNonSuspect', Uni.I18n.translate('deviceregisterconfiguration.validation.result', 'MDC', 'Validation result'), nonSuspect);
         }
     },
 
@@ -72,9 +60,9 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 itemId: 'deviceloadprofileschanneldatafilterpanel',
                                 emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                             },
-//                    {
-//                        xtype: 'deviceLoadProfileChannelGraphView'
-//                    },
+//                            {
+//                                xtype: 'deviceLoadProfileChannelGraphView'
+//                            },
                             {
                                 xtype: 'deviceLoadProfileChannelTableView',
                                 channel: me.channel,
