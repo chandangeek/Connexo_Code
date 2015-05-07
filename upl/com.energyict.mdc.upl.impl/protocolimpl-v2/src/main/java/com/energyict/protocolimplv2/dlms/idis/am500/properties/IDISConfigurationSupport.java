@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
 import java.math.BigDecimal;
@@ -26,7 +27,6 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> result = new ArrayList<>();
         result.addAll(super.getOptionalProperties());
-        result.add(this.serverUpperMacAddressPropertySpec());
         result.add(this.swapServerAndClientAddress());
 
         // Not supported in IDIS P1
@@ -34,10 +34,6 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
         result.remove(super.generalBlockTransferWindowSizePropertySpec());
         result.remove(super.cipheringTypePropertySpec());
         return result;
-    }
-
-    public PropertySpec serverUpperMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 
     protected PropertySpec swapServerAndClientAddress() {

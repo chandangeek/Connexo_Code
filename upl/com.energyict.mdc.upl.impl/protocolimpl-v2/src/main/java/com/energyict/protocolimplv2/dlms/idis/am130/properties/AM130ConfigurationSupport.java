@@ -41,13 +41,10 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return Arrays.asList(
-                this.retriesPropertySpec(),
-                this.timeoutPropertySpec(),
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
                 this.timeZonePropertySpec(),
                 this.validateInvokeIdPropertySpec(),
-                this.roundTripCorrectionPropertySpec(),
                 this.limitMaxNrOfDaysPropertySpec(),
                 this.readCachePropertySpec(),
                 this.useGeneralBlockTransferPropertySpec(),
@@ -83,18 +80,6 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec limitMaxNrOfDaysPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(LIMIT_MAX_NR_OF_DAYS_PROPERTY, BigDecimal.ZERO);
-    }
-
-    protected PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES, DEFAULT_RETRIES);
-    }
-
-    protected PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT, new TimeDuration(DEFAULT_TIMEOUT.intValue(), Calendar.MILLISECOND));
-    }
-
-    protected PropertySpec roundTripCorrectionPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
     }
 
     protected PropertySpec timeZonePropertySpec() {

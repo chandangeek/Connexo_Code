@@ -9,11 +9,7 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -21,6 +17,7 @@ import com.energyict.mdc.protocol.exceptions.ConnectionTimeOutException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -28,7 +25,6 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
@@ -54,10 +50,10 @@ import java.util.List;
 public class AM500 extends AbstractDlmsProtocol {
 
     protected ConfigurationSupport idisConfigurationSupport;
-    private IDISRegisterFactory registerFactory = null;
     protected IDISLogBookFactory idisLogBookFactory = null;
-    private IDISProfileDataReader idisProfileDataReader = null;
     protected IDISMessaging idisMessaging = null;
+    private IDISRegisterFactory registerFactory = null;
+    private IDISProfileDataReader idisProfileDataReader = null;
     private IDISStoredValues storedValues = null;
     private String serialNumber = null;
 
@@ -249,7 +245,7 @@ public class AM500 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect());   //No dialect properties, only general properties, since only 1 type of connection is supported: using the IDIS gateway (TCP).
+        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
     }
 
     @Override

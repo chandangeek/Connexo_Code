@@ -2,16 +2,12 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -40,11 +36,7 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author sva
@@ -101,6 +93,11 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        // Not used in this protocol
+    }
+
+    @Override
     public String getSerialNumber() {
         try {
             return getDlmsSession().getCosemObjectFactory().getData(IDISGatewayRegisters.SERIAL_NUMBER_OBIS).getString();
@@ -135,11 +132,6 @@ public class RtuPlusServer implements DeviceProtocol {
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         return Collections.emptyList(); //Not supported
-    }
-
-    @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        // Not used in this protocol
     }
 
     @Override
@@ -198,9 +190,9 @@ public class RtuPlusServer implements DeviceProtocol {
                         )
                 );
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        MdcManager.getCollectedDataFactory().createCollectedDeviceDialectProperty(
                                 slaveDeviceIdentifier,
-                                getMeterConfigurationSupport().serverUpperMacAddressPropertySpec().getName(),
+                                DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS,
                                 sapAssignmentItem.getSap()
                         )
                 );
