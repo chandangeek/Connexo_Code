@@ -26,6 +26,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
@@ -72,7 +73,8 @@ public class EstimationTaskImplIT {
 
     public static final String NAME = "NAME";
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
-    private EstimationService estimationService;
+    private IEstimationService estimationService;
+    private TaskService taskService;
 
     private class MockModule extends AbstractModule {
 
@@ -172,7 +174,7 @@ public class EstimationTaskImplIT {
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
-            estimationService = (EstimationService) injector.getInstance(EstimationService.class);
+            estimationService = (IEstimationService) injector.getInstance(EstimationService.class);
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
@@ -187,6 +189,7 @@ public class EstimationTaskImplIT {
             anotherEndDeviceGroup.save();
             context.commit();
         }
+        taskService = injector.getInstance(TaskService.class);
     }
 
     @After
@@ -207,7 +210,7 @@ public class EstimationTaskImplIT {
         EstimationTask readingTypeDataExportTask = found.get();
 
         Assertions.assertThat(readingTypeDataExportTask.getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
-        assertThat(readingTypeDataExportTask.getLastRun()).isAbsent();
+        assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         Assertions.assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
     }
 
@@ -242,6 +245,21 @@ public class EstimationTaskImplIT {
         Assertions.assertThat(found.get().getName()).isEqualTo("New name!");
     }
 
+
+    @Test
+    public void testRunTask() {
+        EstimationTaskImpl estimationTask = (EstimationTaskImpl) createAndSaveTask();
+
+        transactionService.builder().principal(() -> "ut")
+                .run(() -> {
+                    estimationTask.getRecurrentTask().runNow(new EstimationTaskExecutor(estimationService, transactionService, null));
+                });
+
+        EstimationTask reloaded = estimationService.findEstimationTask(estimationTask.getId()).get();
+
+        assertThat(reloaded.getLastRun()).isPresent();
+    }
+
     private EstimationTask createAndSaveTask() {
         return createAndSaveTask(NAME);
     }
@@ -249,7 +267,7 @@ public class EstimationTaskImplIT {
     private EstimationTask createAndSaveTask(String name) {
         EstimationTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
+            exportTask = createEstimationTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
             exportTask.save();
             context.commit();
@@ -258,11 +276,7 @@ public class EstimationTaskImplIT {
     }
 
 
-    private EstimationTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
-        return createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, NAME);
-    }
-
-    private EstimationTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
+    private EstimationTask createEstimationTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return estimationService.newBuilder()
                 .scheduleImmediately()
                 .setName(name)
