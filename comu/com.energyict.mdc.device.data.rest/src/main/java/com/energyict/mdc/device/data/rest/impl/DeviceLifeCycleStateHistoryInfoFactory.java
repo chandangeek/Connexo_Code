@@ -29,14 +29,11 @@ public class DeviceLifeCycleStateHistoryInfoFactory {
         if (slices.isEmpty()) {
             return infos;
         }
-        StateTimeSlice fromState = null;
-        StateTimeSlice toState = slices.get(0);
-        infos.deviceLifeCycleStateChanges.add(createStateChangeInfo(fromState, toState));
-        for (int i = 0; i < slices.size() - 1; i++) {
-            fromState = slices.get(i);
-            toState = slices.get(i + 1);
-            infos.deviceLifeCycleStateChanges.add(createStateChangeInfo(fromState, toState));
-        }
+        infos.deviceLifeCycleStateChanges.add(createStateChangeInfo(null, slices.get(0)));
+        slices.stream().reduce((fromSlice, toSlice) -> {
+           infos.deviceLifeCycleStateChanges.add(createStateChangeInfo(fromSlice, toSlice));
+           return toSlice;
+        });
         infos.total = slices.size();
         return infos;
     }
