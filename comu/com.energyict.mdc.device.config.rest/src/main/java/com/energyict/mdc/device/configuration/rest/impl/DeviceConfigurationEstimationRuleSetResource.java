@@ -4,9 +4,17 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.rest.JsonQueryParameters;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import java.util.Collections;
@@ -28,6 +36,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/estimationrulesets")
 public class DeviceConfigurationEstimationRuleSetResource {
@@ -44,6 +57,8 @@ public class DeviceConfigurationEstimationRuleSetResource {
     @GET
     @Path("/{ruleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    public PagedInfoList getDeviceConfigurationsForEstimationRuleSet(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam QueryParameters queryParameters) {
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getDeviceConfigurationsForEstimationRuleSet(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         EstimationRuleSet estimationRuleSet = findEstimationRuleSetByIdOrThrowException(estimationRuleSetId);
@@ -55,6 +70,8 @@ public class DeviceConfigurationEstimationRuleSetResource {
     @GET
     @Path("{ruleSetId}/linkabledeviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    public PagedInfoList getLinkableDeviceConfigurations(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam QueryParameters queryParameters) {
     @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getLinkableDeviceConfigurations(@PathParam("ruleSetId") long estimationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         EstimationRuleSet estimationRuleSet = findEstimationRuleSetByIdOrThrowException(estimationRuleSetId);
@@ -68,7 +85,7 @@ public class DeviceConfigurationEstimationRuleSetResource {
     @Path("/{ruleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response addDeviceConfigurationsToEstimationRuleSet(@PathParam("ruleSetId") long estimationRuleSetId, @QueryParam("all") boolean includeAll, List<DeviceConfigurationRefInfo> deviceConfigs) {
         EstimationRuleSet estimationRuleSet = findEstimationRuleSetByIdOrThrowException(estimationRuleSetId);
         if (includeAll) {
