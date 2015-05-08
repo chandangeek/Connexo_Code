@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.DefaultFinder;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComPortPoolMember;
