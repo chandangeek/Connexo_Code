@@ -94,7 +94,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(DeviceFirmwareVersionInfoFactory.class).to(DeviceFirmwareVersionInfoFactory.class);
-            bind(DeviceFirmwareVersionUtils.class).to(DeviceFirmwareVersionUtils.class);
+            bind(DeviceFirmwareVersionUtils.Factory.class).to(DeviceFirmwareVersionUtils.Factory.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);

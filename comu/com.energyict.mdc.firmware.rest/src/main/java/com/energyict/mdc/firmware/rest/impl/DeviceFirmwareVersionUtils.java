@@ -41,19 +41,32 @@ public class DeviceFirmwareVersionUtils {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final FirmwareService firmwareService;
 
-    private Device device;
+    private final Device device;
     private FirmwareComTaskExecution comTaskExecution;
     private List<DeviceMessage<Device>> firmwareMessages;
     private Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
 
-    @Inject
-    public DeviceFirmwareVersionUtils(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService) {
+    public static class Factory {
+        private final Thesaurus thesaurus;
+        private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+        private final FirmwareService firmwareService;
+
+        @Inject
+        public Factory(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService) {
+            this.thesaurus = thesaurus;
+            this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+            this.firmwareService = firmwareService;
+        }
+
+        public DeviceFirmwareVersionUtils onDevice(Device device){
+            return new DeviceFirmwareVersionUtils(thesaurus, deviceMessageSpecificationService, firmwareService, device);
+        }
+    }
+
+    private DeviceFirmwareVersionUtils(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, Device device) {
         this.thesaurus = thesaurus;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareService = firmwareService;
-    }
-
-    public DeviceFirmwareVersionUtils onDevice(Device device){
         this.device = device;
         this.comTaskExecution = (FirmwareComTaskExecution) device.getComTaskExecutions()
                 .stream()
@@ -82,7 +95,6 @@ public class DeviceFirmwareVersionUtils {
                 .map(message -> activationMessages.get(String.valueOf(message.getId())))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        return this;
     }
 
     private void compareAndSwapUploadMessage(Map<FirmwareType, DeviceMessage<Device>> uploadMessages, DeviceMessage<Device> candidate) {

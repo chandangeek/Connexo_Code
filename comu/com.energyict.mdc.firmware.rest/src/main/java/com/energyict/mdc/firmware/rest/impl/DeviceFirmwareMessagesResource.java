@@ -60,10 +60,10 @@ public class DeviceFirmwareMessagesResource {
     private final Clock clock;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final Thesaurus thesaurus;
-    private final Provider<DeviceFirmwareVersionUtils> utilProvider;
+    private final Provider<DeviceFirmwareVersionUtils.Factory> utilProvider;
 
     @Inject
-    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, Provider<DeviceFirmwareVersionUtils> utilProvider) {
+    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, Provider<DeviceFirmwareVersionUtils.Factory> utilProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.firmwareService = firmwareService;
@@ -101,7 +101,7 @@ public class DeviceFirmwareMessagesResource {
         DeviceMessageId firmwareMessageId = getFirmwareUpgradeMessageId(device, info.uploadOption)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
         Map<String, Object> convertedProperties = getConvertedProperties(firmwareMessageId, info);
-        Instant releaseDate = info.releaseDate == null ? this.clock.instant() : Instant.ofEpochMilli(info.releaseDate);
+        Instant releaseDate = info.releaseDate == null ? this.clock.instant() : info.releaseDate;
 
         prepareCommunicationTask(device, convertedProperties);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(firmwareMessageId).setReleaseDate(releaseDate);
@@ -134,8 +134,8 @@ public class DeviceFirmwareMessagesResource {
         }
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
         deviceMessageBuilder.setTrackingId(String.valueOf(messageId));
-        deviceMessageBuilder.setReleaseDate(Instant.ofEpochMilli(info.releaseDate));
-        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, new Date(info.releaseDate));
+        deviceMessageBuilder.setReleaseDate(info.releaseDate);
+        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, info.releaseDate != null ? Date.from(info.releaseDate) : new Date());
         deviceMessageBuilder.add();
         rescheduleFirmwareUpgradeTask(device);
         return Response.ok().build();

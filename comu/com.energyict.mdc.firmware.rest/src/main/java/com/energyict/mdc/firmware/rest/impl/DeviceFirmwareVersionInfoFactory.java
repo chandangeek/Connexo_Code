@@ -24,12 +24,12 @@ import java.util.Optional;
 
 public class DeviceFirmwareVersionInfoFactory {
     private final Thesaurus thesaurus;
-    private final Provider<DeviceFirmwareVersionUtils> utilProvider;
+    private final Provider<DeviceFirmwareVersionUtils.Factory> utilProvider;
 
     private final Map<ProtocolSupportedFirmwareOptions, List<FirmwareUpgradeState>> states;
 
     @Inject
-    public DeviceFirmwareVersionInfoFactory(Thesaurus thesaurus, Provider<DeviceFirmwareVersionUtils> utilProvider) {
+    public DeviceFirmwareVersionInfoFactory(Thesaurus thesaurus, Provider<DeviceFirmwareVersionUtils.Factory> utilProvider) {
         this.thesaurus = thesaurus;
         this.utilProvider = utilProvider;
         states = new HashMap<>();
