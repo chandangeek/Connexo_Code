@@ -20,7 +20,8 @@ Ext.define('Fwc.controller.Firmware', {
     stores: [
         'Fwc.store.Firmwares',
         'Fwc.store.FirmwareStatuses',
-        'Fwc.store.FirmwareTypes'
+        'Fwc.store.FirmwareTypes',
+        'Fwc.store.SupportedFirmwareTypes'
     ],
 
     refs: [
@@ -101,6 +102,7 @@ Ext.define('Fwc.controller.Firmware', {
 
     initFilter: function () {
         var me = this,
+            supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes'),
             router = this.getController('Uni.controller.history.Router');
         me.getSideFilterForm().loadRecord(router.filter);
 
@@ -130,6 +132,13 @@ Ext.define('Fwc.controller.Firmware', {
                 );
             }
         }, this, {single: true});
+
+        supportedFirmwareTypesStore.load({
+            scope: this,
+            callback: function () {
+                me.getContainer().down('firmware-side-filter #side-filter-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount !== 1);
+            }
+        });
     },
 
     setFinal: function (firmware) {
@@ -184,10 +193,12 @@ Ext.define('Fwc.controller.Firmware', {
         var me = this;
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             var firmwareStore = Ext.getStore('Fwc.store.Firmwares'),
+                supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes'),
                 record = new firmwareStore.model;
 
             record.getProxy().setUrl(deviceType.getId());
             firmwareStore.getProxy().setUrl(deviceType.getId());
+            supportedFirmwareTypesStore.getProxy().setUrl(deviceType.getId());
             Ext.getStore('Fwc.store.FirmwareStatuses').addFilter(function (rec) {
                 return ['test', 'final'].indexOf(rec.getId()) >= 0;
             }, false);
@@ -195,6 +206,20 @@ Ext.define('Fwc.controller.Firmware', {
             me.getApplication().fireEvent('changecontentevent', 'firmware-add', {
                 deviceType: deviceType,
                 record: record
+            });
+
+            supportedFirmwareTypesStore.load({
+                scope: this,
+                callback: function () {
+                    me.getContainer().down('firmware-form-add #disp-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount===1);
+                    me.getContainer().down('firmware-form-add #radio-firmware-type').setVisible(supportedFirmwareTypesStore.totalCount!==1);
+                    if (supportedFirmwareTypesStore.totalCount===1) {
+                        var id = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.id;
+                        var onlyType = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.localizedValue;
+                        me.getContainer().down('firmware-form-add #disp-firmware-type').setValue(onlyType);
+                        me.getContainer().down('firmware-form-add #radio-firmware-type').setValue({id: id});
+                    }
+                }
             });
         });
     },
@@ -380,10 +405,12 @@ Ext.define('Fwc.controller.Firmware', {
             var firmwareStore = Ext.getStore('Fwc.store.Firmwares');
             firmwareStore.getProxy().setUrl(deviceType.getId());
             firmwareStore.load();
+            Ext.getStore('Fwc.store.SupportedFirmwareTypes').getProxy().setUrl(deviceType.getId());
             Ext.getStore('Fwc.store.FirmwareStatuses').clearFilter(true);
 
             me.getApplication().fireEvent('changecontentevent', 'firmware-versions', {deviceType: deviceType});
             me.getContainer().down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+            me.getContainer().down('firmware-side-filter #side-filter-firmware-type').setVisible(false);
             me.initFilter();
         });
     },
