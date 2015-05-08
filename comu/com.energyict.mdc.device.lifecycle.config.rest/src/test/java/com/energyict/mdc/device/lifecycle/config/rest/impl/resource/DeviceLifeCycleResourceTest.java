@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.energyict.mdc.common.rest.JsonQueryParameters;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;

@@ -3,7 +3,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.JsonQueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
