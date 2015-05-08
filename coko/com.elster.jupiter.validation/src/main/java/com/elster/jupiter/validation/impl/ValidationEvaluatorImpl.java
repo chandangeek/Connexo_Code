@@ -40,6 +40,11 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
     }
 
     @Override
+    public boolean isValidationOnStorageEnabled(Meter meter) {
+        return validationService.validationOnStorageEnabled(meter);
+    }
+
+    @Override
     public boolean isValidationEnabled(Channel channel) {
         return validationService.getMeterActivationValidations(channel.getMeterActivation()).stream()
                 .map(m -> m.getChannelValidation(channel))

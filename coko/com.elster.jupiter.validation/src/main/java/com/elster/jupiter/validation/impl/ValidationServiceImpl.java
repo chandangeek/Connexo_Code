@@ -248,6 +248,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         return getMeterValidation(meter).filter(MeterValidationImpl::getActivationStatus).isPresent();
     }
 
+    @Override
+    public boolean validationOnStorageEnabled(Meter meter) {
+        return getMeterValidation(meter).filter(MeterValidationImpl::getValidateOnStorage).isPresent();
+    }
+
     Optional<MeterValidationImpl> getMeterValidation(Meter meter) {
         return dataModel.mapper(MeterValidationImpl.class).getOptional(meter.getId());
     }

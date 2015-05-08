@@ -33,6 +33,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     private Multimap<String, IValidationRule> mapQualityToRule;
 
     private Optional<Boolean> isEnabled = Optional.empty();
+    private Optional<Boolean> isOnStorageEnabled = Optional.empty();
 
     ValidationEvaluatorForMeter(ValidationServiceImpl validationService, Meter meter, Range<Instant> interval) {
         this.validationService = validationService;
@@ -50,6 +51,14 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
         return isEnabled.orElseGet(() -> {
             isEnabled = Optional.of(validationService.validationEnabled(meter));
             return isEnabled.get();
+        });
+    }
+
+    @Override
+    public boolean isValidationOnStorageEnabled(Meter meter) {
+        return isOnStorageEnabled.orElseGet(() -> {
+            isOnStorageEnabled = Optional.of(validationService.validationOnStorageEnabled(meter));
+            return isOnStorageEnabled.get();
         });
     }
 

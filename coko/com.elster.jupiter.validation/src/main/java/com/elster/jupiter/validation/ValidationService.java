@@ -66,6 +66,8 @@ public interface ValidationService {
 
     boolean validationEnabled(Meter meter);
 
+    boolean validationOnStorageEnabled(Meter meter);
+
     /* last checked */
 
     Optional<Instant> getLastChecked(MeterActivation meterActivation);
