@@ -46,9 +46,6 @@ Ext.define('Est.estimationrules.controller.Overview', {
             },
             'estimation-rules-overview [action=saveEstimationRulesOrder]': {
                 click: this.saveEstimationRulesOrder
-            },
-            'estimation-rule-set-side-menu': {
-                beforerender: this.onEstimationRuleSetMenuBeforeRender
             }
         });
     },
@@ -190,9 +187,5 @@ Ext.define('Est.estimationrules.controller.Overview', {
                 }
             }
         });
-    },
-
-    onEstimationRuleSetMenuBeforeRender: function (menu) {
-        this.getApplication().fireEvent('estimationrulesetmenurender', menu);
     }
 });

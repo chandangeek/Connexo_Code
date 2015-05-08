@@ -55,7 +55,7 @@ Ext.define('Est.estimationtasks.view.Grid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('estimationtasks.general.addEstimationTask', 'EST', 'Add estimation task'),
-//                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.estimationConfiguration'),
+                        privileges: Est.privileges.EstimationConfiguration.administrate,
                         href: '#/administration/estimationtasks/add'
                     }
                 ]
