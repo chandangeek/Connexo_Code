@@ -59,7 +59,7 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
                 "    where tivr.ruleid in (select vr.id from val_validationrule vr where vr.rulesetid = ");
         builder.addLong(ruleSet.getId());
         builder.append(") )))))" +
-                "  where id not in (select rsu.deviceconfigid from DTC_DEVICECONFRULESETUSAGE rsu where rsu.validationrulesetid = ");
+                "  where id not in (select rsu.deviceconfigid from DTC_DEVCFGVALRULESETUSAGE rsu where rsu.validationrulesetid = ");
         builder.addLong(ruleSet.getId());
         builder.append(")");
         return builder;

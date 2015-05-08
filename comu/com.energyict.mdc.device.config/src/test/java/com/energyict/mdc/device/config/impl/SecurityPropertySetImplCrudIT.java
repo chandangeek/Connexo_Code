@@ -7,6 +7,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -22,6 +23,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -59,6 +61,7 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -156,6 +159,7 @@ public class SecurityPropertySetImplCrudIT {
                     new ProtocolApiModule(),
                     new TasksModule(),
                     new ValidationModule(),
+                    new EstimationModule(),
                     new FiniteStateMachineModule(),
                     new DeviceLifeCycleConfigurationModule(),
                     new MeteringGroupsModule(),
@@ -167,7 +171,8 @@ public class SecurityPropertySetImplCrudIT {
                     new BasicPropertiesModule(),
                     new MdcDynamicModule(),
                     new PluggableModule(),
-                    new SchedulingModule());
+                    new SchedulingModule(),
+                    new TimeModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -21,6 +22,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -62,10 +64,12 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -154,6 +158,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new ValidationModule(),
+                new EstimationModule(),
                 new MeteringGroupsModule(),
                 new TaskModule(),
                 new SchedulingModule(),
@@ -165,7 +170,8 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new DeviceConfigurationModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
-                new TasksModule());
+                new TasksModule(),
+                new TimeModule());
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext ctx = transactionService.getContext()) {
