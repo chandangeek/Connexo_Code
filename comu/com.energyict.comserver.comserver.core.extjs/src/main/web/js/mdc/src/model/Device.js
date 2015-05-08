@@ -16,7 +16,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'deviceConfigurationName', type: 'string', useNull: true},
         {name: 'yearOfCertification', type: 'string', useNull: true},
         {name: 'batch', type: 'string', useNull: true},
-        {name: 'masterDevicemRID', type: 'string', useNull: true},
+        {name: 'masterDevicemRID', defaultValue: null},
         {name: 'masterDeviceId', type: 'number', useNull: true},
         {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true},
         {name: 'gatewayType', type: 'string', useNull: true},
@@ -27,7 +27,9 @@ Ext.define('Mdc.model.Device', {
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},
         {name: 'usagePoint', type: 'string', useNull: true},
-        {name: 'serviceCategory', type: 'string', useNull: true}
+        {name: 'serviceCategory', type: 'string', useNull: true},
+        {name: 'version', type: 'number', useNull: true},
+        {name: 'estimationStatus', defaultValue: null}
     ],
 
     associations: [

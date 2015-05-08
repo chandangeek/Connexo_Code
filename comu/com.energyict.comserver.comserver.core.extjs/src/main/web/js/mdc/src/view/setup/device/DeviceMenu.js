@@ -108,7 +108,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 ]
             },
             {
-                title: 'Validation',
+                title: Uni.I18n.translate('device.readingQuality', 'MDC', 'Reading quality'),
                 items: [
                     {
                         text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Validation configuration'),
@@ -116,17 +116,25 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         privileges: Cfg.privileges.Validation.fineTuneValidation,
                         href: '#/devices/' + mRID + '/datavalidation',
                         showCondition: me.device.get('hasLogBooks')
-                            || me.device.get('hasLoadProfiles')
-                            || me.device.get('hasRegisters')
+                        || me.device.get('hasLoadProfiles')
+                        || me.device.get('hasRegisters')
                     },
-					{
+                    {
                         text: Uni.I18n.translate('devicemenu.validationResults', 'MDC', 'Validation results'),
                         itemId: 'validationResultsLink',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration']),
                         href: '#/devices/' + mRID + '/validationresults/configuration',
                         showCondition: me.device.get('hasLogBooks')
-                            || me.device.get('hasLoadProfiles')
-                            || me.device.get('hasRegisters')
+                        || me.device.get('hasLoadProfiles')
+                        || me.device.get('hasRegisters')
+                    },
+                    {
+                        text: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
+                        itemId: 'dataEstimationLink',
+                        href: '#/devices/' + mRID + '/dataestimation',
+                        showCondition: me.device.get('hasLogBooks')
+                        || me.device.get('hasLoadProfiles')
+                        || me.device.get('hasRegisters')
                     }
                 ]
             }

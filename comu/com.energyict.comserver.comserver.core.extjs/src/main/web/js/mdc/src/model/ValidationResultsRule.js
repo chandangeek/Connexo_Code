@@ -22,8 +22,20 @@ Ext.define('Mdc.model.ValidationResultsRule', {
                 }
                 return Uni.I18n.translate('validationResults.inactive', 'MDC', 'Inactive');    
             }
-        }
+        },
+		{
+			name: 'ruleSetId',			            
+            convert: function (value, record) {				
+                return record.get('ruleSetVersion').ruleSet.id;  
+            }
+		},
+		{
+			name: 'ruleSetVersionId',			            
+            convert: function (value, record) {				
+                return record.get('ruleSetVersion').id; 
+            }
+		},
     ]
 	
-    
+     
 });

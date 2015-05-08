@@ -438,6 +438,24 @@ Ext.define('Mdc.controller.history.Setup', {
                                                         }
                                                     }
                                                 },
+                                                //Estimation rule sets
+
+                                                estimationrulesets: {
+                                                    title: Uni.I18n.translate('estimation.title', 'MDC', 'Estimation rule sets'),
+                                                    route: 'estimationrulesets',
+                                                    controller: 'Mdc.deviceconfigurationestimationrules.controller.RuleSets',
+                                                    //privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
+                                                    action: 'showEstimationRuleSets',
+                                                    items: {
+                                                        add: {
+                                                            title: Uni.I18n.translate('estimation.rule.set.add.title', 'MDC', 'Add estimation rule sets'),
+                                                            route: 'add',
+                                                            controller: 'Mdc.deviceconfigurationestimationrules.controller.AddRuleSets',
+                                                            //privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
+                                                            action: 'showAddEstimationRuleSetsView'
+                                                        }
+                                                    }
+                                                },
                                                 //messages routes
                                                 messages: {
                                                     title: 'Commands',
@@ -1188,6 +1206,45 @@ Ext.define('Mdc.controller.history.Setup', {
 							params: {
 								'activeTab': 1	
 								}
+                        },
+						validationresultsdataruleset: {
+                            title: 'Validation results',
+                            route: 'validationresults/data/ruleset/{ruleSetId}',
+                            controller: 'Mdc.controller.setup.DeviceValidationResults',
+                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
+                            action: 'showDeviceValidationResultsMainView',
+							filter: 'Mdc.model.ValidationResultsDataFilter',
+							params: {
+								'activeTab': 1	
+								}
+                        },
+						validationresultsdataversion: {
+                            title: 'Validation results',
+                            route: 'validationresults/data/ruleset/{ruleSetId}/version/{ruleSetVersionId}',
+                            controller: 'Mdc.controller.setup.DeviceValidationResults',
+                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice'],
+                            action: 'showDeviceValidationResultsMainView',
+							filter: 'Mdc.model.ValidationResultsDataFilter',
+							params: {
+								'activeTab': 1	
+								}
+                        },
+						validationresultsdatarule: {
+                            title: 'Validation results',
+                            route: 'validationresults/data/ruleset/{ruleSetId}/version/{ruleSetVersionId}/rule/{ruleId}',
+                            controller: 'Mdc.controller.setup.DeviceValidationResults',
+                            privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration.onDevice'],
+                            action: 'showDeviceValidationResultsMainView',
+                            filter: 'Mdc.model.ValidationResultsDataFilter',
+                            params: {
+                                'activeTab': 1
+                            }
+                        },
+                        dataestimation: {
+                            title: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
+                            route: 'dataestimation',
+                            controller: 'Mdc.controller.setup.DeviceDataEstimation',
+                            action: 'showDeviceDataEstimationMainView'
                         },
                         communicationschedules: {
                             title: 'Communication planning',

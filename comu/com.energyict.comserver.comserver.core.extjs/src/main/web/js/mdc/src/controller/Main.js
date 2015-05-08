@@ -88,6 +88,11 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceLogbookData',
         'Mdc.controller.setup.DataCollectionKpi',
 		'Mdc.controller.setup.DeviceValidationResults',
+        'Mdc.deviceconfigurationestimationrules.controller.RuleSets',
+        'Mdc.deviceconfigurationestimationrules.controller.AddRuleSets',
+        'Mdc.controller.setup.EstimationDeviceConfigurations',
+        'Mdc.controller.setup.DeviceDataEstimation',
+        'Mdc.controller.setup.DeviceValidationResults',
         'Mdc.controller.setup.DeviceHistory'
     ],
 
