@@ -15,7 +15,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.services.DefaultFinder;
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.masterdata.ChannelType;
