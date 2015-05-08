@@ -46,7 +46,9 @@ public class DeviceInfo {
     public Boolean isGateway;
     public String serviceCategory;
     public String usagePoint;
+    public DeviceEstimationStatusInfo estimationStatus;
     public DeviceLifeCycleStateInfo state;
+    public long version;
 
     public DeviceInfo() {
     }
@@ -89,8 +91,10 @@ public class DeviceInfo {
                                 deviceInfo.usagePoint = usagePoint.getMRID();
                                 deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
                     }));
-        }
+
+        deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, device.getState());
+        deviceInfo.version = device.getVersion();
         return deviceInfo;
     }
 

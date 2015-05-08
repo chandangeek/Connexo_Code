@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
@@ -91,6 +92,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
@@ -135,6 +137,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceProtocolPropertyResource.class,
                 KpiResource.class,
                 AdhocGroupResource.class,
+                DeviceEstimationResource.class,
                 DeviceHistoryResource.class
         );
     }
@@ -268,6 +271,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
+    }
+
+    @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -346,6 +354,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(schedulingService).to(SchedulingService.class);
             bind(validationService).to(ValidationService.class);
+            bind(estimationService).to(EstimationService.class);
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);
