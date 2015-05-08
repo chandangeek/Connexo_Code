@@ -16,6 +16,8 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.Communication',
         'Dvi.privileges.InventoryManagement',
         'Dxp.privileges.DataExport',
+        'Est.privileges.EstimationConfiguration',
+        'Dlc.privileges.DeviceLifeCycle',
         'Dlc.privileges.DeviceLifeCycle'
     ],
     applicationTitle: 'Connexo MultiSense',
@@ -36,7 +38,8 @@ Ext.define('MdcApp.controller.Main', {
             Mdc.privileges.Device.all(),
             Dvi.privileges.InventoryManagement.all(),
             Isu.privileges.Issue.all(),
-            Dxp.privileges.DataExport.all()
+            Dxp.privileges.DataExport.all(),
+            Dlc.privileges.DeviceLifeCycle.all()
             ),
     controllers: [
         'Cfg.controller.Main',
@@ -48,7 +51,8 @@ Ext.define('MdcApp.controller.Main', {
         'Yfn.controller.Main',
         'Dlc.main.controller.Main',
         'Fwc.controller.Main',
-        'Dxp.controller.Main'
+        'Dxp.controller.Main',
+        'Est.main.controller.Main'
     ],
 
     init: function () {

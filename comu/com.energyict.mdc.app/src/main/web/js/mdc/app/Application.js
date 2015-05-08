@@ -15,7 +15,8 @@ Ext.define('MdcApp.Application', {
         'Dvi.privileges.InventoryManagement',
         'Yfn.privileges.Yellowfin',
         'Isu.privileges.Issue',
-        'Dxp.privileges.DataExport'
+        'Dxp.privileges.DataExport',
+        'Dlc.privileges.DeviceLifeCycle'
     ],
     controllers: [
         'MdcApp.controller.Main'
