@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.devicehistory.LifeCycle', {
     items: [
         {
             xtype: 'dataview',
+            width: 600,
             itemId: 'life-cycle-data-view',
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
