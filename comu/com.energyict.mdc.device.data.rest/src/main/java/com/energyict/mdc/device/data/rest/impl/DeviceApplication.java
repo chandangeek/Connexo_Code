@@ -38,6 +38,7 @@ import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
+import com.energyict.mdc.device.data.rest.impl.DeviceLifeCycleStateHistoryInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -50,11 +51,13 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -131,7 +134,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ConnectionResource.class,
                 DeviceProtocolPropertyResource.class,
                 KpiResource.class,
-                AdhocGroupResource.class
+                AdhocGroupResource.class,
+                DeviceHistoryResource.class
         );
     }
 
@@ -370,6 +374,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(firmwareService).to(FirmwareService.class);
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
+            bind(DeviceLifeCycleStateHistoryInfoFactory.class).to(DeviceLifeCycleStateHistoryInfoFactory.class);
         }
     }
 
