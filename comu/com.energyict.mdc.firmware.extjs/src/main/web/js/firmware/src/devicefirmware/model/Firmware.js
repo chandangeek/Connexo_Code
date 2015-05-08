@@ -111,6 +111,22 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
             associatedName: 'failedActivatingVersion',
             associationKey: 'failedActivatingVersion',
             getterName: 'getFailedActivatingVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'activatingVersion',
+            associatedName: 'activatingVersion',
+            associationKey: 'activatingVersion',
+            getterName: 'getActivatingVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'ongoingVerificationVersion',
+            associatedName: 'ongoingVerificationVersion',
+            associationKey: 'ongoingVerificationVersion',
+            getterName: 'getOngoingVerificationVersion'
         }
     ],
 

@@ -196,6 +196,14 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 status = 'failedActivatingVersion';
                 record = me.record.getFailedActivatingVersion();
                 break;
+            case !!associatedData.activatingVersion:
+                status = 'activatingVersion';
+                record = me.record.getActivatingVersion();
+                break;
+            case !!associatedData.ongoingVerificationVersion:
+                status = 'ongoingVerificationVersion';
+                record = me.record.getOngoingVerificationVersion();
+                break;
         }
 
         if (status) {
@@ -215,9 +223,10 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formPending.record = record;
             formPending.show();
             formPending.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
-                'FWC', 'Upload and activation of version {0} pending (Planned on {1})', [
+                'FWC', 'Upload and activation of version {0} pending (Upload planned on {1}, activation planned on {2})', [
                     record.get('firmwareVersion'),
-                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedActivationDate'))
                 ]));
         }
 
@@ -247,21 +256,30 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formOngoing.record = record;
             formOngoing.show();
             formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
-                'FWC', 'Upload and activation of version {0} ongoing (upload started on {1})', [
+                'FWC', 'Uploading version {0} (started on {1}), version will be activated on {2})', [
                     record.get('firmwareVersion'),
-                    Uni.DateTime.formatDateTimeShort(record.get('uploadStartDate'))
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedActivationDate'))
                 ]));
         }
 
         if (status === 'needVerificationVersion') {
             formOngoing.record = record;
             formOngoing.show();
-            formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
-                'FWC', 'Upload and activation of version {0} completed on {1}. Verification scheduled on {2}', [
-                    record.get('firmwareVersion'),
-                    Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
-                    Uni.DateTime.formatDateTimeShort(record.get('lastCheckedDate'))
-                ]));
+            if (record.get('lastCheckedDate')) {
+                formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
+                    'FWC', 'Upload and activation of version {0} completed on {1}. Verification scheduled on {2}', [
+                        record.get('firmwareVersion'),
+                        Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
+                        Uni.DateTime.formatDateTimeShort(record.get('lastCheckedDate'))
+                    ]));
+            } else {
+                formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status, 'notSheduled'].join('.'),
+                    'FWC', 'Upload and activation of version {0} completed on {1}. Verification is not scheduled', [
+                        record.get('firmwareVersion'),
+                        Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
+                    ]));
+            }
         }
 
         if (status === 'needActivationVersion') {
@@ -281,6 +299,26 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             formOngoing.show();
             formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
                 'FWC', 'Activating version {0}', [
+                    record.get('firmwareVersion')
+                ]));
+        }
+
+        if (status === 'activatingVersion') {
+            formOngoing.record = record;
+            formOngoing.show();
+            formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
+                'FWC', 'Upload of version {0} completed on {1}. Activation scheduled on {2}', [
+                    record.get('firmwareVersion'),
+                    Uni.DateTime.formatDateTimeShort(record.get('uploadStartDate')),
+                    Uni.DateTime.formatDateTimeShort(record.get('plannedActivationDate'))
+                ]));
+        }
+
+        if (status === 'ongoingVerificationVersion') {
+            formOngoing.record = record;
+            formOngoing.show();
+            formOngoing.setText(Uni.I18n.translate(['device','firmware', upgradeOption.id, status].join('.'),
+                'FWC', 'Verifying upload and activation of version {0}', [
                     record.get('firmwareVersion')
                 ]));
         }
