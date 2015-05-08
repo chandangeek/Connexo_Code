@@ -224,9 +224,10 @@ public class DeviceValidationResource {
         DeviceValidation deviceValidation = device.forValidation();
         DeviceValidationStatusInfo deviceValidationStatusInfo =
                 new DeviceValidationStatusInfo(
-                        deviceValidation.isValidationActive(),
-                        deviceValidation.getLastChecked(),
-                        device.hasData());
+                deviceValidation.isValidationActive(),
+                deviceValidation.isValidationOnStorage(),
+                deviceValidation.getLastChecked(),
+                device.hasData());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
@@ -291,7 +292,12 @@ public class DeviceValidationResource {
                 if (deviceValidationStatusInfo.lastChecked == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
                 }
-                device.forValidation().activateValidation(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
+                if(deviceValidationStatusInfo.isStorage){
+                    device.forValidation().activateValidationOnStorage(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
+                }
+                else{
+                    device.forValidation().activateValidation(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
+                }
             }
             else {
                 device.forValidation().deactivateValidation();
