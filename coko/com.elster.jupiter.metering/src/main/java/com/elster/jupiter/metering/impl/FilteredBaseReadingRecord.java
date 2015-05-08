@@ -63,7 +63,8 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
 
     @Override
     public BigDecimal getValue() {
-        return filtered.getQuantity(getReadingType()).getValue();
+        Quantity quantity = filtered.getQuantity(getReadingType());
+        return quantity == null ? null : quantity.getValue();
     }
 
     @Override
