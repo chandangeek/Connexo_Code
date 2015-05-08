@@ -125,13 +125,11 @@ public class LoadProfileBuilder {
                 channelMask = "0" + channelMask;
                 statusMask = i;
                 // DO nothing
-            } else if (loadProfileContains(lpr, capturedObject.getObisCode())) {
+            } else {
                 channelMask = "1" + channelMask;
                 String registerObisCodeString = capturedObject.getLogicalName().toString();
                 // Add register to the list
                 registerList.add(new Register(-1, ObisCode.fromString(registerObisCodeString), meterProtocol.getMeterSerialNumber()));
-            } else {
-                channelMask = "0" + channelMask;
             }
             i ++;
         }
