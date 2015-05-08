@@ -89,11 +89,8 @@ public class DeviceInfo {
                                 deviceInfo.usagePoint = usagePoint.getMRID();
                                 deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();
                     }));
-            Optional<Meter> meter = device.getCurrentMeterActivation().get().getMeter();
-            if (meter.isPresent() && meter.get().getState().isPresent()) {
-                deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, meter.get().getState().get());
-            }
         }
+        deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, device.getState());
         return deviceInfo;
     }
 

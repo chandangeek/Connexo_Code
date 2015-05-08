@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -80,6 +78,7 @@ public class DeviceResource {
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
     private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
+    private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
 
     @Inject
@@ -108,6 +107,7 @@ public class DeviceResource {
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<ChannelResource> channelsOnDeviceResourceProvider,
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
+            Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             DeviceInfoFactory deviceInfoFactory) {
 
         this.resourceHelper = resourceHelper;
@@ -134,6 +134,7 @@ public class DeviceResource {
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
         this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
+        this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
     }
 
@@ -354,6 +355,11 @@ public class DeviceResource {
     @Path("/{mRID}/connections")
     public ConnectionResource getConnectionResource() {
         return connectionResourceProvider.get();
+    }
+    
+    @Path("/{mRID}/history")
+    public DeviceHistoryResource getDeviceHistoryResource() {
+        return deviceHistoryResourceProvider.get();
     }
 
     @GET
