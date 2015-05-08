@@ -16,7 +16,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.services.DefaultFinder;
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
