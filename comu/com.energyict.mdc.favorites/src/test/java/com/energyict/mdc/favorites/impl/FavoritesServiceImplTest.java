@@ -5,6 +5,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -25,6 +26,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -69,11 +71,13 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -182,6 +186,8 @@ public class FavoritesServiceImplTest {
                 new EngineModelModule(),
                 new MasterDataModule(),
                 new ValidationModule(),
+                new EstimationModule(),
+                new TimeModule(),
                 new FiniteStateMachineModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
