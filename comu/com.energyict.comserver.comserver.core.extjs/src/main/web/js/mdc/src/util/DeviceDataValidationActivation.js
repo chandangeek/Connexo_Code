@@ -78,7 +78,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 } else {
                     me.dataValidationLastChecked = new Date();
                 }
-				if (res.onStorage) {
+				if (res.isStorage) {
                     me.validationOnStorage = true;
                 } else {
                     me.validationOnStorage = false;
