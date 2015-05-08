@@ -98,8 +98,8 @@ public class EstimationResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION,
-            Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public EstimationRuleSetInfos getEstimationRuleSets(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<EstimationRuleSet> list = queryRuleSets(params);
@@ -120,8 +120,8 @@ public class EstimationResource {
     @GET
     @Path("/{ruleSetId}/rules")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION,
-            Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public EstimationRuleInfos getEstimationRules(@PathParam("ruleSetId") long ruleSetId, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<? extends EstimationRuleSet> optional = estimationService.getEstimationRuleSet(ruleSetId);
@@ -147,7 +147,7 @@ public class EstimationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response createEstimationRuleSet(final EstimationRuleSetInfo info) {
         return Response.status(Response.Status.CREATED).entity(new EstimationRuleSetInfo(transactionService.execute(new Transaction<EstimationRuleSet>() {
             @Override
@@ -160,7 +160,7 @@ public class EstimationResource {
     @PUT
     @Path("/{ruleSetId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public EstimationRuleSetInfo updateEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, final EstimationRuleSetInfo info, @Context SecurityContext securityContext) {
         transactionService.execute(new VoidTransaction() {
             @Override
@@ -190,7 +190,7 @@ public class EstimationResource {
     @GET
     @Path("/{ruleSetId}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, @Context SecurityContext securityContext) {
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
         return EstimationRuleSetInfo.withRules(estimationRuleSet);
@@ -204,7 +204,7 @@ public class EstimationResource {
     @GET
     @Path("/{ruleSetId}/rule/{ruleId}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
         ReadingTypeInfos infos = new ReadingTypeInfos();
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
@@ -220,7 +220,7 @@ public class EstimationResource {
     @GET
     @Path("/estimators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public EstimatorInfos getAvailableEstimatimators(@Context UriInfo uriInfo) {
         EstimatorInfos infos = new EstimatorInfos();
         List<Estimator> toAdd = estimationService.getAvailableEstimators();
@@ -240,7 +240,7 @@ public class EstimationResource {
     @GET
     @Path("/{ruleSetId}/usage")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public Response getValidationRuleSetUsage(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
         RuleSetUsageInfo info = new RuleSetUsageInfo();
@@ -251,7 +251,7 @@ public class EstimationResource {
     @DELETE
     @Path("/{ruleSetId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response deleteEstimationRuleSet(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
         transactionService.execute(new VoidTransaction() {
             @Override
@@ -267,7 +267,7 @@ public class EstimationResource {
     @POST
     @Path("/{ruleSetId}/rules")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addRule(@PathParam("ruleSetId") final long ruleSetId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
         EstimationRuleInfo result =
                 transactionService.execute(() -> {
@@ -297,7 +297,7 @@ public class EstimationResource {
     @PUT
     @Path("/{ruleSetId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public EstimationRuleInfos editRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
         EstimationRuleInfos result = new EstimationRuleInfos();
         result.add(transactionService.execute(new Transaction<EstimationRule>() {
@@ -329,8 +329,8 @@ public class EstimationResource {
     @GET
     @Path("/{ruleSetId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION,
-            Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
         EstimationRule rule = transactionService.execute((Transaction<EstimationRule>) () -> {
             EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -343,7 +343,7 @@ public class EstimationResource {
     @DELETE
     @Path("/{ruleSetId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response removeRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
         transactionService.execute(new Transaction<EstimationRule>() {
             @Override
@@ -384,7 +384,7 @@ public class EstimationResource {
     @GET
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK})
     public EstimationTaskInfos getEstimationTasks(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends EstimationTask> list = queryTasks(params);
@@ -404,7 +404,7 @@ public class EstimationResource {
     @GET
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK})
     public EstimationTaskInfo getEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new EstimationTaskInfo(fetchEstimationTask(id), thesaurus);
     }
@@ -412,7 +412,7 @@ public class EstimationResource {
     @POST
     @Path("/tasks/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.RUN_ESTIMATION_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK})
     public Response triggerEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         transactionService.execute(VoidTransaction.of(() -> fetchEstimationTask(id).triggerNow()));
         return Response.status(Response.Status.OK).build();
@@ -422,7 +422,7 @@ public class EstimationResource {
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addEstimationTask(EstimationTaskInfo info) {
 
         EstimationTask dataExportTask = estimationService.newBuilder()
@@ -441,7 +441,7 @@ public class EstimationResource {
     @DELETE
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response removeEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         EstimationTask task = fetchEstimationTask(id);
 
@@ -460,7 +460,7 @@ public class EstimationResource {
     @PUT
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.UPDATE_ESTIMATION_CONFIGURATION, Privileges.UPDATE_SCHEDULE_ESTIMATION_TASK})
+    @RolesAllowed({Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK})
     public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info) {
 
         EstimationTask task = findTaskOrThrowException(id);
