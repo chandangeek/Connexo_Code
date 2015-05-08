@@ -14,7 +14,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.orm.schema.h2</name>
 
-
     <build>
         <plugins>
             <plugin>
@@ -44,7 +43,6 @@
             <artifactId>orm</artifactId>
             <version>1.0.0</version>
         </dependency>
-
 
     </dependencies>
 </project>
