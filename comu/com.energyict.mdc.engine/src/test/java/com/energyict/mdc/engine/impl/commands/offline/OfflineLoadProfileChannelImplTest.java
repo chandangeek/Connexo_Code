@@ -36,7 +36,7 @@ public class OfflineLoadProfileChannelImplTest {
         when(device.getId()).thenReturn(DEVICE_ID);
         Channel channel = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
-        when(channelSpec.getDeviceObisCode()).thenReturn(OfflineRtuRegisterImplTest.RTU_REGISTER_MAPPING_OBISCODE);
+        when(channelSpec.getDeviceObisCode()).thenReturn(OfflineRegisterImplTest.REGISTER_MAPPING_OBISCODE);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getUnit()).thenReturn(CHANNEL_UNIT);
         when(channel.getLoadProfile()).thenReturn(loadProfile);
@@ -46,7 +46,7 @@ public class OfflineLoadProfileChannelImplTest {
 
         // Asserts
         assertNotNull(offlineLoadProfileChannel);
-        assertEquals("Expected the correct ObisCode", OfflineRtuRegisterImplTest.RTU_REGISTER_MAPPING_OBISCODE, offlineLoadProfileChannel.getObisCode());
+        assertEquals("Expected the correct ObisCode", OfflineRegisterImplTest.REGISTER_MAPPING_OBISCODE, offlineLoadProfileChannel.getObisCode());
         assertEquals("Expected the correct Unit", CHANNEL_UNIT, offlineLoadProfileChannel.getUnit());
         assertEquals("Expected the correct DEVICE_ID", DEVICE_ID, offlineLoadProfileChannel.getRtuId());
         assertEquals("Expected the correct LOAD_PROFILE_ID", LOAD_PROFILE_ID, offlineLoadProfileChannel.getLoadProfileId());

@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
@@ -18,6 +19,8 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -43,6 +46,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -96,6 +100,8 @@ public class OfflineDeviceImplTest {
     private TopologyService topologyService;
     @Mock
     private OfflineDeviceImpl.ServiceProvider offlineDeviceServiceProvider;
+    @Mock
+    private IdentificationService identificationService;
     @Mock
     private NlsService nlsService;
     @Mock
@@ -159,6 +165,7 @@ public class OfflineDeviceImplTest {
     public void initBefore() {
         when(this.offlineDeviceServiceProvider.findProtocolCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(this.offlineDeviceServiceProvider.topologyService()).thenReturn(this.topologyService);
+        when(this.offlineDeviceServiceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
         when(this.topologyService.getPhysicalGateway(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.<Device>emptyList());
@@ -481,5 +488,17 @@ public class OfflineDeviceImplTest {
     private DeviceMessageSpec getDeviceMessageSpec(DeviceMessageId deviceMessageId) {
         return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + deviceMessageId));
     }
+
+    @Test
+    public void deviceIdentifierForKnownDeviceBySerialNumberShouldBeUsedTest() {
+        Device device = createMockDevice();
+        DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifier = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(BaseDevice.class))).thenReturn(deviceIdentifier);
+
+        OfflineDeviceImpl offlineDevice = new OfflineDeviceImpl(device, new DeviceOfflineFlags(), this.offlineDeviceServiceProvider);
+
+        assertThat(offlineDevice.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+    }
+
 
 }
