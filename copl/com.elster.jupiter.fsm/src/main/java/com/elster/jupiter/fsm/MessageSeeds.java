@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // Generic
     FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
-    CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field cannot be empty"),
+    CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
 
     // StateTransitionEventType
     UNIQUE_EVENT_TYPE_SYMBOL(200, Keys.UNIQUE_EVENT_TYPE_SYMBOL, "The symbolic representation of a state transition event type must be unique"),
