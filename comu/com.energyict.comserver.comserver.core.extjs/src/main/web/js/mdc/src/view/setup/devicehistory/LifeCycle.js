@@ -9,17 +9,9 @@ Ext.define('Mdc.view.setup.devicehistory.LifeCycle', {
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
                 '{[xindex > 1 ? "<hr>" : ""]}',
-                '<p><b>{author.name}</b> added a comment - {[values.creationDate ? this.formatCreationDate(values.creationDate) : ""]}</p>',
-                '<p><tpl for="splittedComments">',
-                '{.}</br>',
-                '</tpl></p>',
-                '</tpl>',
-                {
-                    formatCreationDate: function (date) {
-                        date = Ext.isDate(date) ? date : new Date(date);
-                        return Uni.DateTime.formatDateTimeLong(date);
-                    }
-                }
+                '<p><b>{[Uni.I18n.translate("searchItems.bulk.state", "MDC", "State") + " " + (values.fromState ? Uni.I18n.translate("deviceHistory.changedFrom", "MDC", "changed from") + " " + values.fromState : Uni.I18n.translate("deviceHistory.set", "MDC", "set")) + " " + Uni.I18n.translate("general.unitTo", "MDC", "to") + " " + values.toState]}</b></p>',
+                '<p>{[Uni.I18n.translate("deviceHistory.by", "MDC", "by") + " " + values.author.name + " " + Uni.I18n.translate("deviceHistory.on", "MDC", "on") + " " + Uni.DateTime.formatDateTimeShort(new Date(values.modTime))]}</br></p>',
+                '</tpl>'
             )
         }
     ]

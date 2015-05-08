@@ -7,31 +7,20 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
     ],
 
     stores: [
-
+        'Mdc.store.DeviceLifeCycleStatesHistory'
     ],
 
     models: [
-
+        'Mdc.model.DeviceLifeCycleStatesHistory',
+        'Mdc.model.Device'
     ],
 
     refs: [
         {
             ref: 'page',
             selector: 'device-history-setup'
-        },
-        {
-            ref: 'lifeCyclePanel',
-            selector: 'device-history-life-cycle-panel'
         }
     ],
-
-    init: function () {
-        this.control({
-            'device-history-setup #device-history-tab-panel': {
-                tabchange: this.onTabChange
-            }
-        });
-    },
 
     showDeviceHistory: function (mRID) {
         var me = this,
@@ -45,41 +34,26 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                     device: device
                 });
                 me.getApplication().fireEvent('loadDevice', device);
-                view.down('#device-history-tab-panel').setActiveTab(1);
                 me.getApplication().fireEvent('changecontentevent', view);
+                view.setLoading();
+                me.showDeviceLifeCycleHistory();
             }
         });
     },
 
-    onTabChange: function (tabPanel, newCard, oldCard) {
-        var me = this,
-            page = me.getPage(),
-            historyPanel = page.down('#history-panel'),
-            existedAdditionalItem = historyPanel.down('#device-history-tab-panel').next(),
-            additionalItem;
-
-        existedAdditionalItem && historyPanel.remove(existedAdditionalItem);
-
-        switch (newCard.itemId) {
-            case 'device-history-life-cycle-tab':
-                additionalItem = Ext.widget('device-history-life-cycle-panel');
-                me.showDeviceLifeCycleHistory();
-                break;
-        }
-
-        historyPanel.add(additionalItem);
-    },
-
     showDeviceLifeCycleHistory: function () {
         var me = this,
-            lifeCycleDataView = me.getLifeCyclePanel().down('#life-cycle-data-view'),
-            store = me.getStore('');
+            historyPanel = me.getPage().down('#history-panel'),
+            lifeCyclePanel = Ext.widget('device-history-life-cycle-panel'),
+            lifeCycleDataView = lifeCyclePanel.down('#life-cycle-data-view'),
+            store = me.getStore('Mdc.store.DeviceLifeCycleStatesHistory');
 
+        historyPanel.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(store);
-        lifeCycleDataView.setLoading();
+        store.getProxy().setUrl(me.getController('Uni.controller.history.Router').arguments);
         store.load(function (records) {
-            store.add(records);
-            lifeCycleDataView.setLoading(false);
+            store.add(records.reverse());
+            me.getPage().setLoading(false);
         });
     }
 });
