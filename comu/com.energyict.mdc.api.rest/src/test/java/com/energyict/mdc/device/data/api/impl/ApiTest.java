@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.api.impl;
 
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
