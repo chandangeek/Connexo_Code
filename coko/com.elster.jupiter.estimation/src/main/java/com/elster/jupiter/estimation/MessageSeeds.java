@@ -24,7 +24,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ESTIMATOR_PROPERTY_INVALID_VALUE(1006, Constants.ESTIMATOR_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of estimator ''{2}''", Level.SEVERE),
     ESTIMATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
 
-    ;
+    VETO_DEVICEGROUP_DELETION(1008, Constants.VETO_DEVICEGROUP_DELETION_KEY, "Device group {0} is still in use by an estimation task", Level.SEVERE);
     
     private final int number;
     private final String key;
@@ -86,6 +86,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY = "EstimatorPropertyXIsNotInSpec";
         public static final String ESTIMATOR_PROPERTY_INVALID_VALUE_KEY = "EstimatorPropertyValueInvalid";
         public static final String ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY = "EstimatorPropertyRequired";
+        public static final String VETO_DEVICEGROUP_DELETION_KEY = "DeviceGroupXStillInUseByEstimationTask";
     }
 }
 

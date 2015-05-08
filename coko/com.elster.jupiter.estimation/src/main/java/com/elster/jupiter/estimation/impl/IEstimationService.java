@@ -6,9 +6,11 @@ import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.RecurrentTask;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -26,4 +28,5 @@ public interface IEstimationService extends EstimationService {
 
     EstimationReport estimate(MeterActivation meterActivation, Logger logger);
 
+    List<EstimationTask> findByDeviceGroup(EndDeviceGroup endDeviceGroup, int skip, int limit);
 }

@@ -22,6 +22,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -386,6 +387,15 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         return dataModel.stream(IEstimationTask.class)
                 .filter(Where.where("recurrentTask").isEqualTo(recurrentTask))
                 .findFirst();
+    }
+
+    @Override
+    public List<EstimationTask> findByDeviceGroup(EndDeviceGroup endDeviceGroup, int skip, int limit) {
+        return dataModel.stream(IEstimationTask.class)
+                .filter(Where.where("endDeviceGroup").isEqualTo(endDeviceGroup))
+                .skip(skip)
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
