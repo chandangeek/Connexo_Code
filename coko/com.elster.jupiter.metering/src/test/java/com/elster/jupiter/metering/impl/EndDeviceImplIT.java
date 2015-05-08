@@ -15,6 +15,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -296,6 +297,121 @@ public class EndDeviceImplIT {
         assertThat(slices.get(1).getPeriod().lowerEndpoint()).isEqualTo(april1st);
         assertThat(slices.get(1).getPeriod().lowerBoundType()).isEqualTo(BoundType.CLOSED);
         assertThat(slices.get(1).getPeriod().hasUpperBound()).isFalse();
+    }
+
+    @Test
+    public void cimLifecycleDatesAreAllEmptyAtCreationTime() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
+
+            // Business method
+            endDevice.save();
+
+            // Asserts
+            LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
+            assertThat(lifecycleDates).isNotNull();
+            assertThat(lifecycleDates.getManufacturedDate()).isEmpty();
+            assertThat(lifecycleDates.getPurchasedDate()).isEmpty();
+            assertThat(lifecycleDates.getReceivedDate()).isEmpty();
+            assertThat(lifecycleDates.getInstalledDate()).isEmpty();
+            assertThat(lifecycleDates.getRemovedDate()).isEmpty();
+            assertThat(lifecycleDates.getRetiredDate()).isEmpty();
+        }
+    }
+
+    @Test
+    public void cimLifecycleDatesAreAllEmptyAtCreationTimeAfterFind() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
+            endDevice.save();
+
+            // Business method
+            LifecycleDates lifecycleDates = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
+
+            // Asserts
+            assertThat(lifecycleDates).isNotNull();
+            assertThat(lifecycleDates.getManufacturedDate()).isEmpty();
+            assertThat(lifecycleDates.getPurchasedDate()).isEmpty();
+            assertThat(lifecycleDates.getReceivedDate()).isEmpty();
+            assertThat(lifecycleDates.getInstalledDate()).isEmpty();
+            assertThat(lifecycleDates.getRemovedDate()).isEmpty();
+            assertThat(lifecycleDates.getRetiredDate()).isEmpty();
+        }
+    }
+
+    @Test
+    public void updateCimLifecycleDates() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
+            endDevice.save();
+
+            // Business method
+            LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
+            Instant manufacturedDate = Instant.ofEpochMilli(1000L);
+            Instant purchasedDate = Instant.ofEpochMilli(2000L);
+            Instant receivedDate = Instant.ofEpochMilli(3000L);
+            Instant installedDate = Instant.ofEpochMilli(4000L);
+            Instant removedDate = Instant.ofEpochMilli(5000L);
+            Instant retiredDate = Instant.ofEpochMilli(6000L);
+            lifecycleDates.setManufacturedDate(manufacturedDate);
+            lifecycleDates.setPurchasedDate(purchasedDate);
+            lifecycleDates.setReceivedDate(receivedDate);
+            lifecycleDates.setInstalledDate(installedDate);
+            lifecycleDates.setRemovedDate(removedDate);
+            lifecycleDates.setRetiredDate(retiredDate);
+            endDevice.save();
+
+            // Asserts
+            LifecycleDates datesAfterFind = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
+            assertThat(datesAfterFind).isNotNull();
+            assertThat(datesAfterFind.getManufacturedDate()).contains(manufacturedDate);
+            assertThat(datesAfterFind.getPurchasedDate()).contains(purchasedDate);
+            assertThat(datesAfterFind.getReceivedDate()).contains(receivedDate);
+            assertThat(datesAfterFind.getInstalledDate()).contains(installedDate);
+            assertThat(datesAfterFind.getRemovedDate()).contains(removedDate);
+            assertThat(datesAfterFind.getRetiredDate()).contains(retiredDate);
+        }
+    }
+
+    @Test
+    public void updateCimLifecycleDatesAfterFind() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
+            endDevice.save();
+
+            // Business method
+            LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
+            Instant manufacturedDate = Instant.ofEpochMilli(1000L);
+            Instant purchasedDate = Instant.ofEpochMilli(2000L);
+            Instant receivedDate = Instant.ofEpochMilli(3000L);
+            Instant installedDate = Instant.ofEpochMilli(4000L);
+            Instant removedDate = Instant.ofEpochMilli(5000L);
+            Instant retiredDate = Instant.ofEpochMilli(6000L);
+            lifecycleDates.setManufacturedDate(manufacturedDate);
+            lifecycleDates.setPurchasedDate(purchasedDate);
+            lifecycleDates.setReceivedDate(receivedDate);
+            lifecycleDates.setInstalledDate(installedDate);
+            lifecycleDates.setRemovedDate(removedDate);
+            lifecycleDates.setRetiredDate(retiredDate);
+            endDevice.save();
+
+            // Asserts
+            assertThat(lifecycleDates).isNotNull();
+            assertThat(lifecycleDates.getManufacturedDate()).contains(manufacturedDate);
+            assertThat(lifecycleDates.getPurchasedDate()).contains(purchasedDate);
+            assertThat(lifecycleDates.getReceivedDate()).contains(receivedDate);
+            assertThat(lifecycleDates.getInstalledDate()).contains(installedDate);
+            assertThat(lifecycleDates.getRemovedDate()).contains(removedDate);
+            assertThat(lifecycleDates.getRetiredDate()).contains(retiredDate);
+        }
     }
 
     private FiniteStateMachine createTinyFiniteStateMachine() {

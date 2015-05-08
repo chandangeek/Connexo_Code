@@ -71,4 +71,6 @@ public interface EndDevice extends IdentifiedObject {
      */
     Optional<StateTimeline> getStateTimeline();
 
+    LifecycleDates getLifecycleDates();
+
 }
