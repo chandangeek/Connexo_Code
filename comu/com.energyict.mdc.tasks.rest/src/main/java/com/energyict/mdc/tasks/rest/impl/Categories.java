@@ -13,6 +13,7 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.tasks.rest.util.RestHelper;
 
@@ -403,6 +404,37 @@ public enum Categories {
                 }
             }
             clockTask.save();
+        }
+    },
+
+    STATUSINFORMATION("statusInformation") {
+        @Override
+        public Class<? extends ProtocolTask> getProtocolTaskClass() {
+            return StatusInformationTask.class;
+        }
+
+        @Override
+        public List<String> getActions() {
+            return Arrays.asList("read");
+        }
+
+        @Override
+        public int getAction(ProtocolTask protocolTask) {
+            return 1;
+        }
+
+        @Override
+        public void createProtocolTask(MasterDataService masterDataService, ComTask comTask, ProtocolTaskInfo protocolTaskInfo) {
+            comTask.createStatusInformationTask();
+        }
+
+        @Override
+        public void updateProtocolTask(MasterDataService masterDataService, ProtocolTask protocolTask, ProtocolTaskInfo protocolTaskInfo) {
+        }
+
+        @Override
+        public List<ParameterInfo> getProtocolTaskParameters(ProtocolTask protocolTask) {
+            return new ArrayList<>(0); // xxxTasks has no protocol tasks and no parameters
         }
     };
 

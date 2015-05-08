@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -23,6 +24,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -42,12 +44,14 @@ public class ComTaskResource {
     private TaskService taskService;
     private MasterDataService masterDataService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
         this.taskService = taskService;
         this.masterDataService = masterDataService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -144,8 +148,8 @@ public class ComTaskResource {
     @Path("/categories")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getCategories(@BeanParam JsonQueryParameters queryParameters) {
-        List<CategoryInfo> categoryInfos = CategoryInfo.from(ListPager.of(Arrays.asList(Categories.values())).from(queryParameters).find());
+    public PagedInfoList getCategories(@BeanParam QueryParameters queryParameters) {
+        List<CategoryInfo> categoryInfos = CategoryInfo.from(ListPager.of(Arrays.asList(Categories.values())).from(queryParameters).find(), thesaurus);
         return PagedInfoList.fromPagedList("data", categoryInfos, queryParameters);
     }
 
@@ -153,11 +157,16 @@ public class ComTaskResource {
     @Path("/actions")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
-    public PagedInfoList getActions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        Optional<String> categoryParameter = Optional.ofNullable(uriInfo.getQueryParameters().getFirst("category"));
-        if (categoryParameter.isPresent()) {
-            List<ActionInfo> actionInfos = ActionInfo.from(ListPager.of(
-                    Categories.valueOf(categoryParameter.get().toUpperCase()).getActions()).from(queryParameters).find());
+    public PagedInfoList getActions(@QueryParam("category") String categoryParameter, @BeanParam QueryParameters queryParameters) {
+        if (categoryParameter != null) {
+            Categories categories = null;
+            try {
+                categories = Categories.valueOf(categoryParameter.toUpperCase());
+            } catch(IllegalArgumentException x) {
+                String errorMsg = "The category '" + categoryParameter.toUpperCase() + "' is unknown";
+                throw new WebApplicationException(errorMsg, Response.status(Response.Status.BAD_REQUEST).entity(errorMsg).build());
+            }
+            List<ActionInfo> actionInfos = ActionInfo.from(ListPager.of(categories.getActions()).from(queryParameters).find(), thesaurus);
             return PagedInfoList.fromPagedList("data", actionInfos, queryParameters);
         }
         throw new WebApplicationException("No \"category\" query property is present",
