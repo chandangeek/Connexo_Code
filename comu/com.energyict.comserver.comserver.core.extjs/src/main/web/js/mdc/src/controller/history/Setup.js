@@ -71,6 +71,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                 return this;
                             },
                             items: {
+                                change: {
+                                    title: Uni.I18n.translate('deviceLifeCycle.change', 'MDC', 'Change device life cycle'),
+                                    route: 'change',
+                                    controller: 'Mdc.controller.setup.ChangeDeviceLifeCycle',
+                                    action: 'showChangeDeviceLifeCycle'
+                                },
                                 edit: {
                                     title: 'Edit',
                                     route: 'edit',

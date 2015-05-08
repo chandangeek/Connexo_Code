@@ -33,17 +33,9 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                     xtype: 'tabpanel',
                     margin: '20 0 0 20',
                     itemId: 'device-history-tab-panel',
-                    width: 310,
-                    listeners: {
-                        beforetabchange: function(tabs, newTab, oldTab) {
-                            return newTab.itemId != 'device-history-all-tab';
-                        }
-                    },
+                    activeTab: 0,
+                    width: 140,
                     items: [
-                        {
-                            title: Uni.I18n.translate('general.all', 'MDC', 'All'),
-                            itemId: 'device-history-all-tab'
-                        },
                         {
                             title: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
                             itemId: 'device-history-life-cycle-tab'
