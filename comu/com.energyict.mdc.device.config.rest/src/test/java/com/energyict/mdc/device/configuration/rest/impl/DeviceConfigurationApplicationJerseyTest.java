@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -33,6 +34,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     DeviceConfigurationService deviceConfigurationService;
     @Mock
     ValidationService validationService;
+    @Mock
+    EstimationService estimationService;
     @Mock
     ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -68,6 +71,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setMasterDataService(masterDataService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setValidationService(validationService);
+        application.setEstimationService(estimationService);
         application.setProtocolPluggableService(protocolPluggableService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setDeviceService(deviceService);

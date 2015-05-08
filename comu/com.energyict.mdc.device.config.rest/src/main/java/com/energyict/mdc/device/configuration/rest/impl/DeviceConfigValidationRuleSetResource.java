@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 @Path("/validationruleset")
-public class DeviceConfigsValidationRuleSetResource {
+public class DeviceConfigValidationRuleSetResource {
 
     public static final String ALL = "all";
     private final DeviceConfigurationService deviceConfigurationService;
@@ -46,7 +46,7 @@ public class DeviceConfigsValidationRuleSetResource {
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceConfigsValidationRuleSetResource(DeviceConfigurationService deviceConfigurationService,
+    public DeviceConfigValidationRuleSetResource(DeviceConfigurationService deviceConfigurationService,
                                                   ValidationService validationService, Thesaurus thesaurus) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.validationService = validationService;
@@ -172,12 +172,6 @@ public class DeviceConfigsValidationRuleSetResource {
 
     private boolean haveCommonReadingTypes(Set<ReadingType> readingTypesInRuleSet, List<ReadingType> readingTypes) {
         return !Collections.disjoint(readingTypesInRuleSet, readingTypes);
-    }
-
-    private void addConfiguration(DeviceConfiguration configuration, DeviceConfigurationInfos result, ValidationRuleSet ruleSet) {
-        if (!ruleSet.getRules(readingTypesFor(configuration)).isEmpty()) {
-            result.add(configuration);
-        }
     }
 
     private ValidationRuleSet getValidationRuleSet(long validationRuleSetId) {
