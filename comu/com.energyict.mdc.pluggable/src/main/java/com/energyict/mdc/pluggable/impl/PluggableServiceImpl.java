@@ -1,7 +1,7 @@
 package com.energyict.mdc.pluggable.impl;
 
 import com.energyict.mdc.common.services.DefaultFinder;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;

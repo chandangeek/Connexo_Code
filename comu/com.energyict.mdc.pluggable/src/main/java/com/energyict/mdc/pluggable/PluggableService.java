@@ -1,6 +1,6 @@
 package com.energyict.mdc.pluggable;
 
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 
 import com.elster.jupiter.properties.PropertySpec;
 
