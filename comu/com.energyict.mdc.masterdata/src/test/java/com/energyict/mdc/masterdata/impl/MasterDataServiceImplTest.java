@@ -1,6 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.common.rest.JsonQueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.masterdata.RegisterType;
 import java.util.List;
 import java.util.Optional;
