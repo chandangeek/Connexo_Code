@@ -205,25 +205,27 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('rule-set-details', {router: router}),
-            model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet');
-        widget.setLoading(true);
+            model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet'),
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
+        pageView.setLoading(true);
         model.load(id, {
             success: function (record) {
+                me.getApplication().fireEvent('changecontentevent', widget);
+                Ext.suspendLayouts();
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
-                if (widget.rendered) {
-                    Ext.suspendLayouts();
-                    widget.down('#rule-set-form').loadRecord(record);
-                    widget.down('estimation-rule-set-side-menu #estimation-rule-set-link').setText(record.get('name'));
-                    var actionBtn = widget.down('#action-button');
-                    if (actionBtn) {
-                        actionBtn.menu.record = record;
-                    }
-                    Ext.resumeLayouts(true);
+                widget.down('#rule-set-form').loadRecord(record);
+                widget.down('estimation-rule-set-side-menu #estimation-rule-set-link').setText(record.get('name'));
+                var actionBtn = widget.down('#action-button');
+                if (actionBtn) {
+                    actionBtn.menu.record = record;
                 }
-                widget.setLoading(false);
+                Ext.resumeLayouts(true);
+            },
+            callback: function () {
+                pageView.setLoading(false);
             }
         });
-        me.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showErrorPanel: function (value) {
