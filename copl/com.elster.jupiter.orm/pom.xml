@@ -12,7 +12,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.orm</name>
 
-
     <build>
         <plugins>
             <plugin>
@@ -90,7 +89,6 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
-
 
     </dependencies>
 </project>
