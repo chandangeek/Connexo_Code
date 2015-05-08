@@ -233,7 +233,7 @@ public class DeviceFirmwareMessagesResource {
         return helper.getFirmwareMessages().stream()
                 .filter(message -> DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(message.getStatus()))
                 .filter(message -> firmwareUpgradeExecution == null || firmwareUpgradeExecution.getLastExecutionStartTimestamp() == null || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.getLastExecutionStartTimestamp()))
-                .count() == 0;
+                .count() == 0 && !helper.taskIsBusy();
     }
 
     /** Returns the appropriate DeviceMessageId which corresponds with the uploadOption */
