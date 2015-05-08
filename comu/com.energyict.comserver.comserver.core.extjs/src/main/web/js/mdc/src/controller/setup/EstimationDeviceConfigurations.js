@@ -67,8 +67,10 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
             model = me.getModel('Mdc.model.EstimationRuleSet'),
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Mdc.store.EstimationDeviceConfigurations'),
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             view;
 
+        pageView.setLoading(true);
         store.getProxy().setUrl(router.arguments);
         view = Ext.widget('estimation-deviceconfigurations-setup', {
             router: router
@@ -79,6 +81,9 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
                 me.getApplication().fireEvent('loadEstimationRuleSet', ruleSetRecord);
                 view.down('#estimation-rule-set-link').setText(ruleSetRecord.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
+            },
+            callback: function () {
+                pageView.setLoading(false);
             }
         });
     },
