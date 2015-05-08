@@ -108,15 +108,15 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
             return "Max number of consecutive suspects";
         case MAX_NUMBER_OF_SAMPLES:
-            return "Max number of samples";
+            return "Maximum samples";
         case MIN_NUMBER_OF_SAMPLES:
-            return "Min number of samples";
+            return "Minimum samples";
         case ALLOW_NEGATIVE_VALUES:
             return "Allow negative values";
         case RELATIVE_PERIOD:
             return "Relative period";
         case ADVANCE_READINGS_SETTINGS:
-            return "Advance readings settings";
+            return "Use advance readings";
         default:
             return "";
         }
