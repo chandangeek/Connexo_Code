@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -63,6 +65,7 @@ public class DeviceResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
+    private final IssueService issueService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
@@ -84,6 +87,7 @@ public class DeviceResource {
     private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
     private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
     public DeviceResource(
@@ -93,6 +97,7 @@ public class DeviceResource {
             DeviceService deviceService,
             TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
+            IssueService issueService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
@@ -113,14 +118,15 @@ public class DeviceResource {
             Provider<ChannelResource> channelsOnDeviceResourceProvider,
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
-            DeviceInfoFactory deviceInfoFactory) {
-
+            DeviceInfoFactory deviceInfoFactory,
+            Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceImportService = deviceImportService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.issueService = issueService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
@@ -142,6 +148,7 @@ public class DeviceResource {
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
         this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
+        this.thesaurus = thesaurus;
     }
 
 
@@ -194,10 +201,10 @@ public class DeviceResource {
         if (info.estimationStatus != null) {
             updateEstimationStatus(info.estimationStatus, device);
         }
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, thesaurus);
     }
 
-    private void updateGateway(DeviceInfo info, Device device) {
+    private DeviceInfo updateGateway(DeviceInfo info, Device device) {
         if (info.masterDevicemRID != null) {
             updateGateway(device, info.masterDevicemRID);
         } else {
