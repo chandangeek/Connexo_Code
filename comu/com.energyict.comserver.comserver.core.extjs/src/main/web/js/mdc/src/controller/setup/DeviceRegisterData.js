@@ -30,7 +30,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         'BillingRegisterData',
         'TextRegisterData',
         'FlagsRegisterData',
-        'RegisterConfigsOfDevice'
+        'RegisterConfigsOfDevice',
+        'Mdc.store.RegisterDataDurations',
     ],
 
     refs: [
@@ -92,6 +93,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     showDeviceRegisterDataView: function (mRID, registerId, tabController) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            //intervalStartField = filterForm.down('[name=intervalStart]'),
+            //intervalEndField = filterForm.down('[name=duration]'),
+            //intervalStart = intervalStartField.getValue(),
+            //intervalEnd = intervalEndField.getRawValue(),
             registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice');
 
         contentPanel.setLoading(true);
@@ -178,8 +183,19 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             filterView = this.getFilterPanel(),
             suspectField = filterForm.down('#suspect'),
             nonSuspectField = filterForm.down('#nonSuspect'),
+            intervalStartField = filterForm.down('[name=intervalStart]'),
+            intervalEndField = filterForm.down('[name=duration]'),
+            intervalStart = intervalStartField.getValue(),
+            intervalEnd = intervalEndField.getRawValue(),
             suspect = suspectField.boxLabel,
-            nonSuspect = nonSuspectField.boxLabel;
+            nonSuspect = nonSuspectField.boxLabel,
+            eventDateText = '';
+
+        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
+        + Uni.DateTime.formatDateShort(intervalStart);
+
+        filterView.setFilter('eventDateChanged', filterForm.down('#fco-date-container').getFieldLabel(), eventDateText, true);
+
         if (suspectField.getValue()) {
             filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
         }

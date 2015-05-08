@@ -71,8 +71,10 @@ Ext.define('Mdc.model.ValidationResults', {
 				storeProxy = this;
 				durationStore = Ext.getStore('Mdc.store.ValidationResultsDurations'),
 				duration = durationStore.getById(data.duration);
+            storeProxy.setExtraParam('onlySuspect', true);
         
             if (!Ext.isEmpty(data.intervalStart)) {
+
                 storeProxy.setExtraParam('intervalStart', data.intervalStart.getTime());
                 storeProxy.setExtraParam('intervalEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
             }

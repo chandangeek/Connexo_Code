@@ -72,7 +72,10 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
         setUrl: function (mRID) {
             this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         },
-
+        setFilterParameters: function(encodedJson){
+            var storeProxy = this;
+            storeProxy.setExtraParam('intervalLoadProfile', encodedJson);
+        },
         setFilterModel: function (model, router) {
             var data = model.getData(),
                 storeProxy = this;

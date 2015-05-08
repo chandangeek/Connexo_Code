@@ -59,6 +59,11 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 }
                             },
                             {
+                                itemId: 'validationResultField',
+                                fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
+                                name: 'validationResultSuspectCount'
+                            },
+                            {
                                 fieldLabel: Uni.I18n.translate('device.lastValidation', 'MDC', 'Last validation'),
                                 itemId: 'lastValidationCont',
                                 name: 'lastChecked',
@@ -78,7 +83,37 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
         ];
 
         me.callParent();
+
+    },
+    setValidationResult: function (value) {
+        var me = this;
+        /*
+            mRID = me.router.arguments.mRID,
+            assignedFilter;
+
+        assignedFilter = {
+            filter: {
+                status: ['status.open', 'status.in.progress'],
+                meter: mRID,
+                sorting: [
+                    {
+                        type: 'dueDate',
+                        value: 'asc'
+                    }
+                ]
+            }
+        };
+*/
+        me.down('#validationResultField').setText('Val res');
+            /*{
+                xtype: 'button',
+                text: Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssuesOnMeter', value, 'MDC', '{0} data collection issues'),
+                ui: 'link',
+                href: typeof me.router.getRoute('workspace/datacollectionissues') !== 'undefined'
+                    ? me.router.getRoute('workspace/datacollectionissues').buildUrl(null, assignedFilter) : null
+            });*/
     }
+
 });
 
 

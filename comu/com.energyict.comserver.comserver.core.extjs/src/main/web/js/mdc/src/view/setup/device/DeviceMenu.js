@@ -118,7 +118,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         text: Uni.I18n.translate('devicemenu.validationResults', 'MDC', 'Validation results'),
                         itemId: 'validationResultsLink',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration']),
-                        href: '#/devices/' + mRID + '/validationresults/configuration',
+                        href: '#/devices/' + mRID + '/validationresults/data',
                         showCondition: me.device.get('hasLogBooks')
                         || me.device.get('hasLoadProfiles')
                         || me.device.get('hasRegisters')
