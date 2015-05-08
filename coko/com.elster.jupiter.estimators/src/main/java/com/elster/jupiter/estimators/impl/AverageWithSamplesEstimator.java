@@ -7,10 +7,10 @@ import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
-import com.elster.jupiter.estimators.AbstractEstimator;
-import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.estimators.AbstractEstimator;
+import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
@@ -20,7 +20,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
@@ -360,25 +359,23 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, false, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
 
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                MIN_NUMBER_OF_SAMPLES, false, MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
-
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                MAX_NUMBER_OF_SAMPLES, false, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, false, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
 
         builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, false, new BooleanFactory()));
 
-        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
-
-        PropertySpecBuilder propertySpecBuilder = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService));
-        propertySpecBuilder.markRequired();
-        PropertySpec spec =
-                propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS).setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE).finish();
+        PropertySpec spec = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService))
+                .markRequired()
+                .name(ADVANCE_READINGS_SETTINGS)
+                .setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE)
+                .finish();
         builder.add(spec);
 
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(MIN_NUMBER_OF_SAMPLES, false, MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(MAX_NUMBER_OF_SAMPLES, false, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+
+        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
 
         return builder.build();
     }
