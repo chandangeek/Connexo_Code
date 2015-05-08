@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
