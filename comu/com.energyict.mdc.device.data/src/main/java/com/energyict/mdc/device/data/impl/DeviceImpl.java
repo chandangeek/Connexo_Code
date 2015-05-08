@@ -21,6 +21,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -74,7 +75,6 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -121,12 +121,14 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -231,6 +233,7 @@ public class DeviceImpl implements Device, CanLock {
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
+    private final Reference<DeviceEstimation> deviceEstimation = ValueReference.absent();
 
     @Inject
     public DeviceImpl(
@@ -1688,6 +1691,15 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public DeviceEstimation forEstimation() {
+        return deviceEstimation.orElseGet(() -> {
+           DeviceEstimation deviceEstimation = dataModel.getInstance(DeviceEstimationImpl.class).init(this, false);
+           this.deviceEstimation.set(deviceEstimation);
+           return deviceEstimation;
+        });
+    }
+
+    @Override
     public GatewayType getConfigurationGatewayType(){
         DeviceConfiguration configuration = getDeviceConfiguration();
         if (configuration == null) {
@@ -1755,6 +1767,11 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public StateTimeline getStateTimeline() {
         return this.getOptionalMeterAspect(EndDevice::getStateTimeline).get();
+    }
+    
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{

@@ -44,10 +44,11 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -75,6 +76,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -91,6 +93,8 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -150,6 +154,7 @@ public class InMemoryIntegrationPersistence {
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     private DeviceProtocolService deviceProtocolService;
     private ValidationService validationService;
+    private EstimationService estimationService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
@@ -208,6 +213,8 @@ public class InMemoryIntegrationPersistence {
                 new EngineModelModule(),
                 new MasterDataModule(),
                 new ValidationModule(),
+                new EstimationModule(),
+                new TimeModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
@@ -232,6 +239,7 @@ public class InMemoryIntegrationPersistence {
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);
+            this.estimationService = injector.getInstance(EstimationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.relationService = injector.getInstance(RelationService.class);
@@ -379,6 +387,10 @@ public class InMemoryIntegrationPersistence {
     public MeteringGroupsService getMeteringGroupsService() {
         return meteringGroupsService;
     }
+    
+    public EstimationService getEstimationService() {
+        return estimationService;
+    }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
         try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
@@ -414,7 +426,12 @@ public class InMemoryIntegrationPersistence {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(DataModel.class).toProvider(() -> dataModel);
+            bind(DataModel.class).toProvider(new Provider<DataModel>() {
+                @Override
+                public DataModel get() {
+                    return dataModel;
+                }
+            });
         }
     }
 
