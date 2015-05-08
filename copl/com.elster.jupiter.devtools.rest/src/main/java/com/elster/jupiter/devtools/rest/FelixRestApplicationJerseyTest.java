@@ -2,6 +2,7 @@ package com.elster.jupiter.devtools.rest;
 
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
@@ -124,6 +125,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         resourceConfig.register(ObjectMapperProvider.class);
         resourceConfig.register(LocalizedFieldValidationExceptionMapper.class);
         resourceConfig.register(LocalizedExceptionMapper.class);
+        resourceConfig.register(ConstraintViolationExceptionMapper.class);
         resourceConfig.register(JsonMappingExceptionMapper.class);
 
         application.getSingletons().stream().filter(s -> s instanceof AbstractBinder).forEach(resourceConfig::register);
