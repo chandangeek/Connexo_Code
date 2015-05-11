@@ -36,8 +36,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             itemId: 'disp-firmware-type',
             fieldLabel: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
             name: 'type',
-            hidden: true,
-            required: true
+            hidden: true
         },
         {
             xtype: 'firmware-type',
