@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
@@ -45,11 +46,11 @@ public class DataExportTaskHistoryInfo {
         populate(dataExportOccurrence.getTask().getHistory(), dataExportOccurrence, thesaurus, timeService);
     }
 
-    public DataExportTaskHistoryInfo(History<ReadingTypeDataExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
+    public DataExportTaskHistoryInfo(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
         populate(history, dataExportOccurrence, thesaurus, timeService);
     }
 
-    private void populate(History<ReadingTypeDataExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
+    private void populate(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
         this.id = dataExportOccurrence.getId();
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
@@ -69,13 +70,13 @@ public class DataExportTaskHistoryInfo {
         this.exportPeriodFrom = interval.lowerEndpoint().toEpochMilli();
         this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
         setStatusOnDate(dataExportOccurrence, thesaurus);
-        ReadingTypeDataExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime())
+        ExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime())
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
                         .orElseGet(dataExportOccurrence::getTask));
         task = new DataExportTaskInfo();
         task.populate(version, thesaurus, timeService);
-        for (ReadingType readingType : version.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
-            task.readingTypes.add(new ReadingTypeInfo(readingType));
+        if (version instanceof ReadingTypeDataExportTask) {
+            populateForReadingTypeDataExportTask((ReadingTypeDataExportTask) version, dataExportOccurrence);
         }
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
@@ -90,6 +91,12 @@ public class DataExportTaskHistoryInfo {
             task.properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
 
+    }
+
+    private void populateForReadingTypeDataExportTask(ReadingTypeDataExportTask version, DataExportOccurrence dataExportOccurrence) {
+        for (ReadingType readingType : version.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
+            task.readingTypes.add(new ReadingTypeInfo(readingType));
+        }
     }
 
     private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {

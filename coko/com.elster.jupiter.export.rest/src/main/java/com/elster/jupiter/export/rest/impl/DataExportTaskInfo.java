@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
@@ -64,24 +65,18 @@ public class DataExportTaskInfo {
 
     }
 
-    public void populate(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
+    public void populate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
         doPopulate(dataExportTask, thesaurus, timeService);
     }
 
-    private void doPopulate(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
+    private void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
-        deviceGroup = new MeterGroupInfo(dataExportTask.getEndDeviceGroup());
         active = dataExportTask.isActive();
-        exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
-        exportContinuousData = dataExportTask.getStrategy().isExportContinuousData();
-        exportUpdate = dataExportTask.getStrategy().isExportUpdate();
-        Optional<RelativePeriod> dataExportTaskUpdatePeriod = dataExportTask.getUpdatePeriod();
-        if (dataExportTaskUpdatePeriod.isPresent()) {
-            updatePeriod = new RelativePeriodInfo(dataExportTaskUpdatePeriod.get(), thesaurus);
+        if (dataExportTask instanceof ReadingTypeDataExportTask) {
+            populateReadingTypeDataExport((ReadingTypeDataExportTask) dataExportTask, thesaurus);
         }
-        validatedDataOption = dataExportTask.getStrategy().getValidatedDataOption();
 
         String dataFormatter = dataExportTask.getDataFormatter();
         dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
@@ -94,6 +89,18 @@ public class DataExportTaskInfo {
         if (lastRunOptional.isPresent()) {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
+    }
+
+    private void populateReadingTypeDataExport(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus) {
+        deviceGroup = new MeterGroupInfo(dataExportTask.getEndDeviceGroup());
+        exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
+        exportContinuousData = dataExportTask.getStrategy().isExportContinuousData();
+        exportUpdate = dataExportTask.getStrategy().isExportUpdate();
+        Optional<RelativePeriod> dataExportTaskUpdatePeriod = dataExportTask.getUpdatePeriod();
+        if (dataExportTaskUpdatePeriod.isPresent()) {
+            updatePeriod = new RelativePeriodInfo(dataExportTaskUpdatePeriod.get(), thesaurus);
+        }
+        validatedDataOption = dataExportTask.getStrategy().getValidatedDataOption();
     }
 
     public DataExportTaskInfo() {
