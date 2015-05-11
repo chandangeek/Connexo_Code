@@ -18,10 +18,10 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
 
-    DES_RTDATAEXPORTTASK(IReadingTypeDataExportTask.class) {
+    DES_RTDATAEXPORTTASK(IExportTask.class) {
         @Override
         void describeTable(Table table) {
-            table.map(ReadingTypeDataExportTaskImpl.class);
+            table.map(ReadingTypeExportTaskImpl.class);
             table.setJournalTableName("DES_RTDATAEXPORTTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();

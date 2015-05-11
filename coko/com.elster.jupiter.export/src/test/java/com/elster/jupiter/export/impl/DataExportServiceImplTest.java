@@ -1,15 +1,10 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.*;
 import com.elster.jupiter.messaging.MessageService;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 
@@ -36,7 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
-import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -78,7 +72,7 @@ public class DataExportServiceImplTest {
     @Mock
     private DataMapper<ReadingTypeDataExportTask> readingTypeDataExportTaskFactory;
     @Mock
-    private DataMapper<IReadingTypeDataExportTask> iReadingTypeDataExportTaskFactory;
+    private DataMapper<IReadingTypeExportTask> iReadingTypeDataExportTaskFactory;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table table;
     @Mock
@@ -100,7 +94,7 @@ public class DataExportServiceImplTest {
     @Mock
     private ReadingTypeDataExportTask exportTask;
     @Mock
-    private IReadingTypeDataExportTask iExportTask;
+    private IReadingTypeExportTask iExportTask;
     @Mock
     private RecurrentTask recurrentTask;
     @Mock
@@ -124,7 +118,7 @@ public class DataExportServiceImplTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<ReadingTypeDataExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
-        when(dataModel.<IReadingTypeDataExportTask>mapper(any())).thenReturn(iReadingTypeDataExportTaskFactory);
+        when(dataModel.<IReadingTypeExportTask>mapper(any())).thenReturn(iReadingTypeDataExportTaskFactory);
         when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -148,8 +142,8 @@ public class DataExportServiceImplTest {
 
     @Test
     public void testNewBuilder() {
-        ReadingTypeDataExportTaskImpl readingTypeDataExportTaskImpl = new ReadingTypeDataExportTaskImpl(dataModel, taskService, dataExportService, meteringService, thesaurus);
-        when(dataModel.getInstance(ReadingTypeDataExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
+        ReadingTypeExportTaskImpl readingTypeDataExportTaskImpl = new ReadingTypeExportTaskImpl(dataModel, taskService, dataExportService, meteringService, thesaurus);
+        when(dataModel.getInstance(ReadingTypeExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel);
         dataExportTaskBuilder.setEndDeviceGroup(endDeviceGroup);
         dataExportTaskBuilder.setNextExecution(nextExecution);
@@ -186,7 +180,7 @@ public class DataExportServiceImplTest {
 
     @Test
     public void testGetExportTaskByIdNotFound() {
-        when(iReadingTypeDataExportTaskFactory.getOptional(ID)).thenReturn(Optional.<IReadingTypeDataExportTask>empty());
+        when(iReadingTypeDataExportTaskFactory.getOptional(ID)).thenReturn(Optional.<IReadingTypeExportTask>empty());
 
         assertThat(dataExportService.findExportTask(ID).isPresent()).isFalse();
     }

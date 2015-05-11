@@ -11,6 +11,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -287,16 +288,16 @@ public class ReadingTypeDataExportTaskImplIT {
             context.commit();
         }
 
-        History<? extends ReadingTypeDataExportTask> history = exportTask.getHistory();
+        History<? extends ExportTask> history = exportTask.getHistory();
 
-        Optional<? extends ReadingTypeDataExportTask> version1 = history.getVersion(1);
+        Optional<? extends ExportTask> version1 = history.getVersion(1);
         assertThat(version1).isPresent();
         assertThat(version1.get().getName()).isEqualTo(NAME);
-        Optional<? extends ReadingTypeDataExportTask> version2 = history.getVersion(2);
+        Optional<? extends ExportTask> version2 = history.getVersion(2);
         assertThat(version2).isPresent();
         assertThat(version2.get().getName()).isEqualTo("NEWNAME");
         assertThat(version2.get().getProperties(NOW.toInstant().plusSeconds(7))).containsEntry("propy", value1);
-        Optional<? extends ReadingTypeDataExportTask> version3 = history.getVersion(3);
+        Optional<? extends ExportTask> version3 = history.getVersion(3);
         assertThat(version3).isPresent();
         assertThat(version3.get().getName()).isEqualTo("NEWNAME");
         assertThat(version3.get().getProperties(NOW.toInstant().plusSeconds(8))).containsEntry("propy", value2);
@@ -405,7 +406,7 @@ public class ReadingTypeDataExportTaskImplIT {
         ReadingTypeDataExportTask exportTask = createAndSaveTask();
 
         Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
-        ReadingTypeDataExportTaskImpl task = (ReadingTypeDataExportTaskImpl) found.get();
+        ReadingTypeExportTaskImpl task = (ReadingTypeExportTaskImpl) found.get();
 
         RecurrentTask recurrentTask = task.getRecurrentTask();
         try (TransactionContext context = transactionService.getContext()) {
@@ -425,7 +426,7 @@ public class ReadingTypeDataExportTaskImplIT {
     public void testReadingTypeDataExportItemPersistence() throws Exception {
         Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
 
-        ReadingTypeDataExportTaskImpl task = createDataExportTask();
+        ReadingTypeExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter.save();
             task.addExportItem(meter, readingType);
@@ -450,7 +451,7 @@ public class ReadingTypeDataExportTaskImplIT {
     public void testReadingTypeDataExportItemInactivePersistence() throws Exception {
         Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
 
-        ReadingTypeDataExportTaskImpl task = createDataExportTask();
+        ReadingTypeExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter.save();
             IReadingTypeDataExportItem item = task.addExportItem(meter, readingType);
@@ -472,7 +473,7 @@ public class ReadingTypeDataExportTaskImplIT {
         ReadingTypeDataExportTask exportTask = createAndSaveTask();
 
         Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
-        ReadingTypeDataExportTaskImpl task = (ReadingTypeDataExportTaskImpl) found.get();
+        ReadingTypeExportTaskImpl task = (ReadingTypeExportTaskImpl) found.get();
 
         RecurrentTask recurrentTask = task.getRecurrentTask();
         IDataExportOccurrence dataExportOccurrence = null;
@@ -492,10 +493,10 @@ public class ReadingTypeDataExportTaskImplIT {
     }
 
 
-    private ReadingTypeDataExportTaskImpl createDataExportTask() {
-        ReadingTypeDataExportTaskImpl exportTask;
+    private ReadingTypeExportTaskImpl createDataExportTask() {
+        ReadingTypeExportTaskImpl exportTask;
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = (ReadingTypeDataExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
+            exportTask = (ReadingTypeExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
             context.commit();
         }
         return exportTask;

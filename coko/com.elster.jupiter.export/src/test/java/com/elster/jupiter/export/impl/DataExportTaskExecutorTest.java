@@ -82,7 +82,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private IDataExportOccurrence dataExportOccurrence;
     @Mock
-    private IReadingTypeDataExportTask task;
+    private IReadingTypeExportTask task;
     @Mock
     private EndDeviceGroup group;
     @Mock

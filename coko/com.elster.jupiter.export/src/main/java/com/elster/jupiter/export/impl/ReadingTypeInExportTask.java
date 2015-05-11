@@ -21,7 +21,7 @@ class ReadingTypeInExportTask {
     private String readingTypeMRID;
 
     private transient ReadingType readingType;
-    private Reference<IReadingTypeDataExportTask> readingTypeDataExportTask = ValueReference.absent();
+    private Reference<IReadingTypeExportTask> readingTypeDataExportTask = ValueReference.absent();
 
     private long version;
     private Instant createTime;
@@ -33,18 +33,18 @@ class ReadingTypeInExportTask {
         this.meteringService = meteringService;
     }
 
-    ReadingTypeInExportTask init(IReadingTypeDataExportTask task, ReadingType readingType) {
+    ReadingTypeInExportTask init(IReadingTypeExportTask task, ReadingType readingType) {
         this.readingTypeDataExportTask.set(task);
         this.readingType = readingType;
         this.readingTypeMRID = readingType.getMRID();
         return this;
     }
 
-    static ReadingTypeInExportTask from(DataModel dataModel, IReadingTypeDataExportTask task, ReadingType readingType) {
+    static ReadingTypeInExportTask from(DataModel dataModel, IReadingTypeExportTask task, ReadingType readingType) {
         return dataModel.getInstance(ReadingTypeInExportTask.class).init(task, readingType);
     }
 
-    static ReadingTypeInExportTask from(DataModel dataModel, IReadingTypeDataExportTask task, String readingTypeMRID) {
+    static ReadingTypeInExportTask from(DataModel dataModel, IReadingTypeExportTask task, String readingTypeMRID) {
         ReadingTypeInExportTask readingTypeInExportTask = dataModel.getInstance(ReadingTypeInExportTask.class);
         readingTypeInExportTask.readingTypeDataExportTask.set(task);
         readingTypeInExportTask.readingTypeMRID = readingTypeMRID;

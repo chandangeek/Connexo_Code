@@ -32,7 +32,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private boolean exportContinuousData;
 
     private interface ReadingTypeDefinition {
-        public void addTo(ReadingTypeDataExportTaskImpl task);
+        public void addTo(ReadingTypeExportTaskImpl task);
     }
 
     public class ReadingTypeByMrid implements ReadingTypeDefinition {
@@ -43,7 +43,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public void addTo(ReadingTypeDataExportTaskImpl task) {
+        public void addTo(ReadingTypeExportTaskImpl task) {
             task.addReadingType(mrid);
         }
     }
@@ -57,7 +57,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public void addTo(ReadingTypeDataExportTaskImpl task) {
+        public void addTo(ReadingTypeExportTaskImpl task) {
             task.addReadingType(readingType);
         }
     }
@@ -99,7 +99,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
     @Override
     public ReadingTypeDataExportTask build() {
-        ReadingTypeDataExportTaskImpl exportTask = ReadingTypeDataExportTaskImpl.from(dataModel, name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup, nextExecution);
+        ReadingTypeExportTaskImpl exportTask = ReadingTypeExportTaskImpl.from(dataModel, name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup, nextExecution);
         exportTask.setScheduleImmediately(scheduleImmediately);
         exportTask.setUpdatePeriod(updatePeriod);
         exportTask.setValidatedDataOption(validatedDataOption);

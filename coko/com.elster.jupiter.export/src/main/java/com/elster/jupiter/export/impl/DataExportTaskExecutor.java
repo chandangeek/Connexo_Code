@@ -80,7 +80,7 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
-        IReadingTypeDataExportTask task = occurrence.getTask();
+        IReadingTypeExportTask task = occurrence.getTask();
         Set<IReadingTypeDataExportItem> activeItems;
         try (TransactionContext context = transactionService.getContext()) {
             activeItems = getActiveItems(task, occurrence);
@@ -126,7 +126,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         return new ExceptionsToFatallyFailed(decorated);
     }
 
-    private Set<IReadingTypeDataExportItem> getActiveItems(IReadingTypeDataExportTask task, DataExportOccurrence occurrence) {
+    private Set<IReadingTypeDataExportItem> getActiveItems(IReadingTypeExportTask task, DataExportOccurrence occurrence) {
         return task.getEndDeviceGroup().getMembers(occurrence.getExportedDataInterval()).stream()
                 .map(EndDeviceMembership::getEndDevice)
                 .filter(device -> device instanceof Meter)
@@ -135,7 +135,7 @@ class DataExportTaskExecutor implements TaskExecutor {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private DataProcessor getDataProcessor(IReadingTypeDataExportTask task) {
+    private DataProcessor getDataProcessor(IReadingTypeExportTask task) {
         Map<String, Object> propertyMap = new HashMap<>();
         List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
         DataProcessorFactory dataProcessorFactory = getDataProcessorFactory(task.getDataFormatter());
@@ -163,7 +163,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
     }
 
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(IReadingTypeDataExportTask task, Meter meter) {
+    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(IReadingTypeExportTask task, Meter meter) {
         return task.getReadingTypes().stream()
                 .map(r -> task.getExportItems().stream()
                                 .map(IReadingTypeDataExportItem.class::cast)

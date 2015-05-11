@@ -4,7 +4,7 @@ import com.elster.jupiter.util.HasName;
 
 public interface DataExportProperty extends HasName {
 
-    ReadingTypeDataExportTask getTask();
+    ExportTask getTask();
 
     String getDisplayName();
 

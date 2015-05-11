@@ -110,12 +110,12 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public Optional<? extends ReadingTypeDataExportTask> findExportTask(long id) {
-        return dataModel.mapper(IReadingTypeDataExportTask.class).getOptional(id);
+        return dataModel.mapper(IReadingTypeExportTask.class).getOptional(id);
     }
 
     @Override
     public Query<? extends ReadingTypeDataExportTask> getReadingTypeDataExportTaskQuery() {
-        return queryService.wrap(dataModel.query(IReadingTypeDataExportTask.class));
+        return queryService.wrap(dataModel.query(IReadingTypeExportTask.class));
     }
 
     @Override
@@ -152,8 +152,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
-    public List<IReadingTypeDataExportTask> findReadingTypeDataExportTasks() {
-        return dataModel.mapper(IReadingTypeDataExportTask.class).find();
+    public List<IReadingTypeExportTask> findReadingTypeDataExportTasks() {
+        return dataModel.mapper(IReadingTypeExportTask.class).find();
     }
 
     @Reference
@@ -250,18 +250,18 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
-        IReadingTypeDataExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
+        IReadingTypeExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
         return DataExportOccurrenceImpl.from(dataModel, taskOccurrence, task);
     }
 
     @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(TaskOccurrence occurrence) {
-        return dataModel.query(IDataExportOccurrence.class, IReadingTypeDataExportTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+        return dataModel.query(IDataExportOccurrence.class, IReadingTypeExportTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
     @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(ReadingTypeDataExportTask task, Instant triggerTime) {
-        return dataModel.stream(IDataExportOccurrence.class).join(TaskOccurrence.class).join(IReadingTypeDataExportTask.class)
+        return dataModel.stream(IDataExportOccurrence.class).join(TaskOccurrence.class).join(IReadingTypeExportTask.class)
                 .filter(EQUAL.compare("readingTask", task))
                 .filter(EQUAL.compare("taskOccurrence.triggerTime", triggerTime))
                 .findFirst();
@@ -299,12 +299,12 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<ReadingTypeDataExportTask> findExportTaskUsing(RelativePeriod relativePeriod) {
-        return dataModel.stream(IReadingTypeDataExportTask.class)
+        return dataModel.stream(IReadingTypeExportTask.class)
                 .filter(EQUAL.compare("exportPeriod", relativePeriod).or(EQUAL.compare("updatePeriod", relativePeriod)))
                 .collect(Collectors.toList());
     }
 
-    private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
-        return dataModel.mapper(IReadingTypeDataExportTask.class).getUnique("recurrentTask", recurrentTask);
+    private Optional<IReadingTypeExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
+        return dataModel.mapper(IReadingTypeExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
 }

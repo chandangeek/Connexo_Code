@@ -21,7 +21,7 @@ import java.util.Optional;
 class DataExportOccurrenceImpl implements IDataExportOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
-    private Reference<IReadingTypeDataExportTask> readingTask = ValueReference.absent();
+    private Reference<IReadingTypeExportTask> readingTask = ValueReference.absent();
     private Interval exportedDataInterval;
     private Interval.EndpointBehavior exportedDataBoundaryType;
     private DataExportStatus status = DataExportStatus.BUSY;
@@ -38,11 +38,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
         this.clock = clock;
     }
 
-    static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IReadingTypeDataExportTask task) {
+    static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IReadingTypeExportTask task) {
         return model.getInstance(DataExportOccurrenceImpl.class).init(occurrence, task);
     }
 
-    private DataExportOccurrenceImpl init(TaskOccurrence occurrence, IReadingTypeDataExportTask task) {
+    private DataExportOccurrenceImpl init(TaskOccurrence occurrence, IReadingTypeExportTask task) {
         taskOccurrence.set(occurrence);
         readingTask.set(task);
         //TODO ZoneId !!
@@ -90,7 +90,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     }
 
     @Override
-    public IReadingTypeDataExportTask getTask() {
+    public IReadingTypeExportTask getTask() {
         return readingTask.orElseThrow(IllegalStateException::new);
     }
 

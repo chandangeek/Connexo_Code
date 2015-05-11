@@ -255,7 +255,7 @@ public class DataExportServiceImplIT {
     @Test
     public void testCreation() {
 
-        IReadingTypeDataExportTask exportTask = (IReadingTypeDataExportTask) createAndSaveTask();
+        IReadingTypeExportTask exportTask = (IReadingTypeExportTask) createAndSaveTask();
 
         TaskOccurrence occurrence;
 
@@ -277,7 +277,7 @@ public class DataExportServiceImplIT {
 
     }
 
-    private RecurrentTask extractOccurrence(IReadingTypeDataExportTask exportTask) {
+    private RecurrentTask extractOccurrence(IReadingTypeExportTask exportTask) {
         return (RecurrentTask) field("recurrentTask").ofType(Reference.class).in(exportTask).get().get();
     }
 
@@ -317,10 +317,10 @@ public class DataExportServiceImplIT {
         return exportTask;
     }
 
-    private ReadingTypeDataExportTaskImpl createDataExportTask() {
-        ReadingTypeDataExportTaskImpl exportTask;
+    private ReadingTypeExportTaskImpl createDataExportTask() {
+        ReadingTypeExportTaskImpl exportTask;
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = (ReadingTypeDataExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
+            exportTask = (ReadingTypeExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
             context.commit();
         }
         return exportTask;

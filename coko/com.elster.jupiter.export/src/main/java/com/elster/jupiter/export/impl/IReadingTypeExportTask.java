@@ -5,16 +5,10 @@ import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.HasAuditInfo;
-import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
 
-interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask, HasAuditInfo {
-
-    PropertySpec getPropertySpec(String name);
-
-    String getDisplayName(String name);
+interface IReadingTypeExportTask extends ReadingTypeDataExportTask, IExportTask {
 
     void setScheduleImmediately(boolean scheduleImmediately);
 

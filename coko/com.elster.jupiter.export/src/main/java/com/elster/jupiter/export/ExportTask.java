@@ -1,0 +1,74 @@
+package com.elster.jupiter.export;
+
+import com.elster.jupiter.orm.HasAuditInfo;
+import com.elster.jupiter.orm.History;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.time.ScheduleExpression;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * Copyrights EnergyICT
+ * Date: 8/05/2015
+ * Time: 14:53
+ */
+public interface ExportTask extends HasName, HasAuditInfo {
+    long getId();
+
+    void activate(); // resume
+
+    void deactivate(); // suspend
+
+    Optional<Instant> getLastRun();
+
+    Map<String, Object> getProperties();
+
+    Instant getNextExecution();
+
+    List<? extends DataExportOccurrence> getOccurrences();
+
+    DataExportOccurrenceFinder getOccurrencesFinder();
+
+    void save();
+
+    void delete();
+
+    boolean canBeDeleted();
+
+    boolean isActive();
+
+    String getDataFormatter();
+
+    List<PropertySpec> getPropertySpecs();
+
+    ScheduleExpression getScheduleExpression();
+
+    Optional<? extends DataExportOccurrence> getLastOccurrence();
+
+    Optional<? extends DataExportOccurrence> getOccurrence(Long id);
+
+    void setNextExecution(Instant instant);
+
+    void setScheduleExpression(ScheduleExpression scheduleExpression);
+
+    void setName(String name);
+
+    void setProperty(String key, Object value);
+
+    void triggerNow();
+
+    void updateLastRun(Instant triggerTime);
+
+    /**
+     * @since v1.1
+     */
+    History<ExportTask> getHistory();
+
+    Map<String, Object> getProperties(Instant at);
+
+    Optional<ScheduleExpression> getScheduleExpression(Instant at);
+}

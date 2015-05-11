@@ -31,7 +31,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     private Instant lastExportedDate;
     private String readingTypeMRId;
     private RefAny readingContainer;
-    private Reference<IReadingTypeDataExportTask> task = ValueReference.absent();
+    private Reference<IReadingTypeExportTask> task = ValueReference.absent();
     private boolean active = true;
 
     private transient DataModel dataModel;
@@ -45,11 +45,11 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
         dataModel = model;
     }
 
-    static ReadingTypeDataExportItemImpl from(DataModel model, IReadingTypeDataExportTask readingTypeExportTask, ReadingContainer readingContainer, ReadingType readingType) {
+    static ReadingTypeDataExportItemImpl from(DataModel model, IReadingTypeExportTask readingTypeExportTask, ReadingContainer readingContainer, ReadingType readingType) {
         return model.getInstance(ReadingTypeDataExportItemImpl.class).init(readingTypeExportTask, readingContainer, readingType);
     }
 
-    private ReadingTypeDataExportItemImpl init(IReadingTypeDataExportTask readingTypeDataExportTask, ReadingContainer readingContainer, ReadingType readingType) {
+    private ReadingTypeDataExportItemImpl init(IReadingTypeExportTask readingTypeDataExportTask, ReadingContainer readingContainer, ReadingType readingType) {
         this.task.set(readingTypeDataExportTask);
         this.readingTypeMRId = readingType.getMRID();
         this.readingType = readingType;

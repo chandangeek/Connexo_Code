@@ -20,7 +20,7 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
     private String stringValue;
     private transient PropertySpec propertySpec;
 
-    private Reference<IReadingTypeDataExportTask> task = ValueReference.absent();
+    private Reference<IExportTask> task = ValueReference.absent();
 
     private long version;
     private Instant createTime;
@@ -32,7 +32,7 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
         this.dataModel = dataModel;
     }
 
-    DataExportPropertyImpl init(IReadingTypeDataExportTask rule, PropertySpec propertySpec, Object value) {
+    DataExportPropertyImpl init(IExportTask rule, PropertySpec propertySpec, Object value) {
         this.task.set(rule);
         this.name = propertySpec.getName();
         this.propertySpec = propertySpec;
@@ -40,17 +40,17 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
         return this;
     }
 
-    static DataExportPropertyImpl from(DataModel dataModel, IReadingTypeDataExportTask task, String name, Object value) {
+    static DataExportPropertyImpl from(DataModel dataModel, IExportTask task, String name, Object value) {
         return dataModel.getInstance(DataExportPropertyImpl.class).init(task, task.getPropertySpec(name), value);
     }
 
     @Override
     public void postLoad() {
-        propertySpec = ((IReadingTypeDataExportTask) task.get()).getPropertySpec(name);
+        propertySpec = ((IReadingTypeExportTask) task.get()).getPropertySpec(name);
     }
 
     @Override
-    public IReadingTypeDataExportTask getTask() {
+    public IExportTask getTask() {
         return task.get();
     }
 
