@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class FirmwareTypeInfos {
 
-    private List<FirmwareTypeInfo> firmwareTypes;
+    public List<FirmwareTypeInfo> firmwareTypes;
 
     public FirmwareTypeInfos(DeviceType deviceType, Thesaurus thesaurus) {
         this.firmwareTypes = new ArrayList<>();
@@ -23,11 +23,5 @@ public class FirmwareTypeInfos {
         if (deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
             this.firmwareTypes.add(new FirmwareTypeInfo(FirmwareType.COMMUNICATION, thesaurus));
         }
-    }
-
-    @JsonProperty("firmwareTypes")
-    @SuppressWarnings("unused")
-    public List<FirmwareTypeInfo> getFirmwareTypes() {
-        return firmwareTypes;
     }
 }
