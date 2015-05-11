@@ -1,17 +1,16 @@
 package com.elster.jupiter.validators.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.tests.rules.MockitoRule;
+import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.ValidationResult;
+import com.google.common.collect.Range;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
@@ -22,16 +21,20 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mock;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.tests.rules.MockitoRule;
-import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.validation.ValidationResult;
-import com.google.common.collect.Range;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class MissingValuesValidatorTest {
@@ -63,7 +66,7 @@ public class MissingValuesValidatorTest {
     @Mock
     private Channel channel;
     @Mock
-    private ReadingType readingType;
+    private ReadingType readingType, bulkReadingType;
     @Mock
     private IntervalReadingRecord intervalReading;
 
@@ -95,6 +98,10 @@ public class MissingValuesValidatorTest {
         startPlus50 = base.plus(50, ChronoUnit.MINUTES);
         end = base.plus(60, ChronoUnit.MINUTES);
         when(channel.getFirstDateTime()).thenReturn(start);
+        when(intervalReading.getQuantity(readingType)).thenReturn(Quantity.create(BigDecimal.ONE, "Wh"));
+        when(readingType.getBulkReadingType()).thenReturn(Optional.of(bulkReadingType));
+        when(readingType.isCumulative()).thenReturn(false);
+        doReturn(Arrays.asList(readingType, bulkReadingType)).when(channel).getReadingTypes();
     }
 
     @After
@@ -115,6 +122,46 @@ public class MissingValuesValidatorTest {
         }
 
         assertThat(validator.finish()).isEmpty();
+    }
+
+    @Test
+    public void testValidateNoneMissingEvenIfFirstReadingEverMissesDelta() {
+        when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10,startPlus20,startPlus30,startPlus40,startPlus50,end));
+        MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
+
+        validator.init(channel, readingType, Range.closed(start, end));
+
+        for (Instant date : new Instant[]{start, startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
+            when(intervalReading.getTimeStamp()).thenReturn(date);
+            if (date.equals(start)) {
+                when(intervalReading.getQuantity(readingType)).thenReturn(null);
+            } else {
+                when(intervalReading.getQuantity(readingType)).thenReturn(Quantity.create(BigDecimal.ONE, "Wh"));
+            }
+            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
+        }
+
+        assertThat(validator.finish()).isEmpty();
+    }
+
+    @Test
+    public void testValidateOneMissingYetThereIsAReadingForOtherReadingTypes() {
+        when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10,startPlus20,startPlus30,startPlus40,startPlus50,end));
+        MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
+
+        validator.init(channel, readingType, Range.openClosed(start, end));
+
+        for (Instant date : new Instant[]{start, startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
+            when(intervalReading.getTimeStamp()).thenReturn(date);
+            if (date.equals(startPlus30)) {
+                when(intervalReading.getQuantity(readingType)).thenReturn(null);
+            } else {
+                when(intervalReading.getQuantity(readingType)).thenReturn(Quantity.create(BigDecimal.ONE, "Wh"));
+            }
+            assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
+        }
+
+        assertThat(validator.finish()).contains(MapEntry.entry(startPlus30, ValidationResult.SUSPECT));
     }
 
     @Test
