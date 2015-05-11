@@ -28,7 +28,7 @@ public class AllRelativePeriod implements RelativePeriod {
 
     @Override
     public Range<ZonedDateTime> getInterval(ZonedDateTime referenceDate) {
-        return null;
+        return Range.all();
     }
 
     @Override
