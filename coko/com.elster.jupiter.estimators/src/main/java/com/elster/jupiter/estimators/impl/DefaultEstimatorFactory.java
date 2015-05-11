@@ -33,6 +33,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
     public static final String LINEAR_INTERPOLATION_ESTIMATOR = LinearInterpolation.class.getName();
     public static final String AVG_WITH_SAMPLES_ESTIMATOR = AverageWithSamplesEstimator.class.getName();
     public static final String POWER_GAP_FILL_ESTIMATOR = PowerGapFill.class.getName();
+    public static final String EQUAL_DISTRIBUTION_ESTIMATOR = EqualDistribution.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -140,6 +141,17 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
             @Override
             AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
                 return new PowerGapFill(thesaurus, propertySpecService);
+            }
+        },
+        EQUAL_DISTRIBUTION(EQUAL_DISTRIBUTION_ESTIMATOR) {
+            @Override
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
+                return new EqualDistribution(thesaurus, propertySpecService, meteringService, props);
+            }
+
+            @Override
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
+                return new EqualDistribution(thesaurus, propertySpecService, meteringService);
             }
         };
 
