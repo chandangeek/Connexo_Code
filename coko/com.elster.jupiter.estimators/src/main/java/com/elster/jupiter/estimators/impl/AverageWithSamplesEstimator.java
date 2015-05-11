@@ -34,7 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +124,14 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public List<String> getRequiredProperties() {
-        return Collections.emptyList();
+        return Arrays.asList(
+                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
+                MAX_NUMBER_OF_SAMPLES,
+                MIN_NUMBER_OF_SAMPLES,
+                ALLOW_NEGATIVE_VALUES,
+                RELATIVE_PERIOD,
+                ADVANCE_READINGS_SETTINGS
+        );
     }
 
     private boolean isEstimatable(EstimationBlock block) {
@@ -360,9 +367,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, false, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
 
-        builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, false, new BooleanFactory()));
+        builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, true, new BooleanFactory()));
 
         PropertySpec spec = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService))
                 .markRequired()
@@ -371,9 +378,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                 .finish();
         builder.add(spec);
 
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(MIN_NUMBER_OF_SAMPLES, false, MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(MIN_NUMBER_OF_SAMPLES, true, MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
 
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(MAX_NUMBER_OF_SAMPLES, false, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+        builder.add(getPropertySpecService().bigDecimalPropertySpec(MAX_NUMBER_OF_SAMPLES, true, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
 
         builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
 
