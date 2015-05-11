@@ -148,6 +148,20 @@ public class Ranges {
         return createRange(start, end, Range::atLeast, Range::atMost, Range::closed);
     }
 
+    public static <C extends Comparable<? super C>, T extends Comparable<? super T>> Range<T> map(Range<C> range, Function<? super C, ? extends T> function) {
+        if (range.hasLowerBound()) {
+            if (range.hasUpperBound()) {
+                return Range.range(function.apply(range.lowerEndpoint()), range.lowerBoundType(), function.apply(range.upperEndpoint()), range.upperBoundType());
+            }
+            return Range.downTo(function.apply(range.lowerEndpoint()), range.lowerBoundType());
+        }
+        if (range.hasUpperBound()) {
+            return Range.upTo(function.apply(range.upperEndpoint()), range.upperBoundType());
+        }
+        return Range.all();
+
+    }
+
     private static <C extends Comparable<? super C>> Range<C> createRange(C start, C end, Function<C, Range<C>> ifOnlyStart, Function<C, Range<C>> ifOnlyEnd, BiFunction<C, C, Range<C>> ifBoth) {
         if (start == null) {
             if (end == null) {
