@@ -95,7 +95,7 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereAreNoSuspects() {
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
 
         assertThat(blocksToEstimate).isEmpty();
     }
@@ -106,7 +106,7 @@ public class EstimationEngineTest {
         when(cimChannel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2));
         when(readingQualityRecord2.getBaseReadingRecord()).thenReturn(Optional.<BaseReadingRecord>empty());
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 
@@ -125,7 +125,7 @@ public class EstimationEngineTest {
         when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2));
         when(cimChannel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2));
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 
@@ -144,7 +144,7 @@ public class EstimationEngineTest {
         when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
         when(cimChannel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 

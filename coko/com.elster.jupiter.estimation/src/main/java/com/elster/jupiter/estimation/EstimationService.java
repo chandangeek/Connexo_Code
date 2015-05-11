@@ -3,7 +3,9 @@ package com.elster.jupiter.estimation;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,13 +22,13 @@ public interface EstimationService {
 
     Optional<Estimator> getEstimator(String implementation, Map<String, Object> props);
 
-    EstimationReport estimate(MeterActivation meterActivation);
+    EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period);
 
-    EstimationReport previewEstimate(MeterActivation meterActivation);
+    EstimationReport previewEstimate(MeterActivation meterActivation, Range<Instant> period);
 
-    EstimationReport estimate(MeterActivation meterActivation, ReadingType readingType);
+    EstimationReport previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType);
 
-    void estimate(MeterActivation meterActivation, ReadingType readingType, Estimator estimator);
+    EstimationResult previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator);
 
     EstimationRuleSet createEstimationRuleSet(String name);
 

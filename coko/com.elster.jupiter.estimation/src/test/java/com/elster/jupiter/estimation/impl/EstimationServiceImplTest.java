@@ -176,7 +176,7 @@ public class EstimationServiceImplTest {
 
     @Test
     public void testPreviewEstimate() {
-        EstimationReport report = estimationService.previewEstimate(meterActivation);
+        EstimationReport report = estimationService.previewEstimate(meterActivation, Range.<Instant>all());
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
@@ -192,7 +192,7 @@ public class EstimationServiceImplTest {
         doReturn(false).when(rule1).isActive();
         doReturn(false).when(rule2).isActive();
 
-        EstimationReport report = estimationService.previewEstimate(meterActivation);
+        EstimationReport report = estimationService.previewEstimate(meterActivation, Range.<Instant>all());
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
