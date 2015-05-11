@@ -32,6 +32,14 @@ Ext.define('Fwc.view.firmware.FormAdd', {
             hidden: true
         },
         {
+            xtype: 'displayfield',
+            itemId: 'disp-firmware-type',
+            fieldLabel: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
+            name: 'type',
+            hidden: true,
+            required: true
+        },
+        {
             xtype: 'firmware-type',
             itemId: 'radio-firmware-type',
             defaultType: 'radiofield',
