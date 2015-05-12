@@ -47,6 +47,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
         }
     },
 
+    padding: '16 16 0 16',
+
     defaults: {
         labelAlign: 'top',
         padding: '0 16 16 0'

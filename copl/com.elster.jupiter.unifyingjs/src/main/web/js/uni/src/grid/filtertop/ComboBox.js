@@ -68,6 +68,17 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
         return true;
     },
 
+    getParamValue: function () {
+        var me = this,
+            value = me.getValue() || undefined;
+
+        if (Ext.isDefined(value) && !Ext.isArray(value)) {
+            value = [value];
+        }
+
+        return value;
+    },
+
     createStoreFromOptions: function () {
         var me = this,
             options = me.options,
