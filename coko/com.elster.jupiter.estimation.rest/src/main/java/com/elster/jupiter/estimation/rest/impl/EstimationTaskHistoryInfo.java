@@ -42,11 +42,14 @@ public class EstimationTaskHistoryInfo {
         this.lastRun = taskOccurrence.getTriggerTime().toEpochMilli();
         setStatusOnDate(taskOccurrence, thesaurus);
         History<EstimationTask> estTaskHistory = estimationTask.getHistory();
+
         EstimationTask version = estTaskHistory.getVersionAt(taskOccurrence.getTriggerTime())
                 .orElseGet(() -> estTaskHistory.getVersionAt(taskOccurrence.getRecurrentTask().getCreateTime())
                         .orElse(estimationTask));
+
         task = new EstimationTaskInfo();
         task.populate(version, thesaurus);
+
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(taskOccurrence.getTriggerTime());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             task.schedule = null;

@@ -1,6 +1,5 @@
 package com.elster.jupiter.estimation.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.logging.LogEntry;
 
 public class EstimationTaskOccurrenceLogInfo {
@@ -11,7 +10,7 @@ public class EstimationTaskOccurrenceLogInfo {
     public EstimationTaskOccurrenceLogInfo() {
     }
 
-    public EstimationTaskOccurrenceLogInfo(LogEntry logEntry, Thesaurus thesaurus) {
+    public EstimationTaskOccurrenceLogInfo(LogEntry logEntry) {
         this.timestamp = logEntry.getTimestamp().toEpochMilli();
         this.loglevel = logEntry.getLogLevel().getName();
         this.message = logEntry.getMessage();

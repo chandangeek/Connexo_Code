@@ -523,7 +523,7 @@ public class EstimationResource {
 
         List<? extends LogEntry> occurrences = finder.find();
 
-        EstimationTaskOccurrenceLogInfos infos = new EstimationTaskOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
+        EstimationTaskOccurrenceLogInfos infos = new EstimationTaskOccurrenceLogInfos(queryParameters.clipToLimit(occurrences));
         infos.total = queryParameters.determineTotal(occurrences.size());
         return infos;
     }
