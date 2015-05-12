@@ -3,7 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -50,7 +50,7 @@ public class LoadProfileTypeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public Response getLoadProfilesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
+    public Response getLoadProfilesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
         if (available != null && Boolean.parseBoolean(available)) {
@@ -121,7 +121,7 @@ public class LoadProfileTypeResource {
     public Response deleteLoadProfileTypeFromDeviceType(
             @PathParam("id") long id,
             @PathParam("loadProfileTypeId") long loadProfileTypeId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         LoadProfileType loadPtofileType = masterDataService.findLoadProfileType(loadProfileTypeId).orElse(null);
         if (loadPtofileType == null){
