@@ -4,15 +4,18 @@
 Ext.define('Uni.util.QueryString', {
     singleton: true,
 
-    buildQueryString: function (config) {
+    buildQueryString: function (config, recursive) {
         var me = this,
             queryString = me.getQueryString(),
-            queryObject = Ext.Object.fromQueryString(queryString);
+            queryObject;
+
+        recursive = typeof recursive === 'undefined' ? true : recursive;
+        queryObject = Ext.Object.fromQueryString(queryString, true);
 
         Ext.apply(queryObject, config || {});
 
         queryObject = me.cleanQueryObject(queryObject);
-        return Ext.Object.toQueryString(queryObject, true);
+        return Ext.Object.toQueryString(queryObject, recursive);
     },
 
     /**
@@ -33,10 +36,10 @@ Ext.define('Uni.util.QueryString', {
         return queryObjectCopy;
     },
 
-    buildHrefWithQueryString: function (config) {
+    buildHrefWithQueryString: function (config, recursive) {
         var me = this,
             url = location.href.split('?')[0],
-            queryString = me.buildQueryString(config);
+            queryString = me.buildQueryString(config, recursive);
         return url + '?' + queryString;
     },
 
@@ -46,7 +49,9 @@ Ext.define('Uni.util.QueryString', {
         return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
     },
 
-    getQueryStringValues: function () {
-        return Ext.Object.fromQueryString(this.getQueryString(), true);
+    getQueryStringValues: function (recursive) {
+        recursive = typeof recursive === 'undefined' ? true : recursive;
+
+        return Ext.Object.fromQueryString(this.getQueryString(), recursive);
     }
 });

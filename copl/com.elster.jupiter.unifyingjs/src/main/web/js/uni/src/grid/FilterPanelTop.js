@@ -49,7 +49,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
     defaults: {
         labelAlign: 'top',
-        padding: '0 4 8 4'
+        padding: '0 16 16 0'
     },
 
     items: [],
@@ -66,12 +66,12 @@ Ext.define('Uni.grid.FilterPanelTop', {
                     xtype: 'button',
                     ui: 'action',
                     text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
-                    action: 'apply'
+                    action: 'applyAll'
                 },
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
-                    action: 'clear'
+                    action: 'clearAll'
                 }
             ]
         }
@@ -125,8 +125,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
     initActions: function () {
         var me = this,
-            applyButton = me.down('button[action=apply]'),
-            clearButton = me.down('button[action=clear]');
+            applyButton = me.down('button[action=applyAll]'),
+            clearButton = me.down('button[action=clearAll]');
 
         applyButton.on('click', me.applyFilters, me);
         clearButton.on('click', me.clearFilters, me);
@@ -260,7 +260,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
     loadHistoryState: function () {
         var me = this,
-            queryObject = Uni.util.QueryString.getQueryStringValues(),
+            queryObject = Uni.util.QueryString.getQueryStringValues(false),
             objectQueue = {};
 
         for (var dataIndex in queryObject) {
@@ -313,7 +313,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
     updateHistoryState: function () {
         var me = this,
             params = me.getFilterParams(true, true),
-            href = Uni.util.QueryString.buildHrefWithQueryString(params);
+            href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
 
         if (location.href !== href) {
             Uni.util.History.suspendEventsForNextCall();
@@ -343,17 +343,21 @@ Ext.define('Uni.grid.FilterPanelTop', {
         flattenObjects = flattenObjects || false;
 
         me.filters.each(function (filter) {
-            var dataIndex = filter.dataIndex,
-                paramValue = filter.getParamValue();
-
-            if (!includeUndefined && Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {
-                params[dataIndex] = paramValue;
+            if (!flattenObjects && Ext.isDefined(filter.applyParamValue)) {
+                filter.applyParamValue(params, includeUndefined, flattenObjects);
             } else {
-                params[dataIndex] = paramValue;
-            }
+                var dataIndex = filter.dataIndex,
+                    paramValue = filter.getParamValue();
 
-            if (flattenObjects && Ext.isObject(paramValue)) {
-                me.populateParamsFromObject(params, dataIndex, paramValue);
+                if (!includeUndefined && Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {
+                    params[dataIndex] = paramValue;
+                } else {
+                    params[dataIndex] = paramValue;
+                }
+
+                if (flattenObjects && Ext.isObject(paramValue)) {
+                    me.populateParamsFromObject(params, dataIndex, paramValue);
+                }
             }
         }, me);
 
@@ -397,11 +401,20 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
     createFilter: function (filter) {
         var me = this,
-            type = filter.type ? me.getFilterType(filter.type) : filter.xtype;
+            type = filter.type ? me.getFilterType(filter.type) : filter.xtype,
+            widget = undefined,
+            store = undefined;
 
         if (Ext.isDefined(type)) {
             delete filter.xtype;
-            return Ext.create(type, Ext.applyIf(filter, me.defaults));
+            widget = Ext.create(type, Ext.applyIf(filter, me.defaults));
+            store = widget.store;
+
+            if (Ext.isDefined(store) && store.isStore && !store.isLoading()) {
+                store.load();
+            }
+
+            return widget;
         }
         return undefined;
     },

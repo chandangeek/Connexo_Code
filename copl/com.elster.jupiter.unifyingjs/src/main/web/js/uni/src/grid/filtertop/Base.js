@@ -60,6 +60,11 @@ Ext.define('Uni.grid.filtertop.Base', {
     },
 
     /**
+     * Template method that is supposed to be overwritten when doing complex changes to the params.
+     */
+    applyParamValue: undefined,
+
+    /**
      * @cfg {Boolean} active
      * Whether this filter item is active or not. Default true.
      */
