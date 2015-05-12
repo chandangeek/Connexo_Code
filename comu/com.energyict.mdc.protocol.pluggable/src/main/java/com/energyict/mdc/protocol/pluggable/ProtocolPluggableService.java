@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.pluggable;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationType;
