@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
@@ -64,7 +64,7 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})
-    public DeviceMessageInfos getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
+    public DeviceMessageInfos getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
                 // we do the explicit filtering because some categories should be hidden for the user
