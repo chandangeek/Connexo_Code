@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class DeviceInfo extends LinkInfo {
-    public long id;
+    public Long id;
     public String mIRD;
     public String serialNumber;
     public String deviceTypeName;

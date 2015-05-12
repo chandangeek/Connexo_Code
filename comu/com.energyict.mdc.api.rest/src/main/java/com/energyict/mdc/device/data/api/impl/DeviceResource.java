@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.api.impl;
 
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -9,6 +8,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +27,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -60,7 +61,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getDevice(@PathParam("mrid") String mRID) {
+    public Response getDevice(@PathParam("mrid") String mRID, @QueryParam("fields") List<String> fields) {
         DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(deviceInfoFactory::plain).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceInfo).build();
     }
@@ -69,8 +70,8 @@ public class DeviceResource {
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getHypermediaDevice(@PathParam("mrid") String mRID, @Context UriInfo uriInfo) {
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getHypermediaDevice(@PathParam("mrid") String mRID, @QueryParam("fields") List<String> fields, @Context UriInfo uriInfo) {
+        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceInfo).build();
     }
 
@@ -78,7 +79,7 @@ public class DeviceResource {
     @Produces("application/hal+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getHalDevice(@PathParam("mrid") String mRID, @Context UriInfo uriInfo) {
+    public Response getHalDevice(@PathParam("mrid") String mRID, @QueryParam("fields") List<String> fields, @Context UriInfo uriInfo) {
         HalInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHal(d, uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
 
         return Response.ok(deviceInfo).build();
@@ -88,10 +89,10 @@ public class DeviceResource {
     @GET
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getDevices(@BeanParam QueryParameters queryParameters,@Context UriInfo uriInfo) {
-        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo)).collect(toList());
+    public Response getDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
+        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).collect(toList());
 
-        return Response.ok(PagedInfoList.asJson("devices", infos, queryParameters)).build();
+        return Response.ok(com.energyict.mdc.common.rest.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
     }
 
 //    @GET

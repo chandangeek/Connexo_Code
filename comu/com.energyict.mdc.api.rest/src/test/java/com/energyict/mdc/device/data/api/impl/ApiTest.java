@@ -1,21 +1,23 @@
 package com.energyict.mdc.device.data.api.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.jayway.jsonpath.JsonModel;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,18 +68,10 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Test
     public void testJsonCall() throws Exception {
 
-        Response response = target("/devices").request(MediaType.APPLICATION_JSON_TYPE).get();
-        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        Response response = target("/devices").request().get();
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(3);
         assertThat(model.<List>get("$.devices")).hasSize(3);
-
-    }
-
-    @Test
-    public void testHalJsonCall() throws Exception {
-
-        Response response = target("/devices").request("application/hal+json").get();
-        JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }
 
@@ -90,7 +84,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     }
 
     @Test
-    public void testLinkJsonCallSingle() throws Exception {
+    public void testHypermediaLinkJsonCallSingle() throws Exception {
 
         Response response = target("/devices/XAS").request("application/h+json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
@@ -98,6 +92,15 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     }
 
     @Test
+    public void testHypermediaLinkWithFieldsCallSingle() throws Exception {
+
+        Response response = target("/devices/XAS").queryParam("fields", URLEncoder.encode("mIRD")).request("application/h+json").get();
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+
+    }
+
+    @Test
+    @Ignore
     public void testLinkJsonCallSingleRegister() throws Exception {
 
         Response response = target("/devices/XAS/registers/0").request("application/h+json").get();
