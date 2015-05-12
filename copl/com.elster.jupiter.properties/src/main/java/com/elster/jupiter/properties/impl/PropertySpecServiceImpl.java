@@ -1,17 +1,6 @@
 package com.elster.jupiter.properties.impl;
 
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
-import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.ListValueEntry;
-import com.elster.jupiter.properties.ListValuePropertySpec;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.RelativePeriodFactory;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.*;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import org.osgi.service.component.annotations.Component;
@@ -132,4 +121,35 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return PropertySpecBuilderImpl.forClass(valueFactory);
     }
 
+    @Override
+    public PropertySpec longPropertySpec(String name, boolean required, Long defaultValue) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new LongFactory());
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.name(name).setDefaultValue(defaultValue).finish();
+    }
+
+    @Override
+    public PropertySpec longPropertySpecWithValues(String name, boolean required, Long... values) {
+        PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new LongFactory());
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.name(name).addValues(values).markExhaustive().finish();
+    }
+
+    @Override
+    public PropertySpec positiveLongPropertySpec(String name, boolean required) {
+        BoundedLongPropertySpecImpl propertySpec = new BoundedLongPropertySpecImpl(name, 0L, null);
+        propertySpec.setRequired(required);
+        return propertySpec;
+    }
+
+    @Override
+    public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
+        BoundedLongPropertySpecImpl propertySpec = new BoundedLongPropertySpecImpl(name, lowerLimit, upperLimit);
+        propertySpec.setRequired(required);
+        return propertySpec;
+    }
 }
