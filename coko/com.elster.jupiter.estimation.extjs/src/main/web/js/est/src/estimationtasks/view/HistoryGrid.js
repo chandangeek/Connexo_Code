@@ -20,9 +20,9 @@ Ext.define('Est.estimationtasks.view.HistoryGrid', {
                 dataIndex: 'startedOn_formatted',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/estimationtasks/estimationtask/history/occurrence').buildUrl({occurrenceId: record.get('id')}),
-                        date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
-                    return '<a href="' + url + '">' + date + '</a>';
+                    var url = me.router.getRoute('administration/estimationtasks/estimationtask/history/occurrence').buildUrl({occurrenceId: record.get('id')});
+
+                    return '<a href="' + url + '">' + value + '</a>';
                 }
             },
             {
