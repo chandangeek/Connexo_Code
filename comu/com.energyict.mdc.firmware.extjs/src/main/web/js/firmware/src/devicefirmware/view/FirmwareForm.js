@@ -6,6 +6,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     },
     frame: true,
     minButtonWidth: 50,
+    itemId : null,
     requires: [
         'Uni.util.FormErrorMessage',
         'Fwc.devicefirmware.view.ActionMenu',
@@ -24,6 +25,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.actions', 'FWC', Uni.I18n.translate('general.actions', 'FWC', 'Actions')),
+                itemId: null,
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'device-firmware-action-menu'
@@ -212,7 +214,9 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
 
         me.title = me.record.get('type');
         me.callParent(arguments);
-
+        var formId = me.record.get('type').replace(' ', '-').toLowerCase();
+        me.itemId = formId;
+        me.header.items[0].itemId = 'action-button-' + formId;
         me.loadRecord(me.record.getActiveVersion() || new FirmwareVersion({firmwareVersion: Uni.I18n.translate('device.firmware.version.unknown', 'FWC', 'Unknown')}));
 
         formPending = me.down('#message-pending');
