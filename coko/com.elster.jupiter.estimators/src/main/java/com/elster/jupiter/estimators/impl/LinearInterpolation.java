@@ -34,9 +34,9 @@ import java.util.logging.Logger;
 public class LinearInterpolation extends AbstractEstimator {
 
     public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "linearinterpolation.maxNumberOfConsecutiveSuspects";
-    private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
+    private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
 
-    private BigDecimal maxNumberOfConsecutiveSuspects;
+    private Long maxNumberOfConsecutiveSuspects;
 
     LinearInterpolation(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -48,7 +48,7 @@ public class LinearInterpolation extends AbstractEstimator {
 
     @Override
     public void init() {
-        this.maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+        this.maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, Long.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
     }
 
@@ -159,7 +159,7 @@ public class LinearInterpolation extends AbstractEstimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
+        builder.add(getPropertySpecService().longPropertySpec(
                 MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
         return builder.build();
     }

@@ -316,8 +316,8 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, BigDecimal.valueOf(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)));
+        builder.add(getPropertySpecService().longPropertySpec(
+                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
         builder.add(getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService))
                 .markRequired()
                 .name(ADVANCE_READINGS_SETTINGS)

@@ -91,7 +91,7 @@ public class ValueFillEstimatorTest {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ValueFillEstimator.FILL_VALUE, new BigDecimal(5));
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, new BigDecimal(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
@@ -120,8 +120,8 @@ public class ValueFillEstimatorTest {
         doReturn(Optional.of(meter)).when(meterActivation).getMeter();
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(ValueFillEstimator.FILL_VALUE, new BigDecimal(5));
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.ONE);
+        properties.put(ValueFillEstimator.FILL_VALUE, BigDecimal.valueOf(5));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,1L);
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);

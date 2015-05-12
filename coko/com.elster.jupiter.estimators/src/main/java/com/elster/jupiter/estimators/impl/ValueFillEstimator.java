@@ -29,12 +29,12 @@ import java.util.function.Consumer;
 public class ValueFillEstimator extends AbstractEstimator {
 
     static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "valuefill.maxNumberOfConsecutiveSuspects";
-    private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
+    private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
 
     static final String FILL_VALUE = "valuefill.fillValue";
     private static final BigDecimal DEFAULT_FILL_VALUE = BigDecimal.ZERO;
 
-    private BigDecimal maxNumberOfConsecutiveSuspects;
+    private Long maxNumberOfConsecutiveSuspects;
     private BigDecimal fillValue;
 
     ValueFillEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
@@ -47,7 +47,7 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     @Override
     public void init() {
-        maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+        maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, Long.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
         fillValue = getProperty(FILL_VALUE, BigDecimal.class)
                 .orElse(DEFAULT_FILL_VALUE);
@@ -118,7 +118,7 @@ public class ValueFillEstimator extends AbstractEstimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
+        builder.add(getPropertySpecService().longPropertySpec(
                 MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
         builder.add(getPropertySpecService().bigDecimalPropertySpec(
                 FILL_VALUE, true, DEFAULT_FILL_VALUE));
