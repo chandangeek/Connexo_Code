@@ -4,12 +4,12 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
     router: null,
     items: [
         {
-            text: 'Run now',
+            text: Uni.I18n.translate('device.connections.runNow', 'MDC', 'Run now'),
             privileges: Mdc.privileges.Device.operateDeviceCommunication,
             action: 'run'
         },
         {
-            text: 'Activate',
+            text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
             action: 'toggleActivation',
             visible: function() {
                 var r = this.record;
@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
             }
         },
         {
-            text: 'Deactivate',
+            text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
             action: 'toggleActivation',
             visible: function() {
                 var r = this.record;
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
             }
         },
         {
-            text: 'View history',
+            text: Uni.I18n.translate('device.connections.viewHistory', 'MDC', 'View history'),
             action: 'viewHistory',
             handler: function() {
                 var me = this.parentMenu;
@@ -37,7 +37,11 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
         beforeshow: function() {
             var me = this;
             me.items.each(function(item){
-                (item.visible && !item.visible.call(me) && !Mdc.privileges.Device.canOperateDeviceCommunication()) ? item.hide() : item.show();
+                if (item.visible === undefined) {
+                    item.show();
+                } else {
+                    item.visible.call(me) && Mdc.privileges.Device.canOperateDeviceCommunication() ?  item.show() : item.hide();
+                }
             })
         }
     }
