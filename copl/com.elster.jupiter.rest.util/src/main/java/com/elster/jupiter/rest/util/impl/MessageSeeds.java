@@ -6,7 +6,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     INVALID_VALUE(1, "RUT.InvalidValue", "Invalid value", Level.SEVERE),
-    FIELD_CAN_NOT_BE_EMPTY(2, "RUT.FieldCanNotBeEmpty", "Field can not be empty", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY(2, "RUT.FieldCanNotBeEmpty", "This field is required", Level.SEVERE),
     ;
 
     public static final String COMPONENT_NAME = "RUT";
