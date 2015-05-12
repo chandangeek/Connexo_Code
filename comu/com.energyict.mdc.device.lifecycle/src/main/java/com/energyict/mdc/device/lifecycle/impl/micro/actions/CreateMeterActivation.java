@@ -31,7 +31,6 @@ public class CreateMeterActivation implements ServerMicroAction {
 
     @Override
     public void execute(Device device, List<ExecutableActionProperty> properties) {
-
         device.activate(getEffectiveTimestamp(properties));
     }
 
