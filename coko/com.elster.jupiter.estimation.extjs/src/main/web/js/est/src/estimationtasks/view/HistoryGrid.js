@@ -17,12 +17,12 @@ Ext.define('Est.estimationtasks.view.HistoryGrid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('estimationtasks.general.startedOn', 'EST', 'Started On'),
-                dataIndex: 'startedOn_formatted',
+                dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/estimationtasks/estimationtask/history/occurrence').buildUrl({occurrenceId: record.get('id')});
-
-                    return '<a href="' + url + '">' + value + '</a>';
+                    var url = me.router.getRoute('administration/estimationtasks/estimationtask/history/occurrence').buildUrl({occurrenceId: record.get('id')}),
+                        date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
+                    return '<a href="' + url + '">' + date + '</a>';
                 }
             },
             {
