@@ -137,9 +137,12 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
     selectRule: function (grid, record) {
         var me =this,
-            previewForm = me.getRuleSetRulePreview();
+            previewForm = me.getRuleSetRulePreview(),
+            menu = previewForm.down('menu');
         previewForm.updateForm(record);
-        previewForm.down('menu').record = record;
+        if (menu) {
+            menu.record = record;
+        }
     },
 
     showEstimationRuleSets: function () {
