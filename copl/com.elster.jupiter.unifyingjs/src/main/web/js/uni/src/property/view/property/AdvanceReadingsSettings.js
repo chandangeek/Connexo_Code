@@ -22,9 +22,9 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         readOnly: me.isReadOnly,
                         fieldLabel: me.boxLabel ? me.boxLabel : '',
                         items: [
-                            {boxLabel: 'None', name: 'advanceRb', inputValue: '1'},
-                            {boxLabel: 'Bulk readings', name: 'advanceRb', inputValue: '2'},
-                            {boxLabel: 'Reading types', name: 'advanceRb', inputValue: '3'}
+                            {boxLabel: Uni.I18n.translate('advanceReadingProperty.None','UNI','None'), name: 'advanceRb', inputValue: '1'},
+                            {boxLabel:  Uni.I18n.translate('advanceReadingProperty.bulkReading','UNI','Bulk Reading'), name: 'advanceRb', inputValue: '2'},
+                            {boxLabel: Uni.I18n.translate('advanceReadingProperty.readingType','UNI','Reading type'), name: 'advanceRb', inputValue: '3'}
                         ]
                     },
                     {
@@ -40,7 +40,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
 
                         listConfig: {
                             cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                            emptyText: Uni.I18n.translate('advanceReadingProperty.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
                         },
 
                         queryMode: 'remote',
@@ -51,7 +51,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         editable:true,
                         typeAhead:true,
                         // anchor: '100%',
-                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                        emptyText: Uni.I18n.translate('advanceReadingProperty.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
                     }
 
                 ]
