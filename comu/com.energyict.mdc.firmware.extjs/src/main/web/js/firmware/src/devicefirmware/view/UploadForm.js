@@ -4,37 +4,37 @@ Ext.define('Fwc.devicefirmware.view.UploadForm', {
     itemId: 'device-firmware-upload-form',
     ui: 'large',
     defaults: {
-        labelWidth: 150
+        labelWidth: 250
     },
     minButtonWidth: 50,
     requires: [
-        'Uni.util.FormErrorMessage'
+        'Uni.property.form.Property',
+        'Fwc.devicefirmware.view.form.UploadFieldContainer'
     ],
     record: null,
-
-    dockedItems: [{
-        xtype: 'toolbar',
-        dock: 'top',
-        border: true,
-        items: {
-            xtype: 'uni-form-error-message',
-            itemId: 'form-errors',
-            hidden: true
-        }
-    }],
 
     initComponent: function () {
         var me = this;
 
+        me.items = [
+            {
+                xtype: 'upload-field-container',
+                groupName: 'uploadFileContainer',
+                itemId: 'uploadFileField',
+                fieldLabel: Uni.I18n.translate('deviceFirmware.uploadFile', 'FWC', 'Upload file'),
+                margin: '0 0 20 0'
+            }
+        ];
+
         me.buttons = [
             {
-                text: Uni.I18n.translate('general.confirm', 'MDC', 'Confirm'),
+                text: Uni.I18n.translate('general.confirm', 'FWC', 'Confirm'),
                 ui: 'action',
                 action: 'uploadFirmware',
                 itemId: 'uploadBtn'
             },
             {
-                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                text: Uni.I18n.translate('general.cancel', 'FWC', 'Cancel'),
                 ui: 'link',
                 itemId: 'cancelLink',
                 href: me.router.getRoute('devices/device/firmware').buildUrl()
