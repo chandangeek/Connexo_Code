@@ -208,12 +208,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         if (dataStore.getTotalCount() > 0) {
-            seriesObject['data'] = me.formatData(dataStore);
+            var data = me.formatData(dataStore);
+            seriesObject['data'] = data.data;
+            seriesObject['turboThreshold'] = 2000;
+
             series.push(seriesObject);
             Ext.suspendLayouts();
             container.down('#graphContainer').show();
             container.down('#ctr-graph-no-data').hide();
-            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
+            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels, data.missedValues);
             Ext.resumeLayouts(true);
         } else {
             Ext.suspendLayouts();
@@ -224,17 +227,59 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.getPage().doLayout();
     },
 
-    formatData : function (dataStore) {
+    formatData: function (dataStore) {
         var data = [];
+        var missedValues = [];
+        var valColor = "#70BB51"; // "#70BB51"
+        var estColor = "#568343"; // "#568343"
+        var susColor = "#eb5642"; // "#eb5642"
+        var infColor = "#dedc49"; // "#dedc49"
+        var edColor = "rgba(0,0,0,0)"; //"#00aaaa"
+        var nvalColor = "#71adc7";
+
 
         dataStore.each(function (record) {
-            if (record.get('value')) {
-                data.unshift([record.get('interval').start, parseFloat(record.get('value'))]);
-            } else {
-                data.unshift([record.get('interval').start, null]);
+            var validationResult = record.get('validationResult').split('.')[1];
+            var modificationFlag = record.get('modificationFlag');
+            var suspectReason = record.get('suspectReason');
+            var point = {};
+            point.x = record.get('interval').start;
+            point.y = parseFloat(record.get('value'));
+
+            switch (validationResult) {
+                case 'suspect' :
+                    if (suspectReason.length > 0) {
+                        if (suspectReason[0].action == 'WARN_ONLY') {
+                            point.color = infColor;
+                            validationResult = 'informative'
+                        } else {
+                            point.color = susColor;
+                        }
+                    }
+                    break;
+                case 'ok' :
+                    point.color = valColor;
+                    break;
+                case 'notValidated' :
+                    point.color = nvalColor;
+                    break;
+            }
+            point.validationResult = validationResult;
+
+            if (modificationFlag) {
+                point.modificationFlag = 'EDITED.saved';
+            }
+
+            data.unshift(point);
+            if (!data.y) {
+                missedValues.push({
+                    from: record.get('interval').start,
+                    to: record.get('interval').end,
+                    color: 'rgba(235, 86, 66, 0.3)'
+                })
             }
         });
-        return data;
+        return {data: data, missedValues: missedValues};
     },
 
     setDefaults: function (channel, dataIntervalAndZoomLevels, viewOnlySuspects) {
@@ -302,7 +347,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (graphView.chart) {
             graphView.chart.setSize(width, height, false);
         }
-    },
+    }
 
 
 });
