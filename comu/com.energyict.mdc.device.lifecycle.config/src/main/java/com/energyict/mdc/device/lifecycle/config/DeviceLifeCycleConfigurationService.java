@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config;
 
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.users.Privilege;
