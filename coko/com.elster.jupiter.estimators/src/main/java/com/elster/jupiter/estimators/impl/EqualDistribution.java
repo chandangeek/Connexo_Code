@@ -1,7 +1,7 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
-import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
+import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -318,10 +318,10 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getPropertySpecService().bigDecimalPropertySpec(
                 MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, BigDecimal.valueOf(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)));
-        builder.add(getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService))
+        builder.add(getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsWithoutNoneFactory(meteringService))
                 .markRequired()
                 .name(ADVANCE_READINGS_SETTINGS)
-                .setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE)
+                .setDefaultValue(BulkAdvanceReadingsSettings.INSTANCE)
                 .finish());
         return builder.build();
     }
