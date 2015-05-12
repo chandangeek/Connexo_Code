@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifierT
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
     @Override
     public List<Object> getIdentifier() {
-        return Arrays.asList(deviceMessage);
+        return Collections.singletonList(deviceMessage);
     }
 
     @Override
@@ -55,7 +56,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(this.deviceMessage.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(this.deviceMessage.getDevice());
     }
 
     @Override

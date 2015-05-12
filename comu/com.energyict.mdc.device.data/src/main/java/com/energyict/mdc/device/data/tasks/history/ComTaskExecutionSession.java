@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
