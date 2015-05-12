@@ -452,27 +452,10 @@ public class PowerGapFillTest {
 
     }
 
-    @Test(expected = LocalizedFieldValidationException.class)
-    public void testInvalidPropertiesWhenConsecutiveIsFractional() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(11, 1));
-
-        Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
-
-        estimator.validateProperties(Collections.singletonList(property));
-    }
-
-    @Test
-    public void testValidPropertiesWhenConsecutiveIsFractionalYetZeroAsFractionalPart() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10, 1));
-
-        Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
-
-        estimator.validateProperties(Collections.singletonList(property));
-    }
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.ZERO);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
 
@@ -481,7 +464,7 @@ public class PowerGapFillTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsNegative() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(-1));
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, -1L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
 

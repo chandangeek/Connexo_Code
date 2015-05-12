@@ -423,14 +423,11 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
-        BigDecimal maxSamples = null;
-        BigDecimal minSamples = null;
+        Long maxSamples = null;
+        Long minSamples = null;
         for (EstimationRuleProperties property : estimatorProperties) {
             if (property.getName().equals(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)) {
-                BigDecimal value = (BigDecimal) property.getValue();
-                if (value.scale() != 0) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
-                }
+                Long value = (Long) property.getValue();
                 if (value.intValue() < 1) {
                     throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
                 }
@@ -443,13 +440,13 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                     }
                 }
             } else if (property.getName().equals(MAX_NUMBER_OF_SAMPLES)) {
-                maxSamples = (BigDecimal) property.getValue();
+                maxSamples = (Long) property.getValue();
             }
             else if (property.getName().equals(MIN_NUMBER_OF_SAMPLES)) {
-                minSamples = (BigDecimal) property.getValue();
+                minSamples = (Long) property.getValue();
             }
         }
-        if ((maxSamples != null) && (minSamples != null) && (maxSamples.intValue() < minSamples.intValue())) {
+        if ((maxSamples != null) && (minSamples != null) && (maxSamples < minSamples)) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_SAMPLES, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
         }
     }
