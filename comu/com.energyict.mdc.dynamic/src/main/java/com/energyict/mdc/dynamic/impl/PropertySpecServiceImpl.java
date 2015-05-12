@@ -267,5 +267,23 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return builder.name(name).setDefaultValue(defaultRelativePeriod).finish();
     }
 
+    @Override
+    public PropertySpec longPropertySpec(String name, boolean required, Long defaultValue) {
+        return basicPropertySpecService.longPropertySpec(name, required, defaultValue);
+    }
 
+    @Override
+    public PropertySpec longPropertySpecWithValues(String name, boolean required, Long... values) {
+        return basicPropertySpecService.longPropertySpecWithValues(name,required,values);
+    }
+
+    @Override
+    public PropertySpec positiveLongPropertySpec(String name, boolean required) {
+        return basicPropertySpecService.positiveLongPropertySpec(name,required);
+    }
+
+    @Override
+    public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
+        return basicPropertySpecService.boundedLongPropertySpec(name,required,lowerLimit,upperLimit);
+    }
 }
