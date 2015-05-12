@@ -5,11 +5,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -69,11 +65,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 DeviceFirmwareVersionResource.class,
                 DeviceFirmwareMessagesResource.class,
                 TransactionWrapper.class,
-                MultiPartFeature.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class
+                MultiPartFeature.class
         );
     }
 
