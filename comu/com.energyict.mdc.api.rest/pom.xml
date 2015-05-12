@@ -9,12 +9,12 @@
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>mdc.device.data.api</artifactId>
+    <artifactId>mdc.multisense.api</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>[MDC] mdc.device.data.api [init DDA]</name>
+    <name>[MDC] multisense.api [init MSA]</name>
     <description>
-        Contains public API implementation to interface between the client and server regarding devices
+        Contains public API implementation to interface between the client and server regarding multisense
     </description>
 
     <dependencies>
@@ -142,14 +142,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.easytesting</groupId>
-            <artifactId>fest-reflect</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.easytesting</groupId>
-            <artifactId>fest-util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
