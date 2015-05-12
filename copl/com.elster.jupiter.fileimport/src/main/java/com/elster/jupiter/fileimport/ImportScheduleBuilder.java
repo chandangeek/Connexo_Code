@@ -63,4 +63,13 @@ public interface ImportScheduleBuilder {
      * @return this
      */
     ImportScheduleBuilder setCronExpression(CronExpression cronExpression);
+
+
+    PropertyBuilder addProperty(String name);
+
+    interface PropertyBuilder {
+
+        ImportScheduleBuilder withValue(Object value);
+
+    }
 }

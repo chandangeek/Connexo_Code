@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImport;
+import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
@@ -38,6 +39,22 @@ enum TableSpecs {
             table.column("STATE").type("number").notNull().conversion(NUMBER2ENUM).map("state").add();
             table.primaryKey("FIM_PK_FILE_IMPORT").on(idColumn).add();
             table.foreignKey("FIM_FKFILEIMPORT_SCHEDULE").references(FIM_IMPORT_SCHEDULE.name()).onDelete(DeleteRule.CASCADE).map("importSchedule").on(importScheduleColumn).add();
+        }
+    },
+
+    FIM_IMPORTER_PROPERTY(FileImporterProperty.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(FileImporterPropertyImpl.class);
+            table.setJournalTableName("FIM_IMPORTER_PROPERTY_JRNL");
+            Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
+            Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).notNull().map("name").add();
+            table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
+            table.addAuditColumns();
+
+            table.primaryKey("FIM_PK_IMPORTER_PROPERTY").on(importScheduleColumn, nameColumn).add();
+            table.foreignKey("DES_FK_IMPPROP_IMPORT_SCHEDULE").on(importScheduleColumn).references(FIM_IMPORT_SCHEDULE.name())
+                    .map("importSchedule").reverseMap("properties").composition().add();
         }
     };
 

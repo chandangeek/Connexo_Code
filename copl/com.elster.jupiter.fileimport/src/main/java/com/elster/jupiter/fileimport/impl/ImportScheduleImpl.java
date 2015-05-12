@@ -1,15 +1,24 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * ImportSchedule implementation.
@@ -33,16 +42,21 @@ class ImportScheduleImpl implements ImportSchedule {
     private final FileNameCollisionResolver fileNameCollisionresolver;
     private final FileSystem fileSystem;
     private final Thesaurus thesaurus;
+    private final FileImportService fileImportService;
+    boolean propertiesDirty;
+
+    private List<FileImporterProperty> properties = new ArrayList<>();
 
     @SuppressWarnings("unused")
     @Inject
-	ImportScheduleImpl(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
+	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileNameCollisionresolver = fileNameCollisionresolver;
         this.fileSystem = fileSystem;
         this.thesaurus = thesaurus;
+        this.fileImportService = fileImportService;
     }
 
     static ImportScheduleImpl from(DataModel dataModel, CronExpression cronExpression, String destination, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
@@ -113,6 +127,47 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return fileImportService.getImportFactory(importerName).orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName)).getProperties();
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String name) {
+        return getPropertySpecs().stream()
+                .filter(p -> name.equals(p.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public String getPropertyDisplayName(String name) {
+        return properties.stream()
+                .filter(p -> p.getName().equals(name))
+                .findAny()
+                .map(FileImporterProperty::getDisplayName)
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    @Override
+    public List<FileImporterProperty> getImporterProperties() {
+        return Collections.unmodifiableList(properties);
+    }
+
+    @Override
+    public void setProperty(String name, Object value) {
+        FileImporterProperty fileImporterProperty = properties.stream()
+                .filter(p -> p.getName().equals(name))
+                .findFirst()
+                .orElseGet(() -> {
+                    FileImporterPropertyImpl property = FileImporterPropertyImpl.from(dataModel, this, name, value);
+                    properties.add(property);
+                    return property;
+                });
+        fileImporterProperty.setValue(value);
+        propertiesDirty = true;
+    }
+
+    @Override
     public FileImportImpl createFileImport(File file) {
         if (!file.exists()) {
             throw new IllegalArgumentException();
@@ -122,11 +177,34 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public void save() {
-        if (id == 0) {
-            dataModel.mapper(ImportSchedule.class).persist(this);
-        } else {
-            dataModel.mapper(ImportSchedule.class).update(this);
+
+        Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
+        if (optional.isPresent()) {
+            FileImporterFactory importerFactory = optional.get();
+            importerFactory.validateProperties(properties);
         }
+
+        if (id == 0) {
+            persist();
+        } else {
+            update();
+        }
+        propertiesDirty = false;
+    }
+
+    private void persist() {
+
+        Save.CREATE.save(dataModel, this);
+        dataModel.mapper(ImportSchedule.class).persist(this);
+    }
+
+    private void update() {
+
+        if (propertiesDirty) {
+            properties.forEach(FileImporterProperty::save);
+        }
+        Save.UPDATE.save(dataModel, this);
+        //dataModel.mapper(ImportSchedule.class).update(this);
     }
 
 

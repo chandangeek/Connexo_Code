@@ -1,9 +1,11 @@
 package com.elster.jupiter.fileimport;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.cron.CronExpression;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Entity that models when a certain directory should be scanned for files to import and where to move them during different stages of the import cycle.
@@ -65,4 +67,27 @@ public interface ImportSchedule {
      * @return returns the type of the importer
      */
     String getImporterName();
+
+    /**
+     * @return returns the list of importer property specs
+     */
+    List<PropertySpec> getPropertySpecs();
+
+    /**
+     * @return returns the property spec of specified property name
+     */
+    PropertySpec getPropertySpec(String name);
+
+    /**
+     * @return returns the display name of property specified by name
+     */
+
+    String getPropertyDisplayName(String name);
+
+    /**
+     * @return returns the list of importer properties
+     */
+    List<FileImporterProperty> getImporterProperties();
+
+    void setProperty(String name, Object value);
 }

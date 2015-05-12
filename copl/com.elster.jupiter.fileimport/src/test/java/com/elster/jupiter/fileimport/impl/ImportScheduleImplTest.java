@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -40,6 +41,8 @@ public class ImportScheduleImplTest {
     @Mock
     private MessageService messageService;
     @Mock
+    private FileImportService fileImportService;
+    @Mock
     private DataModel dataModel;
     @Mock
     private CronExpressionParser cronParser;
@@ -53,9 +56,9 @@ public class ImportScheduleImplTest {
     @Before
     public void setUp() {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
-        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus));
+        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem, thesaurus));
 
-        importSchedule = ImportScheduleImpl.from(dataModel, cronExpression, DESTINATION_NAME, importDir,"**/*.*",inProcessDir, failureDir, successDir);
+        importSchedule = ImportScheduleImpl.from(dataModel, cronExpression, DESTINATION_NAME, importDir,"*.*",inProcessDir, failureDir, successDir);
     }
 
     @After
