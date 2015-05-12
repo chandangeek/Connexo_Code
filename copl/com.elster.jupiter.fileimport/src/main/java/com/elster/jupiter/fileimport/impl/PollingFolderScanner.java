@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import javax.inject.Inject;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Predicate;
@@ -20,13 +21,15 @@ class PollingFolderScanner implements FolderScanner {
     private final Predicate<Path> filter;
     private final FileSystem fileSystem;
     private final Thesaurus thesaurus;
+    private final String pathMatcher;
 
     @Inject
-    public PollingFolderScanner(Predicate<Path> filter, FileSystem fileSystem, Path directory, Thesaurus thesaurus) {
+    public PollingFolderScanner(Predicate<Path> filter, FileSystem fileSystem, Path directory, String pathMatcher,  Thesaurus thesaurus) {
         this.filter = filter;
         this.fileSystem = fileSystem;
         this.directory = directory;
         this.thesaurus = thesaurus;
+        this.pathMatcher = pathMatcher;
     }
 
     @Override
@@ -39,7 +42,7 @@ class PollingFolderScanner implements FolderScanner {
     }
 
     private Stream<Path> directoryContent() throws IOException {
-        return StreamSupport.stream(fileSystem.newDirectoryStream(directory).spliterator(),false);
+        return StreamSupport.stream(fileSystem.newDirectoryStream(directory, pathMatcher).spliterator(),false);
     }
 
 }

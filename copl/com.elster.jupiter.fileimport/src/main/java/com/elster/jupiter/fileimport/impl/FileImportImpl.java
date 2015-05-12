@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,7 @@ final class FileImportImpl implements FileImport {
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
 
+    @Inject
     private FileImportImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus) {
         this.fileSystem = fileSystem;
         this.dataModel = dataModel;

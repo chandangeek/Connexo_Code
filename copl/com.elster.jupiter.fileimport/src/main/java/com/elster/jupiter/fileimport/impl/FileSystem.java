@@ -1,9 +1,11 @@
 package com.elster.jupiter.fileimport.impl;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
+
 
 /**
  * Abstraction of the file system.
@@ -29,7 +31,7 @@ interface FileSystem {
      * @param directory
      * @return a new DirectoryStream on the given directory
      */
-    DirectoryStream<Path> newDirectoryStream(Path directory);
+    DirectoryStream<Path> newDirectoryStream(Path directory, String pathMatcher);
 
     /**
      * @param path

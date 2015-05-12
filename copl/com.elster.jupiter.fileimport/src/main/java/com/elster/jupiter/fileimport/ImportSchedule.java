@@ -26,6 +26,11 @@ public interface ImportSchedule {
     File getImportDirectory();
 
     /**
+     * @return String representing the pattern to scan for new files to import
+     */
+    String getPathMatcher();
+
+    /**
      * @return File representing the directory where files are moved for awaiting processing.
      */
     File getInProcessDirectory();
@@ -55,4 +60,9 @@ public interface ImportSchedule {
      * @return creates a new FileImport instance for the given file.
      */
     FileImport createFileImport(File file);
+
+    /**
+     * @return returns the type of the importer
+     */
+    String getImporterName();
 }

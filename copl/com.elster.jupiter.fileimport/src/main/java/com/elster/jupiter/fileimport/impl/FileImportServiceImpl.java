@@ -1,11 +1,9 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.fileimport.ImportScheduleBuilder;
-import com.elster.jupiter.fileimport.MessageSeeds;
+import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -15,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -24,19 +23,20 @@ import java.util.Optional;
 
 import com.google.inject.AbstractModule;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 
 import javax.validation.MessageInterpolator;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, FileImportService {
+
+    public static final String DESTINATION_NAME = "FileImport";
+    public static final String SUBSCRIBER_NAME = "FileImport";
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
@@ -49,12 +49,17 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile UserService userService;
+
+    private List<FileImporterFactory> importerFactories = new CopyOnWriteArrayList<>();
+
 
     private CronExpressionScheduler cronExpressionScheduler;
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, thesaurus).install();
+        new InstallerImpl(dataModel, messageService, thesaurus, userService).install();
+
     }
 
     @Override
@@ -75,6 +80,10 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Reference
@@ -101,6 +110,15 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
         defaultFileSystem = new DefaultFileSystem(thesaurus);
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addResource(FileImporterFactory fileImporterFactory) {
+        importerFactories.add(fileImporterFactory);
+    }
+
+    public void removeResource(FileImporterFactory fileImporterFactory) {
+        importerFactories.remove(fileImporterFactory);
+    }
+
     @Activate
     public void activate() {
         dataModel.register(new AbstractModule() {
@@ -108,6 +126,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
             protected void configure() {
                 bind(FileNameCollisionResolver.class).toInstance(getFileNameCollisionResolver());
                 bind(FileSystem.class).toInstance(defaultFileSystem);
+                bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
@@ -152,12 +171,17 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
     @Override
-    public MessageHandler createMessageHandler(FileImporter fileImporter) {
-        return new StreamImportMessageHandler(dataModel, jsonService, fileImporter);
+    public MessageHandler createMessageHandler() {
+        return new StreamImportMessageHandler(dataModel, jsonService, thesaurus, this);
     }
 
     public FileNameCollisionResolver getFileNameCollisionResolver() {
         return new SimpleFileNameCollisionResolver(defaultFileSystem);
     }
 
+    public Optional<FileImporterFactory> getImportFactory(String name) {
+
+        return importerFactories.stream().filter(factory -> factory.getName().equals(name))
+                .findAny();
+    }
 }

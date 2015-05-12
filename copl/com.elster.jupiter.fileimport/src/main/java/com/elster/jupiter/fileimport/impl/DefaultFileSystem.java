@@ -4,11 +4,7 @@ import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,9 +37,9 @@ class DefaultFileSystem implements FileSystem {
     }
 
     @Override
-    public DirectoryStream<Path> newDirectoryStream(Path directory) {
+    public DirectoryStream<Path> newDirectoryStream(Path directory, String pathMatcher) {
         try {
-            return Files.newDirectoryStream(directory);
+            return Files.newDirectoryStream(directory, pathMatcher);
         } catch (IOException e) {
             throw new FileIOException(e, thesaurus);
         }

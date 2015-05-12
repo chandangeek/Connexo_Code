@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultImportScheduleBuilderTest {
 
+    private static final String DESTINATION_NAME = "test_destination";
     private static final File PROCESSING_DIRECTORY = new File("./processing");
     private static final File IMPORT_DIRECTORY = new File("./import");
     private static final File SUCCESS_DIRECTORY = new File("./success");
@@ -54,23 +55,9 @@ public class DefaultImportScheduleBuilderTest {
     }
 
     @Test
-    public void testDestination() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
-                .setDestination(destination)
-                .setCronExpression(cronExpression)
-                .setProcessingDirectory(PROCESSING_DIRECTORY)
-                .setImportDirectory(IMPORT_DIRECTORY)
-                .setSuccessDirectory(SUCCESS_DIRECTORY)
-                .setFailureDirectory(FAILURE_DIRECTORY)
-                .build();
-
-        assertThat(schedule.getDestination()).isEqualTo(destination);
-    }
-
-    @Test
     public void testCronExpression() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
-                .setDestination(destination)
+                .setDestination(DESTINATION_NAME)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
@@ -84,7 +71,7 @@ public class DefaultImportScheduleBuilderTest {
     @Test
     public void testProcessingDirectory() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
-                .setDestination(destination)
+                .setDestination(DESTINATION_NAME)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
@@ -98,7 +85,7 @@ public class DefaultImportScheduleBuilderTest {
     @Test
     public void testImportDirectory() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
-                .setDestination(destination)
+                .setDestination(DESTINATION_NAME)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
@@ -112,7 +99,7 @@ public class DefaultImportScheduleBuilderTest {
     @Test
     public void testSuccessDirectory() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
-                .setDestination(destination)
+                .setDestination(DESTINATION_NAME)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
@@ -126,7 +113,7 @@ public class DefaultImportScheduleBuilderTest {
     @Test
     public void testFailureDirectory() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
-                .setDestination(destination)
+                .setDestination(DESTINATION_NAME)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)

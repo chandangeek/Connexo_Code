@@ -16,10 +16,9 @@ public interface FileImportService {
     ImportScheduleBuilder newBuilder();
 
     /**
-     * @param fileImporter
-     * @return a MessageHandler configured to delegate file import messages to the given FileImporter.
+     * @return a MessageHandler configured to delegate file import messages to file importers
      */
-    MessageHandler createMessageHandler(FileImporter fileImporter);
+    MessageHandler createMessageHandler();
 
     /**
      * Submits the given importSchedule for executing according to its schedule.
@@ -32,4 +31,9 @@ public interface FileImportService {
      * @return the ImportSchedule with the given id, optionally, as it may not exist
      */
     Optional<ImportSchedule> getImportSchedule(long id);
+    /**
+     * @param importerName
+     * @return the FileImporterFactory with the given name,  optionally, as it may not exist
+     */
+    Optional<FileImporterFactory> getImportFactory(String importerName);
 }

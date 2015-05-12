@@ -17,9 +17,10 @@ enum TableSpecs {
         void describeTable(Table table) {
             table.map(ImportScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("DESTINATION").varChar(NAME_LENGTH).notNull().map("destinationName").add();
+            table.column("IMPORTERNAME").varChar(NAME_LENGTH).notNull().map("importerName").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
             table.column("IMPORTDIR").varChar(NAME_LENGTH).notNull().conversion(CHAR2FILE).map("importDirectory").add();
+            table.column("PATHMATCHER").varChar(NAME_LENGTH).notNull().map("pathMatcher").add();
             table.column("INPROCESSDIR").varChar(NAME_LENGTH).notNull().conversion(CHAR2FILE).map("inProcessDirectory").add();
             table.column("SUCCESSDIR").varChar(NAME_LENGTH).notNull().conversion(CHAR2FILE).map("successDirectory").add();
             table.column("FAILDIR").varChar(NAME_LENGTH).notNull().conversion(CHAR2FILE).map("failureDirectory").add();

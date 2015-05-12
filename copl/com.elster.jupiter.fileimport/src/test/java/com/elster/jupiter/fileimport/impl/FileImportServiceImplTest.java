@@ -94,7 +94,7 @@ public class FileImportServiceImplTest {
 
     @Test
     public void testCreateMessageHandler() {
-        assertThat(fileImportService.createMessageHandler(fileImporter)).isNotNull();
+        assertThat(fileImportService.createMessageHandler()).isNotNull();
     }
 
     @Test
@@ -117,7 +117,7 @@ public class FileImportServiceImplTest {
             //when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
 
             final CountDownLatch requestedDirectoryStream = new CountDownLatch(1);
-            when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY.toPath())).thenAnswer(new Answer<DirectoryStream<Path>>() {
+            when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY.toPath(),"**/*.*")).thenAnswer(new Answer<DirectoryStream<Path>>() {
                 @Override
                 public DirectoryStream<Path> answer(InvocationOnMock invocationOnMock) throws Throwable {
                     requestedDirectoryStream.countDown();

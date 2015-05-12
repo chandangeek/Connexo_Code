@@ -1,8 +1,10 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImport;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
 import java.util.Optional;
@@ -34,6 +36,12 @@ public class StreamImportMessageHandlerTest {
     @Mock
     private Message message;
     @Mock
+    private FileImportService fileImportService;
+
+    @Mock
+    private Thesaurus thesaurus;
+
+    @Mock
     private JsonService jsonService;
     @Mock
     private FileImport fileImport;
@@ -50,7 +58,7 @@ public class StreamImportMessageHandlerTest {
         when(dataModel.mapper(FileImport.class).getOptional(FILE_IMPORT_ID)).thenReturn(Optional.of(fileImport));
 
 
-        streamImportMessageHandler = new StreamImportMessageHandler(dataModel, jsonService, fileImporter);
+        streamImportMessageHandler = new StreamImportMessageHandler(dataModel, jsonService, thesaurus, fileImportService);
     }
 
     @After

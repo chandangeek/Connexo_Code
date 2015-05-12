@@ -66,7 +66,7 @@ public class ImportScheduleJobTest {
 //        when(serviceLocator.getPredicates()).thenReturn(predicates);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(fileSystem.newDirectoryStream(importDir.toPath())).thenReturn(directoryStream);
+        when(fileSystem.newDirectoryStream(importDir.toPath(), null)).thenReturn(directoryStream);
         when(fileImport.getId()).thenReturn(ID);
 
 

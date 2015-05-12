@@ -21,7 +21,7 @@ public interface ImportScheduleBuilder {
      * @param destination the destination for the ImportSchedule under construction
      * @return this
      */
-    ImportScheduleBuilder setDestination(DestinationSpec destination);
+    ImportScheduleBuilder setDestination(String destination);
 
     /**
      *
@@ -30,6 +30,12 @@ public interface ImportScheduleBuilder {
      */
     ImportScheduleBuilder setImportDirectory(File directory);
 
+    /**
+     *
+     * @param pathMatcher the path matcher for the ImportSchedule under construction
+     * @return this
+     */
+    ImportScheduleBuilder setPathMatcher(String pathMatcher);
     /**
      *
      * @param directory the processing directory for the ImportSchedule under construction

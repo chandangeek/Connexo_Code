@@ -2,12 +2,18 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.MessageSeeds;
+import com.elster.jupiter.fileimport.security.Privileges;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,16 +23,47 @@ class InstallerImpl {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final MessageService messageService;
+    private final UserService userService;
 
-    InstallerImpl(DataModel dataModel, Thesaurus thesaurus) {
+    InstallerImpl(DataModel dataModel, MessageService messageService, Thesaurus thesaurus, UserService userService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.messageService = messageService;
+        this.userService = userService;
     }
 
     public void install() {
-        dataModel.install(true, true);
-        createTranslations();
+
+        ExceptionCatcher.executing(
+                this::installDataModel,
+                this::createDestinationAndSubscriber,
+                this::createTranslations,
+                this::createPrivileges
+        ).andHandleExceptionsWith(Throwable::printStackTrace)
+                .execute();
+
     }
+
+    private void createDestinationAndSubscriber() {
+
+        QueueTableSpec queueTableSpec =  this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(FileImportServiceImpl.DESTINATION_NAME, 60);
+        destinationSpec.activate();
+        destinationSpec.subscribe(FileImportServiceImpl.SUBSCRIBER_NAME);
+    }
+
+    private void installDataModel() {
+        dataModel.install(true, true);
+    }
+
+    private void createPrivileges() {
+        userService.createResourceWithPrivileges("SYS", "fileImport.importServices", "fileImport.importServices.description", new String[]
+             {Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES});
+        userService.createResourceWithPrivileges("MDC", "fileImport.importServices", "fileImport.importServices.description", new String[]
+                {Privileges.VIEW_IMPORT_SERVICES});
+    }
+
 
     private void createTranslations() {
         List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);

@@ -23,6 +23,8 @@ class ImportScheduleImpl implements ImportSchedule {
     private File inProcessDirectory;
     private File successDirectory;
     private File failureDirectory;
+    private String pathMatcher;
+    private String importerName;
     private transient CronExpression cronExpression;
     private String cronString;
     private final MessageService messageService;
@@ -43,19 +45,19 @@ class ImportScheduleImpl implements ImportSchedule {
         this.thesaurus = thesaurus;
     }
 
-    static ImportScheduleImpl from(DataModel dataModel, CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
+    static ImportScheduleImpl from(DataModel dataModel, CronExpression cronExpression, String destination, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+        return dataModel.getInstance(ImportScheduleImpl.class).init(cronExpression, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
-    private ImportScheduleImpl init(CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
+    private ImportScheduleImpl init(CronExpression cronExpression, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
         this.cronExpression = cronExpression;
         this.cronString = cronExpression.toString();
-        this.destination = destination;
-        this.destinationName = destination.getName();
+        this.destinationName = destinationName;
         this.importDirectory = importDirectory;
         this.inProcessDirectory = inProcessDirectory;
         this.failureDirectory = failureDirectory;
         this.successDirectory = successDirectory;
+        this.pathMatcher = pathMatcher;
         return this;
     }
 
@@ -73,8 +75,13 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public File getImportDirectory() {
+     public File getImportDirectory() {
         return importDirectory;
+    }
+
+    @Override
+    public String getPathMatcher() {
+        return pathMatcher;
     }
 
     @Override
@@ -101,6 +108,11 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
+    public String getImporterName(){
+        return importerName;
+    }
+
+    @Override
     public FileImportImpl createFileImport(File file) {
         if (!file.exists()) {
             throw new IllegalArgumentException();
@@ -116,4 +128,6 @@ class ImportScheduleImpl implements ImportSchedule {
             dataModel.mapper(ImportSchedule.class).update(this);
         }
     }
+
+
 }

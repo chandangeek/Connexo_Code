@@ -24,7 +24,7 @@ class ImportScheduleJob implements CronJob {
     public ImportScheduleJob(Predicate<Path> filter, FileSystem fileSystem, JsonService jsonService, ImportSchedule importSchedule, TransactionService transactionService, Thesaurus thesaurus) {
         this.importSchedule = importSchedule;
         this.thesaurus = thesaurus;
-        folderScanningJob = new FolderScanningJob(new PollingFolderScanner(filter, fileSystem, importSchedule.getImportDirectory().toPath(), this.thesaurus), new DefaultFileHandler(importSchedule, jsonService, transactionService));
+        folderScanningJob = new FolderScanningJob(new PollingFolderScanner(filter, fileSystem, importSchedule.getImportDirectory().toPath(), importSchedule.getPathMatcher(), this.thesaurus), new DefaultFileHandler(importSchedule, jsonService, transactionService));
     }
 
     @Override

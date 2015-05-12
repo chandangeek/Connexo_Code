@@ -10,8 +10,9 @@ import java.io.File;
 
 class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
-    private transient DestinationSpec destination;
+    private String destination;
     private File importDirectory;
+    private String pathMatcher;
     private File inProcessDirectory;
     private File successDirectory;
     private File failureDirectory;
@@ -24,11 +25,11 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     @Override
     public ImportSchedule build() {
-        return ImportScheduleImpl.from(dataModel, cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
+        return ImportScheduleImpl.from(dataModel, cronExpression, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
     @Override
-    public ImportScheduleBuilder setDestination(DestinationSpec destination) {
+    public ImportScheduleBuilder setDestination(String destination) {
         this.destination = destination;
         return this;
     }
@@ -36,6 +37,12 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     @Override
     public ImportScheduleBuilder setImportDirectory(File directory) {
         this.importDirectory = directory;
+        return this;
+    }
+
+    @Override
+    public ImportScheduleBuilder setPathMatcher(String pathMatcher ) {
+        this.pathMatcher = pathMatcher ;
         return this;
     }
 
