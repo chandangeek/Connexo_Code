@@ -3,7 +3,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -61,7 +61,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
-    public PagedInfoList getDeviceLifeCycles(@BeanParam QueryParameters queryParams) {
+    public PagedInfoList getDeviceLifeCycles(@BeanParam JsonQueryParameters queryParams) {
         List<DeviceLifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
                 .map(deviceLifeCycleFactory::from).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycles", lifecycles, queryParams);
@@ -71,8 +71,8 @@ public class DeviceLifeCycleResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
-    public Response getDeviceLifeCycleById(@PathParam("id") Long id, @BeanParam QueryParameters queryParams) {
-        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
+    public Response getDeviceLifeCycleById(@PathParam("id") Long id, @BeanParam JsonQueryParameters queryParams) {
+        DeviceLifeCycle lifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
@@ -134,7 +134,7 @@ public class DeviceLifeCycleResource {
     @Path("/privileges")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
-    public PagedInfoList getPrivilegesList(@BeanParam QueryParameters queryParams) {
+    public PagedInfoList getPrivilegesList(@BeanParam JsonQueryParameters queryParams) {
         List<DeviceLifeCyclePrivilegeInfo> privileges = EnumSet.allOf(AuthorizedAction.Level.class)
                 .stream()
                 .map(deviceLifeCyclePrivilegeFactory::from)
@@ -146,7 +146,7 @@ public class DeviceLifeCycleResource {
     @Path("/eventtypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
-    public PagedInfoList getEventTypesList(@BeanParam QueryParameters queryParams) {
+    public PagedInfoList getEventTypesList(@BeanParam JsonQueryParameters queryParams) {
         List<StateTransitionEventTypeInfo> eventTypes = finiteStateMachineService.getStateTransitionEventTypes().stream()
                 .map(stateTransitionEventTypeFactory::from)
                 .collect(Collectors.toList());
