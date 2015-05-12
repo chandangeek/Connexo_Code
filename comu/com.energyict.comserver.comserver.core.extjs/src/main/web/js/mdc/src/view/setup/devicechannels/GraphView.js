@@ -91,30 +91,82 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
             },
 
             tooltip: {
+                style: {
+                    color: '#333333',
+                    fontSize: '12px',
+                    padding: '0px'
+                },
                 useHTML: true,
-                positioner: function (labelWidth, labelHeight, point){
+                positioner: function (labelWidth, labelHeight, point) {
                     var xValue,
                         yValue;
 
-                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth*2)/3;
-                    yValue = point.plotY > labelHeight ? point.plotY: labelHeight;
+                    xValue = point.plotX + labelWidth < this.chart.chartWidth ? point.plotX : point.plotX - (labelWidth * 2) / 3;
+                    yValue = point.plotY > labelHeight ? point.plotY : labelHeight;
                     return {x: xValue, y: yValue}
                 },
-                formatter: function () {
+                formatter: function (tooltip) {
+                    var tvalColor = 'rgba(255, 255, 255, 0.85)';
+                    var testColor = 'rgba(86, 131, 67, 0.3)';
+                    var tsusColor = 'rgba(235, 86, 66, 0.3)';
+                    var tinfColor = 'rgba(222, 220, 73, 0.3)';
+                    var tedColor = 'rgba(255, 255, 255, 0.85)';
+                    var tnvalColor = 'rgba(0, 131, 200, 0.3)';
                     var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
-                    if (intervalLength < 86400000) {
-                        s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
-                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength) + '<br>';
-                    } else {
-                        s += '<b>' + ' - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>' + '<br>';
-                    }
+                    var point = this.points[0].point,
+                        bgColor = tvalColor,
+                        vicon = '',
+                        bicon = '',
+                        iconFlag = '',
+                        iconConfirm = '';
+
+                    s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
+                    s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + 900000) + '<br>';
                     s += '<table style="margin-top: 10px"><tbody>';
-                        s += '<tr>'
-                        s += '<td style="padding-right: 10px; text-align: right"><b>' + channelName + '</b></td>';
-                        s += '<td style="padding-right: 1px; text-align: right">' + this.points[0].y + '</td>';
-                        s += '<td style="padding-left: 1px; text-align: left">' + unitOfMeasure + '</td>';
-                        s += '</tr>'
+
+                    switch (point.validationResult) {
+                        case 'suspect' :
+                            bgColor = tsusColor;
+                            vicon = iconFlag;
+                            break;
+                        case 'ok' :
+                            bgColor = tvalColor;
+                            break;
+                        case 'informative' :
+                            bgColor = tinfColor;
+                            break;
+                        case 'notValidated' :
+                            bgColor = tnvalColor;
+                            break;
+                        case 'confirmed'  :
+                            bgColor = tvalColor;
+                            bicon = iconConfirm;
+                            break;
+                        case 'estimated'  :
+                            bgColor = testColor;
+                            break;
+                    }
+                    switch (point.modificationFlag) {
+                        case 'EDITED.saved' :
+                            break;
+                        case 'EDITED.notSaved':
+                            break;
+                    }
+
+
+                    s += '<tr><td style="padding-right: 10px; text-align: right"><b>' +
+                        point.series.name +
+                        ':</b></td><td>' +
+                        point.y +
+                        ' kWh ' + vicon + '</td></tr>';
+                    s += '<tr><td style="padding-right: 10px; text-align: right"><b>Bulk value:</b></td><td>1000 kWh ' +
+                        bicon +
+                        '</td></tr>';
+
                     s += '</tbody></table>';
+                    s = '<div style="background-color: ' +
+                        bgColor +
+                        '; padding: 8px">' + s + '</div>';
                     return s;
                 },
                 followPointer: true,
@@ -131,8 +183,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
 //                    borderWidth: 0.5,
                     pointPadding: 0,
                     groupPadding: 0,
-                    dataGrouping:
-                    {
+                    dataGrouping: {
                         enabled: false
                     },
                     color: '#70BB51',
