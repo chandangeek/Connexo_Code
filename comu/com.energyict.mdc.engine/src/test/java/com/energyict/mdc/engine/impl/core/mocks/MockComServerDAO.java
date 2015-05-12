@@ -7,7 +7,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -454,12 +454,12 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
-        return new DeviceIdentifierForAlreadyKnownDevice((Device) loadProfileIdentifier.findLoadProfile().getDevice());
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID((Device) loadProfileIdentifier.findLoadProfile().getDevice());
     }
 
     @Override
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
-        return new DeviceIdentifierForAlreadyKnownDevice(((LogBook) logBookIdentifier.getLogBook()).getDevice());
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(((LogBook) logBookIdentifier.getLogBook()).getDevice());
     }
 
     @Override
