@@ -141,7 +141,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
     private DataModel dataModel;
-    private ProtocolPluggableServiceImpl protocolPluggableService;
+    private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private TaskService taskService;
     private DeviceDataModelService deviceDataModelService;
@@ -243,7 +243,7 @@ public class InMemoryIntegrationPersistence {
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.relationService = injector.getInstance(RelationService.class);
-            this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+            this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
             this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
@@ -387,7 +387,7 @@ public class InMemoryIntegrationPersistence {
     public MeteringGroupsService getMeteringGroupsService() {
         return meteringGroupsService;
     }
-    
+
     public EstimationService getEstimationService() {
         return estimationService;
     }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -321,7 +322,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range);
 
     DeviceValidation forValidation();
-    
+
     DeviceEstimation forEstimation();
 
     public Optional<UsagePoint> getUsagePoint();
@@ -354,7 +355,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The State
      */
     public Optional<State> getState(Instant instant);
-    
+
     public long getVersion();
 
     /**
@@ -363,6 +364,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The StateTimeline
      */
     public StateTimeline getStateTimeline();
+
+    public LifecycleDates getLifecycleDates();
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

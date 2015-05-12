@@ -92,6 +92,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -861,6 +862,7 @@ public class DeviceImpl implements Device, CanLock {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
         Meter meter = amrSystem.newMeter(stateMachine, String.valueOf(getId()), getmRID());
         meter.setSerialNumber(getSerialNumber());
+        meter.getLifecycleDates().setReceivedDate(this.clock.instant());
         meter.save();
         return meter;
     }
@@ -1745,7 +1747,7 @@ public class DeviceImpl implements Device, CanLock {
     public Optional<State> getState(Instant instant) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            if (this.id > 1) {
+            if (this.id > 0) {
                 Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
                 if (meter.isPresent()) {
                     return meter.get().getState(instant);
@@ -1768,7 +1770,24 @@ public class DeviceImpl implements Device, CanLock {
     public StateTimeline getStateTimeline() {
         return this.getOptionalMeterAspect(EndDevice::getStateTimeline).get();
     }
-    
+
+    @Override
+    public LifecycleDates getLifecycleDates() {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return meter.get().getLifecycleDates();
+            }
+            else {
+                return new NoCimLifeCycleDates();
+            }
+        }
+        else {
+            return new NoCimLifeCycleDates();
+        }
+    }
+
     @Override
     public long getVersion() {
         return version;
@@ -2072,4 +2091,65 @@ public class DeviceImpl implements Device, CanLock {
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
     }
 
+    private class NoCimLifeCycleDates implements LifecycleDates {
+        @Override
+        public Optional<Instant> getManufacturedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setManufacturedDate(Instant manufacturedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getPurchasedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setPurchasedDate(Instant purchasedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getReceivedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setReceivedDate(Instant receivedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getInstalledDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setInstalledDate(Instant installedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getRemovedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setRemovedDate(Instant removedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getRetiredDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setRetiredDate(Instant retiredDate) {
+            // Ignore blissfully
+        }
+    }
 }
