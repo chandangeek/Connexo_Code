@@ -2,7 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -52,7 +52,7 @@ public class ComTaskEnablementResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getComTaskEnablements(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getComTaskEnablements(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ComTaskEnablementInfo> comTaskEnablements = ComTaskEnablementInfo.from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).find(), thesaurus);
@@ -170,7 +170,7 @@ public class ComTaskEnablementResource {
      * @return A list of ComTasks which are allowed for the given DeviceType. If the DeviceType doesn't support firmwareUpgrades,
      * then the 'Firmware Management' ComTask is not displayed.
      */
-    public PagedInfoList getAllowedComTasksWhichAreNotDefinedYetFor(long deviceTypeId, long deviceConfigurationId, QueryParameters queryParameters, UriInfo uriInfo) {
+    public PagedInfoList getAllowedComTasksWhichAreNotDefinedYetFor(long deviceTypeId, long deviceConfigurationId, JsonQueryParameters queryParameters, UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ComTaskEnablementInfo.ComTaskInfo> deviceConfigurationComTaskInfos = getAllowedComTaskInfos(deviceType, deviceConfiguration);

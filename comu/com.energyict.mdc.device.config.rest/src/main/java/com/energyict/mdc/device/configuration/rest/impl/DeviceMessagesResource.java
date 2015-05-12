@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
@@ -57,7 +57,7 @@ public class DeviceMessagesResource {
     public PagedInfoList getDeviceMessages(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
 
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -90,7 +90,7 @@ public class DeviceMessagesResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response activateDeviceMessages(@PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam QueryParameters queryParameters,
+            @BeanParam JsonQueryParameters queryParameters,
             DeviceMessageEnablementInfo enablementInfo) {
 
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -116,7 +116,7 @@ public class DeviceMessagesResource {
     public Response deactivateDeviceMessages(@PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @QueryParam("messageId") List<Long> messageIds,
-            @BeanParam QueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters) {
 
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
@@ -135,7 +135,7 @@ public class DeviceMessagesResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response changeDeviceMessagePrivileges(@PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam QueryParameters queryParameters,
+            @BeanParam JsonQueryParameters queryParameters,
             DeviceMessageEnablementInfo enablementInfo) {
 
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);

@@ -8,11 +8,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
@@ -33,19 +30,16 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
-
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.dtc.rest",
         service = {Application.class, TranslationKeyProvider.class},
@@ -85,10 +79,6 @@ public class DeviceConfigurationApplication extends Application implements Trans
                 DeviceConfigurationResource.class,
                 RegisterConfigurationResource.class,
                 ReadingTypeResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class,
                 ProtocolDialectResource.class,
                 ConnectionMethodResource.class,
                 RegisterTypeResource.class,

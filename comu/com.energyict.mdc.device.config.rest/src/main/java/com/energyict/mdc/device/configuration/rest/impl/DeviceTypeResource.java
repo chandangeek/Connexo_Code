@@ -8,8 +8,8 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -81,7 +81,7 @@ public class DeviceTypeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getAllDeviceTypes(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getAllDeviceTypes(@BeanParam JsonQueryParameters queryParameters) {
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
         List<DeviceTypeInfo> deviceTypeInfos = DeviceTypeInfo.from(allDeviceTypes);
@@ -152,7 +152,7 @@ public class DeviceTypeResource {
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
+    public PagedInfoList getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         final List<LogBookType> logbookTypes = new ArrayList<>();
         if (available == null || !Boolean.parseBoolean(available)) {
@@ -164,7 +164,7 @@ public class DeviceTypeResource {
         return PagedInfoList.fromPagedList("logbookTypes", logBookTypeInfos, queryParameters);
     }
 
-    private void findAllAvailableLogBookTypesForDeviceType(QueryParameters queryParameters, DeviceType deviceType, List<LogBookType> logBookTypes) {
+    private void findAllAvailableLogBookTypesForDeviceType(JsonQueryParameters queryParameters, DeviceType deviceType, List<LogBookType> logBookTypes) {
         Set<Long> deviceTypeLogBookTypeIds = asIds(deviceType.getLogBookTypes());
         for (LogBookType logBookType : this.masterDataService.findAllLogBookTypes().from(queryParameters).find()) {
             if (!deviceTypeLogBookTypeIds.contains(logBookType.getId())) {
@@ -264,7 +264,7 @@ public class DeviceTypeResource {
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
+    public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Boolean available = availableFilter.getBoolean("available");
         List<RegisterType> matchingRegisterTypes = new ArrayList<>();

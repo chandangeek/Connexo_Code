@@ -1,31 +1,29 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.jayway.jsonpath.JsonModel;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
 import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Matchers;
 
-import com.elster.jupiter.estimation.EstimationRule;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.jayway.jsonpath.JsonModel;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DeviceConfigurationEstimationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
@@ -38,6 +36,7 @@ public class DeviceConfigurationEstimationRuleSetResourceTest extends DeviceConf
         when(deviceConfigurationService.findDeviceConfigurationsForEstimationRuleSet(ruleSet)).thenReturn(finder);
         when(finder.find()).thenReturn(Arrays.asList(deviceConfig));
         when(finder.paged(Matchers.anyInt(), Matchers.anyInt())).thenReturn(finder);
+        when(finder.from(any())).thenReturn(finder);
         when(deviceConfig.getId()).thenReturn(18L);
         when(deviceConfig.getName()).thenReturn("Device Config");
         when(deviceConfig.getLoadProfileSpecs().size()).thenReturn(5);

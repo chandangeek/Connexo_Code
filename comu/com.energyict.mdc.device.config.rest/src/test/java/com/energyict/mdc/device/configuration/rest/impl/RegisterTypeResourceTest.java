@@ -11,21 +11,20 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
@@ -45,7 +45,7 @@ public class RegisterGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public PagedInfoList getRegisterGroups(@BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getRegisterGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();
         List<RegisterGroupInfo> registerGroupInfos = new ArrayList<>();
         for (RegisterGroup registerGroup : allRegisterGroups) {
@@ -67,7 +67,7 @@ public class RegisterGroupResource {
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
-    public Response getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
+    public Response getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         return Response.ok(PagedInfoList.fromCompleteList("registerTypes", registerGroupInfo.registerTypes, queryParameters)).build();
     }

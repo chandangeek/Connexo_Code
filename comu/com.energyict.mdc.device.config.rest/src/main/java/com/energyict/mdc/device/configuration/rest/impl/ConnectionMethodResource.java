@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -73,7 +72,7 @@ public class ConnectionMethodResource {
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public PagedInfoList getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                               @PathParam("deviceConfigurationId") long deviceConfigurationId,
-                                              @BeanParam QueryParameters queryParameters,
+                                              @BeanParam JsonQueryParameters queryParameters,
                                               @Context UriInfo uriInfo,
                                               @QueryParam("available") Boolean available,
                                               @QueryParam("mrId") String mrId) {
