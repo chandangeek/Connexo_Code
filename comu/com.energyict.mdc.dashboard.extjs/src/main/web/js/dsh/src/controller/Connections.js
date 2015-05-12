@@ -1,5 +1,5 @@
 Ext.define('Dsh.controller.Connections', {
-    extend: 'Dsh.controller.BaseController',
+    extend: 'Ext.app.Controller',
 
     models: [
         'Dsh.model.ConnectionTask',
@@ -43,11 +43,7 @@ Ext.define('Dsh.controller.Connections', {
         },
         {
             ref: 'filterPanel',
-            selector: '#connectionsdetails filter-top-panel'
-        },
-        {
-            ref: 'sideFilterForm',
-            selector: '#connectionsdetails #filter-form'
+            selector: '#connectionsdetails dsh-view-widget-connectionstopfilter'
         },
         {
             ref: 'connectionsActionMenu',
@@ -66,8 +62,6 @@ Ext.define('Dsh.controller.Connections', {
             selector: '#communicationPreviewActionMenu'
         }
     ],
-
-    prefix: '#connectionsdetails',
 
     init: function () {
         this.control({
@@ -98,11 +92,11 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     showOverview: function () {
-        var widget = Ext.widget('connections-details'),
-            store = this.getStore('Dsh.store.ConnectionTasks');
+        var me = this,
+            widget = Ext.widget('connections-details'),
+            store = me.getStore('Dsh.store.ConnectionTasks');
 
-        this.getApplication().fireEvent('changecontentevent', widget);
-        this.initFilter();
+        me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
     },
 
@@ -122,7 +116,7 @@ Ext.define('Dsh.controller.Connections', {
         record.data.title = record.data.comTask.name + ' on ' + record.data.device.name;
         preview.setTitle(record.data.title);
         preview.loadRecord(record);
-        this.initMenu(record, menuItems);
+        me.initMenu(record, menuItems);
     },
 
     initMenu: function (record, menuItems) {
@@ -135,22 +129,22 @@ Ext.define('Dsh.controller.Connections', {
         gridActionMenu.removeAll();
         previewActionMenu.removeAll();
 
-            if (record.get('sessionId') !== 0) {
-                menuItems.push({
-                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), record.get('comTask').name),
-                    action: {
-                        action: 'viewlog',
-                        comTask: {
-                            mRID: record.get('device').id,
-                            sessionId: record.get('id'),
-                            comTaskId: record.get('comTask').id
-                        }
-                    },
-                    listeners: {
-                        click: me.viewCommunicationLog
+        if (record.get('sessionId') !== 0) {
+            menuItems.push({
+                text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), record.get('comTask').name),
+                action: {
+                    action: 'viewlog',
+                    comTask: {
+                        mRID: record.get('device').id,
+                        sessionId: record.get('id'),
+                        comTaskId: record.get('comTask').id
                     }
-                });
-            }
+                },
+                listeners: {
+                    click: me.viewCommunicationLog
+                }
+            });
+        }
 
         gridActionMenu.add(menuItems);
         previewActionMenu.add(menuItems);
@@ -194,15 +188,21 @@ Ext.define('Dsh.controller.Connections', {
 
     viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' + item.action.comTask.comTaskId
-            + '/history/' + item.action.comTask.sessionId
-            + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+        + '/communicationtasks/' + item.action.comTask.comTaskId
+        + '/history/' + item.action.comTask.sessionId
+        + '/viewlog' +
+        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
+
     onGenerateReport: function () {
-        var me = this;
-        var router = this.getController('Uni.controller.history.Router');
-        var fieldsToFilterNameMap = {};
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            fieldsToFilterNameMap = {},
+            reportFilter = false,
+            filterName = undefined,
+            fieldValue = undefined,
+            filters = me.getFilterPanel().filters;
+
         fieldsToFilterNameMap['deviceGroup'] = 'GROUPNAME';
         fieldsToFilterNameMap['currentStates'] = 'STATUS';
         fieldsToFilterNameMap['latestResults'] = null;
@@ -211,39 +211,33 @@ Ext.define('Dsh.controller.Connections', {
         fieldsToFilterNameMap['comTasks'] = 'COMTASKNAME';
         fieldsToFilterNameMap['comPortPools'] = 'PORTPOOLNAME';
         fieldsToFilterNameMap['connectionTypes'] = 'CONNECTIONTYPE';
+        // TODO Check if finished interval is even supported by the Yellowfin report.
+        //fieldsToFilterNameMap['finishInterval'] = 'CONNECTIONDATE-FINISH';
 
-        var reportFilter = false;
-
-        var fields = me.getSideFilterForm().getForm().getFields();
-        fields.each(function (field) {
+        filters.each(function (filter) {
+            filterName = fieldsToFilterNameMap[filter.dataIndex];
             reportFilter = reportFilter || {};
-            var filterName = fieldsToFilterNameMap[field.getName()];
-            if (filterName) {
-                var fieldValue = field.getRawValue();
-                if (field.getXType() == 'side-filter-combo') {
-                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue;
-                    fieldValue = _.isArray(fieldValue) && _.compact(fieldValue) || fieldValue;
-                }
+            fieldValue = undefined;
+
+            switch (filter.getXType()) {
+                case 'uni-grid-filtertop-interval':
+                    var fromValue = filter.getFromDateValue(),
+                        toValue = filter.getToDateValue();
+
+                    if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
+                        fieldValue = {
+                            from: Ext.Date.format(fromValue, "Y-m-d H:i:s"),
+                            to: Ext.Date.format(toValue, "Y-m-d H:i:s")
+                        };
+                    }
+                    break;
+                default:
+                    fieldValue = filter.getParamValue();
+                    break;
             }
+
             reportFilter[filterName] = fieldValue;
-        });
-
-        //handle special startBetween and finishBetween;
-
-        if(router.filter && router.filter.startedBetween){
-            var from = router.filter.startedBetween.get('from');
-            var to = router.filter.startedBetween.get('to');
-            reportFilter['CONNECTIONDATE'] ={
-                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
-                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
-            };
-        }
-
-
-
-        //handle special startBetween and finishBetween;
-        //router.filter.startedBetween
-        //router.filter.finishBetween
+        }, me);
 
         router.getRoute('generatereport').forward(null, {
             category: 'MDC',
@@ -254,38 +248,33 @@ Ext.define('Dsh.controller.Connections', {
 
     connectionRun: function (record) {
         var me = this;
+
         record.run(function () {
-            me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('connection.run.now', 'MDC', 'Run succeeded')
-            );
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connection.run.now', 'MDC', 'Run succeeded'));
             record.set('nextExecution', new Date());
             me.showOverview();
         });
-
     },
 
     viewLog: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
-            {
-                mRID: record.get('device').id,
-                connectionMethodId: record.get('id'),
-                historyId: record.get('comSessionId')
-            });
+        router.getRoute('devices/device/connectionmethods/history/viewlog').forward({
+            mRID: record.get('device').id,
+            connectionMethodId: record.get('id'),
+            historyId: record.get('comSessionId')
+        });
     },
 
     viewHistory: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('devices/device/connectionmethods/history').forward(
-            {
-                mRID: record.get('device').id,
-                connectionMethodId: record.get('id')
-            }
-        );
+        router.getRoute('devices/device/connectionmethods/history').forward({
+            mRID: record.get('device').id,
+            connectionMethodId: record.get('id')
+        });
     },
 
     forwardToBulk: function () {

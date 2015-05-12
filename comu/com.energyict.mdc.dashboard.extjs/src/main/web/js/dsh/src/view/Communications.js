@@ -5,7 +5,7 @@ Ext.define('Dsh.view.Communications', {
     requires: [
         'Dsh.view.widget.CommunicationsList',
         'Dsh.view.widget.PreviewCommunication',
-        'Dsh.view.widget.CommunicationSideFilter',
+        'Dsh.view.widget.CommunicationsTopFilter',
         'Dsh.view.widget.PreviewConnection',
         'Dsh.store.CommunicationTasks'
     ],
@@ -13,11 +13,13 @@ Ext.define('Dsh.view.Communications', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('workspace.dataCommunication.communication.title', 'DSH', 'Communications')
-        },
-        {
-            xtype: 'filter-top-panel',
-            itemId: 'dshcommunicationsfilterpanel'
+            title: Uni.I18n.translate('workspace.dataCommunication.communication.title', 'DSH', 'Communications'),
+            dockedItems: [
+                {
+                    dock: 'top',
+                    xtype: 'dsh-view-widget-communicationstopfilter'
+                }
+            ]
         },
         {
             xtype: 'preview-container',
@@ -31,7 +33,8 @@ Ext.define('Dsh.view.Communications', {
                 reasons: [
                     Uni.I18n.translate('workspace.dataCommunication.communication.empty.list.item1', 'DSH', 'No communications in the system.'),
                     Uni.I18n.translate('workspace.dataCommunication.communication.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
-                ]
+                ],
+                margins: '16 0 0 0'
             },
             previewComponent: {
                 hidden: true,
@@ -52,12 +55,6 @@ Ext.define('Dsh.view.Communications', {
         }
     ],
 
-    side: [
-        {
-            xtype: 'dsh-comm-side-filter',
-            itemId: 'dshcommunicationssidefilter'
-        }
-    ],
     initComponent: function () {
         this.callParent(arguments);
     }

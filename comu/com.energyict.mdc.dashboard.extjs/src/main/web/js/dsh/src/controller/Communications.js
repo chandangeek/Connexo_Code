@@ -1,5 +1,5 @@
 Ext.define('Dsh.controller.Communications', {
-    extend: 'Dsh.controller.BaseController',
+    extend: 'Ext.app.Controller',
 
     models: [
         'Dsh.model.ConnectionTask',
@@ -35,11 +35,7 @@ Ext.define('Dsh.controller.Communications', {
         },
         {
             ref: 'filterPanel',
-            selector: '#communicationsdetails filter-top-panel'
-        },
-        {
-            ref: 'sideFilterForm',
-            selector: '#communicationsdetails #filter-form'
+            selector: '#communicationsdetails dsh-view-widget-communicationstopfilter'
         },
         {
             ref: 'communicationsGrid',
@@ -59,8 +55,6 @@ Ext.define('Dsh.controller.Communications', {
         }
     ],
 
-    prefix: '#communicationsdetails',
-
     init: function () {
         this.control({
             '#communicationsdetails #communicationslist': {
@@ -78,19 +72,20 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     showOverview: function () {
-        var widget = Ext.widget('communications-details'),
-            store = this.getStore('Dsh.store.CommunicationTasks');
+        var me = this,
+            widget = Ext.widget('communications-details'),
+            store = me.getStore('Dsh.store.CommunicationTasks');
 
-        this.getApplication().fireEvent('changecontentevent', widget);
-        this.initFilter();
+        me.getApplication().fireEvent('changecontentevent', widget);
         store.load();
     },
 
     initMenu: function (record, menuItems, me) {
+        var me = this;
 
-        this.getCommunicationsGridActionMenu().menu.removeAll();
-        this.getCommunicationPreviewActionMenu().menu.removeAll();
-        this.getConnectionsPreviewActionBtn().menu.removeAll();
+        me.getCommunicationsGridActionMenu().menu.removeAll();
+        me.getCommunicationPreviewActionMenu().menu.removeAll();
+        me.getConnectionsPreviewActionBtn().menu.removeAll();
 
         Ext.suspendLayouts();
 
@@ -158,11 +153,11 @@ Ext.define('Dsh.controller.Communications', {
             }
         };
 
-        this.getCommunicationsGridActionMenu().menu.add(menuItems);
-        this.getCommunicationPreviewActionMenu().menu.add(menuItems);
+        me.getCommunicationsGridActionMenu().menu.add(menuItems);
+        me.getCommunicationPreviewActionMenu().menu.add(menuItems);
 
         if (record.get('connectionTask').comSessionId !== 0) {
-            this.getConnectionsPreviewActionBtn().menu.add(connectionMenuItem);
+            me.getConnectionsPreviewActionBtn().menu.add(connectionMenuItem);
         }
 
         Ext.resumeLayouts(true);
@@ -174,8 +169,9 @@ Ext.define('Dsh.controller.Communications', {
             connPreview = me.getConnectionPreview(),
             record = selected[0],
             menuItems = [];
+
         if (record) {
-            this.initMenu(record, menuItems, me);
+            me.initMenu(record, menuItems, me);
             preview.loadRecord(record);
             preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
             if (record.getData().connectionTask) {
@@ -191,56 +187,60 @@ Ext.define('Dsh.controller.Communications', {
 
     viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' + item.action.comTask.comTaskId
-            + '/history/' + item.action.comTask.sessionId
-            + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+        + '/communicationtasks/' + item.action.comTask.comTaskId
+        + '/history/' + item.action.comTask.sessionId
+        + '/viewlog' +
+        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
 
     viewConnectionLog: function (item) {
         location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
+        '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
     },
 
     onGenerateReport: function () {
-        var me = this;
-        var router = this.getController('Uni.controller.history.Router');
-        var fieldsToFilterNameMap = {};
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            fieldsToFilterNameMap = {},
+            reportFilter = false,
+            filterName = undefined,
+            fieldValue = undefined,
+            filters = me.getFilterPanel().filters;
+
         fieldsToFilterNameMap['deviceGroup'] = 'GROUPNAME';
         fieldsToFilterNameMap['currentStates'] = 'STATUS';
         fieldsToFilterNameMap['latestResults'] = null;
         fieldsToFilterNameMap['comSchedules'] = 'SCHEDULENAME';
         fieldsToFilterNameMap['deviceTypes'] = null;
         fieldsToFilterNameMap['comTasks'] = 'COMTASKNAME';
+        fieldsToFilterNameMap['startInterval'] = 'CONNECTIONDATE';
+        // TODO Check if finished interval is even supported by the Yellowfin report.
+        //fieldsToFilterNameMap['finishInterval'] = 'CONNECTIONDATE-FINISH';
 
-        var reportFilter = false;
-
-        var fields = me.getSideFilterForm().getForm().getFields();
-        fields.each(function (field) {
+        filters.each(function (filter) {
+            filterName = fieldsToFilterNameMap[filter.dataIndex];
             reportFilter = reportFilter || {};
-            var filterName = fieldsToFilterNameMap[field.getName()];
-            if (filterName) {
-                var fieldValue = field.getRawValue();
-                if (field.getXType() == 'side-filter-combo') {
-                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue;
-                    fieldValue = _.isArray(fieldValue) && _.compact(fieldValue) || fieldValue;
-                }
+            fieldValue = undefined;
+
+            switch (filter.getXType()) {
+                case 'uni-grid-filtertop-interval':
+                    var fromValue = filter.getFromDateValue(),
+                        toValue = filter.getToDateValue();
+
+                    if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
+                        fieldValue = {
+                            from: Ext.Date.format(fromValue, "Y-m-d H:i:s"),
+                            to: Ext.Date.format(toValue, "Y-m-d H:i:s")
+                        };
+                    }
+                    break;
+                default:
+                    fieldValue = filter.getParamValue();
+                    break;
             }
+
             reportFilter[filterName] = fieldValue;
-        });
-
-        //handle special startBetween and finishBetween;
-        //router.filter.startedBetween
-        //router.filter.finishBetween
-
-        if(router.filter && router.filter.startedBetween){
-            var from = router.filter.startedBetween.get('from');
-            var to = router.filter.startedBetween.get('to');
-            reportFilter['CONNECTIONDATE'] ={
-                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
-                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
-            };
-        }
+        }, me);
 
         router.getRoute('generatereport').forward(null, {
             category: 'MDC',
