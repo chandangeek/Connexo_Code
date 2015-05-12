@@ -45,11 +45,12 @@ public class BpmServiceImpl implements BpmService, InstallService {
     }
 
     @Inject
-    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, UserService userService) {
+    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService) {
         setOrmService(ormService);
         setMessageService(messageService);
         setJsonService(jsonService);
         setUserService(userService);
+        setNlsService(nlsService);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
