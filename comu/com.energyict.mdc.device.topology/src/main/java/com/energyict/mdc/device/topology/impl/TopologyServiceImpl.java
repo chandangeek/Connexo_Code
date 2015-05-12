@@ -91,7 +91,9 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         this.setConnectionTaskService(connectionTaskService);
         this.setCommunicationTaskService(communicationTaskService);
         this.activate();
-        this.install();
+        if (!this.dataModel.isInstalled()) {
+            this.install();
+        }
     }
 
     @Override

@@ -29,6 +29,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -297,6 +301,22 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         private MockProtocolPluggableService() {
             super();
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        }
+
+        @Override
+        public void addLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
+        }
+
+        @Override
+        public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
+        }
+
+        @Override
+        public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
+        }
+
+        @Override
+        public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
         }
 
         @Override
