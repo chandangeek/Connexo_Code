@@ -59,6 +59,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'empty-panel',
                             title: Uni.I18n.translate('firmware.empty.title', 'MDC', 'No firmware versions found'),
                             reasons: [
                                 Uni.I18n.translate('firmware.empty.list.item1', 'MDC', 'No firmware versions have been added yet.'),
@@ -67,6 +68,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('firmware.add', 'MDC', 'Add firmware version'),
+                                    itemId: 'add-firmware-button',
                                     action: 'addFirmware'
                                 }
                             ]
