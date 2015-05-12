@@ -141,7 +141,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private TransactionService transactionService;
     @Mock
     private Principal principal;
-    private ProtocolPluggableServiceImpl protocolPluggableService;
+    private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     @Mock
     private LicenseService licenseService;
@@ -206,7 +206,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(EngineConfigurationService.class);
-            protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+            protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             when(this.deviceProtocolService.createProtocol(MyDeviceProtocolPluggableClass.class.getName())).thenReturn(new MyDeviceProtocolPluggableClass());
             protocolPluggableService.addDeviceProtocolService(this.deviceProtocolService);
