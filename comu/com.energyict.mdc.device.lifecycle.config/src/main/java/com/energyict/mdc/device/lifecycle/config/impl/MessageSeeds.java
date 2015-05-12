@@ -17,7 +17,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // Generic
     FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
-    CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field cannot be empty"),
+    CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
 
     // DeviceLifeCycle
     UNIQUE_DEVICE_LIFE_CYCLE_NAME(202, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "The name of a device life cycle must be unique");
