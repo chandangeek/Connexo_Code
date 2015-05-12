@@ -1,6 +1,9 @@
 package com.energyict.mdc.common.services;
 
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,7 +33,7 @@ public class ListPager<T> implements Finder<T> {
         return new ListPager<>(elements);
     }
 
-    public ListPager<T> paged(Integer start, Integer pageSize) {
+    public ListPager<T> paged(int start, int pageSize) {
         this.start=start;
         this.pageSize=pageSize;
         return this;
@@ -38,11 +41,6 @@ public class ListPager<T> implements Finder<T> {
 
     @Override
     public Finder<T> sorted(String sortColumn, boolean ascending) {
-        throw new RuntimeException("Sorting not supported yet. Use DefaultFinder instead");
-    }
-
-    @Override
-    public Finder<T> defaultSortColumn(String sortColumn) {
         throw new RuntimeException("Sorting not supported yet. Use DefaultFinder instead");
     }
 
@@ -62,7 +60,20 @@ public class ListPager<T> implements Finder<T> {
     }
 
     public ListPager<T> from(QueryParameters queryParameters) {
-        this.paged(queryParameters.getStart(), queryParameters.getLimit());
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+        }
         return this;
     }
+
+    @Override
+    public Subquery asSubQuery(String... fieldNames) {
+        throw new IllegalStateException("Not implemented");
+    }
+
+    @Override
+    public SqlFragment asFragment(String... fieldNames) {
+        throw new IllegalStateException("Not implemented");
+    }
+
 }
