@@ -31,7 +31,6 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetPreview', {
                         {
                             text: Uni.I18n.translate('estimationDevice.addEstimationRule', 'MDC', 'Add estimation rule'),
                             itemId: 'add-estimation-rule-button',
-                            ui: 'action',
                             href: '#/administration/estimationrulesets/' + me.rulesSetId + '/rules/add'
                         }
                     ]
