@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
