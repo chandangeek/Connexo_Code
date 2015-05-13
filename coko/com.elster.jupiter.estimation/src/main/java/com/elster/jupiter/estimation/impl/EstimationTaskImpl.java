@@ -13,6 +13,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -230,7 +231,8 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public EstimationTaskOccurrenceFinder getOccurrencesFinder() {
-        Condition condition = where("recurrentTask").isEqualTo(getRecurrentTask());
+        Condition condition = where("recurrentTask").isEqualTo(getRecurrentTask())
+                .and(where("status").isNotEqual(TaskStatus.NOT_EXECUTED_YET));
         Order order = Order.ascending("triggerTime");
         return new EstimationTaskOccurrenceFinderImpl(taskService, condition, order);
     }
