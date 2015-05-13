@@ -1,4 +1,4 @@
-package com.elster.jupiter.systemadmin.rest.resource;
+package com.elster.jupiter.systemadmin.rest.imp.resource;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;

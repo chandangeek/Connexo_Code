@@ -2,9 +2,9 @@ package com.elster.jupiter.systemadmin.rest;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
-import com.elster.jupiter.systemadmin.rest.response.LifeCycleCategoryInfo;
-import com.elster.jupiter.systemadmin.rest.response.ListInfo;
-import com.elster.jupiter.systemadmin.rest.response.PurgeHistoryInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.LifeCycleCategoryInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.ListInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.PurgeHistoryInfo;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.util.logging.LogEntry;

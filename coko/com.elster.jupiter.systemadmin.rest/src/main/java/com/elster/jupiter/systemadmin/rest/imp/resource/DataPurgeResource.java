@@ -1,4 +1,4 @@
-package com.elster.jupiter.systemadmin.rest.resource;
+package com.elster.jupiter.systemadmin.rest.imp.resource;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
@@ -6,10 +6,10 @@ import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.data.lifecycle.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.systemadmin.rest.response.LifeCycleCategoryInfo;
-import com.elster.jupiter.systemadmin.rest.response.ListInfo;
-import com.elster.jupiter.systemadmin.rest.response.PurgeHistoryInfo;
-import com.elster.jupiter.systemadmin.rest.response.PurgeHistoryLogInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.LifeCycleCategoryInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.ListInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.PurgeHistoryInfo;
+import com.elster.jupiter.systemadmin.rest.imp.response.PurgeHistoryLogInfo;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;

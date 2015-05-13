@@ -1,8 +1,8 @@
-package com.elster.jupiter.systemadmin.rest.resource;
+package com.elster.jupiter.systemadmin.rest.imp.resource;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.systemadmin.rest.LicensingApplication;
+import com.elster.jupiter.systemadmin.rest.imp.LicensingApplication;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.text.MessageFormat;

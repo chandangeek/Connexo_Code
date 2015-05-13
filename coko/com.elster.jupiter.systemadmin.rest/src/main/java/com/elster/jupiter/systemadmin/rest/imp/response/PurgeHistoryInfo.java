@@ -1,4 +1,4 @@
-package com.elster.jupiter.systemadmin.rest.response;
+package com.elster.jupiter.systemadmin.rest.imp.response;
 
 import com.elster.jupiter.tasks.TaskOccurrence;
 
