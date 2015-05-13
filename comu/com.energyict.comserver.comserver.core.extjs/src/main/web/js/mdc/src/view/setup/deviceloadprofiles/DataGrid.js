@@ -37,6 +37,18 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 width: 200
             }
         ];
+        me.dockedItems = [
+            {
+                itemId: 'pagingtoolbartop',
+                xtype: 'pagingtoolbartop',
+                dock: 'top',
+                store: me.store,
+                isFullTotalCount: true,
+                displayMsg: '{2} reading(s)',
+                items: [
+                ]
+            }
+        ];
         Ext.Array.each(me.channels, function (channel) {
             var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.measuringPeriod + ' ' + channel.calculatedReadingType.aliasName + ' (' + channel.calculatedReadingType.unit + ')' : channel.readingType.measuringPeriod + ' ' + channel.readingType.aliasName + ' (' + channel.readingType.unit + ')';
             me.columns.push({

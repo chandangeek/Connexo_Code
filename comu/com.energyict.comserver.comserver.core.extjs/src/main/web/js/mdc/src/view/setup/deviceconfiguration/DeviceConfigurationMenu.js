@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 ]
             },
             {
-                title: Uni.I18n.translate('devicemenu.validation', 'MDC', 'Validation'),
+                title: Uni.I18n.translate('devicemenu.readingQuality', 'MDC', 'Reading quality'),
                 privileges: Cfg.privileges.Validation.fineTuneOnDeviceConfiguration,
                 xtype: 'menu',
                 items: [
@@ -83,6 +83,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                         itemId: 'validationRuleSetsLink',
                         privileges: Cfg.privileges.Validation.fineTuneOnDeviceConfiguration,
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/validationrulesets'
+                    },
+                    {
+                        text: Uni.I18n.translate('deviceconfiguration.estimation.rule.sets', 'MDC', 'Estimation rule sets'),
+                        itemId: 'estimationRuleSetsLink',
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/estimationrulesets',
+                        privileges : Mdc.privileges.DeviceConfigurationEstimations.view
                     }
                 ]
             }

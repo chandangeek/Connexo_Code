@@ -1,9 +1,6 @@
-Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileRegister', {
-    extend: 'Uni.view.container.ContentContainer',	
-   
-    alias: 'widget.deviceValidationResultsLoadProfileRegister',
-    itemId: 'deviceValidationResultsLoadProfileRegister',
-	ui: 'medium',
+Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileRegister', {   
+   extend: 'Ext.container.Container',   
+    alias: 'widget.mdc-device-validation-results-load-profile-register',    
 	layout: {
 		type: 'vbox',
 		align: 'stretch'
@@ -13,9 +10,9 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
 		'Mdc.view.setup.devicevalidationresults.LoadProfileList'
 
 	],
-	margin: '0 0 0 -16',
+	
 	initComponent: function () {
-		this.content = [
+		this.items = [
 			{
 				xtype: 'container',
 				layout: {
@@ -26,7 +23,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
 				items: [
 					{
 						xtype: 'form',
-						itemId: 'deviceValidationResultsLoadProfileRegisterForm',
+						itemId: 'frm-device-validation-results-load-profile-register',
 						flex: 1,
 						layout: {
 							type: 'vbox',
@@ -39,16 +36,17 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
 						items: [
 							{
 								xtype: 'displayfield',
-								itemId: 'data-view-data-validated',
+								itemId: 'dpl-data-view-data-validated',
 								fieldLabel: Uni.I18n.translate('validationResults.dataValidated', 'MDC', 'Data validated'),
-								name: 'allDataValidatedDisplay'
-
+								name: 'allDataValidatedDisplay',
+								value: Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...')
 							},
 							{
 								xtype: 'displayfield',
-								itemId: 'data-view-validation-results',
+								itemId: 'dpl-data-view-validation-results',
 								fieldLabel: Uni.I18n.translate('validationResults.validationResults', 'MDC', 'Validation results'),
-								name: 'total'
+								name: 'total',
+								value: Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...')
 							}
 						]
 					},
@@ -62,7 +60,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
 						items: [
 							{
 								xtype: 'button',
-								itemId: 'configuration-view-validate-now',
+								itemId: 'btn-data-view-validate-now',
 								text: Uni.I18n.translate('validationResults.validateNow', 'MDC', 'Validate now'),
 								disabled: true
 							}
@@ -77,19 +75,23 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
 					type: 'vbox',
 					align: 'stretch'
 				},
-				itemId: 'data-view-validation-results-browse',
+				margin: '0 -16 0 -16',
+				ui: 'medium', 
+				itemId: 'con-data-view-validation-results-browse',
 				items: [
 					{
-						ui: 'large',
+						ui: 'medium',
 						itemId: 'validation-result-load-profile-list',
+						hidden: true,
 						title: Uni.I18n.translate('device.dataValidation.loadProfiles', 'MDC', 'Load profiles'),
-						xtype: 'loadProfileList'
+						xtype: 'mdc-load-profile-list'
 					},
 					{
-						ui: 'large',
+						ui: 'medium',
 						itemId: 'validation-result-register-list',
+						hidden: true,
 						title: Uni.I18n.translate('device.dataValidation.registers', 'MDC', 'Registers'),
-						xtype: 'registerList'
+						xtype: 'mdc-register-list'
 					}
 
 				]
