@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package:  \
-	com.energyict.mdc.gogo
+Private-Package: com.energyict.mdc.gogo
+Export-Package: !com.energyict.mdc.gogo
