@@ -45,7 +45,7 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
         IMPLEMENTERS.put(REGISTER_TASK_DISCRIMINATOR, RegistersTaskImpl.class);
         IMPLEMENTERS.put(STATUS_INFORMATION_DISCRIMINATOR, StatusInformationTaskImpl.class);
         IMPLEMENTERS.put(TOPOLOGY_DISCRIMINATOR, TopologyTaskImpl.class);
-        IMPLEMENTERS.put(FIRMWARE_DISCRIMINATOR, FirmwareUpgradeTaskImpl.class);
+        IMPLEMENTERS.put(FIRMWARE_DISCRIMINATOR, FirmwareManagementTaskImpl.class);
     }
 
     private final DataModel dataModel;
@@ -152,6 +152,11 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
     @Override
     public boolean needsAllLoadProfiles() {
         return flags.needsAllLoadProfiles();
+    }
+
+    @Override
+    public boolean needsFirmwareVersions() {
+        return flags.needsFirmwareVersions();
     }
 
     protected <T extends HasId> T getById(List<T> list, long id) {

@@ -1,7 +1,7 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 
 /**
  * Adds behavior to ComTask that is private
@@ -14,6 +14,6 @@ public interface SystemComTask extends ComTask{
      *
      * @return the newly created FirmwareUpgradeTask
      */
-    public FirmwareUpgradeTask createFirmwareUpgradeTask() ;
+    public FirmwareManagementTask createFirmwareUpgradeTask() ;
 
 }

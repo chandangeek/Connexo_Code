@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -68,11 +68,12 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
 
     @Override
     public void install() {
-        if(!dataModel.isInstalled()){
+        if (!dataModel.isInstalled()) {
             dataModel.install(true, true);
         }
         this.createEventTypes();
         this.createFirmwareComTaskIfNotPresentYet();
+        this.createStatusInformationComTaskIfNotPresentYet();
     }
 
     @Override
@@ -131,12 +132,26 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
         }
     }
 
+    private void createStatusInformationComTaskIfNotPresentYet() {
+        if (!this.findStatusInformationComTask().isPresent()) {
+            createStatusInformationComTask();
+        }
+    }
+
     private void createFirmwareComTask() {
         SystemComTask systemComTask = dataModel.getInstance(SystemComTask.class);
         systemComTask.setName(FIRMWARE_COMTASK_NAME);
         systemComTask.createFirmwareUpgradeTask();
         systemComTask.save();
     }
+
+    private void createStatusInformationComTask() {
+        ComTask comTask = dataModel.getInstance(ComTask.class);
+        comTask.setName(STATUS_INFORMATION_COMTASK_NAME);
+        comTask.createStatusInformationTask();
+        comTask.save();
+    }
+
 
     Module getModule() {
         return new AbstractModule() {
@@ -159,7 +174,7 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
                 bind(LogBooksTask.class).to(LogBooksTaskImpl.class);
                 bind(TopologyTask.class).to(TopologyTaskImpl.class);
                 bind(MessagesTask.class).to(MessagesTaskImpl.class);
-                bind(FirmwareUpgradeTask.class).to(FirmwareUpgradeTaskImpl.class);
+                bind(FirmwareManagementTask.class).to(FirmwareManagementTaskImpl.class);
             }
         };
     }
@@ -193,7 +208,7 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
 
     @Override
     public List<ComTask> findAllSystemComTasks() {
-        return dataModel.mapper(ComTaskDefinedBySystemImpl.class).find().stream().map(comTaskDefinedBySystem -> (ComTask)comTaskDefinedBySystem).collect(Collectors.toList());
+        return dataModel.mapper(ComTaskDefinedBySystemImpl.class).find().stream().map(comTaskDefinedBySystem -> (ComTask) comTaskDefinedBySystem).collect(Collectors.toList());
     }
 
     @Override
@@ -204,6 +219,11 @@ public class TaskServiceImpl implements ServerTaskService, InstallService {
     @Override
     public Optional<ComTask> findFirmwareComTask() {
         List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", FIRMWARE_COMTASK_NAME);
+        return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
+    }
+
+    private Optional<ComTask> findStatusInformationComTask() {
+        List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", STATUS_INFORMATION_COMTASK_NAME);
         return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
     }
 
