@@ -1,4 +1,5 @@
 -classpath: target/classes
 Bundle-Activator: com.elster.jupiter.extjs.Activator
 Private-Package: com.elster.jupiter.extjs
+Export-Package: !com.elster.jupiter.extjs
 Include-Resource: src/main/web
