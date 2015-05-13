@@ -34,7 +34,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,7 +43,7 @@ import java.util.Optional;
  */
 @Component(name = "com.energyict.mdc.gogo.FirmwareUtils", service = FirmwareUtils.class,
         property = {"osgi.command.scope=mdc.firmware",
-                "osgi.command.function=createFirmwareUpgradeOptionsFor",
+                "osgi.command.function=createFirmwareManagementOptionsFor",
                 "osgi.command.function=createFirmwareMessageFor",
                 "osgi.command.function=triggerFirmwareTaskFor",
                 "osgi.command.function=createFirmwareVersionFor"},
@@ -112,7 +111,7 @@ public class FirmwareUtils {
     /**
      * Creates an options file
      */
-    public void createFirmwareUpgradeOptionsFor(String deviceTypeName) {
+    public void createFirmwareManagementOptionsFor(String deviceTypeName) {
         Optional<DeviceType> deviceTypeOptional = this.deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
         if (deviceTypeOptional.isPresent()) {
             executeTransaction(() -> {
@@ -132,7 +131,7 @@ public class FirmwareUtils {
                         if (numberOfRowsInserted == 1) {
                             System.out.println("Insert complete");
                         } else {
-                            System.out.println("Failed to create proper FirmwareUpgradeOptions for " + deviceTypeName);
+                            System.out.println("Failed to create proper FirmwareManagementOptions for " + deviceTypeName);
                         }
                     }
                 } catch (SQLException e) {
