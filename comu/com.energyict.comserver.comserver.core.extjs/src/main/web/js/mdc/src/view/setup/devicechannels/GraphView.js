@@ -112,22 +112,23 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     var tinfColor = 'rgba(222, 220, 73, 0.3)';
                     var tedColor = 'rgba(255, 255, 255, 0.85)';
                     var tnvalColor = 'rgba(0, 131, 200, 0.3)';
-                    var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
+                    var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x);
                     var point = this.points[0].point,
                         bgColor = tvalColor,
                         vicon = '',
                         bicon = '',
-                        iconFlag = '',
-                        iconConfirm = '';
+                        iconConfirm = 'icon-checkmark',
+                        iconEditedNotSaved = 'icon-starburst',
+                        iconEdited = 'icon-pencil';
 
-                    s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
-                    s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + 900000) + '<br>';
+                    s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
+                    s += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     s += '<table style="margin-top: 10px"><tbody>';
 
                     switch (point.validationResult) {
                         case 'suspect' :
                             bgColor = tsusColor;
-                            vicon = iconFlag;
+                            vicon = '<span class="icon-validation-red"></span>';
                             break;
                         case 'ok' :
                             bgColor = tvalColor;
@@ -157,9 +158,15 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     s += '<tr><td style="padding-right: 10px; text-align: right"><b>' +
                         point.series.name +
                         ':</b></td><td>' +
-                        point.y +
-                        ' kWh ' + vicon + '</td></tr>';
-                    s += '<tr><td style="padding-right: 10px; text-align: right"><b>Bulk value:</b></td><td>1000 kWh ' +
+                        point.y + ' ' +
+                        point.mesurementType +
+                        vicon +
+                        '</td></tr>';
+                    s += '<tr><td style="padding-right: 10px; text-align: right"><b>' +
+                        'Bulk value:' +
+                        '</b></td><td>' +
+                        point.collectedValue + ' ' +
+                        point.mesurementType  +
                         bicon +
                         '</td></tr>';
 

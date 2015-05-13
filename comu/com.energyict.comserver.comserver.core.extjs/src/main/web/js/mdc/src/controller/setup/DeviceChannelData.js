@@ -208,7 +208,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         if (dataStore.getTotalCount() > 0) {
-            var data = me.formatData(dataStore);
+            var data = me.formatData(dataStore, channelRecord);
             seriesObject['data'] = data.data;
             seriesObject['turboThreshold'] = 2000;
 
@@ -227,9 +227,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.getPage().doLayout();
     },
 
-    formatData: function (dataStore) {
+    formatData: function (dataStore, channelRecord) {
         var data = [];
         var missedValues = [];
+        var mesurementType = channelRecord.get('unitOfMeasure');
         var valColor = "#70BB51"; // "#70BB51"
         var estColor = "#568343"; // "#568343"
         var susColor = "#eb5642"; // "#eb5642"
@@ -243,19 +244,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             var modificationFlag = record.get('modificationFlag');
             var suspectReason = record.get('suspectReason');
             var point = {};
+
             point.x = record.get('interval').start;
             point.y = parseFloat(record.get('value'));
-
+            point.intervalEnd = record.get('interval').end;
+            point.collectedValue = record.get('collectedValue');
+            point.mesurementType = mesurementType;
             switch (validationResult) {
                 case 'suspect' :
-                    if (suspectReason.length > 0) {
-                        if (suspectReason[0].action == 'WARN_ONLY') {
-                            point.color = infColor;
-                            validationResult = 'informative'
-                        } else {
-                            point.color = susColor;
-                        }
-                    }
+                    point.color = susColor;
                     break;
                 case 'ok' :
                     point.color = valColor;
@@ -264,8 +261,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     point.color = nvalColor;
                     break;
             }
+            if (suspectReason.length > 0) {
+                if (suspectReason[0].action == 'WARN_ONLY') {
+                    point.color = infColor;
+                    validationResult = 'informative'
+                }
+            }
             point.validationResult = validationResult;
-
             if (modificationFlag) {
                 point.modificationFlag = 'EDITED.saved';
             }
