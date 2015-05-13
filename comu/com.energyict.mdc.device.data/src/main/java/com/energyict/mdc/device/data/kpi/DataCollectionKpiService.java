@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.kpi;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.services.Finder;
 
 import java.math.BigDecimal;

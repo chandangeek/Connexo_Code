@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.domain.util.Finder;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.conditions.Condition;
@@ -7,6 +8,8 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.List;
 import java.util.Optional;
