@@ -37,6 +37,15 @@ public enum MicroAction {
     ACTIVATE_CONNECTION_TASKS,
 
     /**
+     * Starts the communication on the device
+     * by activating all connection and schedule all
+     * communication tasks to execute now.
+     *
+     * @see #ACTIVATE_CONNECTION_TASKS
+     */
+    START_COMMUNICATION,
+
+    /**
      * Disable communication on the device
      * by putting all connection and communication tasks on hold.
      */
