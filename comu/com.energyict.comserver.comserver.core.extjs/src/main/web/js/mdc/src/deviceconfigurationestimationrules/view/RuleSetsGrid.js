@@ -76,13 +76,15 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsGrid', {
                     xtype: 'button',
                     itemId: 'save-order-button',
                     text: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.saveorder', 'MDC', 'Save order'),
-                    action: 'saveRuleSetsOrder'
+                    action: 'saveRuleSetsOrder',
+                    privileges : Mdc.privileges.DeviceConfigurationEstimations.administrate
                 },
                 {
                     xtype: 'button',
                     itemId: 'undo-order-rulset-button',
                     text: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.orderundo', 'MDC', 'Undo'),
-                    action: 'undoOrderingEstimationRuleSet'
+                    action: 'undoOrderingEstimationRuleSet',
+                    privileges : Mdc.privileges.DeviceConfigurationEstimations.administrate
                 }
             ]
         } else {
@@ -92,7 +94,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsGrid', {
                     menu: {
                         xtype: 'device-configuration-estimation-rule-set-action-menu',
                         itemId: 'statesActionMenu'
-                    }
+                    },
+                    privileges : Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfiguration
                 });
 
             buttons = [
@@ -100,13 +103,15 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsGrid', {
                     xtype: 'button',
                     itemId: 'edit-order-button',
                     text: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.editorder', 'MDC', 'Edit order'),
-                    action: 'editRuleSetsOrder'
+                    action: 'editRuleSetsOrder',
+                    privileges : Mdc.privileges.DeviceConfigurationEstimations.administrate
                 },
                 {
                     xtype: 'button',
                     itemId: 'add-rulset-button',
                     text: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add', 'MDC', 'Add estimation rule sets'),
-                    action: 'addEstimationRuleSet'
+                    action: 'addEstimationRuleSet',
+                    privileges : Mdc.privileges.DeviceConfigurationEstimations.administrate
                 }
             ]
         }

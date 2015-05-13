@@ -444,14 +444,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     title: Uni.I18n.translate('estimation.title', 'MDC', 'Estimation rule sets'),
                                                     route: 'estimationrulesets',
                                                     controller: 'Mdc.deviceconfigurationestimationrules.controller.RuleSets',
-                                                    //privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
+                                                    privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
                                                     action: 'showEstimationRuleSets',
                                                     items: {
                                                         add: {
                                                             title: Uni.I18n.translate('estimation.rule.set.add.title', 'MDC', 'Add estimation rule sets'),
                                                             route: 'add',
                                                             controller: 'Mdc.deviceconfigurationestimationrules.controller.AddRuleSets',
-                                                            //privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
+                                                            privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
                                                             action: 'showAddEstimationRuleSetsView'
                                                         }
                                                     }
