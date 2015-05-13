@@ -6,6 +6,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
         'Mdc.view.setup.devicetype.SideMenu',
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.view.firmware.OptionsGrid',
+        'Fwc.view.firmware.FirmwareOptionsXTemplate',
         'Fwc.view.firmware.FirmwareOptionsEdit'
     ],
     deviceType: null,
@@ -31,14 +32,15 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
 
         me.content = [
             {
-                xtype: 'form',
                 ui: 'large',
                 layout: 'hbox',
                 title: Uni.I18n.translate('deviceType.firmwaremanagementoptions.title', 'FWC', 'Firmware management options'),
                 items: [
                     {
-                        xtype: 'container',
-                        margin: '60 0 0 0',
+                        xtype: 'form',
+                        itemId: 'form',
+                        model: 'FirmwareManagementOptions',
+                        margin: '60 0 0 100',
                         flex: 1,
                         defaults: {
                             labelWidth: 250
@@ -54,39 +56,29 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 }
                             },
                             {
-                                xtype: 'fieldcontainer',
-                                itemId: 'field-fw-upgrade-opts',
+                                xtype: 'displayfield',
+                                name: 'allowedOptions',
+                                itemId: 'allowed-options',
                                 fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.options', 'FWC', 'Firmware management options'),
-                                items: [
-                                    {
-                                        xtype: 'emptygridcontainer',
-                                        grid: {
-                                            xtype: 'options-grid',
-                                            itemId: 'options-grid',
-                                            scroll: false,
-                                            name: 'allowedOptions',
-                                            store: Ext.create('Ext.data.Store', {
-                                                fields: ['localizedValue']
-                                            }),
-                                            emptyText: Uni.I18n.translate('deviceType.firmwaremanagementoptions.off', 'FWC', 'Firmware management is off')
-                                        }
-                                    }
-
-                                ]
+                                renderer: function (value) {
+                                    var tpl = Ext.create(FirmwareOptionsXTemplate);
+                                    return tpl.apply(value);
+                                }
                             }
-                        ]
+                        ],
+                        loadRecord: function (record) {
+                            this.getForm().loadRecord(record);
+                            if (record.get('supportedOptions').length === 0) {
+                                me.down('button#button-edit').disable();
+                            }
+                        }
                     },
                     {
-                        xtype: 'container',
-                        items: [
-                            {
-                                xtype: 'button',
-                                itemId: 'button-edit',
-                                name: 'Edit',
-                                text: Uni.I18n.translate('deviceType.firmwaremanagementoptions.edit', 'FWC', 'Edit'),
-                                action: 'editFirmwareOptions'
-                            }
-                        ]
+                        xtype: 'button',
+                        itemId: 'button-edit',
+                        name: 'Edit',
+                        text: Uni.I18n.translate('deviceType.firmwaremanagementoptions.edit', 'FWC', 'Edit'),
+                        action: 'editFirmwareOptions'
                     }
                 ]
             }

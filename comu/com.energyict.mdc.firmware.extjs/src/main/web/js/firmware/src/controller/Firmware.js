@@ -12,9 +12,7 @@ Ext.define('Fwc.controller.Firmware', {
 
     requires: [
         'Mdc.model.DeviceType',
-        'Fwc.model.FirmwareManagementOptions',
-        'Fwc.form.OptionsHydrator',
-        'Fwc.form.Hydrator'
+        'Fwc.model.FirmwareManagementOptions'
     ],
 
     stores: [
@@ -90,7 +88,6 @@ Ext.define('Fwc.controller.Firmware', {
     clearFilterByKey: function (key) {
         var router = this.getController('Uni.controller.history.Router'),
             record = router.filter,
-            hydrator = Ext.create('Fwc.form.Hydrator'),
             data = hydrator.extract(record),
             clone = record.copy();
 
@@ -397,23 +394,22 @@ Ext.define('Fwc.controller.Firmware', {
             me.getApplication().fireEvent('changecontentevent', 'firmware-options', {deviceType: deviceType});
             container.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
             var widget = container.down('firmware-options');
-            widget.setLoading();
-
-            model.getProxy().setUrl(deviceTypeId);
-            model.load(1, {
-                success: function (record) {
-                    widget.down('form').loadRecord(record);
-                    widget.down('grid').getStore().loadData(record.get('allowedOptions'));
-                    if (record.get('supportedOptions').length === 0) {
-                        widget.down('button').disable();
-                        widget.down('grid').getStore().loadData([]);
-                        widget.down('grid').el.down('.x-grid-empty').dom.innerHTML = Uni.I18n.translate('deviceType.firmwaremanagementoptions.notsupported', 'FWC', 'No options supported by current device type');
+            if (widget){
+                widget.setLoading();
+                model.getProxy().setUrl(deviceTypeId);
+                model.load(1, {
+                    success: function (record) {
+                        var form = widget.down('form');
+                        if (form) {
+                            form.loadRecord(record);
+                        }
+                    },
+                    callback: function () {
+                        widget.setLoading(false);
                     }
-                },
-                callback: function () {
-                    widget.setLoading(false);
-                }
-            });
+                });
+            }
+
         });
     },
 
@@ -426,16 +422,19 @@ Ext.define('Fwc.controller.Firmware', {
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             me.getApplication().fireEvent('changecontentevent', 'firmware-options-edit', {deviceType: deviceType});
             var widget = container.down('firmware-options-edit');
-            widget.setLoading();
-
-            model.load(1, {
-                success: function (record) {
-                    widget.down('form').loadRecord(record);
-                },
-                callback: function () {
-                    widget.setLoading(false);
-                }
-            });
+            if (widget){}
+                widget.setLoading();
+                model.load(1, {
+                    success: function (record) {
+                        var form = widget.down('form');
+                        if (form) {
+                            form.loadRecord(record);
+                        }
+                   },
+                    callback: function () {
+                        widget.setLoading(false);
+                    }
+                });
         });
     },
 
