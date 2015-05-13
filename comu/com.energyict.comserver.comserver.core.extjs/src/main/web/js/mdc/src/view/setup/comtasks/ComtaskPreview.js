@@ -46,7 +46,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
                     var str = '';
                     if (value) {
                         Ext.Array.each(value, function (command) {
-                            str += command.action.charAt(0).toUpperCase() + command.action.slice(1) + ' ' + command.category.charAt(0).toUpperCase() + command.category.slice(1) + '<br />';
+                            var translationKey = 'comtask.action.' + command.category + '.' + command.action;
+                            str += Uni.I18n.translate(translationKey, 'MDC', command.category + ' - ' + command.action) + '<br />';
                         });
                     }
                     return str;

@@ -34,6 +34,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
             {
                 xtype: 'edited-column',
                 dataIndex: 'modificationState',
+                header: '',
                 width: 30
             },
             {
