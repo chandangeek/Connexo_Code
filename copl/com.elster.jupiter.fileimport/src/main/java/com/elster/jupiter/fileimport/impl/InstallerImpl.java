@@ -37,7 +37,6 @@ class InstallerImpl {
 
         ExceptionCatcher.executing(
                 this::installDataModel,
-                this::createDestinationAndSubscriber,
                 this::createTranslations,
                 this::createPrivileges
         ).andHandleExceptionsWith(Throwable::printStackTrace)
@@ -45,13 +44,6 @@ class InstallerImpl {
 
     }
 
-    private void createDestinationAndSubscriber() {
-
-        QueueTableSpec queueTableSpec =  this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(FileImportServiceImpl.DESTINATION_NAME, 60);
-        destinationSpec.activate();
-        destinationSpec.subscribe(FileImportServiceImpl.SUBSCRIBER_NAME);
-    }
 
     private void installDataModel() {
         dataModel.install(true, true);
