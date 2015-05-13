@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -37,7 +37,7 @@ public class ChannelResourceHelper {
         this.clock = clock;
     }
 
-    public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, QueryParameters queryParameters) {
+    public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<Channel> channelsPage = ListPager.of(channelsProvider.apply(device), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
 

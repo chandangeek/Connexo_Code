@@ -6,8 +6,8 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -149,7 +149,7 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
+    public PagedInfoList getAllDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
         Condition condition;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
         if (uriParams.containsKey("filter")) {
@@ -277,7 +277,7 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})
-    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
         Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
@@ -391,17 +391,17 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
-            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})    public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})    public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
                 .sorted(Comparator.comparing(Device::getmRID));
-        if (queryParameters.getStart() != null && queryParameters.getStart() > 0) {
-            stream = stream.skip(queryParameters.getStart());
+        if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
+            stream = stream.skip(queryParameters.getStart().get());
         }
-        if (queryParameters.getLimit() != null && queryParameters.getLimit() > 0) {
-            stream = stream.limit(queryParameters.getLimit() + 1);
+        if (queryParameters.getLimit().isPresent() && queryParameters.getLimit().get() > 0) {
+            stream = stream.limit(queryParameters.getLimit().get() + 1);
         }
         List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d))).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);

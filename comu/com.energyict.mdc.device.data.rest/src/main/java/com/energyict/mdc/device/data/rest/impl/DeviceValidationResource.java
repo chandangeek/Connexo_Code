@@ -11,7 +11,7 @@ import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -50,7 +50,7 @@ public class DeviceValidationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
+    public Response getValidationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Optional<? extends MeterActivation> activation = device.getCurrentMeterActivation();

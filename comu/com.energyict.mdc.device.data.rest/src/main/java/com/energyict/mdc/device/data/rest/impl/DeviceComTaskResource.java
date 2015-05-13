@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -20,7 +20,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
@@ -72,7 +72,7 @@ public class DeviceComTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
+    public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions().stream()
@@ -84,7 +84,7 @@ public class DeviceComTaskResource {
     }
 
     private boolean isNotFirmwareComTask(ComTaskEnablement comTaskEnablement) {
-        return comTaskEnablement.getComTask().getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof FirmwareUpgradeTask).count() == 0;
+        return comTaskEnablement.getComTask().getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof FirmwareManagementTask).count() == 0;
     }
 
     private boolean isNotFirmwareComTaskExecution(ComTaskExecution comTaskExecution) {
@@ -220,7 +220,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getComTaskExecutionSessions(@PathParam("mRID") String mrid,
-                                                     @PathParam("comTaskId") long comTaskId, @BeanParam QueryParameters queryParameters) {
+                                                     @PathParam("comTaskId") long comTaskId, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ComTask comTask = this.taskService.findComTask(comTaskId).orElse(null);
         if (comTask == null || !device.getDeviceConfiguration().getComTaskEnablementFor(comTask).isPresent()) {
@@ -276,7 +276,7 @@ public class DeviceComTaskResource {
                                                             @PathParam("comTaskId") long comTaskId,
                                                             @PathParam("sessionId") long sessionId,
                                                             @BeanParam JsonQueryFilter jsonQueryFilter,
-                                                            @BeanParam QueryParameters queryParameters) {
+                                                            @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ComTask comTask = taskService.findComTask(comTaskId).orElse(null);
         if (comTask == null || !device.getDeviceConfiguration().getComTaskEnablementFor(comTask).isPresent()) {
