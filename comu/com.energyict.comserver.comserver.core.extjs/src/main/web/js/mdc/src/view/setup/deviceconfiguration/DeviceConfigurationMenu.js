@@ -87,7 +87,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                     {
                         text: Uni.I18n.translate('deviceconfiguration.estimation.rule.sets', 'MDC', 'Estimation rule sets'),
                         itemId: 'estimationRuleSetsLink',
-                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/estimationrulesets'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/estimationrulesets',
+                        privileges : Mdc.privileges.DeviceConfigurationEstimations.view
                     }
                 ]
             }

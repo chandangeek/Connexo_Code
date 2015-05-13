@@ -212,6 +212,10 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
             router = me.getController('Uni.controller.history.Router'),
             widget;
 
+        if (router.queryParams.editOrder && !Mdc.privileges.DeviceConfigurationEstimations.canAdministrate()) {
+            return crossroads.parse("/error/notfound");
+        }
+
         Ext.getStore('Mdc.deviceconfigurationestimationrules.store.EstimationRuleSets').getProxy().setUrl(router.arguments);
 
         widget = Ext.widget('device-configuration-estimation-rule-sets-setup', { router: router });

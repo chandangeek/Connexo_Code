@@ -9,7 +9,14 @@ Ext.define('Mdc.privileges.DeviceConfigurationEstimations', {
     ],
     singleton: true,
     view : ['privilege.view.fineTuneEstimationConfiguration.onDeviceConfiguration'],
+    administrate: ['privilege.administrate.EstimationConfiguration'],
     all: function() {
-        return Mdc.privileges.DeviceConfigurationEstimations.view;
+        return Ext.Array.merge(
+            Mdc.privileges.DeviceConfigurationEstimations.view,
+            Mdc.privileges.DeviceConfigurationEstimations.administrate
+        );
+    },
+    canAdministrate: function () {
+        return Uni.Auth.checkPrivileges(Mdc.privileges.DeviceConfigurationEstimations.administrate);
     }
 });
