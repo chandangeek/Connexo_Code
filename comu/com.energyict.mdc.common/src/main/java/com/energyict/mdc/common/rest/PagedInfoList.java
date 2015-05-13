@@ -1,5 +1,6 @@
 package com.energyict.mdc.common.rest;
 
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -35,30 +36,6 @@ public class PagedInfoList {
     }
 
     /**
-     * Create a Json serialized object for paged search results.
-     * E.g.
-     *    ("deviceTypes", {deviceTypeInfo1, deviceTypeInfo2}, queryParameters}
-     *    with queryParameters,limit=2 (TWO)
-     *    returning 2 results when 2 were asked implicates a full page and the the field 'total' is increased by 1 to indicate there could be a next page.
-     *
-     * will end up serialized into the following JSON
-     *
-     *   {
-     *       "total":3,
-     *       "deviceTypes":[{"name":"...",...},{"name":"...",...}]
-     *   }
-     * @param jsonListName The name of the list property in JSON
-     * @param infos The search results to assign to the list property
-     * @param queryParameters The original query parameters used for building the list that is being returned. This is required as it is used to determine
-     *                        if the returned 'page' was full, if so, total is incremented by 1 to indicate to ExtJS there could be a next page.
-     * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
-     */
-    @Deprecated // use fromPagedList() from now on
-    public static PagedInfoList asJson(String jsonListName, List<?> infos, QueryParameters queryParameters) {
-        return fromPagedList(jsonListName, infos, queryParameters);
-    }
-
-    /**
      * Create a Json serialized object for paged search results. Paging has to be done with a Finder beforehand.
      * E.g.
      *    ("deviceTypes", {deviceTypeInfo1, deviceTypeInfo2}, queryParameters}
@@ -78,13 +55,13 @@ public class PagedInfoList {
      * @return A PagedInfoList that will be correctly serialized as JSON paging object, understood by ExtJS
      */
     public static PagedInfoList fromPagedList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
-        boolean couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()>queryParameters.getLimit();
+        boolean couldHaveNextPage=queryParameters.getLimit().isPresent() && infos.size()>queryParameters.getLimit().get();
         if (couldHaveNextPage) {
-            infos=infos.subList(0,queryParameters.getLimit());
+            infos=infos.subList(0,queryParameters.getLimit().get());
         }
         int total = infos.size();
-        if (queryParameters.getStart()!=null) {
-            total+=queryParameters.getStart();
+        if (queryParameters.getStart().isPresent()) {
+            total+=queryParameters.getStart().get();
         }
         if (couldHaveNextPage) {
             total++;
@@ -106,11 +83,11 @@ public class PagedInfoList {
      */
     public static PagedInfoList fromCompleteList(String jsonListName, List<?> infos, QueryParameters queryParameters) {
         int totalCount = infos.size();
-        if (queryParameters.getStart() != null && queryParameters.getStart() < infos.size()) {
-            int startIndex = queryParameters.getStart();
+        if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() < infos.size()) {
+            int startIndex = queryParameters.getStart().get();
             int endIndex = infos.size();
-            if(null != queryParameters.getLimit()) {
-                endIndex = queryParameters.getStart()+queryParameters.getLimit();
+            if(queryParameters.getLimit().isPresent()) {
+                endIndex = queryParameters.getStart().get()+queryParameters.getLimit().get();
                 if( endIndex > infos.size())
                     endIndex = infos.size();
             }

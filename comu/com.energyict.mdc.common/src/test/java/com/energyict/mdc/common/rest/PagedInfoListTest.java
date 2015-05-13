@@ -1,8 +1,10 @@
 package com.energyict.mdc.common.rest;
 
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import java.util.Arrays;
 import java.util.List;
 
+import java.util.Optional;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,8 +42,9 @@ public class PagedInfoListTest {
         deviceTypeInfo3.logBookCount = 6;
         deviceTypeInfo3.registerCount = 7;
         ObjectMapper objectMapper = new ObjectMapper();
-        QueryParameters queryParameters = mock(QueryParameters.class);
-        when(queryParameters.getLimit()).thenReturn(2);
+        JsonQueryParameters queryParameters = mock(JsonQueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(Optional.of(2));
+        when(queryParameters.getStart()).thenReturn(Optional.empty());
         String response = objectMapper.writeValueAsString(PagedInfoList.fromPagedList("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2, deviceTypeInfo3), queryParameters));
         assertThat(response).contains("\"deviceTypes\":[{");
         assertThat(response).contains("\"total\":3");
@@ -50,9 +53,9 @@ public class PagedInfoListTest {
 
     @Test
     public void testHasNextPage() throws Exception {
-        QueryParameters queryParameters = mock(QueryParameters.class);
-        when(queryParameters.getLimit()).thenReturn(5);
-        when(queryParameters.getStart()).thenReturn(80);
+        JsonQueryParameters queryParameters = mock(JsonQueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(Optional.of(5));
+        when(queryParameters.getStart()).thenReturn(Optional.of(80));
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 6 objects
 
         PagedInfoList list = PagedInfoList.fromPagedList("list", infos, queryParameters);
@@ -62,9 +65,9 @@ public class PagedInfoListTest {
 
     @Test
     public void testGetTotalImmutability() throws Exception {
-        QueryParameters queryParameters = mock(QueryParameters.class);
-        when(queryParameters.getLimit()).thenReturn(5);
-        when(queryParameters.getStart()).thenReturn(80);
+        JsonQueryParameters queryParameters = mock(JsonQueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(Optional.of(5));
+        when(queryParameters.getStart()).thenReturn(Optional.of(80));
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 6 objects
 
         PagedInfoList list = PagedInfoList.fromPagedList("list", infos, queryParameters);
@@ -76,9 +79,9 @@ public class PagedInfoListTest {
 
     @Test
     public void testHasNoNextPage() throws Exception {
-        QueryParameters queryParameters = mock(QueryParameters.class);
-        when(queryParameters.getLimit()).thenReturn(5);
-        when(queryParameters.getStart()).thenReturn(80);
+        JsonQueryParameters queryParameters = mock(JsonQueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(Optional.of(5));
+        when(queryParameters.getStart()).thenReturn(Optional.of(80));
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()); // 5 objects
 
         PagedInfoList list = PagedInfoList.fromPagedList("list", infos, queryParameters);
@@ -88,9 +91,9 @@ public class PagedInfoListTest {
 
     @Test
     public void testNextPage() throws Exception {
-        QueryParameters queryParameters = mock(QueryParameters.class);
-        when(queryParameters.getLimit()).thenReturn(10);
-        when(queryParameters.getStart()).thenReturn(10);
+        JsonQueryParameters queryParameters = mock(JsonQueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(Optional.of(10));
+        when(queryParameters.getStart()).thenReturn(Optional.of(10));
 
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
                 , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
