@@ -18,7 +18,12 @@ public enum MicroCheck {
     /**
      * Checks that there is at least one communication task scheduled on the device.
      */
-    AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED,
+    AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
+
+    /**
+     * Checks that there is at least one shared communication schedule on the device.
+     */
+    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
 
     /**
      * Checks that the last reading timestamp is set on all
