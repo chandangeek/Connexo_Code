@@ -48,4 +48,11 @@ public enum DeviceOffline implements OfflineDeviceContext {
     public boolean needsSentMessages() {
         return true;
     }
+
+    @Override
+    public boolean needsFirmwareVersions() {
+        return true;
+    }
+
+
 }

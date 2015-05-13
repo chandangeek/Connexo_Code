@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -9,34 +12,26 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OutboundCapableComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.meterdata.DeviceFirmwareVersion;
+import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import com.elster.jupiter.transaction.TransactionService;
-
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.*;
+
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComServerDAOImpl} component.
@@ -63,6 +58,8 @@ public class ComServerDAOImplTest {
     @Mock
     private Device device;
     @Mock
+    private DeviceType deviceType;
+    @Mock
     private DeviceIdentifier deviceIdentifier;
     @Mock
     private DeviceIdentifier gatewayDeviceIdentifier;
@@ -76,17 +73,22 @@ public class ComServerDAOImplTest {
     private TopologyService topologyService;
     @Mock
     private ComServerDAOImpl.ServiceProvider serviceProvider;
+    @Mock
+    private FirmwareService firmwareService;
 
     private ComServerDAO comServerDAO;
 
     @Before
     public void initializeMocks() {
+        when(device.getDeviceType()).thenReturn(deviceType);
         TransactionService transactionService = new FakeTransactionService();
         when(this.serviceProvider.transactionService()).thenReturn(transactionService);
         when(this.serviceProvider.engineConfigurationService()).thenReturn(this.engineConfigurationService);
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.serviceProvider.topologyService()).thenReturn(this.topologyService);
+        when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
+        when(this.serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
         doReturn(Optional.of(this.comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
@@ -94,8 +96,8 @@ public class ComServerDAOImplTest {
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.comPort.getId()).thenReturn(COMPORT_ID);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
-        when(this.comServer.getId()).thenReturn(Long.valueOf(COMSERVER_ID));
-        when(this.comPort.getId()).thenReturn(Long.valueOf(COMPORT_ID));
+        when(this.comServer.getId()).thenReturn(COMSERVER_ID);
+        when(this.comPort.getId()).thenReturn(COMPORT_ID);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);
         this.comServerDAO = new ComServerDAOImpl(this.serviceProvider);
     }
@@ -333,4 +335,117 @@ public class ComServerDAOImplTest {
         return calendar.getTime();
     }
 
+    @Test
+    public void updateFirmwareVersionsTest() {
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+
+        CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
+        this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
+
+        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class));
+    }
+
+    @Test
+    public void updateWithCreationOfGhostMeterFirmwareVersionTest() {
+        // setup
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        String newActiveMeterFirmwareVersion = "MyActiveMeterFirmwareVersion";
+        CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
+        collectedFirmwareVersion.setActiveMeterFirmwareVersion(newActiveMeterFirmwareVersion);
+        FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
+        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
+        when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
+        when(this.firmwareService.getFirmwareVersionByVersion(newActiveMeterFirmwareVersion, deviceType)).thenReturn(Optional.empty());
+        ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
+        when(this.firmwareService.newActivatedFirmwareVersionFrom(any(Device.class), any(FirmwareVersion.class), any(Interval.class))).thenReturn(activatedFirmwareVersion);
+        when(this.firmwareService.newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER)).thenReturn(firmwareVersion);
+
+        // business logic
+        this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
+
+        // asserts
+        verify(this.firmwareService).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER);
+        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, newActiveMeterFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION);
+    }
+
+    @Test
+    public void updateWithCreationOfGhostCommunicationFirmwareVersionTest() {
+        // setup
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        String myActiveCommunicationFirmwareVersion = "MyActiveCommunicationFirmwareVersion";
+        CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
+        collectedFirmwareVersion.setActiveCommunicationFirmwareVersion(myActiveCommunicationFirmwareVersion);
+        FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
+        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
+        when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
+        when(this.firmwareService.getFirmwareVersionByVersion(myActiveCommunicationFirmwareVersion, deviceType)).thenReturn(Optional.empty());
+        ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
+        when(this.firmwareService.newActivatedFirmwareVersionFrom(any(Device.class), any(FirmwareVersion.class), any(Interval.class))).thenReturn(activatedFirmwareVersion);
+        when(this.firmwareService.newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION)).thenReturn(firmwareVersion);
+
+        // business logic
+        this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
+
+        // asserts
+        verify(this.firmwareService).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION);
+        verify(this.firmwareService, never()).newFirmwareVersion(deviceType, myActiveCommunicationFirmwareVersion, FirmwareStatus.GHOST, FirmwareType.METER);
+    }
+
+    @Test
+    public void updateLastCheckedForExistingMeterFirmwareVersionTest() {
+        // setup
+        String myActiveFirmwareVersion = "MyActiveMeterFirmwareVersion";
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+
+        ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
+        FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
+        when(activatedFirmwareVersion.getFirmwareVersion()).thenReturn(firmwareVersion);
+        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
+        when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
+        when(firmwareVersion.getFirmwareVersion()).thenReturn(myActiveFirmwareVersion);
+        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.of(activatedFirmwareVersion));
+        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
+        collectedFirmwareVersion.setActiveMeterFirmwareVersion(myActiveFirmwareVersion);
+        when(this.firmwareService.getFirmwareVersionByVersion(myActiveFirmwareVersion, deviceType)).thenReturn(Optional.of(firmwareVersion));
+
+        // business logic
+        this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
+
+        // asserts
+        verify(activatedFirmwareVersion).setLastChecked(any(Instant.class));
+        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class));
+    }
+
+    @Test
+    public void updateLastCheckedForExistingCommunicationFirmwareVersionTest() {
+        // setup
+        String myActiveCommuncationFirmwareVersion = "MyActiveCommunicationFirmwareVersionTest";
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+
+        ActivatedFirmwareVersion activatedFirmwareVersion = mock(ActivatedFirmwareVersion.class);
+        FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
+        when(activatedFirmwareVersion.getFirmwareVersion()).thenReturn(firmwareVersion);
+        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
+        when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
+        when(firmwareVersion.getFirmwareVersion()).thenReturn(myActiveCommuncationFirmwareVersion);
+        when(this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device)).thenReturn(Optional.of(activatedFirmwareVersion));
+        when(this.firmwareService.getCurrentMeterFirmwareVersionFor(this.device)).thenReturn(Optional.empty());
+        CollectedFirmwareVersion collectedFirmwareVersion = new DeviceFirmwareVersion(deviceIdentifier);
+        collectedFirmwareVersion.setActiveCommunicationFirmwareVersion(myActiveCommuncationFirmwareVersion);
+        when(this.firmwareService.getFirmwareVersionByVersion(myActiveCommuncationFirmwareVersion, deviceType)).thenReturn(Optional.of(firmwareVersion));
+
+        // business logic
+        this.comServerDAO.updateFirmwareVersions(collectedFirmwareVersion);
+
+        // asserts
+        verify(activatedFirmwareVersion).setLastChecked(any(Instant.class));
+        verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class));
+    }
 }

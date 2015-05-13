@@ -1,23 +1,18 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.topology.Modulation;
@@ -25,54 +20,25 @@ import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
-import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceMessageImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
-import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
-import com.energyict.mdc.engine.impl.core.ComJob;
-import com.energyict.mdc.engine.impl.core.ComJobFactory;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.commands.offline.*;
+import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.*;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.time.Clock;
@@ -95,25 +61,27 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     public interface ServiceProvider {
 
-        public Clock clock();
+        Clock clock();
 
-        public EngineConfigurationService engineConfigurationService();
+        EngineConfigurationService engineConfigurationService();
 
-        public ConnectionTaskService connectionTaskService();
+        ConnectionTaskService connectionTaskService();
 
-        public CommunicationTaskService communicationTaskService();
+        CommunicationTaskService communicationTaskService();
 
-        public DeviceService deviceService();
+        DeviceService deviceService();
 
-        public TopologyService topologyService();
+        TopologyService topologyService();
 
-        public EngineService engineService();
+        EngineService engineService();
 
-        public TransactionService transactionService();
+        TransactionService transactionService();
 
-        public EventService eventService();
+        EventService eventService();
 
-        public IdentificationService identificationService();
+        IdentificationService identificationService();
+
+        FirmwareService firmwareService();
     }
 
     private final ServiceProvider serviceProvider;
@@ -219,15 +187,12 @@ public class ComServerDAOImpl implements ComServerDAO {
             ComPort reloadedPort = reloaded.get();
             if (reloadedPort.isObsolete()) {
                 return null;
-            }
-            else if (reloadedPort.getModificationDate().isAfter(comPort.getModificationDate())) {
+            } else if (reloadedPort.getModificationDate().isAfter(comPort.getModificationDate())) {
                 return reloadedPort;
-            }
-            else {
+            } else {
                 return comPort;
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -257,7 +222,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ConnectionTaskProperty> findProperties(final ConnectionTask connectionTask) {
-        return this.serviceProvider.transactionService().execute(() -> connectionTask.getProperties());
+        return this.serviceProvider.transactionService().execute(connectionTask::getProperties);
     }
 
     @Override
@@ -335,8 +300,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
         if (gatewayDevice != null) {
             this.serviceProvider.topologyService().setPhysicalGateway(device, gatewayDevice);
-        }
-        else {
+        } else {
             this.serviceProvider.topologyService().clearPhysicalGateway(device);
         }
     }
@@ -421,7 +385,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionStarted(final ComTaskExecution comTaskExecution, final ComPort comPort, boolean executeInTransaction) {
-        if(executeInTransaction){
+        if (executeInTransaction) {
             this.executeTransaction(() -> {
                 markComTaskForExecutionStarted(comTaskExecution, comPort);
                 return null;
@@ -481,7 +445,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, final ComSession.SuccessIndicator successIndicator) {
         /* We should already be in a transaction so don't wrap it again */
-        return builder.endSession(serviceProvider.clock().instant(), successIndicator).create();
+        return builder.endSession(now(), successIndicator).create();
     }
 
     @Override
@@ -691,7 +655,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         topologyPathSegments.stream().forEach(topologyPathSegment -> {
             Optional<Device> target = getOptionalDeviceByIdentifier(topologyPathSegment.getTarget());
             Optional<Device> intermediateHop = getOptionalDeviceByIdentifier(topologyPathSegment.getIntermediateHop());
-            if(target.isPresent() && intermediateHop.isPresent()){
+            if (target.isPresent() && intermediateHop.isPresent()) {
                 g3CommunicationPathSegmentBuilder.add(
                         target.get(),
                         intermediateHop.get(),
@@ -708,7 +672,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         TopologyService.G3NeighborhoodBuilder g3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood((Device) sourceDeviceIdentifier.findDevice());
         topologyNeighbours.stream().forEach(topologyNeighbour -> {
             Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyNeighbour.getNeighbour());
-            if(optionalDevice.isPresent()){
+            if (optionalDevice.isPresent()) {
                 TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()), Modulation.fromOrdinal(topologyNeighbour.getModulation()), PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()));
                 g3NeighborBuilder.linkQualityIndicator(topologyNeighbour.getLqi());
                 g3NeighborBuilder.timeToLiveSeconds(topologyNeighbour.getNeighbourValidTime());
@@ -722,9 +686,9 @@ public class ComServerDAOImpl implements ComServerDAO {
         g3NeighborhoodBuilder.complete();
     }
 
-    public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation){
+    public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyDeviceAddressInformation.getDeviceIdentifier());
-        if(optionalDevice.isPresent()){
+        if (optionalDevice.isPresent()) {
             serviceProvider.topologyService().setG3DeviceAddressInformation(
                     optionalDevice.get(),
                     topologyDeviceAddressInformation.getFullIPv6Address(),
@@ -733,14 +697,28 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier topologyNeighbour) {
+    private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier deviceIdentifier) {
         Device device = null;
         try {
-            device = (Device) topologyNeighbour.findDevice();
+            device = (Device) deviceIdentifier.findDevice();
         } catch (CanNotFindForIdentifier e) {
             // ignore
         }
         return Optional.ofNullable(device);
+    }
+
+    @Override
+    public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedFirmwareVersions.getDeviceIdentifier());
+        optionalDevice.ifPresent(device -> {
+            FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider);
+            firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
+            firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
+        });
+    }
+
+    private Instant now() {
+        return this.serviceProvider.clock().instant();
     }
 
     @Override

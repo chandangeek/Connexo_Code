@@ -1,12 +1,17 @@
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -17,6 +22,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemType;
 import com.energyict.mdc.io.SerialComponentService;
@@ -37,29 +43,10 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -72,7 +59,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.appserver.AppService.*;
+import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
 
 /**
  * Copyrights EnergyICT
@@ -82,12 +69,12 @@ import static com.elster.jupiter.appserver.AppService.*;
 @Component(name = "com.energyict.mdc.engine",
         service = {EngineService.class, InstallService.class, TranslationKeyProvider.class},
         property = {"name=" + EngineService.COMPONENTNAME,
-                    "osgi.command.scope=mdc",
-                    "osgi.command.function=become",
-                    "osgi.command.function=launchComServer",
-                    "osgi.command.function=stopComServer",
-                    "osgi.command.function=lcs",
-                    "osgi.command.function=scs"},
+                "osgi.command.scope=mdc",
+                "osgi.command.function=become",
+                "osgi.command.function=launchComServer",
+                "osgi.command.function=stopComServer",
+                "osgi.command.function=lcs",
+                "osgi.command.function=scs"},
         immediate = true)
 public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider {
 
@@ -116,10 +103,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
+    private volatile FirmwareService firmwareService;
+    private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
+
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
-
-    private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
 
     public EngineServiceImpl() {
@@ -136,7 +124,8 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
             SerialComponentService serialATComponentService,
-            IdentificationService identificationService) {
+            IdentificationService identificationService,
+            FirmwareService firmwareService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -161,6 +150,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         this.setStatusService(statusService);
         this.setManagementBeanFactory(managementBeanFactory);
         this.addIdentificationService(identificationService);
+        this.setFirmwareService(firmwareService);
         this.install();
         this.activate(bundleContext);
     }
@@ -328,6 +318,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         this.identificationService.set(identificationService);
     }
 
+    @Reference
+    public void setFirmwareService(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
+    }
+
     @SuppressWarnings("unused")
     public void removeIdentificationService(IdentificationService identificationService) {
         this.identificationService.clear();
@@ -356,15 +351,15 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     public void activate(BundleContext bundleContext) {
         this.dataModel.register(this.getModule());
         this.setHostNameIfOverruled(bundleContext);
-        if(this.dataModel.isInstalled()){
+        if (this.dataModel.isInstalled()) {
             this.tryStartComServer();
         }
     }
 
     private void setHostNameIfOverruled(BundleContext context) {
         Optional
-            .ofNullable(context.getProperty(SERVER_NAME_PROPERTY_NAME))
-            .ifPresent(HostName::setCurrent);
+                .ofNullable(context.getProperty(SERVER_NAME_PROPERTY_NAME))
+                .ifPresent(HostName::setCurrent);
     }
 
     private void tryStartComServer() {
@@ -373,8 +368,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         this.launcher.startComServer();
         if (this.launcher.isStarted()) {
             System.out.println("ComServer " + HostName.getCurrent() + " started!");
-        }
-        else {
+        } else {
             System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured, not active or start is delayed because not all required services are active yet (see OSGi log service)");
         }
     }
@@ -397,7 +391,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService).install(true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true);
     }
 
     @Override
@@ -416,8 +410,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     public void launchComServer() {
         if (this.launcher == null || !this.launcher.isStarted()) {
             this.tryStartComServer();
-        }
-        else {
+        } else {
             System.out.println("ComServer " + HostName.getCurrent() + " is already running");
         }
     }
@@ -456,9 +449,9 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         @Override
         public DeviceIdentifier createDeviceIdentifierByDatabaseId(long id) {
             return this.identificationService
-                        .get()
-                        .map(s -> s.createDeviceIdentifierByDatabaseId(id))
-                        .orElseThrow(IdentificationServiceMissingException::new);
+                    .get()
+                    .map(s -> s.createDeviceIdentifierByDatabaseId(id))
+                    .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
@@ -663,6 +656,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         }
 
         @Override
+        public FirmwareService getFirmwareService() {
+            return firmwareService;
+        }
+
+        @Override
         public Clock clock() {
             return clock;
         }
@@ -710,6 +708,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         @Override
         public IdentificationService identificationService() {
             return identificationService;
+        }
+
+        @Override
+        public FirmwareService firmwareService() {
+            return firmwareService;
         }
     }
 
