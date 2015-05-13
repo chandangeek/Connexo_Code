@@ -1,13 +1,13 @@
 package com.elster.jupiter.issue.rest;
 
-import com.elster.jupiter.issue.rest.resource.ActionResource;
-import com.elster.jupiter.issue.rest.resource.AssigneeResource;
-import com.elster.jupiter.issue.rest.resource.CreationRuleResource;
-import com.elster.jupiter.issue.rest.resource.IssueTypeResource;
-import com.elster.jupiter.issue.rest.resource.MeterResource;
-import com.elster.jupiter.issue.rest.resource.ReasonResource;
-import com.elster.jupiter.issue.rest.resource.RuleResource;
-import com.elster.jupiter.issue.rest.resource.StatusResource;
+import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
+import com.elster.jupiter.issue.rest.impl.resource.AssigneeResource;
+import com.elster.jupiter.issue.rest.impl.resource.CreationRuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.IssueTypeResource;
+import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
+import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
+import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueAction;

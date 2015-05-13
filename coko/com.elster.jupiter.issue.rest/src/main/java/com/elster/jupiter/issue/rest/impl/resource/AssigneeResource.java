@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.rest.resource;
+package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.AssigneeFilterListInfo;
@@ -23,8 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
+import static com.elster.jupiter.issue.rest.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;

@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.rest.i18n;
+package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;

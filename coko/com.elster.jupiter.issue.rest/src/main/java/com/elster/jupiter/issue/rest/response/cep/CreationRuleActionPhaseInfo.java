@@ -1,6 +1,6 @@
 package com.elster.jupiter.issue.rest.response.cep;
 
-import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
+import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.nls.Thesaurus;
 

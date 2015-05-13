@@ -1,3 +1,11 @@
 -classpath: target/classes 
 -dsannotations: *
-Export-Package: com.elster.jupiter.issue.rest.*
+Export-Package: com.elster.jupiter.issue.rest,\
+        com.elster.jupiter.issue.rest.request,\
+         com.elster.jupiter.issue.rest.resource,\
+         com.elster.jupiter.issue.rest.response,\
+         com.elster.jupiter.issue.rest.response.cep,\
+         com.elster.jupiter.issue.rest.response.device,\
+         com.elster.jupiter.issue.rest.response.issue,\
+         com.elster.jupiter.issue.rest.transactions
+Private-Package: com.elster.jupiter.issue.impl.*

@@ -7,9 +7,9 @@ import com.elster.jupiter.users.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_ME;
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
-import static com.elster.jupiter.issue.rest.i18n.MessageSeeds.getString;
+import static com.elster.jupiter.issue.rest.MessageSeeds.ISSUE_ASSIGNEE_ME;
+import static com.elster.jupiter.issue.rest.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
+import static com.elster.jupiter.issue.rest.MessageSeeds.getString;
 
 public class AssigneeFilterListInfo {
     private List<IssueAssigneeInfo> data = new ArrayList<>();

@@ -1,4 +1,4 @@
-package com.elster.jupiter.issue.rest.resource;
+package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
 import com.elster.jupiter.issue.security.Privileges;

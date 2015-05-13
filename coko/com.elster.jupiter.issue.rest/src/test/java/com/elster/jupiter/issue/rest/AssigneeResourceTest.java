@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.RequestHelper;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.users.User;

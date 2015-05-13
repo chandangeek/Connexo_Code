@@ -1,22 +1,18 @@
 package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
-
-import java.util.Optional;
-
 import org.junit.Test;
 import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
