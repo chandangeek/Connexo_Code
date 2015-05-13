@@ -129,7 +129,8 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         href: '#/devices/' + mRID + '/dataestimation',
                         showCondition: me.device.get('hasLogBooks')
                         || me.device.get('hasLoadProfiles')
-                        || me.device.get('hasRegisters')
+                        || me.device.get('hasRegisters'),
+                        privileges: Mdc.privileges.DeviceConfigurationEstimations.view
                     }
                 ]
             }
