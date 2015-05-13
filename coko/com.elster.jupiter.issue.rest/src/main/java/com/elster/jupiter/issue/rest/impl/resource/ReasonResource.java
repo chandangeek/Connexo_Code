@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueReason;

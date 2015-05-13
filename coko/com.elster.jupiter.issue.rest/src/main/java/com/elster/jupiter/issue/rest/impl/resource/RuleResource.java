@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
+import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.AssignmentRuleInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
 import com.elster.jupiter.issue.rest.response.cep.ParameterInfo;

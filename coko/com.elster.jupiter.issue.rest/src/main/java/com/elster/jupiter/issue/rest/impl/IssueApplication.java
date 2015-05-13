@@ -2,6 +2,14 @@ package com.elster.jupiter.issue.rest.impl;
 
 
 import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
+import com.elster.jupiter.issue.rest.impl.resource.AssigneeResource;
+import com.elster.jupiter.issue.rest.impl.resource.CreationRuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.IssueTypeResource;
+import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
+import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
+import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
@@ -87,6 +95,7 @@ public class IssueApplication extends Application implements BinderProvider, Ins
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;

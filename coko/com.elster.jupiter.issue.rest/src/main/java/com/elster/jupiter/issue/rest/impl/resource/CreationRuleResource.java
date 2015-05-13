@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
 import com.elster.jupiter.issue.rest.transactions.CreateCreationRuleTransaction;
 import com.elster.jupiter.issue.rest.transactions.EditCreationRuleTransaction;
