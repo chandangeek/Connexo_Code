@@ -104,7 +104,7 @@ public class LinearInterpolationTest {
     public void testLinearInterpolation() {
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(Logger.getAnonymousLogger());
@@ -123,7 +123,7 @@ public class LinearInterpolationTest {
     public void testLinearInterpolationDoesNotEstimateWhenTooManySuspects() {
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(1));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(Logger.getAnonymousLogger());
@@ -140,7 +140,7 @@ public class LinearInterpolationTest {
         doReturn(false).when(readingType).isCumulative();
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(Logger.getAnonymousLogger());
@@ -157,7 +157,7 @@ public class LinearInterpolationTest {
         doReturn(Optional.empty()).when(channel).getReading(BEFORE.toInstant());
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(Logger.getAnonymousLogger());
@@ -174,7 +174,7 @@ public class LinearInterpolationTest {
         doReturn(Optional.empty()).when(channel).getReading(AFTER.toInstant());
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(Logger.getAnonymousLogger());
@@ -191,7 +191,7 @@ public class LinearInterpolationTest {
         doReturn(null).when(readingRecord1).getQuantity(readingType);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(Logger.getAnonymousLogger());
@@ -208,7 +208,7 @@ public class LinearInterpolationTest {
         doReturn(null).when(readingRecord2).getQuantity(readingType);
 
         Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(Logger.getAnonymousLogger());
@@ -221,26 +221,8 @@ public class LinearInterpolationTest {
     }
 
     @Test(expected = LocalizedFieldValidationException.class)
-    public void testInvalidPropertiesWhenConsecutiveIsFractional() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(11, 1));
-
-        Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService);
-
-        estimator.validateProperties(Collections.singletonList(property));
-    }
-
-    @Test
-    public void testValidPropertiesWhenConsecutiveIsFractionalYetZeroAsFractionalPart() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(10, 1));
-
-        Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService);
-
-        estimator.validateProperties(Collections.singletonList(property));
-    }
-
-    @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.ZERO);
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService);
 
@@ -249,7 +231,7 @@ public class LinearInterpolationTest {
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsNegative() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.valueOf(-1));
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, -1L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService);
 

@@ -13,7 +13,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_NUMBER_OF_SAMPLES(1003, "property.error.maxNumberOfSamples", "The maximum number of samples cannot be smaller than the minimum number of samples", Level.SEVERE),
     INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS(1004, "property.error.invalidMaxNumberOfConsecutiveSuspects", "The maximum number of consecutive suspects allowed should be greater dan zero", Level.SEVERE),
     INVALID_ADVANCE_READINGTYPE(1005, "property.error.advanceReadingsSettings", "The reading type should be a cumulative reading type", Level.SEVERE),
-    INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE(1006, "property.error.maxNumberOfConsecutiveSuspectsShouldBeInteger", "The maximum number of consecutive suspects should be an integer value", Level.SEVERE),
+    INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE(1006, "property.error.maxNumberOfConsecutiveSuspectsShouldBeInteger", "The maximum should be a whole number", Level.SEVERE),
     INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED(1007, "property.error.advanceReadingsSettings.not.none", "None is not allowed as advance reading setting.", Level.SEVERE);
 
 

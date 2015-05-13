@@ -216,8 +216,8 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, BigDecimal.valueOf(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)));
+        builder.add(getPropertySpecService().longPropertySpec(
+                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
         return builder.build();
     }
 
@@ -284,10 +284,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
         ImmutableMap.Builder<String, Consumer<EstimationRuleProperties>> builder = ImmutableMap.builder();
         builder.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, property -> {
-            BigDecimal value = (BigDecimal) property.getValue();
-            if (hasFractionalPart(value)) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
-            }
+            Long value = (Long) property.getValue();
             if (value.intValue() < 1) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
             }
@@ -300,9 +297,4 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
                     .ifPresent(validator -> validator.accept(property));
         });
     }
-
-    private boolean hasFractionalPart(BigDecimal value) {
-        return value.setScale(0, RoundingMode.DOWN).compareTo(value) != 0;
-    }
-
 }

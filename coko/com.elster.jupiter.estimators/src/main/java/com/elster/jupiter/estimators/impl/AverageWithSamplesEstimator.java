@@ -20,7 +20,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
@@ -35,7 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -53,20 +52,20 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private final TimeService timeService;
 
     private static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = "averagewithsamples.maxNumberOfConsecutiveSuspects";
-    private static final BigDecimal MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = BigDecimal.valueOf(10);
+    private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = (long) 10;
 
     private static final String MIN_NUMBER_OF_SAMPLES = "averagewithsamples.minNumberOfSamples";
-    private static final BigDecimal MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = BigDecimal.valueOf(1);
+    private static final Long MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = (long) 1;
     private static final String MAX_NUMBER_OF_SAMPLES = "averagewithsamples.maxNumberOfSamples";
-    private static final BigDecimal MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = BigDecimal.valueOf(10);
+    private static final Long MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = (long) 10;
 
     private static final String ALLOW_NEGATIVE_VALUES = "averagewithsamples.allowNegativeValues";
     private static final String RELATIVE_PERIOD = "averagewithsamples.relativePeriod";
     private static final String ADVANCE_READINGS_SETTINGS = "averagewithsamples.advanceReadingsSettings";
 
-    private BigDecimal numberOfConsecutiveSuspects;
-    private BigDecimal minNumberOfSamples;
-    private BigDecimal maxNumberOfSamples;
+    private Long numberOfConsecutiveSuspects;
+    private Long minNumberOfSamples;
+    private Long maxNumberOfSamples;
     private boolean allowNegativeValues = false;
     private RelativePeriod relativePeriod;
     private AdvanceReadingsSettings advanceReadingsSettings;
@@ -88,13 +87,13 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public void init() {
-        numberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
+        numberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, Long.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
 
-        maxNumberOfSamples = getProperty(MAX_NUMBER_OF_SAMPLES, BigDecimal.class)
+        maxNumberOfSamples = getProperty(MAX_NUMBER_OF_SAMPLES, Long.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
 
-        minNumberOfSamples = getProperty(MIN_NUMBER_OF_SAMPLES, BigDecimal.class)
+        minNumberOfSamples = getProperty(MIN_NUMBER_OF_SAMPLES, Long.class)
                 .orElse(MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE);
 
         allowNegativeValues = getProperty(ALLOW_NEGATIVE_VALUES, Boolean.class)
@@ -112,15 +111,15 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
             return "Max number of consecutive suspects";
         case MAX_NUMBER_OF_SAMPLES:
-            return "Max number of samples";
+            return "Maximum samples";
         case MIN_NUMBER_OF_SAMPLES:
-            return "Min number of samples";
+            return "Minimum samples";
         case ALLOW_NEGATIVE_VALUES:
             return "Allow negative values";
         case RELATIVE_PERIOD:
             return "Relative period";
         case ADVANCE_READINGS_SETTINGS:
-            return "Advance readings settings";
+            return "Use advance readings";
         default:
             return "";
         }
@@ -128,7 +127,14 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     @Override
     public List<String> getRequiredProperties() {
-        return Collections.emptyList();
+        return Arrays.asList(
+                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,
+                MAX_NUMBER_OF_SAMPLES,
+                MIN_NUMBER_OF_SAMPLES,
+                ALLOW_NEGATIVE_VALUES,
+                RELATIVE_PERIOD,
+                ADVANCE_READINGS_SETTINGS
+        );
     }
 
     private boolean isEstimatable(EstimationBlock block) {
@@ -343,7 +349,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private Range<Instant> getPeriod(Channel channel, Instant referenceTime) {
-        if (relativePeriod != null) {
+        if (relativePeriod != null && !(relativePeriod instanceof AllRelativePeriod)) {
             Range<ZonedDateTime> range = relativePeriod.getInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
             Instant start = range.lowerEndpoint().toInstant();
             Instant end = range.upperEndpoint().toInstant();
@@ -363,25 +369,23 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, false, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
 
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                MIN_NUMBER_OF_SAMPLES, false, MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+        builder.add(getPropertySpecService().longPropertySpec(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, true, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE));
 
-        builder.add(getPropertySpecService().bigDecimalPropertySpec(
-                MAX_NUMBER_OF_SAMPLES, false, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+        builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, true, new BooleanFactory()));
 
-        builder.add(new BasicPropertySpec(ALLOW_NEGATIVE_VALUES, false, new BooleanFactory()));
-
-        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, timeService.getAllRelativePeriod()));
-
-        PropertySpecBuilder propertySpecBuilder = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService));
-        propertySpecBuilder.markRequired();
-        PropertySpec spec =
-                propertySpecBuilder.name(ADVANCE_READINGS_SETTINGS).setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE).finish();
+        PropertySpec spec = getPropertySpecService().newPropertySpecBuilder(new AdvanceReadingsSettingsFactory(meteringService))
+                .markRequired()
+                .name(ADVANCE_READINGS_SETTINGS)
+                .setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE)
+                .finish();
         builder.add(spec);
 
+        builder.add(getPropertySpecService().longPropertySpec(MIN_NUMBER_OF_SAMPLES, true, MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+
+        builder.add(getPropertySpecService().longPropertySpec(MAX_NUMBER_OF_SAMPLES, true, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
+
+        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
 
         return builder.build();
     }
@@ -422,14 +426,11 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
-        BigDecimal maxSamples = null;
-        BigDecimal minSamples = null;
+        Long maxSamples = null;
+        Long minSamples = null;
         for (EstimationRuleProperties property : estimatorProperties) {
             if (property.getName().equals(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)) {
-                BigDecimal value = (BigDecimal) property.getValue();
-                if (value.scale() != 0) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
-                }
+                Long value = (Long) property.getValue();
                 if (value.intValue() < 1) {
                     throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
                 }
@@ -442,13 +443,13 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                     }
                 }
             } else if (property.getName().equals(MAX_NUMBER_OF_SAMPLES)) {
-                maxSamples = (BigDecimal) property.getValue();
+                maxSamples = (Long) property.getValue();
             }
             else if (property.getName().equals(MIN_NUMBER_OF_SAMPLES)) {
-                minSamples = (BigDecimal) property.getValue();
+                minSamples = (Long) property.getValue();
             }
         }
-        if ((maxSamples != null) && (minSamples != null) && (maxSamples.intValue() < minSamples.intValue())) {
+        if ((maxSamples != null) && (minSamples != null) && (maxSamples < minSamples)) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_SAMPLES, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
         }
     }
