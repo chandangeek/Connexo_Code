@@ -8,11 +8,13 @@ Ext.define('Mdc.privileges.DeviceConfigurationEstimations', {
         'Uni.Auth'
     ],
     singleton: true,
-    view : ['privilege.view.fineTuneEstimationConfiguration.onDeviceConfiguration'],
+    view : ['privilege.view.EstimationConfiguration'],
+    viewfineTuneEstimationConfiguration : ['privilege.view.fineTuneEstimationConfiguration.onDeviceConfiguration'],
     administrate: ['privilege.administrate.EstimationConfiguration'],
     all: function() {
         return Ext.Array.merge(
             Mdc.privileges.DeviceConfigurationEstimations.view,
+            Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfiguration,
             Mdc.privileges.DeviceConfigurationEstimations.administrate
         );
     },
