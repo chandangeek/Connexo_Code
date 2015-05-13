@@ -7,7 +7,7 @@ import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import org.junit.Before;
 import org.junit.Test;
 
