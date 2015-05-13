@@ -222,6 +222,11 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         return hasQualityCodeCategory(QualityCodeCategory.ESTIMATED);
     }
 
+    @Override
+    public boolean isConfirmed() {
+        return hasQualityIndex(QualityCodeIndex.ACCEPTED);
+    }
+
     public class LocalEventSource {
         private final ReadingQualityRecordImpl readingQuality;
 
