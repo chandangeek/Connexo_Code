@@ -52,7 +52,7 @@ public class ComTaskEnablementResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getComTaskEnablements(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getComTaskEnablements(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<ComTaskEnablementInfo> comTaskEnablements = ComTaskEnablementInfo.from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).find(), thesaurus);
@@ -195,15 +195,15 @@ public class ComTaskEnablementResource {
      * Will only check if the DeviceType allows the firmwareUpgrade task and if the given ComTask is a firmwareUpgradeTask
      */
     private boolean comTaskIsAllowedOnDeviceType(ComTask comTask, DeviceType deviceType) {
-        return deviceTypeAllowsFirmwareUpgrade(deviceType) || !isFirmwareUpgradeComTask(comTask);
+        return deviceTypeAllowsFirmwareManagement(deviceType) || !isFirmwareManagementComTask(comTask);
     }
 
-    private boolean isFirmwareUpgradeComTask(ComTask comTask) {
+    private boolean isFirmwareManagementComTask(ComTask comTask) {
         return taskService.findFirmwareComTask().map(firmwareComTask -> firmwareComTask.getId() == comTask.getId()).orElse(false);
     }
 
-    private boolean deviceTypeAllowsFirmwareUpgrade(DeviceType deviceType) {
-        return this.firmwareService.isFirmwareUpgradeAllowedFor(deviceType);
+    private boolean deviceTypeAllowsFirmwareManagement(DeviceType deviceType) {
+        return this.firmwareService.findFirmwareManagementOptionsByDeviceType(deviceType).isPresent();
     }
 
     private void setComTaskEnablementActive(long deviceTypeId, long deviceConfigurationId, long comTaskEnablementId, boolean setActive) {
