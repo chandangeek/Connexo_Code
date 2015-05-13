@@ -1,4 +1,4 @@
-package com.elster.jupiter.bpm.handler;
+package com.elster.jupiter.bpm.handler.impl;
 
 import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmServer;
