@@ -43,7 +43,8 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
     LegacyOpticalDlms(LegacyOpticalDlmsConnectionType.class),
     InboundProximusSms(InboundProximusSmsConnectionType.class),
     InboundIp(InboundIpConnectionType.class),
-    EIWeb(EIWebConnectionType.class);
+    EIWeb(EIWebConnectionType.class),
+    Empty(EmptyConnectionType.class);
 
     private final Class<? extends ConnectionType> connectionTypeClass;
 

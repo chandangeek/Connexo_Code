@@ -56,7 +56,7 @@ import static com.elster.jupiter.util.Checks.is;
 /**
  * Provides an implementation of a DeviceProtocol which 1 mandatory and 1 optional property
  */
-public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtocol {
+public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtocol {
 
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
 
@@ -90,7 +90,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     @Inject
     public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, ProtocolPluggableService protocolPluggableService) {
-        super();
+        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory);
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;

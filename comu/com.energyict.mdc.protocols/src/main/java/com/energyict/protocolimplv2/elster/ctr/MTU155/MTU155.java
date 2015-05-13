@@ -19,14 +19,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -206,8 +199,7 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<CollectedLoadProfile>
-    getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
@@ -478,4 +470,10 @@ public class MTU155 implements DeviceProtocol {
         return null;
     }
 
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = collectedDataFactory.createFirmwareVersionsCollectedData(getDeviceIdentifier());
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getRequestFactory().getIdentificationStructure().getVf().getValue(0).getStringValue());
+        return firmwareVersionsCollectedData;
+    }
 }

@@ -19,5 +19,6 @@ public enum RequestType {
     CurrentRegisters,
     Firmware,
     Contactor,
-    BillingRegisters
+    BillingRegisters,
+    FirmwareVersion
 }

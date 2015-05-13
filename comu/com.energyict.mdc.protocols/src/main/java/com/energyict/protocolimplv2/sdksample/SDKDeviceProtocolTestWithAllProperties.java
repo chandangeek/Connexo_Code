@@ -73,7 +73,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Date: 5/02/13
  * Time: 13:55
  */
-public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
+public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
 
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
 
@@ -107,7 +107,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Inject
     public SDKDeviceProtocolTestWithAllProperties(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
-        super();
+        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory);
         this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
