@@ -86,8 +86,6 @@ public class IssueApplication extends Application implements BinderProvider, Ins
                 MeterResource.class,
                 IssueTypeResource.class,
                 ActionResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class,
                 CreationRuleOrActionValidationExceptionMapper.class);
     }
 
