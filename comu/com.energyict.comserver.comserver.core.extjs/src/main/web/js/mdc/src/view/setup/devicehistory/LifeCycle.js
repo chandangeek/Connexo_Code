@@ -7,11 +7,12 @@ Ext.define('Mdc.view.setup.devicehistory.LifeCycle', {
             xtype: 'dataview',
             width: 600,
             itemId: 'life-cycle-data-view',
+            itemSelector: 'div.thumb-wrap',
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
                 '{[xindex > 1 ? "<hr>" : ""]}',
                 '<p><b>{[Uni.I18n.translate("searchItems.bulk.state", "MDC", "State") + " " + (values.fromState ? Uni.I18n.translate("deviceHistory.changedFrom", "MDC", "changed from") + " " + values.fromState : Uni.I18n.translate("deviceHistory.set", "MDC", "set")) + " " + Uni.I18n.translate("general.unitTo", "MDC", "to") + " " + values.toState]}</b></p>',
-                '<p>{[Uni.I18n.translate("deviceHistory.by", "MDC", "by") + " " + values.author.name + " " + Uni.I18n.translate("deviceHistory.on", "MDC", "on") + " " + Uni.DateTime.formatDateTimeShort(new Date(values.modTime))]}</br></p>',
+                '<p>{[Uni.I18n.translate("deviceHistory.byOn", "MDC", "by {0} on {1}", [values.author.name, Uni.DateTime.formatDateTimeShort(new Date(values.modTime))])]}</br></p>',
                 '</tpl>'
             )
         }

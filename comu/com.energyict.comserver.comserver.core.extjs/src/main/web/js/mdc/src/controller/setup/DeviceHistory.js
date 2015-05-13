@@ -35,7 +35,6 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 });
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', view);
-                view.setLoading();
                 me.showDeviceLifeCycleHistory();
             }
         });
@@ -48,6 +47,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             lifeCycleDataView = lifeCyclePanel.down('#life-cycle-data-view'),
             store = me.getStore('Mdc.store.DeviceLifeCycleStatesHistory');
 
+        me.getPage().setLoading();
         historyPanel.add(lifeCyclePanel);
         lifeCycleDataView.bindStore(store);
         store.getProxy().setUrl(me.getController('Uni.controller.history.Router').arguments);
