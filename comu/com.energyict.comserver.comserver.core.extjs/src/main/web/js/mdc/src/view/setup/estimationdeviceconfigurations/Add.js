@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
     router: null,
     requires: [
         'Uni.util.FormErrorMessage',
-        'Uni.view.grid.BulkSelection'
+        'Uni.view.grid.BulkSelection',
+        'Uni.view.container.EmptyGridContainer'
     ],
 
     initComponent: function () {
@@ -16,7 +17,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
                 title: Uni.I18n.translate('estimationDeviceConfigurations.addDeviceConfigurations', 'MDC', 'Add device configurations'),
                 items: [
                     {
-                        xtype: 'preview-container',
+                        xtype: 'emptygridcontainer',
                         grid: {
                             xtype: 'bulk-selection-grid',
                             itemId: 'add-deviceconfigurations-grid',
