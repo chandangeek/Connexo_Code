@@ -1,8 +1,7 @@
 Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Fwc.model.FirmwareUpgradeOptions',
-        'Fwc.form.OptionsHydrator'
+        'Fwc.model.FirmwareManagementOptions',
     ],
     alias: 'widget.firmware-options-edit',
     itemId: 'firmware-options-edit',
@@ -12,8 +11,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
         this.content = [
             {
                 xtype: 'form',
-                hydrator: 'Fwc.form.OptionsHydrator',
-                title: Uni.I18n.translate('deviceType.firmwareupgradeoptions.edit', 'FWC', 'Edit firmware upgrade options'),
+                title: Uni.I18n.translate('deviceType.firmwaremanagemenoptions.edit', 'FWC', 'Edit firmware management options'),
                 ui: 'large',
                 border: false,
                 width: 850,
@@ -26,20 +24,33 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     labelWidth: 250
                 },
                 loadRecord: function (record) {
-                    var options = this.down('#firmwareUpgradeOptions');
-                    options.items.each(function (item) {
-                        if (record.get('supportedOptions')
-                            .map(function (item) {return item.id; })
-                            .indexOf(item.inputValue) < 0) {options.remove(item); }
-                    });
                     this.getForm().loadRecord(record);
+                    var checkboxgroup = this.down('#firmwareUpgradeOptions');
+                    // remove the unsupported options.
+                    checkboxgroup.items.each(function (item) {
+                        if (record.get('supportedOptions')
+                            .map(function (option) {return option.id; })
+                            .indexOf(item.inputValue) < 0)
+                        {
+                            checkboxgroup.remove(item);
+                            item.submitValue = false;
+                        }else{
+                            item.setValue(record.get('allowedOptions')
+                                                        .map(function (option) {return option.id; })
+                                                        .indexOf(item.inputValue) >= 0);
+                        }
+
+                    });
+                },
+                updateRecord: function () {
+                    this.getForm().updateRecord();
+                    var record = this.getForm().getRecord();
                 },
                 items: [
                     {
-
                         xtype: 'radiogroup',
-                        fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.allowed', 'FWC', 'Firmware upgrade allowed'),
-                        itemId: 'allowedCombo',
+                        fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.allowed', 'FWC', 'Firmware management allowed'),
+                        itemId: 'allowedRadioGroup',
                         required: true,
                         columns: 1,
                         vertical: true,
@@ -64,6 +75,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 itemId: 'rbtn-is-allowed-yes',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
                                 inputValue: 1
+
                             },
                             {
                                 itemId: 'rbtn-is-allowed-no',
@@ -74,16 +86,17 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     },
                     {
                         xtype: 'checkboxgroup',
-                        fieldLabel: Uni.I18n.translate('deviceType.firmwareupgradeoptions.options', 'FWC', 'Firmware upgrade options'),
+                        fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.options', 'FWC', 'Firmware management options'),
                         required: true,
                         itemId: 'firmwareUpgradeOptions',
                         columns: 1,
                         vertical: true,
                         defaults: {
-                            name: 'allowedOptions',
+                            name: 'selectedOptions',
                             getModelData: function () {
                                 return this.getSubmitData();
                             }
+
                         },
                         items: [
                             {
@@ -119,9 +132,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 xtype: 'button',
                                 ui: 'action',
                                 action: 'saveOptionsAction',
-                                itemId: 'saveButton',
-                                record: this.record,
-                                router: this.router
+                                itemId: 'saveButton'
                             },
                             {
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

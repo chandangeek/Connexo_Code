@@ -43,13 +43,13 @@ Ext.define('Fwc.controller.History', {
             }
         },
         "administration/devicetypes/view/firmwareoptions": {
-            title: Uni.I18n.translate('firmware.route.firmwareoptions', 'FWC', 'Firmware upgrade options'),
+            title: Uni.I18n.translate('firmware.route.firmwareoptions', 'FWC', 'Firmware management options'),
             route: 'administration/devicetypes/{deviceTypeId}/firmware/options',
             controller: 'Fwc.controller.Firmware',
             action: 'showFirmwareOptions',
             items: {
                 edit: {
-                    title: Uni.I18n.translate('firmware.route.firmwareoptions.edit', 'FWC', 'Edit firmware upgrade options'),
+                    title: Uni.I18n.translate('firmware.route.firmwareoptions.edit', 'FWC', 'Edit firmware management options'),
                     route: 'edit',
                     controller: 'Fwc.controller.Firmware',
                     action: 'editFirmwareOptions'
