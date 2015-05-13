@@ -9,6 +9,7 @@ Ext.define('Est.privileges.EstimationConfiguration', {
     ],
     singleton: true,
     view: ['privilege.view.EstimationConfiguration'],
+    viewfineTuneEstimationConfiguration : ['privilege.view.fineTuneEstimationConfiguration.onDeviceConfiguration'],
     administrate: ['privilege.administrate.EstimationConfiguration'],
     run:'privilege.run.ScheduleEstimationTask',
     update:['privilege.update.EstimationConfiguration',
@@ -16,6 +17,7 @@ Ext.define('Est.privileges.EstimationConfiguration', {
     all: function () {
         return Ext.Array.merge(
             Est.privileges.EstimationConfiguration.view,
+            Est.privileges.EstimationConfiguration.viewfineTuneEstimationConfiguration,
             Est.privileges.EstimationConfiguration.administrate,
             Est.privileges.EstimationConfiguration.run,
             Est.privileges.EstimationConfiguration.update

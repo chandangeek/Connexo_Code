@@ -110,7 +110,8 @@ Ext.define('Est.main.controller.history.Setup', {
                                             title: Uni.I18n.translate('general.addDeviceConfigurations', 'EST', 'Add device configurations'),
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.EstimationDeviceConfigurations',
-                                            action: 'showAddEstimationDeviceConfigurations'
+                                            action: 'showAddEstimationDeviceConfigurations',
+                                            privileges: Est.privileges.EstimationConfiguration.viewfineTuneEstimationConfiguration
                                         }
                                     }
                                 }
