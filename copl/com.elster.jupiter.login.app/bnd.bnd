@@ -2,4 +2,5 @@
 -dsannotations: *
 Bundle-Activator: com.elster.jupiter.login.app.Activator
 Private-Package: com.elster.jupiter.login.app
+Export-Package: !com.elster.jupiter.login.app
 -include: -../development.bnd
