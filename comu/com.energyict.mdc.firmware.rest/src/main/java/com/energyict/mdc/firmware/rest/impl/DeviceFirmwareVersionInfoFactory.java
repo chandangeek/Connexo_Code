@@ -5,8 +5,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -123,7 +122,7 @@ public class DeviceFirmwareVersionInfoFactory {
     public static abstract class AbstractFirmwareUpgradeState implements FirmwareUpgradeState {
         protected static final String FIRMWARE_DEVICE_MESSAGE_ID = "firmwareDeviceMessageId";
         protected static final String FIRMWARE_PLANNED_ACTIVATION_DATE = "plannedActivationDate";
-        protected static final String FIRMWARE_UPGRADE_OPTION = "firmwareUpgradeOption";
+        protected static final String FIRMWARE_MANAGEMENT_OPTION = "firmwareManagementOption";
         protected static final String FIRMWARE_VERSION = "firmwareVersion";
         protected static final String FIRMWARE_COM_TASK_ID = "firmwareComTaskId";
         protected static final String FIRMWARE_COM_TASK_SESSION_ID = "firmwareComTaskSessionId";
@@ -139,7 +138,8 @@ public class DeviceFirmwareVersionInfoFactory {
             Map<String, Object> properties = new HashMap<>();
             properties.put(FIRMWARE_DEVICE_MESSAGE_ID, message.getId());
             ProtocolSupportedFirmwareOptions uploadOption = helper.getUploadOptionFromMessage(message).get();
-            properties.put(FIRMWARE_UPGRADE_OPTION, new UpgradeOptionInfo(uploadOption.getId(), helper.translate(uploadOption.getId())));
+            properties.put(FIRMWARE_MANAGEMENT_OPTION, new ManagementOptionInfo(uploadOption.getId(), helper.translate(uploadOption.getId())) {
+            });
             Optional<FirmwareVersion> firmwareVersion = helper.getFirmwareVersionFromMessage(message);
             if (firmwareVersion.isPresent()){
                 properties.put(FIRMWARE_VERSION, firmwareVersion.get().getFirmwareVersion());
