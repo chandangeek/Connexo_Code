@@ -2,12 +2,13 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllIssuesAreClosed;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConnectionPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUsagePoint;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.LastReadingTimestampSet;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataCollected;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ManuallyScheduledCommunicationTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
@@ -71,8 +72,11 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             case AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
                 return new ScheduledCommunicationTaskAvailable(this.thesaurus);
             }
-            case LAST_READING_TIMESTAMP_SET: {
-                return new LastReadingTimestampSet(this.thesaurus);
+            case ALL_DATA_COLLECTED: {
+                return new AllDataCollected(this.thesaurus);
+            }
+            case ALL_DATA_VALID: {
+                return new AllDataValid(this.thesaurus);
             }
             case PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID: {
                 return new ProtocolDialectPropertiesAreValid(this.thesaurus);

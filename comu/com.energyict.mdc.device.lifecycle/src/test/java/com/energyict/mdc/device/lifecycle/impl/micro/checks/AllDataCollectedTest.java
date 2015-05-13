@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
@@ -24,13 +25,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link LastReadingTimestampSet} component.
+ * Tests the {@link AllDataCollected} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (10:05)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LastReadingTimestampSetTest {
+public class AllDataCollectedTest {
 
     @Mock
     private Thesaurus thesaurus;
@@ -40,7 +41,7 @@ public class LastReadingTimestampSetTest {
     @Test
     public void deviceWithoutLoadProfilesOrRegisters() {
         // Note that this is a very unlikely situation ;-)
-        LastReadingTimestampSet microCheck = this.getTestInstance();
+        AllDataCollected microCheck = this.getTestInstance();
         when(this.device.getRegisters()).thenReturn(Collections.emptyList());
         when(this.device.getLoadProfiles()).thenReturn(Collections.emptyList());
 
@@ -53,7 +54,7 @@ public class LastReadingTimestampSetTest {
 
     @Test
     public void deviceWithLoadProfilesAndRegistersButNoLastReadings() {
-        LastReadingTimestampSet microCheck = this.getTestInstance();
+        AllDataCollected microCheck = this.getTestInstance();
         Register reg1 = mock(Register.class);
         when(reg1.getLastReading()).thenReturn(Optional.<Instant>empty());
         Register reg2 = mock(Register.class);
@@ -70,14 +71,14 @@ public class LastReadingTimestampSetTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.LAST_READING_TIMESTAMP_SET);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_COLLECTED);
     }
 
     @Test
     public void deviceWithLoadProfilesAndRegistersButNoLastReadingsOnEffectiveTimestamp() {
         Instant lastReadingTimestamp = Instant.ofEpochMilli(100000L);
         Instant effectiveTimestamp =   lastReadingTimestamp.plusSeconds(1L);
-        LastReadingTimestampSet microCheck = this.getTestInstance();
+        AllDataCollected microCheck = this.getTestInstance();
         Register reg1 = mock(Register.class);
         when(reg1.getLastReading()).thenReturn(Optional.of(lastReadingTimestamp));
         Register reg2 = mock(Register.class);
@@ -94,12 +95,12 @@ public class LastReadingTimestampSetTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.LAST_READING_TIMESTAMP_SET);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_COLLECTED);
     }
 
     @Test
     public void deviceWithLoadProfilesWithLastReadingsAndRegistersWithoutLastReading() {
-        LastReadingTimestampSet microCheck = this.getTestInstance();
+        AllDataCollected microCheck = this.getTestInstance();
         Register reg1 = mock(Register.class);
         when(reg1.getLastReading()).thenReturn(Optional.<Instant>empty());
         Register reg2 = mock(Register.class);
@@ -117,12 +118,12 @@ public class LastReadingTimestampSetTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.LAST_READING_TIMESTAMP_SET);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_COLLECTED);
     }
 
     @Test
     public void deviceWithLoadProfilesWithoutLastReadingAndRegistersWithLastReading() {
-        LastReadingTimestampSet microCheck = this.getTestInstance();
+        AllDataCollected microCheck = this.getTestInstance();
         Register reg1 = mock(Register.class);
         Instant now = Instant.now();
         when(reg1.getLastReading()).thenReturn(Optional.of(now));
@@ -140,17 +141,21 @@ public class LastReadingTimestampSetTest {
 
         // Asserts
         assertThat(violation).isPresent();
-        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.LAST_READING_TIMESTAMP_SET);
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_COLLECTED);
     }
 
     @Test
     public void deviceWithLoadProfilesAndRegistersWithAllLastReadingsSet() {
-        LastReadingTimestampSet microCheck = this.getTestInstance();
+        AllDataCollected microCheck = this.getTestInstance();
         Register reg1 = mock(Register.class);
         Instant now = Instant.now();
-        when(reg1.getLastReading()).thenReturn(Optional.of(now));
+        NumericalReading lastReading1 = mock(NumericalReading.class);
+        when(lastReading1.getTimeStamp()).thenReturn(now);
+        when(reg1.getLastReading()).thenReturn(Optional.of(lastReading1));
+        NumericalReading lastReading2 = mock(NumericalReading.class);
+        when(lastReading2.getTimeStamp()).thenReturn(now);
         Register reg2 = mock(Register.class);
-        when(reg2.getLastReading()).thenReturn(Optional.of(now));
+        when(reg2.getLastReading()).thenReturn(Optional.of(lastReading2));
         when(this.device.getRegisters()).thenReturn(Arrays.asList(reg1, reg2));
         LoadProfile lp1 = mock(LoadProfile.class);
         when(lp1.getLastReading()).thenReturn(Optional.of(now));
@@ -165,8 +170,8 @@ public class LastReadingTimestampSetTest {
         assertThat(violation).isEmpty();
     }
 
-    private LastReadingTimestampSet getTestInstance() {
-        return new LastReadingTimestampSet(this.thesaurus);
+    private AllDataCollected getTestInstance() {
+        return new AllDataCollected(this.thesaurus);
     }
 
 }
