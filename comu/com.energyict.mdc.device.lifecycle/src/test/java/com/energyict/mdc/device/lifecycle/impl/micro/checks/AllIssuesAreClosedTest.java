@@ -42,7 +42,7 @@ public class AllIssuesAreClosedTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
     }
 
@@ -55,7 +55,7 @@ public class AllIssuesAreClosedTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isFalse();
+        assertThat(violation).isEmpty();
     }
 
     private AllIssuesAreClosed getTestInstance() {

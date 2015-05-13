@@ -42,7 +42,7 @@ public class DeviceIsLinkedWithUsagePointTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.LINKED_WITH_USAGE_POINT);
     }
 
@@ -55,7 +55,7 @@ public class DeviceIsLinkedWithUsagePointTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isFalse();
+        assertThat(violation).isEmpty();
     }
 
     private DeviceIsLinkedWithUsagePoint getTestInstance() {

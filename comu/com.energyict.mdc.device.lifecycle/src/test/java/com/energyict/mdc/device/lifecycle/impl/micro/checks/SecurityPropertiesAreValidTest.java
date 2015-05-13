@@ -40,7 +40,7 @@ public class SecurityPropertiesAreValidTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID);
     }
 
@@ -53,7 +53,7 @@ public class SecurityPropertiesAreValidTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isFalse();
+        assertThat(violation).isEmpty();
     }
 
     private SecurityPropertiesAreValid getTestInstance() {

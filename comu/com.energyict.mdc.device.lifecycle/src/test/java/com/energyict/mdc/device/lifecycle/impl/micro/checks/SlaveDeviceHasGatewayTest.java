@@ -44,7 +44,7 @@ public class SlaveDeviceHasGatewayTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isFalse();
+        assertThat(violation).isEmpty();
     }
 
     @Test
@@ -58,7 +58,7 @@ public class SlaveDeviceHasGatewayTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isFalse();
+        assertThat(violation).isEmpty();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class SlaveDeviceHasGatewayTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.SLAVE_DEVICE_HAS_GATEWAY);
     }
 

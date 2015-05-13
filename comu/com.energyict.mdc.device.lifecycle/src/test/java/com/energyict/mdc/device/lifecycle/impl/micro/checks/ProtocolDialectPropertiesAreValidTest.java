@@ -77,7 +77,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID);
     }
 
@@ -91,7 +91,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID);
     }
 
@@ -105,7 +105,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID);
     }
 
@@ -119,7 +119,7 @@ public class ProtocolDialectPropertiesAreValidTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isFalse();
+        assertThat(violation).isEmpty();
     }
 
     public ProtocolDialectPropertiesAreValid getTestInstance() {

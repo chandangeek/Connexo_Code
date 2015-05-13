@@ -43,7 +43,7 @@ public class DefaultConnectionTaskAvailableTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
     }
 
@@ -60,7 +60,7 @@ public class DefaultConnectionTaskAvailableTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isTrue();
+        assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.DEFAULT_CONNECTION_AVAILABLE);
     }
 
@@ -75,7 +75,7 @@ public class DefaultConnectionTaskAvailableTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isFalse();
+        assertThat(violation).isEmpty();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class DefaultConnectionTaskAvailableTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
 
         // Asserts
-        assertThat(violation.isPresent()).isFalse();
+        assertThat(violation).isEmpty();
     }
 
     private DefaultConnectionTaskAvailable getTestInstance() {

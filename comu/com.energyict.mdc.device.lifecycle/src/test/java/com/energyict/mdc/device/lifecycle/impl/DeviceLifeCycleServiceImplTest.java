@@ -310,7 +310,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
         MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
-        MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED;
+        MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
         ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);
         when(serverMicroCheck1.evaluate(any(Device.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
         ServerMicroCheck serverMicroCheck2 = mock(ServerMicroCheck.class);
@@ -333,7 +333,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege(this.privilege)).thenReturn(true);
         MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
-        MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED;
+        MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
         MicroCheck microCheck3 = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID;
         MicroCheck microCheck4 = MicroCheck.DEFAULT_CONNECTION_AVAILABLE;
         ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);

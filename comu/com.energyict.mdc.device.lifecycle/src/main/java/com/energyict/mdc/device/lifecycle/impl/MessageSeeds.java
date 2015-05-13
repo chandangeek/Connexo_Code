@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -26,7 +24,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // MicroChecks
     MULTIPLE_MICRO_CHECKS_FAILED(10000, Keys.MULTIPLE_MICRO_CHECKS_FAILED, "Action cannot be triggered because the following checks have failed: {0}"),
     DEFAULT_CONNECTION_AVAILABLE(10001, MicroCheck.DEFAULT_CONNECTION_AVAILABLE, "There should at least be a default connection task"),
-    AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED(10002, MicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED, "At least one of the communication tasks should be scheduled"),
+    AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(10002, MicroCheck.AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "At least one communication task has been scheduled"),
     LAST_READING_TIMESTAMP_SET(10003, MicroCheck.LAST_READING_TIMESTAMP_SET, "A start date for communication must have been specified"),
     GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID(10004, MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID, "All mandatory general protocol properties should be valid and specified"),
     PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID(10005, MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID, "All mandatory protocol dialect properties should be valid and specified"),
@@ -35,6 +33,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     SLAVE_DEVICE_HAS_GATEWAY(10009, MicroCheck.SLAVE_DEVICE_HAS_GATEWAY, "A slave device must have a gateway device"),
     LINKED_WITH_USAGE_POINT(10010, MicroCheck.LINKED_WITH_USAGE_POINT, "A device must be linked to a usage point"),
     ALL_ISSUES_AND_ALARMS_ARE_CLOSED(10011, MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED, "All issues and alarms must have been closed or resolved on the device"),
+    AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(10012, MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "At least one shared communication schedule has added to the device"),
 
     // MicroActions
     MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}")

@@ -9,6 +9,7 @@ import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUs
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.LastReadingTimestampSet;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ManuallyScheduledCommunicationTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SlaveDeviceHasGateway;
@@ -64,7 +65,10 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             case DEFAULT_CONNECTION_AVAILABLE: {
                 return new DefaultConnectionTaskAvailable(this.thesaurus);
             }
-            case AT_LEAST_ONE_COMMUNICATION_TASK_SCHEDULED: {
+            case AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
+                return new ManuallyScheduledCommunicationTaskAvailable(this.thesaurus);
+            }
+            case AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE: {
                 return new ScheduledCommunicationTaskAvailable(this.thesaurus);
             }
             case LAST_READING_TIMESTAMP_SET: {
