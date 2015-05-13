@@ -44,7 +44,8 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.devicedataestimation.RulesSetActionMenu'
+                items: 'Mdc.view.setup.devicedataestimation.RulesSetActionMenu',
+                privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfigurationOnDevice
             }
         ];
         me.dockedItems = [
