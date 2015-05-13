@@ -26,10 +26,20 @@ public enum MicroCheck {
     AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE,
 
     /**
-     * Checks that the last reading timestamp is set on all
-     * load profiles and registers of the device.
+     * Checks that all data (in both load profiles and registers)
+     * has been collected on the device.
+     * This holds true if the last reading is set and is
+     * equal to the effective timestamp of the transition.
      */
-    LAST_READING_TIMESTAMP_SET,
+    ALL_DATA_COLLECTED,
+
+    /**
+     * Checks that all data (in both load profiles and registers)
+     * that has been collected on the device is also valid.
+     * This holds true if the last reading is equal to
+     * the last checked timestamp.
+     */
+    ALL_DATA_VALID,
 
     /**
      * Checks that all general protocol property values are valid,
