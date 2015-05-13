@@ -83,7 +83,7 @@ public class BpmResource {
             }
         }
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        return new ProcessInstanceInfos(arr, queryParameters.getLimit(), queryParameters.getStart());
+        return new ProcessInstanceInfos(arr, queryParameters.getLimit(), queryParameters.getStartInt());
     }
 
     @GET
