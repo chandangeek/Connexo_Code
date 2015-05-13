@@ -17,7 +17,8 @@ Ext.define('Est.main.controller.Main', {
         'Est.estimationtasks.controller.EstimationTasksDetails',
         'Est.estimationtasks.controller.EstimationTasksHistory',
         'Est.estimationtasks.controller.EstimationTasksActionMenu',
-        'Est.estimationtasks.controller.EstimationTasksAddEdit'
+        'Est.estimationtasks.controller.EstimationTasksAddEdit',
+        'Est.estimationtasks.controller.EstimationTasksLog'
     ],
 
     init: function () {
