@@ -2,7 +2,7 @@ package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.services.Finder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -45,11 +45,11 @@ import java.util.Set;
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
 
-    Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareUpgradeOptionsFor(DeviceType deviceType);
+    Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
 
-    FirmwareUpgradeOptions getFirmwareUpgradeOptions(DeviceType deviceType);
+    FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType);
 
-    void saveFirmwareUpgradeOptions(FirmwareUpgradeOptions firmwareOptions);
+    void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions);
 
     // Firmware versions on a device
 
@@ -75,5 +75,5 @@ import java.util.Set;
 
     void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion);
 
-    Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
+    Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType);
 }
