@@ -16,10 +16,10 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SynchroneousComChannel;
+import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.protocol.security.SecurityProperty;
@@ -159,10 +159,7 @@ public class EventPushNotificationParser {
                 int encrLevel = securityProperties.get(0).getSecurityPropertySet().getEncryptionDeviceAccessLevelId();
                 this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(authLevel, encrLevel, typedProperties);
             } else {
-                securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(
-                        DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID,
-                        DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID,
-                        TypedProperties.empty());
+                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
             }
         }
         return this.securityPropertySet;
