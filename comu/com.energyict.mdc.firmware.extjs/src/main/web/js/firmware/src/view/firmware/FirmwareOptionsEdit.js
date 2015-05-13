@@ -1,7 +1,7 @@
 Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
-        'Fwc.model.FirmwareManagementOptions',
+        'Fwc.model.FirmwareManagementOptions'
     ],
     alias: 'widget.firmware-options-edit',
     itemId: 'firmware-options-edit',
