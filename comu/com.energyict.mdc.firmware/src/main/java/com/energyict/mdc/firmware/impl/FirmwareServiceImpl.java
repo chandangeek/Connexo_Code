@@ -172,19 +172,13 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
 
     @Override
      public FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType) {
-        Optional<FirmwareUpgradeOptions> ref = dataModel.mapper(FirmwareUpgradeOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
-        return ref.isPresent() ? ref.get() : FirmwareUpgradeOptionsImpl.from(dataModel, deviceType);
+        Optional<FirmwareManagementOptions> ref = dataModel.mapper(FirmwareManagementOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+        return ref.isPresent() ? ref.get() : FirmwareManagementOptionsImpl.from(dataModel, deviceType);
     }
 
     @Override
     public void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions) {
         FirmwareManagementOptionsImpl.class.cast(firmwareOptions).save();
-    }
-
-    @Override
-    public boolean isFirmwareUpgradeAllowedFor(DeviceType deviceType) {
-        Optional<FirmwareUpgradeOptions> ref = dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
-        return ref.isPresent() && !ref.get().getOptions().isEmpty();
     }
 
     @Override
@@ -264,7 +258,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
 
     @Override
     public Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType) {
-        return dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
+        return dataModel.mapper(FirmwareManagementOptions.class).getUnique("deviceType", deviceType);
     }
 
     @Activate
