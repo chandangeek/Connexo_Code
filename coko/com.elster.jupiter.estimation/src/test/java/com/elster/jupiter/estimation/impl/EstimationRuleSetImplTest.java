@@ -55,7 +55,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EstimationRuleSetImplIT {
+public class EstimationRuleSetImplTest {
 
     public static final String ZERO_FILL = "zeroFill";
     private Injector injector;
@@ -73,6 +73,9 @@ public class EstimationRuleSetImplIT {
     @Mock
     private PropertySpec maxConsecutive;
 
+    private TransactionService transactionService;
+    
+    private EstimationService estimationService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
@@ -125,12 +128,15 @@ public class EstimationRuleSetImplIT {
         when(zeroFill.getPropertySpecs()).thenReturn(Arrays.asList(maxConsecutive));
         when(maxConsecutive.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(maxConsecutive.getValueFactory()).thenReturn(valueFactory);
-        injector.getInstance(TransactionService.class).execute(VoidTransaction.of(() -> {
-                    EstimationServiceImpl instance = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
+        transactionService = injector.getInstance(TransactionService.class);
+        transactionService.execute(VoidTransaction.of(() -> {
+                    estimationService = injector.getInstance(EstimationService.class);
+                    EstimationServiceImpl instance = (EstimationServiceImpl) estimationService;
                     injector.getInstance(MeteringService.class);
                     instance.addEstimatorFactory(estimatorFactory);
                 }
         ));
+        readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
     }
 
     @After
@@ -141,9 +147,8 @@ public class EstimationRuleSetImplIT {
     @Test
     public void testPersist() {
         UpdatableHolder<Long> ruleSetId = new UpdatableHolder<>(null);
-        injector.getInstance(TransactionService.class).execute(VoidTransaction.of(() -> {
-                    readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                    EstimationRuleSet estimationRuleSet = injector.getInstance(EstimationService.class).createEstimationRuleSet("myRuleSet");
+        transactionService.execute(VoidTransaction.of(() -> {
+                    EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
                     EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
                     zeroesRule.addReadingType(readingType);
                     zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
@@ -155,18 +160,16 @@ public class EstimationRuleSetImplIT {
                     ruleSetId.update(estimationRuleSet.getId());
                 }
         ));
-        Optional<? extends EstimationRuleSet> found = injector.getInstance(EstimationService.class).getEstimationRuleSet(ruleSetId.get());
+        Optional<? extends EstimationRuleSet> found = estimationService.getEstimationRuleSet(ruleSetId.get());
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get().getRules()).hasSize(2);
     }
 
     @Test
     public void testAddSecondRuleSeeIfReadingTypesArentLost() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
         EstimationRuleSet estimationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
-            readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            estimationRuleSet = injector.getInstance(EstimationService.class).createEstimationRuleSet("myRuleSet");
+            estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
             EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
             zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
@@ -175,56 +178,49 @@ public class EstimationRuleSetImplIT {
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
-            readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            estimationRuleSet = injector.getInstance(EstimationService.class).getEstimationRuleSet(estimationRuleSet.getId()).get();
+            estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSet.getId()).get();
             EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax");
             minMaxRule.addReadingType(readingType);
             minMaxRule.activate();
             estimationRuleSet.save();
             context.commit();
         }
-        estimationRuleSet = injector.getInstance(EstimationService.class).getEstimationRuleSet(estimationRuleSet.getId()).get();
+        estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSet.getId()).get();
         assertThat(estimationRuleSet.getRules()).hasSize(2);
-        EstimationRule validationRule = estimationRuleSet.getRules().get(0);
-        assertThat(validationRule.getReadingTypes()).hasSize(1);
+        EstimationRule estimationRule = estimationRuleSet.getRules().get(0);
+        assertThat(estimationRule.getReadingTypes()).hasSize(1);
     }
 
     @Test
     public void testAddSecondRuleSeeIfPropertiesArentLost() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        EstimationRuleSet validationRuleSet;
+        EstimationRuleSet estimationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
-            readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(EstimationService.class).createEstimationRuleSet("myRuleSet");
-            EstimationRule zeroesRule = validationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
+            estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
+            EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
             zeroesRule.addReadingType(readingType);
             zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, BigDecimal.valueOf(20));
             zeroesRule.activate();
-            validationRuleSet.save();
+            estimationRuleSet.save();
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
-            readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(EstimationService.class).getEstimationRuleSet(validationRuleSet.getId()).get();
-            EstimationRule minMaxRule = validationRuleSet.addRule(MIN_MAX, "minmax");
+            estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSet.getId()).get();
+            EstimationRule minMaxRule = estimationRuleSet.addRule(MIN_MAX, "minmax");
             minMaxRule.addReadingType(readingType);
             minMaxRule.activate();
-            validationRuleSet.save();
+            estimationRuleSet.save();
             context.commit();
         }
-        validationRuleSet = injector.getInstance(EstimationService.class).getEstimationRuleSet(validationRuleSet.getId()).get();
-        assertThat(validationRuleSet.getRules()).hasSize(2);
-        EstimationRule validationRule = validationRuleSet.getRules().get(0);
-        assertThat(validationRule.getProperties()).hasSize(1);
+        estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSet.getId()).get();
+        assertThat(estimationRuleSet.getRules()).hasSize(2);
+        EstimationRule estimationRule = estimationRuleSet.getRules().get(0);
+        assertThat(estimationRule.getProperties()).hasSize(1);
     }
 
     @Test
     public void testReorderRules() {
         UpdatableHolder<Long> ruleSetId = new UpdatableHolder<>(null);
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        EstimationService estimationService = injector.getInstance(EstimationService.class);
         transactionService.execute(VoidTransaction.of(() -> {
-                    readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                     EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet");
                     EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes");
                     zeroesRule.addReadingType(readingType);
@@ -249,6 +245,4 @@ public class EstimationRuleSetImplIT {
         assertThat(found.get().getRules().get(0).getImplementation()).isEqualTo(MIN_MAX);
         assertThat(found.get().getRules().get(1).getImplementation()).isEqualTo(ZERO_FILL);
     }
-
-
 }
