@@ -22,6 +22,7 @@
         <!-- property to include the source code in the bundles
              will be set to false by the release profile for releases -->
         <include.source>true</include.source>
+        <json.version>20090211</json.version>
     </properties>
 
     <dependencyManagement>
@@ -110,6 +111,13 @@
                 <version>0.9.1</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
             <dependency>
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bndlib</artifactId>
@@ -389,6 +397,7 @@
                         <Bundle-Vendor>Elster</Bundle-Vendor>
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
                         <Git-SHA-1>${buildNumber}</Git-SHA-1>
+                        <Git-branch>${scmBranch}</Git-branch>
                         <Build-timestamp>${timestamp}</Build-timestamp>
                         <_sources>${include.source}</_sources>
                         <_include>bnd.bnd</_include>
