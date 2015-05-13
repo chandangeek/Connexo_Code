@@ -1,8 +1,17 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.util.collections.KPermutation;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -20,19 +29,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.security.Privileges;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.util.collections.KPermutation;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class EstimationRuleSetResource {
     
@@ -49,7 +48,7 @@ public class EstimationRuleSetResource {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.VIEW_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getEstimationRuleSets(@PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @QueryParam("linkable") boolean includeOnlyLinkableEstimationRuleSets,
@@ -65,7 +64,7 @@ public class EstimationRuleSetResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response addEstimationRuleSetsToDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @QueryParam("all") boolean includeAll, List<EstimationRuleSetRefInfo> ruleSets) {
@@ -91,7 +90,7 @@ public class EstimationRuleSetResource {
     @Path("/{estimationRuleSetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response deleteEstimationRuleSetFromDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -110,7 +109,7 @@ public class EstimationRuleSetResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response reorderEstimationRuleSetOnDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
