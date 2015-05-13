@@ -1,4 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.bpm.extjs
+Export-Package: !com.elster.jupiter.bpm.extjs
 -include: -../development.bnd
