@@ -35,6 +35,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,6 +56,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, TranslationKeyProvider {
 
+    private volatile Clock clock;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BpmService bpmService;
     private volatile PropertySpecService propertySpecService;
@@ -69,9 +72,10 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleServiceImpl(NlsService nlsService, ThreadPrincipalService threadPrincipalService, BpmService bpmService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifeCycleServiceImpl(NlsService nlsService, Clock clock, ThreadPrincipalService threadPrincipalService, BpmService bpmService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setNlsService(nlsService);
+        this.setClock(clock);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setBpmService(bpmService);
         this.setPropertySpecService(propertySpecService);
@@ -88,6 +92,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setBpmService(BpmService bpmService) {
         this.bpmService = bpmService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference
@@ -283,7 +292,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void triggerExecution(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {
-        this.executeMicroChecks(action, device);
+        this.executeMicroChecks(action, device, this.getEffectiveTimestamp(properties));
         this.executeMicroActions(action, device, properties);
         this.triggerEvent((CustomStateTransitionEventType) action.getStateTransition().getEventType(), device);
     }
@@ -294,12 +303,18 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.bpmService.startProcess(action.getDeploymentId(), action.getProcessId(), processParameters);
     }
 
-    private void executeMicroChecks(AuthorizedTransitionAction check, Device device) throws DeviceLifeCycleActionViolationException {
+    private Instant getEffectiveTimestamp(List<ExecutableActionProperty> properties) {
+        return DeviceLifeCyclePropertySupport
+                    .getOptionalEffectiveTimestamp(properties)
+                    .orElseGet(this.clock::instant);
+    }
+
+    private void executeMicroChecks(AuthorizedTransitionAction check, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {
         List<DeviceLifeCycleActionViolation> violations =
             check.getChecks()
                 .stream()
                 .map(this.microCheckFactory::from)
-                .map(microCheck -> this.execute(microCheck, device))
+                .map(microCheck -> this.execute(microCheck, device, effectiveTimestamp))
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
         if (!violations.isEmpty()) {
@@ -314,10 +329,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      *
      * @param check The ServerMicroCheck
      * @param device The Device
+     * @param effectiveTimestamp The effective timestamp of the transition
      * @return The violation or an empty Optional if the ServerMicroCheck succeeds
      */
-    private Optional<DeviceLifeCycleActionViolation> execute(ServerMicroCheck check, Device device) {
-        return check.evaluate(device);
+    private Optional<DeviceLifeCycleActionViolation> execute(ServerMicroCheck check, Device device, Instant effectiveTimestamp) {
+        return check.evaluate(device, effectiveTimestamp);
     }
 
     private void executeMicroActions(AuthorizedTransitionAction action, Device device, List<ExecutableActionProperty> properties) {

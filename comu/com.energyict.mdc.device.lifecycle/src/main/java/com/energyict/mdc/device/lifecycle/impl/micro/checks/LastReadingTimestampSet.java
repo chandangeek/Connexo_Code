@@ -9,7 +9,9 @@ import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.streams.Predicates;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -29,12 +31,12 @@ public class LastReadingTimestampSet implements ServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device) {
-        return this.evaluateLoadProfiles(device).andRegisters(device);
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+        return this.evaluateLoadProfiles(device, effectiveTimestamp).andRegisters(device, effectiveTimestamp);
     }
 
-    private Continuation evaluateLoadProfiles(Device device) {
-        if (anyLoadProfileWithoutLastReading(device).isPresent()) {
+    private Continuation evaluateLoadProfiles(Device device, Instant effectiveTimestamp) {
+        if (anyLoadProfileWithoutLastReading(device, effectiveTimestamp).isPresent()) {
             return new ViolationFound(Optional.of(newViolation()));
         }
         return new EvaluateRegisters();
@@ -47,19 +49,39 @@ public class LastReadingTimestampSet implements ServerMicroCheck {
                 MicroCheck.LAST_READING_TIMESTAMP_SET);
     }
 
-    private Optional<LoadProfile> anyLoadProfileWithoutLastReading(Device device) {
+    private Optional<LoadProfile> anyLoadProfileWithoutLastReading(Device device, Instant effectiveTimestamp) {
         return device
                 .getLoadProfiles()
                 .stream()
-                .filter(each -> !each.getLastReading().isPresent())
+                .filter(Predicates
+                        .either(this::lastReadingInLoadProfileMissing)
+                        .or(lp -> this.lastReadingInLoadProfileNotEqualTo(lp, effectiveTimestamp)))
                 .findAny();
     }
 
-    private Optional<Register> anyRegisterWithoutLastReading(Device device) {
+    private boolean lastReadingInLoadProfileMissing(LoadProfile loadProfile) {
+        return !loadProfile.getLastReading().isPresent();
+    }
+
+    private boolean lastReadingInLoadProfileNotEqualTo(LoadProfile loadProfile, Instant effectiveTimestamp) {
+        return !loadProfile.getLastReading().get().equals(effectiveTimestamp);
+    }
+
+    private boolean lastReadingInRegisterMissing(Register register) {
+        return !register.getLastReading().isPresent();
+    }
+
+    private boolean lastReadingInRegisterNotEqualTo(Register register, Instant effectiveTimestamp) {
+        return !register.getLastReading().get().equals(effectiveTimestamp);
+    }
+
+    private Optional<Register> anyRegisterWithoutLastReading(Device device, Instant effectiveTimestamp) {
         return device
                 .getRegisters()
                 .stream()
-                .filter(each -> !each.getLastReading().isPresent())
+                .filter(Predicates
+                        .either(this::lastReadingInRegisterMissing)
+                        .or(r -> this.lastReadingInRegisterNotEqualTo(r, effectiveTimestamp)))
                 .findAny();
     }
 
@@ -68,15 +90,16 @@ public class LastReadingTimestampSet implements ServerMicroCheck {
          * Continues the evaluation process with the registers of the specified Device.
          *
          * @param device The Device
+         * @param effectiveTimestamp The effective timestamp of the transition
          * @return A violation if at least one register does not have a last reading timestamp
          */
-        public Optional<DeviceLifeCycleActionViolation> andRegisters(Device device);
+        public Optional<DeviceLifeCycleActionViolation> andRegisters(Device device, Instant effectiveTimestamp);
 
     }
     private class EvaluateRegisters implements Continuation {
         @Override
-        public Optional<DeviceLifeCycleActionViolation> andRegisters(Device device) {
-            if (anyRegisterWithoutLastReading(device).isPresent()) {
+        public Optional<DeviceLifeCycleActionViolation> andRegisters(Device device, Instant effectiveTimestamp) {
+            if (anyRegisterWithoutLastReading(device, effectiveTimestamp).isPresent()) {
                 return Optional.of(newViolation());
             }
             else {
@@ -101,7 +124,7 @@ public class LastReadingTimestampSet implements ServerMicroCheck {
         }
 
         @Override
-        public Optional<DeviceLifeCycleActionViolation> andRegisters(Device device) {
+        public Optional<DeviceLifeCycleActionViolation> andRegisters(Device device, Instant effectiveTimestamp) {
             return this.violation;
         }
     }

@@ -10,6 +10,7 @@ import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Predicates;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -32,7 +33,7 @@ public class ProtocolDialectPropertiesAreValid implements ServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         long numberOfMissingDialects = device
             .getDeviceConfiguration()
             .getComTaskEnablements()

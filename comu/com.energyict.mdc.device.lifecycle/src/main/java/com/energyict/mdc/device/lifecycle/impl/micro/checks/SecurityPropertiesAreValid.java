@@ -10,6 +10,7 @@ import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import com.elster.jupiter.nls.Thesaurus;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -33,7 +34,7 @@ public class SecurityPropertiesAreValid implements ServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         if (!device.securityPropertiesAreValid()) {
             return Optional.of(newViolation());
         }

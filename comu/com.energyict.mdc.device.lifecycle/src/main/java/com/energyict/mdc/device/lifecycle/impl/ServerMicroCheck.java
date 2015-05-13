@@ -4,6 +4,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -18,11 +19,12 @@ public interface ServerMicroCheck {
     /**
      * Evaluates this {@link MicroCheck} against the {@link Device}
      * and returns an appropriate {@link DeviceLifeCycleActionViolation}
-     * when if fails.
+     * when it fails.
      *
      * @param device The Device
+     * @param effectiveTimestamp The effective timestamp of the transition
      * @return The violation if the check fails
      */
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device);
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp);
 
 }

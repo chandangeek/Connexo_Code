@@ -1,9 +1,10 @@
-package com.energyict.mdc.device.lifecycle.impl.micro.actions;
+package com.energyict.mdc.device.lifecycle.impl;
 
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
+import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -15,13 +16,13 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
- * Provides utility methods for {@link ServerMicroAction}
+ * Provides utility methods for {@link ServerMicroCheck} and {@link ServerMicroAction}
  * implementation classes that have required or optional properties.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-24 (15:29)
  */
-public final class MicroActionPropertySupport {
+public final class DeviceLifeCyclePropertySupport {
 
     /**
      * Creates a mandatory {@link PropertySpec} for the
@@ -128,6 +129,6 @@ public final class MicroActionPropertySupport {
     }
 
     // Hide constructor for static utility class
-    private MicroActionPropertySupport() {}
+    private DeviceLifeCyclePropertySupport() {}
 
 }

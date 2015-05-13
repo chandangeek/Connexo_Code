@@ -9,6 +9,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.nls.Thesaurus;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -30,7 +31,7 @@ public class SlaveDeviceHasGateway implements ServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         if (device.isLogicalSlave() && !this.hasGateway(device)) {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(

@@ -10,8 +10,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionPropertySupport.getLastCheckedTimestamp;
-import static com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionPropertySupport.lastCheckedTimestamp;
+import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.getLastCheckedTimestamp;
+import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.lastCheckedTimestamp;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface

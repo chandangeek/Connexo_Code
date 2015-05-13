@@ -7,6 +7,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.junit.*;
@@ -39,7 +40,7 @@ public class DeviceIsLinkedWithUsagePointTest {
         DeviceIsLinkedWithUsagePoint microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -52,7 +53,7 @@ public class DeviceIsLinkedWithUsagePointTest {
         DeviceIsLinkedWithUsagePoint microCheck = this.getTestInstance();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();

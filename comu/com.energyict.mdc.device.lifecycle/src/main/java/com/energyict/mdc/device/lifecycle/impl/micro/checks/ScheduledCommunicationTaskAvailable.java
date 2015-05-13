@@ -9,8 +9,8 @@ import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.streams.Predicates;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -30,7 +30,7 @@ public class ScheduledCommunicationTaskAvailable implements ServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         if (!anyScheduledCommunicationTask(device).isPresent()) {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(

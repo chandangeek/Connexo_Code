@@ -5,10 +5,10 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
-import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.nls.Thesaurus;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -28,7 +28,7 @@ public class DeviceIsLinkedWithUsagePoint implements ServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         if (!device.getUsagePoint().isPresent()) {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(

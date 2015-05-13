@@ -9,6 +9,7 @@ import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public class GeneralProtocolPropertiesAreValid implements ServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         if (anyMissingProperty(device).isPresent()) {
             return Optional.of(newViolation());
         }

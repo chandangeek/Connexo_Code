@@ -12,8 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionPropertySupport.getOptionalEffectiveTimestamp;
-import static com.energyict.mdc.device.lifecycle.impl.micro.actions.MicroActionPropertySupport.optionalEffectiveTimestamp;
+import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.getOptionalEffectiveTimestamp;
+import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySupport.optionalEffectiveTimestamp;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface

@@ -45,7 +45,7 @@ public class LastReadingTimestampSetTest {
         when(this.device.getLoadProfiles()).thenReturn(Collections.emptyList());
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -66,7 +66,7 @@ public class LastReadingTimestampSetTest {
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -74,7 +74,31 @@ public class LastReadingTimestampSetTest {
     }
 
     @Test
-    public void deviceWithLoadProfilesWithLastReadingAndRegistersWithoutLastReading() {
+    public void deviceWithLoadProfilesAndRegistersButNoLastReadingsOnEffectiveTimestamp() {
+        Instant lastReadingTimestamp = Instant.ofEpochMilli(100000L);
+        Instant effectiveTimestamp =   lastReadingTimestamp.plusSeconds(1L);
+        LastReadingTimestampSet microCheck = this.getTestInstance();
+        Register reg1 = mock(Register.class);
+        when(reg1.getLastReading()).thenReturn(Optional.of(lastReadingTimestamp));
+        Register reg2 = mock(Register.class);
+        when(reg2.getLastReading()).thenReturn(Optional.of(lastReadingTimestamp));
+        when(this.device.getRegisters()).thenReturn(Arrays.asList(reg1, reg2));
+        LoadProfile lp1 = mock(LoadProfile.class);
+        when(lp1.getLastReading()).thenReturn(Optional.of(lastReadingTimestamp));
+        LoadProfile lp2 = mock(LoadProfile.class);
+        when(lp2.getLastReading()).thenReturn(Optional.of(lastReadingTimestamp));
+        when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
+
+        // Business method
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, effectiveTimestamp);
+
+        // Asserts
+        assertThat(violation).isPresent();
+        assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.LAST_READING_TIMESTAMP_SET);
+    }
+
+    @Test
+    public void deviceWithLoadProfilesWithLastReadingsAndRegistersWithoutLastReading() {
         LastReadingTimestampSet microCheck = this.getTestInstance();
         Register reg1 = mock(Register.class);
         when(reg1.getLastReading()).thenReturn(Optional.<Instant>empty());
@@ -82,13 +106,14 @@ public class LastReadingTimestampSetTest {
         when(reg2.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(this.device.getRegisters()).thenReturn(Arrays.asList(reg1, reg2));
         LoadProfile lp1 = mock(LoadProfile.class);
-        when(lp1.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        Instant now = Instant.now();
+        when(lp1.getLastReading()).thenReturn(Optional.of(now));
         LoadProfile lp2 = mock(LoadProfile.class);
-        when(lp2.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        when(lp2.getLastReading()).thenReturn(Optional.of(now));
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, now);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -99,9 +124,10 @@ public class LastReadingTimestampSetTest {
     public void deviceWithLoadProfilesWithoutLastReadingAndRegistersWithLastReading() {
         LastReadingTimestampSet microCheck = this.getTestInstance();
         Register reg1 = mock(Register.class);
-        when(reg1.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        Instant now = Instant.now();
+        when(reg1.getLastReading()).thenReturn(Optional.of(now));
         Register reg2 = mock(Register.class);
-        when(reg2.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        when(reg2.getLastReading()).thenReturn(Optional.of(now));
         when(this.device.getRegisters()).thenReturn(Arrays.asList(reg1, reg2));
         LoadProfile lp1 = mock(LoadProfile.class);
         when(lp1.getLastReading()).thenReturn(Optional.<Instant>empty());
@@ -110,7 +136,7 @@ public class LastReadingTimestampSetTest {
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, now);
 
         // Asserts
         assertThat(violation).isPresent();
@@ -121,18 +147,19 @@ public class LastReadingTimestampSetTest {
     public void deviceWithLoadProfilesAndRegistersWithAllLastReadingsSet() {
         LastReadingTimestampSet microCheck = this.getTestInstance();
         Register reg1 = mock(Register.class);
-        when(reg1.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        Instant now = Instant.now();
+        when(reg1.getLastReading()).thenReturn(Optional.of(now));
         Register reg2 = mock(Register.class);
-        when(reg2.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        when(reg2.getLastReading()).thenReturn(Optional.of(now));
         when(this.device.getRegisters()).thenReturn(Arrays.asList(reg1, reg2));
         LoadProfile lp1 = mock(LoadProfile.class);
-        when(lp1.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        when(lp1.getLastReading()).thenReturn(Optional.of(now));
         LoadProfile lp2 = mock(LoadProfile.class);
-        when(lp2.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        when(lp2.getLastReading()).thenReturn(Optional.of(now));
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(lp1, lp2));
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, now);
 
         // Asserts
         assertThat(violation).isEmpty();
