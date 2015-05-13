@@ -16,7 +16,7 @@ import java.util.Optional;
 @ProviderType
 public interface DeviceMessageSpecificationService {
 
-    public static final String COMPONENT_NAME = "DMC";
+    String COMPONENT_NAME = "DMC";
 
     /**
      * Provides a list of DeviceMessageCategories which can be selected by the User.

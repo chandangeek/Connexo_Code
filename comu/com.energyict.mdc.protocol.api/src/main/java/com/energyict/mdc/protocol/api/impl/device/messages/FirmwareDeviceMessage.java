@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.dynamic.DateFactory;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -30,7 +30,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  */
 public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_LATER(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER, "Firmware upgrade via user file, activate later") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_LATER(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER, "Upload firmware and activate later") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -42,7 +42,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, "Firmware upgrade via user file, activate immediate") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, "Upload firmware and activate immediate") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -54,7 +54,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE, "Firmware upgrade via user file with resume option, activate immediate") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE, "Upload firmware with resume option and activate immediate") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -67,7 +67,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE, "Firmware upgrade via user file with resume option and type, activate immediate") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE, "Upload firmware with resume option and type and activate immediate") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -85,7 +85,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateAndTimeFactory()));
         }
 
         @Override
@@ -93,12 +93,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.empty();
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_DATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE, "Firmware upgrade via user file with activation date") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_DATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE, "Upload firmware with activation date") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateFileAttributeName, true, FactoryIds.FIRMWAREVERSION));
-            propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateAndTimeFactory()));
         }
 
         @Override
@@ -106,12 +106,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE, "Firmware upgrade via user file with version and activation date") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE, "Upload firmware with version and activation date") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.referencePropertySpec(firmwareUpdateFileAttributeName, true, FactoryIds.FIRMWAREVERSION));
-            propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateAndTimeFactory()));
             propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateVersionNumberAttributeName, true, new StringFactory()));
         }
 
@@ -120,7 +120,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_URL_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE, "Firmware upgrade via url, activate immediate") {
+    UPGRADE_FIRMWARE_URL_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE, "Upload firmware via url and activate immediate") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -132,12 +132,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_URL_AND_ACTIVATE_DATE(DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE, "Firmware upgrade via url with activation date") {
+    UPGRADE_FIRMWARE_URL_AND_ACTIVATE_DATE(DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE, "Upload firmware via url with activation date") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateURLAttributeName, true, new StringFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(firmwareUpdateActivationDateAttributeName, true, new DateAndTimeFactory()));
         }
 
         @Override
@@ -155,12 +155,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
     }
 
     @Override
-    public String getNameResourceKey() {
+    public String getKey() {
         return FirmwareDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public String defaultTranslation() {
+    public String getDefaultFormat() {
         return this.defaultTranslation;
     }
 

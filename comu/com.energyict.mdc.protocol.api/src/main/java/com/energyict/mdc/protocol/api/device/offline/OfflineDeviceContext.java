@@ -20,4 +20,6 @@ public interface OfflineDeviceContext {
     boolean needsPendingMessages();
 
     boolean needsSentMessages();
+
+    boolean needsFirmwareVersions();
 }

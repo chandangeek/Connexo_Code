@@ -267,7 +267,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
     }
 
     @Override
-    public String defaultTranslation() {
+    public String getDefaultFormat() {
         return this.defaultTranslation;
     }
 
@@ -277,7 +277,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
     }
 
     @Override
-    public String getNameResourceKey() {
+    public String getKey() {
         return SecurityMessage.class.getSimpleName() + "." + this.toString();
     }
 

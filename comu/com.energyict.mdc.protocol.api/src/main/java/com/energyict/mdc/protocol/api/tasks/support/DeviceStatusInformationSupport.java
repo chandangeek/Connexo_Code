@@ -3,8 +3,7 @@ package com.energyict.mdc.protocol.api.tasks.support;
 /**
  * Defines proper functionality to collect Status information of a Device.
  */
-public interface DeviceStatusInformationSupport extends DeviceRegisterSupport, DeviceLogBookSupport {
+public interface DeviceStatusInformationSupport extends DeviceFirmwareSupport {
 
-    // The status information will be collected from <code>Registers</code> and <code>MeterEvents</code>
 
 }

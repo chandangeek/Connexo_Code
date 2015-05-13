@@ -1,13 +1,13 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.nls.*;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.MessageSeeds;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -15,10 +15,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,8 +25,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (13:33)
  */
-@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageSpecificationService.class, InstallService.class}, property = "name=" + DeviceMessageSpecificationService.COMPONENT_NAME, immediate = true)
-public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpecificationService, InstallService {
+@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageSpecificationService.class, TranslationKeyProvider.class}, property = "name=" + DeviceMessageSpecificationService.COMPONENT_NAME, immediate = true)
+public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpecificationService, TranslationKeyProvider {
 
     private volatile PropertySpecService propertySpecService;
     private Thesaurus thesaurus;
@@ -46,7 +43,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         super();
         this.setPropertySpecService(propertySpecService);
         this.setNlsService(nlsService);
-        this.install();
+//        this.install();
     }
 
     @Reference
@@ -60,16 +57,16 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN);
     }
-
-    @Override
-    public void install() {
-        new Installer(this.thesaurus).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS", "DDC");
-    }
+//
+//    @Override
+//    public void install() {
+//        new Installer(this.thesaurus).install();
+//    }
+//
+//    @Override
+//    public List<String> getPrerequisiteModules() {
+//        return Arrays.asList("NLS", "DDC");
+//    }
 
     @Override
     public List<DeviceMessageCategory> filteredCategoriesForUserSelection() {
@@ -127,6 +124,58 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
                 .flatMap(category -> category.getMessageSpecifications().stream()).collect(Collectors.toList());
     }
 
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        Stream.of(MessageSeeds.values()).forEach(keys::add);
+        Stream.of(DeviceMessageCategories.values()).forEach(keys::add);
+        Stream.of(ActivityCalendarDeviceMessage.values()).forEach(keys::add);
+        Stream.of(AdvancedTestMessage.values()).forEach(keys::add);
+        Stream.of(AlarmConfigurationMessage.values()).forEach(keys::add);
+        Stream.of(ChannelConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(ClockDeviceMessage.values()).forEach(keys::add);
+        Stream.of(ConfigurationChangeDeviceMessage.values()).forEach(keys::add);
+        Stream.of(ContactorDeviceMessage.values()).forEach(keys::add);
+        Stream.of(DeviceActionMessage.values()).forEach(keys::add);
+        Stream.of(DisplayDeviceMessage.values()).forEach(keys::add);
+        Stream.of(DLMSConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(EIWebConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(FirmwareDeviceMessage.values()).forEach(keys::add);
+        Stream.of(GeneralDeviceMessage.values()).forEach(keys::add);
+        Stream.of(LoadBalanceDeviceMessage.values()).forEach(keys::add);
+        Stream.of(LoadProfileMessage.values()).forEach(keys::add);
+        Stream.of(LogBookDeviceMessage.values()).forEach(keys::add);
+        Stream.of(MailConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(MBusConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(MBusSetupDeviceMessage.values()).forEach(keys::add);
+        Stream.of(ModbusConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(ModemConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(NetworkConnectivityMessage.values()).forEach(keys::add);
+        Stream.of(OpusConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(PeakShaverConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(PLCConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(PowerConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(PPPConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(PrepaidConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(PricingInformationMessage.values()).forEach(keys::add);
+        Stream.of(SecurityMessage.values()).forEach(keys::add);
+        Stream.of(SMSConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(TotalizersConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(ZigBeeConfigurationDeviceMessage.values()).forEach(keys::add);
+        Stream.of(DeviceMessageAttributes.values()).forEach(keys::add);
+        return keys;
+    }
+
     private class DeviceMessageCategoryImpl implements DeviceMessageCategory {
         private final DeviceMessageCategories category;
         private final int deviceMessageCategoryId;
@@ -139,7 +188,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
 
         @Override
         public String getName() {
-            return thesaurus.getString(this.category.getNameResourceKey(), this.category.defaultTranslation());
+            return thesaurus.getString(this.category.getNameResourceKey(), this.category.getDefaultFormat());
         }
 
         @Override

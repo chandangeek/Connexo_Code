@@ -43,12 +43,12 @@ public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecEnu
 
 
     @Override
-    public String getNameResourceKey() {
+    public String getKey() {
         return TotalizersConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
-    public String defaultTranslation() {
+    public String getDefaultFormat() {
         return this.defaultTranslation;
     }
 

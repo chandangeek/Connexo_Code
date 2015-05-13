@@ -13,6 +13,7 @@ public class DeviceOfflineFlags implements OfflineDeviceContext {
     public static final int LOG_BOOKS_FLAG               = 0b0000_0000_0000_0000_0000_0000_0001_0000;
     public static final int PENDING_MESSAGES_FLAG        = 0b0000_0000_0000_0000_0000_0000_0010_0000;
     public static final int SENT_MESSAGES_FLAG           = 0b0000_0000_0000_0000_0000_0000_0100_0000;
+    public static final int FIRMWARE_VERSIONS_FLAG       = 0b0000_0000_0000_0000_0000_0000_1000_0000;
 
     private final int flags;
 
@@ -46,6 +47,9 @@ public class DeviceOfflineFlags implements OfflineDeviceContext {
         }
         if (context.needsSentMessages()) {
             flag |= SENT_MESSAGES_FLAG;
+        }
+        if(context.needsFirmwareVersions()){
+            flag |= FIRMWARE_VERSIONS_FLAG;
         }
         return new DeviceOfflineFlags(flag);
     }
@@ -83,6 +87,11 @@ public class DeviceOfflineFlags implements OfflineDeviceContext {
     @Override
     public boolean needsSlaveDevices() {
         return isSet(SLAVE_DEVICES_FLAG);
+    }
+
+    @Override
+    public boolean needsFirmwareVersions() {
+        return isSet(FIRMWARE_VERSIONS_FLAG);
     }
 
     private boolean isSet(int flag) {
