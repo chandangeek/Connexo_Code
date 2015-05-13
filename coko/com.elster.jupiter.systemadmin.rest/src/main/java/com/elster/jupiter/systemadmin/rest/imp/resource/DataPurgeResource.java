@@ -120,7 +120,7 @@ public class DataPurgeResource {
         List<TaskOccurrence> sortedHistory = taskService.getOccurrences(lifeCycleService.getTask(), Range.all()).stream()
                 .sorted(Comparator.comparing(o -> o.getStartDate().orElse(Instant.EPOCH))).collect(Collectors.toList());
         Collections.reverse(sortedHistory);
-        int start = queryParameters.getStart() < sortedHistory.size() ? queryParameters.getStart() : sortedHistory.size();
+        int start = queryParameters.getStartInt() < sortedHistory.size() ? queryParameters.getStartInt() : sortedHistory.size();
         int max = queryParameters.getLimit() + start + 1;
         if (max > sortedHistory.size()){
             max = sortedHistory.size();
@@ -156,7 +156,7 @@ public class DataPurgeResource {
     public Response getPurgeLogForOccurence(@PathParam("id") long id, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         TaskOccurrence occurrence = getTaskOccurenceOrThrowException(id);
-        List<? extends LogEntry> logEntries = occurrence.getLogsFinder().setStart(queryParameters.getStart()).setLimit(queryParameters.getLimit()).find();
+        List<? extends LogEntry> logEntries = occurrence.getLogsFinder().setStart(queryParameters.getStartInt()).setLimit(queryParameters.getLimit()).find();
         return Response.ok(ListInfo.from(logEntries, PurgeHistoryLogInfo::new).paged(queryParameters)).build();
     }
 
