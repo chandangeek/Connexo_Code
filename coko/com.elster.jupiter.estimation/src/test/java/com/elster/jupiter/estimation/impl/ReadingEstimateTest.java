@@ -52,6 +52,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.UtilModule;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -317,7 +318,7 @@ public class ReadingEstimateTest {
 //            reading2.addQuality("3.8.2"); // estimated by rule 2
 //            channel.getCimChannel(readingType).get().estimateReadings(ImmutableList.of(reading1, reading2));
 
-            estimationService.estimate(meter.getCurrentMeterActivation().get());
+            estimationService.estimate(meter.getCurrentMeterActivation().get(), Range.<Instant>all());
 
             ctx.commit();
         }

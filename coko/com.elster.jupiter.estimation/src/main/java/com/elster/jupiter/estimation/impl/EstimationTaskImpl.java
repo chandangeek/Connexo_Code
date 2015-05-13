@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
+import com.elster.jupiter.estimation.MessageSeeds;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -13,6 +14,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -26,6 +28,7 @@ import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_ESTIMATION_TASK + "}")
 public class EstimationTaskImpl implements IEstimationTask {
 
     private final IEstimationService estimationService;
@@ -230,7 +233,8 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public EstimationTaskOccurrenceFinder getOccurrencesFinder() {
-        Condition condition = where("recurrentTask").isEqualTo(getRecurrentTask());
+        Condition condition = where("recurrentTask").isEqualTo(getRecurrentTask())
+                .and(where("status").isNotEqual(TaskStatus.NOT_EXECUTED_YET));
         Order order = Order.ascending("triggerTime");
         return new EstimationTaskOccurrenceFinderImpl(taskService, condition, order);
     }

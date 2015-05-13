@@ -1,12 +1,12 @@
 package com.elster.jupiter.estimation;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_ESTIMATOR(1001, Constants.NO_SUCH_ESTIMATOR, "Estimator {0} does not exist.", Level.SEVERE),
@@ -19,13 +19,14 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     DUPLICATE_ESTIMATION_RULE_SET(101, Constants.DUPLICATE_ESTIMATION_RULE_SET, "Name must be unique", Level.SEVERE),
     DUPLICATE_ESTIMATION_RULE(102, Constants.DUPLICATE_ESTIMATION_RULE, "Name must be unique", Level.SEVERE),
-    
+    DUPLICATE_ESTIMATION_TASK(103, Constants.DUPLICATE_ESTIMATION_TASK, "Name must be unique", Level.SEVERE),
+
     ESTIMATOR_PROPERTY_NOT_IN_SPEC(1005, Constants.ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY, "The estimator ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
     ESTIMATOR_PROPERTY_INVALID_VALUE(1006, Constants.ESTIMATOR_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of estimator ''{2}''", Level.SEVERE),
-    ESTIMATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY, "A value is missing for required attribute ''{0}'' of estimator ''{1}''", Level.SEVERE),
+    ESTIMATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
 
-    ;
-    
+    VETO_DEVICEGROUP_DELETION(1008, Constants.VETO_DEVICEGROUP_DELETION_KEY, "Device group {0} is still in use by an estimation task", Level.SEVERE);
+
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -80,12 +81,14 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String INVALID_CHARS = "InvalidChars";
         public static final String NO_SUCH_ESTIMATOR = "NoSuchEstimator";
         public static final String DUPLICATE_ESTIMATION_RULE = "DuplicateEstimationRule";
+        public static final String DUPLICATE_ESTIMATION_TASK = "DuplicateEstimationTask";
         public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
         public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
         public static final String ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY = "EstimatorPropertyXIsNotInSpec";
         public static final String ESTIMATOR_PROPERTY_INVALID_VALUE_KEY = "EstimatorPropertyValueInvalid";
         public static final String ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY = "EstimatorPropertyRequired";
+        public static final String VETO_DEVICEGROUP_DELETION_KEY = "DeviceGroupXStillInUseByEstimationTask";
     }
 }
 

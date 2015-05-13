@@ -23,7 +23,7 @@ public class EstimationBlockFormatter {
                 .append(DATE_TIME_FORMATTER.format(estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp()))
                 .append(" on ")
                 .append(estimationBlock.getReadingType().getAliasName())
-                .append(estimationBlock.getChannel().getMeterActivation().getMeter().map(meter -> " and device " + meter.getName()).orElse(""))
+                .append(estimationBlock.getChannel().getMeterActivation().getMeter().map(meter -> " and device " + meter.getMRID()).orElse(""))
                 .append(" with ")
                 .append(estimationBlock.estimatables().size())
                 .append(" suspects")

@@ -29,6 +29,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -83,7 +84,7 @@ public class ConsoleCommands {
             meter.getCurrentMeterActivation().ifPresent(meterActivation -> {
                 meterActivation.getChannels().stream()
                         .flatMap(channel -> channel.getReadingTypes().stream())
-                        .flatMap(readingType -> estimationEngine.findBlocksToEstimate(meterActivation, readingType).stream())
+                        .flatMap(readingType -> estimationEngine.findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType).stream())
                         .map(this::print)
                         .forEach(System.out::println);
             });
@@ -260,7 +261,7 @@ public class ConsoleCommands {
         System.out.println("Handling channel id " + channel.getId());
         for (ReadingType readingType : channel.getReadingTypes()) {
             System.out.println("Handling reading type " + readingType.getAliasName());
-            List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, readingType);
+            List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
             estimator.init(Logger.getLogger(ConsoleCommands.class.getName()));
             EstimationResult result = estimator.estimate(blocks);
             List<EstimationBlock> estimated = result.estimated();

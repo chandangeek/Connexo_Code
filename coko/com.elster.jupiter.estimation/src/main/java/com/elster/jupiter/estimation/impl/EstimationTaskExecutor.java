@@ -2,14 +2,21 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.time.AllRelativePeriod;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.logging.Logger;
 
 /**
@@ -43,12 +50,20 @@ class EstimationTaskExecutor implements TaskExecutor {
 
     private void tryExecute(TaskOccurrence occurrence, Logger taskLogger) {
         EstimationTask estimationTask = getEstimationTask(occurrence);
+        RelativePeriod relativePeriod = estimationTask.getPeriod().orElseGet(AllRelativePeriod::new);
+
         estimationTask.getEndDeviceGroup().getMembers(occurrence.getTriggerTime()).stream()
                 .filter(device -> device instanceof Meter)
                 .map(device -> ((Meter) device).getMeterActivation(occurrence.getTriggerTime()))
                 .flatMap(Functions.asStream())
-                .forEach((meterActivation) -> estimationService.estimate(meterActivation, taskLogger));
+                .forEach((meterActivation) -> estimationService.estimate(meterActivation, period(meterActivation, relativePeriod, occurrence.getTriggerTime()), taskLogger));
         estimationTask.updateLastRun(occurrence.getTriggerTime());
+    }
+
+    private Range<Instant> period(MeterActivation meterActivation, RelativePeriod relativePeriod, Instant triggerTime) {
+        ZonedDateTime referenceDate = ZonedDateTime.ofInstant(triggerTime, meterActivation.getZoneId());
+        Range<ZonedDateTime> interval = relativePeriod.getInterval(referenceDate);
+        return Ranges.map(interval, ZonedDateTime::toInstant);
     }
 
     private EstimationTask getEstimationTask(TaskOccurrence occurrence) {

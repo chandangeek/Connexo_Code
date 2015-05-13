@@ -216,7 +216,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         return Collections.unmodifiableList(
                 getRuleQuery().select(
                         Where.where("ruleSet").isEqualTo(this),
-                        new Order[]{Order.ascending("name").toUpperCase()},
+                        new Order[]{Order.ascending("position")},
                         false,
                         new String[]{},
                         start + 1,

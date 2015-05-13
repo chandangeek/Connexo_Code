@@ -27,25 +27,25 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class EstimationEngine {
 
-    List<EstimationBlock> findBlocksToEstimate(MeterActivation meterActivation, ReadingType readingType) {
+    List<EstimationBlock> findBlocksToEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
         return meterActivation.getChannels().stream()
                 .filter(Channel::isRegular)
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
-                .flatMap(channel -> this.findBlocksToEstimate(channel, readingType))
+                .flatMap(channel -> this.findBlocksToEstimate(channel, period, readingType))
                 .collect(Collectors.toList());
     }
 
-    private Stream<EstimationBlock> findBlocksToEstimate(Channel channel, ReadingType readingType) {
-        return decorate(findSuspects(channel, readingType).stream())
+    private Stream<EstimationBlock> findBlocksToEstimate(Channel channel, Range<Instant> period, ReadingType readingType) {
+        return decorate(findSuspects(channel, period, readingType).stream())
                 .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
                 .map(this::toEstimatable)
                 .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp()).equals(est2.getTimestamp()))
                 .map(list -> SimpleEstimationBlock.of(channel, readingType, list));
     }
 
-    private List<ReadingQualityRecord> findSuspects(Channel channel, ReadingType readingType) {
+    private List<ReadingQualityRecord> findSuspects(Channel channel, Range<Instant> period, ReadingType readingType) {
         return channel.getCimChannel(readingType)
-                .map(cimChannel -> cimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all()))
+                .map(cimChannel -> cimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), period))
                 .orElse(Collections.emptyList());
     }
 

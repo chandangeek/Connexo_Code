@@ -22,6 +22,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -40,6 +41,8 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.logging.LoggingContext;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -50,6 +53,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.validation.MessageInterpolator;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -216,13 +221,13 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
-    public EstimationReport estimate(MeterActivation meterActivation) {
-        return estimate(meterActivation, LOGGER);
+    public EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period) {
+        return estimate(meterActivation, period, LOGGER);
     }
 
     @Override
-    public EstimationReport estimate(MeterActivation meterActivation, Logger logger) {
-        EstimationReportImpl report = previewEstimate(meterActivation, logger);
+    public EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period, Logger logger) {
+        EstimationReportImpl report = previewEstimate(meterActivation, period, logger);
         report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
                 .flatMap(Collection::stream)
@@ -240,18 +245,21 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                 .map(EstimationResult::estimated)
                 .flatMap(Collection::stream)
                 .count();
-        String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}";
-        LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated);
+        DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(meterActivation.getZoneId());
+        String from = formatter.format(period.hasLowerBound() ? period.lowerEndpoint() : meterActivation.getStart());
+        String to = period.hasUpperBound() ? formatter.format(period.upperEndpoint()) : "now";
+        String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4}";
+        LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to);
 
         return report;
     }
 
     @Override
-    public EstimationReportImpl previewEstimate(MeterActivation meterActivation, Logger logger) {
+    public EstimationReportImpl previewEstimate(MeterActivation meterActivation, Range<Instant> period, Logger logger) {
         EstimationReportImpl report = new EstimationReportImpl();
 
         meterActivation.getReadingTypes().forEach(readingType -> {
-            EstimationReport subReport = this.estimate(meterActivation, readingType, logger);
+            EstimationReport subReport = this.previewEstimate(meterActivation, period, readingType, logger);
             report.add(subReport);
         });
 
@@ -259,18 +267,18 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
-    public EstimationReportImpl previewEstimate(MeterActivation meterActivation) {
-        return previewEstimate(meterActivation, LOGGER);
+    public EstimationReportImpl previewEstimate(MeterActivation meterActivation, Range<Instant> period) {
+        return previewEstimate(meterActivation, period, LOGGER);
     }
 
     @Override
-    public EstimationReport estimate(MeterActivation meterActivation, ReadingType readingType) {
-        return estimate(meterActivation, readingType, LOGGER);
+    public EstimationReport previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
+        return previewEstimate(meterActivation, period, readingType, LOGGER);
     }
 
     @Override
-    public EstimationReport estimate(MeterActivation meterActivation, ReadingType readingType, Logger logger) {
-        UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(getInitialBlocksToEstimateAsResult(meterActivation, readingType));
+    public EstimationReport previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Logger logger) {
+        UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(getInitialBlocksToEstimateAsResult(meterActivation, period, readingType));
 
         EstimationReportImpl report = new EstimationReportImpl();
 
@@ -296,8 +304,8 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
-    public void estimate(MeterActivation meterActivation, ReadingType readingType, Estimator estimator) {
-        estimator.estimate(getBlocksToEstimate(meterActivation, readingType));
+    public EstimationResult previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator) {
+        return estimator.estimate(getBlocksToEstimate(meterActivation, period, readingType));
     }
 
     @Override
@@ -388,6 +396,15 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                 .findFirst();
     }
 
+    @Override
+    public List<EstimationTask> findByDeviceGroup(EndDeviceGroup endDeviceGroup, int skip, int limit) {
+        return dataModel.stream(IEstimationTask.class)
+                .filter(Where.where("endDeviceGroup").isEqualTo(endDeviceGroup))
+                .skip(skip)
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addEstimatorFactory(EstimatorFactory estimatorFactory) {
         estimatorFactories.add(estimatorFactory);
@@ -406,8 +423,8 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         resolvers.remove(estimationResolver);
     }
 
-    private EstimationResult getInitialBlocksToEstimateAsResult(MeterActivation meterActivation, ReadingType readingType) {
-        return asInitialResult(getBlocksToEstimate(meterActivation, readingType));
+    private EstimationResult getInitialBlocksToEstimateAsResult(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
+        return asInitialResult(getBlocksToEstimate(meterActivation, period, readingType));
     }
 
     private EstimationResult asInitialResult(List<EstimationBlock> blocksToEstimate) {
@@ -423,8 +440,8 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                 .flatMap(set -> set.getRules().stream());
     }
 
-    private List<EstimationBlock> getBlocksToEstimate(MeterActivation meterActivation, ReadingType readingType) {
-        return estimationEngine.findBlocksToEstimate(meterActivation, readingType);
+    private List<EstimationBlock> getBlocksToEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
+        return estimationEngine.findBlocksToEstimate(meterActivation, period, readingType);
     }
 
     @Reference
