@@ -49,12 +49,11 @@ public class FirmwareManagementOptionsResource {
         Set<ProtocolSupportedFirmwareOptions> allowedFirmwareMgtOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType);
 
         supportedFirmwareMgtOptions.stream().forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
-
         allowedFirmwareMgtOptions.stream().forEach(op ->
                 firmwareManagementOptionsInfo.allowedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
-        if (!allowedFirmwareMgtOptions.isEmpty()) {
-            firmwareManagementOptionsInfo.isAllowed = true;
-        }
+
+        firmwareManagementOptionsInfo.isAllowed = !allowedFirmwareMgtOptions.isEmpty();
+
         return firmwareManagementOptionsInfo;
     }
 
