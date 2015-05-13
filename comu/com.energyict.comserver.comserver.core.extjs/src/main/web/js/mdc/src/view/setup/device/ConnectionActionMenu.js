@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
     router: null,
     items: [
         {
-            text: Uni.I18n.translate('device.connections.runNow', 'MDC', 'Run now'),
+            text: Uni.I18n.translate('general.runNow', 'MDC', 'Run now'),
             privileges: Mdc.privileges.Device.operateDeviceCommunication,
             action: 'run'
         },
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
             }
         },
         {
-            text: Uni.I18n.translate('device.connections.viewHistory', 'MDC', 'View history'),
+            text: Uni.I18n.translate('general.viewHistory', 'MDC', 'View history'),
             action: 'viewHistory',
             handler: function() {
                 var me = this.parentMenu;
