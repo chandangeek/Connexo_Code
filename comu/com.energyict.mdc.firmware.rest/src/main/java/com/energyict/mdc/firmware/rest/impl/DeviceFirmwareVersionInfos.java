@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.Set;
 
 public class DeviceFirmwareVersionInfos {
     private Thesaurus thesaurus;
-    private List<DeviceFirmwareVersionInfo> firmwares;
+    public List<DeviceFirmwareVersionInfo> firmwares;
 
     public DeviceFirmwareVersionInfos(Thesaurus thesaurus, Set<FirmwareType> supportedFirmwareTypes) {
         this.thesaurus = thesaurus;
@@ -41,11 +40,5 @@ public class DeviceFirmwareVersionInfos {
         this.firmwares.stream()
                 .filter(firmware -> firmware.firmwareType.id.equals(version.getFirmwareType()))
                 .forEach(firmware -> firmware.upgradeVersions.put(versionName, properties));
-    }
-
-    @JsonProperty("firmwares")
-    @SuppressWarnings("unused")
-    public List<DeviceFirmwareVersionInfo> getFirmwares() {
-        return firmwares;
     }
 }

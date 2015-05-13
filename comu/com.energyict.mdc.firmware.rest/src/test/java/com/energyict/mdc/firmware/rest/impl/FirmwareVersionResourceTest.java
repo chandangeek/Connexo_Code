@@ -1,8 +1,8 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -38,7 +38,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     @Mock
     private Condition condition;
     @Mock
-    private QueryParameters queryParameters;
+    private JsonQueryParameters queryParameters;
 
     @Before
     public void setUpStubs() {
