@@ -10,6 +10,7 @@ import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.EnableValidation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.RemoveDeviceFromStaticGroups;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetLastReading;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartCommunication;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -82,6 +83,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case CLOSE_METER_ACTIVATION: {
                 return new CloseMeterActivation();
+            }
+            case START_COMMUNICATION: {
+                return new StartCommunication();
             }
             case DISABLE_COMMUNICATION: {
                 return new DisableCommunication();

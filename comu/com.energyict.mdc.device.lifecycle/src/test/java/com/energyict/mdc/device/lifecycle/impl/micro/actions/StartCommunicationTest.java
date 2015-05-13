@@ -22,13 +22,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link DisableCommunication} component.
+ * Tests the {@link StartCommunication} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-05-06 (08:48)
+ * @since 2015-05-13 (14:34)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DisableCommunicationTest {
+public class StartCommunicationTest {
 
     @Mock
     private PropertySpecService propertySpecService;
@@ -37,7 +37,7 @@ public class DisableCommunicationTest {
 
     @Test
     public void testGetPropertySpecs() {
-        DisableCommunication microAction = this.getTestInstance();
+        StartCommunication microAction = this.getTestInstance();
 
         // Business method
         List<PropertySpec> propertySpecs = microAction.getPropertySpecs(this.propertySpecService);
@@ -47,37 +47,37 @@ public class DisableCommunicationTest {
     }
 
     @Test
-    public void executeDeactivatesAllConnectionTasks() {
+    public void executeActivatesAllConnectionTasks() {
         ConnectionTask connectionTask1 = mock(ConnectionTask.class);
         ConnectionTask connectionTask2 = mock(ConnectionTask.class);
         when(this.device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask1, connectionTask2));
-        DisableCommunication microAction = this.getTestInstance();
+        StartCommunication microAction = this.getTestInstance();
 
         // Business method
         microAction.execute(this.device, Collections.emptyList());
 
         // Asserts
-        verify(connectionTask1).deactivate();
-        verify(connectionTask2).deactivate();
+        verify(connectionTask1).activate();
+        verify(connectionTask2).activate();
     }
 
     @Test
-    public void executePutsAllCommunicationTasksOnHold() {
+    public void executeSchedulesAllCommunicationTasks() {
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
-        DisableCommunication microAction = this.getTestInstance();
+        StartCommunication microAction = this.getTestInstance();
 
         // Business method
         microAction.execute(this.device, Collections.emptyList());
 
         // Asserts
-        verify(comTaskExecution1).putOnHold();
-        verify(comTaskExecution2).putOnHold();
+        verify(comTaskExecution1).scheduleNow();
+        verify(comTaskExecution2).scheduleNow();
     }
 
-    private DisableCommunication getTestInstance() {
-        return new DisableCommunication();
+    private StartCommunication getTestInstance() {
+        return new StartCommunication();
     }
 
 }
