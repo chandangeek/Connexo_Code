@@ -61,7 +61,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
         return ImmutableSet.of(
                 FirmwareVersionResource.class,
                 FirmwareFieldResource.class,
-                FirmwareUpgradeOptionsResource.class,
+                FirmwareManagementOptionsResource.class,
                 DeviceFirmwareVersionResource.class,
                 DeviceFirmwareMessagesResource.class,
                 TransactionWrapper.class,
