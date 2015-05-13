@@ -6,9 +6,16 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
-// com.energyict.protocolimpl.iec1107.enermete70x.EnermetE70X
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  *
  * @author  Koen
@@ -39,5 +46,11 @@ public class EnermetE70X extends EnermetBase {
         return "$Date$";
     }
 
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
+        iec1107Connection=new EnermetE70XIEC1107Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,ERROR_SIGNATURE, software7E1);
+        iec1107Connection.setNoBreakRetry(isTestE70xConnection());
+        enermetLoadProfile = new EnermetLoadProfile(this);
+        return iec1107Connection;
+    }
     
 } // class EnermetE70X

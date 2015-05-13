@@ -38,16 +38,16 @@ import java.io.OutputStream;
 public class IEC1107Connection extends Connection implements ProtocolConnection {
     
     private static final byte DEBUG=0;
-    private static final int DELAY_AFTER_BREAK=2000; // KV 06102003
+    protected static final int DELAY_AFTER_BREAK=2000; // KV 06102003
     
     ByteArrayOutputStream echoByteArrayOutputStream = new ByteArrayOutputStream();
     //ByteArrayInputStream echoByteArrayInputStream;
     
-    private static final int TIMEOUT=600000;
+    protected static final int TIMEOUT=600000;
     
-    private static final byte UNKNOWN_ERROR=-1;
-    private static final byte TIMEOUT_ERROR=-2;
-    private static final byte SECURITYLEVEL_ERROR=-3; // KV 06072004
+    protected static final byte UNKNOWN_ERROR=-1;
+    protected static final byte TIMEOUT_ERROR=-2;
+    protected static final byte SECURITYLEVEL_ERROR=-3; // KV 06072004
     
     
     private int iMaxRetries;
@@ -59,12 +59,12 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     private int iProtocolTimeout;
     private int iIEC1107Compatible;
     
-    private static final byte SOH=0x01;
-    private static final byte STX=0x02;
-    private static final byte ETX=0x03;
-    private static final byte EOT=0x04;
-    private static final byte ACK=0x06;
-    private static final byte NAK=0x15;
+    protected static final byte SOH=0x01;
+    protected static final byte STX=0x02;
+    protected static final byte ETX=0x03;
+    protected static final byte EOT=0x04;
+    protected static final byte ACK=0x06;
+    protected static final byte NAK=0x15;
     
     // specific IEC1107
     private boolean boolFlagIEC1107Connected;
@@ -404,7 +404,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     
     
     
-    private byte[] buildData(String strPass) {
+    protected byte[] buildData(String strPass) {
         byte[] data = new byte[strPass.getBytes().length+2];
         int i=0;
         data[i++] = '(';
@@ -433,16 +433,16 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         else throw new ProtocolConnectionException("FlagIEC1107Connection, parseDataBetweenBrackets, error");
     }
     
-    static final byte[] WRITE5={'W','5'};
-    static final byte[] WRITE2={'W','2'};
-    static final byte[] READ5={'R','5'};
-    static final byte[] READ6={'R','6'};
-    static final byte[] READ3={'R','3'}; // KV 06072004
+    public static final byte[] WRITE5={'W','5'};
+    public static final byte[] WRITE2={'W','2'};
+    public static final byte[] READ5={'R','5'};
+    public static final byte[] READ6={'R','6'};
+    public static final byte[] READ3={'R','3'}; // KV 06072004
     public static final byte[] READ1={'R','1'};
-    static final byte[] READSTREAM={'R','D'};
+    public static final byte[] READSTREAM={'R','D'};
     public static final byte[] WRITE1={'W','1'};
-    static final byte[] LOGON_LEVEL_1={'P','1'};
-    static final byte[] LOGON_LEVEL_2={'P','2'};
+    public static final byte[] LOGON_LEVEL_1={'P','1'};
+    public static final byte[] LOGON_LEVEL_2={'P','2'};
     
     public void sendCommandFrame(byte[] command,byte[] data) throws ProtocolConnectionException {
         try {
@@ -460,7 +460,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     public void sendRawCommandFrame(byte[] command,byte[] rawdata) throws NestedIOException, ConnectionException, ProtocolConnectionException {
         doSendCommandFrame(command,rawdata,false);
     }
-    
+
     public String sendRawCommandFrameAndReturn(byte[] command,byte[] rawdata) throws NestedIOException, ConnectionException, ProtocolConnectionException {
         return doSendCommandFrame(command,rawdata,true);
     }
@@ -963,9 +963,57 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     public boolean isNoBreakRetry() {
 		return noBreakRetry;
 	}
-    
+
+    public int getMaxRetries() {
+        return iMaxRetries;
+    }
+
+    public int getIEC1107Compatible() {
+        return iIEC1107Compatible;
+    }
+
+    public void setIEC1107Compatible(int iIEC1107Compatible) {
+        this.iIEC1107Compatible = iIEC1107Compatible;
+    }
+
+    public boolean isBoolFlagIEC1107Connected() {
+        return boolFlagIEC1107Connected;
+    }
+
     public void setBoolFlagIEC1107Connected(boolean boolFlagIEC1107Connected) {
 		this.boolFlagIEC1107Connected = boolFlagIEC1107Connected;
 	}
-    
+
+    public int getSecurityLevel() {
+        return iSecurityLevel;
+    }
+
+    public void setSecurityLevel(int iSecurityLevel) {
+        this.iSecurityLevel = iSecurityLevel;
+    }
+
+    @Override
+    public ByteArrayOutputStream getEchoByteArrayOutputStream() {
+        return echoByteArrayOutputStream;
+    }
+
+    public byte[] getAuthenticationCommand() {
+        return authenticationCommand;
+    }
+
+    public void setAuthenticationCommand(byte[] authenticationCommand) {
+        this.authenticationCommand = authenticationCommand;
+    }
+
+    public byte[] getAuthenticationData() {
+        return authenticationData;
+    }
+
+    public void setAuthenticationData(byte[] authenticationData) {
+        this.authenticationData = authenticationData;
+    }
+
+    public Encryptor getEncryptor() {
+        return encryptor;
+    }
 } // public class FlagIEC1107Connection

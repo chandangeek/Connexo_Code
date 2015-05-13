@@ -6,18 +6,38 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.Logger;
-
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.dialer.core.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.customerconfig.*;
 import com.energyict.cbo.TimeZoneManager;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.DialerMarker;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
 // com.energyict.protocolimpl.iec1107.enermete70x.EnermetE70X
 /**
  *
@@ -31,8 +51,8 @@ abstract public class EnermetBase extends AbstractProtocol {
     IEC1107Connection iec1107Connection=null;
     DataReadingCommandFactory dataReadingCommandFactory=null;
     EnermetLoadProfile enermetLoadProfile=null;
-    private boolean software7E1;
-    private boolean testE70xConnection = false;
+    protected boolean software7E1;
+    protected boolean testE70xConnection = false;
     
     abstract protected RegisterConfig getRegs();
     
@@ -50,21 +70,20 @@ abstract public class EnermetBase extends AbstractProtocol {
     	int logonRetries = getInfoTypeRetries();
        
     	try {
-            if (isRequestDataReadout()) {
-               super.setDataReadout(getProtocolConnection().dataReadout(getStrID(),getNodeId()));
-               getProtocolConnection().disconnectMAC();
-            }
-            while(logonRetries-- >= 0) {
+            while(logonRetries >= 0) {
             	try {
             		setMeterType(getProtocolConnection().connectMAC(getStrID(),getStrPassword(),getSecurityLevel(),getNodeId()));
             		doConnect();
             		testConnection();
             		break;
             	} catch (Exception e) {
+                    logonRetries--;
             		((IEC1107Connection)getProtocolConnection()).setBoolFlagIEC1107Connected(false);
             		e.printStackTrace();
-            	}
-            	if (logonRetries < 0) throw new ProtocolConnectionException("Unable to connect to meter.");
+                    if (logonRetries < 0) {
+                        throw new ProtocolConnectionException("Unable to connect to meter after " + getInfoTypeRetries() + " retries, " + e.getMessage());
+                    }
+                }
             }
         }
         catch(ProtocolConnectionException e) {
