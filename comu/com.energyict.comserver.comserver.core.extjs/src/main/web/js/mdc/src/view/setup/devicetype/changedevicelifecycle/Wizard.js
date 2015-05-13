@@ -23,6 +23,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Wizard', {
             },
             {
                 xtype: 'change-device-life-cycle-step2',
+                router: me.router,
                 itemId: 'change-device-life-cycle-step2',
                 title: Ext.String.format(Uni.I18n.translate('deviceLifeCycle.change.stepTitle', 'MDC', 'Change device life cycle - Step {0} of {1}:'), 2, 2)
                 + ' ' + Uni.I18n.translate('validationResults.status', 'MDC', 'Status')
@@ -57,7 +58,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Wizard', {
                     ui: 'link',
                     action: 'cancel',
                     itemId: 'change-device-life-cycle-cancel',
-                    href: me.router.getRoute('administration/devicetypes').buildUrl()
+                    href: me.router.getQueryStringValues().previousRoute || me.router.getRoute('administration/devicetypes').buildUrl()
                 }
             ]
         };

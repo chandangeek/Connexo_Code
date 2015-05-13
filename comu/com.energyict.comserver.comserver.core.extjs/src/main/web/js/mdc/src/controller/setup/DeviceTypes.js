@@ -119,6 +119,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceConfigurationsLink.setText(deviceTypes[0].get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', 'device configurations'));
 
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
+            this.getDeviceTypePreview().down('device-type-action-menu').record = deviceTypes[0];
 
             this.getDeviceTypePreview().setTitle(deviceTypes[0].get('name'));
             Ext.resumeLayouts(true);
@@ -163,6 +164,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 deviceConfigurationsLink.setText(deviceType.get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC', 'device configurations'));
 
                 widget.down('form').loadRecord(deviceType);
+                widget.down('device-type-action-menu').record = deviceType;
 
                 Ext.resumeLayouts(true);
 
@@ -484,11 +486,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         switch (item.action) {
             case 'changeDeviceLifeCycle':
+                router.arguments.deviceTypeId = menu.record.getId();
                 route = 'administration/devicetypes/view/change';
                 break;
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward({deviceTypeId: menu.record.getId()});
+        route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
     }
 });
