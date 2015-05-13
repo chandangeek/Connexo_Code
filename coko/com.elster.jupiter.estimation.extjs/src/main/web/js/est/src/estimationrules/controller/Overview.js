@@ -1,7 +1,8 @@
 Ext.define('Est.estimationrules.controller.Overview', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.controller.history.Router'
+        'Uni.controller.history.Router'/*,
+        'Uni.controller.AppController'*/
     ],
 
     views: [
@@ -46,9 +47,6 @@ Ext.define('Est.estimationrules.controller.Overview', {
             },
             'estimation-rules-overview [action=saveEstimationRulesOrder]': {
                 click: this.saveEstimationRulesOrder
-            },
-            'estimation-rule-set-side-menu': {
-                beforerender: this.onEstimationRuleSetMenuBeforeRender
             }
         });
     },
@@ -61,35 +59,36 @@ Ext.define('Est.estimationrules.controller.Overview', {
                 actionMenuItemId: 'estimation-rules-overview-action-menu',
                 editOrder: router.queryParams.editOrder
             }),
-            grid = widget.down('estimation-rules-grid');
+            grid = widget.down('estimation-rules-grid'),
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
+        pageView.setLoading(true);
         grid.getStore().loadData([], false);
-        me.getApplication().fireEvent('changecontentevent', widget);
-        grid.setLoading(true);
+
         me.getModel('Est.estimationrules.model.Rule').getProxy().setUrl(ruleSetId);
         me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
             success: function (record) {
                 var rules = record.rules();
 
-                if (widget.rendered) {
-                    me.getSideMenu().down('#estimation-rule-set-link').setText(record.get('name'));
-                    rules.totalCount = rules.getCount();
-                    if (rules.totalCount) {
-                        widget.down('preview-container').bindStore(rules);
-                        grid.reconfigure(rules);
-                        grid.down('pagingtoolbartop').bindStore(rules);
-                    }
-                    grid.getStore().fireEvent('load');
-                    grid.setLoading(false);
-                    widget.ruleSetRecord = record;
-                    me.getApplication().fireEvent('loadEstimationRuleSet', record);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                Ext.suspendLayouts();
+                me.getSideMenu().down('#estimation-rule-set-link').setText(record.get('name'));
+                rules.totalCount = rules.getCount();
+                if (rules.totalCount) {
+                    widget.down('preview-container').bindStore(rules);
+                    grid.reconfigure(rules);
+                    grid.down('pagingtoolbartop').bindStore(rules);
                 }
+                grid.getStore().fireEvent('load');
+                widget.ruleSetRecord = record;
+                me.getApplication().fireEvent('loadEstimationRuleSet', record);
+                Ext.resumeLayouts(true);
             },
             failure: function () {
-                if (widget.rendered) {
-                    grid.setLoading(false);
-                    grid.getStore().fireEvent('load');
-                }
+                grid.getStore().fireEvent('load');
+            },
+            callback: function () {
+                pageView.setLoading(false);
             }
         });
     },
@@ -127,7 +126,7 @@ Ext.define('Est.estimationrules.controller.Overview', {
                 break;
             case 'edit':
                 router.arguments.ruleId = menu.record.getId();
-                router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+                router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule/edit').forward(router.arguments);
                 break;
         }
     },
@@ -190,9 +189,5 @@ Ext.define('Est.estimationrules.controller.Overview', {
                 }
             }
         });
-    },
-
-    onEstimationRuleSetMenuBeforeRender: function (menu) {
-        this.getApplication().fireEvent('estimationrulesetmenurender', menu);
     }
 });

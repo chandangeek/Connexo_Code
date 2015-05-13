@@ -2,7 +2,8 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
     extend: 'Ext.app.Controller',
     requires: [
         'Uni.controller.history.Router',
-        'Uni.util.Common'
+        'Uni.util.Common',
+        'Uni.util.History'
     ],
 
     views: [
@@ -85,6 +86,11 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
                 returnLink: router.getRoute(router.currentRoute.replace('/addreadingtypes', '')).buildUrl(router.arguments, router.queryParams)
             }),
             ruleModel;
+
+        if (router.queryParams.previousRoute) {
+            Uni.util.History.suspendEventsForNextCall();
+            router.getRoute().forward(router.arguments, null);
+        }
 
         me.getApplication().fireEvent('changecontentevent', widget);
 

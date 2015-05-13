@@ -110,7 +110,8 @@ Ext.define('Est.main.controller.history.Setup', {
                                             title: Uni.I18n.translate('general.addDeviceConfigurations', 'EST', 'Add device configurations'),
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.EstimationDeviceConfigurations',
-                                            action: 'showAddEstimationDeviceConfigurations'
+                                            action: 'showAddEstimationDeviceConfigurations',
+                                            privileges: Est.privileges.EstimationConfiguration.viewfineTuneEstimationConfiguration
                                         }
                                     }
                                 }
@@ -123,21 +124,21 @@ Ext.define('Est.main.controller.history.Setup', {
                     route: 'estimationtasks',
                     controller: 'Est.estimationtasks.controller.EstimationTasksOverview',
                     action: 'showEstimationTasksOverview',
-//                    privileges: ['privilege.view.EstimationConfiguration'],
+                    privileges: Est.privileges.EstimationConfiguration.view,
                     items: {
                         add: {
                             title: Uni.I18n.translate('estimationtasks.general.addEstimationTask', 'EST', 'Add estimation task'),
                             route: 'add',
                             controller: 'Est.estimationtasks.controller.EstimationTasksAddEdit',
-                            action: 'showAddEstimationTasksView'
-                            //privileges: ['privilege.administrate.EstimationConfiguration']
+                            action: 'showAddEstimationTasksView',
+                            privileges: Est.privileges.EstimationConfiguration.administrate
                         },
                         estimationtask: {
                             title: Uni.I18n.translate('estimationtasks.estimationtask', 'EST', 'Estimation task'),
                             route: '{taskId}',
                             controller: 'Est.estimationtasks.controller.EstimationTasksDetails',
                             action: 'showEstimationTaskDetails',
-//                            privileges: ['privilege.view.EstimationConfiguration'],
+                            privileges: Est.privileges.EstimationConfiguration.view,
                             callback: function (route) {
                                 this.getApplication().on('estimationTaskLoaded', function (record) {
                                     route.setTitle(record.get('name'));
@@ -150,7 +151,7 @@ Ext.define('Est.main.controller.history.Setup', {
                                     title: Uni.I18n.translate('estimationtasks.general.edit', 'EST', 'Edit'),
                                     route: 'edit',
                                     controller: 'Est.estimationtasks.controller.EstimationTasksAddEdit',
-                                    //privileges: ['privilege.administrate.EstimationConfiguration'],
+                                    privileges: Est.privileges.EstimationConfiguration.update,
                                     action: 'showEditEstimationTasksView'
                                 },
                                 history: {
@@ -159,15 +160,16 @@ Ext.define('Est.main.controller.history.Setup', {
                                     controller: 'Est.estimationtasks.controller.EstimationTasksHistory',
                                     action: 'showEstimationTaskHistory',
                                     filter: 'Est.estimationtasks.model.HistoryFilter',
+                                    privileges: Est.privileges.EstimationConfiguration.view,
                                     items: {
                                         occurrence: {
                                             title: Uni.I18n.translate('estimationtasks.general.estimationtaskLog', 'EST', 'Estimation task log'),
                                             route: '{occurrenceId}',
                                             controller: 'Est.estimationtasks.controller.EstimationTasksLog',
-                                            action: 'showLog'
+                                            action: 'showLog',
+                                            privileges: Est.privileges.EstimationConfiguration.view
                                         }
                                     }
-//                                    privileges: ['privilege.view.EstimationConfiguration']
                                 }
                             }
                         }

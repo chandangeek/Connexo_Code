@@ -18,6 +18,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
     ],
 
     refs: [
+        {ref: 'ruleSetEditPage', selector: '#rule-set-edit'},
         {ref: 'ruleSetEditForm', selector: '#rule-set-edit #rule-set-edit-form'},
         {ref: 'ruleSetGrid', selector: '#rule-sets-setup #rule-sets-grid'},
         {ref: 'ruleSetRulesGrid', selector: '#rule-sets-setup #rule-sets-rule-grid'},
@@ -37,9 +38,6 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             },
             '#rule-set-edit-form #cancel-button': {
                 click: this.navigatePrevious
-            },
-            '#add-estimation-rule-set-button': {
-                click: this.navigateAdd
             },
             '#rule-sets-setup #rule-sets-grid': {
                 select: this.selectRuleSet
@@ -139,9 +137,12 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
     selectRule: function (grid, record) {
         var me =this,
-            previewForm = me.getRuleSetRulePreview();
+            previewForm = me.getRuleSetRulePreview(),
+            menu = previewForm.down('menu');
         previewForm.updateForm(record);
-        previewForm.down('menu').record = record;
+        if (menu) {
+            menu.record = record;
+        }
     },
 
     showEstimationRuleSets: function () {
@@ -154,8 +155,19 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
     showEstimationRuleSetAdd: function () {
         var me = this,
-            widget = Ext.widget('rule-set-edit'),
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('rule-set-edit', {
+                returnLink: router.queryParams.previousRoute
+                    ? router.queryParams.previousRoute
+                    : router.getRoute('administration/estimationrulesets').buildUrl()
+            }),
             model = new Est.estimationrulesets.model.EstimationRuleSet;
+
+        if (router.queryParams.previousRoute) {
+            Uni.util.History.suspendEventsForNextCall();
+            window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+        }
+
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.down('#rule-set-edit-form').setTitle(Uni.I18n.translate('estimationrulesets.add.title', 'EST', 'Add estimation rule set'));
         widget.down('#rule-set-edit-form').loadRecord(model)
@@ -163,8 +175,19 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
     showEstimationRuleSetEdit: function (id) {
         var me = this,
-            widget = Ext.widget('rule-set-edit'),
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('rule-set-edit', {
+                returnLink: router.queryParams.previousRoute
+                    ? router.queryParams.previousRoute
+                    : router.getRoute('administration/estimationrulesets').buildUrl()
+            }),
             model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet');
+
+        if (router.queryParams.previousRoute) {
+            Uni.util.History.suspendEventsForNextCall();
+            window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+        }
+
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         model.load(id, {
@@ -185,25 +208,27 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('rule-set-details', {router: router}),
-            model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet');
-        widget.setLoading(true);
+            model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet'),
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
+        pageView.setLoading(true);
         model.load(id, {
             success: function (record) {
+                me.getApplication().fireEvent('changecontentevent', widget);
+                Ext.suspendLayouts();
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
-                if (widget.rendered) {
-                    Ext.suspendLayouts();
-                    widget.down('#rule-set-form').loadRecord(record);
-                    widget.down('estimation-rule-set-side-menu #estimation-rule-set-link').setText(record.get('name'));
-                    var actionBtn = widget.down('#action-button');
-                    if (actionBtn) {
-                        actionBtn.menu.record = record;
-                    }
-                    Ext.resumeLayouts(true);
+                widget.down('#rule-set-form').loadRecord(record);
+                widget.down('estimation-rule-set-side-menu #estimation-rule-set-link').setText(record.get('name'));
+                var actionBtn = widget.down('#action-button');
+                if (actionBtn) {
+                    actionBtn.menu.record = record;
                 }
-                widget.setLoading(false);
+                Ext.resumeLayouts(true);
+            },
+            callback: function () {
+                pageView.setLoading(false);
             }
         });
-        me.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showErrorPanel: function (value) {
@@ -214,11 +239,13 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
     saveRuleSet: function (btn) {
         var me = this,
+            editPage = me.getRuleSetEditPage(),
             form = btn.up('#rule-set-edit-form'),
             action;
         form.updateRecord();
         var record = form.getRecord();
         record.getId() ? action = 'update' : action = 'create';
+        editPage.setLoading();
         record.save({
             action: action,
             failure: function (record, operation) {
@@ -233,12 +260,20 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
                 }
             },
             success: function (record) {
-                me.navigatePrevious();
-                var name = record.get('name'),
-                    msg = action == 'create' ?
+                var msg = action == 'create' ?
                         Uni.I18n.translate('estimationrulesets.add.successMsg', 'EST', 'Estimation rule set added') :
                         Uni.I18n.translate('estimationrulesets.edit.successMsg', 'EST', 'Estimation rule set edited');
+
                 me.getApplication().fireEvent('acknowledge', msg);
+
+                if (action === 'create') {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset').forward({ruleSetId: record.getId()});
+                } else {
+                    me.navigatePrevious();
+                }
+            },
+            callback: function () {
+                editPage.setLoading(false);
             }
         })
     },
@@ -278,12 +313,12 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
     },
 
     makeRemove: function (record) {
-        var me = this,
-            name = record.get('name');
+        var me = this;
+
         record.destroy({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationrulesets.remove.successMsg', 'EST', 'Estimation rule set removed'));
-                me.navigatePrevious()
+                me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets').forward();
             }
         });
     },
@@ -312,13 +347,10 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
 
     navigatePrevious: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            previousRoute = router.getQueryStringValues().previousRoute;
+            editPage = me.getRuleSetEditPage();
 
-        if (previousRoute) {
-            location.href = previousRoute;
-        } else {
-            router.getRoute('administration/estimationrulesets').forward()
+        if (editPage.rendered) {
+            window.location.href = editPage.returnLink;
         }
     },
 
@@ -348,14 +380,6 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             router = me.getController('Uni.controller.history.Router'),
             previousRoute = router.getRoute().buildUrl();
         router.getRoute('administration/estimationrulesets/estimationruleset/rules/add').forward({ruleSetId: ruleSetId}, {previousRoute: previousRoute})
-    },
-
-    navigateAdd: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            previousRoute = router.getRoute().buildUrl();
-        router.getRoute('administration/estimationrulesets/addruleset').forward({}, {previousRoute: previousRoute})
     }
-
 });
 

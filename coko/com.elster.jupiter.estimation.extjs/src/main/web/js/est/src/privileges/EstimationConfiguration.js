@@ -9,10 +9,18 @@ Ext.define('Est.privileges.EstimationConfiguration', {
     ],
     singleton: true,
     view: ['privilege.view.EstimationConfiguration'],
+    viewfineTuneEstimationConfiguration : ['privilege.view.fineTuneEstimationConfiguration.onDeviceConfiguration'],
     administrate: ['privilege.administrate.EstimationConfiguration'],
+    run:'privilege.run.ScheduleEstimationTask',
+    update:['privilege.update.EstimationConfiguration',
+        'privilege.update.ScheduleEstimationTask'],
     all: function () {
-        return Ext.Array.merge(Est.privileges.EstimationConfiguration.view,
-            Est.privileges.EstimationConfiguration.administrate
+        return Ext.Array.merge(
+            Est.privileges.EstimationConfiguration.view,
+            Est.privileges.EstimationConfiguration.viewfineTuneEstimationConfiguration,
+            Est.privileges.EstimationConfiguration.administrate,
+            Est.privileges.EstimationConfiguration.run,
+            Est.privileges.EstimationConfiguration.update
         );
     },
     canView: function () {
@@ -20,5 +28,11 @@ Ext.define('Est.privileges.EstimationConfiguration', {
     },
     canAdministrate: function () {
         return Uni.Auth.checkPrivileges(Est.privileges.EstimationConfiguration.administrate);
+    },
+    canRun:function(){
+        return Uni.Auth.checkPrivileges(Est.privileges.EstimationConfiguration.run);
+    },
+    canUpdate:function(){
+        return Uni.Auth.checkPrivileges(Est.privileges.EstimationConfiguration.update);
     }
 });

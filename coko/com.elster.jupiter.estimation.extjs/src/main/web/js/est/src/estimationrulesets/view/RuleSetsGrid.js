@@ -58,7 +58,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetsGrid', {
                         itemId: 'add-estimation-rule-set-button',
                         privileges: Est.privileges.EstimationConfiguration.administrate,
                         xtype: 'button',
-                        action: 'addEstimationRuleSet'
+                        href: me.router.getRoute(me.router.currentRoute + '/addruleset').buildUrl()
                     }
                 ]
             },

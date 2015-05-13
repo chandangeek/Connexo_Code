@@ -51,6 +51,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                             },
                             emptyComponent: {
                                 xtype: 'no-items-found-panel',
+                                itemId: 'pnl-no-estimation-rules',
                                 title: Uni.I18n.translate('estimationrules.empty.title', 'EST', 'No estimation rules found'),
                                 reasons: [
                                     Uni.I18n.translate('estimationrules.empty.list.item1', 'EST', 'No estimation rules have been defined yet.'),
@@ -67,6 +68,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'pnl-no-estimation-rule-sets',
                             title: Uni.I18n.translate('estimationrulesets.empty.title', 'EST', 'No estimation rule sets found'),
                             reasons: [
                                 Uni.I18n.translate('estimationrulesets.reson1', 'EST', 'No estimation rule sets have been defined yet.'),
@@ -76,7 +78,8 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                                 {
                                     text: Uni.I18n.translate('estimationrulesets.add.title', 'EST', 'Add estimation rule set'),
                                     itemId: 'add-estimation-rule-set-button',
-                                    privileges: Est.privileges.EstimationConfiguration.administrate
+                                    privileges: Est.privileges.EstimationConfiguration.administrate,
+                                    href: me.router.getRoute(me.router.currentRoute + '/addruleset').buildUrl()
                                 }
                             ]
                         }
