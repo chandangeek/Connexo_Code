@@ -12,9 +12,7 @@ Ext.define('Fwc.controller.Firmware', {
 
     requires: [
         'Mdc.model.DeviceType',
-        'Fwc.model.FirmwareUpgradeOptions',
-        'Fwc.form.OptionsHydrator',
-        'Fwc.form.Hydrator'
+        'Fwc.model.FirmwareManagementOptions'
     ],
 
     stores: [
@@ -91,7 +89,6 @@ Ext.define('Fwc.controller.Firmware', {
     clearFilterByKey: function (key) {
         var router = this.getController('Uni.controller.history.Router'),
             record = router.filter,
-            hydrator = Ext.create('Fwc.form.Hydrator'),
             data = hydrator.extract(record),
             clone = record.copy();
 
@@ -166,7 +163,7 @@ Ext.define('Fwc.controller.Firmware', {
 
         var data = firmware.getAssociatedData().firmwareType;
         Ext.create('Uni.view.window.Confirmation', {
-            confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate')
+            confirmText: Uni.I18n.translate('firmware.deprecate.button', 'FWC', 'Deprecate'),
         }).show({
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'It will not be possible to upload this firmware version on devices.'),
             title: Uni.I18n.translate('firmware.deprecate.title.' + data.id, 'FWC', 'Deprecate') + " '" + firmware.get('firmwareVersion') + "'?",
@@ -418,56 +415,53 @@ Ext.define('Fwc.controller.Firmware', {
     showFirmwareOptions: function (deviceTypeId) {
         var me = this,
             container = this.getContainer(),
-            model = me.getModel('Fwc.model.FirmwareUpgradeOptions');
+            model = me.getModel('Fwc.model.FirmwareManagementOptions');
 
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             me.getApplication().fireEvent('changecontentevent', 'firmware-options', {deviceType: deviceType});
             container.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
             var widget = container.down('firmware-options');
-            widget.setLoading();
-
-            model.getProxy().setUrl(deviceTypeId);
-            model.load(1, {
-                success: function (record) {
-                    if (widget.rendered) {
-                        Ext.suspendLayouts();
-                        widget.down('form').loadRecord(record);
-                        widget.down('grid').getStore().loadData(record.get('allowedOptions'));
-                        if (record.get('supportedOptions').length === 0) {
-                            widget.down('grid').getStore().loadData([]);
-                            widget.down('grid').el.down('.x-grid-empty').dom.innerHTML = Uni.I18n.translate('deviceType.firmwareupgradeoptions.notsupported', 'FWC', 'No options supported by current device type');
-                        } else {
-                            widget.down('button').show();
+            if (widget){
+                widget.setLoading();
+                model.getProxy().setUrl(deviceTypeId);
+                model.load(1, {
+                    success: function (record) {
+                        var form = widget.down('form');
+                        if (form) {
+                            form.loadRecord(record);
                         }
-                        Ext.resumeLayouts(true);
+                    },
+                    callback: function () {
+                        widget.setLoading(false);
                     }
-                },
-                callback: function () {
-                    widget.setLoading(false);
-                }
-            });
+                });
+            }
+
         });
     },
 
     editFirmwareOptions: function (deviceTypeId) {
         var me = this,
             container = this.getContainer(),
-            model = me.getModel('Fwc.model.FirmwareUpgradeOptions');
+            model = me.getModel('Fwc.model.FirmwareManagementOptions');
 
         model.getProxy().setUrl(deviceTypeId);
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             me.getApplication().fireEvent('changecontentevent', 'firmware-options-edit', {deviceType: deviceType});
             var widget = container.down('firmware-options-edit');
-            widget.setLoading();
-
-            model.load(1, {
-                success: function (record) {
-                    widget.down('form').loadRecord(record);
-                },
-                callback: function () {
-                    widget.setLoading(false);
-                }
-            });
+            if (widget){}
+                widget.setLoading();
+                model.load(1, {
+                    success: function (record) {
+                        var form = widget.down('form');
+                        if (form) {
+                            form.loadRecord(record);
+                        }
+                   },
+                    callback: function () {
+                        widget.setLoading(false);
+                    }
+                });
         });
     },
 
@@ -479,7 +473,7 @@ Ext.define('Fwc.controller.Firmware', {
         form.updateRecord();
         form.getRecord().save({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware upgrade options saved'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware management options saved'));
                 router.getRoute('administration/devicetypes/view/firmwareoptions').forward();
             },
             failure: function (record, operation) {
