@@ -26,7 +26,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.FavoritesService;
 
@@ -45,7 +45,7 @@ public class FavoriteDeviceGroupResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     //@RolesAllowed({Privileges.VIEW_DEVICE_GROUP_DETAIL, Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP})
-    public PagedInfoList getFavoriteDeviceGroups(@QueryParam("includeAllGroups") boolean includeAllGroups, @BeanParam QueryParameters queryParameters, @Context SecurityContext securityContext) {
+    public PagedInfoList getFavoriteDeviceGroups(@QueryParam("includeAllGroups") boolean includeAllGroups, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
         List<EndDeviceGroup> favoriteDeviceGroups = favoritesService.getFavoriteDeviceGroups(user).stream().map(FavoriteDeviceGroup::getEndDeviceGroup).collect(Collectors.toList());
         List<FavoriteDeviceGroupInfo> infos = new ArrayList<>();

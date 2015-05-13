@@ -11,7 +11,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.QueueMessage;
@@ -84,12 +84,12 @@ public class CommunicationResource {
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
+    public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
-        if (queryParameters.getStart() == null || queryParameters.getLimit() == null) {
+        if (!queryParameters.getStart().isPresent() || !queryParameters.getLimit().isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ComTaskExecution> communicationTasksByFilter = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart(), queryParameters.getLimit() + 1);
+        List<ComTaskExecution> communicationTasksByFilter = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
         List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(communicationTasksByFilter.size());
         for (ComTaskExecution comTaskExecution : communicationTasksByFilter) {
             java.util.Optional<ComTaskExecutionSession> lastComTaskExecutionSession = communicationTaskService.findLastSessionFor(comTaskExecution);
