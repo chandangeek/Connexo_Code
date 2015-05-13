@@ -29,6 +29,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.Hexstring',
         'Uni.property.view.property.Boolean',
         'Uni.property.view.property.Number',
+        'Uni.property.view.property.DecimalNumber',
         'Uni.property.view.property.NullableBoolean',
         'Uni.property.view.property.Date',
         'Uni.property.view.property.DateTime',
