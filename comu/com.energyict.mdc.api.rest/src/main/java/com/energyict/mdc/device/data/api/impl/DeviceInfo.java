@@ -7,8 +7,7 @@ public class DeviceInfo extends LinkInfo {
     public Long id;
     public String mIRD;
     public String serialNumber;
-    public String deviceTypeName;
-    public Long deviceTypeId;
+    public DeviceTypeInfo deviceType;
     public String deviceConfigurationName;
     public Long deviceConfigurationId;
 

@@ -93,6 +93,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 DeviceResource.class,
+                DeviceTypeResource.class,
                 RegisterResource.class
         );
     }
@@ -286,6 +287,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
+            bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
             bind(RegisterInfoFactory.class).to(RegisterInfoFactory.class);
         }
     }

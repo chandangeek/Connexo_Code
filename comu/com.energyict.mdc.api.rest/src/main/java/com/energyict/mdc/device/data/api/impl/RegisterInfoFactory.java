@@ -18,7 +18,7 @@ public class RegisterInfoFactory {
 
     public RegisterInfo asHypermedia(Register register, UriInfo uriInfo) {
         RegisterInfo registerInfo = plain(register);
-        registerInfo.self = Link.fromUri(getURI(register, uriInfo)).rel("self").build();
+        registerInfo.link = Link.fromUri(getURI(register, uriInfo)).rel("self").build();
         return registerInfo;
     }
 

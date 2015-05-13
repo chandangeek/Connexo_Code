@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ElementKind;
@@ -46,14 +46,12 @@ public class DeviceResource {
 
     private final DeviceService deviceService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final Provider<RegisterResource> registerResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, Provider<RegisterResource> registerResourceProvider, DeviceInfoFactory deviceInfoFactory) {
+    public DeviceResource(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, DeviceInfoFactory deviceInfoFactory) {
         this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.registerResourceProvider = registerResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
     }
 
@@ -61,8 +59,9 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getDevice(@PathParam("mrid") String mRID, @QueryParam("fields") List<String> fields) {
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(deviceInfoFactory::plain).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getDevice(@PathParam("mrid") String mRID, @QueryParam("fields") String fields) {
+        List<String> split = fields!=null?Arrays.asList(fields.split(",")):Collections.emptyList();
+        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d->deviceInfoFactory.plain(d,split)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceInfo).build();
     }
 
@@ -70,8 +69,9 @@ public class DeviceResource {
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getHypermediaDevice(@PathParam("mrid") String mRID, @QueryParam("fields") List<String> fields, @Context UriInfo uriInfo) {
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getHypermediaDevice(@PathParam("mrid") String mRID, @QueryParam("fields") String fields, @Context UriInfo uriInfo) {
+        List<String> split = fields!=null?Arrays.asList(fields.split(",")):Collections.emptyList();
+        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, split)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceInfo).build();
     }
 
@@ -79,7 +79,7 @@ public class DeviceResource {
     @Produces("application/hal+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getHalDevice(@PathParam("mrid") String mRID, @QueryParam("fields") List<String> fields, @Context UriInfo uriInfo) {
+    public Response getHalDevice(@PathParam("mrid") String mRID, @QueryParam("fields") String fields, @Context UriInfo uriInfo) {
         HalInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHal(d, uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
 
         return Response.ok(deviceInfo).build();
@@ -95,14 +95,6 @@ public class DeviceResource {
         return Response.ok(com.energyict.mdc.common.rest.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
     }
 
-//    @GET
-//    @Produces("application/hal+json; charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-//    public Response getHALDevices(@Context UriInfo uriInfo) {
-//        List<DeviceInfo> deviceInfos = deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(deviceInfoFactory::from).collect(toList());
-//        return Response.ok(HalInfo.wrap(deviceInfos)).build();
-//    }
-//
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

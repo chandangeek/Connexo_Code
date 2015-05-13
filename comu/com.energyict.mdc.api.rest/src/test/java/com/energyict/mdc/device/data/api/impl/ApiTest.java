@@ -10,7 +10,6 @@ import com.energyict.mdc.device.data.Register;
 import com.jayway.jsonpath.JsonModel;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -94,7 +93,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Test
     public void testHypermediaLinkWithFieldsCallSingle() throws Exception {
 
-        Response response = target("/devices/XAS").queryParam("fields", URLEncoder.encode("mIRD")).request("application/h+json").get();
+        Response response = target("/devices/XAS").queryParam("fields", "id,serialNumber").request("application/h+json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }

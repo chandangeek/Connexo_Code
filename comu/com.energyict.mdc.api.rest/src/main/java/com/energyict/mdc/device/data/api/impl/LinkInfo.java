@@ -8,5 +8,5 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 public class LinkInfo {
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-    public Link self;
+    public Link link;
 }
