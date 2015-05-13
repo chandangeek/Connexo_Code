@@ -1,4 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.energyict.mdc.dashboard.extjs
+Export-Package: !com.energyict.mdc.dashboard.extjs
 -include: -../development.bnd
