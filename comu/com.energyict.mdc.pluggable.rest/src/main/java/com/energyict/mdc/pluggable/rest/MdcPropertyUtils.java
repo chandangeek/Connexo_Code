@@ -1,6 +1,9 @@
 package com.energyict.mdc.pluggable.rest;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -17,6 +20,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.pluggable.rest.impl.MdcPluggableRestApplication;
 import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
@@ -42,10 +46,14 @@ import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.
 public class MdcPropertyUtils {
 
     private FirmwareService firmwareService;
+    private final NlsService nlsService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public MdcPropertyUtils(FirmwareService firmwareService) {
+    public MdcPropertyUtils(FirmwareService firmwareService, NlsService nlsService) {
         this.firmwareService = firmwareService;
+        this.nlsService = nlsService;
+        this.thesaurus = this.nlsService.getThesaurus(MdcPluggableRestApplication.COMPONENT_NAME, Layer.REST);
     }
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
@@ -57,7 +65,7 @@ public class MdcPropertyUtils {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, showValue, privilegePresence);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType, null);
-            PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
     }
@@ -68,7 +76,7 @@ public class MdcPropertyUtils {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, SHOW_VALUES, WITHOUT_PRIVILEGES);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, null);
-            PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
@@ -80,10 +88,14 @@ public class MdcPropertyUtils {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, SHOW_VALUES, WITHOUT_PRIVILEGES);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, device);
-            PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
+    }
+
+    private String getTranslatedPropertyName(PropertySpec propertySpec) {
+        return thesaurus.getStringBeyondComponent(propertySpec.getName(), propertySpec.getName());
     }
 
     private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec propertySpec, ValueVisibility valueVisibility, PrivilegePresence privilegePresence) {
@@ -148,11 +160,11 @@ public class MdcPropertyUtils {
     }
 
     private Object getPropertyValue(TypedProperties properties, PropertySpec propertySpec) {
-        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getLocalValue(propertySpec.getName()));
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getLocalValue(getTranslatedPropertyName(propertySpec)));
     }
 
     private Object getInheritedPropertyValue(TypedProperties properties, PropertySpec propertySpec) {
-        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getInheritedValue(propertySpec.getName()));
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getInheritedValue(getTranslatedPropertyName(propertySpec)));
     }
 
     private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, SimplePropertyType simplePropertyType, Device device) {
@@ -206,7 +218,7 @@ public class MdcPropertyUtils {
     //find propertyValue in info
     public Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
-            if (propertyInfo.key.equals(propertySpec.getName())) {
+            if (propertyInfo.key.equals(getTranslatedPropertyName(propertySpec))) {
                 if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue() != null && !"".equals(propertyInfo.getPropertyValueInfo().getValue())) {
                     return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                 } else {
@@ -230,7 +242,7 @@ public class MdcPropertyUtils {
                 return new TimeDuration("" + count + " " + timeUnit);
             }
             catch (LocalizedFieldValidationException e) {
-                throw new LocalizedFieldValidationException(e.getMessageSeed(), propertySpec.getName() + "." + e.getViolatingProperty(), e.getArgs());
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), getTranslatedPropertyName(propertySpec) + "." + e.getViolatingProperty(), e.getArgs());
             }
         } else if (Objects.equals(propertySpec.getValueFactory().getValueType(), String.class)) {
             return value;
@@ -238,7 +250,7 @@ public class MdcPropertyUtils {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
                 return value;
             } else {
-                throw new FieldValidationException("Not a boolean", propertySpec.getName());
+                throw new FieldValidationException("Not a boolean", getTranslatedPropertyName(propertySpec));
             }
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
