@@ -111,4 +111,12 @@ public interface PropertySpecService {
 
     public PropertySpec relativePeriodPropertySpec(String name, boolean required, RelativePeriod defaultPeriod);
 
+    public PropertySpec longPropertySpec(String name, boolean required, Long defaultValue);
+
+    public PropertySpec longPropertySpecWithValues (String name, boolean required, Long... values);
+
+    public PropertySpec positiveLongPropertySpec (String name, boolean required);
+
+    public PropertySpec boundedLongPropertySpec (String name, boolean required, Long lowerLimit, Long upperLimit);
+
 }
