@@ -65,7 +65,7 @@ import java.util.List;
  */
 public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     /**
-     * The Default amount of seconds a ComTask should wait before retrying
+     * The Default amount of seconds a ComTask should wait before retrying.
      */
     public static final int DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS = 300;
 
