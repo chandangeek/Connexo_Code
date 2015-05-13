@@ -260,12 +260,17 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
                 }
             },
             success: function (record) {
-                me.navigatePrevious();
-                var name = record.get('name'),
-                    msg = action == 'create' ?
+                var msg = action == 'create' ?
                         Uni.I18n.translate('estimationrulesets.add.successMsg', 'EST', 'Estimation rule set added') :
                         Uni.I18n.translate('estimationrulesets.edit.successMsg', 'EST', 'Estimation rule set edited');
+
                 me.getApplication().fireEvent('acknowledge', msg);
+
+                if (action === 'create') {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset').forward({ruleSetId: record.getId()});
+                } else {
+                    me.navigatePrevious();
+                }
             },
             callback: function () {
                 editPage.setLoading(false);
@@ -308,12 +313,12 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
     },
 
     makeRemove: function (record) {
-        var me = this,
-            name = record.get('name');
+        var me = this;
+
         record.destroy({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationrulesets.remove.successMsg', 'EST', 'Estimation rule set removed'));
-                me.navigatePrevious()
+                me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets').forward();
             }
         });
     },
