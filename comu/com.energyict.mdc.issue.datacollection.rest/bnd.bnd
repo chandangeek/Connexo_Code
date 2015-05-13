@@ -1,4 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
-Export-Package: com.energyict.mdc.issue.datacollection.rest.*
-Private-Package: com.energyict.mdc.issue.datacollection.rest
+Export-Package: !com.energyict.mdc.issue.datacollection.rest.*
+Private-Package: com.energyict.mdc.issue.datacollection.rest.*
