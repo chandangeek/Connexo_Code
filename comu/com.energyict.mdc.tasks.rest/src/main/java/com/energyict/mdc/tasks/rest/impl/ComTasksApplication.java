@@ -45,11 +45,7 @@ public class ComTasksApplication extends Application implements TranslationKeyPr
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 ComTaskResource.class,
-                TransactionWrapper.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class
+                TransactionWrapper.class
         );
     }
 
