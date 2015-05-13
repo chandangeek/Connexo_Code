@@ -95,7 +95,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsGrid', {
                         xtype: 'device-configuration-estimation-rule-set-action-menu',
                         itemId: 'statesActionMenu'
                     },
-                    privileges : Mdc.privileges.DeviceConfigurationEstimations.administrate
+                    privileges : Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfiguration
                 });
 
             buttons = [
