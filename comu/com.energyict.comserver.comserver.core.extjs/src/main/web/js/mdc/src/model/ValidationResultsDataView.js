@@ -86,8 +86,8 @@ Ext.define('Mdc.model.ValidationResultsDataView', {
 				ruleId = router.arguments['ruleId'];
 			
             if (!Ext.isEmpty(data.intervalStart)) {
-                storeProxy.setExtraParam('intervalStart', data.intervalStart.getTime());
-                storeProxy.setExtraParam('intervalEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
+                storeProxy.setExtraParam('intervalRegisterStart', data.intervalStart.getTime());
+                storeProxy.setExtraParam('intervalRegisterEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
 				storeProxy.setExtraParam('ruleSetId', ruleSetId);
 				storeProxy.setExtraParam('ruleSetVersionId', versionId);
 				storeProxy.setExtraParam('ruleId', ruleId);

@@ -40,6 +40,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
                     }
                 ]
             },
+            /*
             {
                 xtype: 'combobox',
                 itemId: 'cbo-side-filter-duration',
@@ -51,7 +52,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
                 valueField: 'id',
                 queryMode: 'local',
                 anchor: '100%'
-            },
+            },*/
 			 {
                 xtype: 'fieldcontainer',
 				hidden: true,

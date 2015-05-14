@@ -262,14 +262,12 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         }
                     },
                     {
-                        xtype: 'container',
+                        xtype: 'device-data-validation-panel',
+                        privileges: Cfg.privileges.Validation.fineTuneOnDevice,
+                        mRID: me.device.get('mRID'),
                         style: {
-                            marginRight: '20px'
-                        },
-                        items: {
-                            xtype: 'device-data-validation-panel',
-                            privileges: Cfg.privileges.Validation.fineTuneOnDevice,
-                            mRID: me.device.get('mRID')
+                            marginRight: '20px',
+                            padding: '20px'
                         }
 
                     }

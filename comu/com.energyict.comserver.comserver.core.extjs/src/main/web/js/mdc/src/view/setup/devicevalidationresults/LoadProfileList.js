@@ -52,9 +52,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.LoadProfileList', {
                         filter['onlySuspect'] = true;
                         filter['duration'] = record.get('intervalRecord').get('all').count + record.get('intervalRecord').get('all').timeUnit;
                         filter['intervalStart'] = Ext.util.Format.date(
-                                                    new Date(record.get('intervalStart')),'Y-m-dTH:i:s');// -
-                                                    //record.get('intervalInMs')),'Y-m-dTH:i:s');
-
+                                                    new Date(record.get('intervalStart')),'Y-m-dTH:i:s');
                     href = me.router.getRoute('devices/device/loadprofiles/loadprofiletableData').buildUrl(
                             {   mRID: record.get('mRID'),
                                 loadProfileId: record.get('id')

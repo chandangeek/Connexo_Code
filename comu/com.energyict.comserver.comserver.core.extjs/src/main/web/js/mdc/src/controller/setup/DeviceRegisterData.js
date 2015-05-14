@@ -93,10 +93,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     showDeviceRegisterDataView: function (mRID, registerId, tabController) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            //intervalStartField = filterForm.down('[name=intervalStart]'),
-            //intervalEndField = filterForm.down('[name=duration]'),
-            //intervalStart = intervalStartField.getValue(),
-            //intervalEnd = intervalEndField.getRawValue(),
             registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice');
 
         contentPanel.setLoading(true);
@@ -108,6 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 model.load(registerId, {
                     success: function (register) {
                         var viewOnlySuspects,
+                            dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord({count: 1,timeUnit: 'years'}),
                             type = register.get('type'),
                             dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData'),
                             router = me.getController('Uni.controller.history.Router');
@@ -124,10 +121,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             valueColumn.setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
                             if (type === 'billing' || type === 'numerical') {
                                 me.getRegisterFilter().show();
-                                if (Ext.isEmpty(router.filter.data.onlyNonSuspect)) {
+                                if (Ext.isEmpty(router.filter.data.intervalStart)) {
                                     viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
-                                    router.filter.set('onlySuspect', viewOnlySuspects);
-                                    router.filter.set('onlyNonSuspect', false);
+                                    me.setDefaults(viewOnlySuspects);
                                     me.getRegisterFilter().down('#suspect').setValue(viewOnlySuspects);
                                     delete router.queryParams.onlySuspect;
                                 }
@@ -176,6 +172,17 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             record.set(key, false);
         }
         record.save();
+    },
+
+    setDefaults: function (viewOnlySuspects) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        router.filter.beginEdit();
+        router.filter.set('intervalStart', new Date());
+        router.filter.set('duration', '1years');
+        router.filter.set('onlySuspect', viewOnlySuspects);
+        router.filter.set('onlyNonSuspect', false);
+        router.filter.endEdit();
     },
 
     setFilterView: function () {

@@ -65,7 +65,12 @@ Ext.define('Mdc.model.ValidationResults', {
         setUrl: function (mRID) {
             this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         },
-		
+
+        setFilterParameters: function(encodedJson){
+            var storeProxy = this;
+            storeProxy.setExtraParam('intervalLoadProfile', encodedJson);
+        },
+
 		setFilterModel: function (model) {		
 			var data = model.getData(),
 				storeProxy = this;
@@ -75,8 +80,8 @@ Ext.define('Mdc.model.ValidationResults', {
         
             if (!Ext.isEmpty(data.intervalStart)) {
 
-                storeProxy.setExtraParam('intervalStart', data.intervalStart.getTime());
-                storeProxy.setExtraParam('intervalEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
+                storeProxy.setExtraParam('intervalRegisterStart', data.intervalStart.getTime());
+                storeProxy.setExtraParam('intervalRegisterEnd', moment(data.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf());
             }
         }    
     }

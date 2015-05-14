@@ -20,9 +20,18 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         xtype: 'form',
                         flex: 1,
                         itemId: 'deviceDataValidationForm',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 150
+                            labelWidth: 150,
+                            style: {
+                                marginRight: '20px',
+                                padding: '20px'
+                            },
+                            flex: 1
                         },
                         items: [
                             {
@@ -42,7 +51,8 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                         Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
                                 }
                             },
-                            {
+
+                            /*{
                                 itemId: 'registersField',
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
                                 name: 'registerSuspectCount',
@@ -57,11 +67,24 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 renderer: function (value) {
                                     return value + ' ' + Uni.I18n.translate('device.suspects.lastMonth', 'MDC', 'suspects (last month)');
                                 }
-                            },
+                            },*/
                             {
-                                itemId: 'validationResultField',
+                                xtype: 'fieldcontainer',
+                                itemId: 'fld-validation-result',
                                 fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
-                                name: 'validationResultSuspectCount'
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        name: 'validationResultName',
+                                        text: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
+                                        itemId: 'lnk-validation-result',
+                                        ui: 'link',
+                                        href: '#'
+
+                                    }
+
+                                ]
+
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('device.lastValidation', 'MDC', 'Last validation'),
@@ -85,33 +108,27 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
         me.callParent();
 
     },
-    setValidationResult: function (value) {
-        var me = this;
-        /*
-            mRID = me.router.arguments.mRID,
-            assignedFilter;
+    setValidationResult: function () {
+        var me = this,
+            href;
 
-        assignedFilter = {
-            filter: {
-                status: ['status.open', 'status.in.progress'],
-                meter: mRID,
-                sorting: [
-                    {
-                        type: 'dueDate',
-                        value: 'asc'
-                    }
-                ]
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            method: 'GET',
+            timeout: 60000,
+
+            success: function (response) {
+                var res = Ext.JSON.decode(response.responseText);
+
+                if(res.loadProfileSuspectCount != 0 || res.registerSuspectCount != 0)
+                    me.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'Recent suspects'));
+                else
+                    me.down('#lnk-validation-result').setText(Uni.I18n.translate('device.dataValidation.recentsuspects', 'MDC', 'No suspects'));
+
+
             }
-        };
-*/
-        me.down('#validationResultField').setText('Val res');
-            /*{
-                xtype: 'button',
-                text: Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssuesOnMeter', value, 'MDC', '{0} data collection issues'),
-                ui: 'link',
-                href: typeof me.router.getRoute('workspace/datacollectionissues') !== 'undefined'
-                    ? me.router.getRoute('workspace/datacollectionissues').buildUrl(null, assignedFilter) : null
-            });*/
+        });
+
     }
 
 });

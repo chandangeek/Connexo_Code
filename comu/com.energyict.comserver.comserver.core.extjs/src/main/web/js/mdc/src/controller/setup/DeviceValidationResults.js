@@ -51,6 +51,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 	dataValidationLastChecked: null,
     loadProfileDurations: [],
     registerDuration: {},
+    validationResultsDataObject: {},
+    jsonValidationResultData: null,
     isDefaultFilter: true,
 
     init: function () {
@@ -161,8 +163,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			firstItem = durationsStore.first();
 			
         router.filter.beginEdit();
-        router.filter.set('intervalStart', new Date());
-        router.filter.set('duration', firstItem.get('count') + firstItem.get('timeUnit'));
+        router.filter.set('intervalStart', moment(new Date()).subtract(firstItem.get('timeUnit'), firstItem.get('count')).toDate());
+        router.filter.set('duration', '1years');
 		router.filter.endEdit();
 
         me.isDefaultFilter = true;
@@ -178,27 +180,18 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             filterView = me.getFilterPanel(),
             filterDataView = me.getFilterDataPanel(),
             intervalStartField = filterForm.down('[name=intervalStart]'),
-            intervalEndField = filterForm.down('[name=duration]'),			
             intervalStart = intervalStartField.getValue(),
-            intervalEnd = intervalEndField.getRawValue(),
             eventDateText = '';
 
-        eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-        + Uni.DateTime.formatDateShort(intervalStart);
-/*
 		if(!me.isDefaultFilter) {
-            eventDateText += intervalEnd + ' ' + intervalStartField.getFieldLabel().toLowerCase() + ' '
-            + Uni.DateTime.formatDateShort(intervalStart);
-
-
+            eventDateText += Uni.DateTime.formatDateShort(intervalStart);
+            filterView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'Beginning of intervals'), eventDateText, true);
+            filterDataView.setFilter('eventDateChanged', Uni.I18n.translate('validationResults.intervallabel', 'MDC', 'Beginning of intervals'), eventDateText, true);
         }
-*/
-        filterView.setFilter('eventDateChanged', filterForm.down('#fco-date-container').getFieldLabel(), eventDateText, true);
-        filterView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
 
-        filterDataView.setFilter('eventDateChanged', filterForm.down('#fco-date-container').getFieldLabel(), eventDateText, true);
-		me.setFilterDataView();		
-		filterDataView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));			
+        filterView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
+		filterDataView.down('#Reset').setText(Uni.I18n.translate('general.reset', 'MDC', 'Reset'));
+        me.setFilterDataView();
 	},
 
 	setFilterDataView: function(){
@@ -287,7 +280,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 	applyFilter: function () {
         var me = this,
             filterForm = this.getSideFilterForm();
-		
+
         filterForm.updateRecord();
         filterForm.getRecord().save();
         me.isDefaultFilter = false;
@@ -541,18 +534,21 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         } else{
             me.isDefaultFilter = false;
         }
-
-
-        router.filter.set('onlySuspect', true);
-
-		me.getSideFilterForm().loadRecord(router.filter);
+        me.getSideFilterForm().loadRecord(router.filter);
         me.setFilterView();
 		
 		var updatingStatus = Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...');
 		me.getConfigurationViewDataValidated().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
 		me.getConfigurationViewValidationResults().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
+        me.loadValidationResultsObject(false);
 
-		models.getProxy().setUrl(me.mRID);
+        if(me.jsonValidationResultData == null)
+            me.loadValidationResultsObject();
+        else
+            models.getProxy().setFilterParameters(me.jsonValidationResultData);
+
+        models.getProxy().setUrl(me.mRID);
+
 		models.getProxy().setFilterModel(router.filter);
 
         viewport.setLoading();		
@@ -594,11 +590,8 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             models = me.getModel('Mdc.model.ValidationResultsDataView'),
-            dataStore = me.getStore('Mdc.store.ValidationResultsLoadProfiles'),
             zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
-            intervalRecord,
             loadProfilesList = [],
-            jsonData,
             router = me.getController('Uni.controller.history.Router'),
             filterForm = me.getSideFilterForm(),
             intervalStartField = filterForm.down('[name=intervalStart]');
@@ -608,9 +601,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         } else{
             me.isDefaultFilter = false;
         }
-
-
-        router.filter.set('onlySuspect', true);
 
         me.getSideFilterForm().loadRecord(router.filter);
         me.setFilterView();
@@ -630,7 +620,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 var res = Ext.JSON.decode(response.responseText);
 
 
-                // for load profile
+                // for load profiles
                 me.loadProfileDurations = [];
                 Ext.Array.each(res.loadProfiles, function (loadProfile) {
                     me.loadProfileDurations[me.loadProfileDurations.length] = {
@@ -642,8 +632,12 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     };
                     loadProfilesList.push({
                         id: loadProfile.id,
-                        startInterval: moment(intervalStartField.getValue()).valueOf(),
-                        endInterval: moment(intervalStartField.getValue()).valueOf() + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                        intervalStart: (me.isDefaultFilter)
+                            ?moment(new Date()).valueOf() - zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                            :moment(intervalStartField.getValue()).valueOf(),
+                        intervalEnd: (me.isDefaultFilter)
+                            ?moment(new Date()).valueOf()
+                            :moment(intervalStartField.getValue()).valueOf() + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
                     })
                 });
 
@@ -652,10 +646,14 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 me.registerDuration.intervalInMs = zoomLevelsStore.getIntervalInMs(me.registerDuration.interval);
                 me.registerDuration.intervalRecord = zoomLevelsStore.getIntervalRecord(me.registerDuration.interval);
 
-                jsonData = Ext.encode(loadProfilesList);
+                me.validationResultsDataObject = {
+                    loadProfiles: loadProfilesList
+                };
+
+                me.jsonValidationResultData = Ext.encode(loadProfilesList);
 
                 models.getProxy().setUrl(me.mRID);
-                models.getProxy().setFilterParameters(jsonData);
+                models.getProxy().setFilterParameters(me.jsonValidationResultData);
                 models.getProxy().setFilterModel(router.filter, router);
 
                 viewport.setLoading();
@@ -674,10 +672,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 viewport.setLoading(false);
             }
         });
-
-
-
-
     },
 
     loadValidationResultsDataItems : function(record){
@@ -701,10 +695,18 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     loadProfile.interval = me.isDefaultFilter ? null: loadProfileDuration.interval;
                     loadProfile.intervalInMs = loadProfileDuration.intervalInMs;
                     loadProfile.intervalRecord = loadProfileDuration.intervalRecord;
+
+                    loadProfile.intervalStart = (me.isDefaultFilter)
+                        ? moment(new Date()).valueOf() - loadProfileDuration.intervalInMs
+                        : moment(intervalStartField.getValue()).valueOf();
+                    loadProfile.intervalEnd = (me.isDefaultFilter)
+                        ? moment(new Date()).valueOf()
+                        : moment(intervalStartField.getValue()).valueOf() + loadProfileDuration.intervalInMs;
+
+
                     return;
                 }
-                loadProfile.intervalEnd = moment(intervalStartField.getValue()).valueOf();
-                loadProfile.intervalStart = moment(intervalStartField.getValue()).valueOf();
+
             });
         });
         loadProfileGrid.getStore().loadData(detailedValidationLoadProfile);
@@ -718,8 +720,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             register.intervalInMs = me.registerDuration.intervalInMs;
             register.intervalRecord = me.registerDuration.intervalRecord;
 
-            register.intervalEnd = moment(intervalStartField.getValue()).valueOf();
-            register.intervalStart = moment(intervalStartField.getValue()).valueOf();
+            register.intervalStart = (me.isDefaultFilter)
+                ? moment(new Date()).valueOf() - me.registerDuration.intervalInMs
+                : moment(intervalStartField.getValue()).valueOf();
+            register.intervalEnd = (me.isDefaultFilter)
+                ? moment(new Date()).valueOf()
+                : moment(intervalStartField.getValue()).valueOf() + me.registerDuration.intervalInMs;
+
 
         });
         registerGrid.getStore().loadData(detailedValidationRegister);
@@ -729,6 +736,56 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
 		var dataViewValidateNowBtn = me.getDataViewValidateNowBtn();
 		dataViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
+    },
+
+    loadValidationResultsObject: function(loadData) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            filterForm = me.getSideFilterForm(),
+            zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            models = me.getModel('Mdc.model.ValidationResults'),
+            loadProfilesList = [],
+            intervalStartField = filterForm.down('[name=intervalStart]');
+        Ext.Ajax.request({
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/loadprofiles',
+            method: 'GET',
+            timeout: 60000,
+            success: function (response) {
+
+                viewport.setLoading(false);
+                var res = Ext.JSON.decode(response.responseText);
+                me.loadProfileDurations = [];
+                Ext.Array.each(res.loadProfiles, function (loadProfile) {
+                    me.loadProfileDurations[me.loadProfileDurations.length] = {
+                        id: loadProfile.id,
+                        interval: loadProfile.interval,
+                        intervalInMs: zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all')),
+                        intervalRecord: zoomLevelsStore.getIntervalRecord(loadProfile.interval)
+
+                    };
+                    loadProfilesList.push({
+                        id: loadProfile.id,
+                        intervalStart: (me.isDefaultFilter)
+                            ?moment(new Date()).valueOf() - zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                            :moment(intervalStartField.getValue()).valueOf(),
+                        intervalEnd: (me.isDefaultFilter)
+                            ?moment(new Date()).valueOf()
+                            :moment(intervalStartField.getValue()).valueOf() + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                    })
+                });
+
+                me.validationResultsDataObject = {
+                    loadProfiles: loadProfilesList
+                };
+
+                me.jsonValidationResultData = Ext.encode(loadProfilesList);
+
+                models.getProxy().setFilterParameters(me.jsonValidationResultData);
+            },
+            failure: function (record) {
+                viewport.setLoading(false);
+            }
+        });
     },
 
 	onRuleSetGridSelectionChange : function(grid, record){	

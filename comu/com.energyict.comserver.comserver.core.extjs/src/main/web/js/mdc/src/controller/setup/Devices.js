@@ -28,11 +28,13 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyPanel', selector: '#devicecommicationtopologypanel'},
         {ref: 'deviceOpenIssuesPanel', selector: '#deviceopenissuespanel'},
+        {ref: 'deviceDataValidationPanel', selector: '#deviceDataValidationPanel'},
         {ref: 'deviceSetup', selector: '#deviceSetup'},
         {ref: 'deviceSetupPanel', selector: '#deviceSetupPanel'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
         {ref: 'dataCollectionIssuesLink', selector: '#dataCollectionIssuesLink'},
+        {ref: 'deviceValidationResultFieldLink', selector: '#lnk-validation-result'},
         {ref: 'validationFromDate', selector: '#validationFromDate'}
     ],
 
@@ -205,7 +207,10 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
+                me.getDeviceDataValidationPanel().setValidationResult();
                 me.getDeviceGeneralInformationForm().loadRecord(device);
+
+                me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
 
                 if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
                     && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
@@ -213,6 +218,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                 } else {
                     widget.down('device-data-validation-panel').hide();
                 }
+
+
+
                 viewport.setLoading(false);
 
             }
