@@ -125,6 +125,7 @@ public class DeviceFirmwareVersionInfoFactory {
         protected static final String FIRMWARE_PLANNED_ACTIVATION_DATE = "plannedActivationDate";
         protected static final String FIRMWARE_UPGRADE_OPTION = "firmwareUpgradeOption";
         protected static final String FIRMWARE_VERSION = "firmwareVersion";
+        protected static final String FIRMWARE_VERSION_ID = "firmwareVersionId";
         protected static final String FIRMWARE_COM_TASK_ID = "firmwareComTaskId";
         protected static final String FIRMWARE_COM_TASK_SESSION_ID = "firmwareComTaskSessionId";
         protected final static String FIRMWARE_PLANNED_DATE = "plannedDate";
@@ -143,6 +144,7 @@ public class DeviceFirmwareVersionInfoFactory {
             Optional<FirmwareVersion> firmwareVersion = helper.getFirmwareVersionFromMessage(message);
             if (firmwareVersion.isPresent()){
                 properties.put(FIRMWARE_VERSION, firmwareVersion.get().getFirmwareVersion());
+                properties.put(FIRMWARE_VERSION_ID, firmwareVersion.get().getId());
             }
             properties.put(FIRMWARE_PLANNED_DATE, message.getReleaseDate());
             return properties;
