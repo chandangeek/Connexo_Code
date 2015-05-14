@@ -158,12 +158,12 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 	setDefaults : function(){
 		 var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            intervalStart = new Date().getTime(),
+            intervalStart = (new Date()).setHours(0,0,0,0),
 			durationsStore = me.getStore('Mdc.store.ValidationResultsDurations'),
 			firstItem = durationsStore.first();
 			
         router.filter.beginEdit();
-        router.filter.set('intervalStart', moment(new Date()).subtract(firstItem.get('timeUnit'), firstItem.get('count')).toDate());
+        router.filter.set('intervalStart', moment(intervalStart).subtract(firstItem.get('timeUnit'), firstItem.get('count')).toDate());
         router.filter.set('duration', '1years');
 		router.filter.endEdit();
 
@@ -540,15 +540,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 		var updatingStatus = Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...');
 		me.getConfigurationViewDataValidated().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
 		me.getConfigurationViewValidationResults().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
-        me.loadValidationResultsObject(false);
 
-        if(me.jsonValidationResultData == null)
-            me.loadValidationResultsObject();
-        else
-            models.getProxy().setFilterParameters(me.jsonValidationResultData);
 
         models.getProxy().setUrl(me.mRID);
-
+        models.getProxy().setFilterParameters(me.jsonValidationResultData);
 		models.getProxy().setFilterModel(router.filter);
 
         viewport.setLoading();		
@@ -736,56 +731,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
 		var dataViewValidateNowBtn = me.getDataViewValidateNowBtn();
 		dataViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
-    },
-
-    loadValidationResultsObject: function(loadData) {
-        var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0],
-            filterForm = me.getSideFilterForm(),
-            zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
-            models = me.getModel('Mdc.model.ValidationResults'),
-            loadProfilesList = [],
-            intervalStartField = filterForm.down('[name=intervalStart]');
-        Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/loadprofiles',
-            method: 'GET',
-            timeout: 60000,
-            success: function (response) {
-
-                viewport.setLoading(false);
-                var res = Ext.JSON.decode(response.responseText);
-                me.loadProfileDurations = [];
-                Ext.Array.each(res.loadProfiles, function (loadProfile) {
-                    me.loadProfileDurations[me.loadProfileDurations.length] = {
-                        id: loadProfile.id,
-                        interval: loadProfile.interval,
-                        intervalInMs: zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all')),
-                        intervalRecord: zoomLevelsStore.getIntervalRecord(loadProfile.interval)
-
-                    };
-                    loadProfilesList.push({
-                        id: loadProfile.id,
-                        intervalStart: (me.isDefaultFilter)
-                            ?moment(new Date()).valueOf() - zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
-                            :moment(intervalStartField.getValue()).valueOf(),
-                        intervalEnd: (me.isDefaultFilter)
-                            ?moment(new Date()).valueOf()
-                            :moment(intervalStartField.getValue()).valueOf() + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
-                    })
-                });
-
-                me.validationResultsDataObject = {
-                    loadProfiles: loadProfilesList
-                };
-
-                me.jsonValidationResultData = Ext.encode(loadProfilesList);
-
-                models.getProxy().setFilterParameters(me.jsonValidationResultData);
-            },
-            failure: function (record) {
-                viewport.setLoading(false);
-            }
-        });
     },
 
 	onRuleSetGridSelectionChange : function(grid, record){	

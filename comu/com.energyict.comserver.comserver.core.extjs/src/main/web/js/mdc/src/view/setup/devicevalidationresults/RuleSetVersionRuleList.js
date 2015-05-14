@@ -33,17 +33,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList', {
 				dataIndex: 'total', 
 				sortable: false, 
 				fixed: true
-				/*,
-				renderer: function (value, meta, record) {					
-					var me = this,
-						href = me.router.getRoute('devices/device/validationresultsdatarule').buildUrl(
-							{ mRID: record.get('mRID'), 
-								ruleSetId: record.get('ruleSetId'), 
-								ruleSetVersionId: record.get('ruleSetVersionId'), 
-								ruleId: record.get('id')},
-						me.router.queryParams );
-					return '<a href="' + href + '">' + value + '</a>'
-				}*/
+
             }
         ]
     }

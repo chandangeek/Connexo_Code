@@ -93,7 +93,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     showDeviceRegisterDataView: function (mRID, registerId, tabController) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice');
+            registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice'),
+            router = me.getController('Uni.controller.history.Router');
 
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
@@ -101,13 +102,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
                 model.getProxy().setExtraParam('mRID', mRID);
+
                 model.load(registerId, {
                     success: function (register) {
                         var viewOnlySuspects,
                             dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord({count: 1,timeUnit: 'years'}),
                             type = register.get('type'),
-                            dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData'),
-                            router = me.getController('Uni.controller.history.Router');
+                            dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
+
 
                         var widget = Ext.widget('tabbedDeviceRegisterView', {device: device, router: me.getController('Uni.controller.history.Router')});
                         widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
@@ -150,6 +152,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         tabController.showTab(1);
                     }
                 });
+
+
             }
         });
     },
@@ -176,9 +180,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
 
     setDefaults: function (viewOnlySuspects) {
         var me = this,
+            intervalStart = (new Date()).setHours(0,0,0,0),
             router = me.getController('Uni.controller.history.Router');
         router.filter.beginEdit();
-        router.filter.set('intervalStart', new Date());
+        router.filter.set('intervalStart', (moment(intervalStart)).toDate());
         router.filter.set('duration', '1years');
         router.filter.set('onlySuspect', viewOnlySuspects);
         router.filter.set('onlyNonSuspect', false);
