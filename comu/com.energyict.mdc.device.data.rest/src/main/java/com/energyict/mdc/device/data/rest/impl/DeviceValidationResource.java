@@ -107,8 +107,12 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationMonitoringConfigurationView(@PathParam("mRID") String mrid,
-                                            @QueryParam("intervalStart") Long intervalStart,
-                                            @QueryParam("intervalEnd") Long intervalEnd) {
+                                            @QueryParam("intervalRegisterStart") Long intervalStart,
+                                            @QueryParam("intervalRegisterEnd") Long intervalEnd,
+                                            @QueryParam("intervalLoadProfile") ValidationLoadProfilePeriodsInfo intervalLoadProfile) {
+
+        List<DataValidationStatus> lpStatuses = new ArrayList<>();
+
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceValidation deviceValidation = device.forValidation();
         ValidationStatusInfo validationStatusInfo =
@@ -117,15 +121,19 @@ public class DeviceValidationResource {
                         deviceValidation.getLastChecked(),
                         device.hasData());
 
-        Range<Instant> interval = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
+        intervalLoadProfile.getLoadProfilePeriodInfos().stream().forEach(lpPeriod -> {
 
-        List<DataValidationStatus> lpStatuses = device.getLoadProfiles().stream()
-                .flatMap(l -> l.getChannels().stream())
-                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), interval).stream())
-                .collect(Collectors.toList());
+            Range<Instant> intervalLP = Range.openClosed(Instant.ofEpochMilli(lpPeriod.startInterval), Instant.ofEpochMilli(lpPeriod.endInterval));
+            lpStatuses.addAll(device.getLoadProfiles().stream()
+                    .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
+                    .flatMap(l -> l.getChannels().stream())
+                    .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
+                    .collect(Collectors.toList()));
+        });
+        Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
 
         List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
-                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), interval).stream())
+                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), intervalReg).stream())
                 .collect(Collectors.toList());
 
         validationStatusInfo.allDataValidated = isAllDataValidated(lpStatuses, rgStatuses, device);
@@ -142,13 +150,14 @@ public class DeviceValidationResource {
     @Path("/validationmonitoring/dataview")
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationMonitoringDataView(@PathParam("mRID") String mrid,
-                                                       @QueryParam("intervalStart") Long intervalStart,
-                                                       @QueryParam("intervalEnd") Long intervalEnd,
-                                                       @QueryParam("ruleSetId") Long ruleSetId,
-                                                       @QueryParam("ruleSetVersionId") Long ruleSetVersionId,
-                                                       @QueryParam("ruleId") Long ruleId) {
+                                                       @QueryParam("intervalRegisterStart") Long intervalStart,
+                                                       @QueryParam("intervalRegisterEnd") Long intervalEnd,
+                                                       @QueryParam("intervalLoadProfile") ValidationLoadProfilePeriodsInfo intervalLoadProfile) {
+
+        Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus = new HashMap<>();
 
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
@@ -159,30 +168,28 @@ public class DeviceValidationResource {
                         deviceValidation.getLastChecked(),
                         device.hasData());
 
-        Range<Instant> interval = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
+        intervalLoadProfile.getLoadProfilePeriodInfos().stream().forEach(lpPeriod -> {
 
-        Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus =  device.getLoadProfiles().stream()
-                .collect(Collectors.toMap(
-                        l -> l,
-                        lp -> lp.getChannels()
-                                .stream()
-                                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), interval).stream())
-                                .filter(dvs -> dvs.getOffendedRules().stream()
-                                        .filter(r -> ruleId == null || r.getId() == ruleId)
-                                        .filter(r -> ruleSetId == null || r.getRuleSet().getId() == ruleSetId)
-                                        .anyMatch(r -> ruleSetVersionId == null || r.getRuleSetVersion().getId() == ruleSetVersionId))
-                                .collect(Collectors.toList())
-                )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
-                    .collect(Collectors.toMap(m -> (LoadProfile) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
+            Range<Instant> intervalLP = Range.openClosed(Instant.ofEpochMilli(lpPeriod.startInterval), Instant.ofEpochMilli(lpPeriod.endInterval));
+
+            loadProfileStatus.putAll(device.getLoadProfiles().stream()
+                    .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
+                    .collect(Collectors.toMap(
+                            l -> l,
+                            lp ->
+                                    lp.getChannels().stream()
+                                            .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
+                                            .collect(Collectors.toList())
+                    )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
+                    .collect(Collectors.toMap(m -> (LoadProfile) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue()))));
+        });
+
+        Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
 
         Map<NumericalRegister, List<DataValidationStatus>> registerStatus = device.getRegisters().stream()
                 .collect(Collectors.toMap(
                         r -> r,
-                        reg -> (device.forValidation().getValidationStatus(reg, Collections.emptyList(), interval).stream())
-                                .filter(rs -> rs.getOffendedRules().stream()
-                                        .filter(r -> ruleId == null || r.getId() == ruleId)
-                                        .filter(r -> ruleSetId == null || r.getRuleSet().getId() == ruleSetId)
-                                        .anyMatch(r -> ruleSetVersionId == null || r.getRuleSetVersion().getId() == ruleSetVersionId))
+                        reg -> (device.forValidation().getValidationStatus(reg, Collections.emptyList(), intervalReg).stream())
                                 .collect(Collectors.toList())
                 )).entrySet().stream().filter(m -> (((List<DataValidationStatus>)m.getValue()).size()) > 0L)
                 .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));

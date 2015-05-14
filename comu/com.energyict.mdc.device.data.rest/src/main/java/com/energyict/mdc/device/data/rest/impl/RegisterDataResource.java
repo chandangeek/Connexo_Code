@@ -11,18 +11,11 @@ import com.energyict.mdc.device.data.security.Privileges;
 
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -54,11 +47,15 @@ public class RegisterDataResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+    public PagedInfoList getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo,
+                                         @QueryParam("intervalStart") Long intervalStart,
+                                         @QueryParam("intervalEnd") Long intervalEnd) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-        Interval interval = Interval.sinceEpoch();
-        List<? extends Reading> readings = register.getReadings(interval);
+
+        Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
+
+        List<? extends Reading> readings = register.getReadings(Interval.of(intervalReg));
         List<ReadingInfo> readingInfos =
                 ReadingInfoFactory.asInfoList(
                         readings,
