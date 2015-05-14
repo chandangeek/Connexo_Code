@@ -106,6 +106,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     return {x: xValue, y: yValue}
                 },
                 formatter: function (tooltip) {
+                    console.log(tooltip);
                     var tvalColor = 'rgba(255, 255, 255, 0.85)';
                     var testColor = 'rgba(86, 131, 67, 0.3)';
                     var tsusColor = 'rgba(235, 86, 66, 0.3)';
@@ -128,7 +129,12 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     switch (point.validationResult) {
                         case 'suspect' :
                             bgColor = tsusColor;
-                            vicon = '<span class="icon-validation-red"></span>';
+                            vicon = '<span class="icon-validation-red" ' +
+                                'style="height: 16px; ' +
+                                'width: 16px; ' +
+                                'display: inline-block; ' +
+                                'vertical-align: top; ' +
+                                'margin-left: 4px"></span>';
                             break;
                         case 'ok' :
                             bgColor = tvalColor;
@@ -141,7 +147,13 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                             break;
                         case 'confirmed'  :
                             bgColor = tvalColor;
-                            bicon = iconConfirm;
+                            vicon = '<span class="icon-checkmark" ' +
+                                'style="height: 16px; ' +
+                                'width: 16px; ' +
+                                'color: #00ff00; ' +
+                                'display: inline-block; ' +
+                                'vertical-align: top; ' +
+                                'margin-left: 4px"></span>';
                             break;
                         case 'estimated'  :
                             bgColor = testColor;
@@ -149,20 +161,31 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     }
                     switch (point.modificationFlag) {
                         case 'EDITED.saved' :
+                            vicon = '<span class="icon-pencil2" ' +
+                                'style="height: 16px; ' +
+                                'width: 16px; ' +
+                                'display: inline-block; ' +
+                                'vertical-align: top; ' +
+                                'margin-left: 4px"></span>';
                             break;
                         case 'EDITED.notSaved':
+                            vicon = '<span class="icon-checkmark" ' +
+                                'style="height: 16px; ' +
+                                'width: 16px; ' +
+                                'display: inline-block; ' +
+                                'vertical-align: top; ' +
+                                'margin-left: 4px"></span>';
                             break;
                     }
 
-
-                    s += '<tr><td style="padding-right: 10px; text-align: right"><b>' +
+                    s += '<tr><td style="highchart-tooltip-value-td"><b>' +
                         point.series.name +
                         ':</b></td><td>' +
                         point.y + ' ' +
                         point.mesurementType +
                         vicon +
                         '</td></tr>';
-                    s += '<tr><td style="padding-right: 10px; text-align: right"><b>' +
+                    s += '<tr><td style="highchart-tooltip-value-td"><b>' +
                         'Bulk value:' +
                         '</b></td><td>' +
                         point.collectedValue + ' ' +
@@ -176,8 +199,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         '; padding: 8px">' + s + '</div>';
                     return s;
                 },
-                followPointer: true,
-                followTouchMove: true
+                followPointer: false,
+                followTouchMove: false
             },
 
             legend: {
