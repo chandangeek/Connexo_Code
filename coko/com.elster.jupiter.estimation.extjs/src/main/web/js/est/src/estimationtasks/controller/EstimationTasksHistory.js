@@ -54,12 +54,12 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
         store.getProxy().setUrl(router.arguments);
         widget = Ext.widget('estimationtasks-history', {router: router, taskId: currentTaskId});
 
-        me.initFilter();
         pageMainContent.setLoading(true);
 
         taskModel.load(currentTaskId, {
             success: function (record) {
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.initFilter();
                 me.getOverviewLink().setText(record.get('name'));
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
             },
