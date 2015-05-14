@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceType;
@@ -14,7 +15,7 @@ import java.util.Set;
 /**
  * Provides Firmware related services
  */
-    public interface FirmwareService extends ReferencePropertySpecFinderProvider {
+public interface FirmwareService extends ReferencePropertySpecFinderProvider {
 
     public static String COMPONENTNAME = "FWC";
     
@@ -53,6 +54,7 @@ import java.util.Set;
 
     boolean isFirmwareUpgradeAllowedFor(DeviceType deviceType);
 
+    List<DeviceType> getDeviceTypesWhichSupportFirmwareUpgrade();
     // Firmware versions on a device
 
     /**
@@ -78,4 +80,11 @@ import java.util.Set;
     void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion);
 
     Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
+
+
+    // Firmware campaigns
+
+    Optional<FirmwareCampaign> getFirmwareCampaignById(long id);
+    Finder<FirmwareCampaign> getFirmwareCampaigns();
+    FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);
 }

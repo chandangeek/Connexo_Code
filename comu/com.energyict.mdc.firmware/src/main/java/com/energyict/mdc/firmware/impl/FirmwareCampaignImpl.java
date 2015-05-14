@@ -1,0 +1,286 @@
+package com.energyict.mdc.firmware.impl;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignProperty;
+import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
+public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
+
+    public enum Fields {
+        ID ("id"),
+        NAME ("name"),
+        STATUS ("status"),
+        DEVICE_TYPE ("deviceType"),
+        UPGRADE_OPTION ("upgradeOption"),
+        FIRMWARE_TYPE ("firmwareType"),
+        FIRMWARE_VERSION ("firmwareVersion"),
+        PLANNED_DATE ("plannedDate"),
+        STARTED_ON ("startedOn"),
+        FINISHED_ON ("finishedOn"),
+        DEVICES ("devices"),
+        PROPERTIES ("properties"),
+        ;
+
+        private String name;
+
+        Fields(String name) {
+            this.name = name;
+        }
+
+        public String fieldName(){
+            return this.name;
+        }
+    }
+
+    private long id;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private String name;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private FirmwareCampaignStatus status;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private Reference<DeviceType> deviceType;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private ProtocolSupportedFirmwareOptions upgradeOption;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private FirmwareType firmwareType;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private Reference<FirmwareVersion> firmwareVersion;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private Instant plannedDate;
+    private Instant startedOn;
+    private Instant finishedOn;
+    @Valid
+    private List<DeviceInFirmwareCampaign> devices = new ArrayList<>();
+    @Valid
+    private List<FirmwareCampaignProperty> properties = new ArrayList<>();
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
+
+    private final DataModel dataModel;
+    private final Clock clock;
+    private final FirmwareService firmwareService;
+    private final DeviceService deviceService;
+
+    @Inject
+    public FirmwareCampaignImpl(DataModel dataModel, Clock clock, FirmwareService firmwareService, DeviceService deviceService) {
+        this.dataModel = dataModel;
+        this.clock = clock;
+        this.firmwareService = firmwareService;
+        this.deviceService = deviceService;
+    }
+
+    FirmwareCampaign init(DeviceType deviceType, EndDeviceGroup group){
+        // TODO throw exception if device type doesn't support firmware upgrade
+        this.status = FirmwareCampaignStatus.NOT_STARTED;
+        List<Device> devices = Collections.emptyList();
+        if (group instanceof QueryEndDeviceGroup){
+            Condition deviceQuery = ((QueryEndDeviceGroup) group).getCondition();
+            deviceQuery = deviceQuery.and(where("deviceConfiguration.deviceType").isEqualTo(deviceType));
+            devices = deviceService.findAllDevices(deviceQuery).find();
+        } else {
+            devices = group.getMembers(this.clock.instant())
+                    .stream()
+                    .map(endDevice -> deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId())))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == deviceType.getId())
+                    .collect(Collectors.toList());
+        }
+        devices.stream()
+                .forEach(device -> {
+                    FirmwareCampaignImpl.this.devices.add(dataModel.getInstance(DeviceInFirmwareCampaignImp.class)
+                            .init(FirmwareCampaignImpl.this, device));
+                });
+        return this;
+    }
+
+    @Override
+    public long getId() {
+        return this.id;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public FirmwareCampaignStatus getStatus() {
+        return status;
+    }
+
+    void setStatus(FirmwareCampaignStatus status){
+        if (!this.status.isValidStatusTransition(status)){
+            // TODO throw exception
+        }
+        this.status = status;
+    }
+
+    @Override
+    public DeviceType getDeviceType() {
+        return deviceType.get();
+    }
+
+    @Override
+    public FirmwareType getFirmwareType() {
+        return firmwareType;
+    }
+
+    @Override
+    public void setFirmwareType(FirmwareType firmwareType) {
+        this.firmwareType = firmwareType;
+    }
+
+    @Override
+    public ProtocolSupportedFirmwareOptions getUpgradeOption() {
+        return upgradeOption;
+    }
+
+    @Override
+    public void setUpgradeOption(ProtocolSupportedFirmwareOptions upgradeOption) {
+        if (!FirmwareCampaignStatus.NOT_STARTED.equals(this.status)
+                && !FirmwareCampaignStatus.SCHEDULED.equals(this.status)){
+            // TODO throw exception (upgrade already in progress)
+        }
+        this.upgradeOption = upgradeOption;
+    }
+
+    @Override
+    public FirmwareVersion getFirmwareVersion() {
+        return firmwareVersion.get();
+    }
+
+    @Override
+    public void setFirmwareVersion(FirmwareVersion firmwareVersion) {
+        this.firmwareVersion.set(firmwareVersion);
+    }
+
+    @Override
+    public Instant getPlannedDate() {
+        return plannedDate;
+    }
+
+    @Override
+    public void setPlannedDate(Instant plannedDate) {
+        setStatus(FirmwareCampaignStatus.SCHEDULED);
+        this.plannedDate = plannedDate;
+    }
+
+    @Override
+    public Instant getStartedOn() {
+        return startedOn;
+    }
+
+    @Override
+    public void setStartedOn(Instant startedOn) {
+        this.startedOn = startedOn;
+    }
+
+    @Override
+    public Instant getFinishedOn() {
+        return finishedOn;
+    }
+
+    @Override
+    public void setFinishedOn(Instant finishedOn) {
+        this.finishedOn = finishedOn;
+    }
+
+    @Override
+    public List<DeviceInFirmwareCampaign> getDevices(){
+        return new ArrayList<>(this.devices);
+    }
+
+    @Override
+    public Map<String, Object> getProperties(){
+        return this.properties.stream().collect(Collectors.toMap(prop -> prop.getKey(), prop -> prop.getValue()));
+    }
+
+    @Override
+    public FirmwareCampaign addProperty(String key, Object value){
+        FirmwareCampaignProperty newProperty = dataModel.getInstance(FirmwareCampaignPropertyImpl.class).init(this, key, value);
+        dataModel.getValidatorFactory().getValidator().validate(newProperty);
+        this.properties.add(newProperty);
+        return this;
+    }
+
+    @Override
+    public void clearProperties(){
+        this.properties.clear();
+    }
+
+    @Override
+    public boolean isValidName(boolean caseSensitive) {
+        Condition condition = Condition.TRUE;
+        if (getId() > 0){
+            condition = where(Fields.ID.fieldName()).isNotEqual(getId());
+        }
+        return dataModel.query(FirmwareCampaign.class).select(condition.and(where(Fields.NAME.fieldName()).isEqualTo(this.name))).isEmpty();
+    }
+
+    @Override
+    public void save() {
+        if (getId() > 0){
+            Save.UPDATE.save(dataModel, this);
+        } else {
+            Save.CREATE.save(dataModel, this);
+        }
+    }
+
+    @Override
+    public void delete(){
+        dataModel.remove(this);
+    }
+
+    @Override
+    public void start(){
+        this.startedOn = clock.instant();
+        setStatus(FirmwareCampaignStatus.ONGOING);
+        this.devices.stream()
+                .map(DeviceInFirmwareCampaign::getDevice)
+                .forEach(device -> {
+
+        });
+    }
+}

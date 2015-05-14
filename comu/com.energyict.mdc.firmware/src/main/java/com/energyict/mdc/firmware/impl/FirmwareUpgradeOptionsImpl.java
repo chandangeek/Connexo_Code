@@ -120,4 +120,7 @@ public class FirmwareUpgradeOptionsImpl implements FirmwareUpgradeOptions {
         this.activateOnDate = false;
     }
 
+    DeviceType getDeviceType(){
+        return this.deviceType.get();
+    }
 }

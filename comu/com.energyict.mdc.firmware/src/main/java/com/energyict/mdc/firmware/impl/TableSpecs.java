@@ -1,12 +1,22 @@
 package com.energyict.mdc.firmware.impl;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 
 public enum TableSpecs {
     FWC_FIRMWAREVERSION {
@@ -29,7 +39,7 @@ public enum TableSpecs {
     FWC_FIRMWAREUPGRADEOPTIONS {
         @Override
         void addTo(DataModel dataModel) {
-            Table<FirmwareUpgradeOptions> table = dataModel.addTable(name(),FirmwareUpgradeOptions.class);
+            Table<FirmwareUpgradeOptions> table = dataModel.addTable(name(), FirmwareUpgradeOptions.class);
             table.map(FirmwareUpgradeOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
             table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareUpgradeOptionsImpl.Fields.INSTALL.fieldName()).add();
@@ -75,7 +85,96 @@ public enum TableSpecs {
             table.foreignKey("FWC_PASSIVE_FK_FIRMWARE").references(FWC_FIRMWAREVERSION.name()).on(firmwareVersionColumn).map("firmwareVersion").onDelete(DeleteRule.CASCADE).add();
         }
     },
+
+    FWC_CAMPAIGN {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<FirmwareCampaign> table = dataModel.addTable(name(), FirmwareCampaign.class);
+            table.map(FirmwareCampaignImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column name = table.column("CAMPAIGN_NAME").varChar(NAME_LENGTH).map(FirmwareCampaignImpl.Fields.NAME.fieldName()).notNull().add();
+            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.STATUS.fieldName()).notNull().add();
+            Column deviceType = table.column("DEVICE_TYPE").number().notNull().add();
+            table.column("UPGRADE_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.UPGRADE_OPTION.fieldName()).notNull().add();
+            table.column("FIRMWARE_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.FIRMWARE_TYPE.fieldName()).notNull().add();
+            Column firmwareVersion = table.column("FIRMWARE_VERSION").number().notNull().add();
+            table.column("PLANNED_DATE").number().map(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            table.column("STARTED_ON").number().map(FirmwareCampaignImpl.Fields.STARTED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("FINISHED_ON").number().map(FirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+
+            table.addAuditColumns();
+
+            table.unique("UQ_FWC_CAMPAIGN_NAME").on(name).add();
+            table.foreignKey("FK_FWC_CAMPAIGN_TO_D_TYPE")
+                    .on(deviceType)
+                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE")
+                    .map(FirmwareCampaignImpl.Fields.DEVICE_TYPE.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
+                    .add();
+            table.foreignKey("FK_FWC_CAMPAIGN_TO_FWC_VERS")
+                    .on(firmwareVersion)
+                    .references(FWC_FIRMWAREVERSION.name())
+                    .map(FirmwareCampaignImpl.Fields.FIRMWARE_VERSION.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
+                    .add();
+            table.primaryKey("PK_FWC_CAMPAIGN").on(idColumn).add();
+        }
+    },
+
+    FWC_CAMPAIGN_DEVICES {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceInFirmwareCampaign> table = dataModel.addTable(name(), DeviceInFirmwareCampaign.class);
+            table.map(DeviceInFirmwareCampaignImp.class);
+
+            Column campaign = table.column("CAMPAIGN").number().notNull().add();
+            Column device = table.column("DEVICE").number().notNull().add();
+            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceInFirmwareCampaignImp.Fields.STATUS.fieldName()).add();
+
+            table.addAuditColumns();
+            table.foreignKey("FK_FWC_DEVICE_TO_CAMPAIGN")
+                    .on(campaign)
+                    .references(FWC_CAMPAIGN.name())
+                    .map(DeviceInFirmwareCampaignImp.Fields.CAMPAIGN.fieldName())
+                    .reverseMap(FirmwareCampaignImpl.Fields.DEVICES.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_FWC_DEVICE_TO_DEVICE")
+                    .on(device)
+                    .references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE")
+                    .map(DeviceInFirmwareCampaignImp.Fields.DEVICE.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
+                    .add();
+            table.primaryKey("PK_FWC_CAMPAIGN_DEVICES").on(campaign, device).add();
+        }
+    },
+
+    FWC_CAMPAIGN_PROPS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<FirmwareCampaignProperty> table = dataModel.addTable(name(), FirmwareCampaignProperty.class);
+            table.map(FirmwareCampaignPropertyImpl.class);
+
+            Column campaign = table.column("CAMPAIGN").number().notNull().add();
+            /*
+            Column factoryId = table.column("FACTORY").number().conversion(ColumnConversion.NUMBER2INTNULLZERO).map(FirmwareCampaignPropertyImpl.Fields.FACTORY_ID.fieldName()).notNull().add();
+            */
+            Column key = table.column("KEY").varChar(NAME_LENGTH).map(FirmwareCampaignPropertyImpl.Fields.KEY.fieldName()).notNull().add();
+            table.column("VALUE").varChar(DESCRIPTION_LENGTH).map(FirmwareCampaignPropertyImpl.Fields.VALUE.fieldName()).notNull().add();
+
+            table.addAuditColumns();
+            table.foreignKey("FK_FWC_PROPS_TO_CAMPAIGN")
+                    .on(campaign)
+                    .references(FWC_CAMPAIGN.name())
+                    .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())
+                    .reverseMap(FirmwareCampaignImpl.Fields.PROPERTIES.fieldName())
+                    .composition()
+                    .add();
+            table.primaryKey("PK_FWC_CAMPAIGN_PROPS").on(campaign, /* factoryId, */ key).add();
+        }
+    },
     ;
 
-    abstract void addTo(DataModel component);
+    abstract void addTo(DataModel dataModel);
 }

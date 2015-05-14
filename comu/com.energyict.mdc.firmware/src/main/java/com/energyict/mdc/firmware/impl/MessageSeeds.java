@@ -15,6 +15,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NAME_MUST_BE_UNIQUE(3, Keys.NAME_MUST_BE_UNIQUE, "The name is not unique", Level.SEVERE),
     MAX_FILE_SIZE_EXCEEDED(4, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb", Level.SEVERE),
     STATE_TRANSFER_NOT_ALLOWED(5, Keys.STATE_TRANSFER_NOT_ALLOWED, "Transfer to requested state is not allowed", Level.SEVERE),
+    DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE(6, Keys.DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE, "Device type should support firmware upgrade", Level.SEVERE),
     ;
     private final int number;
     private final String key;
@@ -67,5 +68,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
         public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
         public static final String STATE_TRANSFER_NOT_ALLOWED = "StateTransferNotAllowed";
+        public static final String DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE = "DeviceTypeShouldSupportFirmwareUpgrade";
     }
 }
