@@ -55,7 +55,8 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
                                     {
                                         xtype: 'button',
                                         itemId: 'deviceDataEstimationStateChangeBtn',
-                                        action: ''
+                                        action: '',
+                                        privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfigurationOnDevice
                                     }
                                 ]
                             }
