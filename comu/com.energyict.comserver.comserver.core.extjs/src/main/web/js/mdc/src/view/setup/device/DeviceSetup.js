@@ -249,27 +249,22 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     align: 'stretch'
                 },
                 defaults: {
+                    style: {
+                        marginRight: '20px',
+                        padding: '20px'
+                    },
                     flex: 1
                 },
                 items: [
                     {
                         xtype: 'deviceOpenIssuesPanel',
                         privileges: Isu.privileges.Issue.viewAdminDevice,
-                        router: me.router,
-                        style: {
-                            marginRight: '20px',
-                            padding: '20px'
-                        }
+                        router: me.router
                     },
                     {
                         xtype: 'device-data-validation-panel',
                         privileges: Cfg.privileges.Validation.fineTuneOnDevice,
-                        mRID: me.device.get('mRID'),
-                        style: {
-                            marginRight: '20px',
-                            padding: '20px'
-                        }
-
+                        mRID: me.device.get('mRID')
                     }
                 ]
             },

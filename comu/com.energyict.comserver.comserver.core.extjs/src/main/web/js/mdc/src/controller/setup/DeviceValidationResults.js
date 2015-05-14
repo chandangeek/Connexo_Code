@@ -219,7 +219,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 			});
 		}
 		else if (versionId){
-			itemTypeContainer.setFieldLabel(Uni.I18n.translate('validationResults.version', 'MDC', 'Validation rule set version'));
+			itemTypeContainer.setFieldLabel(Uni.I18n.translate('validationResults.ruleSet.version', 'MDC', 'Validation rule set version'));
 			model = me.getModel('Mdc.model.ValidationRuleSetVersion');
 			model.getProxy().setUrl(ruleSetId, versionId);
 			

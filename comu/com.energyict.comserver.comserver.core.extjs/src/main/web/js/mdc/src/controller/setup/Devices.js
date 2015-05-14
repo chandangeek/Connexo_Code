@@ -95,13 +95,18 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this;
         var connectionMethod = record.get('connectionMethod');
         connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
+        // COMU-705 : the save() failed due to the fact that for the dates numbers are expected (but strings were passed)
+        record.data.startDateTime = Number(Ext.Date.format(record.data.startDateTime, 'time'));
+        record.data.endDateTime = Number(Ext.Date.format(record.data.endDateTime, 'time'));
+        record.data.nextExecution = Number(Ext.Date.format(record.data.nextExecution, 'time'));
         record.set('connectionMethod', connectionMethod);
         record.save({
             callback: function (record, operation, success) {
                 if (success) {
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('device.connection.toggle.' + connectionMethod.status, 'MDC', 'Connection status changed to: ' + connectionMethod.status)
+                        Uni.I18n.translate('device.connection.toggle.' + connectionMethod.status, 'MDC', 'Connection status changed to ' + connectionMethod.status)
                     );
+                    me.refreshConnections();
                 }
             }
         });

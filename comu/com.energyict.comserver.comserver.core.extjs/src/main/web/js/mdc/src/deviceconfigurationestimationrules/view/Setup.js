@@ -50,7 +50,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.Setup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add', 'MDC', 'Add estimation rule sets'),
-                                action: 'addEstimationRuleSet'
+                                action: 'addEstimationRuleSet',
+                                privileges : Mdc.privileges.DeviceConfigurationEstimations.administrate
                             }
                         ]
                     },

@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
     alias: 'widget.deviceDataEstimationRulesSetMainView',
 
     device: null,
+    router: null,
 
     requires: [
         'Mdc.view.setup.devicedataestimation.RulesSetGrid',
@@ -54,7 +55,8 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
                                     {
                                         xtype: 'button',
                                         itemId: 'deviceDataEstimationStateChangeBtn',
-                                        action: ''
+                                        action: '',
+                                        privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfigurationOnDevice
                                     }
                                 ]
                             }
@@ -83,9 +85,8 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
                                     stepItems: [
                                         {
                                             text: Uni.I18n.translate('estimationDevice.addRuleSet', 'MDC', 'Add estimation rule set'),
-                                            ui: 'action',
                                             itemId: 'add-estimation-rule-set',
-                                            href: '#/administration/estimationrulesets/add'
+                                            href: me.router.getRoute('administration/estimationrulesets/addruleset').buildUrl({}, {previousRoute: me.router.getRoute().buildUrl()})
                                         }
                                     ]
                                 },

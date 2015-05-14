@@ -31,7 +31,6 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
 
     init: function () {
         var me = this;
-
         me.control({
             'estimation-deviceconfigurations-setup estimation-deviceconfigurations-grid': {
                 select: me.showEstimationDeviceConfigurationPreview
@@ -39,27 +38,39 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
             'estimation-deviceconfigurations-add #add-deviceconfigurations-grid': {
                 allitemsadd: me.onAllDeviceConfigurationsAdd,
                 selecteditemsadd: me.onSelectedDeviceConfigurationsAdd
+            },
+            'estimation-rule-set-side-menu[sharedForMdc=true]': {
+                beforerender: me.onEstimationRuleSetMenuBeforeRender
             }
         });
 
-        me.getApplication().on('estimationrulesetmenurender', function (menu) {
-            menu.add(
-                {
-                    text: Uni.I18n.translate('estimationDeviceConfigurations.deviceConfigurations', 'MDC', 'Device configurations'),
-                    itemId: 'estimation-device-configurations-link',
-                    href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/deviceconfigurations').buildUrl()
-                }
-            );
-        });
+        var menu = Ext.ComponentQuery.query('estimation-rule-set-side-menu[sharedForMdc=true]')[0];
+        if (menu && menu.rendered) {
+            me.onEstimationRuleSetMenuBeforeRender(menu);
+        }
     },
+
+    onEstimationRuleSetMenuBeforeRender: function (menu) {
+        var me = this;
+        menu.add(
+            {
+                text: Uni.I18n.translate('estimationDeviceConfigurations.deviceConfigurations', 'MDC', 'Device configurations'),
+                itemId: 'estimation-device-configurations-link',
+                href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/deviceconfigurations').buildUrl()
+            }
+        );
+    },
+
 
     showEstimationDeviceConfigurations: function (ruleSetId) {
         var me = this,
             model = me.getModel('Mdc.model.EstimationRuleSet'),
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Mdc.store.EstimationDeviceConfigurations'),
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             view;
 
+        pageView.setLoading(true);
         store.getProxy().setUrl(router.arguments);
         view = Ext.widget('estimation-deviceconfigurations-setup', {
             router: router
@@ -70,6 +81,9 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
                 me.getApplication().fireEvent('loadEstimationRuleSet', ruleSetRecord);
                 view.down('#estimation-rule-set-link').setText(ruleSetRecord.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
+            },
+            callback: function () {
+                pageView.setLoading(false);
             }
         });
     },
