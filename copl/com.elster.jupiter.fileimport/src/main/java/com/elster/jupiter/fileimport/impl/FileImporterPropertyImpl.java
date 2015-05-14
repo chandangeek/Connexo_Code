@@ -21,7 +21,7 @@ final class FileImporterPropertyImpl implements FileImporterProperty, Persistenc
     private String stringValue;
     private transient PropertySpec propertySpec;
 
-    private Reference<ImportSchedule> importSchedule = ValueReference.absent();
+    private Reference<ImportSchedule> importScheduleReference = ValueReference.absent();
 
     private long version;
     private Instant createTime;
@@ -34,7 +34,7 @@ final class FileImporterPropertyImpl implements FileImporterProperty, Persistenc
     }
 
     FileImporterPropertyImpl init(ImportSchedule importSchedule, PropertySpec propertySpec, Object value) {
-        this.importSchedule.set(importSchedule);
+        this.importScheduleReference.set(importSchedule);
         this.name = propertySpec.getName();
         this.propertySpec = propertySpec;
         setValue(value);
@@ -47,12 +47,12 @@ final class FileImporterPropertyImpl implements FileImporterProperty, Persistenc
 
     @Override
     public void postLoad() {
-        propertySpec = ((ImportSchedule) importSchedule.get()).getPropertySpec(name);
+        propertySpec = ((ImportSchedule) importScheduleReference.get()).getPropertySpec(name);
     }
 
     @Override
     public ImportSchedule getImportSchedule() {
-        return importSchedule.get();
+        return importScheduleReference.get();
     }
 
     @Override

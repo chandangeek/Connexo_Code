@@ -21,10 +21,12 @@ import javax.validation.MessageInterpolator;
 import java.nio.file.Files;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, FileImportService {
@@ -49,6 +51,10 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
 
     private CronExpressionScheduler cronExpressionScheduler;
+
+    public FileImportServiceImpl(){
+
+    }
 
     @Override
     public void install() {
@@ -127,6 +133,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
                 bind(JsonService.class).toInstance(jsonService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(FileImportService.class).toInstance(FileImportServiceImpl.this);
             }
         });
         if (dataModel.isInstalled()) {
@@ -148,6 +155,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     @Override
     public Optional<ImportSchedule> getImportSchedule(long id) {
         return importScheduleFactory().getOptional(id);
+    }
+
+    @Override
+    public List<ImportSchedule> getImportSchedules() {
+        return importScheduleFactory().find();
     }
 
     private DataMapper<ImportSchedule> importScheduleFactory() {
@@ -177,5 +189,15 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
         return importerFactories.stream().filter(factory -> factory.getName().equals(name))
                 .findAny();
+    }
+
+    @Override
+    public List<String> getAvailableImporters() {
+        return importerFactories.stream().map(importer -> importer.getName()).collect(Collectors.toList());
+
+        //List<FileImporterFactory> fileImporterFactoriesList = Collections.unmodifiableList(importerFactories).;
+        //return null;
+
+
     }
 }

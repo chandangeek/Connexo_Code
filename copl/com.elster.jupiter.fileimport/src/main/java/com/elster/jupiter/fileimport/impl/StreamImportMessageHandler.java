@@ -41,7 +41,7 @@ class StreamImportMessageHandler implements MessageHandler {
             for (FileImporterProperty property : importerProperties) {
                 propertyMap.put(property.getName(), property.useDefault() ? getDefaultValue(fileImporterFactory, property) : property.getValue());
             }
-            FileImporter importer =fileImporterFactory.createImporter(propertyMap);
+            FileImporter importer = fileImporterFactory.createImporter(propertyMap);
             importer.process(fileImport);
         }
     }

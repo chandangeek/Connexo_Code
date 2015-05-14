@@ -19,6 +19,7 @@ enum TableSpecs {
             table.map(ImportScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("IMPORTERNAME").varChar(NAME_LENGTH).notNull().map("importerName").add();
+            table.column("DESTINATION").varChar(NAME_LENGTH).notNull().map("destinationName").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
             table.column("IMPORTDIR").varChar(NAME_LENGTH).notNull().conversion(CHAR2FILE).map("importDirectory").add();
             table.column("PATHMATCHER").varChar(NAME_LENGTH).notNull().map("pathMatcher").add();
@@ -42,21 +43,21 @@ enum TableSpecs {
         }
     },
 
-    FIM_IMPORTER_PROPERTY(FileImporterProperty.class) {
+    FIM_PROPERTY_IN_SCHEDULE(FileImporterProperty.class) {
         @Override
         void describeTable(Table table) {
             table.map(FileImporterPropertyImpl.class);
-            table.setJournalTableName("FIM_IMPORTER_PROPERTY_JRNL");
-            Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
+            table.setJournalTableName("FMI_PROPERTY_IN_SCHEDULEJRNL");
+            Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().add();
             Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).notNull().map("name").add();
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
             table.addAuditColumns();
-
-            table.primaryKey("FIM_PK_IMPORTER_PROPERTY").on(importScheduleColumn, nameColumn).add();
-            table.foreignKey("DES_FK_IMPPROP_IMPORT_SCHEDULE").on(importScheduleColumn).references(FIM_IMPORT_SCHEDULE.name())
-                    .map("importSchedule").reverseMap("properties").composition().add();
+            table.primaryKey("FMI_PK_PROPERTY").on(importScheduleColumn, nameColumn).add();
+            table.foreignKey("FMI_FK_PROPERTY").on(importScheduleColumn).references(FIM_IMPORT_SCHEDULE.name())
+                    .map("importScheduleReference").reverseMap("properties").composition().add();
         }
     };
+
 
     private final Class<?> api;
 

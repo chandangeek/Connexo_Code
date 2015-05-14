@@ -13,6 +13,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     private List<PropertyBuilderImpl> properties = new ArrayList<>();
     private String destination;
+    private String importerName;
     private File importDirectory;
     private String pathMatcher;
     private File inProcessDirectory;
@@ -27,7 +28,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     @Override
     public ImportSchedule build() {
-        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, cronExpression, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, cronExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
         properties.stream().forEach(p -> importSchedule.setProperty(p.name, p.value));
         return importSchedule;
     }
@@ -35,6 +36,12 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     @Override
     public ImportScheduleBuilder setDestination(String destination) {
         this.destination = destination;
+        return this;
+    }
+
+    @Override
+    public ImportScheduleBuilder setImporterName(String importerName) {
+        this.importerName = importerName;
         return this;
     }
 

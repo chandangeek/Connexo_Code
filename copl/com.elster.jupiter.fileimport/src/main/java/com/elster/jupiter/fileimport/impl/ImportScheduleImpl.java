@@ -59,14 +59,15 @@ class ImportScheduleImpl implements ImportSchedule {
         this.fileImportService = fileImportService;
     }
 
-    static ImportScheduleImpl from(DataModel dataModel, CronExpression cronExpression, String destination, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(cronExpression, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+    static ImportScheduleImpl from(DataModel dataModel, CronExpression cronExpression, String importerName, String destination, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+        return dataModel.getInstance(ImportScheduleImpl.class).init(cronExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
-    private ImportScheduleImpl init(CronExpression cronExpression, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+    private ImportScheduleImpl init(CronExpression cronExpression, String importerName, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
         this.cronExpression = cronExpression;
         this.cronString = cronExpression.toString();
         this.destinationName = destinationName;
+        this.importerName = importerName;
         this.importDirectory = importDirectory;
         this.inProcessDirectory = inProcessDirectory;
         this.failureDirectory = failureDirectory;
@@ -195,7 +196,6 @@ class ImportScheduleImpl implements ImportSchedule {
     private void persist() {
 
         Save.CREATE.save(dataModel, this);
-        dataModel.mapper(ImportSchedule.class).persist(this);
     }
 
     private void update() {
@@ -204,7 +204,6 @@ class ImportScheduleImpl implements ImportSchedule {
             properties.forEach(FileImporterProperty::save);
         }
         Save.UPDATE.save(dataModel, this);
-        //dataModel.mapper(ImportSchedule.class).update(this);
     }
 
 

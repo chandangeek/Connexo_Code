@@ -58,7 +58,7 @@ public class ImportScheduleImplTest {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem, thesaurus));
 
-        importSchedule = ImportScheduleImpl.from(dataModel, cronExpression, DESTINATION_NAME, importDir,"*.*",inProcessDir, failureDir, successDir);
+        importSchedule = ImportScheduleImpl.from(dataModel, cronExpression, "importerName", DESTINATION_NAME, importDir,"*.*",inProcessDir, failureDir, successDir);
     }
 
     @After

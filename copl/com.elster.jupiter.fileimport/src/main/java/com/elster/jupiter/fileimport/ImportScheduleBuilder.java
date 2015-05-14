@@ -25,6 +25,13 @@ public interface ImportScheduleBuilder {
 
     /**
      *
+     * @param importerName the importer name for the ImportSchedule under construction
+     * @return this
+     */
+    ImportScheduleBuilder setImporterName(String importerName);
+
+    /**
+     *
      * @param directory the import directory for the ImportSchedule under construction
      * @return this
      */
