@@ -363,7 +363,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, messageService, thesaurus, userService, timeService).install();
+        new InstallerImpl(dataModel, messageService, thesaurus, userService, timeService, eventService).install();
     }
 
     @Override
