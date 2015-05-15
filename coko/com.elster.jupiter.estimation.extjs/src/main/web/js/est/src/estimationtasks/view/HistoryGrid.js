@@ -19,10 +19,8 @@ Ext.define('Est.estimationtasks.view.HistoryGrid', {
                 header: Uni.I18n.translate('estimationtasks.general.startedOn', 'EST', 'Started On'),
                 dataIndex: 'startedOn',
                 flex: 2,
-                renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/estimationtasks/estimationtask/history/occurrence').buildUrl({occurrenceId: record.get('id')}),
-                        date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
-                    return '<a href="' + url + '">' + date + '</a>';
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 }
             },
             {
