@@ -243,6 +243,16 @@ class ImportScheduleImpl implements ImportSchedule {
         this.destinationName = destinationName;
     }
 
+    @Override
+    public String getApplicationName() {
+        Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
+        if (optional.isPresent()) {
+            FileImporterFactory importerFactory = optional.get();
+            return importerFactory.getApplicationName();
+        }
+        return null;
+    }
+
 
     @Override
     public FileImportImpl createFileImport(File file) {

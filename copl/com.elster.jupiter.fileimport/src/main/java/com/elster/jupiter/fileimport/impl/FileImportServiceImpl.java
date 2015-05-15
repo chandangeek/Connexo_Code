@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, FileImportService {
@@ -226,8 +227,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     }
 
     @Override
-    public List<FileImporterFactory> getAvailableImporters() {
-        return Collections.unmodifiableList(importerFactories);
+    public List<FileImporterFactory> getAvailableImporters(String applicationName) {
+        return Collections.unmodifiableList(importerFactories
+                .stream()
+                .filter(i -> "SYS".equals(applicationName) || i.getApplicationName().equals(applicationName))
+                .collect(Collectors.toList()));
     }
 
 

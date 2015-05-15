@@ -45,8 +45,9 @@ public interface FileImportService {
 
     /**
      * @return the list of importers
+     * @param applicationName
      */
-    List<FileImporterFactory> getAvailableImporters();
+    List<FileImporterFactory> getAvailableImporters(String applicationName);
 
     /**
      * @return the list of import schedules

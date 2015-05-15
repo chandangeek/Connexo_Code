@@ -105,7 +105,6 @@ public interface ImportSchedule {
 
     void setProperty(String name, Object value);
 
-    
     Map<String,Object> getProperties();
 
     void delete();
@@ -127,4 +126,6 @@ public interface ImportSchedule {
     void setPathMatcher(String pathMatcher);
 
     void setDestination(String destinationName);
+
+    String getApplicationName();
 }
