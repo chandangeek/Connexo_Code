@@ -192,7 +192,7 @@ public class RelationServiceImpl implements RelationService, InstallService, Tra
     public boolean isDefaultAttribute(RelationAttributeType attributeType) {
         return this.detectives
                 .stream()
-                .filter(each -> each.isDefaultAttribute(attributeType))
+                .filter(each -> (!each.equals(this) && each.isDefaultAttribute(attributeType)))
                 .findFirst()
                 .isPresent();
     }
