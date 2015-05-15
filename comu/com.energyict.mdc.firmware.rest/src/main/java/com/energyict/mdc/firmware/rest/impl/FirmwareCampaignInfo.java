@@ -2,17 +2,22 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class FirmwareCampaignInfo {
@@ -29,9 +34,9 @@ public class FirmwareCampaignInfo {
     public Instant startedOn;
     public Instant finishedOn;
     public List<IdWithNameInfo> devices;
-    public Map<String, Object> properties;
+    public List<PropertyInfo> properties;
 
-    public FirmwareCampaignInfo (FirmwareCampaign campaign, Thesaurus thesaurus){
+    public FirmwareCampaignInfo (FirmwareCampaign campaign, Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils){
         this.id = campaign.getId();
         this.name = campaign.getName();
         this.status = campaign.getStatus();
@@ -44,7 +49,15 @@ public class FirmwareCampaignInfo {
         this.startedOn = campaign.getStartedOn();
         this.finishedOn = campaign.getFinishedOn();
         this.devices = campaign.getDevices().stream().map(DeviceInFirmwareCampaign::getDevice).map(IdWithNameInfo::new).collect(Collectors.toList());
-        this.properties = campaign.getProperties(); //TODO use property framework
+        Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
+        if (firmwareMessageSpec.isPresent()) {
+            TypedProperties typedProperties = TypedProperties.empty();
+            Map<String, Object> properties = campaign.getProperties();
+            for (Map.Entry<String, Object> property : properties.entrySet()) {
+                typedProperties.setProperty(property.getKey(), property.getValue());
+            }
+            this.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(firmwareMessageSpec.get().getPropertySpecs(), typedProperties, null);
+        }
     }
 
     public void writeTo(FirmwareCampaign campaign, ResourceHelper resourceHelper){
@@ -61,8 +74,10 @@ public class FirmwareCampaignInfo {
         campaign.setPlannedDate(this.plannedDate);
         campaign.clearProperties();
         if (this.properties != null){
-            for (Map.Entry<String, Object> property : this.properties.entrySet()) {
-                campaign.addProperty(property.getKey(), property.getValue());
+            for (PropertyInfo property : this.properties) {
+                if (property.getPropertyValueInfo() != null && property.getPropertyValueInfo().getValue() != null){
+                    campaign.addProperty(property.key, property.getPropertyValueInfo().getValue().toString());
+                }
             }
         }
     }

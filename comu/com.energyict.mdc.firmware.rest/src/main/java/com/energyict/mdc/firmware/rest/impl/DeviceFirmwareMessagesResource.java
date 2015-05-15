@@ -122,7 +122,6 @@ public class DeviceFirmwareMessagesResource {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, messageId));
 
-
         DeviceFirmwareVersionUtils versionUtils = utilProvider.get().onDevice(device);
         Optional<ProtocolSupportedFirmwareOptions> protocolSupportedFirmwareOptions = versionUtils.getUploadOptionFromMessage(upgradeMessage);
         if (!protocolSupportedFirmwareOptions.isPresent() || !ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(protocolSupportedFirmwareOptions.get())) {
@@ -232,7 +231,7 @@ public class DeviceFirmwareMessagesResource {
 
     /** Checks that device type allows the requested firmware upgrade option */
     private void checkFirmwareUpgradeOption(DeviceType deviceType, String uploadOption) {
-        ProtocolSupportedFirmwareOptions requestedFUOption = ProtocolSupportedFirmwareOptions.from(uploadOption).orElse(null);
+        ProtocolSupportedFirmwareOptions requestedFUOption = resourceHelper.getProtocolSupportedFirmwareOptionsOrThrowException(uploadOption);
         Set<ProtocolSupportedFirmwareOptions> deviceTypeFUAllowedOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType);
         if (deviceTypeFUAllowedOptions.isEmpty()){ // firmware upgrade is not allowed for the device type
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE);
