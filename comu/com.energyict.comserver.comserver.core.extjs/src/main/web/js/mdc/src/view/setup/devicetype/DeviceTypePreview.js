@@ -63,6 +63,18 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol')
                             },
                             {
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('general.devicelifecycle', 'MDC', 'Device life cycle'),
+                                items: [
+                                    {
+                                        itemId: 'device-life-cycle-link',
+                                        xtype: 'button',
+                                        ui: 'link',
+                                        href: 'javascript:void(0)'
+                                    }
+                                ]
+                            },
+                            {
                                 xtype: 'displayfield',
                                 name: 'canBeGateway',
                                 fieldLabel: Uni.I18n.translate('devicetype.canBeGateway', 'MDC', 'Device can be a gateway'),

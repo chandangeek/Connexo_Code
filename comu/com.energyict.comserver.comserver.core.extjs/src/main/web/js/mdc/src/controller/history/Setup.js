@@ -71,6 +71,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                 return this;
                             },
                             items: {
+                                change: {
+                                    title: Uni.I18n.translate('deviceLifeCycle.change', 'MDC', 'Change device life cycle'),
+                                    route: 'change',
+                                    controller: 'Mdc.controller.setup.ChangeDeviceLifeCycle',
+                                    action: 'showChangeDeviceLifeCycle'
+                                },
                                 edit: {
                                     title: 'Edit',
                                     route: 'edit',
@@ -444,14 +450,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     title: Uni.I18n.translate('estimation.title', 'MDC', 'Estimation rule sets'),
                                                     route: 'estimationrulesets',
                                                     controller: 'Mdc.deviceconfigurationestimationrules.controller.RuleSets',
-                                                    //privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
+                                                    privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
                                                     action: 'showEstimationRuleSets',
                                                     items: {
                                                         add: {
                                                             title: Uni.I18n.translate('estimation.rule.set.add.title', 'MDC', 'Add estimation rule sets'),
                                                             route: 'add',
                                                             controller: 'Mdc.deviceconfigurationestimationrules.controller.AddRuleSets',
-                                                            //privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
+                                                            privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
                                                             action: 'showAddEstimationRuleSetsView'
                                                         }
                                                     }
@@ -981,6 +987,12 @@ Ext.define('Mdc.controller.history.Setup', {
                         return this;
                     },
                     items: {
+                        history: {
+                            title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                            route: 'history',
+                            controller: 'Mdc.controller.setup.DeviceHistory',
+                            action: 'showDeviceHistory'
+                        },
                         commands: {
                             title: 'Commands',
                             route: 'commands',
@@ -1238,7 +1250,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
                             route: 'dataestimation',
                             controller: 'Mdc.controller.setup.DeviceDataEstimation',
-                            action: 'showDeviceDataEstimationMainView'
+                            action: 'showDeviceDataEstimationMainView',
+                            privileges: Mdc.privileges.DeviceConfigurationEstimations.view
                         },
                         communicationschedules: {
                             title: 'Communication planning',

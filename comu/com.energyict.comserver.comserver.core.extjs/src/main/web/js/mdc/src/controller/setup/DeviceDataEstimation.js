@@ -45,15 +45,18 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                var view = Ext.widget('deviceDataEstimationRulesSetMainView', {device: device}),
-                    status = device.get('estimationStatus').active;
+                var view = Ext.widget('deviceDataEstimationRulesSetMainView', {device: device, router: me.getController('Uni.controller.history.Router')}),
+                    status = device.get('estimationStatus').active,
+                    toggleActivationButton = view.down('#deviceDataEstimationStateChangeBtn');
 
                 me.device = device;
                 me.getApplication().fireEvent('loadDevice', device);
                 view.down('#deviceDataEstimationStatusField').setValue(status ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive'));
-                view.down('#deviceDataEstimationStateChangeBtn').setText((status ? Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
-                    Uni.I18n.translate('general.activate', 'MDC', 'Activate')) + ' ' + Uni.I18n.translate('estimationDevice.statusSection.buttonAppendix', 'MDC', 'data estimation'));
-                view.down('#deviceDataEstimationStateChangeBtn').action = status ? 'deactivate' : 'activate';
+                if (toggleActivationButton) {
+                    toggleActivationButton.setText((status ? Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') :
+                        Uni.I18n.translate('general.activate', 'MDC', 'Activate')) + ' ' + Uni.I18n.translate('estimationDevice.statusSection.buttonAppendix', 'MDC', 'data estimation'));
+                    toggleActivationButton.action = status ? 'deactivate' : 'activate';
+                }
                 me.getApplication().fireEvent('changecontentevent', view);
             }
         });
@@ -105,9 +108,12 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             rulesSetPreview = Ext.widget('deviceDataEstimationRulesSetPreview', {
                 rulesSetId: validationRuleSet.get('id'),
                 title: validationRuleSet.get('name')
-            });
+            }),
+            changeRuleSetStateActionMenuItem = this.getChangeRuleSetStateActionMenuItem();
         this.getRulesSetPreviewCt().add(rulesSetPreview);
-        this.getChangeRuleSetStateActionMenuItem().setText(validationRuleSet.get('active') ? Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') : Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
+        if (changeRuleSetStateActionMenuItem) {
+            changeRuleSetStateActionMenuItem.setText(validationRuleSet.get('active') ? Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate') : Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
+        }
     },
 
     onRulesGridAfterRender: function (grid) {

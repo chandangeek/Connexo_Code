@@ -12,6 +12,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeActionMenu', {
             itemId: 'editDeviceType'
         },
         {
+            text: Uni.I18n.translate('deviceLifeCycle.change', 'MDC', 'Change device life cycle'),
+            action: 'changeDeviceLifeCycle',
+            itemId: 'change-device-life-cycle'
+        },
+        {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'deleteDeviceType',
             itemId: 'deleteDeviceType'
