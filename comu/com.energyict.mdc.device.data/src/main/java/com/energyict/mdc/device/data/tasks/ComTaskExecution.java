@@ -362,4 +362,13 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public boolean executesComTask(ComTask comTask);
 
+
+    /**
+     * Tests if the last execution of this ComTaskExecution failed.
+     * Note that each time the ComTaskExecution executes,
+     * this flag will be reset.
+     *
+     * @return <code>true</code> iff the last execution of this ComTaskExecution failed.
+     */
+    boolean isLastExecutionFailed();
 }

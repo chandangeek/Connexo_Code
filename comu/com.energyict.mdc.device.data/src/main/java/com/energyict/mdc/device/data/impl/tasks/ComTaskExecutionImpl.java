@@ -628,7 +628,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public boolean lastExecutionFailed() {
+    public boolean isLastExecutionFailed() {
         return this.lastExecutionFailed;
     }
 
