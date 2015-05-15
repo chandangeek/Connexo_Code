@@ -155,7 +155,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 widget.down('#deviceLoadProfilesGraphView').setVisible(!isTable);
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
-                        me.showReadingsCount(dataStore);
                         if (!isTable) {
                             me.showGraphView(record);
                         }
@@ -348,10 +347,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         preview.down('#deviceLoadProfilesDataPreviewForm').loadRecord(record);
 
         preview.rendered && Ext.resumeLayouts(true);
-    },
-
-    showReadingsCount: function (store) {
-        this.getReadingsCount().update(store.getCount() + ' ' + Uni.I18n.translate('devicetype.readings', 'MDC', 'reading(s)'));
     },
 
     applyFilter: function () {

@@ -40,7 +40,8 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Grid', {
                         xtype: 'button',
                         itemId: 'add-deviceconfigurations-button',
                         text: Uni.I18n.translate('estimationDeviceConfigurations.addDeviceConfigurations', 'MDC', 'Add device configurations'),
-                        href: me.router.getRoute('administration/estimationrulesets/estimationruleset/deviceconfigurations/add').buildUrl()
+                        href: me.router.getRoute('administration/estimationrulesets/estimationruleset/deviceconfigurations/add').buildUrl(),
+                        privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfiguration
                     }
                 ]
             },
