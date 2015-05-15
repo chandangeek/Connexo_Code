@@ -3,7 +3,9 @@ package com.energyict.mdc.firmware;
 import com.energyict.mdc.device.data.Device;
 
 public interface DeviceInFirmwareCampaign {
-    FirmwareUpgradeDeviceStatus getStatus();
-    void setStatus(FirmwareUpgradeDeviceStatus status);
+    FirmwareManagementDeviceStatus getStatus();
+    void setStatus(FirmwareManagementDeviceStatus status);
     Device getDevice();
+
+    void startFirmwareProcess();
 }

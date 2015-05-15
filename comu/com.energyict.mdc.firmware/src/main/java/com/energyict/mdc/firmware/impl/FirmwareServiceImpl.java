@@ -39,6 +39,7 @@ import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -75,13 +76,14 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile EventService eventService;
+    private volatile TaskService taskService;
 
     // For OSGI
     public FirmwareServiceImpl() {
     }
 
     @Inject
-    public FirmwareServiceImpl(OrmService ormService, NlsService nlsService, QueryService queryService, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, EventService eventService) {
+    public FirmwareServiceImpl(OrmService ormService, NlsService nlsService, QueryService queryService, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, EventService eventService, TaskService taskService) {
         this.deviceService = deviceService;
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -89,6 +91,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setEventService(eventService);
+        setTaskService(taskService);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -304,6 +307,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                     bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                     bind(DeviceService.class).toInstance(deviceService);
                     bind(EventService.class).toInstance(eventService);
+                    bind(TaskService.class).toInstance(taskService);
                 }
             });
         } catch (RuntimeException e) {
@@ -349,9 +353,14 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         this.eventService = eventService;
     }
 
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, NlsService.COMPONENTNAME, DeviceConfigurationService.COMPONENTNAME, DeviceMessageSpecificationService.COMPONENT_NAME, DeviceDataServices.COMPONENT_NAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, NlsService.COMPONENTNAME, DeviceConfigurationService.COMPONENTNAME, DeviceMessageSpecificationService.COMPONENT_NAME, DeviceDataServices.COMPONENT_NAME, TaskService.COMPONENT_NAME);
     }
 
     @Override

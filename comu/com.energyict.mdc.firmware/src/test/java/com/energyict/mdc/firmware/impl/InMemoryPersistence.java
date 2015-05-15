@@ -51,12 +51,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -93,6 +93,7 @@ public class InMemoryPersistence {
     private LicenseService licenseService;
     private DeviceService deviceService;
     private EventService eventService;
+    private TaskService taskService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults) {
         this.initializeMocks(testName);
@@ -150,13 +151,15 @@ public class InMemoryPersistence {
             injector.getInstance(DeviceDataModelServiceImpl.class);
             this.deviceService = injector.getInstance(DeviceService.class);
             this.eventService = injector.getInstance(EventService.class);
+            this.taskService = injector.getInstance(TaskService.class);
+
             this.dataModel = this.createFirmwareService();
             ctx.commit();
         }
     }
 
     private DataModel createFirmwareService() {
-        this.firmwareService = new FirmwareServiceImpl(ormService, nlsService, queryService, deviceConfigurationService, deviceMessageSpecificationService, deviceService, eventService);
+        this.firmwareService = new FirmwareServiceImpl(ormService, nlsService, queryService, deviceConfigurationService, deviceMessageSpecificationService, deviceService, eventService, taskService);
         return this.firmwareService.getDataModel();
     }
 

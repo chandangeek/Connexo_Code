@@ -16,9 +16,6 @@ public class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
 
     public enum Fields {
         CAMPAIGN ("campaign"),
-        /*
-        FACTORY_ID ("factoryId"),
-        */
         KEY ("key"),
         VALUE ("value"),
         ;
@@ -36,14 +33,10 @@ public class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<FirmwareCampaign> campaign = ValueReference.absent();
-    /*
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private int factoryId;
-    */
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String key;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Object value;
+    private String value;
 
     @SuppressWarnings("unused")
     private long version;
@@ -61,9 +54,8 @@ public class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
         this.dataModel = dataModel;
     }
 
-    FirmwareCampaignProperty init(FirmwareCampaign campaign, /* int factoryId, */ String key, Object value){
+    FirmwareCampaignProperty init(FirmwareCampaign campaign, String key, String value){
         this.campaign.set(campaign);
-        /* this.factoryId = factoryId; */
         this.key = key;
         this.value = value;
         return this;
@@ -75,7 +67,7 @@ public class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
     }
 
     @Override
-    public Object getValue() {
+    public String getValue() {
         return this.value;
     }
 }

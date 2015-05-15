@@ -126,24 +126,25 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceInFirmwareCampaign> table = dataModel.addTable(name(), DeviceInFirmwareCampaign.class);
-            table.map(DeviceInFirmwareCampaignImp.class);
+            table.map(DeviceInFirmwareCampaignImpl.class);
 
             Column campaign = table.column("CAMPAIGN").number().notNull().add();
             Column device = table.column("DEVICE").number().notNull().add();
-            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceInFirmwareCampaignImp.Fields.STATUS.fieldName()).add();
+            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName()).add();
+            table.column("MESSAGE_ID").number().map(DeviceInFirmwareCampaignImpl.Fields.MESSAGE_ID.fieldName()).add();
 
             table.addAuditColumns();
             table.foreignKey("FK_FWC_DEVICE_TO_CAMPAIGN")
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
-                    .map(DeviceInFirmwareCampaignImp.Fields.CAMPAIGN.fieldName())
+                    .map(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName())
                     .reverseMap(FirmwareCampaignImpl.Fields.DEVICES.fieldName())
                     .composition()
                     .add();
             table.foreignKey("FK_FWC_DEVICE_TO_DEVICE")
                     .on(device)
                     .references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE")
-                    .map(DeviceInFirmwareCampaignImp.Fields.DEVICE.fieldName())
+                    .map(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_DEVICES").on(campaign, device).add();
@@ -157,9 +158,6 @@ public enum TableSpecs {
             table.map(FirmwareCampaignPropertyImpl.class);
 
             Column campaign = table.column("CAMPAIGN").number().notNull().add();
-            /*
-            Column factoryId = table.column("FACTORY").number().conversion(ColumnConversion.NUMBER2INTNULLZERO).map(FirmwareCampaignPropertyImpl.Fields.FACTORY_ID.fieldName()).notNull().add();
-            */
             Column key = table.column("KEY").varChar(NAME_LENGTH).map(FirmwareCampaignPropertyImpl.Fields.KEY.fieldName()).notNull().add();
             table.column("VALUE").varChar(DESCRIPTION_LENGTH).map(FirmwareCampaignPropertyImpl.Fields.VALUE.fieldName()).notNull().add();
 
@@ -171,7 +169,7 @@ public enum TableSpecs {
                     .reverseMap(FirmwareCampaignImpl.Fields.PROPERTIES.fieldName())
                     .composition()
                     .add();
-            table.primaryKey("PK_FWC_CAMPAIGN_PROPS").on(campaign, /* factoryId, */ key).add();
+            table.primaryKey("PK_FWC_CAMPAIGN_PROPS").on(campaign, key).add();
         }
     },
     ;
