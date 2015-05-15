@@ -5,14 +5,13 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.scheduling.events.*;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.List;
 
 
-@Component(name="com.energyict.mdc.device.config.ruleset.deleted.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name="com.energyict.mdc.device.config.validationruleset.deleted.eventhandler", service = TopicHandler.class, immediate = true)
 public class ValidationRuleSetDeletedEventHandler implements TopicHandler {
 
     private volatile DeviceConfigurationService deviceConfigurationService;
