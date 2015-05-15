@@ -2,12 +2,11 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.collect.FirmwareUpgradeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.FirmwareManagementCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -16,7 +15,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +24,10 @@ import java.util.stream.Collectors;
 /**
  * Straightforward implementation of a FirmwareUpgrade task
  */
-public class FirmwareUpgradeCommandImpl extends SimpleComCommand implements FirmwareUpgradeCommand {
+public class FirmwareManagementCommandImpl extends SimpleComCommand implements FirmwareManagementCommand {
 
     private final CommandRoot commandRoot;
-    private final FirmwareUpgradeTask firmwareUpgradeTask;
+    private final FirmwareManagementTask firmwareManagementTask;
     private final ComTaskExecution comTaskExecution;
     private final OfflineDevice device;
 
@@ -38,10 +37,10 @@ public class FirmwareUpgradeCommandImpl extends SimpleComCommand implements Firm
     private List<OfflineDeviceMessage> firmwareDeviceMessages;
     private List<CollectedMessageList> messagesCollectedData = new ArrayList<>();
 
-    public FirmwareUpgradeCommandImpl(CommandRoot commandRoot, FirmwareUpgradeTask firmwareUpgradeTask, ComTaskExecution comTaskExecution, OfflineDevice device) {
+    public FirmwareManagementCommandImpl(CommandRoot commandRoot, FirmwareManagementTask firmwareManagementTask, ComTaskExecution comTaskExecution, OfflineDevice device) {
         super(commandRoot);
         this.commandRoot = commandRoot;
-        this.firmwareUpgradeTask = firmwareUpgradeTask;
+        this.firmwareManagementTask = firmwareManagementTask;
         this.comTaskExecution = comTaskExecution;
         this.device = device;
         updateFirmwareMessages();
@@ -61,7 +60,7 @@ public class FirmwareUpgradeCommandImpl extends SimpleComCommand implements Firm
     }
 
     private boolean isValidFirmwareCommand(OfflineDeviceMessage offlineDeviceMessage) {
-        return this.firmwareUpgradeTask.isValidFirmwareCommand(offlineDeviceMessage.getSpecification());
+        return this.firmwareManagementTask.isValidFirmwareCommand(offlineDeviceMessage.getSpecification());
     }
 
     private boolean isTheMessageForThisComTask(OfflineDeviceMessage offlineDeviceMessage) {
