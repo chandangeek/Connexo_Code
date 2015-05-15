@@ -14,18 +14,9 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareMessagesResource;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionResource;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionUtils;
+import com.energyict.mdc.firmware.rest.impl.*;
 import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareUpgradeOptionsResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
-import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
-import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -65,7 +56,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
         return ImmutableSet.of(
                 FirmwareVersionResource.class,
                 FirmwareFieldResource.class,
-                FirmwareUpgradeOptionsResource.class,
+                FirmwareManagementOptionsResource.class,
                 FirmwareCampaignResource.class,
                 DeviceFirmwareVersionResource.class,
                 DeviceFirmwareMessagesResource.class,

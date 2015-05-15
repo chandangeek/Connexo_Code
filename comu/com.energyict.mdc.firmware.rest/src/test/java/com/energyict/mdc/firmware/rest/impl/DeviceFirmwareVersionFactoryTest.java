@@ -182,8 +182,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.plannedDate")).isEqualTo(TIME.toEpochMilli());
     }
@@ -225,8 +225,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.uploadStartDate")).isEqualTo(TIME.toEpochMilli());
     }
@@ -244,8 +244,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareComTaskId")).isEqualTo(101);
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareComTaskSessionId")).isEqualTo(102);
@@ -264,8 +264,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareComTaskId")).isEqualTo(101);
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareComTaskSessionId")).isEqualTo(102);
@@ -287,8 +287,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<Object>get("$.firmwares[0].needActivationVersion")).isNull();
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
     }
@@ -309,8 +309,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
     }
@@ -332,8 +332,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].ongoingVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].ongoingVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].ongoingVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].ongoingVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].ongoingVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
     }
 
@@ -355,8 +355,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].failedVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].failedVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].failedVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].failedVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].failedVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].failedVerificationVersion.firmwareComTaskId")).isEqualTo(201);
         assertThat(model.<Number>get("$.firmwares[0].failedVerificationVersion.firmwareComTaskSessionId")).isEqualTo(102);
@@ -382,8 +382,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].wrongVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].wrongVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].wrongVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].wrongVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].wrongVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].wrongVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].wrongVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
     }
 
@@ -424,8 +424,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.plannedDate")).isEqualTo(TIME.toEpochMilli());
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.plannedActivationDate")).isEqualTo(NOW.minus(1, ChronoUnit.DAYS).toEpochMilli());
@@ -456,8 +456,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.uploadStartDate")).isEqualTo(TIME.toEpochMilli());
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.plannedActivationDate")).isEqualTo(NOW.minus(1, ChronoUnit.DAYS).toEpochMilli());
@@ -484,8 +484,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].activatingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].activatingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].activatingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].activatingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].activatingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].activatingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].activatingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].activatingVersion.plannedActivationDate")).isEqualTo(NOW.plus(1, ChronoUnit.DAYS).toEpochMilli());
     }
@@ -503,8 +503,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareComTaskId")).isEqualTo(101);
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareComTaskSessionId")).isEqualTo(102);
@@ -539,8 +539,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
     }
@@ -562,8 +562,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
     }
@@ -601,8 +601,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].pendingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.plannedDate")).isEqualTo(TIME.toEpochMilli());
     }
@@ -620,8 +620,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].ongoingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].ongoingVersion.uploadStartDate")).isEqualTo(TIME.toEpochMilli());
     }
@@ -638,8 +638,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].failedVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareComTaskId")).isEqualTo(101);
         assertThat(model.<Number>get("$.firmwares[0].failedVersion.firmwareComTaskSessionId")).isEqualTo(102);
@@ -659,8 +659,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needActivationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needActivationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
     }
 
@@ -682,8 +682,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needActivationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needActivationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needActivationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
     }
 
@@ -709,8 +709,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].ongoingActivatingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].ongoingActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1002);
-        assertThat(model.<String>get("$.firmwares[0].ongoingActivatingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].ongoingActivatingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].ongoingActivatingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].ongoingActivatingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].ongoingActivatingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
     }
 
@@ -735,8 +735,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].failedActivatingVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].failedActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1002);
-        assertThat(model.<String>get("$.firmwares[0].failedActivatingVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].failedActivatingVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].failedActivatingVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].failedActivatingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].failedActivatingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].failedActivatingVersion.firmwareComTaskId")).isEqualTo(101);
         assertThat(model.<Number>get("$.firmwares[0].failedActivatingVersion.firmwareComTaskSessionId")).isEqualTo(102);
@@ -765,8 +765,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
     }
@@ -795,8 +795,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
-        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareUpgradeOption.localizedValue")).isNotEmpty();
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.id")).isEqualTo(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.getId());
+        assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].needVerificationVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
     }
