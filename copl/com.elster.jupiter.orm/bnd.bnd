@@ -1,3 +1,12 @@
--classpath: target/classes 
+-classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.orm.schema.h2
+Include-Resource: README.HTML
+Private-Package: com.elster.jupiter.orm.impl,\
+	com.elster.jupiter.orm.internal,\
+	com.elster.jupiter.orm.query.impl,\
+	com.elster.jupiter.orm.fields.impl,\
+	com.elster.jupiter.orm.associations.impl
+Export-Package: com.elster.jupiter.orm,\
+	com.elster.jupiter.orm.callback,\
+	com.elster.jupiter.orm.associations, \
+	com.elster.jupiter.orm.schema
