@@ -45,11 +45,11 @@ import java.util.Set;
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
 
-    Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareUpgradeOptionsFor(DeviceType deviceType);
+    Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
 
-    FirmwareUpgradeOptions getFirmwareUpgradeOptions(DeviceType deviceType);
+    FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType);
 
-    void saveFirmwareUpgradeOptions(FirmwareUpgradeOptions firmwareOptions);
+    void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions);
 
     // Firmware versions on a device
 
@@ -75,5 +75,5 @@ import java.util.Set;
 
     void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion);
 
-    Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
+    Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType);
 }

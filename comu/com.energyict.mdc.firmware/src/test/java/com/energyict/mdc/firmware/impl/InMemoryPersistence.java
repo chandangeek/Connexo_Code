@@ -92,6 +92,7 @@ public class InMemoryPersistence {
     private DeviceConfigurationService deviceConfigurationService;
     private LicenseService licenseService;
     private DeviceService deviceService;
+    private EventService eventService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults) {
         this.initializeMocks(testName);
@@ -148,13 +149,14 @@ public class InMemoryPersistence {
             this.deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
             injector.getInstance(DeviceDataModelServiceImpl.class);
             this.deviceService = injector.getInstance(DeviceService.class);
+            this.eventService = injector.getInstance(EventService.class);
             this.dataModel = this.createFirmwareService();
             ctx.commit();
         }
     }
 
     private DataModel createFirmwareService() {
-        this.firmwareService = new FirmwareServiceImpl(ormService, nlsService, queryService, deviceConfigurationService, deviceMessageSpecificationService, deviceService);
+        this.firmwareService = new FirmwareServiceImpl(ormService, nlsService, queryService, deviceConfigurationService, deviceMessageSpecificationService, deviceService, eventService);
         return this.firmwareService.getDataModel();
     }
 
