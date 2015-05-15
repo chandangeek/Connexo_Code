@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
@@ -15,16 +16,20 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link SecurityPropertyService} interface.
@@ -35,6 +40,7 @@ import java.util.Set;
 @Component(name = "com.energyict.mdc.device.data.security", service = SecurityPropertyService.class, property = "name=SecurityPropertyService")
 public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
+    private volatile Clock clock;
     private volatile ProtocolPluggableService protocolPluggableService;
 
     // For OSGi framework
@@ -44,31 +50,27 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     // For unit testing purposes
     @Inject
-    public SecurityPropertyServiceImpl(ProtocolPluggableService protocolPluggableService) {
+    public SecurityPropertyServiceImpl(Clock clock, ProtocolPluggableService protocolPluggableService) {
         super();
+        this.setClock(clock);
         this.setProtocolPluggableService(protocolPluggableService);
     }
 
     @Override
     public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
-        List<SecurityProperty> defaultResult = new ArrayList<>(0);
         if (securityPropertySet.currentUserIsAllowedToViewDeviceProperties()) {
-            Optional<Relation> relation = this.findActiveProperties(device, securityPropertySet, when);
-            if (relation.isPresent()) {
-                return this.toSecurityProperties(relation.get(), device, securityPropertySet);
-            }
+            return this.getSecurityPropertiesIgnoringPrivileges(device, when, securityPropertySet);
         }
-        return defaultResult;
+        else {
+            return Collections.emptyList();
+        }
     }
 
     @Override
-    public List<SecurityProperty> getAllSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
-        List<SecurityProperty> defaultResult = new ArrayList<>(0);
-        Optional<Relation> relation = this.findActiveProperties(device, securityPropertySet, when);
-        if (relation.isPresent()) {
-            return this.toSecurityProperties(relation.get(), device, securityPropertySet);
-        }
-        return defaultResult;
+    public List<SecurityProperty> getSecurityPropertiesIgnoringPrivileges(Device device, Instant when, SecurityPropertySet securityPropertySet) {
+        return this.findActiveProperties(device, securityPropertySet, when)
+                    .map(r -> this.toSecurityProperties(r, device, securityPropertySet))
+                    .orElse(Collections.emptyList());
     }
 
     public Optional<Relation> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Instant activeDate) {
@@ -105,21 +107,67 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     }
 
     private List<SecurityProperty> toSecurityProperties(Relation relation, Device device, SecurityPropertySet securityPropertySet) {
-        Set<PropertySpec> propertySpecs = securityPropertySet.getPropertySpecs();
-        List<SecurityProperty> properties = new ArrayList<>(propertySpecs.size());  // The maximum number of properties is defined by the number of specs
-        for (PropertySpec propertySpec : propertySpecs) {
-            Object propertyValue = relation.get(propertySpec.getName());
-            Boolean status = (Boolean) relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME);
-            if (propertyValue != null) {
-                properties.add(new SecurityPropertyImpl(device, securityPropertySet, propertySpec, propertyValue, relation.getPeriod(), status));
-            }
+        return securityPropertySet
+                    .getPropertySpecs()
+                    .stream()
+                    .map(each -> this.toSecurityProperty(each, relation, device, securityPropertySet))
+                    .flatMap(Functions.asStream())
+                    .collect(Collectors.toList());
+    }
+
+    private Optional<SecurityProperty> toSecurityProperty(PropertySpec propertySpec, Relation relation, Device device, SecurityPropertySet securityPropertySet) {
+        Boolean status = (Boolean) relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME);
+        Object propertyValue = relation.get(propertySpec.getName());
+        if (propertyValue != null) {
+            return Optional.of(new SecurityPropertyImpl(device, securityPropertySet, propertySpec, propertyValue, relation.getPeriod(), status));
         }
-        return properties;
+        else {
+            return Optional.empty();
+        }
     }
 
     @Override
     public boolean hasSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         return this.findActiveProperties(device, securityPropertySet, when).isPresent();
+    }
+
+    @Override
+    public boolean securityPropertiesAreValid(Device device) {
+        return !anySecurityPropertySetWithMissingOrIncompleteProperties(device).isPresent();
+    }
+
+    private Optional<SecurityPropertySet> anySecurityPropertySetWithMissingOrIncompleteProperties(Device device) {
+        return this.getSecurityPropertySets(device)
+                .stream()
+                .filter(each -> this.isMissingOrIncomplete(device, each))
+                .findAny();
+    }
+
+    private Collection<SecurityPropertySet> getSecurityPropertySets(Device device) {
+        return device
+                .getDeviceConfiguration()
+                .getComTaskEnablements()
+                .stream()
+                .map(ComTaskEnablement::getSecurityPropertySet)
+                .collect(Collectors.toMap(
+                    SecurityPropertySet::getId,
+                    Function.identity()))
+                .values();
+    }
+
+    private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
+        List<SecurityProperty> securityProperties = this.getSecurityPropertiesIgnoringPrivileges(device, this.clock.instant(), securityPropertySet);
+        return securityProperties.isEmpty()
+            || securityProperties
+                    .stream()
+                    .filter(Predicates.not(SecurityProperty::isComplete))
+                    .findAny()
+                    .isPresent();
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference

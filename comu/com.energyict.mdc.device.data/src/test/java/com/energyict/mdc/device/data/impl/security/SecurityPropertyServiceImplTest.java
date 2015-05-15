@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.security;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -13,6 +14,8 @@ import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.relation.Relation;
+import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -28,6 +31,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -43,6 +47,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -53,6 +58,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -65,6 +71,9 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,6 +83,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -88,13 +98,21 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertyServiceImplTest {
+    private static final long SECURITY_PROPERTY_SET1_ID = 97L;
+    private static final long SECURITY_PROPERTY_SET2_ID = 103L;
+    private static final long ETERNITY = 1_000_000_000_000_000_000L;
+    private static final String USERNAME_SECURITY_PROPERTY_NAME = "username";
+    private static final String PASSWORD_SECURITY_PROPERTY_NAME = "password";
+    private static final String SOME_KEY_SECURITY_PROPERTY_NAME = "someKey";
 
     @Mock
     private PluggableService pluggableService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
-    private SecurityPropertySet securityPropertySet;
+    private SecurityPropertySet securityPropertySet1;
+    @Mock
+    private SecurityPropertySet securityPropertySet2;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -129,25 +147,50 @@ public class SecurityPropertyServiceImplTest {
         when(clock.instant()).thenReturn(Instant.now());
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
+        when(this.deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet1, this.securityPropertySet2));
+        ComTaskEnablement cte1 = mock(ComTaskEnablement.class);
+        when(cte1.getSecurityPropertySet()).thenReturn(this.securityPropertySet1);
+        ComTaskEnablement cte2 = mock(ComTaskEnablement.class);
+        when(cte2.getSecurityPropertySet()).thenReturn(this.securityPropertySet2);
+        when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(cte1, cte2));
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
-        when(this.pluggableService.newPluggableClass(PluggableClassType.DeviceProtocol, "SecurityPropertyServiceImplTest", TestProtocolWithOnlySecurityProperties.class.getName())).
-                thenReturn(this.deviceProtocolPluggableClass);
+        when(this.pluggableService
+                .newPluggableClass(PluggableClassType.DeviceProtocol, "SecurityPropertyServiceImplTest", TestProtocolWithOnlySecurityProperties.class.getName()))
+                .thenReturn(this.deviceProtocolPluggableClass);
         when(this.protocolPluggableService.findSecurityPropertyRelationType(this.deviceProtocolPluggableClass)).thenReturn(this.securityPropertyRelationType);
         when(this.protocolPluggableService.isLicensedProtocolClassName(anyString())).thenReturn(true);
 
-        when(this.securityPropertySet.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
-        when(this.securityPropertySet.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
+        when(this.securityPropertySet1.getId()).thenReturn(SECURITY_PROPERTY_SET1_ID);
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
+        PropertySpec userName = mock(PropertySpec.class);
+        when(userName.getName()).thenReturn(USERNAME_SECURITY_PROPERTY_NAME);
+        when(userName.isRequired()).thenReturn(true);
+        when(userName.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpec password = mock(PropertySpec.class);
+        when(password.getName()).thenReturn(PASSWORD_SECURITY_PROPERTY_NAME);
+        when(password.isRequired()).thenReturn(true);
+        when(password.getValueFactory()).thenReturn(new StringFactory());
+        when(this.securityPropertySet1.getPropertySpecs()).thenReturn(new HashSet<>(Arrays.asList(userName, password)));
+        when(this.securityPropertySet2.getId()).thenReturn(SECURITY_PROPERTY_SET2_ID);
+        when(this.securityPropertySet2.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+        when(this.securityPropertySet2.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
+        PropertySpec someKey = mock(PropertySpec.class);
+        when(someKey.getName()).thenReturn(SOME_KEY_SECURITY_PROPERTY_NAME);
+        when(someKey.getValueFactory()).thenReturn(new StringFactory());
+        when(someKey.isRequired()).thenReturn(true);
+        when(this.securityPropertySet2.getPropertySpecs()).thenReturn(new HashSet<>(Arrays.asList(someKey)));
     }
 
     @Test
     public void getSecurityPropertiesForUserThatIsNotAllowedToView () {
-        when(this.securityPropertySet.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
+        when(this.securityPropertySet1.currentUserIsAllowedToEditDeviceProperties()).thenReturn(false);
 
         // Business method
-        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet);
+        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet1);
 
         // Asserts
-        verify(this.securityPropertySet).currentUserIsAllowedToViewDeviceProperties();
+        verify(this.securityPropertySet1).currentUserIsAllowedToViewDeviceProperties();
         assertThat(securityProperties).isEmpty();
     }
 
@@ -156,7 +199,7 @@ public class SecurityPropertyServiceImplTest {
         when(this.protocolPluggableService.findSecurityPropertyRelationType(this.deviceProtocolPluggableClass)).thenReturn(null);
 
         // Business method
-        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet);
+        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet1);
 
         // Asserts
         verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
@@ -169,7 +212,7 @@ public class SecurityPropertyServiceImplTest {
             this.initializeDatabase();
 
             // Business method
-            List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet);
+            List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet1);
 
             // Asserts
             verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
@@ -181,8 +224,164 @@ public class SecurityPropertyServiceImplTest {
         }
     }
 
+    @Test
+    public void securityPropertiesAreNotValidWhenAllAreMissing() {
+        SecurityPropertyService service = this.testService();
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Collections.emptyList());
+
+        // Business method
+        boolean securityPropertiesAreValid = service.securityPropertiesAreValid(this.device);
+
+        // Asserts
+        assertThat(securityPropertiesAreValid).isFalse();
+    }
+
+    @Test
+    public void securityPropertiesAreNotValidWhenOneIsMissing() {
+        Instant now = Instant.ofEpochSecond(1430523600L);
+        when(this.clock.instant()).thenReturn(now);
+        Range<Instant> period = Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY));
+        SecurityPropertyService service = this.testService();
+        Relation relationForSecurityPropertySet1 = mock(Relation.class);
+        when(relationForSecurityPropertySet1.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet1.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(relationForSecurityPropertySet1.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("test");
+        when(relationForSecurityPropertySet1.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("pass");
+        when(this.securityPropertyRelationType
+                .findByFilter(any(RelationSearchFilter.class)))
+                .thenReturn(
+                        Arrays.asList(relationForSecurityPropertySet1),
+                        Collections.emptyList());
+
+        // Business method
+        boolean securityPropertiesAreValid = service.securityPropertiesAreValid(this.device);
+
+        // Asserts
+        assertThat(securityPropertiesAreValid).isFalse();
+    }
+
+    @Test
+    public void securityPropertiesAreValidWhenUnusedOneIsMissing() {
+        SecurityPropertySet unused = mock(SecurityPropertySet.class);
+        when(unused.getId()).thenReturn(SECURITY_PROPERTY_SET2_ID + 1);
+        PropertySpec otherKey = mock(PropertySpec.class);
+        when(otherKey.getName()).thenReturn("Other");
+        when(otherKey.getValueFactory()).thenReturn(new StringFactory());
+        when(otherKey.isRequired()).thenReturn(true);
+        when(unused.getPropertySpecs()).thenReturn(new HashSet<>(Arrays.asList(otherKey)));
+        when(this.deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet1, this.securityPropertySet2));
+        Instant now = Instant.ofEpochSecond(1430523600L);
+        when(this.clock.instant()).thenReturn(now);
+        Range<Instant> period = Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY));
+        SecurityPropertyService service = this.testService();
+        Relation relationForSecurityPropertySet1 = mock(Relation.class);
+        when(relationForSecurityPropertySet1.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet1.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(relationForSecurityPropertySet1.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("test");
+        when(relationForSecurityPropertySet1.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("pass");
+        Relation relationForSecurityPropertySet2 = mock(Relation.class);
+        when(relationForSecurityPropertySet2.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet2.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(relationForSecurityPropertySet2.get(SOME_KEY_SECURITY_PROPERTY_NAME)).thenReturn("something");
+        when(this.securityPropertyRelationType
+                .findByFilter(any(RelationSearchFilter.class)))
+                .thenReturn(
+                        Arrays.asList(relationForSecurityPropertySet1),
+                        Arrays.asList(relationForSecurityPropertySet2));
+
+        // Business method
+        boolean securityPropertiesAreValid = service.securityPropertiesAreValid(this.device);
+
+        // Asserts
+        assertThat(securityPropertiesAreValid).isTrue();
+    }
+
+    @Test
+    public void securityPropertiesAreNotValidWhenAllAreInComplete() {
+        Instant now = Instant.ofEpochSecond(1430523600L);
+        when(this.clock.instant()).thenReturn(now);
+        Range<Instant> period = Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY));
+        SecurityPropertyService service = this.testService();
+        Relation relationForSecurityPropertySet1 = mock(Relation.class);
+        when(relationForSecurityPropertySet1.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet1.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(false);
+        when(relationForSecurityPropertySet1.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("test");
+        when(relationForSecurityPropertySet1.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn(null);
+        Relation relationForSecurityPropertySet2 = mock(Relation.class);
+        when(relationForSecurityPropertySet2.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet2.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(false);
+        when(relationForSecurityPropertySet2.get(SOME_KEY_SECURITY_PROPERTY_NAME)).thenReturn(null);
+        when(this.securityPropertyRelationType
+                .findByFilter(any(RelationSearchFilter.class)))
+                .thenReturn(
+                        Arrays.asList(relationForSecurityPropertySet1),
+                        Arrays.asList(relationForSecurityPropertySet2));
+
+        // Business method
+        boolean securityPropertiesAreValid = service.securityPropertiesAreValid(this.device);
+
+        // Asserts
+        assertThat(securityPropertiesAreValid).isFalse();
+    }
+
+    @Test
+    public void securityPropertiesAreNotValidWhenSomeAreInComplete() {
+        Instant now = Instant.ofEpochSecond(1430523600L);
+        when(this.clock.instant()).thenReturn(now);
+        Range<Instant> period = Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY));
+        SecurityPropertyService service = this.testService();
+        Relation relationForSecurityPropertySet1 = mock(Relation.class);
+        when(relationForSecurityPropertySet1.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet1.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(relationForSecurityPropertySet1.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("test");
+        when(relationForSecurityPropertySet1.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("pass");
+        Relation relationForSecurityPropertySet2 = mock(Relation.class);
+        when(relationForSecurityPropertySet2.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet2.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(false);
+        when(relationForSecurityPropertySet2.get(SOME_KEY_SECURITY_PROPERTY_NAME)).thenReturn(null);
+        when(this.securityPropertyRelationType
+                .findByFilter(any(RelationSearchFilter.class)))
+                .thenReturn(
+                        Arrays.asList(relationForSecurityPropertySet1),
+                        Arrays.asList(relationForSecurityPropertySet2));
+
+        // Business method
+        boolean securityPropertiesAreValid = service.securityPropertiesAreValid(this.device);
+
+        // Asserts
+        assertThat(securityPropertiesAreValid).isFalse();
+    }
+
+    @Test
+    public void securityPropertiesAreValid() {
+        Instant now = Instant.ofEpochSecond(1430523600L);
+        when(this.clock.instant()).thenReturn(now);
+        Range<Instant> period = Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY));
+        SecurityPropertyService service = this.testService();
+        Relation relationForSecurityPropertySet1 = mock(Relation.class);
+        when(relationForSecurityPropertySet1.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet1.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(relationForSecurityPropertySet1.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("test");
+        when(relationForSecurityPropertySet1.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("pass");
+        Relation relationForSecurityPropertySet2 = mock(Relation.class);
+        when(relationForSecurityPropertySet2.getPeriod()).thenReturn(period);
+        when(relationForSecurityPropertySet2.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(relationForSecurityPropertySet2.get(SOME_KEY_SECURITY_PROPERTY_NAME)).thenReturn("something");
+        when(this.securityPropertyRelationType
+                .findByFilter(any(RelationSearchFilter.class)))
+                .thenReturn(
+                        Arrays.asList(relationForSecurityPropertySet1),
+                        Arrays.asList(relationForSecurityPropertySet2));
+
+        // Business method
+        boolean securityPropertiesAreValid = service.securityPropertiesAreValid(this.device);
+
+        // Asserts
+        assertThat(securityPropertiesAreValid).isTrue();
+    }
+
     private SecurityPropertyService testService () {
-        return new SecurityPropertyServiceImpl(this.protocolPluggableService);
+        return new SecurityPropertyServiceImpl(this.clock, this.protocolPluggableService);
     }
 
     private void initializeDatabase () throws SQLException {

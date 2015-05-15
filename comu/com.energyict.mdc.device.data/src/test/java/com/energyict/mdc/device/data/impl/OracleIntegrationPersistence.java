@@ -133,7 +133,7 @@ public class OracleIntegrationPersistence {
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
     private DataModel dataModel;
-    private ProtocolPluggableServiceImpl protocolPluggableService;
+    private ProtocolPluggableService protocolPluggableService;
     private TaskService taskService;
     private DeviceDataModelService deviceDataModelService;
     private SchedulingService schedulingService;
@@ -214,7 +214,7 @@ public class OracleIntegrationPersistence {
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             injector.getInstance(RelationService.class);
-            this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+            this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             this.protocolPluggableService.addConnectionTypeService(connectionTypeService);
             this.protocolPluggableService.addInboundDeviceProtocolService(inboundDeviceProtocolService);

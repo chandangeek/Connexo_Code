@@ -94,7 +94,7 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidatorTest
         when(this.comTaskEnablement1.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask));
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ID);
-        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(SECURITY_PROPERTY_SET_ID);
         when(this.comTaskEnablement1.getSecurityPropertySet()).thenReturn(securityPropertySet);
@@ -116,8 +116,8 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidatorTest
         when(this.comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask));
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ID);
-        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
-        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(SECURITY_PROPERTY_SET_ID);
         when(this.comTaskEnablement1.getSecurityPropertySet()).thenReturn(securityPropertySet);
@@ -141,8 +141,8 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidatorTest
         when(this.comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask));
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ID);
-        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
-        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(SECURITY_PROPERTY_SET_ID);
         when(this.comTaskEnablement1.getSecurityPropertySet()).thenReturn(securityPropertySet);
@@ -166,8 +166,8 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidatorTest
         when(this.comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask));
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ID);
-        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
-        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         SecurityPropertySet securityPropertySet1 = mock(SecurityPropertySet.class);
         when(securityPropertySet1.getId()).thenReturn(SECURITY_PROPERTY_SET_ID);
         when(this.comTaskEnablement1.getSecurityPropertySet()).thenReturn(securityPropertySet1);
@@ -193,10 +193,10 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidatorTest
         when(this.comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask));
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties1 = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties1.getId()).thenReturn(PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ID);
-        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties1));
+        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties1);
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties2 = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties2.getId()).thenReturn(PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ID + 1);
-        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties2));
+        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties2);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(SECURITY_PROPERTY_SET_ID);
         when(this.comTaskEnablement1.getSecurityPropertySet()).thenReturn(securityPropertySet);
@@ -222,8 +222,8 @@ public class ComTasksInComScheduleMustHaveSameConfigurationSettingsValidatorTest
         when(this.comTaskEnablement2.getPartialConnectionTask()).thenReturn(Optional.of(partialConnectionTask2));
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties.getId()).thenReturn(PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ID);
-        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
-        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(Optional.of(protocolDialectConfigurationProperties));
+        when(this.comTaskEnablement1.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        when(this.comTaskEnablement2.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(SECURITY_PROPERTY_SET_ID);
         when(this.comTaskEnablement1.getSecurityPropertySet()).thenReturn(securityPropertySet);

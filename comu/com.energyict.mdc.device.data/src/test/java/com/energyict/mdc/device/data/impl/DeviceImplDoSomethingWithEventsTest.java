@@ -136,7 +136,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     private static final String DEVICE_TYPE_NAME = DeviceImplDoSomethingWithEventsTest.class.getName() + "Type";
     private static final String DEVICE_CONFIGURATION_NAME = DeviceImplDoSomethingWithEventsTest.class.getName() + "Config";
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-    private static final String DEVICENAME = "deviceName";
+    private static final String DEVICE_NAME = "deviceName";
     private static final String MRID = "MyUniquemRID";
 
     private DeviceType deviceType;
@@ -181,7 +181,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     }
 
     private Device createSimpleDevice() {
-        return createSimpleDeviceWithName(DEVICENAME);
+        return createSimpleDeviceWithName(DEVICE_NAME);
     }
 
     private Device createSimpleDeviceWithName(String name) {
@@ -315,7 +315,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
-                                this.ormService, this.eventService, this.nlsService, this.clock,
+                                this.ormService, this.eventService,
+                                this.nlsService, this.clock,
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),
                                 mock(IssueService.class),
@@ -376,6 +377,7 @@ public class DeviceImplDoSomethingWithEventsTest {
 
             @Override
             protected void configure() {
+                bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
                 bind(JsonService.class).toInstance(new JsonServiceImpl());
                 bind(BeanService.class).toInstance(new BeanServiceImpl());
                 bind(Clock.class).toInstance(clock);

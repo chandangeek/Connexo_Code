@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -146,6 +148,21 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
 
+    /**
+     * Tests if all the security properties that are define in the configuration level
+     * are valid for this specified Device.
+     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
+     * <ul>
+     * <li>No properties have been defined</li>
+     * <li>Some or all of the required properties have not been specified yet</li>
+     * </ul>
+     *
+     * @return A flag that indicates if all security properties are valid for this Device
+     * @see DeviceConfiguration#getSecurityPropertySets()
+     * @see SecurityProperty#isComplete()
+     */
+    boolean securityPropertiesAreValid();
+
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
     List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet);
@@ -154,14 +171,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 
-    ProtocolDialectProperties getProtocolDialectProperties(String dialectName);
+    Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName);
 
     void setProtocolDialectProperty(String dialectName, String propertyName, Object value);
 
     void removeProtocolDialectProperty(String dialectName, String propertyName);
 
     /**
-     * Stores the given MeterReadings
+     * Stores the given MeterReadings.
      *
      * @param meterReading the meterReadings which will be stored
      */
@@ -169,12 +186,26 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     boolean hasData();
 
+    public MeterActivation activate(Instant start);
+
+    /**
+     * Terminates the current MeterActivation on this Device.
+     *
+     * @param when The instant in time when the MeterActivation will end
+     */
+    public void deactivate(Instant when);
+
+    /**
+     * Terminates the current MeterActivation on this Device right now.
+     */
+    public void deactivateNow();
+
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
     List<MeterActivation> getMeterActivationsMostRecentFirst();
 
     /**
-     * Gets a list of all device multipliers that were active for a device
+     * Gets a list of all device multipliers that were active for a device.
      *
      * @return a list of device multipliers
      */
@@ -189,19 +220,19 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     DeviceMultiplier getDeviceMultiplier(Instant date);
 
     /**
-     * Gets the active device multiplier at the moment the method is called
+     * Gets the active device multiplier at the moment the method is called.
      *
      * @return a device multiplier
      */
     DeviceMultiplier getDeviceMultiplier();
 
     /**
-     * return the Unique mRID of the device
+     * Gets the Unique mRID of the device.
      */
     String getmRID();
 
     /**
-     * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device
+     * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device.
      *
      * @param partialOutboundConnectionTask the partialConnectionTask that will model the actual ScheduledConnectionTask
      * @return the builder
@@ -209,7 +240,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask);
 
     /**
-     * Provides a builder that allows the creation of an InboundConnectionTask for the Device
+     * Provides a builder that allows the creation of an InboundConnectionTask for the Device.
      *
      * @param partialInboundConnectionTask the partialConnectionTask that will model the actual InboundConnectionTask
      * @return the builder
@@ -217,7 +248,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     InboundConnectionTaskBuilder getInboundConnectionTaskBuilder(PartialInboundConnectionTask partialInboundConnectionTask);
 
     /**
-     * Provides a builder that allows the creation of a ConnectionInitiationTask for the Device
+     * Provides a builder that allows the creation of a ConnectionInitiationTask for the Device.
      *
      * @param partialConnectionInitiationTask the partialConnectionTask that will model the actual ConnectionInitiationTask
      * @return the builder
@@ -282,14 +313,16 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public void removeComSchedule (ComSchedule comSchedule);
 
     /**
-     * Adds the device to the mentioned EnumeratedEndDeviceGroup
-     * @param enumeratedEndDeviceGroup
-     * @param range
+     * Adds this device to the mentioned EnumeratedEndDeviceGroup
+     * for a specified period in time.
+     *
+     * @param enumeratedEndDeviceGroup The EnumeratedEndDeviceGroup
+     * @param range The period in time during which this device will be part of the group
      */
     public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range);
 
     DeviceValidation forValidation();
-    
+
     DeviceEstimation forEstimation();
 
     public Optional<UsagePoint> getUsagePoint();
@@ -322,11 +355,20 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return The State
      */
     public Optional<State> getState(Instant instant);
-    
+
     public long getVersion();
 
     /**
-     * Builder that support basic value setters for a ScheduledConnectionTask
+     * Gets the {@link StateTimeline} for this Device.
+     *
+     * @return The StateTimeline
+     */
+    public StateTimeline getStateTimeline();
+
+    public LifecycleDates getLifecycleDates();
+
+    /**
+     * Builder that support basic value setters for a ScheduledConnectionTask.
      */
     interface ScheduledConnectionTaskBuilder {
 
@@ -347,7 +389,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
         /**
-         * Creates the actual ScheduledConnectionTask with the objects set in this builder
+         * Creates the actual ScheduledConnectionTask with the objects set in this builder.
          *
          * @return the newly created ScheduledConnectionTask
          */
@@ -355,7 +397,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     }
 
     /**
-     * Builder that supports basic value setters for an InboundConnectionTask
+     * Builder that supports basic value setters for an InboundConnectionTask.
      */
     interface InboundConnectionTaskBuilder {
 
@@ -366,7 +408,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         InboundConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
         /**
-         * Creates the actual InboundConnectionTask with the objects set in this builder
+         * Creates the actual InboundConnectionTask with the objects set in this builder.
          *
          * @return the newly created InboundConnectionTask
          */
@@ -383,7 +425,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
 
         /**
-         * Creates the actual ConnectionInitiationTask with the objects set in this builder
+         * Creates the actual ConnectionInitiationTask with the objects set in this builder.
          *
          * @return the newly created ConnectionInitiationTask
          */
@@ -403,7 +445,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         DeviceMessageBuilder addProperty(String key, Object value);
 
         /**
-         * Set the release date of the currently building DeviceMessage
+         * Set the release date of the currently building DeviceMessage.
          *
          * @param releaseDate the date when this message <i>may</i> be executed
          * @return this builder
@@ -421,7 +463,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         DeviceMessageBuilder setTrackingId(String trackingId);
 
         /**
-         * Create the actual DeviceMessage based on the info in the builder
+         * Create the actual DeviceMessage based on the info in the builder.
          *
          * @return the newly created DeviceMessage
          */

@@ -83,13 +83,16 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -181,6 +184,8 @@ public class DeviceImpl implements Device, CanLock {
 
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
+
+    @SuppressWarnings("unused")
     private long id;
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_TYPE_REQUIRED + "}")
@@ -200,9 +205,13 @@ public class DeviceImpl implements Device, CanLock {
     private String timeZoneId;
     private TimeZone timeZone;
     private Integer yearOfCertification;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     @Valid
@@ -636,9 +645,9 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public ProtocolDialectProperties getProtocolDialectProperties(String dialectName) {
-        ProtocolDialectProperties dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
-        if (dialectProperties != null) {
+    public Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName) {
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
+        if (dialectProperties.isPresent()) {
             return dialectProperties;
         } else {
             // Attempt to find the dialect properties in the list of new ones that have not been saved yet
@@ -646,24 +655,25 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
-    private ProtocolDialectProperties getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectProperties> propertiesList) {
+    private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectProperties> propertiesList) {
         for (ProtocolDialectProperties properties : propertiesList) {
             if (properties.getDeviceProtocolDialectName().equals(dialectName)) {
-                return properties;
+                return Optional.of(properties);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public void setProtocolDialectProperty(String dialectName, String propertyName, Object value) {
-        ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
-        if (dialectProperties == null) {
-            dialectProperties = createNewLocalDialectProperties(dialectName);
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (!dialectProperties.isPresent()) {
+            ProtocolDialectProperties newDialectProperties = this.createNewLocalDialectProperties(dialectName);
+            newDialectProperties.setProperty(propertyName, value);
         } else {
-            this.dirtyDialectProperties.add(dialectProperties);
+            dialectProperties.get().setProperty(propertyName, value);
+            this.dirtyDialectProperties.add(dialectProperties.get());
         }
-        dialectProperties.setProperty(propertyName, value);
     }
 
     private ProtocolDialectProperties createNewLocalDialectProperties(String dialectName) {
@@ -691,14 +701,14 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeProtocolDialectProperty(String dialectName, String propertyName) {
-        ProtocolDialectProperties dialectProperties = this.getProtocolDialectProperties(dialectName);
-        if (dialectProperties != null) {
-            dialectProperties.removeProperty(propertyName);
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (dialectProperties.isPresent()) {
+            dialectProperties.get().removeProperty(propertyName);
         } else {
             createNewLocalDialectProperties(dialectName);
         }
-        if ((dialectProperties != null) && !this.dirtyDialectProperties.contains(dialectProperties)) {
-            this.dirtyDialectProperties.add(dialectProperties);
+        if ((dialectProperties.isPresent()) && !this.dirtyDialectProperties.contains(dialectProperties.get())) {
+            this.dirtyDialectProperties.add(dialectProperties.get());
         }
     }
 
@@ -852,6 +862,7 @@ public class DeviceImpl implements Device, CanLock {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
         Meter meter = amrSystem.newMeter(stateMachine, String.valueOf(getId()), getmRID());
         meter.setSerialNumber(getSerialNumber());
+        meter.getLifecycleDates().setReceivedDate(this.clock.instant());
         meter.save();
         return meter;
     }
@@ -993,13 +1004,13 @@ public class DeviceImpl implements Device, CanLock {
 
     /**
      * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value),
-     * just a list of placeholders for each reading interval within the requestedInterval for all datetimes
+     * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
      * @param loadProfile     The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
      * @param meter           The Meter
-     * @return
+     * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
         // TODO: what if there are gaps in the meter activations
@@ -1242,6 +1253,22 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public MeterActivation activate(Instant start) {
+        AmrSystem amrSystem = this.getMdcAmrSystem().orElseThrow(this.mdcAMRSystemDoesNotExist());
+        return this.findOrCreateKoreMeter(amrSystem).activate(start);
+    }
+
+    @Override
+    public void deactivate(Instant when) {
+        this.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(when));
+    }
+
+    @Override
+    public void deactivateNow() {
+        this.deactivate(this.clock.instant());
+    }
+
+    @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
         return this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
     }
@@ -1443,7 +1470,7 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<ConnectionTask<?, ?>> getConnectionTasks() {
-        return new ArrayList<ConnectionTask<?, ?>>(this.getConnectionTaskImpls());
+        return new ArrayList<>(this.getConnectionTaskImpls());
     }
 
     private List<ConnectionTaskImpl<?, ?>> getConnectionTaskImpls() {
@@ -1644,12 +1671,17 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private List<SecurityProperty> getAllSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.getAllSecurityProperties(this, when, securityPropertySet);
+        return this.securityPropertyService.getSecurityPropertiesIgnoringPrivileges(this, when, securityPropertySet);
     }
 
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(clock.instant(), securityPropertySet);
+    }
+
+    @Override
+    public boolean securityPropertiesAreValid() {
+        return this.securityPropertyService.securityPropertiesAreValid(this);
     }
 
     @Override
@@ -1708,12 +1740,17 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public State getState() {
+        return this.getState(this.clock.instant()).get();
+    }
+
+    @Override
+    public Optional<State> getState(Instant instant) {
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
-            if (this.id > 1) {
+            if (this.id > 0) {
                 Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
                 if (meter.isPresent()) {
-                    return meter.get().getState().get();
+                    return meter.get().getState(instant);
                 }
                 else {
                     // Kore meter was not created yet
@@ -1721,10 +1758,7 @@ public class DeviceImpl implements Device, CanLock {
                 }
             }
             else {
-                /* Todo: implement this as follows once FiniteStateMachine is integrated in DeviceType
-                         return this.getDeviceType().getFinateStateMachine().getInitialState();
-                 */
-                return null;
+                return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
             }
         }
         else {
@@ -1733,10 +1767,27 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public Optional<State> getState(Instant instant) {
-        return null;
+    public StateTimeline getStateTimeline() {
+        return this.getOptionalMeterAspect(EndDevice::getStateTimeline).get();
     }
-    
+
+    @Override
+    public LifecycleDates getLifecycleDates() {
+        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
+            if (meter.isPresent()) {
+                return meter.get().getLifecycleDates();
+            }
+            else {
+                return new NoCimLifeCycleDates();
+            }
+        }
+        else {
+            return new NoCimLifeCycleDates();
+        }
+    }
+
     @Override
     public long getVersion() {
         return version;
@@ -2040,4 +2091,65 @@ public class DeviceImpl implements Device, CanLock {
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
     }
 
+    private class NoCimLifeCycleDates implements LifecycleDates {
+        @Override
+        public Optional<Instant> getManufacturedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setManufacturedDate(Instant manufacturedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getPurchasedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setPurchasedDate(Instant purchasedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getReceivedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setReceivedDate(Instant receivedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getInstalledDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setInstalledDate(Instant installedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getRemovedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setRemovedDate(Instant removedDate) {
+            // Ignore blissfully
+        }
+
+        @Override
+        public Optional<Instant> getRetiredDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public void setRetiredDate(Instant retiredDate) {
+            // Ignore blissfully
+        }
+    }
 }
