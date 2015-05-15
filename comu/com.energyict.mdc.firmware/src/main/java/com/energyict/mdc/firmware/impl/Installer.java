@@ -4,7 +4,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
-import com.energyict.mdc.device.data.impl.*;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

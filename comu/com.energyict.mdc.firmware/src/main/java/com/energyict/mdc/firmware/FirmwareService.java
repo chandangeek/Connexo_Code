@@ -1,13 +1,14 @@
 package com.energyict.mdc.firmware;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,13 +47,11 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
 
-    Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareUpgradeOptionsFor(DeviceType deviceType);
+    Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
 
-    FirmwareUpgradeOptions findOrCreateFirmwareUpgradeOptions(DeviceType deviceType);
+    FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType);
 
-    void saveFirmwareUpgradeOptions(FirmwareUpgradeOptions firmwareOptions);
-
-    boolean isFirmwareUpgradeAllowedFor(DeviceType deviceType);
+    void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions);
 
     List<DeviceType> getDeviceTypesWhichSupportFirmwareUpgrade();
     // Firmware versions on a device
@@ -79,7 +78,7 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
 
     void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion);
 
-    Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType);
+    Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType);
 
 
     // Firmware campaigns

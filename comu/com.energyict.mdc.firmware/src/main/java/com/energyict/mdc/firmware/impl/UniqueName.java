@@ -1,7 +1,5 @@
 package com.energyict.mdc.firmware.impl;
 
-import com.elster.jupiter.domain.util.Save;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;

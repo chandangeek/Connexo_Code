@@ -1,14 +1,13 @@
 package com.energyict.mdc.firmware.impl;
 
-import java.util.List;
+import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import java.util.List;
 
 public class UniqueFirmwareVersionValidator  implements ConstraintValidator<UniqueFirmwareVersion, FirmwareVersion> {
 

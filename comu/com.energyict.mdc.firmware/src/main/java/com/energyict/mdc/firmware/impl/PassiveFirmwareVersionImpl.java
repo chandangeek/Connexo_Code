@@ -12,7 +12,6 @@ import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-
 import java.time.Instant;
 
 public class PassiveFirmwareVersionImpl implements PassiveFirmwareVersion {

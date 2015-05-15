@@ -1,5 +1,7 @@
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -20,8 +22,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -30,10 +30,10 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
@@ -47,7 +47,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -174,42 +173,36 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public FirmwareUpgradeOptions findOrCreateFirmwareUpgradeOptions(DeviceType deviceType) {
-        Optional<FirmwareUpgradeOptions> ref = dataModel.mapper(FirmwareUpgradeOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
-        return ref.isPresent() ? ref.get() : FirmwareUpgradeOptionsImpl.from(dataModel, deviceType);
+    public FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType) {
+        Optional<FirmwareManagementOptions> ref = dataModel.mapper(FirmwareManagementOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+        return ref.isPresent() ? ref.get() : FirmwareManagementOptionsImpl.from(dataModel, deviceType);
     }
 
     @Override
-    public void saveFirmwareUpgradeOptions(FirmwareUpgradeOptions firmwareOptions) {
-        FirmwareUpgradeOptionsImpl.class.cast(firmwareOptions).save();
+    public void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions) {
+        FirmwareManagementOptionsImpl.class.cast(firmwareOptions).save();
     }
 
     @Override
-    public boolean isFirmwareUpgradeAllowedFor(DeviceType deviceType) {
-        Optional<FirmwareUpgradeOptions> ref = dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
-        return ref.isPresent() && !ref.get().getOptions().isEmpty();
+    public Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType) {
+        Set<ProtocolSupportedFirmwareOptions> set = new LinkedHashSet<>();
+        Optional<FirmwareManagementOptions> ref = dataModel.mapper(FirmwareManagementOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+        if (ref.isPresent()) {
+            FirmwareManagementOptions options = ref.get();
+            set = options.getOptions();
+        }
+        return set;
     }
 
     @Override
     public List<DeviceType> getDeviceTypesWhichSupportFirmwareUpgrade() {
-        Condition condition = where(FirmwareUpgradeOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).isEqualTo(true)
-                .or(where(FirmwareUpgradeOptionsImpl.Fields.ACTIVATE.fieldName()).isEqualTo(true))
-                .or(where(FirmwareUpgradeOptionsImpl.Fields.INSTALL.fieldName()).isEqualTo(true));
-        return dataModel.query(FirmwareUpgradeOptionsImpl.class, DeviceType.class).select(condition).stream()
-                .map(FirmwareUpgradeOptionsImpl::getDeviceType)
+        Condition condition = where(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).isEqualTo(true)
+                .or(where(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName()).isEqualTo(true))
+                .or(where(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName()).isEqualTo(true));
+        return dataModel.query(FirmwareManagementOptionsImpl.class, DeviceType.class).select(condition).stream()
+                .map(FirmwareManagementOptionsImpl::getDeviceType)
                 .sorted((dt1, dt2) -> dt1.getName().compareTo(dt2.getName()))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareUpgradeOptionsFor(DeviceType deviceType) {
-        Set<ProtocolSupportedFirmwareOptions> set = new LinkedHashSet<>();
-        Optional<FirmwareUpgradeOptions> ref = dataModel.mapper(FirmwareUpgradeOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
-         if (ref.isPresent()) {
-             FirmwareUpgradeOptions options = ref.get();
-              set = options.getOptions();
-         }
-        return set;
     }
 
     @Override
@@ -220,19 +213,19 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                 .and(where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(device.getDeviceType()));
         // Current firmware version is not in the list
         Optional<ActivatedFirmwareVersion> comActiveVer = getCurrentCommunicationFirmwareVersionFor(device);
-        if (comActiveVer.isPresent()){
+        if (comActiveVer.isPresent()) {
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName())
                     .isNotEqual(comActiveVer.get().getFirmwareVersion().getFirmwareVersion()));
         }
         Optional<ActivatedFirmwareVersion> meterActiveVer = getCurrentMeterFirmwareVersionFor(device);
-        if (meterActiveVer.isPresent()){
+        if (meterActiveVer.isPresent()) {
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName())
                     .isNotEqual(meterActiveVer.get().getFirmwareVersion().getFirmwareVersion()));
         }
         return dataModel.mapper(FirmwareVersion.class).select(condition, Order.descending("lower(firmwareVersion)"));
     }
 
-    private Condition getCurrentFirmwareVersionFor(Device device){
+    private Condition getCurrentFirmwareVersionFor(Device device) {
         return where("device").isEqualTo(device).and(Where.where("interval").isEffective(Instant.now()));
     }
 
@@ -277,8 +270,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public Optional<FirmwareUpgradeOptions> findFirmwareUpgradeOptionsByDeviceType(DeviceType deviceType) {
-        return dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType);
+    public Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType) {
+        return dataModel.mapper(FirmwareManagementOptions.class).getUnique("deviceType", deviceType);
     }
 
     @Override
@@ -352,7 +345,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Reference
-    public void setEventService(EventService eventService){
+    public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
 

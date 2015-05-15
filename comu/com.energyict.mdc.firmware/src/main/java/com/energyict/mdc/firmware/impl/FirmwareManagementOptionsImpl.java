@@ -6,16 +6,15 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.FirmwareUpgradeOptions;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class FirmwareUpgradeOptionsImpl implements FirmwareUpgradeOptions {
+public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions {
 
     enum Fields {
         DEVICETYPE("deviceType"),
@@ -53,17 +52,17 @@ public class FirmwareUpgradeOptionsImpl implements FirmwareUpgradeOptions {
     private final DataModel dataModel;
     
     @Inject
-    public FirmwareUpgradeOptionsImpl(DataModel dataModel) {
+    public FirmwareManagementOptionsImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    private FirmwareUpgradeOptions init(DeviceType deviceType) {
+    private FirmwareManagementOptions init(DeviceType deviceType) {
         this.deviceType.set(deviceType);
         return this;
     }
 
-    public static FirmwareUpgradeOptions from(DataModel dataModel, DeviceType deviceType) {
-        return dataModel.getInstance(FirmwareUpgradeOptionsImpl.class).init(deviceType);
+    public static FirmwareManagementOptions from(DataModel dataModel, DeviceType deviceType) {
+        return dataModel.getInstance(FirmwareManagementOptionsImpl.class).init(deviceType);
     }
 
     @Override
@@ -99,7 +98,7 @@ public class FirmwareUpgradeOptionsImpl implements FirmwareUpgradeOptions {
     }
 
     public void save() {
-        if (dataModel.mapper(FirmwareUpgradeOptions.class).getUnique("deviceType", deviceType.get()).isPresent()) {
+        if (dataModel.mapper(FirmwareManagementOptions.class).getUnique("deviceType", deviceType.get()).isPresent()) {
             doUpdate();
         } else {
             doPersist();
