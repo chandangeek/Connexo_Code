@@ -1,0 +1,38 @@
+Ext.define('Fim.view.importServices.ActionMenu', {
+    extend: 'Ext.menu.Menu',
+    alias: 'widget.fim-import-service-action-menu',
+    plain: true,
+    border: false,
+    shadow: false,
+    items: [
+        {
+            itemId: 'edit-import-service',
+            text: Uni.I18n.translate('general.edit', 'FIM', 'Edit'),
+            privileges: Fim.privileges.DataImport.update,
+            action: 'editImportService'
+        },
+        {
+            itemId: 'remove-import-service',
+            text: Uni.I18n.translate('general.remove', 'FIM', 'Remove'),
+            privileges: Fim.privileges.DataImport.admin,
+            action: 'removeImportService'
+        },
+        {
+            itemId: 'view-import-service',
+            text: Uni.I18n.translate('general.viewDetails', 'FIM', 'View details'),
+            action: 'viewImportService'
+        },
+		{
+			itemId: 'activate-import-service',
+            text: Uni.I18n.translate('general.activate', 'FIM', 'Activate'),
+			privileges: Fim.privileges.DataImport.admin,
+            action: 'activateimportservice'
+        },
+		{
+            itemId: 'deactivate-import-service',
+            text: Uni.I18n.translate('general.deactivate', 'FIM', 'Deactivate'),
+            privileges: Fim.privileges.DataImport.admin,
+            action: 'deactivateimportservice'
+        }
+    ]
+});
