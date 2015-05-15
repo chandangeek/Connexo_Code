@@ -29,7 +29,7 @@ class DeviceMessageCategoryImpl implements DeviceMessageCategory {
 
     @Override
     public String getName() {
-        return thesaurus.getString(this.category.getNameResourceKey(), this.category.defaultTranslation());
+        return thesaurus.getString(this.category.getNameResourceKey(), this.category.getDefaultFormat());
     }
 
     @Override

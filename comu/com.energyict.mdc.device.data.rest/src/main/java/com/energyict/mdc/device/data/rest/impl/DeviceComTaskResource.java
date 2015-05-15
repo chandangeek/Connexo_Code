@@ -20,7 +20,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareUpgradeTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
@@ -84,7 +84,7 @@ public class DeviceComTaskResource {
     }
 
     private boolean isNotFirmwareComTask(ComTaskEnablement comTaskEnablement) {
-        return comTaskEnablement.getComTask().getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof FirmwareUpgradeTask).count() == 0;
+        return comTaskEnablement.getComTask().getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof FirmwareManagementTask).count() == 0;
     }
 
     private boolean isNotFirmwareComTaskExecution(ComTaskExecution comTaskExecution) {
