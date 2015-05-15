@@ -117,12 +117,14 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     },
 
     activateDataValidation: function (view, confWindow, runNow) {
-        var me = this;
-        /*if (me.hasValidation) {
-            var isValidationRunImmediately = confWindow.down('#validationRunRg').getValue().validationRun === 'now';
-            var isWaitForNewData = confWindow.down('#validationRunRg').getValue().validationRun === 'waitForNewData';
-        }*/
-		var isValidationOnStorage = confWindow.down('#validationOnStorage').getValue();
+        var me = this,
+			validationOnStorage, isValidationOnStorage = 'false';
+        
+		validationOnStorage = confWindow.down('#validationOnStorage');
+		if (validationOnStorage){
+			isValidationOnStorage = confWindow.down('#validationOnStorage').getValue();
+		}
+		
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
@@ -130,7 +132,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             jsonData: {
                 isActive: 'true',
 				isStorage: isValidationOnStorage,
-                lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : null)
+                lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : new Date().getTime())
             },
             success: function () {
                 me.updateDataValidationStatusSection(me.mRID, view);
@@ -337,32 +339,63 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     },
 
     destroyConfirmationWindow: function () {
-        if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
-            Ext.ComponentQuery.query('#activationConfirmationWindow')[0].removeAll(true);
-            Ext.ComponentQuery.query('#activationConfirmationWindow')[0].destroy();
+		var activationConfirmationWindow;
+		
+		activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+        if (activationConfirmationWindow) {
+            activationConfirmationWindow.removeAll(true);
+            activationConfirmationWindow.destroy();
         }
     },
 
     confirmationWindowButtonsDisable: function (value) {
-        if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
-            Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('button[name=confirm]').setDisabled(value);
-			Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('button[name=confirmAndRun]').setDisabled(value);			
-            Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('button[name=cancel]').setDisabled(value);
-        }
+		var activationConfirmationWindow;
+		
+		activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+        if (activationConfirmationWindow) {
+			var button = activationConfirmationWindow.down('button[name=confirm]');
+			
+			button = activationConfirmationWindow.down('button[name=confirm]');
+			if (button){
+				button.setDisabled(value);
+			}
+			
+			button = activationConfirmationWindow.down('button[name=confirmAndRun]');
+			if (button){
+				button.setDisabled(value);
+			}
+			
+			button = activationConfirmationWindow.down('button[name=cancel]');
+			if (button){
+				button.setDisabled(value);
+			}
+		}       
     },
 
     showValidationActivationErrors: function (errors) {
-        if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
-            Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors').update(errors);
-            Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors').setVisible(true);
-        }
+		var activationConfirmationWindow, validationDateErrors;
+		
+		activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+		if (activationConfirmationWindow){
+			validationDateErrors = Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors');
+			if (validationDateErrors){
+				validationDateErrors.update(errors);
+				validationDateErrors.setVisible(true);
+			}
+		}
     },
 
     onValidationFromDateChange: function () {
-        if (Ext.ComponentQuery.query('#activationConfirmationWindow')[0]) {
-            Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors').update('');
-            Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors').setVisible(false);
-        }
+		var activationConfirmationWindow, validationDateErrors;
+		
+		activationConfirmationWindow = Ext.ComponentQuery.query('#activationConfirmationWindow')[0];
+		if (activationConfirmationWindow){
+			validationDateErrors = Ext.ComponentQuery.query('#activationConfirmationWindow')[0].down('#validationDateErrors');
+			if (validationDateErrors){
+				validationDateErrors.update('');
+				validationDateErrors.setVisible(false);
+			}
+		}        
     }
 });
 
