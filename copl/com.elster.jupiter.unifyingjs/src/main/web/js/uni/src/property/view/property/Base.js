@@ -198,7 +198,7 @@ Ext.define('Uni.property.view.property.Base', {
      * },
      */
     getEditCmp: function () {
-        throw 'getDisplayCmp is not implemented';
+        throw 'getEditCmp is not implemented';
     },
 
     /**
