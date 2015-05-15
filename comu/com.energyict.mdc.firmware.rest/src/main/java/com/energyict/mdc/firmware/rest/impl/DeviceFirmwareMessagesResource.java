@@ -55,7 +55,6 @@ public class DeviceFirmwareMessagesResource {
     private final ExceptionFactory exceptionFactory;
     private final FirmwareService firmwareService;
     private final FirmwareMessageInfoFactory firmwareMessageInfoFactory;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final TaskService taskService;
     private final Clock clock;
     private final MdcPropertyUtils mdcPropertyUtils;
@@ -63,12 +62,11 @@ public class DeviceFirmwareMessagesResource {
     private final Provider<DeviceFirmwareVersionUtils.Factory> utilProvider;
 
     @Inject
-    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, Provider<DeviceFirmwareVersionUtils.Factory> utilProvider) {
+    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, Provider<DeviceFirmwareVersionUtils.Factory> utilProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.firmwareService = firmwareService;
         this.firmwareMessageInfoFactory = firmwareMessageInfoFactory;
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.taskService = taskService;
         this.clock = clock;
         this.mdcPropertyUtils = mdcPropertyUtils;
@@ -82,10 +80,7 @@ public class DeviceFirmwareMessagesResource {
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
     public Response getMessageAttributes(@PathParam("mrid") String mrid, @PathParam("uploadOption") String uploadOption){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
-        DeviceMessageId firmwareMessageId = getFirmwareUpgradeMessageId(device, uploadOption)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
-        DeviceMessageSpec firmwareMessageSpec = deviceMessageSpecificationService.findMessageSpecById(firmwareMessageId.dbValue())
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
+        DeviceMessageSpec firmwareMessageSpec = resourceHelper.getFirmwareMessageSpecOrThrowException(device.getDeviceType(), uploadOption);
         return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, device, uploadOption)).build();
     }
 
@@ -98,9 +93,9 @@ public class DeviceFirmwareMessagesResource {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
         checkFirmwareUpgradeOption(device.getDeviceType(), info.uploadOption);
 
-        DeviceMessageId firmwareMessageId = getFirmwareUpgradeMessageId(device, info.uploadOption)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
-        Map<String, Object> convertedProperties = getConvertedProperties(firmwareMessageId, info);
+        DeviceMessageId firmwareMessageId = resourceHelper.geFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption);
+        DeviceMessageSpec firmwareMessageSpec = resourceHelper.getFirmwareMessageSpecOrThrowException(firmwareMessageId);
+        Map<String, Object> convertedProperties = getConvertedProperties(firmwareMessageSpec, info);
         Instant releaseDate = info.releaseDate == null ? this.clock.instant() : info.releaseDate;
 
         prepareCommunicationTask(device, convertedProperties);
@@ -112,6 +107,7 @@ public class DeviceFirmwareMessagesResource {
         rescheduleFirmwareUpgradeTask(device);
         return Response.ok().build();
     }
+
 
     @PUT
     @Path("/firmwaremessages/{messageId}/activate")
@@ -142,12 +138,10 @@ public class DeviceFirmwareMessagesResource {
     }
 
     /** This method converts the incoming info object to property-value map (according to the specified message id) */
-    private Map<String, Object> getConvertedProperties(DeviceMessageId messageId, FirmwareMessageInfo info) {
-        DeviceMessageSpec fuMessageSpec = deviceMessageSpecificationService.findMessageSpecById(messageId.dbValue())
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
+    private Map<String, Object> getConvertedProperties(DeviceMessageSpec firmwareMessageSpec, FirmwareMessageInfo info) {
         Map<String, Object> convertedProperties = new HashMap<>();
         try {
-            for (PropertySpec propertySpec : fuMessageSpec.getPropertySpecs()) {
+            for (PropertySpec propertySpec : firmwareMessageSpec.getPropertySpecs()) {
                 Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);
                 if (propertyValue != null) {
                     convertedProperties.put(propertySpec.getName(), propertyValue);
@@ -234,19 +228,6 @@ public class DeviceFirmwareMessagesResource {
                 .filter(message -> DeviceFirmwareVersionUtils.PENDING_STATUSES.contains(message.getStatus()))
                 .filter(message -> firmwareUpgradeExecution == null || firmwareUpgradeExecution.getLastExecutionStartTimestamp() == null || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.getLastExecutionStartTimestamp()))
                 .count() == 0 && !helper.taskIsBusy();
-    }
-
-    /** Returns the appropriate DeviceMessageId which corresponds with the uploadOption */
-    private Optional<DeviceMessageId> getFirmwareUpgradeMessageId(Device device, String uploadOption) {
-        ProtocolSupportedFirmwareOptions targetFirmwareOptions = ProtocolSupportedFirmwareOptions.from(uploadOption)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
-        return device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages()
-                .stream()
-                .filter(firmwareMessageCandidate -> {
-                    Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
-                    return firmwareOptionForCandidate.isPresent() && targetFirmwareOptions.equals(firmwareOptionForCandidate.get());
-                })
-                .findFirst();
     }
 
     /** Checks that device type allows the requested firmware upgrade option */
