@@ -13,14 +13,12 @@ import javax.validation.Payload;
 
 @Target( { FIELD , ANNOTATION_TYPE })
 @Retention(RUNTIME)
-@Constraint(validatedBy = IsPresentValidator.class)
+@Constraint(validatedBy = {IsPresentReferenceValidator.class, IsPresentOptionalValidator.class, IsPresentTemporalReferenceValidator.class})
 @Documented
-
 public @interface IsPresent {
-	
+
     String message() default "{com.elster.jupiter.orm.associations.isPresent}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
-    
-}
 
+}
