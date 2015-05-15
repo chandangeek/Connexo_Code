@@ -65,7 +65,7 @@ public class DataValidationTaskResource {
             dataValidationTask.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).build();
 
     }
 
@@ -77,7 +77,7 @@ public class DataValidationTaskResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
         return PagedInfoList.asJson("dataValidationTasks", list.stream().map(dataValidationTask ->
-                new DataValidationTaskInfo(dataValidationTask, thesaurus)).collect(Collectors.toList())
+                new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).collect(Collectors.toList())
                 , queryParameters);
     }
 
@@ -104,14 +104,14 @@ public class DataValidationTaskResource {
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public DataValidationTaskInfo getDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, @Context SecurityContext securityContext) {
         DataValidationTask task = validationService.findValidationTask(dataValidationTaskId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return new DataValidationTaskInfo(task, thesaurus);//, thesaurus, timeService);
+        return new DataValidationTaskInfo(task, thesaurus, timeService);
     }
 
     @PUT
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response updateReadingTypeDataExportTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
+    public Response updateReadingTypeDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
         DataValidationTask task = validationService.findValidationTask(dataValidationTaskId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -122,7 +122,7 @@ public class DataValidationTaskResource {
             task.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(task, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(task, thesaurus, timeService)).build();
 
     }
 
@@ -130,8 +130,8 @@ public class DataValidationTaskResource {
     @Path("/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        //transactionService.execute(VoidTransaction.of(() -> fetchDataValidationtTask(id).triggerNow()));
+    public Response triggerDataValidationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        transactionService.execute(VoidTransaction.of(() -> fetchDataValidationTask(id).triggerNow()));
         return Response.status(Response.Status.OK).build();
     }
 
@@ -139,12 +139,12 @@ public class DataValidationTaskResource {
     @Path("/{id}/history")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    public DataValidationTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
+    public DataValidationTaskHistoryInfos getDataValidationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                                    @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         DataValidationTask task = fetchDataValidationTask(id);
         DataValidationOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-                .setStart(queryParameters.getStart())
+                .setStart(queryParameters.getStartInt())
                 .setLimit(queryParameters.getLimit() + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
@@ -174,13 +174,13 @@ public class DataValidationTaskResource {
     @GET
     @Path("/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public DataValidationOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
+    public DataValidationOccurrenceLogInfos getDataValidationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                                      @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         DataValidationTask task = fetchDataValidationTask(id);
         DataValidationOccurrence occurrence = fetchDataValidationOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder()
-                .setStart(queryParameters.getStart())
+                .setStart(queryParameters.getStartInt())
                 .setLimit(queryParameters.getLimit());
 
         List<? extends LogEntry> occurrences = finder.find();

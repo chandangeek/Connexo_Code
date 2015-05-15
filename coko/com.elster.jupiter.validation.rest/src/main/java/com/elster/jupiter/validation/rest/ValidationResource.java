@@ -135,7 +135,7 @@ public class ValidationResource {
         if (queryParameters.size() == 0) {
             versions = ruleSet.getRuleSetVersions();
         } else {
-            versions = ruleSet.getRuleSetVersions(queryParameters.getStart(), queryParameters.getLimit());
+            versions = ruleSet.getRuleSetVersions(queryParameters.getStartInt(), queryParameters.getLimit());
         }
         ValidationRuleSetVersionInfos infos = new ValidationRuleSetVersionInfos();
         infos.addAll(versions);
@@ -257,7 +257,7 @@ public class ValidationResource {
         if (queryParameters.size() == 0) {
             rules = ruleSetVersion.getRules();
         } else {
-            rules = ruleSetVersion.getRules(queryParameters.getStart(), queryParameters.getLimit());
+            rules = ruleSetVersion.getRules(queryParameters.getStartInt(), queryParameters.getLimit());
         }
         ValidationRuleInfos infos = new ValidationRuleInfos();
         infos.addAll(rules);
