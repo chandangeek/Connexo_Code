@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.deviceevents.Data', {
     initComponent: function () {
         var me = this,
             title = null;
+
         if (me.eventsView) {
             title = me.title
         }
@@ -69,6 +70,7 @@ Ext.define('Mdc.view.setup.deviceevents.Data', {
                 }
             ]
         }
+
         me.callParent(arguments);
     }
 });

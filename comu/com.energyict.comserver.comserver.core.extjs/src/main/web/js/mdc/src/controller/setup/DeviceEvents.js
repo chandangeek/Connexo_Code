@@ -78,7 +78,9 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
                     'Mdc.store.Domains',
                     'Mdc.store.Subdomains',
                     'Mdc.store.EventsOrActions'
-                ]);
+                ], function () {
+                    // Do nothing as callback.
+                });
             }
         });
     },
