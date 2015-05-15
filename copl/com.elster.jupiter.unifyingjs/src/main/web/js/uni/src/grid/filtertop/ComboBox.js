@@ -72,7 +72,7 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
         var me = this,
             value = me.getValue() || undefined;
 
-        if (Ext.isDefined(value) && !Ext.isArray(value)) {
+        if (me.multiSelect && Ext.isDefined(value) && !Ext.isArray(value)) {
             value = [value];
         }
 
