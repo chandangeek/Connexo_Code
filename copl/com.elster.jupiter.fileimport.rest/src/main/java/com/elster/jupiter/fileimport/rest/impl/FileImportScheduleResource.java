@@ -52,7 +52,7 @@ public class FileImportScheduleResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ImportSchedule> list = queryImportSchedules(params)
                 .stream()
-                .filter(is->applicationName!=null && applicationName.equals(is.getApplicationName()))
+                .filter(is->applicationName!=null && ("SYS".equals(applicationName) || applicationName.equals(is.getApplicationName())))
                 .collect(Collectors.toList());
 
         FileImportScheduleInfos infos = new FileImportScheduleInfos(params.clipToLimit(list), thesaurus);
@@ -72,7 +72,7 @@ public class FileImportScheduleResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
    // @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
-    public FileImportScheduleInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
+    public FileImportScheduleInfo getImportSchedule(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new FileImportScheduleInfo(fetchImportSchedule(id), thesaurus);
     }
 
