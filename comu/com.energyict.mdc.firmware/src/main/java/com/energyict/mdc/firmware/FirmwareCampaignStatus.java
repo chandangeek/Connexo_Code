@@ -10,7 +10,7 @@ public enum FirmwareCampaignStatus {
     SCHEDULED {
         @Override
         public boolean isValidStatusTransition(FirmwareCampaignStatus nextStatus) {
-            return ONGOING.equals(nextStatus);
+            return ONGOING.equals(nextStatus) || CANCELLED.equals(nextStatus);
         }
     },
     ONGOING {

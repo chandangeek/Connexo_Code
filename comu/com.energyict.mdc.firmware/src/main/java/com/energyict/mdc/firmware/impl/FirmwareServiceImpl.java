@@ -5,7 +5,9 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -30,6 +32,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -48,6 +51,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,21 +81,35 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     private volatile DeviceService deviceService;
     private volatile EventService eventService;
     private volatile TaskService taskService;
+    private volatile MessageService messageService;
+    private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
+
 
     // For OSGI
     public FirmwareServiceImpl() {
     }
 
     @Inject
-    public FirmwareServiceImpl(OrmService ormService, NlsService nlsService, QueryService queryService, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, EventService eventService, TaskService taskService) {
-        this.deviceService = deviceService;
+    public FirmwareServiceImpl(OrmService ormService,
+                               NlsService nlsService,
+                               QueryService queryService,
+                               DeviceConfigurationService deviceConfigurationService,
+                               DeviceMessageSpecificationService deviceMessageSpecificationService,
+                               DeviceService deviceService,
+                               EventService eventService,
+                               TaskService taskService,
+                               MessageService messageService,
+                               com.elster.jupiter.tasks.TaskService platformTaskService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setQueryService(queryService);
+        setDeviceServices(deviceService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setEventService(eventService);
         setTaskService(taskService);
+        setMessageService(messageService);
+        setPlatformTaskService(platformTaskService);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -292,6 +310,18 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         return dataModel.getInstance(FirmwareCampaignImpl.class).init(deviceType, endDeviceGroup);
     }
 
+    public List<FirmwareCampaignImpl> getFirmwareCampaignsForDeviceCloning(){
+        return dataModel.query(FirmwareCampaignImpl.class, EndDeviceGroup.class, DeviceInFirmwareCampaignImpl.class, Device.class)
+                .select(where(FirmwareCampaignImpl.Fields.STATUS.fieldName()).isEqualTo(FirmwareCampaignStatus.NOT_STARTED));
+    }
+
+    public List<FirmwareCampaignImpl> getFirmwareCampaignsForProcessing(){
+        Condition scheduledTimePassed = where(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).isNull()
+                .or(where(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).isLessThanOrEqual(dataModel.getInstance(Clock.class).instant()));
+        return dataModel.query(FirmwareCampaignImpl.class, EndDeviceGroup.class, DeviceInFirmwareCampaignImpl.class, Device.class)
+                .select(where(FirmwareCampaignImpl.Fields.STATUS.fieldName()).isEqualTo(FirmwareCampaignStatus.SCHEDULED).and(scheduledTimePassed));
+    }
+
     @Activate
     public final void activate() {
         try {
@@ -308,6 +338,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                     bind(DeviceService.class).toInstance(deviceService);
                     bind(EventService.class).toInstance(eventService);
                     bind(TaskService.class).toInstance(taskService);
+                    bind(MessageService.class).toInstance(messageService);
+                    bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
                 }
             });
         } catch (RuntimeException e) {
@@ -358,14 +390,34 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         this.taskService = taskService;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setPlatformTaskService(com.elster.jupiter.tasks.TaskService platformTaskService) {
+        this.platformTaskService = platformTaskService;
+    }
+
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, NlsService.COMPONENTNAME, DeviceConfigurationService.COMPONENTNAME, DeviceMessageSpecificationService.COMPONENT_NAME, DeviceDataServices.COMPONENT_NAME, TaskService.COMPONENT_NAME);
+        return Arrays.asList(OrmService.COMPONENTNAME,
+                NlsService.COMPONENTNAME,
+                DeviceConfigurationService.COMPONENTNAME,
+                DeviceMessageSpecificationService.COMPONENT_NAME,
+                DeviceDataServices.COMPONENT_NAME,
+                EventService.COMPONENTNAME,
+                TaskService.COMPONENT_NAME,
+                MessageService.COMPONENTNAME,
+                com.elster.jupiter.tasks.TaskService.COMPONENTNAME,
+                MeteringGroupsService.COMPONENTNAME
+        );
     }
 
     @Override
     public void install() {
-        Installer installer = new Installer(dataModel, thesaurus, eventService);
+        Installer installer = new Installer(dataModel, eventService, messageService, platformTaskService);
         installer.install();
     }
 

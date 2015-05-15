@@ -16,13 +16,14 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     MAX_FILE_SIZE_EXCEEDED(4, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb", Level.SEVERE),
     STATE_TRANSFER_NOT_ALLOWED(5, Keys.STATE_TRANSFER_NOT_ALLOWED, "Transfer to requested state is not allowed", Level.SEVERE),
     DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE(6, Keys.DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE, "Device type should support firmware upgrade", Level.SEVERE),
+    MESSAGE_SUBSCRIBER_NAME(7, FirmwareCampaignsHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER, "Process firmware campaigns", Level.INFO),
     ;
     private final int number;
     private final String key;
     private final String format;
     private final Level level;
 
-    private MessageSeeds(int number, String key, String format, Level level) {
+    MessageSeeds(int number, String key, String format, Level level) {
         this.number = number;
         this.key = key;
         this.format = format;

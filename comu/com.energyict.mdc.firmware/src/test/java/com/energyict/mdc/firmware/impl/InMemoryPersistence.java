@@ -43,6 +43,7 @@ import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -80,20 +81,11 @@ public class InMemoryPersistence {
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
-    private MeteringService meteringService;
-    private NlsService nlsService;
     private DataModel dataModel;
     private Injector injector;
     private InMemoryBootstrapModule bootstrapModule;
     private FirmwareServiceImpl firmwareService;
-    private DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private QueryService queryService;
-    private DeviceConfigurationService deviceConfigurationService;
     private LicenseService licenseService;
-    private DeviceService deviceService;
-    private EventService eventService;
-    private TaskService taskService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults) {
         this.initializeMocks(testName);
@@ -136,31 +128,27 @@ public class InMemoryPersistence {
                 new MasterDataModule(),
                 new DeviceDataModule(),
                 new FirmwareModule(),
-                new KpiModule());
+                new KpiModule(),
+                new com.elster.jupiter.tasks.impl.TaskModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
-            this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             injector.getInstance(EventService.class);
-            this.nlsService = injector.getInstance(NlsService.class);
+            injector.getInstance(NlsService.class);
             injector.getInstance(UserService.class);
             injector.getInstance(FiniteStateMachineService.class);
-            this.meteringService = injector.getInstance(MeteringService.class);
-            this.queryService = injector.getInstance(QueryService.class);
-            this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
-            this.deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
+            injector.getInstance(MeteringService.class);
+            injector.getInstance(QueryService.class);
+            injector.getInstance(DeviceConfigurationService.class);
+            injector.getInstance(DeviceMessageSpecificationService.class);
             injector.getInstance(DeviceDataModelServiceImpl.class);
-            this.deviceService = injector.getInstance(DeviceService.class);
-            this.eventService = injector.getInstance(EventService.class);
-            this.taskService = injector.getInstance(TaskService.class);
+            injector.getInstance(DeviceService.class);
+            injector.getInstance(EventService.class);
 
-            this.dataModel = this.createFirmwareService();
+            this.firmwareService = (FirmwareServiceImpl) injector.getInstance(FirmwareService.class);
+            this.dataModel = firmwareService.getDataModel();
             ctx.commit();
         }
-    }
-
-    private DataModel createFirmwareService() {
-        this.firmwareService = new FirmwareServiceImpl(ormService, nlsService, queryService, deviceConfigurationService, deviceMessageSpecificationService, deviceService, eventService, taskService);
-        return this.firmwareService.getDataModel();
     }
 
     private void initializeMocks(String testName) {
@@ -174,22 +162,6 @@ public class InMemoryPersistence {
 
     public void cleanUpDataBase() throws SQLException {
         this.bootstrapModule.deactivate();
-    }
-
-    public TransactionService getTransactionService() {
-        return transactionService;
-    }
-
-    public MeteringService getMeteringService() {
-        return meteringService;
-    }
-
-    public DeviceConfigurationService getDeviceConfigurationService() {
-        return deviceConfigurationService;
-    }
-
-    public DeviceMessageSpecificationService getDeviceMessageSpecificationService() {
-        return deviceMessageSpecificationService;
     }
 
     public FirmwareServiceImpl getFirmwareService() {

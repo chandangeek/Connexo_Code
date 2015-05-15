@@ -45,6 +45,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         NAME ("name"),
         STATUS ("status"),
         DEVICE_TYPE ("deviceType"),
+        DEVICE_GROUP ("deviceGroup"),
         UPGRADE_OPTION ("upgradeOption"),
         FIRMWARE_TYPE ("firmwareType"),
         FIRMWARE_VERSION ("firmwareVersion"),
@@ -73,6 +74,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private FirmwareCampaignStatus status;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private Reference<EndDeviceGroup> deviceGroup;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private ProtocolSupportedFirmwareOptions upgradeOption;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -112,10 +115,16 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-    FirmwareCampaign init(DeviceType deviceType, EndDeviceGroup group){
-        // TODO throw exception if device type doesn't support firmware upgrade
+    FirmwareCampaign init(DeviceType deviceType, EndDeviceGroup group) {
         this.status = FirmwareCampaignStatus.NOT_STARTED;
+        this.deviceType.set(deviceType);
+        this.deviceGroup.set(group);
+        return this;
+    }
+
+    public void cloneDeviceList(){
         List<Device> devices = Collections.emptyList();
+        EndDeviceGroup group = this.deviceGroup.get();
         if (group instanceof QueryEndDeviceGroup){
             Condition deviceQuery = ((QueryEndDeviceGroup) group).getCondition();
             deviceQuery = deviceQuery.and(where("deviceConfiguration.deviceType").isEqualTo(deviceType));
@@ -126,7 +135,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
                     .map(endDevice -> deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId())))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == deviceType.getId())
+                    .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == deviceType.get().getId())
                     .collect(Collectors.toList());
         }
         devices.stream()
@@ -134,7 +143,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
                     FirmwareCampaignImpl.this.devices.add(dataModel.getInstance(DeviceInFirmwareCampaignImpl.class)
                             .init(FirmwareCampaignImpl.this, device));
                 });
-        return this;
+        setStatus(FirmwareCampaignStatus.SCHEDULED);
+        save();
     }
 
     @Override
@@ -210,7 +220,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public void setPlannedDate(Instant plannedDate) {
-        setStatus(FirmwareCampaignStatus.SCHEDULED);
         this.plannedDate = plannedDate;
     }
 

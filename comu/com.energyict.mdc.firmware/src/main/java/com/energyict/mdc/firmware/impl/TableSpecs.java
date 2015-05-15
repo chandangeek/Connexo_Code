@@ -1,5 +1,6 @@
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -96,10 +97,11 @@ public enum TableSpecs {
             Column name = table.column("CAMPAIGN_NAME").varChar(NAME_LENGTH).map(FirmwareCampaignImpl.Fields.NAME.fieldName()).notNull().add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.STATUS.fieldName()).notNull().add();
             Column deviceType = table.column("DEVICE_TYPE").number().notNull().add();
+            Column deviceGroup = table.column("DEVICE_GROUP").number().notNull().add();
             table.column("UPGRADE_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.UPGRADE_OPTION.fieldName()).notNull().add();
             table.column("FIRMWARE_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.FIRMWARE_TYPE.fieldName()).notNull().add();
             Column firmwareVersion = table.column("FIRMWARE_VERSION").number().notNull().add();
-            table.column("PLANNED_DATE").number().map(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            table.column("PLANNED_DATE").number().map(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("STARTED_ON").number().map(FirmwareCampaignImpl.Fields.STARTED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("FINISHED_ON").number().map(FirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
 
@@ -110,6 +112,12 @@ public enum TableSpecs {
                     .on(deviceType)
                     .references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE")
                     .map(FirmwareCampaignImpl.Fields.DEVICE_TYPE.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
+                    .add();
+            table.foreignKey("FK_FWC_CAMPAIGN_TO_D_GROUP")
+                    .on(deviceGroup)
+                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
+                    .map(FirmwareCampaignImpl.Fields.DEVICE_GROUP.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.foreignKey("FK_FWC_CAMPAIGN_TO_FWC_VERS")
