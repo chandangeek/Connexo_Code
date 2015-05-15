@@ -23,6 +23,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/importservices")
 public class FileImportScheduleResource {
@@ -47,9 +48,12 @@ public class FileImportScheduleResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     //@RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
-    public Response getImportSchedules(@Context UriInfo uriInfo) {
+    public Response getImportSchedules(@Context UriInfo uriInfo, @QueryParam("application") String applicationName) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends ImportSchedule> list = queryImportSchedules(params);
+        List<ImportSchedule> list = queryImportSchedules(params)
+                .stream()
+                .filter(is->applicationName!=null && applicationName.equals(is.getApplicationName()))
+                .collect(Collectors.toList());
 
         FileImportScheduleInfos infos = new FileImportScheduleInfos(params.clipToLimit(list), thesaurus);
         infos.total = params.determineTotal(list.size());
@@ -57,7 +61,7 @@ public class FileImportScheduleResource {
         return Response.ok(infos).build();
     }
 
-    private List<? extends ImportSchedule> queryImportSchedules(QueryParameters queryParameters) {
+    private List<ImportSchedule> queryImportSchedules(QueryParameters queryParameters) {
         Query<ImportSchedule> query = fileImportService.getImportSchedulesQuery();
         RestQuery<ImportSchedule> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));

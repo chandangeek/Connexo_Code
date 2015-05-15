@@ -24,6 +24,7 @@ public class FileImportScheduleInfo {
     public String pathMatcher;
     public String importerName;
     public Integer scanFrequency;
+    public String application;
     public FileImporterInfo importerInfo;
     public List<PropertyInfo> properties = new ArrayList<>();
 
@@ -41,6 +42,7 @@ public class FileImportScheduleInfo {
         failureDirectory = importSchedule.getFailureDirectory().getAbsolutePath();
         pathMatcher = importSchedule.getPathMatcher();
         importerName = importSchedule.getImporterName();
+        application = importSchedule.getApplicationName();
 
         importerInfo = new FileImporterInfo(importerName,
                 thesaurus.getStringBeyondComponent(importerName, importerName), Collections.<PropertyInfo>emptyList() );

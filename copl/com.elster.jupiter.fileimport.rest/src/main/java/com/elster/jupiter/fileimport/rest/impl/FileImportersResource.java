@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -48,19 +49,13 @@ public class FileImportersResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     //@RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
-    public Response getImporters(@Context UriInfo uriInfo) {
+    public Response getImporters(@Context UriInfo uriInfo, @QueryParam("application") String applicationName) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
 
-        List<FileImporterFactory> importers = fileImportService.getAvailableImporters();
+        List<FileImporterFactory> importers = fileImportService.getAvailableImporters(applicationName);
         FileImporterInfos infos = new FileImporterInfos(params.clipToLimit(importers), thesaurus);
         infos.total = params.determineTotal(importers.size());
-
         return Response.ok(infos).build();
     }
 
-    private List<? extends ImportSchedule> queryImportSchedules(QueryParameters queryParameters) {
-        Query<ImportSchedule> query = fileImportService.getImportSchedulesQuery();
-        RestQuery<ImportSchedule> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("upper(name)"));
-    }
 }
