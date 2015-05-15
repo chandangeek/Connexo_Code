@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validationtask.History', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.validation-tasks-history',
+    alias: 'widget.cfg-validation-tasks-history',
     requires: [
         'Cfg.view.validationtask.Menu',
         'Cfg.view.validationtask.HistoryPreview',
@@ -23,13 +23,13 @@ Ext.define('Cfg.view.validationtask.History', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'tasks-menu',
+                        xtype: 'cfg-tasks-menu',
                         itemId: 'tasks-view-menu',
                         taskId: me.taskId,
                         router: me.router
                     },
                     {
-                        xtype: 'history-filter-form',
+                        xtype: 'cfg-history-filter-form',
                         itemId: 'side-filter',
                         router: me.router
                     }
@@ -49,7 +49,7 @@ Ext.define('Cfg.view.validationtask.History', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'tasks-history-grid',
+                        xtype: 'cfg-tasks-history-grid',
                         router: me.router
                     },
                     emptyComponent: {
@@ -60,7 +60,7 @@ Ext.define('Cfg.view.validationtask.History', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'tasks-history-preview'
+                        xtype: 'cfg-tasks-history-preview'
                     }
                 }
             ]

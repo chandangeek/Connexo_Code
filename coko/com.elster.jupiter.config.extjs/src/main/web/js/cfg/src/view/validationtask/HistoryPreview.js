@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.validationtask.HistoryPreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    alias: 'widget.tasks-history-preview',
+    alias: 'widget.cfg-tasks-history-preview',
 
     requires: [
         'Cfg.view.validationtask.HistoryPreviewForm',
@@ -14,13 +14,13 @@ Ext.define('Cfg.view.validationtask.HistoryPreview', {
             text: Uni.I18n.translate('validationTasks.general.actions', 'CFG', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
-                xtype: 'tasks-history-action-menu'
+                xtype: 'cfg-tasks-history-action-menu'
             }
         }
     ],
 
     items: {
-        xtype: 'tasks-history-preview-form'
+        xtype: 'cfg-tasks-history-preview-form'
     }
 });
 
