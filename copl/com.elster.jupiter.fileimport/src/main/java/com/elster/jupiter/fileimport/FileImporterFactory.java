@@ -14,6 +14,9 @@ public interface FileImporterFactory extends HasName {
 
     String getName();
 
+    String getDestinationName();
+    String getApplicationName();
+
 
     void validateProperties(List<FileImporterProperty> properties);
 
