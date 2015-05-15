@@ -1,7 +1,7 @@
 package com.elster.jupiter.fileimport;
 
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.io.File;
 
@@ -66,15 +66,19 @@ public interface ImportScheduleBuilder {
 
     /**
      *
-     * @param cronExpression the cron expression for the ImportSchedule under construction
+     * @param cronExpression the schedule expression for the ImportSchedule under construction
      * @return this
      */
     ImportScheduleBuilder setCronExpression(CronExpression cronExpression);
 
 
+
+
     PropertyBuilder addProperty(String name);
 
-    interface PropertyBuilder {
+    ImportScheduleBuilder setName(String name);
+
+     interface PropertyBuilder {
 
         ImportScheduleBuilder withValue(Object value);
 

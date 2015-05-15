@@ -1,6 +1,8 @@
 package com.elster.jupiter.fileimport;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,13 +37,26 @@ public interface FileImportService {
      */
     Optional<ImportSchedule> getImportSchedule(long id);
 
-    List<ImportSchedule> getImportSchedules();
-
     /**
      * @param importerName
      * @return the FileImporterFactory with the given name,  optionally, as it may not exist
      */
     Optional<FileImporterFactory> getImportFactory(String importerName);
 
-    public List<String> getAvailableImporters();
+    /**
+     * @return the list of importers
+     */
+    List<FileImporterFactory> getAvailableImporters();
+
+    /**
+     * @return the list of import schedules
+     */
+
+    Query<ImportSchedule> getImportSchedulesQuery();
+    /**
+     * @param importerName
+     * @return the List of importer property specs
+     */
+    List<PropertySpec> getPropertiesSpecsForImporter(String importerName);
+
 }

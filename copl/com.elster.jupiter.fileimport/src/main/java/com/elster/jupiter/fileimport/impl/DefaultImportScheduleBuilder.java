@@ -3,7 +3,9 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
 class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     private List<PropertyBuilderImpl> properties = new ArrayList<>();
+    private String name;
     private String destination;
     private String importerName;
     private File importDirectory;
@@ -28,7 +31,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     @Override
     public ImportSchedule build() {
-        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, cronExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, false, cronExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
         properties.stream().forEach(p -> importSchedule.setProperty(p.name, p.value));
         return importSchedule;
     }
@@ -85,6 +88,13 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     public PropertyBuilder addProperty(String name) {
         return new PropertyBuilderImpl(name);
     }
+
+    @Override
+    public ImportScheduleBuilder setName(String name) {
+        this.name = name;
+        return this;
+    }
+
 
     private class PropertyBuilderImpl implements PropertyBuilder {
         private final String name;

@@ -106,7 +106,7 @@ public class FileImportServiceImplTest {
     public void testSchedule() throws InterruptedException {
         when(importScheduleFactory.find()).thenReturn(Arrays.asList(importSchedule));
         when(importSchedule.getImportDirectory()).thenReturn(IMPORT_DIRECTORY);
-        when(importSchedule.getScheduleExpression()).thenReturn(cronExpression);
+        when(importSchedule.getCronExpression()).thenReturn(cronExpression);
         when(clock.instant()).thenReturn(NOW);
         when(cronExpression.nextAfter(NOW)).thenReturn(NEXT);
 

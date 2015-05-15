@@ -12,13 +12,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * ImportSchedule implementation.
@@ -46,6 +46,8 @@ class ImportScheduleImpl implements ImportSchedule {
     boolean propertiesDirty;
 
     private List<FileImporterProperty> properties = new ArrayList<>();
+    private boolean active;
+    private String name;
 
     @SuppressWarnings("unused")
     @Inject
@@ -59,12 +61,14 @@ class ImportScheduleImpl implements ImportSchedule {
         this.fileImportService = fileImportService;
     }
 
-    static ImportScheduleImpl from(DataModel dataModel, CronExpression cronExpression, String importerName, String destination, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(cronExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, CronExpression cronExpression, String importerName, String destination,
+                                   File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, cronExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
-    private ImportScheduleImpl init(CronExpression cronExpression, String importerName, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
-        this.cronExpression = cronExpression;
+    private ImportScheduleImpl init( String name, boolean active, CronExpression cronExpression, String importerName, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+        this.name = name;
+        this.active = active;
         this.cronString = cronExpression.toString();
         this.destinationName = destinationName;
         this.importerName = importerName;
@@ -79,6 +83,16 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.active;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
     @Override
@@ -114,8 +128,9 @@ class ImportScheduleImpl implements ImportSchedule {
         return failureDirectory;
     }
 
+
     @Override
-    public CronExpression getScheduleExpression() {
+    public CronExpression getCronExpression() {
         if (cronExpression == null) {
             cronExpression = cronExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
         }
@@ -167,6 +182,67 @@ class ImportScheduleImpl implements ImportSchedule {
         fileImporterProperty.setValue(value);
         propertiesDirty = true;
     }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return properties.stream()
+                .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue));
+    }
+
+    @Override
+    public void delete() {
+        if (id == 0) {
+            return;
+        }
+        properties.clear();
+        dataModel.remove(this);
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setCronExpression(CronExpression cronExpression) {
+        this.cronExpression = cronExpression;
+    }
+
+    @Override
+    public void setImportDirectory(File importDirectory) {
+        this.importDirectory = importDirectory;
+    }
+
+    @Override
+    public void setFailureDirectory(File failureDirectory) {
+        this.failureDirectory = failureDirectory;
+    }
+
+    @Override
+    public void setSuccessDirectory(File successDirectory) {
+        this.successDirectory = successDirectory;
+    }
+
+    @Override
+    public void setProcessingDirectory(File inProcessDirectory) {
+        this.inProcessDirectory = inProcessDirectory;
+    }
+
+    @Override
+    public void setImporterName(String importerName) {
+        this.importerName = importerName;
+    }
+
+    @Override
+    public void setPathMatcher(String pathMatcher) {
+        this.pathMatcher = pathMatcher;
+    }
+
+    @Override
+    public void setDestination(String destinationName) {
+        this.destinationName = destinationName;
+    }
+
 
     @Override
     public FileImportImpl createFileImport(File file) {

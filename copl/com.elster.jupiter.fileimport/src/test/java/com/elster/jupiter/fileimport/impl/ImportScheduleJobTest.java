@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +50,10 @@ public class ImportScheduleJobTest {
     private Path path;
     @Mock
     private TransactionService transactionService;
+
+    @Mock
+    private CronExpressionParser cronExpressionParser;
+
     @Mock
     private FileImport fileImport;
     @Mock
@@ -60,7 +65,7 @@ public class ImportScheduleJobTest {
 
     @Before
     public void setUp() {
-        when(importSchedule.getScheduleExpression()).thenReturn(cronExpression);
+        when(importSchedule.getCronExpression()).thenReturn(cronExpression);
         when(importSchedule.getImportDirectory()).thenReturn(importDir);
 //        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
 //        when(serviceLocator.getPredicates()).thenReturn(predicates);
@@ -77,7 +82,7 @@ public class ImportScheduleJobTest {
             }
         });
 
-        importScheduleJob = new ImportScheduleJob(path -> true, fileSystem, jsonService, importSchedule, transactionService, thesaurus);
+        importScheduleJob = new ImportScheduleJob(path -> true, fileSystem, jsonService, importSchedule, transactionService, thesaurus, cronExpressionParser);
     }
 
     @After

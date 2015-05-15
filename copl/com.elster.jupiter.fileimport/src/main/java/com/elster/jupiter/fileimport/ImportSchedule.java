@@ -2,10 +2,13 @@ package com.elster.jupiter.fileimport;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Entity that models when a certain directory should be scanned for files to import and where to move them during different stages of the import cycle.
@@ -16,6 +19,18 @@ public interface ImportSchedule {
      * @return this entity's id
      */
     long getId();
+
+
+    /**
+     * @return import schedule status
+     */
+
+    boolean isActive();
+
+    /**
+     * @return import schedule name
+     */
+    String getName();
 
     /**
      * @return the Destination on which to post a message when a file needs processing.
@@ -50,8 +65,7 @@ public interface ImportSchedule {
     /**
      * @return a CronExpression that indicates the times at which the import directory should be scanned.
      */
-    CronExpression getScheduleExpression();
-
+    CronExpression getCronExpression();
     /**
      * Persists or updates this instance.
      */
@@ -90,4 +104,27 @@ public interface ImportSchedule {
     List<FileImporterProperty> getImporterProperties();
 
     void setProperty(String name, Object value);
+
+    
+    Map<String,Object> getProperties();
+
+    void delete();
+
+    void setName(String name);
+
+    void setCronExpression(CronExpression cronExpression);
+
+    void setImportDirectory(File file);
+
+    void setFailureDirectory(File file);
+
+    void setSuccessDirectory(File file);
+
+    void setProcessingDirectory(File file);
+
+    void setImporterName(String name);
+
+    void setPathMatcher(String pathMatcher);
+
+    void setDestination(String destinationName);
 }

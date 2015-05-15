@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +42,7 @@ public class DefaultImportScheduleBuilderTest {
     private DataModel dataModel;
     @Mock
     private CronExpressionParser cronParser;
+
     @Mock
     private FileNameCollisionResolver nameResolver;
     @Mock
@@ -68,7 +71,7 @@ public class DefaultImportScheduleBuilderTest {
                 .setFailureDirectory(FAILURE_DIRECTORY)
                 .build();
 
-        assertThat(schedule.getScheduleExpression()).isEqualTo(cronExpression);
+        assertThat(schedule.getCronExpression()).isEqualTo(cronExpression);
     }
 
     @Test
