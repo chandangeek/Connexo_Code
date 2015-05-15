@@ -21,6 +21,8 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -32,6 +34,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
@@ -106,7 +109,7 @@ public class MeterProtocolAdapterTest {
     private ProtocolPluggableServiceImpl protocolPluggableService;
 
     @Before
-    public void initializeDatabaseAndMocks () {
+    public void initializeDatabaseAndMocks() {
         this.inMemoryPersistence = new InMemoryPersistence();
         this.inMemoryPersistence.initializeDatabase("MeterProtocolAdapterTest.mdc.protocol.pluggable");
         this.protocolPluggableService = this.inMemoryPersistence.getProtocolPluggableService();
@@ -149,7 +152,7 @@ public class MeterProtocolAdapterTest {
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
         when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor("com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport")).
-            thenReturn(securitySupport);
+                thenReturn(securitySupport);
         this.mockPropertySpecs();
     }
 
@@ -308,7 +311,7 @@ public class MeterProtocolAdapterTest {
     private List<PropertySpec> getOptionalPropertiesFromSet(List<PropertySpec> propertySpecs) {
         List<PropertySpec> requiredProperties = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
-            if(!propertySpec.isRequired()){
+            if (!propertySpec.isRequired()) {
                 requiredProperties.add(propertySpec);
             }
         }
@@ -326,11 +329,11 @@ public class MeterProtocolAdapterTest {
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
         doReturn(new BasicPropertySpec("o1", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class));
+                .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class));
         doReturn(new BasicPropertySpec("o2", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class));
+                .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class));
         doReturn(new BasicPropertySpec("o3", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class));
+                .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
@@ -340,12 +343,12 @@ public class MeterProtocolAdapterTest {
         assertThat(deviceProtocolDialects).hasSize(1);
         final DeviceProtocolDialect deviceProtocolDialect = deviceProtocolDialects.get(0);
         assertThat(getOptionalPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).
-            areExactly(optionalKeys.size(), new Condition<PropertySpec>() {
-                @Override
-                public boolean matches(PropertySpec propertySpec) {
-                    return optionalKeyNames.contains(propertySpec.getName());
-                }
-            });
+                areExactly(optionalKeys.size(), new Condition<PropertySpec>() {
+                    @Override
+                    public boolean matches(PropertySpec propertySpec) {
+                        return optionalKeyNames.contains(propertySpec.getName());
+                    }
+                });
         assertThat(getRequiredPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).isEmpty();
     }
 
@@ -658,6 +661,49 @@ public class MeterProtocolAdapterTest {
 
         // Asserts
         verify(adaptedProtocol).getSecurityRelationTypeName();
+    }
+
+    @Test
+    public void getFirmwareVersionTest() throws IOException {
+        String myTestFirmwareVersion = "jslmjksdfjjL1321";
+        MeterProtocol meterProtocol = getMockedMeterProtocol();
+        when(meterProtocol.getFirmwareVersion()).thenReturn(myTestFirmwareVersion);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        MeterProtocolAdapter meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
+        meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
+
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class);
+        when(collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier)).thenReturn(collectedFirmwareVersion);
+        CollectedFirmwareVersion firmwareVersions = meterProtocolAdapter.getFirmwareVersions();
+
+        verify(collectedFirmwareVersion).setActiveMeterFirmwareVersion(myTestFirmwareVersion);
+    }
+
+    @Test
+    public void getFirmwareVersionWithExceptionest() throws IOException {
+        MeterProtocol meterProtocol = getMockedMeterProtocol();
+        IOException expectedException = createGetFirmwareVersionIOException();
+        when(meterProtocol.getFirmwareVersion()).thenThrow(expectedException);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        MeterProtocolAdapter meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
+        meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
+
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class);
+        when(collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier)).thenReturn(collectedFirmwareVersion);
+        try {
+            CollectedFirmwareVersion firmwareVersions = meterProtocolAdapter.getFirmwareVersions();
+            fail("Shoud not get here!");
+        } catch (LegacyProtocolException e) {
+            assertThat(e.getCause()).isEqualTo(expectedException);
+        }
+    }
+
+    private IOException createGetFirmwareVersionIOException() {
+        return new IOException("MyExpectedIoException");
     }
 
     protected MeterProtocolAdapterImpl newMeterProtocolAdapter(MeterProtocol meterProtocol) {

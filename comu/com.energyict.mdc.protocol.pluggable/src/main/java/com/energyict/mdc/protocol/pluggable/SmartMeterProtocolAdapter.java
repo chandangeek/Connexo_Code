@@ -15,13 +15,7 @@ import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -556,4 +550,14 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
         return this.smartMeterProtocolSecuritySupportAdapter;
     }
 
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(this.offlineDevice.getDeviceIdentifier());
+        try {
+            firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(this.getSmartMeterProtocol().getFirmwareVersion());
+        } catch (IOException e) {
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        }
+        return firmwareVersionsCollectedData;
+    }
 }
