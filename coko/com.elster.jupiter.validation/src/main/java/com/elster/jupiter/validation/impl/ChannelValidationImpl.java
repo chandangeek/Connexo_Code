@@ -153,7 +153,7 @@ final class ChannelValidationImpl implements IChannelValidation {
 
         Instant newLastChecked = versions.stream()
                 .map(IValidationRuleSetVersion.class::cast)
-                .filter(cv -> !dataRange.intersection(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())).isEmpty())
+                .filter(cv -> dataRange.isConnected(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())))
                 .flatMap(currentVersion ->
                 {
                     Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));

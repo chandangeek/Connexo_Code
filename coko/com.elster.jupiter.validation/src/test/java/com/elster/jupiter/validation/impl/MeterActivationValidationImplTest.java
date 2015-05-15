@@ -73,6 +73,9 @@ public class MeterActivationValidationImplTest {
     private Validator validator;
     @Mock
     private IntervalReadingRecord intervalReadingRecord;
+    @Mock
+    private IValidationRuleSetVersion ruleSetVersion1, ruleSetVersion2;
+    
 
     @Before
     public void setUp() {
@@ -96,6 +99,12 @@ public class MeterActivationValidationImplTest {
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
+        when(validationRuleSet.getRuleSetVersions()).thenReturn(Arrays.asList(ruleSetVersion1, ruleSetVersion2));
+        when(ruleSetVersion1.getNotNullStartDate()).thenReturn(Instant.EPOCH);
+        when(ruleSetVersion1.getNotNullEndDate()).thenReturn(DATE1);
+        when(ruleSetVersion2.getNotNullStartDate()).thenReturn(DATE4.plusSeconds(1));
+        when(ruleSetVersion2.getNotNullEndDate()).thenReturn(Instant.MAX);
+        when(ruleSetVersion2.getRules()).thenReturn(Arrays.asList(rule1, rule2));
         when(rule1.isActive()).thenReturn(true);
         when(rule2.isActive()).thenReturn(true);
         when(rule1.createNewValidator()).thenReturn(validator);
