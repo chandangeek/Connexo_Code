@@ -78,14 +78,22 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     showSpecifications: function (mRID, channelId) {
-        this.showOverview(mRID, channelId, 0)
+        var me = this,
+        router = me.getController('Uni.controller.history.Router');
+        me.showOverview(mRID, channelId, 0, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToList(router))
     },
 
     showData: function (mRID, channelId) {
-        this.showOverview(mRID, channelId, 1)
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        me.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToList(router))
     },
 
-    showOverview: function (mRID, channelId, activeTab) {
+    showDataFromValidationIssue: function (mRID, channelId) {
+        this.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice')
+    },
+
+    showOverview: function (mRID, channelId, activeTab, prevNextstore, prevNextListLink) {
         var me = this,
             device = me.getModel('Mdc.model.Device'),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
@@ -105,8 +113,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             router: router,
                             channel: channel,
                             device: device,
-                            channelsListLink: me.makeLinkToList(router),
-                            activeTab: activeTab
+                            prevNextListLink: prevNextListLink,
+                            activeTab: activeTab,
+                            prevNextstore: prevNextstore,
+                            routerIdArgument: 'channelId'
                         });
                         widget.down('#channelTabPanel').setTitle(channel.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);

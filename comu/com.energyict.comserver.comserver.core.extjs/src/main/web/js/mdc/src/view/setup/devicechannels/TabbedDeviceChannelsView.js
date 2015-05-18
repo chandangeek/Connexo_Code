@@ -9,10 +9,13 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         'Mdc.view.setup.devicechannels.GraphView'
     ],
 
+    prevNextstore: null,
+    routerIdArgument: null,
+
     router: null,
     channel: null,
     device: null,
-    channelsListLink: null,
+    prevNextListLink: null,
     activeTab: null,
 
     setFilterView: function (filter, durationsStore) {
@@ -82,10 +85,10 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                             {
                                 xtype: 'previous-next-navigation-toolbar',
                                 itemId: 'tabbed-device-channels-view-previous-next-navigation-toolbar',
-                                store: 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
+                                store: me.prevNextstore,
                                 router: me.router,
-                                routerIdArgument: 'channelId',
-                                itemsName: me.channelsListLink
+                                routerIdArgument: me.routerIdArgument,
+                                itemsName: me.prevNextListLink
                             }
                         ]);
                     }

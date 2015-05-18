@@ -177,7 +177,6 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                                 'margin-left: 4px"></span>';
                             break;
                     }
-
                     s += '<tr><td style="highchart-tooltip-value-td"><b>' +
                         point.series.name +
                         ':</b></td><td>' +
