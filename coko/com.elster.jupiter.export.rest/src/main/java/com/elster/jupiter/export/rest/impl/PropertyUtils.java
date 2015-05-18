@@ -36,7 +36,7 @@ public class PropertyUtils {
         PropertyValueInfo propertyValueInfo = getPropertyValueInfo(propertySpec, values);
         PropertyType propertyType = PropertyType.getTypeFrom(propertySpec.getValueFactory());
         PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(propertySpec, propertyType);
-        return new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+        return new PropertyInfo(propertySpec.getName(),propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
 
     private PropertyValueInfo<Object> getPropertyValueInfo(PropertySpec propertySpec, Map<String, Object> values) {
