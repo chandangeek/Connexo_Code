@@ -342,6 +342,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * Gets the current {@link State} of this Device.
      *
      * @return The current State
+     * @since 2.0
      */
     public State getState();
 
@@ -353,6 +354,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @param instant The point in time
      * @return The State
+     * @since 2.0
      */
     public Optional<State> getState(Instant instant);
 
@@ -362,9 +364,26 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * Gets the {@link StateTimeline} for this Device.
      *
      * @return The StateTimeline
+     * @since 2.0
      */
     public StateTimeline getStateTimeline();
 
+    /**
+     * Gets the List of {@link DeviceLifeCycleChangeEvent}s for this Device.
+     * Note that the elements of the {@link StateTimeline} are also included
+     * and will have type {@link DeviceLifeCycleChangeEvent.Type#STATE}.
+     *
+     * @return The List of DeviceLifeCycleChangeEvent
+     * @since 2.0
+     */
+    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
+
+    /**
+     * Gets the CIM dates that relate to thie life cycle of this Device.
+     *
+     * @return The LifecycleDates
+     * @since 2.0
+     */
     public LifecycleDates getLifecycleDates();
 
     /**

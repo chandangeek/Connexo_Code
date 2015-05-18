@@ -37,6 +37,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -78,14 +79,14 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         testUser.join(group);
         testUser.save();
         inMemoryPersistence.getThreadPrincipalService().set(testUser);
-
+        freezeClock(1970, Calendar.JANUARY, 1); // Experiencing timing issues in tests that set clock back in time and the respective devices need their device life cycle
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigForMessaging");
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
-
+        resetClock();
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID) {
@@ -457,8 +458,8 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
         Device device = createSimpleDeviceWithName("createWithIncorrectDeviceMessageIdTest", "createWithIncorrectDeviceMessageIdTest");
-        DeviceMessageId contactorClose = DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL;
-        device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        DeviceMessageId activateFirewall = DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL;
+        device.newDeviceMessage(activateFirewall).setReleaseDate(myReleaseInstant).add();
     }
 
     @Test
