@@ -1,16 +1,19 @@
 package com.energyict.mdc.device.data.api.impl;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 4/30/15.
@@ -21,56 +24,61 @@ public class DeviceTypeInfoFactory {
     public DeviceTypeInfoFactory() {
     }
 
-    public DeviceTypeInfo asId(DeviceType deviceType) {
+    public DeviceTypeInfo asPlainId(DeviceType deviceType) {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.id=deviceType.getId();
         return deviceTypeInfo;
     }
 
-    public DeviceTypeInfo asHypermediaId(DeviceType deviceType, UriInfo uriInfo) {
-        DeviceTypeInfo deviceTypeInfo = asId(deviceType);
-        deviceTypeInfo.link = Link.fromUri(getUriTemplate(uriInfo).resolveTemplate("id", deviceType.getId()).build()).rel("parent").title("Device type").build();
-        return deviceTypeInfo;
-    }
-
     public DeviceTypeInfo plain(DeviceType deviceType, Collection<String> fields) {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
-        Map<String, Consumer<DeviceType>> consumerMap = buildConsumerMap(deviceTypeInfo);
-        if (fields==null || fields.isEmpty()) {
-            fields = consumerMap.keySet();
-        }
-        fields.stream().forEach(f->consumerMap.getOrDefault(f, d->d=d).accept(deviceType));
+        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, Optional.empty()));
         return deviceTypeInfo;
     }
 
-    private Map<String, Consumer<DeviceType>> buildConsumerMap(DeviceTypeInfo deviceTypeInfo) {
-        Map<String, Consumer<DeviceType>> consumerMap = new HashMap<>();
-        consumerMap.put("id", d -> deviceTypeInfo.id = d.getId());
-        consumerMap.put("name", d -> deviceTypeInfo.name = d.getName());
-        return consumerMap;
-    }
-
-    public DeviceTypeInfo plain(DeviceType device) {
-        DeviceTypeInfo deviceInfo = new DeviceTypeInfo();
-        Map<String, Consumer<DeviceType>> consumerMap = buildConsumerMap(deviceInfo);
-        return plain(device, consumerMap.keySet());
+    private List<PropertyCopier<DeviceTypeInfo, DeviceType>> getSelectedFields(Collection<String> fields) {
+        Map<String, PropertyCopier<DeviceTypeInfo, DeviceType>> fieldSelectionMap = buildFieldSelectionMap();
+        if (fields==null || fields.isEmpty()) {
+            fields = fieldSelectionMap.keySet();
+        }
+        return fields.stream().filter(fieldSelectionMap::containsKey).map(fieldSelectionMap::get).collect(toList());
     }
 
     public DeviceTypeInfo asHypermedia(DeviceType deviceType, UriInfo uriInfo, List<String> fields) {
-        DeviceTypeInfo deviceTypeInfo = plain(deviceType, fields);
-        deviceTypeInfo.link = Link.fromUri(getUriTemplate(uriInfo).resolveTemplate("id", deviceType.getId()).build()).rel("self").title("self reference").build();
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, Optional.of(uriInfo)));
+        deviceTypeInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel("self").title("self reference").build(deviceType.getId());
         return deviceTypeInfo;
-    }
-
-    public HalInfo asHal(DeviceType deviceType, UriInfo uriInfo) {
-        DeviceTypeInfo deviceTypeInfo = plain(deviceType);
-        URI uri = getUriTemplate(uriInfo).build(deviceTypeInfo.id);
-        HalInfo wrap = HalInfo.wrap(deviceTypeInfo, uri);
-        return wrap;
     }
 
     private UriBuilder getUriTemplate(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
     }
+
+    private Map<String, PropertyCopier<DeviceTypeInfo,DeviceType>> buildFieldSelectionMap() {
+        Map<String, PropertyCopier<DeviceTypeInfo, DeviceType>> map = new HashMap<>();
+        map.put("id", (deviceTypeInfo, deviceType, uriInfo) -> {
+            deviceTypeInfo.id = deviceType.getId();
+        });
+        map.put("name", (deviceTypeInfo, deviceType, uriInfo) -> {
+            deviceTypeInfo.name = deviceType.getName();
+        });
+        map.put("description", (deviceTypeInfo, deviceType, uriInfo) -> {
+            deviceTypeInfo.description = deviceType.getDescription();
+        });
+        map.put("deviceConfigurations", (deviceTypeInfo, deviceType, uriInfo) -> {
+            deviceTypeInfo.deviceConfigurations = new ArrayList<>();
+            for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
+                DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+                deviceConfigurationInfo.id = deviceConfiguration.getId();
+                if (uriInfo.isPresent()) {
+                    deviceConfigurationInfo.link = Link.fromUriBuilder(uriInfo.get().getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel("child").title("Device configuration").build(deviceType.getId(), deviceConfiguration.getId());
+                }
+                deviceTypeInfo.deviceConfigurations.add(deviceConfigurationInfo);
+            }
+        });
+        return map;
+    }
+
 
 }

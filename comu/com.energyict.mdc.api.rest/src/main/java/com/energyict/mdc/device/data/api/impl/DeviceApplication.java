@@ -93,8 +93,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 DeviceResource.class,
-                DeviceTypeResource.class,
-                RegisterResource.class
+                DeviceConfigurationResource.class,
+                DeviceTypeResource.class
         );
     }
 

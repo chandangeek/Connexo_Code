@@ -64,6 +64,23 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         return mock;
     }
 
+    private DeviceType mockDeviceType(long id, String name) {
+        DeviceType mock = mock(DeviceType.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1000 + id, "Default");
+        when(mock.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
+        return mock;
+    }
+
+    private DeviceConfiguration mockDeviceConfiguration(long id, String name) {
+        DeviceConfiguration mock = mock(DeviceConfiguration.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+
+        return mock;
+    }
+
     @Test
     public void testJsonCall() throws Exception {
 
@@ -104,6 +121,17 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
 
         Response response = target("/devices/XAS/registers/0").request("application/h+json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
+
+    }
+
+    @Test
+    public void testDeviceTypeWithConfig() throws Exception {
+        DeviceType serial = mockDeviceType(4, "Serial");
+        DeviceType serial2 = mockDeviceType(6, "Serial 2");
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(serial, serial2));
+        when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+
+        target("/devicetypes").queryParam("fields", "deviceConfigurations").request("application/h+json").get();
 
     }
 

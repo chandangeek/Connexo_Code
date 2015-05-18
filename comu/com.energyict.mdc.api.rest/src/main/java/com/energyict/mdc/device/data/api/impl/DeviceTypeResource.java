@@ -3,8 +3,6 @@ package com.energyict.mdc.device.data.api.impl;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.security.Privileges;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -13,7 +11,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -41,8 +38,8 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{id}")
-    public Response getDevice(@PathParam("id") long id, @QueryParam("fields") List<String> fields) {
-        DeviceTypeInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(deviceTypeInfoFactory::plain).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getDevice(@PathParam("id") long id, @BeanParam FieldList fields) {
+        DeviceTypeInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(dt -> deviceTypeInfoFactory.plain(dt, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceTypeInfo).build();
     }
 
@@ -50,30 +47,28 @@ public class DeviceTypeResource {
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{id}")
-    public Response getHypermediaDevice(@PathParam("id") long id, @QueryParam("fields") String fields, @Context UriInfo uriInfo) {
-        List<String> split = fields!=null?Arrays.asList(fields.split(",")):Collections.emptyList();
-        DeviceTypeInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, split)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getHypermediaDevice(@PathParam("id") long id, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        DeviceTypeInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceTypeInfo).build();
     }
 
     @GET
-    @Produces("application/hal+json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    @Path("/{id}")
-    public Response getHalDevice(@PathParam("id") long id, @QueryParam("fields") List<String> fields, @Context UriInfo uriInfo) {
-        HalInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(d -> deviceTypeInfoFactory.asHal(d, uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().stream().map(d -> deviceTypeInfoFactory.plain(d, fields.getFields())).collect(toList());
 
-        return Response.ok(deviceTypeInfo).build();
+        return Response.ok(com.energyict.mdc.common.rest.PagedInfoList.fromCompleteList("deviceTypes", infos, queryParameters)).build();
     }
-
 
     @GET
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
-        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().stream().limit(10).map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).collect(toList());
+    public Response getHypermediaDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields,@Context UriInfo uriInfo) {
+        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().stream().map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
 
-        return Response.ok(com.energyict.mdc.common.rest.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
+
+        return Response.ok(PagedInfoList.fromCompleteList("deviceTypes", infos, queryParameters, uriInfo)).build();
     }
 
 }

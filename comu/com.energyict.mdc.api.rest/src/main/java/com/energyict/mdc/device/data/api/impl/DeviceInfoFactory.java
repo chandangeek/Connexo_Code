@@ -28,7 +28,7 @@ public class DeviceInfoFactory {
     public DeviceInfo plain(Device device, Collection<String> fields) {
         Map<String, BiFunction<DeviceInfo, Device, Object>> consumerMap = buildConsumerMap();
         consumerMap.put("deviceType", (i,d) -> {
-            i.deviceType = deviceTypeInfoFactory.asId(d.getDeviceType());
+            i.deviceType = deviceTypeInfoFactory.asPlainId(d.getDeviceType());
             return null;
         });
 
@@ -42,7 +42,9 @@ public class DeviceInfoFactory {
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, List<String> fields) {
         Map<String, BiFunction<DeviceInfo, Device, Object>> consumerMap = buildConsumerMap();
         consumerMap.put("deviceType", (i,d) -> {
-            i.deviceType = deviceTypeInfoFactory.asHypermediaId(d.getDeviceType(), uriInfo);
+            i.deviceType = deviceTypeInfoFactory.asPlainId(d.getDeviceType());
+            i.deviceType.link = Link.fromUri(getUriTemplate(uriInfo).resolveTemplate("id", d.getDeviceType().getId()).build()).rel("parent").title("Device type").build();
+
             return null;
         });
         DeviceInfo deviceInfo = buildInfo(device, fields, consumerMap);
