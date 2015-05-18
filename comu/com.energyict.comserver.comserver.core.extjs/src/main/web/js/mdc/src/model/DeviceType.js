@@ -16,8 +16,7 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'deviceProtocolPluggableClassId', type: 'number', useNull: true},
         {name: 'registerTypes'},
         {name: 'deviceLifeCycleId'},
-        {name: 'deviceLifeCycleName'},
-        'version'
+        {name: 'deviceLifeCycleName'}
     ],
     associations: [
             {name: 'registerTypes', type: 'hasMany', model: 'Mdc.model.RegisterType', associationKey: 'registerTypes',
