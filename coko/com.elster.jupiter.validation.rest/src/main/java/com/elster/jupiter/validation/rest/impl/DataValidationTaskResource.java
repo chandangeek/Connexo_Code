@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.KorePagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
