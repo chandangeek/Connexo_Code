@@ -21,9 +21,11 @@ import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.pluggable.rest.impl.MdcPluggableRestApplication;
-import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
@@ -32,8 +34,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.inject.Inject;
-import javax.ws.rs.core.UriInfo;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
@@ -83,11 +83,31 @@ public class MdcPropertyUtils {
     }
 
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, Device device) {
+        PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
+            List<?> possibleValues = null;
+            if (propertyType instanceof SimplePropertyType) {
+                SimplePropertyType simplePropertyType = (SimplePropertyType) propertyType;
+                if (simplePropertyType.equals(SimplePropertyType.LOADPROFILE)) {
+                    possibleValues = device.getLoadProfiles();
+                } else if (simplePropertyType.equals(SimplePropertyType.LOGBOOK)) {
+                    possibleValues = device.getLogBooks();
+                } else if (simplePropertyType.equals(SimplePropertyType.REGISTER)) {
+                    possibleValues = device.getRegisters();
+                } else if (simplePropertyType.equals(SimplePropertyType.FIRMWAREVERSION)) {
+                    possibleValues = this.firmwareService.getAllUpgradableFirmwareVersionsFor(device);
+                }
+            }
+            return possibleValues;
+        };
+        return convertPropertySpecsToPropertyInfos(propertySpecs, properties, provider);
+    }
+
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyDefaultValuesProvider valuesProvider) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, SHOW_VALUES, WITHOUT_PRIVILEGES);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
-            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, device);
+            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, valuesProvider);
             PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
@@ -130,8 +150,8 @@ public class MdcPropertyUtils {
         }
     }
 
-    private PropertyTypeInfo getPropertyTypeInfo(UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType, Device device) {
-        return new PropertyTypeInfo(simplePropertyType, getPropertyValidationRule(propertySpec), getPredefinedPropertyValueInfo(propertySpec, simplePropertyType, device), getReferenceUri(uriInfo, propertySpec, simplePropertyType));
+    private PropertyTypeInfo getPropertyTypeInfo(UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType, PropertyDefaultValuesProvider valuesProvider) {
+        return new PropertyTypeInfo(simplePropertyType, getPropertyValidationRule(propertySpec), getPredefinedPropertyValueInfo(propertySpec, simplePropertyType, valuesProvider), getReferenceUri(uriInfo, propertySpec, simplePropertyType));
     }
 
     private URI getReferenceUri(final UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
@@ -167,19 +187,11 @@ public class MdcPropertyUtils {
         return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getInheritedValue(getTranslatedPropertyName(propertySpec)));
     }
 
-    private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, SimplePropertyType simplePropertyType, Device device) {
+    private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, SimplePropertyType simplePropertyType, PropertyDefaultValuesProvider valuesProvider) {
         List<?> possibleValues = null;
         boolean isExchaustive = true;
-        if (device != null) {
-            if (simplePropertyType.equals(SimplePropertyType.LOADPROFILE)) {
-                possibleValues = device.getLoadProfiles();
-            } else if (simplePropertyType.equals(SimplePropertyType.LOGBOOK)) {
-                possibleValues = device.getLogBooks();
-            } else if (simplePropertyType.equals(SimplePropertyType.REGISTER)) {
-                possibleValues = device.getRegisters();
-            } else if(simplePropertyType.equals(SimplePropertyType.FIRMWAREVERSION)){
-                possibleValues = this.firmwareService.getAllUpgradableFirmwareVersionsFor(device);
-            }
+        if (valuesProvider != null) {
+            possibleValues = valuesProvider.getPropertyPossibleValues(propertySpec, simplePropertyType);
         }
 
         if (propertySpec.getPossibleValues() != null) {
