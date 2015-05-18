@@ -60,6 +60,7 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
                 FirmwareCampaignResource.class,
                 DeviceFirmwareVersionResource.class,
                 DeviceFirmwareMessagesResource.class,
+                FirmwareTypesResource.class,
                 TransactionWrapper.class,
                 MultiPartFeature.class
         );

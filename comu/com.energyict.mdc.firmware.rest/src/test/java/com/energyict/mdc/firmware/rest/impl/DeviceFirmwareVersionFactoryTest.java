@@ -11,6 +11,8 @@ import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -46,6 +48,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
     @Mock
     private Device device;
+    @Mock
+    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    @Mock
+    private DeviceProtocol deviceProtocol;
     @Mock
     private DeviceType deviceType;
     @Mock
@@ -90,6 +96,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(firmwareExecution, statusCheckExecution));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(communicationVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(communicationVersion.getFirmwareVersion()).thenReturn("COM-001-ACT");
@@ -134,19 +142,20 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
     @Test
     public void testActiveVersions() {
+        when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
         assertThat(model.<List>get("$.firmwares")).isNotEmpty();
         assertThat(model.<List>get("$.firmwares")).hasSize(2);
-        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
-        assertThat(model.<String>get("$.firmwares[0].firmwareType.localizedValue")).isNotEmpty();
-        assertThat(model.<String>get("$.firmwares[0].activeVersion")).isNull();
-        assertThat(model.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("communication");
+        assertThat(model.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
         assertThat(model.<String>get("$.firmwares[1].firmwareType.localizedValue")).isNotEmpty();
-        assertThat(model.<Object>get("$.firmwares[1].activeVersion")).isNotNull();
-        assertThat(model.<String>get("$.firmwares[1].activeVersion.firmwareVersion")).isEqualTo("COM-001-ACT");
-        assertThat(model.<String>get("$.firmwares[1].activeVersion.firmwareVersionStatus.id")).isEqualTo("final");
-        assertThat(model.<String>get("$.firmwares[1].activeVersion.firmwareVersionStatus.localizedValue")).isNotEmpty();
-        assertThat(model.<Number>get("$.firmwares[1].activeVersion.lastCheckedDate")).isEqualTo(TIME.toEpochMilli());
+        assertThat(model.<String>get("$.firmwares[1].activeVersion")).isNull();
+        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("communication");
+        assertThat(model.<String>get("$.firmwares[0].firmwareType.localizedValue")).isNotEmpty();
+        assertThat(model.<Object>get("$.firmwares[0].activeVersion")).isNotNull();
+        assertThat(model.<String>get("$.firmwares[0].activeVersion.firmwareVersion")).isEqualTo("COM-001-ACT");
+        assertThat(model.<String>get("$.firmwares[0].activeVersion.firmwareVersionStatus.id")).isEqualTo("final");
+        assertThat(model.<String>get("$.firmwares[0].activeVersion.firmwareVersionStatus.localizedValue")).isNotEmpty();
+        assertThat(model.<Number>get("$.firmwares[0].activeVersion.lastCheckedDate")).isEqualTo(TIME.toEpochMilli());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -815,6 +824,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     */
     @Test
     public void customScenarioWithUploadAndActivateLaterCase1(){
+        when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
         // successfully uploaded meter firmware
         FirmwareVersion meterFirmwareVersion = mock(FirmwareVersion.class);
         when(meterFirmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.TEST);
@@ -877,10 +887,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(2));
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
-        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
-        assertThat(model.<Object>get("$.firmwares[0].failedActivatingVersion")).isNull();
-        assertThat(model.<Object>get("$.firmwares[1].ongoingActivatingVersion")).isNotNull();
-        assertThat(model.<Number>get("$.firmwares[1].ongoingActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1004);
+        assertThat(model.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[1].failedActivatingVersion")).isNull();
+        assertThat(model.<Object>get("$.firmwares[0].ongoingActivatingVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].ongoingActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1004);
     }
 
     /*
@@ -895,6 +905,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     */
     @Test
     public void customScenarioWithUploadAndActivateLaterCase2(){
+        when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
         // successfully uploaded meter firmware
         FirmwareVersion meterFirmwareVersion = mock(FirmwareVersion.class);
         when(meterFirmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.TEST);
@@ -957,10 +968,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(TIME.plusSeconds(2));
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
-        assertThat(model.<String>get("$.firmwares[0].firmwareType.id")).isEqualTo("meter");
-        assertThat(model.<Object>get("$.firmwares[0].needVerificationVersion")).isNotNull();
-        assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
-        assertThat(model.<Object>get("$.firmwares[1].ongoingActivatingVersion")).isNotNull();
-        assertThat(model.<Number>get("$.firmwares[1].ongoingActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1004);
+        assertThat(model.<String>get("$.firmwares[1].firmwareType.id")).isEqualTo("meter");
+        assertThat(model.<Object>get("$.firmwares[1].needVerificationVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[1].needVerificationVersion.firmwareDeviceMessageId")).isEqualTo(1001);
+        assertThat(model.<Object>get("$.firmwares[0].ongoingActivatingVersion")).isNotNull();
+        assertThat(model.<Number>get("$.firmwares[0].ongoingActivatingVersion.firmwareDeviceMessageId")).isEqualTo(1004);
     }
 }
