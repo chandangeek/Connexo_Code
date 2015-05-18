@@ -46,8 +46,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
 
     @Override
     public void init() {
-        maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, BigDecimal.class)
-                .map(BigDecimal::longValue)
+        maxNumberOfConsecutiveSuspects = getProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, Long.class)
                 .orElse(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE);
     }
 
