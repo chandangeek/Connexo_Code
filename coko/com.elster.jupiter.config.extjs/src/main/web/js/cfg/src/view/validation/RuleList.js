@@ -23,7 +23,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             {
                 header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
                 dataIndex: 'name',
-                flex: 0.3,
+                flex: 3,
                 sortable: false,
                 fixed: true,
                 renderer: function (value, b, record) {
@@ -33,7 +33,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             {
                 header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
                 dataIndex: 'active',
-                flex: 0.3,
+                flex: 5,
                 sortable: false,
                 fixed: true,
                 renderer: function (value) {

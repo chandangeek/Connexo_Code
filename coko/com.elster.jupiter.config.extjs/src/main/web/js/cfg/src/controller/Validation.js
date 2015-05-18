@@ -81,6 +81,7 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'validatorCombo', selector: 'addRule #validatorCombo'},
         {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
         {ref: 'ruleSetBrowsePanel', selector: 'validationrulesetBrowse'},
+		{ref: 'versionsPreviewContainerPanel', selector: 'versions-preview-container-panel'},		
         {ref: 'rulePreviewContainer', selector: 'rulePreviewContainer'},
         {ref: 'ruleOverview', selector: 'ruleOverview'},
         {ref: 'ruleSetBrowsePreviewCt', selector: '#ruleSetBrowsePreviewCt'},
@@ -1011,7 +1012,7 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRulePreviewContainerPanel(),
-            ruleSetWithRulesView = me.getRuleSetBrowsePanel(),
+            versionsGrid = me.getVersionsPreviewContainerPanel(),
             grid = view.down('grid'),
             rule = record,
             isActive = record.get('active');
@@ -1030,10 +1031,10 @@ Ext.define('Cfg.controller.Validation', {
         record.set('active', !isActive);
         record.endEdit(true);
 
-        if (!ruleSetWithRulesView) {
+        if (!versionsGrid) {
             view.setLoading('Loading...');
         } else {
-            ruleSetWithRulesView.setLoading();
+            versionsGrid.setLoading();
         }
 
         record.save({
@@ -1042,8 +1043,8 @@ Ext.define('Cfg.controller.Validation', {
             },
             success: function (record, operation) {
                 var ruleSet;
-                if (ruleSetWithRulesView) {
-                    ruleSet = ruleSetWithRulesView.down('#validationrulesetList').getSelectionModel().getLastSelected();
+                if (versionsGrid) {
+                    ruleSet = versionsGrid.down('#versionsList').getSelectionModel().getLastSelected();
                     ruleSet.set('numberOfInactiveRules', isActive ? ruleSet.get('numberOfInactiveRules') + 1 : ruleSet.get('numberOfInactiveRules') - 1);
                     ruleSet.commit();
                 }
@@ -1055,10 +1056,10 @@ Ext.define('Cfg.controller.Validation', {
                 }
             },
             callback: function () {
-                if (!ruleSetWithRulesView) {
+                if (!versionsGrid) {
                     view.setLoading(false);
                 } else {
-                    ruleSetWithRulesView.setLoading(false);
+                    versionsGrid.setLoading(false);
                 }
             }
         });

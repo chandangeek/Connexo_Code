@@ -11,6 +11,7 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
         {name: 'duration', type: 'number'},
         {name: 'status', type: 'string'},
         {name: 'reason', type: 'string'},
+		{name: 'trigger', type: 'string'},
         {name: 'statusDate', type: 'number'},
         {name: 'statusPrefix', type: 'string'},    
         {

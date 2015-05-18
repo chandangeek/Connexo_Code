@@ -15,22 +15,27 @@ Ext.define('Cfg.view.validation.RuleSetList', {
 
     columns: {
         items: [
-            { header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'), dataIndex: 'name', flex: 0.3, sortable: false, fixed: true,
-
+            { 
+				header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'), 
+				dataIndex: 'name', 
+				flex: 3, 
+				sortable: false, 
+				fixed: true,
                 renderer: function (value, metaData, record) {
                     metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
                     return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
                 }
             },
-            { header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'), dataIndex: 'numberOfRules', flex: 0.3, align: 'left', sortable: false, fixed: true,
-                renderer: function (value, b, record) {
-                    var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
-                    return numberOfActiveRules;
-                }
-            },
-            { header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'), dataIndex: 'numberOfInactiveRules', flex: 0.3, align: 'left', sortable: false, fixed: true },
+			{
+                header: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
+                dataIndex: 'activeVersion',
+                flex: 5,
+                align: 'left',
+                sortable: false,
+                fixed: true
+            },	
             {
-                xtype: 'uni-actioncolumn',
+                xtype: 'uni-actioncolumn',				
                 privileges: Cfg.privileges.Validation.admin,
                 items: 'Cfg.view.validation.RuleSetActionMenu'
             }

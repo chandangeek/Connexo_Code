@@ -23,16 +23,20 @@ Ext.define('Cfg.view.validation.VersionPreview', {
     items: [
         {
             name: 'name',
-            fieldLabel: Uni.I18n.translate('validation.versionName', 'CFG', 'Name')
+            fieldLabel: Uni.I18n.translate('validation.period', 'CFG', 'Period')
         },
         {
             name: 'description',
             fieldLabel: Uni.I18n.translate('validation.versionDescription', 'CFG', 'Description')
-        },
+        },		
 		{
-            name: 'startDateFormatted',
-            fieldLabel: Uni.I18n.translate('validation.versionStart', 'CFG', 'Start')
-        }       
+            name: 'activeRules',
+            fieldLabel: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules')
+        },       
+		{
+            name: 'numberOfInactiveRules',
+            fieldLabel: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules')
+        }       		
     ],
 
     initComponent: function () {

@@ -30,7 +30,14 @@ Ext.define('Cfg.view.validationtask.ActionMenu', {
             itemId: 'view-history',
             text: Uni.I18n.translate('validationTasks.general.viewHistory', 'CFG', 'View history'),
             action: 'viewHistory'
+        },
+		{
+            itemId: 'run-task',
+            text: Uni.I18n.translate('validationTasks.general.run', 'CFG', 'Run'),
+            action: 'runTask',
+            hidden: true
         }
+
 
     ]
 });
