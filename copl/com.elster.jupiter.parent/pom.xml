@@ -242,6 +242,17 @@
             </snapshots>
         </pluginRepository>
         <pluginRepository>
+            <id>plugin-snapshots</id>
+            <name>EnergyICT plugin repository</name>
+            <url>http://linux2.eict.local/nexus/content/repositories/plugins-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
             <id>eict-public</id>
             <name>EnergyICT public repository group</name>
             <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
