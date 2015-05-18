@@ -91,7 +91,10 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.deviceconfigurationestimationrules.controller.RuleSets',
         'Mdc.deviceconfigurationestimationrules.controller.AddRuleSets',
         'Mdc.controller.setup.EstimationDeviceConfigurations',
-        'Mdc.controller.setup.DeviceDataEstimation'
+        'Mdc.controller.setup.DeviceDataEstimation',
+        'Mdc.controller.setup.DeviceValidationResults',
+        'Mdc.controller.setup.DeviceHistory',
+        'Mdc.controller.setup.ChangeDeviceLifeCycle'
     ],
 
     refs: [
