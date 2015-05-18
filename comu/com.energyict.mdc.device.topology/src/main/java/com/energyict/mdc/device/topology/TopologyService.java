@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.topology;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
@@ -20,6 +20,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-04 (15:34)
  */
+@ProviderType
 public interface TopologyService {
 
     public static final String COMPONENT_NAME = "DTL";
