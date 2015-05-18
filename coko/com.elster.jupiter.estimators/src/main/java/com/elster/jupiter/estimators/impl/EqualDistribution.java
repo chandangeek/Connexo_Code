@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
@@ -18,6 +19,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -191,12 +193,12 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
             return false;
         }
         if (!isValidReading(advanceCimChannel, priorReading)) {
-            String message = "Failed estimation with {rule}: Block {block} since the prior advance reading is suspect or estimated";
+            String message = "Failed estimation with {rule}: Block {block} since the prior advance reading is suspect, estimated or overflow";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
         if (!isValidReading(advanceCimChannel, laterReading)) {
-            String message = "Failed estimation with {rule}: Block {block} since the later advance reading is suspect or estimated";
+            String message = "Failed estimation with {rule}: Block {block} since the later advance reading is suspect, estimated or overflow";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
@@ -214,7 +216,13 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     private boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate) {
-        return advanceCimChannel.findReadingQuality(readingToEvaluate.getTimeStamp()).stream().noneMatch(either(ReadingQualityRecord::isSuspect).or(ReadingQualityRecord::hasEstimatedCategory));
+        return advanceCimChannel.findReadingQuality(readingToEvaluate.getTimeStamp()).stream()
+                .filter(ReadingQualityRecord::isActual)
+                .noneMatch(
+                        either(ReadingQualityRecord::isSuspect)
+                                .or(ReadingQualityRecord::hasEstimatedCategory)
+                                .or(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent())
+                );
     }
 
     private Optional<BigDecimal> calculateConsumption(EstimationBlock block, BaseReadingRecord priorReading, BaseReadingRecord laterReading, CimChannel cimChannel) {
@@ -297,7 +305,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                     return true;
                 })
                 .orElseGet(() -> {
-                    String message = "Failed estimation with {rule}: Block {block} since the surrounding bulk readings are not available.";
+                    String message = "Failed estimation with {rule}: Block {block} since the surrounding bulk readings are not available or have the overflow flag.";
                     LoggingContext.get().info(getLogger(), message);
                     return false;
                 });
@@ -328,13 +336,21 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     private Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Estimatable last) {
         return bulkCimChannel.getReading(last.getTimestamp())
                 .map(IntervalReadingRecord.class::cast)
+                .filter(intervalReadingRecord -> !intervalReadingRecord.getProfileStatus().get(ProfileStatus.Flag.OVERFLOW))
+                .filter(intervalReadingRecord -> bulkCimChannel.findReadingQuality(last.getTimestamp()).stream()
+                        .filter(ReadingQualityRecord::isActual)
+                        .noneMatch(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
     }
 
-    private Optional<BigDecimal> getValueBefore(CimChannel cimChannel, Estimatable first) {
-        Instant timestampBefore = cimChannel.getPreviousDateTime(first.getTimestamp());
-        return cimChannel.getReading(timestampBefore)
+    private Optional<BigDecimal> getValueBefore(CimChannel bulkCimChannel, Estimatable first) {
+        Instant timestampBefore = bulkCimChannel.getPreviousDateTime(first.getTimestamp());
+        return bulkCimChannel.getReading(timestampBefore)
                 .map(IntervalReadingRecord.class::cast)
+                .filter(intervalReadingRecord -> !intervalReadingRecord.getProfileStatus().get(ProfileStatus.Flag.OVERFLOW))
+                .filter(intervalReadingRecord -> bulkCimChannel.findReadingQuality(first.getTimestamp()).stream()
+                        .filter(ReadingQualityRecord::isActual)
+                        .noneMatch(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
     }
 
