@@ -1,11 +1,11 @@
 package com.energyict.mdc.pluggable;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
-
 import com.elster.jupiter.properties.PropertySpec;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Insert your comments here.
@@ -13,6 +13,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-20 (17:48)
  */
+@ProviderType
 public interface PluggableService {
 
     public static String COMPONENTNAME = "CPC";
