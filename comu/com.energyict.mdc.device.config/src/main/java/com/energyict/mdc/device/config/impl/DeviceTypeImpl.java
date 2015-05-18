@@ -24,19 +24,26 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
@@ -47,7 +54,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Size(max = 4000, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
     @IsPresent(message = "{" + MessageSeeds.Keys.DEVICE_LIFE_CYCLE_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
-    private Reference<DeviceLifeCycle> deviceLifeCycle = ValueReference.absent();
+    private TemporalReference<DeviceLifeCycleInDeviceType> deviceLifeCycle = Temporals.absent();
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     @Valid
@@ -64,17 +71,19 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private Instant createTime;
     private Instant modTime;
 
+    private Clock clock;
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
 
     /**
-     * The DeviceProtocol of this DeviceType, only for local usage
+     * The DeviceProtocol of this DeviceType, only for local usage.
      */
     private DeviceProtocol localDeviceProtocol;
 
     @Inject
-    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService) {
+    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService) {
         super(DeviceType.class, dataModel, eventService, thesaurus);
+        this.clock = clock;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -82,8 +91,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     DeviceTypeImpl initialize(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
         this.setName(name);
         this.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
-        this.deviceLifeCycle.set(deviceLifeCycle);
+        this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
         return this;
+    }
+
+    private void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle, Instant effective) {
+        Interval effectivityInterval = Interval.of(Range.atLeast(effective));
+        this.deviceLifeCycle.add(
+                this.dataModel
+                        .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
+                        .initialize(effectivityInterval, this, deviceLifeCycle));
     }
 
     static DeviceTypeImpl from(DataModel dataModel, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
@@ -173,7 +190,26 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public DeviceLifeCycle getDeviceLifeCycle() {
-        return this.deviceLifeCycle.get();
+        return this.deviceLifeCycle
+                .effective(this.clock.instant())
+                .map(DeviceLifeCycleInDeviceType::getDeviceLifeCycle)
+                .get(); // Required attribute so there should in fact always be an effective value
+    }
+
+    @Override
+    public Optional<DeviceLifeCycle> getDeviceLifeCycle(Instant when) {
+        return this.deviceLifeCycle
+                .effective(when)
+                .map(DeviceLifeCycleInDeviceType::getDeviceLifeCycle);
+    }
+
+    @Override
+    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
+        return this.deviceLifeCycle
+                .effective(Range.atLeast(Instant.EPOCH))
+                .stream()
+                .map(DeviceLifeCycleChangeEventImpl::new)
+                .collect(Collectors.toList());
     }
 
     @Override

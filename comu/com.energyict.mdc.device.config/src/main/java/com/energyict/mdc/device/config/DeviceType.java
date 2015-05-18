@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -10,7 +11,9 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * DeviceType defines the basic common attributes of a
@@ -47,7 +50,31 @@ public interface DeviceType extends HasId, HasName {
 
     public void setDescription(String newDescription);
 
+    /**
+     * Gets the {@link DeviceLifeCycle} that is currently in use
+     * by all devices of this type.
+     *
+     * @return The current DeviceLifeCycle
+     */
     public DeviceLifeCycle getDeviceLifeCycle();
+
+    /**
+     * Gets the {@link DeviceLifeCycle} that was in use
+     * by all devices of this type at the specified point in time.
+     * May return an empty optional when the point in time
+     * is before the creation time of this DeviceType.
+     *
+     * @param when The point in time
+     * @return The DeviceLifeCycle
+     */
+    public Optional<DeviceLifeCycle> getDeviceLifeCycle(Instant when);
+
+    /**
+     * Gets the List of {@link DeviceLifeCycleChangeEvent}s for this DeviceType.
+     *
+     * @return The List of DeviceLifeCycleChangeEvent
+     */
+    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
 
     /**
      * Returns true if this device type's protocol supports messaging.
