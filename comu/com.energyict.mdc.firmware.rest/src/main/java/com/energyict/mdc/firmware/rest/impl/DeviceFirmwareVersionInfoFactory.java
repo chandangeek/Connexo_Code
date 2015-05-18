@@ -14,12 +14,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class DeviceFirmwareVersionInfoFactory {
     private final Thesaurus thesaurus;
@@ -81,8 +76,8 @@ public class DeviceFirmwareVersionInfoFactory {
         states.put(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER, install);
     }
 
-    public DeviceFirmwareVersionInfos from(Device device, Optional<ActivatedFirmwareVersion>... activatedVersions){
-        DeviceFirmwareVersionInfos info = new DeviceFirmwareVersionInfos(thesaurus);
+    public DeviceFirmwareVersionInfos from(Device device, Optional<ActivatedFirmwareVersion>... activatedVersions) {
+        DeviceFirmwareVersionInfos info = new DeviceFirmwareVersionInfos(thesaurus, getSupportedFirmwareTypesFor(device));
         Arrays.asList(activatedVersions).stream()
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -96,12 +91,20 @@ public class DeviceFirmwareVersionInfoFactory {
         return info;
     }
 
+    private Set<FirmwareType> getSupportedFirmwareTypesFor(Device device) {
+        EnumSet<FirmwareType> firmwareTypes = EnumSet.of(FirmwareType.METER);
+        if (device.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
+            firmwareTypes.add(FirmwareType.COMMUNICATION);
+        }
+        return firmwareTypes;
+    }
+
     private void from(DeviceFirmwareVersionInfos info, DeviceMessage<Device> message, DeviceFirmwareVersionUtils versionUtils) {
         Optional<ProtocolSupportedFirmwareOptions> uploadOption = versionUtils.getUploadOptionFromMessage(message);
         Optional<FirmwareVersion> firmwareVersion = versionUtils.getFirmwareVersionFromMessage(message);
-        if (uploadOption.isPresent() && firmwareVersion.isPresent()){
+        if (uploadOption.isPresent() && firmwareVersion.isPresent()) {
             List<FirmwareUpgradeState> possibleStates = states.get(uploadOption.get());
-            if (possibleStates != null){
+            if (possibleStates != null) {
                 possibleStates.stream()
                         .filter(state -> state.validateMessage(message, versionUtils))
                         .findFirst().ifPresent(upgradeState -> {
@@ -115,7 +118,9 @@ public class DeviceFirmwareVersionInfoFactory {
 
     public interface FirmwareUpgradeState {
         boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper);
+
         String getFirmwareVersionName();
+
         Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper);
     }
 
@@ -141,7 +146,7 @@ public class DeviceFirmwareVersionInfoFactory {
             properties.put(FIRMWARE_MANAGEMENT_OPTION, new ManagementOptionInfo(uploadOption.getId(), helper.translate(uploadOption.getId())) {
             });
             Optional<FirmwareVersion> firmwareVersion = helper.getFirmwareVersionFromMessage(message);
-            if (firmwareVersion.isPresent()){
+            if (firmwareVersion.isPresent()) {
                 properties.put(FIRMWARE_VERSION, firmwareVersion.get().getFirmwareVersion());
             }
             properties.put(FIRMWARE_PLANNED_DATE, message.getReleaseDate());
@@ -175,7 +180,7 @@ public class DeviceFirmwareVersionInfoFactory {
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
             Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
-            if (activationDate.isPresent()){
+            if (activationDate.isPresent()) {
                 properties.put(FIRMWARE_PLANNED_ACTIVATION_DATE, activationDate.get().toEpochMilli());
             }
             return properties;
@@ -219,7 +224,7 @@ public class DeviceFirmwareVersionInfoFactory {
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
             Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
-            if (activationDate.isPresent()){
+            if (activationDate.isPresent()) {
                 properties.put(FIRMWARE_PLANNED_ACTIVATION_DATE, activationDate.get().toEpochMilli());
             }
             return properties;
@@ -230,7 +235,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return super.validateMessage(message, helper)
-                    && (helper.taskIsFailed() &&(DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
+                    && (helper.taskIsFailed() && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
                     || !helper.taskIsFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
         }
 
@@ -264,18 +269,18 @@ public class DeviceFirmwareVersionInfoFactory {
                     || needVerificationAfterManualActivation(message, helper));
         }
 
-        private boolean needVerificationAfterImmediatelyActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
+        private boolean needVerificationAfterImmediatelyActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             return ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE.equals(helper.getUploadOptionFromMessage(message).get());
         }
 
-        private boolean needVerificationAfterScheduledActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
+        private boolean needVerificationAfterScheduledActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
             return ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.equals(helper.getUploadOptionFromMessage(message).get())
                     && activationDate.isPresent()
                     && !activationDate.get().isAfter(Instant.now());
         }
 
-        private boolean needVerificationAfterManualActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
+        private boolean needVerificationAfterManualActivation(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
             return activationMessage.isPresent()
                     && DeviceMessageStatus.CONFIRMED.equals(activationMessage.get().getStatus());
@@ -290,7 +295,7 @@ public class DeviceFirmwareVersionInfoFactory {
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
             Optional<ComTaskExecution> statusCheckExecution = helper.getStatusCheckExecution();
-            if (statusCheckExecution.isPresent() && statusCheckExecution.get().getNextExecutionTimestamp() != null){
+            if (statusCheckExecution.isPresent() && statusCheckExecution.get().getNextExecutionTimestamp() != null) {
                 properties.put(CHECK_DATE, statusCheckExecution.get().getNextExecutionTimestamp().toEpochMilli());
             }
             addUpgradeFinishedDate(message, helper, properties);
@@ -300,11 +305,11 @@ public class DeviceFirmwareVersionInfoFactory {
         private void addUpgradeFinishedDate(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper, Map<String, Object> properties) {
             properties.put(UPGRADE_FINISHED_DATE, message.getReleaseDate().toEpochMilli());
             Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
-            if (activationDate.isPresent()){
+            if (activationDate.isPresent()) {
                 properties.put(UPGRADE_FINISHED_DATE, activationDate.get().toEpochMilli());
             }
             Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
-            if (activationMessage.isPresent()){
+            if (activationMessage.isPresent()) {
                 properties.put(UPGRADE_FINISHED_DATE, activationMessage.get().getReleaseDate().toEpochMilli());
             }
         }
@@ -328,7 +333,7 @@ public class DeviceFirmwareVersionInfoFactory {
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
             Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
-            if (activationDate.isPresent()){
+            if (activationDate.isPresent()) {
                 properties.put(FIRMWARE_PLANNED_ACTIVATION_DATE, activationDate.get().toEpochMilli());
             }
             return properties;
@@ -421,18 +426,18 @@ public class DeviceFirmwareVersionInfoFactory {
                     && messageFinishedBeforeLastStatusCheck(message, helper);
         }
 
-        protected boolean allPrerequisitesAreDone(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
+        protected boolean allPrerequisitesAreDone(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             Optional<ProtocolSupportedFirmwareOptions> uploadOption = helper.getUploadOptionFromMessage(message);
-            if (uploadOption.isPresent()){
-                switch (uploadOption.get()){
+            if (uploadOption.isPresent()) {
+                switch (uploadOption.get()) {
                     case UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE:
                         return true;
                     case UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE:
                         Optional<Instant> activationDate = helper.getActivationDateFromMessage(message);
                         Optional<ComTaskExecution> statusCheckExecution = helper.getStatusCheckExecution();
-                        if (statusCheckExecution.isPresent()){
+                        if (statusCheckExecution.isPresent()) {
                             ComTaskExecution execution = statusCheckExecution.get();
-                            if (execution.getLastExecutionStartTimestamp() != null){
+                            if (execution.getLastExecutionStartTimestamp() != null) {
                                 return activationDate.isPresent() && !activationDate.get().isAfter(execution.getLastExecutionStartTimestamp());
                             }
                         }
@@ -445,11 +450,11 @@ public class DeviceFirmwareVersionInfoFactory {
             return false;
         }
 
-        protected boolean messageFinishedBeforeLastStatusCheck(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper){
+        protected boolean messageFinishedBeforeLastStatusCheck(DeviceMessage<Device> message, DeviceFirmwareVersionUtils helper) {
             Optional<ComTaskExecution> statusCheckExecution = helper.getStatusCheckExecution();
-            if (statusCheckExecution.isPresent()){
+            if (statusCheckExecution.isPresent()) {
                 ComTaskExecution execution = statusCheckExecution.get();
-                if (execution.getLastExecutionStartTimestamp() != null){
+                if (execution.getLastExecutionStartTimestamp() != null) {
                     Optional<DeviceMessage<Device>> activationMessage = helper.getActivationMessageForUploadMessage(message);
                     return !message.getReleaseDate().isAfter(execution.getLastExecutionStartTimestamp())
                             && (!activationMessage.isPresent() || !activationMessage.get().getReleaseDate().isAfter(execution.getLastExecutionStartTimestamp()));
@@ -458,7 +463,7 @@ public class DeviceFirmwareVersionInfoFactory {
             return false;
         }
 
-        protected boolean lastStatusCheckWasSuccessful(DeviceFirmwareVersionUtils helper){
+        protected boolean lastStatusCheckWasSuccessful(DeviceFirmwareVersionUtils helper) {
             Optional<ComTaskExecution> check = helper.getStatusCheckExecution();
             return check.isPresent()
                     && check.get().getLastSuccessfulCompletionTimestamp() != null
