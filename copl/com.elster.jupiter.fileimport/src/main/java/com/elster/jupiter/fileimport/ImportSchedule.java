@@ -65,7 +65,7 @@ public interface ImportSchedule {
     /**
      * @return a CronExpression that indicates the times at which the import directory should be scanned.
      */
-    CronExpression getCronExpression();
+    ScheduleExpression getScheduleExpression();
     /**
      * Persists or updates this instance.
      */
@@ -111,7 +111,7 @@ public interface ImportSchedule {
 
     void setName(String name);
 
-    void setCronExpression(CronExpression cronExpression);
+    void setScheduleExpression(ScheduleExpression scheduleExpression);
 
     void setImportDirectory(File file);
 

@@ -66,10 +66,10 @@ public interface ImportScheduleBuilder {
 
     /**
      *
-     * @param cronExpression the schedule expression for the ImportSchedule under construction
+     * @param scheduleExpression the schedule expression for the ImportSchedule under construction
      * @return this
      */
-    ImportScheduleBuilder setCronExpression(CronExpression cronExpression);
+    ImportScheduleBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
 
 
 

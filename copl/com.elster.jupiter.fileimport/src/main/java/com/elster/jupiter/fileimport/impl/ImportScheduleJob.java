@@ -32,9 +32,9 @@ class ImportScheduleJob implements CronJob {
     }
 
     @Override
-    public CronExpression getSchedule() {
-        CronExpression cronExpression = importSchedule.getCronExpression();
-        return cronExpression;
+    public ScheduleExpression getSchedule() {
+        ScheduleExpression scheduleExpression = importSchedule.getScheduleExpression();
+        return scheduleExpression;
 
     }
 

@@ -33,7 +33,7 @@ public class DefaultImportScheduleBuilderTest {
     @Mock
     private DestinationSpec destination;
     @Mock
-    private CronExpression cronExpression;
+    private ScheduleExpression scheduleExpression;
     @Mock
     private MessageService messageService;
     @Mock
@@ -64,21 +64,21 @@ public class DefaultImportScheduleBuilderTest {
     public void testCronExpression() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(DESTINATION_NAME)
-                .setCronExpression(cronExpression)
+                .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
                 .setFailureDirectory(FAILURE_DIRECTORY)
                 .build();
 
-        assertThat(schedule.getCronExpression()).isEqualTo(cronExpression);
+        assertThat(schedule.getScheduleExpression()).isEqualTo(scheduleExpression);
     }
 
     @Test
     public void testProcessingDirectory() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(DESTINATION_NAME)
-                .setCronExpression(cronExpression)
+                .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
@@ -92,7 +92,7 @@ public class DefaultImportScheduleBuilderTest {
     public void testImportDirectory() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(DESTINATION_NAME)
-                .setCronExpression(cronExpression)
+                .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
@@ -106,7 +106,7 @@ public class DefaultImportScheduleBuilderTest {
     public void testSuccessDirectory() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(DESTINATION_NAME)
-                .setCronExpression(cronExpression)
+                .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
@@ -120,7 +120,7 @@ public class DefaultImportScheduleBuilderTest {
     public void testFailureDirectory() {
         ImportSchedule schedule = new DefaultImportScheduleBuilder(dataModel)
                 .setDestination(DESTINATION_NAME)
-                .setCronExpression(cronExpression)
+                .setScheduleExpression(scheduleExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
