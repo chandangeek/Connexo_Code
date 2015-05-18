@@ -15,6 +15,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import static java.util.stream.Collectors.toList;
@@ -38,7 +39,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{id}")
-    public Response getDevice(@PathParam("id") long id, @BeanParam FieldList fields) {
+    public Response getDeviceType(@PathParam("id") long id, @BeanParam FieldList fields) {
         DeviceTypeInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(dt -> deviceTypeInfoFactory.plain(dt, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceTypeInfo).build();
     }
@@ -47,7 +48,7 @@ public class DeviceTypeResource {
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{id}")
-    public Response getHypermediaDevice(@PathParam("id") long id, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+    public Response getHypermediaDeviceType(@PathParam("id") long id, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
         DeviceTypeInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceTypeInfo).build();
     }
@@ -55,20 +56,22 @@ public class DeviceTypeResource {
     @GET
     @Produces("application/json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
-        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().stream().map(d -> deviceTypeInfoFactory.plain(d, fields.getFields())).collect(toList());
+    public Response getDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.plain(d, fields.getFields())).collect(toList());
 
-        return Response.ok(com.energyict.mdc.common.rest.PagedInfoList.fromCompleteList("deviceTypes", infos, queryParameters)).build();
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
+        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters, uriBuilder);
+        return Response.ok(infoList).build();
     }
 
     @GET
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getHypermediaDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields,@Context UriInfo uriInfo) {
-        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().stream().map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
+    public Response getHypermediaDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields,@Context UriInfo uriInfo) {
+        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
 
-
-        return Response.ok(PagedInfoList.fromCompleteList("deviceTypes", infos, queryParameters, uriInfo)).build();
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
+        return Response.ok(PagedInfoList.from(infos, queryParameters, uriBuilder)).build();
     }
 
 }

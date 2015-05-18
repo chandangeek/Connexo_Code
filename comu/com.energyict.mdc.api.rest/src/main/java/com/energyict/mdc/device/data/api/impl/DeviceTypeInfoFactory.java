@@ -47,12 +47,9 @@ public class DeviceTypeInfoFactory {
     public DeviceTypeInfo asHypermedia(DeviceType deviceType, UriInfo uriInfo, List<String> fields) {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, Optional.of(uriInfo)));
-        deviceTypeInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel("self").title("self reference").build(deviceType.getId());
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
+        deviceTypeInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceType.getId());
         return deviceTypeInfo;
-    }
-
-    private UriBuilder getUriTemplate(UriInfo uriInfo) {
-        return uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
     }
 
     private Map<String, PropertyCopier<DeviceTypeInfo,DeviceType>> buildFieldSelectionMap() {

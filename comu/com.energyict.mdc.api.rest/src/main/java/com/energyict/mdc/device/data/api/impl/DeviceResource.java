@@ -90,9 +90,9 @@ public class DeviceResource {
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
-        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).stream().limit(10).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).collect(toList());
+        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).collect(toList());
 
-        return Response.ok(com.energyict.mdc.common.rest.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
+        return Response.ok(com.elster.jupiter.rest.util.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
     }
 
     @POST

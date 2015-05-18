@@ -35,6 +35,17 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+
+        DeviceType water = mockDeviceType(10, "water");
+        DeviceType gas = mockDeviceType(11, "gas");
+        DeviceType elec1 = mockDeviceType(101, "Electricity 1");
+        DeviceType elec2 = mockDeviceType(101, "Electricity 2");
+        DeviceType elec3 = mockDeviceType(101, "Electricity 3");
+        DeviceType elec4 = mockDeviceType(101, "Electricity 4");
+        DeviceType elec5 = mockDeviceType(101, "Electricity 5");
+        Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(water, gas, elec1, elec2, elec3, elec4, elec5));
+        when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
+
         Device device = mockDevice("DAV", "65749846514");
         Device device2 = mockDevice("XAS", "5544657642");
         Device device3 = mockDevice("PIO", "54687651356");
@@ -82,19 +93,29 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     }
 
     @Test
-    public void testJsonCall() throws Exception {
+    public void testJsonCallSinglePage() throws Exception {
 
-        Response response = target("/devices").request().get();
+        Response response = target("/devicetypes").queryParam("start",0).queryParam("limit",10).request("application/h+json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<Integer>get("$.total")).isEqualTo(3);
-        assertThat(model.<List>get("$.devices")).hasSize(3);
+        assertThat(model.<List>get("$.data")).hasSize(7);
+        assertThat(model.<List>get("$.links")).hasSize(1);
+
+    }
+
+    @Test
+    public void testJsonCallMultiPage() throws Exception {
+
+        Response response = target("/devicetypes").queryParam("start",2).queryParam("limit",2).request("application/h+json").get();
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<List>get("$.data")).hasSize(2);
+        assertThat(model.<List>get("$.links")).hasSize(3);
 
     }
 
     @Test
     public void testHalJsonCallSingle() throws Exception {
 
-        Response response = target("/devices/XAS").request("application/hal+json").get();
+        Response response = target("/devicetypes/10").request("application/hal+json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }
