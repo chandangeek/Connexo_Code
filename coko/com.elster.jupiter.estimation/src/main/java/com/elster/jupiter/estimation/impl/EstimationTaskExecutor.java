@@ -7,8 +7,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.logging.LoggingContext;
@@ -29,11 +29,13 @@ class EstimationTaskExecutor implements TaskExecutor {
     private final IEstimationService estimationService;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
+    private final TimeService timeService;
 
-    public EstimationTaskExecutor(IEstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus) {
+    public EstimationTaskExecutor(IEstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService) {
         this.estimationService = estimationService;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
+        this.timeService = timeService;
     }
 
     @Override
@@ -50,7 +52,7 @@ class EstimationTaskExecutor implements TaskExecutor {
 
     private void tryExecute(TaskOccurrence occurrence, Logger taskLogger) {
         EstimationTask estimationTask = getEstimationTask(occurrence);
-        RelativePeriod relativePeriod = estimationTask.getPeriod().orElseGet(AllRelativePeriod::new);
+        RelativePeriod relativePeriod = estimationTask.getPeriod().orElseGet(timeService::getAllRelativePeriod);
 
         estimationTask.getEndDeviceGroup().getMembers(occurrence.getTriggerTime()).stream()
                 .filter(device -> device instanceof Meter)

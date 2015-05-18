@@ -4,6 +4,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -14,10 +15,11 @@ public class EstimationHandlerFactory implements MessageHandlerFactory {
     private volatile IEstimationService estimationService;
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
+    private volatile TimeService timeService;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new EstimationTaskExecutor(estimationService, transactionService, estimationService.getThesaurus()));
+        return taskService.createMessageHandler(new EstimationTaskExecutor(estimationService, transactionService, estimationService.getThesaurus(), timeService));
     }
 
     @Reference
@@ -35,4 +37,8 @@ public class EstimationHandlerFactory implements MessageHandlerFactory {
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
 }

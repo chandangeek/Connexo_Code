@@ -66,7 +66,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static com.elster.jupiter.time.RelativeField.*;
+import static com.elster.jupiter.time.RelativeField.DAY;
+import static com.elster.jupiter.time.RelativeField.HOUR;
+import static com.elster.jupiter.time.RelativeField.MINUTES;
+import static com.elster.jupiter.time.RelativeField.MONTH;
+import static com.elster.jupiter.time.RelativeField.YEAR;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationTaskImplIT {
@@ -252,7 +256,7 @@ public class EstimationTaskImplIT {
 
         transactionService.builder().principal(() -> "ut")
                 .run(() -> {
-                    estimationTask.getRecurrentTask().runNow(new EstimationTaskExecutor(estimationService, transactionService, null));
+                    estimationTask.getRecurrentTask().runNow(new EstimationTaskExecutor(estimationService, transactionService, null, timeService));
                 });
 
         EstimationTask reloaded = estimationService.findEstimationTask(estimationTask.getId()).get();
