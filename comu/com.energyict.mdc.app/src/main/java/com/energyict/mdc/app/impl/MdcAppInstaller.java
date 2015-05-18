@@ -5,10 +5,11 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.app.MdcAppService;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
  * Time: 17:48
  */
 @Component(name = "com.energyict.mdc.app.install", service = {InstallService.class}, property = "name=" + MdcAppService.COMPONENTNAME, immediate = true)
+@SuppressWarnings("unused")
 public class MdcAppInstaller implements InstallService {
 
     public static final String PRIVILEGE_VIEW_REPORTS = "privilege.view.reports";
@@ -77,6 +79,9 @@ public class MdcAppInstaller implements InstallService {
 
         userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), privilegesMeterOperator);
         userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), privilegesWithoutReports);
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), this.deviceLifeCycleAdministrationPrivileges());
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), this.allDeviceLifeCycleActionPrivileges());
+        userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), this.meterOperatorDeviceLifeCycleActionPrivileges());
         userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, privilegesWithoutReports);
         userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), availablePrivileges.stream().map(HasName::getName).filter(p -> p.equals(PRIVILEGE_VIEW_REPORTS)).toArray(String[]::new));
         //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
@@ -90,13 +95,32 @@ public class MdcAppInstaller implements InstallService {
     }
 
     private String[] getPrivilegesMeterOperator(){
-        return new String[] {PRIVILEGE_RUN_EXPORT, PRIVILEGE_VIEW_EXPORT,
-                               PRIVILEGE_VIEW_COMMUNICATION, PRIVILEGE_VIEW_DEVICE,
-                               PRIVILEGE_OPERATE_DEVICECOMMUNICATION, PRIVILEGE_ADMINISTRATE_DEVICEDATA, PRIVILEGE_VIEW_DEVICETYPE,
-                               PRIVILEGE_ACCTION_ISSUE_ACTION, PRIVILEGE_ASSIGN_ISSUE, PRIVILEGE_CLOSE_ISSUE, PRIVILEGE_COMMENT_ISSUE, PRIVILEGE_VIEW_ISSUE,
-                               PRIVILEGE_VIEW_MASTER_DATA, PRIVILEGE_VIEW_VALIDATION
+        return new String[] {
+                PRIVILEGE_RUN_EXPORT, PRIVILEGE_VIEW_EXPORT,
+                PRIVILEGE_VIEW_COMMUNICATION, PRIVILEGE_VIEW_DEVICE,
+                PRIVILEGE_OPERATE_DEVICECOMMUNICATION, PRIVILEGE_ADMINISTRATE_DEVICEDATA, PRIVILEGE_VIEW_DEVICETYPE,
+                PRIVILEGE_ACCTION_ISSUE_ACTION, PRIVILEGE_ASSIGN_ISSUE, PRIVILEGE_CLOSE_ISSUE, PRIVILEGE_COMMENT_ISSUE, PRIVILEGE_VIEW_ISSUE,
+                PRIVILEGE_VIEW_MASTER_DATA, PRIVILEGE_VIEW_VALIDATION
         };
     }
 
+    private String[] deviceLifeCycleAdministrationPrivileges(){
+        return new String[] {Privileges.VIEW_DEVICE_LIFE_CYCLE, Privileges.CONFIGURE_DEVICE_LIFE_CYCLE};
+    }
+
+    private String[] allDeviceLifeCycleActionPrivileges() {
+        return new String[]{
+                Privileges.INITIATE_ACTION_1,
+                Privileges.INITIATE_ACTION_2,
+                Privileges.INITIATE_ACTION_3,
+                Privileges.INITIATE_ACTION_4};
+    }
+
+    private String[] meterOperatorDeviceLifeCycleActionPrivileges() {
+        return new String[]{
+                Privileges.INITIATE_ACTION_1,
+                Privileges.INITIATE_ACTION_2,
+                Privileges.INITIATE_ACTION_3};
+    }
 
 }

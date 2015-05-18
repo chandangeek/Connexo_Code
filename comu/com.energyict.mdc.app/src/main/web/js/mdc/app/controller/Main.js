@@ -3,7 +3,7 @@
  */
 Ext.define('MdcApp.controller.Main', {
     extend: 'Uni.controller.AppController',
-    requires: [
+    requires:[
         'Cfg.privileges.Validation',
         'Yfn.privileges.Yellowfin',
         'Mdc.privileges.MasterData',
@@ -54,7 +54,6 @@ Ext.define('MdcApp.controller.Main', {
         'Fwc.controller.Main',
         'Dxp.controller.Main',
         'Est.main.controller.Main'
-  //      'PlaygroundApp.controller.Main'
     ],
 
     init: function () {
