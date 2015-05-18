@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.KorePagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
@@ -42,13 +42,13 @@ public class ReadingTypeFieldResource {
     @Path("/unitsofmeasure")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getUnitsOfMeasure(@BeanParam QueryParameters queryParameters) {
-        return Response.ok(PagedInfoList.asJson(
+        return Response.ok(KorePagedInfoList.asJson(
                 "unitsOfMeasure",
                 DecoratedStream.decorate(
-                meteringService.getAvailableReadingTypes().
-                        stream()).
+                        meteringService.getAvailableReadingTypes().
+                                stream()).
                         map(rt -> new UnitOfMeasureFieldInfo(rt.getMultiplier(), rt.getUnit())).
-                        distinct(i->i.name).
+                        distinct(i -> i.name).
                         sorted((c1, c2) -> c1.name.compareToIgnoreCase(c2.name)).collect(toList()),
                 queryParameters)).build();
     }
@@ -84,7 +84,7 @@ public class ReadingTypeFieldResource {
         final Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
         readingTypes = readingTypes.stream().filter(filter).sorted((c1,c2)->(c1.getFullAliasName().compareToIgnoreCase(c2.getFullAliasName()))).collect(Collectors.<ReadingType>toList());
         List<ReadingTypeInfo> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find().stream().map(ReadingTypeInfo::new).collect(toList());
-        return Response.ok(PagedInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters, readingTypes.size())).build();
+        return Response.ok(KorePagedInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters, readingTypes.size())).build();
     }
 
     private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
