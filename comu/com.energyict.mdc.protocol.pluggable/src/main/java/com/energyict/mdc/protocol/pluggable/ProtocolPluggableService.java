@@ -12,6 +12,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +35,11 @@ import java.util.Optional;
 public interface ProtocolPluggableService {
 
     public static String COMPONENTNAME = "PPC";
+
+    public void addLicensedProtocolService(LicensedProtocolService licensedProtocolService);
+    public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService);
+    public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService);
+    public void addConnectionTypeService(ConnectionTypeService connectionTypeService);
 
     public ProtocolDeploymentListenerRegistration register(ProtocolDeploymentListener listener);
 

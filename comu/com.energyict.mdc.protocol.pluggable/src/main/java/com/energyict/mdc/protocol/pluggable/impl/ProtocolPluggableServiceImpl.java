@@ -606,6 +606,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.meteringService = meteringService;
     }
 
+    @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.add(deviceProtocolService);
@@ -641,6 +642,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.deviceProtocolSecurityServices.remove(deviceProtocolSecurityService);
     }
 
+    @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
         this.licensedProtocolServices.add(licensedProtocolService);
@@ -651,6 +653,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.licensedProtocolServices.remove(licensedProtocolService);
     }
 
+    @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.add(inboundDeviceProtocolService);
@@ -693,6 +696,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         return connectionTypeServices;
     }
 
+    @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
         this.connectionTypeServices.add(connectionTypeService);
