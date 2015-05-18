@@ -205,6 +205,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
@@ -343,11 +348,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.taskService = taskService;
     }
 
-    @Reference
-    public void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -359,6 +359,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(RelationService.class).toInstance(relationService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
+                bind(IssueService.class).toInstance(issueService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);

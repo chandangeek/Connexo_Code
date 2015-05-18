@@ -39,15 +39,14 @@ public interface ProtocolDialectProperties
     public String getDeviceProtocolDialectName ();
 
     /**
-     * The {@link ProtocolDialectConfigurationProperties} from witch this ProtocolDialectProperties can inherit
-     * or null if no ProtocolDialectConfigurationProperties is specified
+     * The {@link ProtocolDialectConfigurationProperties} from which this ProtocolDialectProperties inherits.
      *
      * @return the ProtocolDialectConfigurationProperties
      */
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
 
     /**
-     * Provides the current properties ({@link #getProperties()} in the TypedProperties format
+     * Returns the current properties in the TypedProperties format.
      *
      * @return the TypedProperties of this ProtocolDialectProperties object
      */

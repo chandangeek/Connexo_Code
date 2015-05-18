@@ -47,14 +47,14 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
     boolean isVirtualLoadProfile();
 
     /**
-     * Returns the interval of the LoadProfile
+     * Gets the interval of the LoadProfile.
      *
      * @return the Interval of the LoadProfile
      */
     TimeDuration getInterval();
 
     /**
-     * Returns the data of all of this load profile's channels
+     * Gets the data of all of this load profile's channels.
      *
      * @param interval The interval over which data will be returned
      * @return data for all channels of this loadprofile
@@ -68,7 +68,6 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
      * @return the used LoadProfileSpec
      */
     LoadProfileSpec getLoadProfileSpec();
-
 
     /**
      * Defines an <i>update</i> component to update a {@link com.energyict.mdc.device.data.LoadProfile} implementation
@@ -91,8 +90,9 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
         LoadProfileUpdater setLastReading(Instant lastReading);
 
         /**
-         * Updates the LoadProfile, preferably via his Device
+         * Updates the LoadProfile, preferably via his Device.
          */
         void update();
     }
+
 }

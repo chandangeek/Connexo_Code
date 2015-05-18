@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import static java.util.stream.Collectors.toList;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the {@link com.elster.jupiter.util.conditions.Where}-LIKE clause. This test was put here so it could be a true integration test

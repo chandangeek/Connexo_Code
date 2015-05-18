@@ -35,17 +35,17 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.google.common.base.Strings;
-import org.fest.assertions.core.Condition;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Copyrights EnergyICT
@@ -360,9 +360,9 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         List<ConnectionTask<?, ?>> connectionTasks = reloadedDevice.getConnectionTasks();
         assertThat(connectionTasks).hasSize(3);
-        assertThat(connectionTasks).has(new Condition<List<ConnectionTask<?, ?>>>() {
+        assertThat(connectionTasks).has(new Condition<List<? extends ConnectionTask<?, ?>>>() {
             @Override
-            public boolean matches(List<ConnectionTask<?, ?>> value) {
+            public boolean matches(List<? extends ConnectionTask<?, ?>> value) {
                 int tripleMatch = 0b0000;
                 for (ConnectionTask<?, ?> connectionTask : value) {
                     if (connectionTask.getId() == scheduledConnectionTask.getId() && connectionTask.getPartialConnectionTask().getId() == partialScheduledConnectionTask.getId()) {
@@ -499,9 +499,9 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         final ScheduledConnectionTask scheduledConnectionTask = scheduledConnectionTaskBuilder.add();
 
         Device reloadedDevice = getReloadedDevice(device);
-        assertThat(reloadedDevice.getConnectionTasks()).has(new Condition<List<ConnectionTask<?, ?>>>() {
+        assertThat(reloadedDevice.getConnectionTasks()).has(new Condition<List<? extends ConnectionTask<?, ?>>>() {
             @Override
-            public boolean matches(List<ConnectionTask<?, ?>> value) {
+            public boolean matches(List<? extends ConnectionTask<?, ?>> value) {
                 for (ConnectionTask connectionTask : value) {
                     if (connectionTask.getId() == scheduledConnectionTask.getId()) {
                         return ((ScheduledConnectionTask) connectionTask).getInitiatorTask().getId() == connectionInitiationTask.getId();
@@ -527,9 +527,9 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        assertThat(reloadedDevice.getConnectionTasks().get(0).getProperties()).has(new Condition<List<ConnectionTaskProperty>>() {
+        assertThat(reloadedDevice.getConnectionTasks().get(0).getProperties()).has(new Condition<List<? extends ConnectionTaskProperty>>() {
             @Override
-            public boolean matches(List<ConnectionTaskProperty> value) {
+            public boolean matches(List<? extends ConnectionTaskProperty> value) {
                 int bothMatch = 0b0000;
                 for (ConnectionTaskProperty connectionTaskProperty : value) {
                     if (connectionTaskProperty.getName().equals(IpConnectionType.IP_ADDRESS_PROPERTY_NAME) && connectionTaskProperty.getValue().toString().equals(ipAddress)) {

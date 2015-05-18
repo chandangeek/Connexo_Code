@@ -24,7 +24,6 @@ import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationProp
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -67,9 +66,10 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -175,14 +175,14 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         device.save();
 
         // Asserts
-        ProtocolDialectProperties dialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
-        assertThat(dialectProperties).isNotNull();
-        assertThat(dialectProperties.getDevice()).isNotNull();
-        assertThat(dialectProperties.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(dialectProperties.getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
-        assertThat(dialectProperties.getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
-        assertThat(dialectProperties.getTypedProperties().size()).isEqualTo(1);
-        assertThat(dialectProperties.getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        Optional<ProtocolDialectProperties> dialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
+        assertThat(dialectProperties.isPresent()).isTrue();
+        assertThat(dialectProperties.get().getDevice()).isNotNull();
+        assertThat(dialectProperties.get().getDevice().getId()).isEqualTo(device.getId());
+        assertThat(dialectProperties.get().getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
+        assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
+        assertThat(dialectProperties.get().getTypedProperties().size()).isEqualTo(1);
+        assertThat(dialectProperties.get().getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
     }
 
     @Test
@@ -194,17 +194,17 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         Device deviceReloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
 
         // Business method
-        ProtocolDialectProperties dialectProperties = deviceReloaded.getProtocolDialectProperties(DIALECT_1_NAME);
+        Optional<ProtocolDialectProperties> dialectProperties = deviceReloaded.getProtocolDialectProperties(DIALECT_1_NAME);
 
         // Asserts
-        assertThat(dialectProperties).isNotNull();
-        assertThat(dialectProperties.getDevice()).isNotNull();
-        assertThat(dialectProperties.getDevice()).isNotNull();
-        assertThat(dialectProperties.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(dialectProperties.getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
-        assertThat(dialectProperties.getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
-        assertThat(dialectProperties.getTypedProperties().size()).isEqualTo(1);
-        assertThat(dialectProperties.getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        assertThat(dialectProperties.isPresent()).isTrue();
+        assertThat(dialectProperties.get().getDevice()).isNotNull();
+        assertThat(dialectProperties.get().getDevice()).isNotNull();
+        assertThat(dialectProperties.get().getDevice().getId()).isEqualTo(device.getId());
+        assertThat(dialectProperties.get().getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
+        assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
+        assertThat(dialectProperties.get().getTypedProperties().size()).isEqualTo(1);
+        assertThat(dialectProperties.get().getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
     }
 
     @Test
@@ -221,7 +221,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         device.save();
 
         // Asserts
-        ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
+        ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME).get();
         TypedProperties typedProperties = protocolDialectProperties.getTypedProperties();
         List<DeviceProtocolDialectProperty> properties = protocolDialectProperties.getProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -293,11 +293,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         device.save();
 
         // Business method
-        ProtocolDialectProperties dialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
+        Optional<ProtocolDialectProperties> dialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
 
         // Asserts
-        assertThat(dialectProperties).isNotNull();
-        assertThat(dialectProperties.getDeviceProtocolDialectName()).isEqualTo(DIALECT_1_NAME);
+        assertThat(dialectProperties.isPresent()).isTrue();
+        assertThat(dialectProperties.get().getDeviceProtocolDialectName()).isEqualTo(DIALECT_1_NAME);
     }
 
     @Test
@@ -308,10 +308,10 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         device.save();
 
         // Business method
-        ProtocolDialectProperties dialectProperties = device.getProtocolDialectProperties(DIALECT_2_NAME);
+        Optional<ProtocolDialectProperties> dialectProperties = device.getProtocolDialectProperties(DIALECT_2_NAME);
 
         // Asserts
-        assertThat(dialectProperties).isNull();
+        assertThat(dialectProperties.isPresent()).isFalse();
     }
 
     @Test
@@ -325,7 +325,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "getPropertiesIncludingInheritedOnesTest", MRID);
         device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
         device.save();
-        ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
+        ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME).get();
         TypedProperties typedProperties = protocolDialectProperties.getTypedProperties();
         List<DeviceProtocolDialectProperty> properties = protocolDialectProperties.getProperties();
 
@@ -353,7 +353,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         // Business method
         device.save();
-        ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
+        ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME).get();
 
         // Asserts
         TypedProperties typedProperties = protocolDialectProperties.getTypedProperties();
@@ -459,7 +459,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                 inMemoryPersistence.getDataModel(),
                 inMemoryPersistence.getEventService(),
                 inMemoryPersistence.getThesaurus(),
-                inMemoryPersistence.getRelationService(),
                 inMemoryPersistence.getClock(),
                 inMemoryPersistence.getProtocolPluggableService());
         properties.initialize(mock(Device.class), configurationProperties);
@@ -837,11 +836,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         private List<Relation> propertyRelations = new ArrayList<>();
         private final String dialectName;
 
-        private TestableProtocolDialectProperties(DataModel dataModel, EventService eventService, Thesaurus thesaurus, RelationService relationService, Clock clock, ProtocolPluggableService protocolPluggableService) {
-            this(DIALECT_1_NAME, dataModel, eventService, thesaurus, relationService, clock, protocolPluggableService);
+        private TestableProtocolDialectProperties(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService) {
+            this(DIALECT_1_NAME, dataModel, eventService, thesaurus, clock, protocolPluggableService);
         }
 
-        private TestableProtocolDialectProperties(String dialectName, DataModel dataModel, EventService eventService, Thesaurus thesaurus, RelationService relationService, Clock clock, ProtocolPluggableService protocolPluggableService) {
+        private TestableProtocolDialectProperties(String dialectName, DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService) {
             super(dataModel, eventService, thesaurus, clock, protocolPluggableService);
             this.dialectName = dialectName;
         }

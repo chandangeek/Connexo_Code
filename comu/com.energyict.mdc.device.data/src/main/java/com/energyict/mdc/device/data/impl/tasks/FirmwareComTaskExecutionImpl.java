@@ -48,7 +48,7 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
     public FirmwareComTaskExecutionImpl initializeFirmwareTask(Device device, ComTaskEnablement comTaskEnablement) {
         super.initializeFrom(device, comTaskEnablement);
         this.setComTask(comTaskEnablement.getComTask());
-        this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null));
+        this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties());
         return this;
     }
 
