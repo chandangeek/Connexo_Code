@@ -235,7 +235,7 @@ public class EstimationTaskImpl implements IEstimationTask {
     public EstimationTaskOccurrenceFinder getOccurrencesFinder() {
         Condition condition = where("recurrentTask").isEqualTo(getRecurrentTask())
                 .and(where("status").isNotEqual(TaskStatus.NOT_EXECUTED_YET));
-        Order order = Order.ascending("triggerTime");
+        Order order = Order.descending("triggerTime");
         return new EstimationTaskOccurrenceFinderImpl(taskService, condition, order);
     }
 
