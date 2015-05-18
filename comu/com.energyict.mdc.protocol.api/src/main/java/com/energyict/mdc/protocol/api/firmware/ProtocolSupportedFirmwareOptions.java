@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.firmware;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**

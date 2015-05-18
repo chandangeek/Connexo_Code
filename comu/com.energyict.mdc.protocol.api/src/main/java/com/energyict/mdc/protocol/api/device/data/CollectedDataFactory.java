@@ -1,14 +1,15 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
  * Date: 8/05/13
  * Time: 16:30
  */
+@ProviderType
 public interface CollectedDataFactory {
 
     public CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
