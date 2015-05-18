@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PagedInfoListTest {
+public class KorePagedInfoListTest {
 
     @Test
     public void testObjectMapperSerializesTypeInformation() throws Exception {
@@ -38,7 +38,7 @@ public class PagedInfoListTest {
         deviceTypeInfo3.registerCount = 7;
         ObjectMapper objectMapper = new ObjectMapper();
         QueryParameters queryParameters = createQueryParameters(0, 2);
-        String response = objectMapper.writeValueAsString(PagedInfoList.asJson("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2, deviceTypeInfo3), queryParameters));
+        String response = objectMapper.writeValueAsString(KorePagedInfoList.asJson("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2, deviceTypeInfo3), queryParameters));
         assertThat(response).contains("\"deviceTypes\":[{");
         assertThat(response).contains("\"total\":3");
         assertThat(response).doesNotContain("\"new 3\"");
@@ -49,7 +49,7 @@ public class PagedInfoListTest {
         QueryParameters queryParameters = createQueryParameters(80, 5);
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 6 objects
 
-        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        KorePagedInfoList list = KorePagedInfoList.asJson("list", infos, queryParameters);
         assertThat(list.getTotal()).isEqualTo(86);
         assertThat(list.getInfos()).hasSize(5);
     }
@@ -59,7 +59,7 @@ public class PagedInfoListTest {
         QueryParameters queryParameters = createQueryParameters(80, 5);
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()); // 5 objects
 
-        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        KorePagedInfoList list = KorePagedInfoList.asJson("list", infos, queryParameters);
         assertThat(list.getTotal()).isEqualTo(85);
         assertThat(list.getInfos()).hasSize(5);
     }
@@ -71,7 +71,7 @@ public class PagedInfoListTest {
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
                 , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
 
-        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters);
+        KorePagedInfoList list = KorePagedInfoList.asJson("list", infos, queryParameters);
         assertThat(list.getTotal()).isEqualTo(21);
         assertThat(list.getInfos()).hasSize(10);
 
@@ -85,7 +85,7 @@ public class PagedInfoListTest {
                 , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
 
         int totalCount = infos.size();
-        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters, totalCount);
+        KorePagedInfoList list = KorePagedInfoList.asJson("list", infos, queryParameters, totalCount);
         assertThat(list.getTotal()).isEqualTo(totalCount);
         assertThat(list.getInfos()).hasSize(10);
 
@@ -97,7 +97,7 @@ public class PagedInfoListTest {
 
         List<Object> infos = Arrays.asList(new Object(), new Object(), new Object(), new Object(), new Object()
                 , new Object(), new Object(), new Object(), new Object(), new Object(), new Object()); // 11 objects
-        PagedInfoList list = PagedInfoList.asJson("list", infos, queryParameters, infos.size());
+        KorePagedInfoList list = KorePagedInfoList.asJson("list", infos, queryParameters, infos.size());
         assertThat(list.getTotal()).isEqualTo(infos.size());
         assertThat(list.getInfos()).hasSize(2);
 
