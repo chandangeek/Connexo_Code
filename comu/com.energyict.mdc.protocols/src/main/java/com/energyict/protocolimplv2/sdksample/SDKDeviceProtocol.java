@@ -459,4 +459,9 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     private TimeDuration getDelayAfterRequest(){
         return (TimeDuration) this.typedProperties.getProperty(delayAfterRequest, TimeDuration.NONE);
     }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
 }

@@ -376,4 +376,9 @@ public class RtuPlusServer implements DeviceProtocol {
     public CollectedFirmwareVersion getFirmwareVersions() {
         return collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
     }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
 }
