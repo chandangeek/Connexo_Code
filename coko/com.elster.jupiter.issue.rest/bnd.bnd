@@ -8,4 +8,4 @@ Export-Package: com.elster.jupiter.issue.rest,\
          com.elster.jupiter.issue.rest.response.device,\
          com.elster.jupiter.issue.rest.response.issue,\
          com.elster.jupiter.issue.rest.transactions
-Private-Package: com.elster.jupiter.issue.impl.*
+Private-Package: com.elster.jupiter.issue.rest.impl.*
