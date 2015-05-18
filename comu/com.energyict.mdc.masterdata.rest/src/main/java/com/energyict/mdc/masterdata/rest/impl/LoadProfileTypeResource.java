@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
