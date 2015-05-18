@@ -20,7 +20,7 @@ import javax.ws.rs.core.SecurityContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.favorites.DeviceLabel;
