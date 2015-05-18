@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -54,7 +55,7 @@ public class ProtocolDialectResource {
     public ProtocolDialectInfo getProtocolDialects(@PathParam("mRID") String mRID, @PathParam("protocolDialectId") long protocolDialectId, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);
-        ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName());
+        Optional<ProtocolDialectProperties> protocolDialectProperties = device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName());
         return ProtocolDialectInfo.from(protocolDialect, protocolDialectProperties , uriInfo, mdcPropertyUtils);
     }
 
@@ -86,7 +87,7 @@ public class ProtocolDialectResource {
     }
 
     /**
-     * Add new properties, update existing and remove properties no longer listed
+     * Add new properties, update existing and remove properties no longer listed.
      * Converts String values to correct type
      * Discards properties if there is no matching propertySpec
      */

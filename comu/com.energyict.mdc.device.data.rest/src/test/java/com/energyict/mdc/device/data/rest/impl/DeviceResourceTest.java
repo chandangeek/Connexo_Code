@@ -1,9 +1,44 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
+
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -43,34 +78,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/19/14.
@@ -1096,7 +1103,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService).clearPhysicalGateway(device);
     }
-    
+
     @Test
     public void testActivateEstimationOnDevice() {
         Device device = mockDeviceForTopologyTest("device");
@@ -1104,19 +1111,19 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
-        
+
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13l;
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = true;
-        
+
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(device.forEstimation()).activateEstimation();        
+        verify(device.forEstimation()).activateEstimation();
     }
-    
+
     @Test
     public void testDeactivateEstimationOnDevice() {
         Device device = mockDeviceForTopologyTest("device");
@@ -1124,17 +1131,17 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
-        
+
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13l;
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = false;
-        
+
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(device.forEstimation()).deactivateEstimation();        
+        verify(device.forEstimation()).deactivateEstimation();
     }
 
     private Device mockDeviceForTopologyTest(String name) {
@@ -1153,6 +1160,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(pluggableClass.getId()).thenReturn(10L);
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(device.forEstimation()).thenReturn(deviceEstimation);
+        State state = mockDeviceState("In stock");
+        when(device.getState()).thenReturn(state);
         return device;
     }
 
@@ -1219,4 +1228,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return logBook;
     }
 
+    private State mockDeviceState(String name) {
+        State state = mock(State.class);
+        when(state.getName()).thenReturn(name);
+        return state;
+    }
 }

@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -65,7 +66,6 @@ public class DeviceResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final IssueService issueService;
-    private final MeteringService meteringService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
@@ -85,6 +85,9 @@ public class DeviceResource {
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
     private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
+    private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
+    private final DeviceInfoFactory deviceInfoFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
     public DeviceResource(
@@ -95,7 +98,6 @@ public class DeviceResource {
             TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
-            MeteringService meteringService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
@@ -114,8 +116,10 @@ public class DeviceResource {
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<ChannelResource> channelsOnDeviceResourceProvider,
-            Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
-
+            Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
+            Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
+            DeviceInfoFactory deviceInfoFactory,
+            Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceImportService = deviceImportService;
@@ -123,7 +127,6 @@ public class DeviceResource {
         this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
-        this.meteringService = meteringService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
@@ -143,6 +146,9 @@ public class DeviceResource {
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
         this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
+        this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
+        this.deviceInfoFactory = deviceInfoFactory;
+        this.thesaurus = thesaurus;
     }
 
 
@@ -159,7 +165,7 @@ public class DeviceResource {
         }
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
-        List<DeviceInfo> deviceInfos = DeviceInfo.from(allDevices);
+        List<DeviceInfo> deviceInfos = deviceInfoFactory.from(allDevices); //DeviceInfo.from(allDevices);
         return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
     }
 
@@ -181,7 +187,7 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService, meteringService);
+        return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
     @PUT//the method designed like 'PATCH'
@@ -195,17 +201,18 @@ public class DeviceResource {
         if (info.estimationStatus != null) {
             updateEstimationStatus(info.estimationStatus, device);
         }
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, thesaurus);
     }
 
-    private void updateGateway(DeviceInfo info, Device device) {
+    private DeviceInfo updateGateway(DeviceInfo info, Device device) {
         if (info.masterDevicemRID != null) {
             updateGateway(device, info.masterDevicemRID);
         } else {
             removeGateway(device);
         }
+        return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
-    
+
     private void updateEstimationStatus(DeviceEstimationStatusInfo info, Device device) {
         if (info.active) {
             device.forEstimation().activateEstimation();
@@ -257,7 +264,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService, meteringService);
+        return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
     /**
@@ -327,7 +334,7 @@ public class DeviceResource {
     public DeviceValidationResource getDeviceValidationResource() {
         return deviceValidationResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/estimationrulesets")
     public DeviceEstimationResource getDeviceEstimationResource() {
         return deviceEstimationResourceProvider.get();
@@ -382,6 +389,11 @@ public class DeviceResource {
     @Path("/{mRID}/connections")
     public ConnectionResource getConnectionResource() {
         return connectionResourceProvider.get();
+    }
+
+    @Path("/{mRID}/history")
+    public DeviceHistoryResource getDeviceHistoryResource() {
+        return deviceHistoryResourceProvider.get();
     }
 
     @GET
