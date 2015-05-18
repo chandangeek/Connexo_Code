@@ -1,7 +1,8 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.energyict.mdc.common.TypedProperties;
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationType;
@@ -22,6 +23,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (13:46)
  */
+@ProviderType
 public interface ProtocolPluggableService {
 
     public static String COMPONENTNAME = "PPC";
