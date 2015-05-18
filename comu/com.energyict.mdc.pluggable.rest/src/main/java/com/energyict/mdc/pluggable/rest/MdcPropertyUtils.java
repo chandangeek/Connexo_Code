@@ -65,7 +65,7 @@ public class MdcPropertyUtils {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, showValue, privilegePresence);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType, null);
-            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
     }
@@ -76,7 +76,7 @@ public class MdcPropertyUtils {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, SHOW_VALUES, WITHOUT_PRIVILEGES);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, null);
-            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
@@ -88,7 +88,7 @@ public class MdcPropertyUtils {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, SHOW_VALUES, WITHOUT_PRIVILEGES);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, device);
-            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+            PropertyInfo propertyInfo = new PropertyInfo(getTranslatedPropertyName(propertySpec), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
@@ -160,11 +160,11 @@ public class MdcPropertyUtils {
     }
 
     private Object getPropertyValue(TypedProperties properties, PropertySpec propertySpec) {
-        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getLocalValue(getTranslatedPropertyName(propertySpec)));
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getLocalValue(propertySpec.getName()));
     }
 
     private Object getInheritedPropertyValue(TypedProperties properties, PropertySpec propertySpec) {
-        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getInheritedValue(getTranslatedPropertyName(propertySpec)));
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getInheritedValue(propertySpec.getName()));
     }
 
     private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, SimplePropertyType simplePropertyType, Device device) {
@@ -218,7 +218,7 @@ public class MdcPropertyUtils {
     //find propertyValue in info
     public Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
-            if (propertyInfo.key.equals(getTranslatedPropertyName(propertySpec))) {
+            if (propertyInfo.translationKey.equals(propertySpec.getName())) {
                 if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue() != null && !"".equals(propertyInfo.getPropertyValueInfo().getValue())) {
                     return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                 } else {
