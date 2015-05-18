@@ -2,7 +2,7 @@ package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
