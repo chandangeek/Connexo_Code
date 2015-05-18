@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@Path("/readingtypes")
+@Path("/")
 public class ReadingTypeResource {
 
     private final MeteringService meteringService;
@@ -35,8 +35,9 @@ public class ReadingTypeResource {
     }
 
     @GET
+    @Path("/unusedreadingtypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
+    public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
         String searchText = queryParameters.getLike();
         if (searchText != null && !searchText.isEmpty()) {
             String dbSearchText = searchText;
@@ -48,6 +49,26 @@ public class ReadingTypeResource {
                 readingTypesInUseIds.add(registerType.getReadingType().getMRID());
             }
             readingTypes = readingTypes.stream().filter(rt -> filter.test(rt) && !readingTypesInUseIds.contains(rt.getMRID()))
+                    .collect(Collectors.<ReadingType>toList());
+            if (readingTypes.size() > 50) {
+                return new ReadingTypeInfos(readingTypes.subList(0, 50));
+            } else {
+                return new ReadingTypeInfos((readingTypes));
+            }
+        }
+        return new ReadingTypeInfos();
+    }
+
+    @GET
+    @Path("/readingtypes")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
+        String searchText = queryParameters.getLike();
+        if (searchText != null && !searchText.isEmpty()) {
+            String dbSearchText = searchText;
+            List<ReadingType> readingTypes = meteringService.getAllReadingTypesWithoutInterval();
+            Predicate<ReadingType> filter = getReadingTypeFilterPredicate(dbSearchText);
+            readingTypes = readingTypes.stream().filter(filter::test)
                     .collect(Collectors.<ReadingType>toList());
             if (readingTypes.size() > 50) {
                 return new ReadingTypeInfos(readingTypes.subList(0, 50));
