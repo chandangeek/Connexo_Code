@@ -33,7 +33,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
