@@ -1,16 +1,11 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
-
-import static com.elster.jupiter.util.streams.Predicates.not;
 
 @XmlRootElement
 public class ValidationRuleSetInfo {
@@ -27,15 +22,11 @@ public class ValidationRuleSetInfo {
         name = validationRuleSet.getName();
         description = validationRuleSet.getDescription();
         validationRuleSet.getRuleSetVersions().stream()
-                .filter(v -> v.getStatus().equals(ValidationVersionStatus.CURRENT))
+                .filter(v -> ValidationVersionStatus.CURRENT.equals(v.getStatus()))
                 .findFirst()
                 .ifPresent(ver -> {
-                    Optional.ofNullable(ver.getStartDate()).ifPresent(sd->{
-                        this.startDate = sd.toEpochMilli();
-                    });
-                    Optional.ofNullable(ver.getEndDate()).ifPresent(ed->{
-                        this.endDate = ed.toEpochMilli();
-                    });
+                    Optional.ofNullable(ver.getStartDate()).ifPresent(sd-> this.startDate = sd.toEpochMilli());
+                    Optional.ofNullable(ver.getEndDate()).ifPresent(ed-> this.endDate = ed.toEpochMilli());
                 });
         numberOfVersions = validationRuleSet.getRuleSetVersions().size();
     }
