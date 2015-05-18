@@ -45,6 +45,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -77,10 +78,10 @@ public class DeviceFirmwareMessagesResource {
     @Path("/firmwaremessagespecs/{uploadOption}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
-    public Response getMessageAttributes(@PathParam("mrid") String mrid, @PathParam("uploadOption") String uploadOption){
+    public Response getMessageAttributes(@PathParam("mrid") String mrid, @PathParam("uploadOption") String uploadOption, @QueryParam("firmwareType") String firmwareType){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.getFirmwareMessageSpecOrThrowException(device.getDeviceType(), uploadOption);
-        return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, device, uploadOption)).build();
+        return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, device, uploadOption, firmwareType)).build();
     }
 
     @POST

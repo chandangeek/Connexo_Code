@@ -59,7 +59,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_TYPE})
     public Response getDeviceTypesWhichSupportFirmwareUpgrade() {
-        List<IdWithNameInfo> deviceTypes = firmwareService.getDeviceTypesWhichSupportFirmwareUpgrade()
+        List<IdWithNameInfo> deviceTypes = firmwareService.getDeviceTypesWhichSupportFirmwareManagement()
                 .stream()
                 .map(IdWithNameInfo::new)
                 .collect(Collectors.toList());
@@ -70,9 +70,9 @@ public class FirmwareFieldResource extends FieldResource {
     @Path("/devicetypes/{deviceTypeId}/{firmwareOption}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_TYPE})
-    public Response getUploadOptionSpecForDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("firmwareOption") String firmwareOption) {
+    public Response getUploadOptionSpecForDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("firmwareOption") String firmwareOption, @QueryParam("firmwareType") String firmwareType) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.getFirmwareMessageSpecOrThrowException(deviceType, firmwareOption);
-        return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, null, firmwareOption)).build();
+        return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, deviceType, firmwareOption, firmwareType)).build();
     }
 }

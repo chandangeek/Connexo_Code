@@ -1,7 +1,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareService;
 
@@ -65,7 +65,7 @@ public class FirmwareCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response editFirmwareCampaign(FirmwareCampaignInfo info){
         FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(info.id);
-        info.writeTo(firmwareCampaign, resourceHelper);
+        info.writeTo(firmwareCampaign);
         firmwareCampaign.save();
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }

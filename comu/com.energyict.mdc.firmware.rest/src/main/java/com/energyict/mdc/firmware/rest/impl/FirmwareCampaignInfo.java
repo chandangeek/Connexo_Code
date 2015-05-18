@@ -9,12 +9,17 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,14 +34,15 @@ public class FirmwareCampaignInfo {
     public IdWithNameInfo deviceGroup;
     public String upgradeOption;
     public FirmwareTypeInfo firmwareType;
-    public FirmwareVersionInfo firmwareVersion;
     public Instant plannedDate;
     public Instant startedOn;
     public Instant finishedOn;
     public List<IdWithNameInfo> devices;
     public List<PropertyInfo> properties;
 
-    public FirmwareCampaignInfo (FirmwareCampaign campaign, Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils){
+    public FirmwareCampaignInfo() {}
+
+    public FirmwareCampaignInfo (FirmwareCampaign campaign, Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, FirmwareService firmwareService){
         this.id = campaign.getId();
         this.name = campaign.getName();
         this.status = campaign.getStatus();
@@ -44,7 +50,6 @@ public class FirmwareCampaignInfo {
         String upgradeOptionId = campaign.getUpgradeOption().getId();
         this.upgradeOption = thesaurus.getString(upgradeOptionId, upgradeOptionId);
         this.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
-        this.firmwareVersion = FirmwareVersionInfo.from(campaign.getFirmwareVersion(), thesaurus);
         this.plannedDate = campaign.getPlannedDate();
         this.startedOn = campaign.getStartedOn();
         this.finishedOn = campaign.getFinishedOn();
@@ -56,21 +61,24 @@ public class FirmwareCampaignInfo {
             for (Map.Entry<String, Object> property : properties.entrySet()) {
                 typedProperties.setProperty(property.getKey(), property.getValue());
             }
-            this.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(firmwareMessageSpec.get().getPropertySpecs(), typedProperties, null);
+            PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
+                if (FirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
+                    FirmwareVersionFilter filter = new FirmwareVersionFilter(campaign.getDeviceType());
+                    filter.setFirmwareTypes(Arrays.asList(campaign.getFirmwareType()));
+                    filter.setFirmwareStatuses(Arrays.asList(FirmwareStatus.FINAL, FirmwareStatus.TEST));
+                    return firmwareService.findAllFirmwareVersions(filter).find();
+                }
+                return null;
+            };
+            this.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(firmwareMessageSpec.get().getPropertySpecs(), typedProperties, provider);
         }
     }
 
-    public void writeTo(FirmwareCampaign campaign, ResourceHelper resourceHelper){
+    public void writeTo(FirmwareCampaign campaign){
         campaign.setName(this.name);
         ProtocolSupportedFirmwareOptions.from(this.upgradeOption).ifPresent(upgradeOption -> {
             campaign.setUpgradeOption(upgradeOption);
         });
-        if (this.firmwareType != null){
-            campaign.setFirmwareType(this.firmwareType.id);
-        }
-        if (this.firmwareVersion != null){
-            campaign.setFirmwareVersion(resourceHelper.findFirmwareVersionByIdOrThrowException(this.firmwareVersion.id));
-        }
         campaign.setPlannedDate(this.plannedDate);
         campaign.clearProperties();
         if (this.properties != null){
@@ -88,7 +96,7 @@ public class FirmwareCampaignInfo {
         long deviceGroupId = this.deviceGroup != null ? this.deviceGroup.id : 0;
         EndDeviceGroup deviceGroup = resourceHelper.findDeviceGroupOrThrowException(deviceGroupId);
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, deviceGroup);
-        writeTo(firmwareCampaign, resourceHelper);
+        writeTo(firmwareCampaign);
         return firmwareCampaign;
     }
 }
