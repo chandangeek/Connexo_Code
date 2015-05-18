@@ -1,66 +1,42 @@
 package com.energyict.mdc.gogo;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Principal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 /**
- * Copyrights EnergyICT
- * Date: 3/17/15
- * Time: 2:23 PM
+ * Provides gogo commands that support the device life cycle.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2015-04-08 (17:29)
  */
 @Component(name = "com.energyict.mdc.gogo.DeviceLifeCycleCommands", service = DeviceLifeCycleCommands.class,
         property = {"osgi.command.scope=mdc.device.lifecycle",
                 "osgi.command.function=help",
                 "osgi.command.function=triggerEvent",
+                "osgi.command.function=triggerAction",
                 "osgi.command.function=currentState",
                 "osgi.command.function=historicalState"},
         immediate = true)
@@ -69,10 +45,15 @@ public class DeviceLifeCycleCommands {
 
     private volatile Clock clock;
     private volatile DeviceService deviceService;
+    private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile FiniteStateMachineService finiteStateMachineService;
+
+    public DeviceLifeCycleCommands() {
+        super();
+    }
 
     @Reference
     @SuppressWarnings("unused")
@@ -84,6 +65,12 @@ public class DeviceLifeCycleCommands {
     @SuppressWarnings("unused")
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
     @Reference
@@ -110,6 +97,7 @@ public class DeviceLifeCycleCommands {
         this.finiteStateMachineService = finiteStateMachineService;
     }
 
+    @SuppressWarnings("unused")
     public void triggerEvent(String symbolicEventName, String mRID) {
         Optional<StateTransitionEventType> eventType = this.finiteStateMachineService.findStateTransitionEventTypeBySymbol(symbolicEventName);
         if (eventType.isPresent()) {
@@ -140,15 +128,47 @@ public class DeviceLifeCycleCommands {
     }
 
     private void triggerEvent(CustomStateTransitionEventType eventType, Device device) {
-        eventType
-            .newInstance(
-                device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
-                String.valueOf(device.getmRID()),
-                device.getState().getName(),
-                Collections.emptyMap())
-            .publish();
+        this.executeTransaction(() -> {
+            deviceLifeCycleService.triggerEvent(eventType, device);
+            return null;
+        });
     }
 
+    @SuppressWarnings("unused")
+    public void triggerAction(String symbolicEventName, String mRID) {
+        Optional<StateTransitionEventType> eventType = this.finiteStateMachineService.findStateTransitionEventTypeBySymbol(symbolicEventName);
+        if (eventType.isPresent()) {
+            this.triggerAction(eventType.get(), mRID);
+        }
+        else {
+            System.out.println("State transition event type " + symbolicEventName + " does not exist");
+        }
+    }
+
+    private void triggerAction(StateTransitionEventType eventType, String mRID) {
+        Optional<Device> device = this.deviceService.findByUniqueMrid(mRID);
+        if (device.isPresent()) {
+            this.triggerAction(eventType,  device.get());
+        }
+        else {
+            System.out.println("Device with mRID " + mRID + " does not exist");
+        }
+    }
+
+    private void triggerAction(StateTransitionEventType eventType, Device device) {
+        this.executeTransaction(() -> {
+            Optional<ExecutableAction> executableAction = this.deviceLifeCycleService.getExecutableActions(device, eventType);
+            if (executableAction.isPresent()) {
+                executableAction.get().execute(Collections.emptyList());
+            }
+            else {
+                System.out.println("Current state of device with mRID " + device.getmRID() + " does not support the event type");
+            }
+            return null;
+        });
+    }
+
+    @SuppressWarnings("unused")
     public void currentState(String mRID) {
         Optional<Device> device = this.deviceService.findByUniqueMrid(mRID);
         if (device.isPresent()) {
@@ -160,10 +180,11 @@ public class DeviceLifeCycleCommands {
     }
 
     private void currentState(Device device) {
-        String now = this.dateTimeFormatter().format(this.clock.instant());
+        String now = this.dateTimeFormatter().format(this.clock.instant().atZone(ZoneId.of("UTC")));
         System.out.println("State of device (at: " + now + "): " + device.getState().getName());
     }
 
+    @SuppressWarnings("unused")
     public void historicalState(String mRID, String when) {
         Optional<Device> device = this.deviceService.findByUniqueMrid(mRID);
         if (device.isPresent()) {
@@ -186,14 +207,17 @@ public class DeviceLifeCycleCommands {
             }
         }
         catch (DateTimeParseException e) {
-            System.out.println("Invalid date time format, was expecting yyyy-MM-dd HH:mm:ss");
+            System.out.println("Invalid date time format, was expecting yyyy-MM-dd HH:mm:ss but got '" + when + "'");
+            e.printStackTrace();
         }
     }
 
+    @SuppressWarnings("unused")
     public void help() {
         System.out.println("triggerEvent <event type> <device mRID>");
+        System.out.println("triggerAction <event type> <device mRID>");
         System.out.println("     where <event type> is one of:");
-        System.out.println("       #commissioned");
+        System.out.println("       #commissioning");
         System.out.println("       #activated");
         System.out.println("       #deactivated");
         System.out.println("       #decommissioned");
