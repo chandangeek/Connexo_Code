@@ -5,6 +5,7 @@ import java.util.Optional;
 
 public class ValidationStatusInfo {
     public boolean isActive;
+    public boolean isStorage;
     public Long lastChecked;
     public boolean hasValidation;
     public Boolean allDataValidated = true;
@@ -23,4 +24,8 @@ public class ValidationStatusInfo {
         this.hasValidation = hasValidation;
     }
 
+    public ValidationStatusInfo(boolean isActive, boolean isStorage, Optional<Instant> lastChecked, boolean hasValidation) {
+        this(isActive, lastChecked, hasValidation);
+        this.isStorage = isStorage;
+    }
 }

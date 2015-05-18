@@ -10,8 +10,8 @@ public class DeviceValidationStatusInfo extends ValidationStatusInfo {
     public DeviceValidationStatusInfo() {
     }
 
-    public DeviceValidationStatusInfo(boolean isActive, Optional<Instant> lastChecked, boolean hasValidation) {
-        super(isActive, lastChecked, hasValidation);
+    public DeviceValidationStatusInfo(boolean isActive, boolean isOnStorage, Optional<Instant> lastChecked, boolean hasValidation) {
+        super(isActive, isOnStorage, lastChecked, hasValidation);
     }
 
 }
