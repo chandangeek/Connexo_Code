@@ -225,7 +225,7 @@ Ext.define('Uni.property.view.property.Base', {
      */
     setValue: function (value) {
         if (this.isEdit) {
-            if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
+            if (this.getProperty() && this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
                 this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
             } else {
                 this.getField().emptyText = '';
@@ -307,13 +307,20 @@ Ext.define('Uni.property.view.property.Base', {
         me.on('afterrender', function () {
             me.setProperty(me.property);
             me.initListeners();
+            me.getResetButton().setHandler(me.restoreDefault, me);
         });
     },
 
     initListeners: function () {
         var me = this;
         var field = me.getField();
+        if (field) {
+            me.addFieldListeners(field);
+        }
+    },
 
+    addFieldListeners: function(field) {
+        var me = this;
         if (field) {
             field.on('change', function () {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
@@ -335,7 +342,6 @@ Ext.define('Uni.property.view.property.Base', {
                 me.customHandlerLogic();
             })
         }
-        this.getResetButton().setHandler(this.restoreDefault, this);
     },
 
     customHandlerLogic: function(){

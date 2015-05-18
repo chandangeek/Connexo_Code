@@ -9,55 +9,121 @@ Ext.define('Uni.property.view.property.DateTime', {
 
         result[0] = this.callParent(arguments);
         result[1] = {
-            xtype: 'timefield',
-            name: me.getName() + '.time',
-            margin: '0 0 0 16',
-            itemId: me.key + 'timefield',
-            format: me.timeFormat,
+            xtype: 'container',
+            layout: 'hbox',
+            align: 'stretch',
             width: me.width,
-            required: me.required,
-            readOnly: me.isReadOnly,
-            inputType: me.inputType,
-            allowBlank: me.allowBlank
+            margin: '0 0 0 5',
+            items: [
+                {
+                    xtype: 'label',
+                    text: Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase(),
+                    margin: '7 3 0 0'
+                },
+                {
+                    xtype: 'numberfield',
+                    itemId: me.key + 'hourField',
+                    readOnly: me.isReadOnly,
+                    margin: '0 3 0 0',
+                    flex: 1,
+                    valueToRaw: function (value) {
+                        if (!Ext.isDefined(value)) {
+                            return null;
+                        }
+                        value = value || 0;
+                        return (value < 10 ? '0' : '') + value;
+                    },
+                    maxValue: 23,
+                    minValue: 0,
+                    allowDecimals: false,
+                    submitValue: false,
+                },
+                {
+                    xtype: 'label',
+                    text: ':',
+                    margin: '5 0 0 0'
+                },
+                {
+                    xtype: 'numberfield',
+                    itemId: me.key + 'minuteField',
+                    readOnly: me.isReadOnly,
+                    valueToRaw: function (value) {
+                        if (!Ext.isDefined(value)) {
+                            return null;
+                        }
+                        value = value || 0;
+                        return (value < 10 ? '0' : '') + value;
+                    },
+                    flex: 1,
+                    maxValue: 59,
+                    minValue: 0,
+                    allowDecimals: false,
+                    submitValue: false,
+                    margin: '0 0 0 3'
+                }
+            ]
         };
-
         return result;
     },
 
-    getTimeField: function () {
-        return this.down('timefield');
+    getHoursField: function () {
+        return this.down('#' + this.key + 'hourField');
     },
 
-    getDateField: function () {
-        return this.down('datefield');
+    getMinutesField: function () {
+        return this.down('#' + this.key + 'minuteField');
     },
 
-    setValue: function (value) {
+    setValue: function (value /*Date in milliseconds*/) {
         var dateValue = null,
-            timeValue = null;
-
+            timeValue = null,
+            hours = 0,
+            minutes = 0
+            me = this;
         if (value !== null && value !== '') {
             var date = new Date(value);
             dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-            timeValue = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), 0);
+            hours = date.getHours();
+            minutes = date.getMinutes();
+        }
 
-            if (!this.isEdit) {
-                this.callParent([date.toLocaleString()]);
-            } else {
-                this.callParent([dateValue]);
-                this.getTimeField().setValue(timeValue);
-            }
+        if (!this.isEdit) {
+            me.getDisplayField().setValue(value !== null && value !== '' ? date.toLocaleDateString() + ' ' + date.toLocaleTimeString() : '');
+        } else {
+            me.callParent([dateValue]);
+            me.getHoursField().setValue(hours);
+            me.getMinutesField().setValue(minutes);
         }
     },
 
     getValue: function () {
-        var timeValue = this.getTimeField().getValue(),
-            dateValue = this.getDateField().getValue();
-        if (timeValue !== null && timeValue !== '' && dateValue !== null && dateValue !== '') {
-            var newDate = new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(),
-                timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
-            return newDate.getTime();
+        var dateValue = this.getField().getValue(), // date in milliseconds
+            hourValue = this.getHoursField().getValue(),
+            minValue = this.getMinutesField().getValue();
+        if (dateValue !== null && dateValue !== '') {
+            if (hourValue !== null && hourValue !== '' && minValue !== null && minValue !== '') {
+                var newDate = new Date(dateValue);
+                var resultDate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), hourValue, minValue, 0);
+                return resultDate.getTime(); // Date in milliseconds
+            }
+            return dateValue;
         }
+        this.getHoursField().setValue(null);
+        this.getMinutesField().setValue(null);
         return null;
+    },
+
+    initListeners: function () {
+        var me = this,
+            hoursField = me.getHoursField(),
+            minutesField = me.getMinutesField();
+
+        if (hoursField) {
+            me.addFieldListeners(hoursField);
+        }
+        if (minutesField) {
+            me.addFieldListeners(minutesField);
+        }
+        this.callParent(arguments);
     }
 });

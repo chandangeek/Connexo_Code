@@ -68,7 +68,7 @@ Ext.define('Uni.property.view.property.Time', {
         return this;
     },
 
-    setValue: function (value) {
+    setValue: function (value /*time in seconds*/) {
         var hours = 0, minutes = 0, doSet = false;
         if (value === '') {
             doSet = true;
@@ -91,66 +91,27 @@ Ext.define('Uni.property.view.property.Time', {
     getValue: function () {
         var hourValue = this.getHoursField().getValue(),
             minValue = this.getMinutesField().getValue();
-        if (hourValue !== null && hourValue !== '' && minValue !== null && minValue !== '') {
+        if (hourValue !== null && hourValue !== '' && hourValue !== 0 &&
+            minValue !== null && minValue !== '' && minValue !==0) {
             var newDate = new Date(1970, 0, 1, hourValue, minValue, 0, 0);
-            return newDate.getTime() / 1000;
+            return newDate.getTime() / 1000; // time in seconds
         }
+        this.getHoursField().setValue(null);
+        this.getMinutesField().setValue(null);
         return null;
-    }
-    ,
+    },
+
     initListeners: function () {
         var me = this;
         var hoursField = me.getHoursField();
         var minutesField = me.getMinutesField();
 
         if (hoursField) {
-            hoursField.on('change', function () {
-                me.getProperty().set('isInheritedOrDefaultValue', false);
-                me.updateResetButton();
-                if (hoursField.getValue() === null || hoursField.getValue() === '') {
-                    me.getProperty().set('hasValue', false);
-                    me.getProperty().set('propertyHasValue', false);
-                }
-                me.customHandlerLogic();
-            });
-            hoursField.on('blur', function () {
-                if (!hoursField.hasNotValueSameAsDefaultMessage && hoursField.getValue() !== '' &&
-                    !me.getProperty().get('isInheritedOrDefaultValue') && hoursField.getValue() === me.getProperty().get('default')) {
-                    me.showPopupEnteredValueEqualsInheritedValue(hoursField, me.getProperty());
-                }
-                if (hoursField.getValue() === ''  && hoursField.getValue() === me.getProperty().get('default')) {
-                    debugger;
-                    me.getProperty().set('isInheritedOrDefaultValue', true);
-                    me.updateResetButton();
-                }
-                me.customHandlerLogic();
-            })
+            me.addFieldListeners(hoursField);
         }
-
         if (minutesField) {
-            minutesField.on('change', function () {
-                me.getProperty().set('isInheritedOrDefaultValue', false);
-                me.updateResetButton();
-                if (minutesField.getValue() === null || minutesField.getValue() === '') {
-                    me.getProperty().set('hasValue', false);
-                    me.getProperty().set('propertyHasValue', false);
-                }
-                me.customHandlerLogic();
-            });
-            minutesField.on('blur', function () {
-                if (!minutesField.hasNotValueSameAsDefaultMessage && minutesField.getValue() !== '' &&
-                    !me.getProperty().get('isInheritedOrDefaultValue') && minutesField.getValue() === me.getProperty().get('default')) {
-                    me.showPopupEnteredValueEqualsInheritedValue(minutesField, me.getProperty());
-                }
-                if (minutesField.getValue() === ''  && minutesField.getValue() === me.getProperty().get('default')) {
-                    debugger;
-                    me.getProperty().set('isInheritedOrDefaultValue', true);
-                    me.updateResetButton();
-                }
-                me.customHandlerLogic();
-            })
+            me.addFieldListeners(minutesField);
         }
-        this.getResetButton().setHandler(this.restoreDefault, this);
     }
 
 });
