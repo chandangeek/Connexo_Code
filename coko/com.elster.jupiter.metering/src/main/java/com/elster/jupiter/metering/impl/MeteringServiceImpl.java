@@ -304,6 +304,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
                 bind(EventService.class).toInstance(eventService);
                 bind(IdsService.class).toInstance(idsService);
                 bind(PartyService.class).toInstance(partyService);
+                bind(UserService.class).toInstance(userService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
