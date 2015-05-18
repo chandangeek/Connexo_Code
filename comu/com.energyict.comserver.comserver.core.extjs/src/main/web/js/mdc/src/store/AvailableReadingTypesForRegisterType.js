@@ -7,7 +7,7 @@ Ext.define('Mdc.store.AvailableReadingTypesForRegisterType', {
     storeId: 'AvailableReadingTypesForRegisterType',
     proxy: {
         type: 'ajax',
-        url: '/api/mds/readingtypes',
+        url: '/api/mds/unusedreadingtypes',
         reader: {
             type: 'json',
             root: 'readingTypes'
