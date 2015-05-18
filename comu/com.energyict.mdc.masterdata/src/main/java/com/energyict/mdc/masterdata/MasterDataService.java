@@ -1,9 +1,10 @@
 package com.energyict.mdc.masterdata;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.domain.util.Finder;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:34)
  */
+@ProviderType
 public interface MasterDataService {
 
     public static String COMPONENTNAME = "MDS";
