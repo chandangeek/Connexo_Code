@@ -3,7 +3,7 @@ package com.energyict.mdc.pluggable.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.FieldValidationException;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
