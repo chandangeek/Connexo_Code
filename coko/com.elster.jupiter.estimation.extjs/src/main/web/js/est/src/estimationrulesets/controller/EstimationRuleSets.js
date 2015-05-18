@@ -194,7 +194,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             success: function (record) {
                 me.getApplication().fireEvent('loadEstimationRuleSet', record);
                 widget.down('#rule-set-edit-form').loadRecord(record);
-                widget.down('#rule-set-edit-form').setTitle(Uni.I18n.translate('estimationrulesets.edit.title', 'EST', 'Edit \'{name}\'').replace('{name}', record.get('name')));
+                widget.down('#rule-set-edit-form').setTitle(Uni.I18n.translate('estimationrulesets.edit.title', 'EST', 'Edit \'{0}\'', [record.get('name')]));
                 widget.down('#rule-set-edit-form #save-button').setText(Uni.I18n.translate('general.save', 'EST', 'Save'));
                 widget.setLoading(false);
             },

@@ -52,16 +52,18 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksHistory', {
             widget,
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         store.getProxy().setUrl(router.arguments);
-        widget = Ext.widget('estimationtasks-history', {router: router, taskId: currentTaskId});
 
-        me.initFilter();
         pageMainContent.setLoading(true);
 
         taskModel.load(currentTaskId, {
             success: function (record) {
+                widget = Ext.widget('estimationtasks-history', {router: router, taskId: currentTaskId});
                 me.getApplication().fireEvent('changecontentevent', widget);
+                Ext.suspendLayouts();
+                me.initFilter();
                 me.getOverviewLink().setText(record.get('name'));
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
+                Ext.resumeLayouts(true);
             },
             callback: function(){
                 pageMainContent.setLoading(false);
