@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimePeriod;
+import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.comserver.time.Clocks;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -21,13 +22,13 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.exceptions.ConnectionSetupException;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -119,14 +120,28 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
      */
     protected RtuPlusServer initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
         RtuPlusServer gatewayProtocol = new RtuPlusServer();
-
         TypedProperties protocolProperties = context.getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
         protocolProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
         TypedProperties dialectProperties = context.getInboundDAO().getDeviceDialectProperties(getDeviceIdentifier(), context.getComPort());
+        if (dialectProperties == null) {
+            dialectProperties = TypedProperties.empty();
+        }
+
+        DeviceProtocolDialect theActualDialect = gatewayProtocol.getDeviceProtocolDialects().get(0);
+        for (PropertySpec propertySpec : theActualDialect.getOptionalProperties()) {
+            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
+            }
+        }
+        for (PropertySpec propertySpec : theActualDialect.getRequiredProperties()) {
+            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
+            }
+        }
+
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         OfflineDevice offlineDevice = context.getInboundDAO().findOfflineDevice(getDeviceIdentifier());
         createTcpComChannel();
-
         gatewayProtocol.setDeviceCache(dummyCache);
         gatewayProtocol.addProperties(protocolProperties);
         gatewayProtocol.addDeviceProtocolDialectProperties(dialectProperties);
