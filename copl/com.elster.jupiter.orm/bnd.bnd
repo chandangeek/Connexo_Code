@@ -1,4 +1,4 @@
--classpath: target/classes 
+-classpath: target/classes
 -dsannotations: *
 Include-Resource: README.HTML
 Private-Package: com.elster.jupiter.orm.impl,\
