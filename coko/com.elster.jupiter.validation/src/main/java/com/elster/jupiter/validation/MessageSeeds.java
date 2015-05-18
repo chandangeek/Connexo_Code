@@ -1,9 +1,9 @@
 package com.elster.jupiter.validation;
 
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,6 +97,31 @@ public enum MessageSeeds implements MessageSeed {
         public static final String TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
         public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
 
+    }
+
+    public enum Labels {
+        SCHEDULED("validationtask.occurrence.scheduled", "Scheduled"),
+        ON_REQUEST("validationtask.occurrence.onrequest", "On Request");
+
+        private final String key;
+        private final String defaultTranslation;
+
+        Labels(String key, String defaultTranslation) {
+            this.key = key;
+            this.defaultTranslation = defaultTranslation;
+        }
+
+        public Translation toDefaultTransation() {
+            return SimpleTranslation.translation(SimpleNlsKey.key(ValidationService.COMPONENTNAME, Layer.REST, key), Locale.ENGLISH, defaultTranslation);
+        }
+
+        public String translate(Thesaurus thesaurus) {
+            return thesaurus.getString(key, defaultTranslation);
+        }
+
+        public String translate(Thesaurus thesaurus, Locale locale) {
+            return thesaurus.getString(locale, key, defaultTranslation);
+        }
     }
 }
 
