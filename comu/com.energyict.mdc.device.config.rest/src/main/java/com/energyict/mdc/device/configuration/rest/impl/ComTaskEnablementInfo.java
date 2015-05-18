@@ -41,11 +41,7 @@ public class ComTaskEnablementInfo {
                         .getPartialConnectionTask()
                         .map(pct -> PartialConnectionTaskInfo.from(pct, comTaskEnablement.usesDefaultConnectionTask(), thesaurus))
                         .orElse(PartialConnectionTaskInfo.defaultPartialConnectionTaskInfo(thesaurus));
-        comTaskEnablementInfo.protocolDialectConfigurationProperties =
-                comTaskEnablement
-                        .getProtocolDialectConfigurationProperties()
-                        .map(p -> ProtocolDialectConfigurationPropertiesInfo.from(p, thesaurus))
-                        .orElse(null);
+        comTaskEnablementInfo.protocolDialectConfigurationProperties = ProtocolDialectConfigurationPropertiesInfo.from(comTaskEnablement.getProtocolDialectConfigurationProperties(), thesaurus);
         comTaskEnablementInfo.priority = comTaskEnablement.getPriority();
         comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended();
         comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
@@ -102,7 +98,7 @@ public class ComTaskEnablementInfo {
     }
 
     public static class PartialConnectionTaskInfo {
-        public static final Long DEFAULT_PARTIAL_CONNECTION_TASK_ID = -1L; 
+        public static final Long DEFAULT_PARTIAL_CONNECTION_TASK_ID = -1L;
         public Long id;
         public String name;
 
