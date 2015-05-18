@@ -119,6 +119,7 @@ class ChannelValidator {
     private void setSuspectQuality(ValidatedResult target) {
         Optional<ReadingQualityRecord> suspectQuality = existingReadingQualities.get(target.getTimestamp()).stream()
                 .filter(ReadingQualityRecord::isSuspect)
+                .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(target.getReadingType()))
                 .findFirst();
         ReadingQualityRecord suspectQualityRecord = suspectQuality.orElseGet(() -> {
             ReadingQualityRecord record = saveNewReadingQuality(channel, target, ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT));
