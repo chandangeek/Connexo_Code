@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.*;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import org.junit.Before;

@@ -308,7 +308,7 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
      */
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "protocolDialectConfigurationProperties")
     public void testEnableWithoutProtocolDialect() {
         // Business method
         this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, null).add();
@@ -323,8 +323,8 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COM_TASK_CAN_ONLY_BE_ENABLED_ONCE + "}")
     public void testEnableTwice () {
-
         this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties).add();
+
         // Business method
         this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1, properties).add();
 
