@@ -178,12 +178,12 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
         doGetRules().forEach( rule -> rule.save());
-//        eventService.postEvent(EventType.ESTIMATIONRULESET_UPDATED.topic(), this);
+        eventService.postEvent(EventType.ESTIMATIONRULESET_UPDATED.topic(), this);
     }
 
     private void doPersist() {
         Save.CREATE.save(dataModel, this);
-//        eventService.postEvent(EventType.ESTIMATIONRULESET_CREATED.topic(), this);
+        eventService.postEvent(EventType.ESTIMATIONRULESET_CREATED.topic(), this);
     }
 
     @Override
@@ -191,7 +191,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         this.setObsoleteTime(Instant.now()); // mark obsolete
         doGetRules().forEach(rule -> rule.delete());
         validationRuleSetFactory().update(this);
-//        eventService.postEvent(EventType.ESTIMATIONRULESET_DELETED.topic(), this);
+        eventService.postEvent(EventType.ESTIMATIONRULESET_DELETED.topic(), this);
     }
 
     @Override

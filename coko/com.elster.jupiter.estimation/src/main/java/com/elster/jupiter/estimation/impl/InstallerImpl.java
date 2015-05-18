@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.MessageSeeds;
 import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -44,15 +45,17 @@ class InstallerImpl {
     private final TimeService timeService;
     private final Thesaurus thesaurus;
     private final UserService userService;
+    private final EventService eventService;
 
     private DestinationSpec destinationSpec;
 
-    InstallerImpl(DataModel dataModel, MessageService messageService, Thesaurus thesaurus, UserService userService, TimeService timeService/*, Thesaurus thesaurus*/) {
+    InstallerImpl(DataModel dataModel, MessageService messageService, Thesaurus thesaurus, UserService userService, TimeService timeService, EventService eventService/*, Thesaurus thesaurus*/) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.timeService = timeService;
         this.thesaurus = thesaurus;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     public DestinationSpec getDestinationSpec() {
@@ -66,7 +69,8 @@ class InstallerImpl {
                 this::createPrivileges,
                 this::createRelativePeriodCategory,
                 this::createTranslations,
-                this::createRelativePeriods
+                this::createRelativePeriods,
+                this::createEventTypes
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
     }
@@ -130,7 +134,6 @@ class InstallerImpl {
         this.userService.createResourceWithPrivileges("MDC", ESTIMATIONS_PRIVILEGE_CATEGORY_NAME, ESTIMATIONS_PRIVILEGE_CATEGORY_DESCRIPTION, Privileges.keys());
     }
 
-
     private RelativePeriodCategory getCategory() {
         return timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY).orElseThrow(IllegalArgumentException::new);
     }
@@ -145,5 +148,10 @@ class InstallerImpl {
                 });
 
     }
-
+    
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            eventType.install(eventService);
+        }
+    }
 }
