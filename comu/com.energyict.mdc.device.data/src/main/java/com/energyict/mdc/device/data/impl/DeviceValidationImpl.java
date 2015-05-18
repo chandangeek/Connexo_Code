@@ -69,7 +69,21 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
+    public boolean isValidationOnStorage() {
+        return getEvaluator().isValidationOnStorageEnabled(fetchKoreMeter());
+    }
+
+    @Override
+    public void activateValidationOnStorage(Instant lastChecked) {
+        activateValidation(lastChecked, true);
+    }
+
+    @Override
     public void activateValidation(Instant lastChecked) {
+        activateValidation(lastChecked, false);
+    }
+
+    void activateValidation(Instant lastChecked, boolean onStorage) {
         Meter koreMeter = this.fetchKoreMeter();
         if (koreMeter.hasData()) {
             if (lastChecked == null) {
@@ -79,7 +93,9 @@ public class DeviceValidationImpl implements DeviceValidation {
                 .filter(each -> this.isEffectiveOrStartsAfterLastChecked(lastChecked, each))
                 .forEach(each -> this.applyLastChecked(lastChecked, each));
         }
-        this.validationService.enableValidationOnStorage(koreMeter);
+        if(onStorage){
+            this.validationService.enableValidationOnStorage(koreMeter);
+        }
         this.validationService.activateValidation(koreMeter);
     }
 

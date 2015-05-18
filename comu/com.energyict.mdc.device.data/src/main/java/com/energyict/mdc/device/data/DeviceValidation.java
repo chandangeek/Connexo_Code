@@ -24,6 +24,8 @@ public interface DeviceValidation {
 
     boolean isValidationActive();
 
+    boolean isValidationOnStorage();
+
     /**
      * Activates the validation on the Device and sets the last checked
      * date to the specified instant in time.
@@ -35,6 +37,8 @@ public interface DeviceValidation {
      *                                     or after the last checked timestamp of the Device's current meter activation
      */
     void activateValidation(Instant lastChecked);
+
+    void activateValidationOnStorage(Instant lastChecked);
 
     /**
      * Deactivates the validation on the Device.
