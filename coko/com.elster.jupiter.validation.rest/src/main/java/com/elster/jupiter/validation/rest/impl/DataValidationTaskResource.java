@@ -97,10 +97,10 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
             Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public PagedInfoList getDataValidationTasks(@Context UriInfo uriInfo) {
+    public KorePagedInfoList getDataValidationTasks(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
-        return PagedInfoList.asJson("dataValidationTasks", list.stream().map(dataValidationTask ->
+        return KorePagedInfoList.asJson("dataValidationTasks", list.stream().map(dataValidationTask ->
                 new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).collect(Collectors.toList())
                 , queryParameters);
     }
