@@ -152,12 +152,12 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
         },
         EQUAL_DISTRIBUTION(EQUAL_DISTRIBUTION_ESTIMATOR) {
             @Override
-            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> props) {
+            Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props) {
                 return new EqualDistribution(thesaurus, propertySpecService, meteringService, props);
             }
 
             @Override
-            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
+            AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
                 return new EqualDistribution(thesaurus, propertySpecService, meteringService);
             }
         };

@@ -108,20 +108,20 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     @Override
     public String getPropertyDefaultFormat(String property) {
         switch (property) {
-        case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
-            return "Max number of consecutive suspects";
-        case MAX_NUMBER_OF_SAMPLES:
-            return "Maximum samples";
-        case MIN_NUMBER_OF_SAMPLES:
-            return "Minimum samples";
-        case ALLOW_NEGATIVE_VALUES:
-            return "Allow negative values";
-        case RELATIVE_PERIOD:
-            return "Relative period";
-        case ADVANCE_READINGS_SETTINGS:
-            return "Use advance readings";
-        default:
-            return "";
+            case MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS:
+                return "Max number of consecutive suspects";
+            case MAX_NUMBER_OF_SAMPLES:
+                return "Maximum samples";
+            case MIN_NUMBER_OF_SAMPLES:
+                return "Minimum samples";
+            case ALLOW_NEGATIVE_VALUES:
+                return "Allow negative values";
+            case RELATIVE_PERIOD:
+                return "Relative period";
+            case ADVANCE_READINGS_SETTINGS:
+                return "Use advance readings";
+            default:
+                return "";
         }
     }
 
@@ -138,11 +138,11 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private boolean isEstimatable(EstimationBlock block) {
-        if  (block.estimatables().size() > numberOfConsecutiveSuspects.intValue()) {
-            Logger.getAnonymousLogger().log(Level.WARNING, "block cannot be estimated: maxNumberOfConsecutiveSuspects should be max "  + this.numberOfConsecutiveSuspects);
+        if (block.estimatables().size() > numberOfConsecutiveSuspects.intValue()) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "block cannot be estimated: maxNumberOfConsecutiveSuspects should be max " + this.numberOfConsecutiveSuspects);
             return false;
         }
-        if  (block.getReadingType().isCumulative()) {
+        if (block.getReadingType().isCumulative()) {
             Logger.getAnonymousLogger().log(Level.WARNING, "Invalid readingtype '" + block.getReadingType().getMRID() + "': only delta readingtypes can be estimated");
             return false;
         }
@@ -257,7 +257,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         Instant endInterval = esimatables.get(esimatables.size() - 1).getTimestamp();
 
         ReadingType registerReadingType =
-                ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType() ;
+                ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType();
         List<? extends BaseReadingRecord> readingsBefore =
                 estimationBlock.getChannel().getMeterActivation().getReadingsBefore(startInterval, registerReadingType, 1);
         List<? extends BaseReadingRecord> readingsAfter =
@@ -349,7 +349,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private Range<Instant> getPeriod(Channel channel, Instant referenceTime) {
-        if (relativePeriod != null && !(relativePeriod instanceof AllRelativePeriod)) {
+        if (relativePeriod != null && timeService.getAllRelativePeriod().getId() != relativePeriod.getId()) {
             Range<ZonedDateTime> range = relativePeriod.getInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
             Instant start = range.lowerEndpoint().toInstant();
             Instant end = range.upperEndpoint().toInstant();
@@ -385,7 +385,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         builder.add(getPropertySpecService().longPropertySpec(MAX_NUMBER_OF_SAMPLES, true, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
 
-        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
+        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, timeService.getAllRelativePeriod()));
 
         return builder.build();
     }
@@ -437,15 +437,14 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             } else if (property.getName().equals(ADVANCE_READINGS_SETTINGS)) {
                 Object settings = property.getValue();
                 if (settings instanceof ReadingTypeAdvanceReadingsSettings) {
-                    ReadingType readingType = ((ReadingTypeAdvanceReadingsSettings)settings).getReadingType();
+                    ReadingType readingType = ((ReadingTypeAdvanceReadingsSettings) settings).getReadingType();
                     if (!readingType.isCumulative()) {
                         throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, "properties." + ADVANCE_READINGS_SETTINGS);
                     }
                 }
             } else if (property.getName().equals(MAX_NUMBER_OF_SAMPLES)) {
                 maxSamples = (Long) property.getValue();
-            }
-            else if (property.getName().equals(MIN_NUMBER_OF_SAMPLES)) {
+            } else if (property.getName().equals(MIN_NUMBER_OF_SAMPLES)) {
                 minSamples = (Long) property.getValue();
             }
         }
