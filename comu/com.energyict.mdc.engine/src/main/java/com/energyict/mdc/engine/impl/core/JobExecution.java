@@ -269,7 +269,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     /**
-     * Indicate whether a connection has been set-up
+     * Indicates whether a connection has been set-up.
      *
      * @return true if the connection is up, false otherwise
      */
@@ -291,7 +291,7 @@ public abstract class JobExecution implements ScheduledJob {
         } catch (ComServerRuntimeException e) {
             if (checkIfWeCanPerformOtherComTaskExecutionsBasedOnConnectionRelatedExceptions(e)) {
                 throw e;
-            } else if (checkWhetherAllNextComTasksShouldNotBeExecutedBasedonBasicCheckFailure(e)) {
+            } else if (checkWhetherAllNextComTasksShouldNotBeExecutedBasedOnBasicCheckFailure(e)) {
                 getExecutionContext().setBasicCheckFailed(true);
             }
             // else the task will be logged, next task can be executed
@@ -347,14 +347,12 @@ public abstract class JobExecution implements ScheduledJob {
         return CommunicationException.class.isAssignableFrom(e.getClass());
     }
 
-    private boolean checkWhetherAllNextComTasksShouldNotBeExecutedBasedonBasicCheckFailure(ComServerRuntimeException e) {
+    private boolean checkWhetherAllNextComTasksShouldNotBeExecutedBasedOnBasicCheckFailure(ComServerRuntimeException e) {
         return e instanceof TimeDifferenceExceededException || e instanceof SerialNumberMismatchException;
     }
 
     /**
      * Completes the execution of the {@link ComTaskExecution}.
-     * <p>
-     * <i>Need to keep the comTaskExecution to properly AOP the statistics</i>
      *
      * @param comTaskExecution The ComTaskExecution
      * @param successIndicator The SuccessIndicator
@@ -460,11 +458,12 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private static TypedProperties getProtocolDialectTypedProperties(Device device, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        ProtocolDialectProperties protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
-        if (protocolDialectPropertiesWithName == null) {
+        Optional<ProtocolDialectProperties> protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
+        if (protocolDialectPropertiesWithName.isPresent()) {
+            return protocolDialectPropertiesWithName.get().getTypedProperties();
+        }
+        else {
             return TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
-        } else {
-            return protocolDialectPropertiesWithName.getTypedProperties();
         }
     }
 
@@ -486,7 +485,7 @@ public abstract class JobExecution implements ScheduledJob {
     private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(Device device, ComTask comTask) {
         for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
             if (comTaskEnablement.getComTask().getId() == comTask.getId()) {
-                return comTaskEnablement.getProtocolDialectConfigurationProperties();
+                return Optional.of(comTaskEnablement.getProtocolDialectConfigurationProperties());
             }
         }
         return Optional.empty();
@@ -733,40 +732,6 @@ public abstract class JobExecution implements ScheduledJob {
 
         private PrepareAllTransaction(List<? extends ComTaskExecution> comTaskExecutions) {
             this.comTaskExecutions = comTaskExecutions;
-        }
-    }
-
-    private class PrepareComScheduleTasksTransaction implements Transaction<List<PreparedComTaskExecution>> {
-        private final ScheduledComTaskExecution scheduledComTaskExecution;
-
-        public List<PreparedComTaskExecution> perform() {
-            List<PreparedComTaskExecution> result = new ArrayList<>();
-            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
-            for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : organizer.defineComTaskExecutionOrders(Arrays.asList(scheduledComTaskExecution))) {
-                ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
-                for (DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps : deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity()) {
-                    ComTaskExecution comTaskExecution = comTaskWithSecurityAndConnectionSteps.getComTaskExecution();
-                    ComTaskExecutionConnectionSteps connectionSteps = comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps();
-                    DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet();
-                    PreparedComTaskExecution preparedComTaskExecution =
-                            getPreparedComTaskExecution(
-                                    comTaskPreparationContext,
-                                    comTaskExecution,
-                                    connectionSteps,
-                                    deviceProtocolSecurityPropertySet);
-                    result.add(preparedComTaskExecution);
-                }
-                //GenericDeviceProtocols can reorganize the commands
-                if (GenericDeviceProtocol.class.isAssignableFrom(comTaskPreparationContext.getDeviceProtocol().getClass())) {
-                    comTaskPreparationContext.setRoot(((GenericDeviceProtocol) comTaskPreparationContext.getDeviceProtocol()).organizeComCommands(comTaskPreparationContext.getRoot()));
-                }
-            }
-            return result;
-        }
-
-        private PrepareComScheduleTasksTransaction(ScheduledComTaskExecution scheduledComTaskExecution) {
-            super();
-            this.scheduledComTaskExecution = scheduledComTaskExecution;
         }
     }
 

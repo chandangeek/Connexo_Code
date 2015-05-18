@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -541,6 +542,7 @@ public class ScheduledJobImplTest {
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
         return device;
     }
 
