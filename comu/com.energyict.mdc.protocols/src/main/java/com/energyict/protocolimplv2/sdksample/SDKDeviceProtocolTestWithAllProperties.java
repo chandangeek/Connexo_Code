@@ -151,34 +151,34 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(this.propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
-        optionalProperties.add(propertySpecService.stringPropertySpec("SDKStringPropertyWithDefault", false, "Test"));
-        optionalProperties.add(propertySpecService.stringPropertySpecWithValues("SDKStringPropertyWithValues", false, "value 1", "value 2", "value 3", "value 4"));
-        optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue("SDKStringPropertyWithValuesAndDefault", false, "value 3", "value 1", "value 2", "value 4", "value 5"));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKLargeStringProperty", false, new LargeStringFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKHexStringProperty", false, new HexStringFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKPasswordProperty", false, PasswordFactory.class));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKBigDecimalProperty", false, new BigDecimalFactory()));
-        optionalProperties.add(propertySpecService.bigDecimalPropertySpec("SDKBigDecimalWithDefault", false, new BigDecimal("666.156")));
+        optionalProperties.add(this.propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKSTRINGPROPERTY, false, new StringFactory()));
+        optionalProperties.add(propertySpecService.stringPropertySpec(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHDEFAULT, false, "Test"));
+        optionalProperties.add(propertySpecService.stringPropertySpecWithValues(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHVALUES, false, "value 1", "value 2", "value 3", "value 4"));
+        optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHVALUESANDDEFAULT, false, "value 3", "value 1", "value 2", "value 4", "value 5"));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKLARGESTRINGPROPERTY, false, new LargeStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKHEXSTRINGPROPERTY, false, new HexStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKPASSWORDPROPERTY, false, PasswordFactory.class));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKBIGDECIMALPROPERTY, false, new BigDecimalFactory()));
+        optionalProperties.add(propertySpecService.bigDecimalPropertySpec(SDKMessageSeeds.Keys.SDKBIGDECIMALWITHDEFAULT, false, new BigDecimal("666.156")));
         optionalProperties.add(
                 propertySpecService.bigDecimalPropertySpecWithValues(
-                        "SDKBigDecimalWithValues",
+                        SDKMessageSeeds.Keys.SDKBIGDECIMALWITHVALUES,
                         false,
                         BigDecimal.ZERO,
                         BigDecimal.ONE,
                         new BigDecimal("2"),
                         new BigDecimal("3")));
-        optionalProperties.add(propertySpecService.boundedDecimalPropertySpec("SDKBoundedDecimal", false, new BigDecimal(2), new BigDecimal(10)));
-        optionalProperties.add(propertySpecService.positiveDecimalPropertySpec("SDKPositiveDecimalProperty", false));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKBooleanProperty", false, new BooleanFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKDateProperty", false, new DateFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKTimeOfDayProperty", false, new TimeOfDayFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKDateTimeProperty", false, new DateAndTimeFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKTimeDurationProperty", false, new TimeDurationValueFactory()));
+        optionalProperties.add(propertySpecService.boundedDecimalPropertySpec(SDKMessageSeeds.Keys.SDKBOUNDEDDECIMAL, false, new BigDecimal(2), new BigDecimal(10)));
+        optionalProperties.add(propertySpecService.positiveDecimalPropertySpec(SDKMessageSeeds.Keys.SDKPOSITIVEDECIMALPROPERTY, false));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKBOOLEANPROPERTY, false, new BooleanFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKDATEPROPERTY, false, new DateFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKTIMEOFDAYPROPERTY, false, new TimeOfDayFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKDATETIMEPROPERTY, false, new DateAndTimeFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKTIMEDURATIONPROPERTY, false, new TimeDurationValueFactory()));
 
         optionalProperties.add(
                 propertySpecService.obisCodePropertySpecWithValues(
-                        "SDKObisCodeProperty",
+                        SDKMessageSeeds.Keys.SDKOBISCODEPROPERTY,
                         false,
                         ObisCode.fromString("1.0.1.8.0.255"),
                         ObisCode.fromString("1.0.1.8.1.255"),
@@ -190,9 +190,9 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
         // codetable and userfile not supported
         //optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
         //optionalProperties.add(propertySpecService.referencePropertySpec("SDKUserFileReferenceProperty", false, FactoryIds.USERFILE));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan13Property", false, new Ean13Factory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan18Property", false, new Ean18Factory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKEncryptedStringProperty", false, EncryptedStringFactory.class));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKEAN13PROPERTY, false, new Ean13Factory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKEAN18PROPERTY, false, new Ean18Factory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKENCRYPTEDSTRINGPROPERTY, false, EncryptedStringFactory.class));
 
         return optionalProperties;
     }
