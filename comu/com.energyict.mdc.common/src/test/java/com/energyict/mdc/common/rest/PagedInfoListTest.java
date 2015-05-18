@@ -1,6 +1,7 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import java.util.Arrays;
 import java.util.List;
 
