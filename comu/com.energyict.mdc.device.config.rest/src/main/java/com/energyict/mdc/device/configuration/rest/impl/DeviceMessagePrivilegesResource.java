@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.security.Privileges;

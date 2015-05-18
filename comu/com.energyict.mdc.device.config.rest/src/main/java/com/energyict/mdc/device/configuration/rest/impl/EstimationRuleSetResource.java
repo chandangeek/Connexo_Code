@@ -5,7 +5,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.KorePagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -49,7 +49,7 @@ public class EstimationRuleSetResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public PagedInfoList getEstimationRuleSets(@PathParam("deviceTypeId") long deviceTypeId,
+    public KorePagedInfoList getEstimationRuleSets(@PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @QueryParam("linkable") boolean includeOnlyLinkableEstimationRuleSets,
             @BeanParam QueryParameters queryParameters) {
@@ -58,7 +58,7 @@ public class EstimationRuleSetResource {
         List<EstimationRuleSet> ruleSets = includeOnlyLinkableEstimationRuleSets ? getLinkableEstimationRuleSets(deviceConfiguration) : deviceConfiguration.getEstimationRuleSets();
         List<EstimationRuleSet> pagedRuleSets = ListPager.of(ruleSets).from(queryParameters).find();
         List<EstimationRuleSetRefInfo> infos = pagedRuleSets.stream().map(ruleSet -> new EstimationRuleSetRefInfo(ruleSet, deviceConfiguration)).collect(Collectors.toList());
-        return PagedInfoList.asJson("estimationRuleSets", infos, queryParameters);
+        return KorePagedInfoList.asJson("estimationRuleSets", infos, queryParameters);
     }
     
     @POST

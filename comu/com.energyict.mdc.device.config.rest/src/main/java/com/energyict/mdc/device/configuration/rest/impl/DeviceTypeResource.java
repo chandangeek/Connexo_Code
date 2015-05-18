@@ -7,7 +7,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.services.ListPager;
