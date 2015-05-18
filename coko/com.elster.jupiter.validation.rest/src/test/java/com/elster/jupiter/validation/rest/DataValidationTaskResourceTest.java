@@ -77,7 +77,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void getCreateTasksTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus);
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 1;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
@@ -97,7 +97,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void updateTasksTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus);
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 1;

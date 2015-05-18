@@ -57,8 +57,6 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         assertThat(ruleSetInfo.name).isEqualTo("MyName");
         assertThat(ruleSetInfo.id).isEqualTo(13);
         assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
-        assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
-        assertThat(ruleSetInfo.numberOfRules).isEqualTo(0);
     }
 
     @Test
@@ -94,8 +92,6 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         assertThat(ruleSetInfo.id).isEqualTo(13);
         assertThat(ruleSetInfo.name).isEqualTo("MyName");
         assertThat(ruleSetInfo.description).isEqualTo("MyDescription");
-        assertThat(ruleSetInfo.numberOfInactiveRules).isEqualTo(0);
-        assertThat(ruleSetInfo.numberOfRules).isEqualTo(1);
     }
 
     @Test
@@ -510,6 +506,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(ruleSetVersion.getId()).thenReturn(id);
         when(ruleSetVersion.getStartDate()).thenReturn(startDate);
         when(ruleSetVersion.getRuleSet()).thenReturn(ruleSet);
+        when(ruleSetVersion.getStatus()).thenReturn(ValidationVersionStatus.CURRENT);
         return ruleSetVersion;
     }
 

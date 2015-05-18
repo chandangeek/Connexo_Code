@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -132,6 +133,7 @@ public class ValidationRuleSetVersionsResourceTest extends BaseValidationRestTes
         when(ruleSetVersion.getId()).thenReturn(id);
         when(ruleSetVersion.getStartDate()).thenReturn(JUN_2014);
         when(ruleSetVersion.getRuleSet()).thenReturn(ruleSet);
+        when(ruleSetVersion.getStatus()).thenReturn(ValidationVersionStatus.CURRENT);
         return ruleSetVersion;
     }
 

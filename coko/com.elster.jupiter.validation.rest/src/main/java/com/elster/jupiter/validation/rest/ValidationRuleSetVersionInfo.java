@@ -1,11 +1,13 @@
 package com.elster.jupiter.validation.rest;
 
 
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @XmlRootElement
@@ -16,6 +18,8 @@ public class ValidationRuleSetVersionInfo{
     public Long startDate;
     public Long endDate;
     public ValidationVersionStatus status;
+    public int numberOfInactiveRules;
+    public int numberOfRules;
     public ValidationRuleSetInfo ruleSet;
 
     public ValidationRuleSetVersionInfo() {
@@ -42,6 +46,9 @@ public class ValidationRuleSetVersionInfo{
             this.endDate = ed.toEpochMilli();
         });
         ruleSet = new ValidationRuleSetInfo(validationRuleSetVersion.getRuleSet());
+        List<? extends ValidationRule> rules = validationRuleSetVersion.getRules();
+        numberOfRules = rules.size();
+        numberOfInactiveRules = (int) rules.stream().filter(r -> !r.isActive()).count();
     }
 
 

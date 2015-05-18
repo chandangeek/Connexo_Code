@@ -5,6 +5,7 @@ package com.elster.jupiter.validation.rest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -27,9 +28,9 @@ public class DataValidationTaskInfo {
     public Long lastRun;
     
 
-    public DataValidationTaskInfo(DataValidationTask dataValidationTask, Thesaurus thesaurus) {
+    public DataValidationTaskInfo(DataValidationTask dataValidationTask, Thesaurus thesaurus, TimeService timeService) {
         populate(dataValidationTask);
-        lastValidationOccurence = dataValidationTask.getLastOccurrence().map(oc -> new DataValidationTaskHistoryInfo(oc, thesaurus)).orElse(null);
+        lastValidationOccurence = dataValidationTask.getLastOccurrence().map(oc -> new DataValidationTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
     }
 
 
