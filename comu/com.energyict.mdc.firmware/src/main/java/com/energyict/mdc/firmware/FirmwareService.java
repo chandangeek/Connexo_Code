@@ -53,7 +53,7 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
 
     void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions);
 
-    List<DeviceType> getDeviceTypesWhichSupportFirmwareUpgrade();
+    List<DeviceType> getDeviceTypesWhichSupportFirmwareManagement();
     // Firmware versions on a device
 
     /**
@@ -62,9 +62,10 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
      * If no FirmwareVersions are available, an empty list will be returned.
      *
      * @param device the device which requests the FirmwareVersions
+     * @param firmwareType which was requested for upgrade
      * @return a list of FirmwareVersions
      */
-    List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device);
+    List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device, FirmwareType firmwareType);
 
     Optional<ActivatedFirmwareVersion> getCurrentMeterFirmwareVersionFor(Device device);
 

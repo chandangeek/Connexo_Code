@@ -100,7 +100,6 @@ public enum TableSpecs {
             Column deviceGroup = table.column("DEVICE_GROUP").number().notNull().add();
             table.column("UPGRADE_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.UPGRADE_OPTION.fieldName()).notNull().add();
             table.column("FIRMWARE_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.FIRMWARE_TYPE.fieldName()).notNull().add();
-            Column firmwareVersion = table.column("FIRMWARE_VERSION").number().notNull().add();
             table.column("PLANNED_DATE").number().map(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("STARTED_ON").number().map(FirmwareCampaignImpl.Fields.STARTED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("FINISHED_ON").number().map(FirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
@@ -118,12 +117,6 @@ public enum TableSpecs {
                     .on(deviceGroup)
                     .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
                     .map(FirmwareCampaignImpl.Fields.DEVICE_GROUP.fieldName())
-                    .onDelete(DeleteRule.CASCADE)
-                    .add();
-            table.foreignKey("FK_FWC_CAMPAIGN_TO_FWC_VERS")
-                    .on(firmwareVersion)
-                    .references(FWC_FIRMWAREVERSION.name())
-                    .map(FirmwareCampaignImpl.Fields.FIRMWARE_VERSION.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN").on(idColumn).add();

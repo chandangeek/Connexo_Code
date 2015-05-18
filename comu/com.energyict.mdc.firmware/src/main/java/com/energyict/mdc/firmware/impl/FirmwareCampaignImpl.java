@@ -48,7 +48,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         DEVICE_GROUP ("deviceGroup"),
         UPGRADE_OPTION ("upgradeOption"),
         FIRMWARE_TYPE ("firmwareType"),
-        FIRMWARE_VERSION ("firmwareVersion"),
         PLANNED_DATE ("plannedDate"),
         STARTED_ON ("startedOn"),
         FINISHED_ON ("finishedOn"),
@@ -80,8 +79,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private ProtocolSupportedFirmwareOptions upgradeOption;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareType firmwareType;
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<FirmwareVersion> firmwareVersion;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Instant plannedDate;
     private Instant startedOn;
@@ -201,16 +198,6 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
             // TODO throw exception (upgrade already in progress)
         }
         this.upgradeOption = upgradeOption;
-    }
-
-    @Override
-    public FirmwareVersion getFirmwareVersion() {
-        return firmwareVersion.get();
-    }
-
-    @Override
-    public void setFirmwareVersion(FirmwareVersion firmwareVersion) {
-        this.firmwareVersion.set(firmwareVersion);
     }
 
     @Override

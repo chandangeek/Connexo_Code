@@ -26,10 +26,6 @@ public interface FirmwareCampaign extends HasId, HasName{
 
     void setUpgradeOption(ProtocolSupportedFirmwareOptions upgradeOption);
 
-    FirmwareVersion getFirmwareVersion();
-
-    void setFirmwareVersion(FirmwareVersion firmwareVersion);
-
     Instant getPlannedDate();
 
     void setPlannedDate(Instant plannedDate);

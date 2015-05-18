@@ -216,7 +216,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public List<DeviceType> getDeviceTypesWhichSupportFirmwareUpgrade() {
+    public List<DeviceType> getDeviceTypesWhichSupportFirmwareManagement() {
         Condition condition = where(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).isEqualTo(true)
                 .or(where(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName()).isEqualTo(true))
                 .or(where(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName()).isEqualTo(true));
@@ -227,7 +227,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device) {
+    public List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device, FirmwareType firmwareType) {
         // Only final and test versions are displayed in the list
         Condition condition = where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.FINAL)
                 .or(where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.TEST))
@@ -242,6 +242,10 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         if (meterActiveVer.isPresent()) {
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName())
                     .isNotEqual(meterActiveVer.get().getFirmwareVersion().getFirmwareVersion()));
+        }
+        // And only with specified firmware type
+        if (firmwareType != null) {
+            condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).isEqualTo(firmwareType));
         }
         return dataModel.mapper(FirmwareVersion.class).select(condition, Order.descending("lower(firmwareVersion)"));
     }

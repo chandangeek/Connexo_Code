@@ -123,7 +123,6 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         for (Map.Entry<String, Object> property : getFirmwareCampaign().getProperties().entrySet()) {
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
         }
-        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, getFirmwareCampaign().getFirmwareVersion());
         DeviceMessage<Device> firmwareMessage = deviceMessageBuilder.add();
         this.firmwareMessageId = firmwareMessage.getId();
     }
