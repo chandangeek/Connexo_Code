@@ -86,6 +86,7 @@ import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
+import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
@@ -254,6 +255,7 @@ public class DemoTest {
                 new IssueDataCollectionModule(),
                 new TopologyModule(),
                 new FavoritesModule(),
+                new FirmwareModule(),
                 new DemoModule()
         );
         doPreparations();

@@ -31,6 +31,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -98,6 +99,7 @@ public class DemoServiceImpl {
     private volatile FavoritesService favoritesService;
     private volatile Clock clock;
     private volatile IdsService idsService;
+    private volatile FirmwareService firmwareService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -135,7 +137,8 @@ public class DemoServiceImpl {
             TimeService timeService,
             FavoritesService favoritesService,
             Clock clock,
-            IdsService idsService) {
+            IdsService idsService,
+            FirmwareService firmwareService) {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -164,6 +167,7 @@ public class DemoServiceImpl {
         setFavoritesService(favoritesService);
         setClock(clock);
         setIdsService(idsService);
+        setFirmwareService(firmwareService);
 
         activate();
         reThrowEx = true;
@@ -204,6 +208,7 @@ public class DemoServiceImpl {
                 bind(FavoritesService.class).toInstance(favoritesService);
                 bind(Clock.class).toInstance(clock);
                 bind(IdsService.class).toInstance(idsService);
+                bind(FirmwareService.class).toInstance(firmwareService);
             }
         });
         Builders.initWith(this.injector);
@@ -225,6 +230,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public final void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setFirmwareService(FirmwareService firmwareService) {
+        this.firmwareService = firmwareService;
     }
 
     @Reference

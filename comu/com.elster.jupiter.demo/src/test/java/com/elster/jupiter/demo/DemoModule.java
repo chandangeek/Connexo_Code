@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
@@ -22,6 +23,7 @@ public class DemoModule extends AbstractModule {
         requireBinding(MasterDataService.class);
         requireBinding(MeteringService.class);
         requireBinding(TaskService.class);
+        requireBinding(FirmwareService.class);
 
         bind(DemoServiceImpl.class).in(Scopes.SINGLETON);
     }
