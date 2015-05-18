@@ -4,7 +4,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.KorePagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
@@ -42,11 +42,11 @@ public class DeviceEstimationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE})
-    public PagedInfoList getEstimationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
+    public KorePagedInfoList getEstimationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<DeviceEstimationRuleSetActivation> pagedRuleSets = ListPager.of(device.forEstimation().getEstimationRuleSetActivations()).from(queryParameters).find();
         List<DeviceEstimationRuleSetRefInfo> infos = pagedRuleSets.stream().map(rs -> new DeviceEstimationRuleSetRefInfo(rs, device)).collect(Collectors.toList());
-        return PagedInfoList.asJson("estimationRuleSets", infos, queryParameters);
+        return KorePagedInfoList.asJson("estimationRuleSets", infos, queryParameters);
     }
 
     @PUT
