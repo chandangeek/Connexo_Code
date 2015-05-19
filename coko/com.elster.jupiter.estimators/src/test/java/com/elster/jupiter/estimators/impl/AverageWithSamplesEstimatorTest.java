@@ -16,7 +16,8 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.time.AllRelativePeriod;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.impl.AllRelativePeriod;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationService;
@@ -77,11 +78,14 @@ public class AverageWithSamplesEstimatorTest {
     private Channel channel;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private TimeService timeService;
 
     @Before
     public void setUp() {
         estimatable = new EstimatableImpl(ESTIMATABLE_TIME.toInstant());
         estimatable2 = new EstimatableImpl(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+        doReturn(AllRelativePeriod.INSTANCE).when(timeService).getAllRelativePeriod();
         doReturn(asList(estimatable)).when(block).estimatables();
         doReturn(readingType).when(block).getReadingType();
         doReturn(channel).when(block).getChannel();
@@ -179,10 +183,10 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, new AllRelativePeriod())
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, NoneAdvanceReadingsSettings.INSTANCE)
                 .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
         estimator.init();
 
@@ -202,10 +206,10 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, new AllRelativePeriod())
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, NoneAdvanceReadingsSettings.INSTANCE)
                 .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
         estimator.init();
 
@@ -227,10 +231,10 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, new AllRelativePeriod())
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, NoneAdvanceReadingsSettings.INSTANCE)
                 .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
         estimator.init();
 
@@ -249,10 +253,10 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, new AllRelativePeriod())
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, NoneAdvanceReadingsSettings.INSTANCE)
                 .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
         estimator.init();
 
@@ -272,10 +276,10 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, new AllRelativePeriod())
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, NoneAdvanceReadingsSettings.INSTANCE)
                 .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
         estimator.init();
 
@@ -292,10 +296,10 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, new AllRelativePeriod())
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
                 .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
         estimator.init();
 
@@ -322,10 +326,10 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, new AllRelativePeriod())
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
                 .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
         estimator.init();
 
@@ -371,10 +375,10 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, new AllRelativePeriod())
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType))
                 .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, props);
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
         estimator.init();
 

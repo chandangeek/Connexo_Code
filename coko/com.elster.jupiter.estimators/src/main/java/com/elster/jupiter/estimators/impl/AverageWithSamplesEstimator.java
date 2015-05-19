@@ -22,8 +22,8 @@ import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.time.AllRelativePeriod;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
@@ -99,6 +99,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private final ValidationService validationService;
     private final MeteringService meteringService;
+    private final TimeService timeService;
 
     private Long numberOfConsecutiveSuspects;
     private Long minNumberOfSamples;
@@ -108,16 +109,18 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private AdvanceReadingsSettings advanceReadingsSettings;
 
 
-    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
+    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
         super(thesaurus, propertySpecService);
         this.validationService = validationService;
         this.meteringService = meteringService;
+        this.timeService = timeService;
     }
 
-    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, Map<String, Object> properties) {
+    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.validationService = validationService;
         this.meteringService = meteringService;
+        this.timeService = timeService;
     }
 
     @Override
@@ -223,7 +226,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         builder.add(getPropertySpecService().longPropertySpec(MAX_NUMBER_OF_SAMPLES, true, MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE));
 
-        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, new AllRelativePeriod()));
+        builder.add(getPropertySpecService().relativePeriodPropertySpec(RELATIVE_PERIOD, true, timeService.getAllRelativePeriod()));
 
         return builder.build();
     }
@@ -273,10 +276,6 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private boolean estimateWithBulk(EstimationBlock estimationBlock) {
         boolean estimationWithoutAdvances = estimateWithoutAdvances(estimationBlock);
         if (!estimationWithoutAdvances) {
-            return false;
-        }
-        if (estimationBlock.estimatables().size() == 1) {
-            Logger.getAnonymousLogger().log(Level.WARNING, "block size should be more then 1 to use bulk advances");
             return false;
         }
         return calculateConsumptionUsingBulk(estimationBlock)
@@ -496,7 +495,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private Range<Instant> getPeriod(Channel channel, Instant referenceTime) {
-        if (relativePeriod != null && !(relativePeriod instanceof AllRelativePeriod)) {
+        if (relativePeriod != null && timeService.getAllRelativePeriod().getId() != relativePeriod.getId()) {
             Range<ZonedDateTime> range = relativePeriod.getInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
             return Ranges.map(range, ZonedDateTime::toInstant);
         } else {
