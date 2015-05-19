@@ -40,11 +40,8 @@ class CronExpressionScheduler {
         //Instant next = cronJob.getSchedule().nextAfter(now);
         ZonedDateTime now = ZonedDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
         Optional<ZonedDateTime> nextOccurrence = cronJob.getSchedule().nextOccurrence(now);
-        Instant next = nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
-
-        //Instant next = cronJob.getSchedule().nextOccurrence(now);
-        if (next != null) {
-            long delay = next.toEpochMilli() - now.toInstant().toEpochMilli();
+        if(nextOccurrence.isPresent()){
+            long delay = nextOccurrence.get().toEpochSecond()*1000 - now.toInstant().toEpochMilli();
             scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
         }
     }
