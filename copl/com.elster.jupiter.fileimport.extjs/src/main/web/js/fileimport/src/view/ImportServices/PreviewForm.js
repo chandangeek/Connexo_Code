@@ -28,39 +28,84 @@ Ext.define('Fim.view.importServices.PreviewForm', {
                 labelWidth: 250
             },
 			{
+				xtype: 'displayfield',
+				fieldLabel: Uni.I18n.translate('importService.status', 'FIM', 'Status'),
+				name: 'statusDisplay',				
+				labelWidth: 250
+			},			
+			{
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('importService.status', 'FIM', 'Status'),
-                name: 'status',
+                fieldLabel: Uni.I18n.translate('importService.application', 'FIM', 'Application'),
+                name: 'applicationDisplay',
                 labelWidth: 250
             },
 			{
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.importFolder', 'FIM', 'Import folder'),
-                name: 'importFolder',
+                name: 'importDirectory',
                 labelWidth: 250
-            },
+            },		
+			{
+				xtype: 'container',
+				layout: {
+					type: 'hbox',
+					align: 'left'
+				},
+				items: [
+					{
+						xtype: 'displayfield',
+						fieldLabel: Uni.I18n.translate('importService.filePattern', 'FIM', 'File pattern'),
+						name: 'pathMatcher',
+						labelWidth: 250
+					},		
+					{
+						xtype: 'box',						
+						cls: 'uni-info-icon',
+						qtip: Uni.I18n.translate('importService.filePatternInfo', 'FIM', 'File pattern info'),
+						
+						autoEl: {
+							tag: 'img',
+							src: "../sky/build/resources/images/shared/icon-info-small.png",
+							width: 16,
+							height:16
+						},
+						margin: '6 0 0 10',
+						style: {
+							cursor: 'pointer'
+						},
+						listeners: {
+							el: {
+								click: function () {
+									var me = Ext.getCmp(this.id);								   
+									me.up('form').fireEvent('displayinfo', me);
+								}
+							}
+						}
+					}
+				]
+			},			
 			{
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.folderScanFrequency', 'FIM', 'Folder scan frequency'),
-                name: 'folderScanFrequencyDisplay',
+                name: 'scanFrequencyDisplay',
                 labelWidth: 250
             },
 			{
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.inProgressFolder', 'FIM', 'In progress folder'),
-                name: 'inProgressFolder',
+                name: 'inProcessDirectory',
                 labelWidth: 250
             },
 			{
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.successFolder', 'FIM', 'Success folder'),
-                name: 'successFolder',
+                name: 'successDirectory',
                 labelWidth: 250
             },
 			{
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.failureFolder', 'DES', 'Failure folder'),
-                name: 'failureFolder',
+                name: 'failureDirectory',
                 labelWidth: 250
             },
             {

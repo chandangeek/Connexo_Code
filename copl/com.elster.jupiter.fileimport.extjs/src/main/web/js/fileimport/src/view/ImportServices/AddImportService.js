@@ -61,7 +61,7 @@ Ext.define('Fim.view.importServices.AddImportService', {
 							{
 								xtype: 'combobox',
 								itemId: 'cbo-file-importer',
-								name: 'file-importer',
+								name: 'importerName',
 								width: 600,									
 								fieldLabel: Uni.I18n.translate('importService.fileImporter', 'FIM', 'File importer'),
 								labelWidth: 250,
@@ -70,10 +70,10 @@ Ext.define('Fim.view.importServices.AddImportService', {
 								editable: false,
 								disabled: false,
 								emptyText: Uni.I18n.translate('importService.fileImporterPrompt', 'FIM', 'Select a file importer...'),
-								allowBlank: false,
+								//allowBlank: false,
 								queryMode: 'local',
 								displayField: 'displayName',
-								valueField: 'id'
+								valueField: 'name'
 							},
 							{
 								xtype: 'displayfield',
@@ -87,7 +87,7 @@ Ext.define('Fim.view.importServices.AddImportService', {
 					},
 					{
 						xtype: 'textfield',
-						name: 'importFolder',
+						name: 'importDirectory',
 						itemId: 'txt-import-folder',
 						required: true,
 						width: 600,                            							
@@ -95,17 +95,54 @@ Ext.define('Fim.view.importServices.AddImportService', {
 						enforceMaxLength: true
 					},
 					{
-						xtype: 'textfield',
-						name: 'filePattern',
-						itemId: 'txt-file-pattern',
-						width: 600,                            							
-						fieldLabel: Uni.I18n.translate('importService.filePattern', 'FIM', 'File pattern'),
-						enforceMaxLength: true
+						xtype: 'container',
+						margin: '0 0 8 0',						
+						layout: {
+							type: 'hbox',
+							align: 'left'
+						},
+						items: [
+							{
+								xtype: 'textfield',
+								name: 'pathMatcher',
+								itemId: 'txt-file-pattern',
+								width: 600,      
+								labelWidth: 250,										
+								fieldLabel: Uni.I18n.translate('importService.filePattern', 'FIM', 'File pattern'),
+								enforceMaxLength: true
+							},
+							{
+								xtype: 'box',
+								itemId: 'txt-file-pattern-info',
+								cls: 'uni-info-icon',
+								qtip: Uni.I18n.translate('importService.filePatternInfo', 'FIM', 'File pattern info'),
+								
+								autoEl: {
+									tag: 'img',
+									src: "../sky/build/resources/images/shared/icon-info-small.png",
+									width: 16,
+									height:16
+								},
+								margin: '6 0 0 10',
+								style: {
+									cursor: 'pointer'
+								},
+								listeners: {
+									el: {
+										click: function () {
+										   var me = Ext.getCmp(this.id);
+											me.up('contentcontainer').fireEvent('displayinfo', me);
+										}
+									}
+								}
+							}
+
+						]
 					},	
 					{
 						xtype: 'fieldcontainer',	
 						fieldLabel: Uni.I18n.translate('importService.folderScanFrequency', 'FIM', 'Folder scan frequency'),										
-						required: true,
+						//required: true,
 						layout: 'hbox',								
 						items: [
 							{
@@ -116,7 +153,7 @@ Ext.define('Fim.view.importServices.AddImportService', {
 								maxValue: 60,
 								minValue: 1,
 								defaultValue: 1, 
-								name: 'folderScanFrequency',
+								name: 'scanFrequency',
 								itemId: 'num-folder-scan-frequency'
 							},
 							{
@@ -129,7 +166,7 @@ Ext.define('Fim.view.importServices.AddImportService', {
 					},
 					{
 						xtype: 'textfield',
-						name: 'inProgressFolder',
+						name: 'inProcessDirectory',
 						itemId: 'txt-in-progress-folder',
 						width: 600,                            							
 						fieldLabel: Uni.I18n.translate('importService.inProgressFolder', 'FIM', 'In progress folder'),
@@ -137,7 +174,7 @@ Ext.define('Fim.view.importServices.AddImportService', {
 					},	
 					{
 						xtype: 'textfield',
-						name: 'successFolder',
+						name: 'successDirectory',
 						itemId: 'txt-success-folder',
 						width: 600,                            							
 						fieldLabel: Uni.I18n.translate('importService.successFolder', 'FIM', 'Success folder'),
@@ -145,7 +182,7 @@ Ext.define('Fim.view.importServices.AddImportService', {
 					},	
 					{
 						xtype: 'textfield',
-						name: 'failureFolder',
+						name: 'failureDirectory',
 						itemId: 'txt-failure-folder',
 						width: 600,              
 						fieldLabel: Uni.I18n.translate('importService.failureFolder', 'FIM', 'Failure folder'),

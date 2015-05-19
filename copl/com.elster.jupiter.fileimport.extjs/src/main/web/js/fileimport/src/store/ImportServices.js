@@ -9,7 +9,13 @@ Ext.define('Fim.store.ImportServices', {
         timeout: 240000,
         reader: {
             type: 'json',
-            root: 'dataExportTasks'
+            root: 'importSchedules'
         }
-    }
+    },
+	listeners: {
+		beforeload: function(store, operation, eOpts) {
+			store.getProxy().setExtraParam('application', typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : null);		                							
+		}
+	}
+	
 });

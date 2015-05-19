@@ -9,20 +9,19 @@ Ext.define('Fim.controller.Main', {
 
     controllers: [
         'Fim.controller.history.DataImport',
-        'Fim.controller.ImportServices'/*,
-        'Dxp.controller.Log'
-*/    ],
+        'Fim.controller.ImportServices'
+    ],
 
     stores: [
     ],
 
-    init: function () {
-        this.initHistorians();
+    init: function () {		
+		this.initHistorians();
         this.initMenu();
-
+		
         this.callParent(arguments);
     },
-
+	
     /**
      * Forces history registration.
      */

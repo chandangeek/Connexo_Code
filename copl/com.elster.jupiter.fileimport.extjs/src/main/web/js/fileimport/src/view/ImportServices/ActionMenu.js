@@ -3,18 +3,18 @@ Ext.define('Fim.view.importServices.ActionMenu', {
     alias: 'widget.fim-import-service-action-menu',
     plain: true,
     border: false,
-    shadow: false,
+    shadow: false,	
     items: [
         {
             itemId: 'edit-import-service',
             text: Uni.I18n.translate('general.edit', 'FIM', 'Edit'),
-            privileges: Fim.privileges.DataImport.update,
+            privileges: Fim.privileges.DataImport.getAdmin,
             action: 'editImportService'
         },
         {
             itemId: 'remove-import-service',
             text: Uni.I18n.translate('general.remove', 'FIM', 'Remove'),
-            privileges: Fim.privileges.DataImport.admin,
+            privileges: Fim.privileges.DataImport.getAdmin,
             action: 'removeImportService'
         },
         {
@@ -25,13 +25,13 @@ Ext.define('Fim.view.importServices.ActionMenu', {
 		{
 			itemId: 'activate-import-service',
             text: Uni.I18n.translate('general.activate', 'FIM', 'Activate'),
-			privileges: Fim.privileges.DataImport.admin,
+			privileges: Fim.privileges.DataImport.getAdmin,
             action: 'activateimportservice'
         },
 		{
             itemId: 'deactivate-import-service',
             text: Uni.I18n.translate('general.deactivate', 'FIM', 'Deactivate'),
-            privileges: Fim.privileges.DataImport.admin,
+            privileges: Fim.privileges.DataImport.getAdmin,
             action: 'deactivateimportservice'
         }
     ]

@@ -21,34 +21,27 @@ Ext.define('Fim.view.importServices.Grid', {
                 flex: 1
             },
 			{
-                header: Uni.I18n.translate('general.application', 'FIM', 'Application'),
-                dataIndex: 'importFolder',
-                flex: 1
-            },
-            {
                 header: Uni.I18n.translate('general.status', 'FIM', 'Status'),
-                dataIndex: 'status',
-                /*renderer: function (value) {
-                    var result;
-                    if (value && value.statusDate && value.statusDate != 0) {
-                        result = value.statusPrefix + ' ' + Uni.DateTime.formatDateTimeShort(new Date(value.statusDate));
-                    } else if (value) {
-                        result = value.statusPrefix
-                    } else {
-                        result = Uni.I18n.translate('general.notPerformed', 'FIM', 'Not performed yet');
-                    }
-                    return result;
-                },*/
+                dataIndex: 'statusDisplay',
+				renderer: function (value, metaData, record) {
+                    return record.get('active')? Uni.I18n.translate('general.active', 'FIM', 'Active'): Uni.I18n.translate('general.inactive', 'FIM', 'Inactive');
+                },				
                 flex: 1
             },
+			{
+                header: Uni.I18n.translate('general.application', 'FIM', 'Application'),
+                dataIndex: 'applicationDisplay',
+                flex: 1
+            },
+            
             {
                 header: Uni.I18n.translate('general.importFolder', 'FIM', 'Imported folder'),
-                dataIndex: 'importFolder',
+                dataIndex: 'importDirectory',
                 flex: 1
             },
 			{
                 header: Uni.I18n.translate('importService.filePattern', 'FIM', 'File pattern'),
-                dataIndex: 'filePattern',
+                dataIndex: 'pathMatcher',
                 flex: 1
             },			
             {
@@ -72,7 +65,7 @@ Ext.define('Fim.view.importServices.Grid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addImportService', 'FIM', 'Add import service'),
-                        privileges: Dxp.privileges.DataExport.admin,
+                        privileges: Fim.privileges.DataImport.getAdmin,
                         href: '#/administration/importservices/add'
                     }
                 ]

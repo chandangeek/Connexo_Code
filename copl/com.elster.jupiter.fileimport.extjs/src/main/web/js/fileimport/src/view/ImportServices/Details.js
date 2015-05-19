@@ -29,6 +29,7 @@ Ext.define('Fim.view.importServices.Details', {
                 text: Uni.I18n.translate('importService.general.actions', 'FIM', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
+				privileges: Fim.privileges.DataImport.getAdmin,
                 menu: {
                     xtype: 'fim-import-service-action-menu'
                 }
@@ -47,7 +48,7 @@ Ext.define('Fim.view.importServices.Details', {
                     {
                         xtype: 'fim-import-service-menu',
                         itemId: 'import-service-view-menu',
-                        router: me.router,
+                        router: me.router,						
                         importServiceId: me.importServiceId
                     }
                 ]

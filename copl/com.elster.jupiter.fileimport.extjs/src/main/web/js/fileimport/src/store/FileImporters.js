@@ -11,7 +11,13 @@ Ext.define('Fim.store.FileImporters', {
         limitParam: undefined,
         reader: {
             type: 'json',
-            root: 'processors'
+            root: 'fileImporters'
         }
-    }
+    },
+
+	listeners: {
+		beforeload: function(store, operation, eOpts) {
+				store.getProxy().setExtraParam('application', Ext.isDefined(MdcApp) ? 'MDC' : Ext.isDefined(SystemApp) ? 'SYS' : null);		                				
+		}
+	}
 });
