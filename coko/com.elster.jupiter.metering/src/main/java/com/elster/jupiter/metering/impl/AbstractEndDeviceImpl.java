@@ -4,10 +4,13 @@ import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -17,6 +20,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
@@ -31,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -48,6 +54,12 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 	private String utcNumber;
 	private ElectronicAddress electronicAddress;
 	private long version;
+	private Instant manufacturedDate;
+	private Instant purchasedDate;
+	private Instant receivedDate;
+	private Instant installedDate;
+	private Instant removedDate;
+	private Instant retiredDate;
 	private Instant createTime;
 	private Instant modTime;
 	@SuppressWarnings("unused")
@@ -218,8 +230,29 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         }
     }
 
+    @Override
+    public Optional<StateTimeline> getStateTimeline() {
+        if (this.isDeviceLifeCycleManaged()) {
+            return Optional.of(
+                StateTimelineImpl.from(
+                    this.status
+                            .effective(Range.atLeast(Instant.EPOCH))
+                            .stream()
+                            .map(StateTimeSliceImpl::from)
+                            .collect(Collectors.toList())));
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
     private boolean isDeviceLifeCycleManaged() {
         return this.stateMachine.isPresent();
+    }
+
+    @Override
+    public LifecycleDates getLifecycleDates() {
+        return new LifecycleDatesImpl();
     }
 
     public String getAmrId() {
@@ -359,6 +392,68 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         public StateManager save() {
             // Updates are not supported yet so there is nothing to save and we keep the same manager
             return this;
+        }
+    }
+
+    private class LifecycleDatesImpl implements LifecycleDates {
+        @Override
+        public Optional<Instant> getManufacturedDate() {
+            return Optional.ofNullable(manufacturedDate);
+        }
+
+        @Override
+        public void setManufacturedDate(Instant manufacturedDate) {
+            AbstractEndDeviceImpl.this.manufacturedDate = manufacturedDate;
+        }
+
+        @Override
+        public Optional<Instant> getPurchasedDate() {
+            return Optional.ofNullable(purchasedDate);
+        }
+
+        @Override
+        public void setPurchasedDate(Instant purchasedDate) {
+            AbstractEndDeviceImpl.this.purchasedDate = purchasedDate;
+        }
+
+        @Override
+        public Optional<Instant> getReceivedDate() {
+            return Optional.ofNullable(receivedDate);
+        }
+
+        @Override
+        public void setReceivedDate(Instant receivedDate) {
+            AbstractEndDeviceImpl.this.receivedDate = receivedDate;
+        }
+
+        @Override
+        public Optional<Instant> getInstalledDate() {
+            return Optional.ofNullable(installedDate);
+        }
+
+        @Override
+        public void setInstalledDate(Instant installedDate) {
+            AbstractEndDeviceImpl.this.installedDate = installedDate;
+        }
+
+        @Override
+        public Optional<Instant> getRemovedDate() {
+            return Optional.ofNullable(removedDate);
+        }
+
+        @Override
+        public void setRemovedDate(Instant removedDate) {
+            AbstractEndDeviceImpl.this.removedDate = removedDate;
+        }
+
+        @Override
+        public Optional<Instant> getRetiredDate() {
+            return Optional.ofNullable(retiredDate);
+        }
+
+        @Override
+        public void setRetiredDate(Instant retiredDate) {
+            AbstractEndDeviceImpl.this.retiredDate = retiredDate;
         }
     }
 
