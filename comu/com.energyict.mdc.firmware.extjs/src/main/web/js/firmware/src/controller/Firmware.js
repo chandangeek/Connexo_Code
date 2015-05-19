@@ -12,7 +12,9 @@ Ext.define('Fwc.controller.Firmware', {
 
     requires: [
         'Mdc.model.DeviceType',
-        'Fwc.model.FirmwareManagementOptions'
+        'Fwc.model.FirmwareManagementOptions',
+        'Fwc.form.OptionsHydrator',
+        'Fwc.form.Hydrator'
     ],
 
     stores: [
