@@ -9,6 +9,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class ImportScheduleJobTest {
     @Mock
     private ImportSchedule importSchedule;
     @Mock
-    private CronExpression cronExpression;
+    private ScheduleExpression scheduleExpression;
     @Mock
     private File importDir;
     @Mock
@@ -65,7 +66,7 @@ public class ImportScheduleJobTest {
 
     @Before
     public void setUp() {
-        when(importSchedule.getCronExpression()).thenReturn(cronExpression);
+        when(importSchedule.getScheduleExpression()).thenReturn(scheduleExpression);
         when(importSchedule.getImportDirectory()).thenReturn(importDir);
 //        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
 //        when(serviceLocator.getPredicates()).thenReturn(predicates);
@@ -91,7 +92,7 @@ public class ImportScheduleJobTest {
 
     @Test
     public void testKeepsScheduleExpression() {
-        assertThat(importScheduleJob.getSchedule()).isEqualTo(cronExpression);
+        assertThat(importScheduleJob.getSchedule()).isEqualTo(scheduleExpression);
     }
 
     @Test

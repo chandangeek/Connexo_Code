@@ -22,7 +22,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     private File inProcessDirectory;
     private File successDirectory;
     private File failureDirectory;
-    private transient CronExpression cronExpression;
+    private transient ScheduleExpression scheduleExpression;
     private final DataModel dataModel;
 
     DefaultImportScheduleBuilder(DataModel dataModel) {
@@ -31,7 +31,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     @Override
     public ImportSchedule build() {
-        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, false, cronExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+        ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, false, scheduleExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
         properties.stream().forEach(p -> importSchedule.setProperty(p.name, p.value));
         return importSchedule;
     }
@@ -79,8 +79,8 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     }
 
     @Override
-    public ImportScheduleBuilder setCronExpression(CronExpression cronExpression) {
-        this.cronExpression = cronExpression;
+    public ImportScheduleBuilder setScheduleExpression(ScheduleExpression scheduleExpression) {
+        this.scheduleExpression = scheduleExpression;
         return this;
     }
 

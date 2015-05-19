@@ -10,8 +10,11 @@ import com.elster.jupiter.util.cron.CronExpression;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
+import com.elster.jupiter.util.time.ScheduleExpression;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +63,7 @@ public class FileImportServiceImplTest {
     @Mock
     private Clock clock;
     @Mock
-    private CronExpression cronExpression;
+    private ScheduleExpression scheduleExpression;
     @Mock
     private FileSystem fileSystem;
     @Mock
@@ -106,9 +109,10 @@ public class FileImportServiceImplTest {
     public void testSchedule() throws InterruptedException {
         when(importScheduleFactory.find()).thenReturn(Arrays.asList(importSchedule));
         when(importSchedule.getImportDirectory()).thenReturn(IMPORT_DIRECTORY);
-        when(importSchedule.getCronExpression()).thenReturn(cronExpression);
-        when(clock.instant()).thenReturn(NOW);
-        when(cronExpression.nextAfter(NOW)).thenReturn(NEXT);
+        when(importSchedule.getScheduleExpression()).thenReturn(scheduleExpression);
+        ZonedDateTime now = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault());
+        ZonedDateTime next = ZonedDateTime.ofInstant(NEXT, ZoneId.systemDefault());
+        when(scheduleExpression.nextOccurrence(now)).thenReturn(Optional.of(next));
 
         try {
             fileImportService.activate();
@@ -117,7 +121,7 @@ public class FileImportServiceImplTest {
             //when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
 
             final CountDownLatch requestedDirectoryStream = new CountDownLatch(1);
-            when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY.toPath(),"**/*.*")).thenAnswer(new Answer<DirectoryStream<Path>>() {
+            when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY.toPath(),"*.*")).thenAnswer(new Answer<DirectoryStream<Path>>() {
                 @Override
                 public DirectoryStream<Path> answer(InvocationOnMock invocationOnMock) throws Throwable {
                     requestedDirectoryStream.countDown();

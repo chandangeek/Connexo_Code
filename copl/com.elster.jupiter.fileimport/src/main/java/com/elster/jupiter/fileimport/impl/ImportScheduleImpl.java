@@ -34,16 +34,16 @@ class ImportScheduleImpl implements ImportSchedule {
     private File successDirectory;
     private File failureDirectory;
     private String pathMatcher;
+    private transient ScheduleExpression scheduleExpression;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String importerName;
-    private transient CronExpression cronExpression;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String cronString;
     private final MessageService messageService;
     private final DataModel dataModel;
-    private final CronExpressionParser cronExpressionParser;
+    private final ScheduleExpressionParser scheduleExpressionParser;
     private final FileNameCollisionResolver fileNameCollisionresolver;
     private final FileSystem fileSystem;
     private final Thesaurus thesaurus;
@@ -60,25 +60,25 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @SuppressWarnings("unused")
     @Inject
-	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
+	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
         this.messageService = messageService;
         this.dataModel = dataModel;
-        this.cronExpressionParser = cronExpressionParser;
+        this.scheduleExpressionParser = scheduleExpressionParser;
         this.fileNameCollisionresolver = fileNameCollisionresolver;
         this.fileSystem = fileSystem;
         this.thesaurus = thesaurus;
         this.fileImportService = fileImportService;
     }
 
-    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, CronExpression cronExpression, String importerName, String destination,
+    static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destination,
                                    File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
-        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, cronExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
+        return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
-    private ImportScheduleImpl init( String name, boolean active, CronExpression cronExpression, String importerName, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
+    private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
         this.name = name;
         this.active = active;
-        this.cronString = cronExpression.toString();
+        this.cronString = scheduleExpression.toString();
         this.destinationName = destinationName;
         this.importerName = importerName;
         this.importDirectory = importDirectory;
@@ -139,11 +139,11 @@ class ImportScheduleImpl implements ImportSchedule {
 
 
     @Override
-    public CronExpression getCronExpression() {
-        if (cronExpression == null) {
-            cronExpression = cronExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
+    public ScheduleExpression getScheduleExpression() {
+        if (scheduleExpression == null) {
+            scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
         }
-        return cronExpression;
+        return scheduleExpression;
     }
 
     @Override
@@ -213,8 +213,8 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public void setCronExpression(CronExpression cronExpression) {
-        this.cronExpression = cronExpression;
+    public void setScheduleExpression(ScheduleExpression scheduleExpression) {
+        this.scheduleExpression = scheduleExpression;
     }
 
     @Override

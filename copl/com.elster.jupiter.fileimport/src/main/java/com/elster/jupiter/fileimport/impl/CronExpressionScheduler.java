@@ -1,10 +1,14 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,10 +36,15 @@ class CronExpressionScheduler {
      * @param cronJob
      */
     public void submitOnce(CronJob cronJob) {
-        Instant now = clock.instant();
-        Instant next = cronJob.getSchedule().nextAfter(now);
+        //Instant now = clock.instant();
+        //Instant next = cronJob.getSchedule().nextAfter(now);
+        ZonedDateTime now = ZonedDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
+        Optional<ZonedDateTime> nextOccurrence = cronJob.getSchedule().nextOccurrence(now);
+        Instant next = nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
+
+        //Instant next = cronJob.getSchedule().nextOccurrence(now);
         if (next != null) {
-            long delay = next.toEpochMilli() - now.toEpochMilli();
+            long delay = next.toEpochMilli() - now.toInstant().toEpochMilli();
             scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
         }
     }
@@ -57,7 +66,7 @@ class CronExpressionScheduler {
         }
 
         @Override
-        public CronExpression getSchedule() {
+        public ScheduleExpression getSchedule() {
             return wrapped.getSchedule();
         }
 

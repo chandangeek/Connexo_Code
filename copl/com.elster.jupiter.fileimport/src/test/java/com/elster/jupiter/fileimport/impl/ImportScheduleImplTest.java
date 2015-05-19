@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.junit.After;
 import org.junit.Before;
@@ -32,7 +33,7 @@ public class ImportScheduleImplTest {
     //@Mock
     //private DestinationSpec destination;
     @Mock
-    private CronExpression cronExpression;
+    private ScheduleExpression scheduleExpression;
     @Mock
     File importDir, inProcessDir, failureDir, successDir;
     @Mock
@@ -61,7 +62,7 @@ public class ImportScheduleImplTest {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem, thesaurus));
 
-        importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, cronExpression, "importerName", DESTINATION_NAME, importDir,"*.*",inProcessDir, failureDir, successDir);
+        importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "importerName", DESTINATION_NAME, importDir,"*.*",inProcessDir, failureDir, successDir);
     }
 
     @After
@@ -95,7 +96,7 @@ public class ImportScheduleImplTest {
 
     @Test
     public void testGetScheduleExpression() {
-        assertThat(importSchedule.getCronExpression()).isEqualTo(cronExpression);
+        assertThat(importSchedule.getScheduleExpression()).isEqualTo(scheduleExpression);
     }
 
     @Test
