@@ -7,5 +7,6 @@ public class DeviceConfigurationInfo extends LinkInfo {
     public Long id;
     public String name;
     public String description;
+    public DeviceTypeInfo deviceType;
 
 }

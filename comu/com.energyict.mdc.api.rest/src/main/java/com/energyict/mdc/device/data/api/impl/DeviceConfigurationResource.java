@@ -41,7 +41,7 @@ public class DeviceConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{id}")
-    public Response getDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam FieldList fields) {
+    public Response getDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam FieldList fields) {
         DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.
                 findDeviceType(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).
@@ -56,7 +56,7 @@ public class DeviceConfigurationResource {
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{id}")
-    public Response getHypermediaDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+    public Response getHypermediaDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
         DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.
                 findDeviceType(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).
@@ -70,7 +70,7 @@ public class DeviceConfigurationResource {
     @GET
     @Produces("application/json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getDeviceTypes(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+    public Response getDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
         List<DeviceConfiguration> allDeviceConfigurations = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).getConfigurations();
@@ -83,7 +83,7 @@ public class DeviceConfigurationResource {
     @GET
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getHypermediaDeviceTypes(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields,@Context UriInfo uriInfo) {
+    public Response getHypermediaDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields,@Context UriInfo uriInfo) {
         List<DeviceConfiguration> allDeviceConfigurations = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).getConfigurations();

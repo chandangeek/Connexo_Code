@@ -55,6 +55,14 @@ public class DeviceConfigurationInfoFactory {
         map.put("description", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
             deviceConfigurationInfo.description = deviceConfiguration.getDescription();
         });
+        map.put("deviceType", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            deviceConfigurationInfo.deviceType = new DeviceTypeInfo();
+            deviceConfigurationInfo.deviceType.id = deviceConfiguration.getDeviceType().getId();
+            if (uriInfo.isPresent()) {
+                deviceConfigurationInfo.deviceType.link = Link.fromUriBuilder(uriInfo.get().getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel("parent").title("Device type").build(deviceConfiguration.getDeviceType().getId());
+            }
+
+        });
         return map;
     }
 

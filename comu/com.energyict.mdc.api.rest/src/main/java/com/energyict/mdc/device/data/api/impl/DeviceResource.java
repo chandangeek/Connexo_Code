@@ -2,9 +2,6 @@ package com.energyict.mdc.device.data.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.ArrayList;
@@ -13,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
@@ -45,13 +41,11 @@ import static java.util.stream.Collectors.toSet;
 public class DeviceResource {
 
     private final DeviceService deviceService;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceInfoFactory deviceInfoFactory;
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, DeviceInfoFactory deviceInfoFactory) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory) {
         this.deviceService = deviceService;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.deviceInfoFactory = deviceInfoFactory;
     }
 
@@ -69,9 +63,8 @@ public class DeviceResource {
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getHypermediaDevice(@PathParam("mrid") String mRID, @QueryParam("fields") String fields, @Context UriInfo uriInfo) {
-        List<String> split = fields!=null?Arrays.asList(fields.split(",")):Collections.emptyList();
-        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, split)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getHypermediaDevice(@PathParam("mrid") String mRID, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceInfo).build();
     }
 
@@ -79,8 +72,8 @@ public class DeviceResource {
     @Produces("application/hal+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getHalDevice(@PathParam("mrid") String mRID, @QueryParam("fields") String fields, @Context UriInfo uriInfo) {
-        HalInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHal(d, uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getHalDevice(@PathParam("mrid") String mRID, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        HalInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHal(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
 
         return Response.ok(deviceInfo).build();
     }
@@ -89,8 +82,17 @@ public class DeviceResource {
     @GET
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
+    public Response getHypermediaDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
         List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).collect(toList());
+
+        return Response.ok(com.elster.jupiter.rest.util.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
+    }
+
+    @GET
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    public Response getDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
+        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.plain(d, Collections.emptyList())).collect(toList());
 
         return Response.ok(com.elster.jupiter.rest.util.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
     }
@@ -100,21 +102,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADD_DEVICE)
     public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
-        try {
-            Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
-            if (info.deviceConfigurationId != null) {
-                deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
-            }
-
-            Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mIRD, info.mIRD);
-            newDevice.setSerialNumber(info.serialNumber);
-            newDevice.setYearOfCertification(2015);
-            newDevice.save();
-
-            return deviceInfoFactory.plain(newDevice);
-        } catch (ConstraintViolationException e) {
-            throw new LegacyConstraintViolationException(e, new HashMap<>());
-        }
+        return null;
     }
 
 }
