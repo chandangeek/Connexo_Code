@@ -1,21 +1,22 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fileimport.FileImporterFactory;
-import com.elster.jupiter.fileimport.FileImporterProperty;
-import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,8 +34,12 @@ class ImportScheduleImpl implements ImportSchedule {
     private File successDirectory;
     private File failureDirectory;
     private String pathMatcher;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String importerName;
     private transient CronExpression cronExpression;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String cronString;
     private final MessageService messageService;
     private final DataModel dataModel;
@@ -47,6 +52,10 @@ class ImportScheduleImpl implements ImportSchedule {
 
     private List<FileImporterProperty> properties = new ArrayList<>();
     private boolean active;
+
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Pattern(regexp="^$|[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.INVALID_CHARS +"}")
     private String name;
 
     @SuppressWarnings("unused")
@@ -251,6 +260,11 @@ class ImportScheduleImpl implements ImportSchedule {
             return importerFactory.getApplicationName();
         }
         return null;
+    }
+
+    @Override
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
 

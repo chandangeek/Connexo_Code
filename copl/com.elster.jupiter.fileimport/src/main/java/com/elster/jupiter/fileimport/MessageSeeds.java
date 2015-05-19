@@ -10,7 +10,10 @@ import java.util.logging.Logger;
 public enum MessageSeeds implements MessageSeed {
     FILE_IO(1001, "file.io.reading.failure", "Failure while doing IO on file {0}", Level.SEVERE),
     FAILED_TO_START_IMPORT_SCHEDULES(2001, "importschedule.start.failed", "Could not start Import schedules, please check if FIM is installed properly.", Level.SEVERE),
-    NO_SUCH_IMPORTER(2002, "importschedule.noSuchImporter", "Importer {0} does not exist.", Level.SEVERE)
+    NO_SUCH_IMPORTER(2002, "importschedule.noSuchImporter", "Importer {0} does not exist.", Level.SEVERE),
+    CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
+    INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid characters", Level.SEVERE)
+
     ;
 
     private final int number;
@@ -60,4 +63,13 @@ public enum MessageSeeds implements MessageSeed {
         NlsMessageFormat format = thesaurus.getFormat(this);
         logger.log(getLevel(), format.format(args), t);
     }
+
+
+    public enum Constants {
+        ;
+        public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
+        public static final String INVALID_CHARS = "InvalidChars";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
+    }
+
 }

@@ -128,4 +128,6 @@ public interface ImportSchedule {
     void setDestination(String destinationName);
 
     String getApplicationName();
+
+    void setActive(Boolean active);
 }
