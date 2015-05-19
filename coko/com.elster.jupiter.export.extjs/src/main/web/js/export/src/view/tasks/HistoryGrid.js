@@ -14,6 +14,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
 
     initComponent: function () {
         var me = this;
+
         me.columns = [
             {
                 header: Uni.I18n.translate('general.startedOn', 'DES', 'Started On'),
@@ -47,8 +48,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 xtype: 'uni-actioncolumn',
                 width: 100,
                 menu: {
-                    xtype: 'tasks-history-action-menu'//,
-                    //itemId: 'tasks-action-menu'
+                    xtype: 'tasks-history-action-menu'
                 }
             }
         ];
@@ -66,7 +66,8 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbarbottom.itemsPerPage', 'DES', 'Data export tasks per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                deferLoading: true
             }
         ];
 
