@@ -10,9 +10,13 @@ Ext.define('Uni.grid.column.Edited', {
     ],
 
     renderer: function (value, metaData, record, rowIndex, colIndex) {
-        var me = Ext.Array.findBy(this.columns, function (item) {
-            return item.$className === 'Uni.grid.column.Edited';
-        });
+        if(this.$className  !== 'Uni.grid.column.Edited') {
+            var me = Ext.Array.findBy(this.columns, function (item) {
+                return item.$className === 'Uni.grid.column.Edited';
+            });
+        } else {
+            me = this;
+        }
 
         return new Uni.form.field.EditedDisplay().renderer.apply(me, arguments);
     }

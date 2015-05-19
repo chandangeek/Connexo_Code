@@ -39,7 +39,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     break;
             }
             if (iconClass && tooltipText) {
-                result = '<span class="' + iconClass + '" data-qtip="' + tooltipText + '"></span>';
+                result = '<span style="display: none;">' + value.flag + '</span><span class="' + iconClass + '" data-qtip="' + tooltipText + '"></span>';
             }
         }
 

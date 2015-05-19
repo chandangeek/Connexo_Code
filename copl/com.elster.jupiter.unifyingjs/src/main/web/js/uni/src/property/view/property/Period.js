@@ -19,7 +19,7 @@ Ext.define('Uni.property.view.property.Period', {
             },
             {
                 xtype: 'combobox',
-                margin: '0 0 0 16',
+                margin: '0 0 0 5',
                 itemId: me.key + 'combobox',
                 name: me.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
@@ -91,6 +91,7 @@ Ext.define('Uni.property.view.property.Period', {
             timeUnitValue;
 
         if (me.isEdit) {
+            button.setVisible(true);
             if (me.getField()) { countValue = me.getField().getValue(); }
             if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
             if (!me.getProperty().get('isInheritedOrDefaultValue')
@@ -105,7 +106,6 @@ Ext.define('Uni.property.view.property.Period', {
                         + ' &quot; ' + me.getProperty().get('default') + '&quot;'
                     );
                 }
-
                 button.setDisabled(false);
             } else {
                 button.setTooltip(null);
