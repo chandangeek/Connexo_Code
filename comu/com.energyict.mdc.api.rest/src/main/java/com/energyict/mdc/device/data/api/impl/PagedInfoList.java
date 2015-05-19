@@ -56,4 +56,29 @@ public class PagedInfoList {
         return list;
     }
 
+    /**
+     * Create a Json serialized object for unpaged, complete, search results. So no paging was done prior to this method call.
+     * This method will be used mostly in conjuncture with full-list getters, e.g. deviceType.getConfigurations()
+     * Difference with fromPagedList() is that the total-property will be the actual total, not the faked pageSize+1 in case of full page
+     *
+     * @param infos The search results to page according to queryParameters
+     * @param queryParameters The original query parameters used for building the list that is being returned. This is required as it is used to page
+     *                        the list if infos,
+     * @return A PagedInfoList that will be correctly serialized as JSON paging object, understood by ExtJS
+     */
+    public static PagedInfoList from(List<?> infos, QueryParameters queryParameters) {
+        PagedInfoList list = new PagedInfoList();
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            int limit = queryParameters.getLimit().get();
+            boolean hasNextPage = infos.size() > limit;
+
+            if (hasNextPage) {
+                infos = infos.subList(0, limit);
+            }
+            list.data = infos;
+        }
+
+        return list;
+    }
+
 }

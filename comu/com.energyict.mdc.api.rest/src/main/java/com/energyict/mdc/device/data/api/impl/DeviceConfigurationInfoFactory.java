@@ -1,16 +1,17 @@
 package com.energyict.mdc.device.data.api.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 4/30/15.
@@ -21,56 +22,40 @@ public class DeviceConfigurationInfoFactory {
     public DeviceConfigurationInfoFactory() {
     }
 
-    public DeviceConfigurationInfo asId(DeviceConfiguration DeviceConfiguration) {
+    public DeviceConfigurationInfo plain(DeviceConfiguration deviceConfiguration, Collection<String> fields) {
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceConfigurationInfo, deviceConfiguration, Optional.empty()));
+        return deviceConfigurationInfo;
+    }
+
+    public DeviceConfigurationInfo asHypermedia(DeviceConfiguration deviceConfiguration, UriInfo uriInfo, List<String> fields) {
         DeviceConfigurationInfo DeviceConfigurationInfo = new DeviceConfigurationInfo();
-        DeviceConfigurationInfo.id=DeviceConfiguration.getId();
+        getSelectedFields(fields).stream().forEach(copier -> copier.copy(DeviceConfigurationInfo, deviceConfiguration, Optional.of(uriInfo)));
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}");
+        DeviceConfigurationInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getId());
         return DeviceConfigurationInfo;
     }
 
-    public DeviceConfigurationInfo asHypermediaId(DeviceConfiguration DeviceConfiguration, UriInfo uriInfo) {
-        DeviceConfigurationInfo DeviceConfigurationInfo = asId(DeviceConfiguration);
-        DeviceConfigurationInfo.link = Link.fromUri(getUriTemplate(uriInfo).resolveTemplate("id", DeviceConfiguration.getId()).build()).rel("parent").title("Device type").build();
-        return DeviceConfigurationInfo;
-    }
-
-    public DeviceConfigurationInfo plain(DeviceConfiguration DeviceConfiguration, Collection<String> fields) {
-        DeviceConfigurationInfo DeviceConfigurationInfo = new DeviceConfigurationInfo();
-        Map<String, Consumer<DeviceConfiguration>> consumerMap = buildConsumerMap(DeviceConfigurationInfo);
+    private List<PropertyCopier<DeviceConfigurationInfo, DeviceConfiguration>> getSelectedFields(Collection<String> fields) {
+        Map<String, PropertyCopier<DeviceConfigurationInfo, DeviceConfiguration>> fieldSelectionMap = buildFieldSelectionMap();
         if (fields==null || fields.isEmpty()) {
-            fields = consumerMap.keySet();
+            fields = fieldSelectionMap.keySet();
         }
-        fields.stream().forEach(f->consumerMap.getOrDefault(f, d->d=d).accept(DeviceConfiguration));
-        return DeviceConfigurationInfo;
+        return fields.stream().filter(fieldSelectionMap::containsKey).map(fieldSelectionMap::get).collect(toList());
     }
 
-    private Map<String, Consumer<DeviceConfiguration>> buildConsumerMap(DeviceConfigurationInfo DeviceConfigurationInfo) {
-        Map<String, Consumer<DeviceConfiguration>> consumerMap = new HashMap<>();
-        consumerMap.put("id", d -> DeviceConfigurationInfo.id = d.getId());
-        consumerMap.put("name", d -> DeviceConfigurationInfo.name = d.getName());
-        return consumerMap;
-    }
-
-    public DeviceConfigurationInfo plain(DeviceConfiguration device) {
-        DeviceConfigurationInfo deviceInfo = new DeviceConfigurationInfo();
-        Map<String, Consumer<DeviceConfiguration>> consumerMap = buildConsumerMap(deviceInfo);
-        return plain(device, consumerMap.keySet());
-    }
-
-    public DeviceConfigurationInfo asHypermedia(DeviceConfiguration DeviceConfiguration, UriInfo uriInfo, List<String> fields) {
-        DeviceConfigurationInfo DeviceConfigurationInfo = plain(DeviceConfiguration, fields);
-        DeviceConfigurationInfo.link = Link.fromUri(getUriTemplate(uriInfo).resolveTemplate("id", DeviceConfiguration.getId()).build()).rel("self").title("self reference").build();
-        return DeviceConfigurationInfo;
-    }
-
-    public HalInfo asHal(DeviceConfiguration DeviceConfiguration, UriInfo uriInfo) {
-        DeviceConfigurationInfo DeviceConfigurationInfo = plain(DeviceConfiguration);
-        URI uri = getUriTemplate(uriInfo).build(DeviceConfigurationInfo.id);
-        HalInfo wrap = HalInfo.wrap(DeviceConfigurationInfo, uri);
-        return wrap;
-    }
-
-    private UriBuilder getUriTemplate(UriInfo uriInfo) {
-        return uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}");
+    private Map<String, PropertyCopier<DeviceConfigurationInfo,DeviceConfiguration>> buildFieldSelectionMap() {
+        Map<String, PropertyCopier<DeviceConfigurationInfo, DeviceConfiguration>> map = new HashMap<>();
+        map.put("id", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            deviceConfigurationInfo.id = deviceConfiguration.getId();
+        });
+        map.put("name", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            deviceConfigurationInfo.name = deviceConfiguration.getName();
+        });
+        map.put("description", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            deviceConfigurationInfo.description = deviceConfiguration.getDescription();
+        });
+        return map;
     }
 
 }

@@ -6,5 +6,6 @@ package com.energyict.mdc.device.data.api.impl;
 public class DeviceConfigurationInfo extends LinkInfo {
     public Long id;
     public String name;
+    public String description;
 
 }

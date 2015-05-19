@@ -152,5 +152,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.easytesting:fest-util:1.2.4" level="project" />
     <orderEntry type="library" name="Maven: com.google.inject:guice:3.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.servicemix.bundles:org.apache.servicemix.bundles.aopalliance:1.0_6" level="project" />
+    <orderEntry type="library" name="Maven: biz.aQute.bnd:bndlib:2.3.0" level="project" />
   </component>
 </module>

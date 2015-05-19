@@ -1,21 +1,26 @@
 package com.energyict.mdc.device.data.api.impl;
 
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.security.Privileges;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 4/22/15.
@@ -32,44 +37,63 @@ public class DeviceConfigurationResource {
         this.deviceConfigurationInfoFactory = deviceConfigurationInfoFactory;
     }
 
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-//    @Path("/{id}")
-//    public Response getDevice(@PathParam("id") long id, @BeanParam FieldList fields) {
-//        DeviceTypeInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(deviceConfigurationInfoFactory.plain()).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-//        return Response.ok(deviceTypeInfo).build();
-//    }
-//
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @Path("/{id}")
+    public Response getDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam FieldList fields) {
+        DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.
+                findDeviceType(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).
+                        getConfigurations().stream().filter(dc -> dc.getId() == id).
+                        map(dc -> deviceConfigurationInfoFactory.plain(dc, fields.getFields())).
+                        findFirst()
+                        .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        return Response.ok(deviceConfigurationInfo).build();
+    }
+
     @GET
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{id}")
-    public Response getHypermediaDevice(@PathParam("id") long id, @QueryParam("fields") String fields, @Context UriInfo uriInfo) {
-        List<String> split = fields!=null? Arrays.asList(fields.split(",")): Collections.emptyList();
-        DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.findDeviceConfiguration(id).map(d -> deviceConfigurationInfoFactory.asHypermedia(d, uriInfo, split)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+    public Response getHypermediaDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.
+                findDeviceType(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).
+                        getConfigurations().stream().filter(dc -> dc.getId() == id).
+                        map(dc -> deviceConfigurationInfoFactory.asHypermedia(dc, uriInfo, fields.getFields())).
+                        findFirst()
+                        .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceConfigurationInfo).build();
     }
-//
-//    @GET
-//    @Produces("application/hal+json;charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-//    @Path("/{id}")
-//    public Response getHalDevice(@PathParam("id") long id, @QueryParam("fields") List<String> fields, @Context UriInfo uriInfo) {
-//        HalInfo deviceTypeInfo = deviceConfigurationService.findDeviceType(id).map(d -> deviceConfigurationInfoFactory.asHal(d, uriInfo)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
-//
-//        return Response.ok(deviceTypeInfo).build();
-//    }
-//
-//
-//    @GET
-//    @Produces("application/h+json;charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-//    public Response getDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
-//        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().stream().limit(10).map(d -> deviceConfigurationInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).collect(toList());
-//
-//        return Response.ok(com.energyict.mdc.common.rest.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
-//    }
+
+    @GET
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    public Response getDeviceTypes(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        List<DeviceConfiguration> allDeviceConfigurations = deviceConfigurationService.
+                findDeviceType(deviceTypeId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).getConfigurations();
+        List<DeviceConfigurationInfo> infos = ListPager.of(allDeviceConfigurations).from(queryParameters).find().stream().map(dc -> deviceConfigurationInfoFactory.plain(dc, fields.getFields())).collect(toList());
+
+        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters);
+        return Response.ok(infoList).build();
+    }
+
+    @GET
+    @Produces("application/h+json;charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    public Response getHypermediaDeviceTypes(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields,@Context UriInfo uriInfo) {
+        List<DeviceConfiguration> allDeviceConfigurations = deviceConfigurationService.
+                findDeviceType(deviceTypeId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).getConfigurations();
+        List<DeviceConfigurationInfo> infos = ListPager.of(allDeviceConfigurations).from(queryParameters).find().stream().map(dc -> deviceConfigurationInfoFactory.asHypermedia(dc, uriInfo, fields.getFields())).collect(toList());
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class);
+
+        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters, uriBuilder);
+        return Response.ok(infoList).build();
+    }
+
 
 }
 
