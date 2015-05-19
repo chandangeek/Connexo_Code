@@ -59,8 +59,7 @@ public class DeviceTypeResource {
     public Response getDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
         List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.plain(d, fields.getFields())).collect(toList());
 
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
-        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters, uriBuilder);
+        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters);
         return Response.ok(infoList).build();
     }
 
@@ -70,8 +69,8 @@ public class DeviceTypeResource {
     public Response getHypermediaDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields,@Context UriInfo uriInfo) {
         List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
 
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
-        return Response.ok(PagedInfoList.from(infos, queryParameters, uriBuilder)).build();
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
+        return Response.ok(PagedInfoList.from(infos, queryParameters, uri)).build();
     }
 
 }

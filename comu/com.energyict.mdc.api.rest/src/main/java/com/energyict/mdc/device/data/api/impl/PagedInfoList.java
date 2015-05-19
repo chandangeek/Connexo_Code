@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class PagedInfoList {
 
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-    public List<Link> links;
+    public List<Link> link;
     public List<?> data = new ArrayList<>();
 
     public PagedInfoList() {
@@ -26,9 +26,9 @@ public class PagedInfoList {
      *
      * @param infos The search results to page according to queryParameters
      * @param queryParameters The original query parameters used for building the list that is being returned. This is required as it is used to page
-     *                        the list if infos,
-     * @param uriBuilder
-     * @return A PagedInfoList that will be correctly serialized as JSON paging object, understood by ExtJS
+     *                        the list of infos
+     * @param uriBuilder Builder pointing to base URL for the paged resource. Template needs already to have been resolved with parameters. Additional URL (paging) parameters will be added
+     * @return A PagedInfoList that will be correctly serialized as JSON paging object
      */
     public static PagedInfoList from(List<?> infos, QueryParameters queryParameters, UriBuilder uriBuilder) {
         PagedInfoList list = new PagedInfoList();
@@ -37,21 +37,21 @@ public class PagedInfoList {
             int start = queryParameters.getStart().get();
             boolean hasNextPage = infos.size() > limit;
             boolean hasPreviousPage = start > 0;
-            list.links = new ArrayList<>();
-            list.links.add(Link.fromUriBuilder(uriBuilder.clone().queryParam("start", start).queryParam("limit", limit)).rel("curr").title("current page").build());
+            list.link = new ArrayList<>();
+            list.link.add(Link.fromUriBuilder(uriBuilder.clone().queryParam("start", start).queryParam("limit", limit)).rel("current").title("current page").build());
 
             if (hasNextPage) {
                 infos = infos.subList(0, limit);
                 int newStart = limit + start;
-                list.links.add(Link.fromUriBuilder(uriBuilder.clone().queryParam("start", newStart).queryParam("limit", limit)).rel("next").title("next page").build());
+                list.link.add(Link.fromUriBuilder(uriBuilder.clone().queryParam("start", newStart).queryParam("limit", limit)).rel("next").title("next page").build());
             }
             if (hasPreviousPage) {
                 int newStart = Math.max(start - limit, 0);
-                list.links.add(Link.fromUriBuilder(uriBuilder.clone().queryParam("start", newStart).queryParam("limit", limit)).rel("prev").title("previous page").build());
+                list.link.add(Link.fromUriBuilder(uriBuilder.clone().queryParam("start", newStart).queryParam("limit", limit)).rel("previous").title("previous page").build());
             }
 
-            list.data = infos;
         }
+        list.data = infos;
 
         return list;
     }
@@ -75,8 +75,8 @@ public class PagedInfoList {
             if (hasNextPage) {
                 infos = infos.subList(0, limit);
             }
-            list.data = infos;
         }
+        list.data = infos;
 
         return list;
     }

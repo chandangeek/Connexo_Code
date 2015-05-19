@@ -59,7 +59,7 @@ public class DeviceConfigurationInfoFactory {
             deviceConfigurationInfo.deviceType = new DeviceTypeInfo();
             deviceConfigurationInfo.deviceType.id = deviceConfiguration.getDeviceType().getId();
             if (uriInfo.isPresent()) {
-                deviceConfigurationInfo.deviceType.link = Link.fromUriBuilder(uriInfo.get().getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel("parent").title("Device type").build(deviceConfiguration.getDeviceType().getId());
+                deviceConfigurationInfo.deviceType.link = Link.fromUriBuilder(uriInfo.get().getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel("up").title("Device type").build(deviceConfiguration.getDeviceType().getId());
             }
 
         });

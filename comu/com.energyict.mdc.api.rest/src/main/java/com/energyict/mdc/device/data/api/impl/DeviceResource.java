@@ -29,6 +29,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import static java.util.stream.Collectors.toList;
@@ -82,19 +83,19 @@ public class DeviceResource {
     @GET
     @Produces("application/h+json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getHypermediaDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
-        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, Collections.emptyList())).collect(toList());
-
-        return Response.ok(com.elster.jupiter.rest.util.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
+    public Response getHypermediaDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceResource.class);
+        return Response.ok(PagedInfoList.from(infos, queryParameters, uri)).build();
     }
 
     @GET
     @Produces("application/json;charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getDevices(@BeanParam JsonQueryParameters queryParameters,@Context UriInfo uriInfo) {
-        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.plain(d, Collections.emptyList())).collect(toList());
+    public Response getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.plain(d, fields.getFields())).collect(toList());
 
-        return Response.ok(com.elster.jupiter.rest.util.PagedInfoList.fromCompleteList("devices", infos, queryParameters)).build();
+        return Response.ok(PagedInfoList.from(infos, queryParameters)).build();
     }
 
     @POST

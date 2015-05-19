@@ -88,9 +88,9 @@ public class DeviceConfigurationResource {
                 findDeviceType(deviceTypeId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).getConfigurations();
         List<DeviceConfigurationInfo> infos = ListPager.of(allDeviceConfigurations).from(queryParameters).find().stream().map(dc -> deviceConfigurationInfoFactory.asHypermedia(dc, uriInfo, fields.getFields())).collect(toList());
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class);
+        UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).resolveTemplate("deviceTypeId", deviceTypeId);
 
-        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters, uriBuilder);
+        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters, uri);
         return Response.ok(infoList).build();
     }
 
