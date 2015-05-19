@@ -9,13 +9,13 @@ Ext.define('Est.estimationtasks.view.ActionMenu', {
             itemId: 'edit-estimation-task',
             text: Uni.I18n.translate('general.edit', 'EST', 'Edit'),
             action: 'editEstimationTask',
-            privileges: Est.privileges.EstimationConfiguration.update
+            privileges: Est.privileges.EstimationConfiguration.updateTask
         },
         {
             itemId: 'remove-estimation-task',
             text: Uni.I18n.translate('general.remove', 'EST', 'Remove'),
             action: 'removeEstimationTask',
-            privileges: Est.privileges.EstimationConfiguration.administrate
+            privileges: Est.privileges.EstimationConfiguration.administrateTask
         },
 		{
             itemId: 'view-estimation-task-history',

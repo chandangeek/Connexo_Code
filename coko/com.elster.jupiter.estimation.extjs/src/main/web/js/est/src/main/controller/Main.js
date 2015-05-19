@@ -40,7 +40,7 @@ Ext.define('Est.main.controller.Main', {
                             text: Uni.I18n.translate('estimationtasks.title', 'EST', 'Estimation tasks'),
                             href: '#/administration/estimationtasks',
                             route: 'estimationtasks',
-                            privileges: Est.privileges.EstimationConfiguration.view
+                            privileges: Est.privileges.EstimationConfiguration.viewTask
                         }
                     ]
                 });
