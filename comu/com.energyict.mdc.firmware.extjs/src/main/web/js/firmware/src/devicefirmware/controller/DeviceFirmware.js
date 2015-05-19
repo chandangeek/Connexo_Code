@@ -65,10 +65,9 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     var record = el.up('#message-failed').record;
                     this.getController('Uni.controller.history.Router')
                         .getRoute('devices/device/firmware/log')
-                        .forward(null, {
+                        .forward({firmwareId: record.get('firmwareVersionId')}, {
                             firmwareComTaskId: record.get('firmwareComTaskId'),
-                            firmwareComTaskSessionId: record.get('firmwareComTaskSessionId'),
-                            firmwareVersion: record.get('firmwareVersion')
+                            firmwareComTaskSessionId: record.get('firmwareComTaskSessionId')
                         });
                 }
             },

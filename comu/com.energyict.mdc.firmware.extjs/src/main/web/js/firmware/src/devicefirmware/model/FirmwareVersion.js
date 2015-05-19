@@ -1,7 +1,7 @@
 Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'id', type: 'number', useNull: true},
+        {name: 'firmwareVersionId', type: 'number', useNull: true},
         {name: 'firmwareDeviceMessageId', type: 'number', useNull: true},
         {name: 'firmwareComTaskId', type: 'number', useNull: true},
         {name: 'firmwareComTaskSessionId', type: 'number', useNull: true},

@@ -8,10 +8,10 @@ Ext.define('Fwc.store.Firmwares', {
     autoLoad: false,
     remoteSort: true,
     hydrator: 'Uni.util.IdHydrator',
-    sorters: [{
-        property: 'firmwareVersion',
-        direction: 'DESC'
-    }],
+    //sorters: [{
+    //    property: 'firmwareVersion',
+    //    direction: 'DESC'
+    //}],
 
     proxy: {
         type: 'rest',

@@ -10,7 +10,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             itemId: 'text-firmware-version',
             anchor: '60%',
             required: true,
-            fieldLabel: 'Version',
+            fieldLabel: Uni.I18n.translate('firmware.field.version', 'FWC', 'Version'),
             allowBlank: false
         },
         {
@@ -20,7 +20,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             allowBlank: true,
             afterBodyEl: [
                 '<div class="x-form-display-field"><i>',
-                Uni.I18n.translate('firmware.filesize.edit', 'FWC', 'Selected file will replace already uploaded firmware file. Maximum file size is 50Mb'),
+                Uni.I18n.translate('firmware.filesize.edit', 'FWC', 'The selected file will replace the already uploaded firmware file. Maximum file size is 50Mb'),
                 '</i></div>'
             ],
             anchor: '60%'
@@ -28,7 +28,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
         {
             xtype: 'displayfield',
             itemId: 'disp-firmware-type',
-            fieldLabel: 'Firmware type',
+            fieldLabel: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
             name: 'type'
         },
         {

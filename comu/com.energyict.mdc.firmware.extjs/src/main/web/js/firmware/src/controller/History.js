@@ -43,13 +43,13 @@ Ext.define('Fwc.controller.History', {
             }
         },
         "administration/devicetypes/view/firmwareoptions": {
-            title: Uni.I18n.translate('firmware.route.firmwareoptions', 'FWC', 'Firmware upgrade options'),
+            title: Uni.I18n.translate('firmware.route.firmwareoptions', 'FWC', 'Firmware management options'),
             route: 'administration/devicetypes/{deviceTypeId}/firmware/options',
             controller: 'Fwc.controller.Firmware',
             action: 'showFirmwareOptions',
             items: {
                 edit: {
-                    title: Uni.I18n.translate('firmware.route.firmwareoptions.edit', 'FWC', 'Edit firmware upgrade options'),
+                    title: Uni.I18n.translate('firmware.route.firmwareoptions.edit', 'FWC', 'Edit firmware management options'),
                     route: 'edit',
                     controller: 'Fwc.controller.Firmware',
                     action: 'editFirmwareOptions'
@@ -78,9 +78,20 @@ Ext.define('Fwc.controller.History', {
                 },
                 log: {
                     title: Uni.I18n.translate('firmware.route.devicefirmware.log', 'FWC', 'Meter firmware upgrade log'),
-                    route: 'log',
+                    route: '{firmwareId}/log',
                     controller: 'Fwc.devicefirmware.controller.FirmwareLog',
-                    action: 'showDeviceFirmwareLog'
+                    action: 'showDeviceFirmwareLog',
+                    callback: function (route) {
+                        this.getApplication().on('loadFirmware', function (firmware) {
+                            route.setTitle(Uni.I18n.translate(['deviceFirmware', firmware.getAssociatedData().firmwareType.id, 'log', 'title'].join('.'),
+                                'FWC', 'Firmware upgrade log to version "{1}"',
+                                firmware.get('firmwareVersion')
+                            ));
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    }
                 }
             }
         }
