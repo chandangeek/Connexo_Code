@@ -5,8 +5,6 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
-import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
@@ -55,7 +53,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        if (!responseType.equals(DiscoverResponseType.SUCCESS)) {
+        if (!responseType.equals(DiscoverResponseType.SUCCESS) || responseType == DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED) {
             logOff();
         }
     }
