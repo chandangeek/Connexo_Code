@@ -12,15 +12,11 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.time.PeriodicalScheduleExpression;
-import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.time.Never;
-import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -96,9 +92,9 @@ public class FileImportScheduleResource {
                 .setProcessingDirectory(new File(info.inProcessDirectory))
                 .setImportDirectory(new File(info.importDirectory))
                 .setImporterName(info.importerInfo.name)
-                .setScheduleExpression(ScanFrequency.fromFrequency(info.scanFrequency, cronExpressionParser));
+                .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
                 //.setScheduleExpression(getScheduleExpression(info));
-                //.setCronExpression(ScanFrequency.fromFrequency(info.scanFrequency,cronExpressionParser));
+                //.setCronExpression(ScanFrequency.toScheduleExpression(info.scanFrequency,cronExpressionParser));
 
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
@@ -154,7 +150,7 @@ public class FileImportScheduleResource {
             importSchedule.setImporterName(info.importerInfo.name);
             importSchedule.setPathMatcher(info.pathMatcher);
             //importSchedule.setScheduleExpression(getScheduleExpression(info));
-            importSchedule.setScheduleExpression(ScanFrequency.fromFrequency(info.scanFrequency, cronExpressionParser));
+            importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
 
             updateProperties(info, importSchedule);
 

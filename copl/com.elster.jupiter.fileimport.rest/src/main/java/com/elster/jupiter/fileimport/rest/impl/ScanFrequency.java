@@ -45,7 +45,7 @@ public class ScanFrequency {
 
         return frequency;
     }
-    public static ScheduleExpression fromFrequency(Integer scanFrequency, CronExpressionParser cronExpressionParser){
+    public static ScheduleExpression toScheduleExpression(Integer scanFrequency, CronExpressionParser cronExpressionParser){
 
         PeriodicalExpressionInfo schedule = new PeriodicalExpressionInfo();
         schedule.offsetSeconds = 0;
