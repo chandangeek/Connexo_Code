@@ -30,7 +30,7 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 		AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
 	    AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(mapper.getTypeFactory());
 	    AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
-		//mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.setSerializationInclusion(Include.NON_NULL);
 		mapper.setAnnotationIntrospector(pair);
 		mapper.registerModule(new SimpleModule("Instant", new Version(1,0,0,null, "com.elster.jupiter", "devtools.rest"))
 			.addSerializer(new InstantSerializer())
