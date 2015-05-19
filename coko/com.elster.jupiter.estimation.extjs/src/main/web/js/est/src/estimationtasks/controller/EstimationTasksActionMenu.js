@@ -56,8 +56,9 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
                 route = 'administration/estimationtasks/estimationtask/edit';
                 break;
         }
-        route && (route = router.getRoute(route));
-        route && route.forward(router.arguments);
+
+        if(route) router.getRoute(route).forward();
+
     },
 
     runTask: function (record) {
@@ -84,46 +85,23 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('estimationtasks.general.runmsg', 'EST', 'The estimation task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('estimationtasks.general.runestimationtask', 'EST', 'Run estimation task') + ' ' + record.data.name + '?'
+            title: Uni.I18n.translate('estimationtasks.general.runestimationtask', 'EST', 'Run estimation task') + ' ' + record.get('name') + '?'
         });
     },
 
     submitRunTask: function (record, confWindow) {
         var me = this,
             id = record.get('id'),
-            taskModel = me.getModel('Est.estimationtasks.model.EstimationTask'),
-            grid,
-            store,
-            index,
-            view;
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            router = me.getController('Uni.controller.history.Router');
 
-        me.maskWidget();
+        pageMainContent.setLoading(true);
         Ext.Ajax.request({
             url: '/api/est/estimation/tasks/' + id + '/trigger',
             method: 'POST',
             success: function () {
                 confWindow.destroy();
-                if (me.getPage()) {
-                    view = me.getPage();
-                    grid = view.down('estimationtasks-grid');
-                    store = grid.getStore();
-                    index = store.indexOf(record);
-                    view.down('preview-container').selectByDefault = false;
-                    store.load(function () {
-                        grid.getSelectionModel().select(index);
-                    });
-                } else {
-                    taskModel.load(id, {
-                        success: function (rec) {
-                            view = me.getDetailsPage();
-                            view.down('estimationtasks-action-menu').record = rec;
-                            view.down('estimationtasks-detail-form').loadRecord(rec);
-                            if (record.get('status') === 'Busy') {
-                                view.down('#run-estimation-task').hide();
-                            }
-                        }
-                    });
-                }
+                router.getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.run', 'EST', 'Estimation task run'));
             },
             failure: function (response) {
@@ -132,7 +110,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
                 confWindow.setVisible(true);
             },
             callback: function () {
-                me.unMaskWidget();
+                pageMainContent.setLoading(false);
             }
         });
     },
@@ -142,7 +120,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('estimationtasks.general.remove.msg', 'EST', 'This estimation task will no longer be available.'),
-            title: Uni.I18n.translate('estimationtasks.general.remove', 'EST', 'Remove') + '&nbsp' + record.data.name + '?',
+            title: Uni.I18n.translate('estimationtasks.general.remove', 'EST', 'Remove') + '&nbsp' + record.get('name') + '?',
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
@@ -155,9 +133,10 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
     },
 
     removeOperation: function (record) {
-        var me = this;
+        var me = this,
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
-        me.maskWidget();
+        pageMainContent.setLoading(true);
         record.destroy({
             success: function () {
                 if (me.getPage()) {
@@ -208,30 +187,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
                 }
             },
             callback: function () {
-                me.unMaskWidget();
+                pageMainContent.setLoading(false);
             }
         });
-    },
-
-    maskWidget: function () {
-        var me = this;
-        if (me.getPage()) {
-            me.getPage().setLoading(true);
-        } else if (me.getDetailsPage()) {
-            me.getDetailsPage().setLoading(true);
-        } else if (me.getHistoryPage()) {
-            me.getHistoryPage().setLoading(true);
-        }
-    },
-
-    unMaskWidget: function () {
-        var me = this;
-        if (me.getPage()) {
-            me.getPage().setLoading(false);
-        } else if (me.getDetailsPage()) {
-            me.getDetailsPage().setLoading(false);
-        } else if (me.getHistoryPage()) {
-            me.getHistoryPage().setLoading(false);
-        }
     }
 });

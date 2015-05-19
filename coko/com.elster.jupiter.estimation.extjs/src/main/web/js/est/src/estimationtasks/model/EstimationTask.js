@@ -14,7 +14,6 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             name: 'deviceGroup_name',
             persist: false,
             mapping: function (data) {
-                var result;
                 if (data.deviceGroup && data.deviceGroup.name) {
                     return data.deviceGroup.name;
                 } else {

@@ -22,7 +22,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     ],
 
     fromDetails: null,
-    //fromEdit: false,
     taskModel: null,
     taskId: null,
 
@@ -68,7 +67,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
             newEstimationTask.set('active', true);
-            newEstimationTask.set('lastExportOccurrence', null); //TODO: Change to lastEstimationOccurrence
+            newEstimationTask.set('lastEstimationOccurrence', null);
             newEstimationTask.set('deviceGroup', {
                 id: newEstimationTaskDto.deviceGroupId,
                 name: me.getAddEditEstimationtaskForm().down('#device-group-id').getRawValue()
@@ -152,8 +151,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                 newEstimationTask.set('period', null);
             }
 
-            delete newEstimationTask.data.lastEstimationOccurrence; // TODO: Remove after REST will be completely done
-
             newEstimationTask.endEdit();
 
             me.getAddEditEstimationtaskPage().setLoading(true);
@@ -193,6 +190,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Est.estimationtasks.model.EstimationTask'),
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             widget;
 
         me.taskId = currentTaskId;
@@ -208,8 +206,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                 returnLink: router.getRoute('administration/estimationtasks').buildUrl()
             })
         }
-
-        me.getEstimationPeriodCombo().store.load();
+        pageMainContent.setLoading(true);
 
         var taskForm = widget.down('#add-edit-estimationtask-form'),
             deviceGroupCombo = widget.down('#device-group-id'),
@@ -218,6 +215,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         taskModel.load(currentTaskId, {
             success: function (record) {
                 var schedule = record.get('schedule'),
+                    deviceGroup = record.get('deviceGroup'),
                     period = record.get('period');
                 me.taskModel = record;
                 taskForm.loadRecord(record);
@@ -229,23 +227,29 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                         deviceGroupCombo.hide();
                         me.getNoDeviceGroupBlock().show();
                     }
-                    deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
+                    deviceGroupCombo.setValue(deviceGroupCombo.store.getById(deviceGroup.id));
+                    me.getEstimationPeriodCombo().store.load(function () {
+                        if (period && (period.id !== 0)) {
+                            widget.down('#estimation-period-trigger').setValue({estimationPeriod: true});
+                            me.getEstimationPeriodCombo().setValue(period.id);
+                        }
+                        pageMainContent.setLoading(false);
+                    });
+
                 });
 
-                if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                if (record.get('nextRun') && (record.get('nextRun') !== 0)) {
                     widget.down('#recurrence-trigger').setValue({recurrence: true});
                     widget.down('#recurrence-number').setValue(schedule.count);
                     recurrenceTypeCombo.setValue(schedule.timeUnit);
-                    widget.down('#start-on').setValue(record.data.nextRun);
+                    widget.down('#start-on').setValue(record.get('nextRun'));
                 } else {
                     recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                 }
 
-                if (record.data.period && (record.data.period.id !== 0)) {
-                    widget.down('#estimation-period-trigger').setValue({estimationPeriod: true});
-                    me.getEstimationPeriodCombo().setValue(period.id);
-                }
-                widget.setLoading(false);
+            },
+            failure: function () {
+                pageMainContent.setLoading(false);
             }
         });
 

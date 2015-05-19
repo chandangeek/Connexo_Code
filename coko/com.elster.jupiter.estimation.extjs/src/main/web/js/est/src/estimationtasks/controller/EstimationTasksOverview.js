@@ -26,8 +26,10 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksOverview', {
     },
 
     showEstimationTasksOverview: function () {
-        var me = this, widget = Ext.widget('estimationtasks-overview', {router: me.getController('Uni.controller.history.Router')});
-        me.getController('Est.estimationtasks.controller.EstimationTasksAddEdit').fromDetails = false;
+        var me = this, widget = Ext.widget('estimationtasks-overview', {router: me.getController('Uni.controller.history.Router')}),
+        addEditController = me.getController('Est.estimationtasks.controller.EstimationTasksAddEdit');
+        addEditController.taskModel = null;
+        addEditController.fromDetails = false;
         me.getApplication().fireEvent('changecontentevent', widget);
     },
 

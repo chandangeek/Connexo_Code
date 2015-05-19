@@ -38,7 +38,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksLog', {
                         r.set(Ext.apply({}, r.raw, record.raw));
                     });
                     occurrenceTask = this.getById(parseInt(occurrenceId));
-                    runStartedOnFormatted = occurrenceTask.data.startedOn_formatted;
+                    runStartedOnFormatted = occurrenceTask.get('startedOn_formatted');
                     widget = Ext.widget('estimationtasks-log-setup', {
                         router: router,
                         task: record,
