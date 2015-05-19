@@ -213,10 +213,10 @@ public enum TableSpecs {
             table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
             table.column("MANUFACTUREDDATE").number().map("manufacturedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("PURCHASEDDATE").number().map("purchasedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("RECEIVEDDDATE").number().map("receivedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("INSTALLEDDDATE").number().map("installedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("REMOVEDDDATE").number().map("removedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("RETIREDDDATE").number().map("retiredDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("RECEIVEDDATE").number().map("receivedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("INSTALLEDDATE").number().map("installedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("REMOVEDDATE").number().map("removedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("RETIREDDATE").number().map("retiredDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column stateMachine = table.column("FSM").number().add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
