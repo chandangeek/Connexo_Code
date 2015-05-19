@@ -1,11 +1,13 @@
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+@ProviderType
 public interface ValidationRuleSetVersion {
 
     long getId();

@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
@@ -17,6 +18,7 @@ import java.util.Optional;
 /**
  * Created by tgr on 5/09/2014.
  */
+@ProviderType
 public interface ValidationEvaluator {
 
 	@Deprecated
