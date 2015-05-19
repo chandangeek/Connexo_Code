@@ -17,7 +17,7 @@ Ext.define('Fim.store.FileImporters', {
 
 	listeners: {
 		beforeload: function(store, operation, eOpts) {
-				store.getProxy().setExtraParam('application', Ext.isDefined(MdcApp) ? 'MDC' : Ext.isDefined(SystemApp) ? 'SYS' : null);		                				
+			store.getProxy().setExtraParam('application', typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS' : null);		                										
 		}
 	}
 });

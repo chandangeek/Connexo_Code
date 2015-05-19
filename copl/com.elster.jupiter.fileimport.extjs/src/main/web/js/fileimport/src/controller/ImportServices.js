@@ -63,6 +63,8 @@ Ext.define('Fim.controller.ImportServices', {
                 displayinfo: this.displayInfo
             }
 		 }); 
+		 
+		applicationName = typeof(MdcApp) != 'undefined' ? 'MDC' : typeof(SystemApp) != 'undefined' ? 'SYS': '';
     },
 	
 	showImportServices: function ()
@@ -230,14 +232,7 @@ Ext.define('Fim.controller.ImportServices', {
 			importServicePreviewContainerPanel = me.getImportServicePreviewContainerPanel(),
 			importServiceOverview = me.getImportServiceOverview(),			
 			view = importServicesGrid || importServicePreviewContainerPanel || importServiceOverview;
-
-		if (Ext.isDefined(MdcApp)){
-			me.applicationName = 'MDC';
-		}
-		 else if (Ext.isDefined(SystemApp)){
-			me.applicationName = 'SYS';
-		}
-		
+	
         view.setLoading();
 		
         record.destroy({
@@ -279,12 +274,6 @@ Ext.define('Fim.controller.ImportServices', {
             edit: true,
             returnLink: returnLink
         });
-		if (Ext.isDefined(MdcApp)){
-			me.applicationName = 'MDC';
-		}
-		 else if (Ext.isDefined(SystemApp)){
-			me.applicationName = 'SYS';
-		}
 		
 		var fileImporterCombo = addImportServiceView.down('#cbo-file-importer');	
 		fileImporterCombo.store.getProxy().setExtraParam('application', me.applicationName);		
@@ -394,14 +383,7 @@ Ext.define('Fim.controller.ImportServices', {
             edit: false,
             returnLink: returnLink
         });
-		
-		if (Ext.isDefined(MdcApp)){
-			me.applicationName = 'MDC';
-		}
-		 else if (Ext.isDefined(SystemApp)){
-			me.applicationName = 'SYS';
-		}
-		
+				
 		var fileImporterCombo = addImportServiceView.down('#cbo-file-importer');		
 		fileImporterCombo.store.getProxy().setExtraParam('application', me.applicationName);		
 		fileImporterCombo.store.load({
