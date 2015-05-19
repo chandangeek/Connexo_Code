@@ -85,6 +85,7 @@ Ext.define('Uni.controller.AppController', {
         me.getApplication().fireEvent('ononlinehelpenabled', me.onlineHelpEnabled);
 
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
+        me.getApplication().on('getapplicationtitleevent', me.getApplicationTitle, me);
         me.getApplication().on('changecontentevent', me.showContent, me);
         me.getApplication().on('sessionexpired', me.redirectToLogin, me);
 
@@ -195,6 +196,13 @@ Ext.define('Uni.controller.AppController', {
         window.location = '/apps/login/index.html?expired&page='
         + window.location.pathname
         + window.location.hash;
+    },
+
+    getApplicationTitle: function (callback) {
+        if (Ext.isFunction(callback)) {
+            debugger;
+            callback(this.applicationTitle);
+        }
     },
 
     loadControllers: function () {
