@@ -35,12 +35,21 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                 ui: 'large',
                 layout: 'hbox',
                 title: Uni.I18n.translate('deviceType.firmwaremanagementoptions.title', 'FWC', 'Firmware management options'),
+                tools: [
+                    {
+                        xtype: 'button',
+                        itemId: 'button-edit',
+                        name: 'Edit',
+                        text: Uni.I18n.translate('deviceType.firmwaremanagementoptions.edit', 'FWC', 'Edit'),
+                        action: 'editFirmwareOptions'
+                    }
+                ],
                 items: [
                     {
                         xtype: 'form',
+                        padding: '15 0 0 0',
                         itemId: 'form',
                         model: 'FirmwareManagementOptions',
-                        margin: '60 0 0 100',
                         flex: 1,
                         defaults: {
                             labelWidth: 250
@@ -59,9 +68,11 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'displayfield',
                                 name: 'allowedOptions',
                                 itemId: 'allowed-options',
+                          /*      fieldCls: 'x-form-display-field-multiple-values',*/
+                                fieldStyle: 'margin-top : 3px;',
                                 fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.options', 'FWC', 'Firmware management options'),
                                 renderer: function (value) {
-                                    var tpl = Ext.create(FirmwareOptionsXTemplate);
+                                    var tpl = Ext.create('FirmwareOptionsXTemplate');
                                     return tpl.apply(value);
                                 }
                             }
@@ -72,13 +83,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 me.down('button#button-edit').disable();
                             }
                         }
-                    },
-                    {
-                        xtype: 'button',
-                        itemId: 'button-edit',
-                        name: 'Edit',
-                        text: Uni.I18n.translate('deviceType.firmwaremanagementoptions.edit', 'FWC', 'Edit'),
-                        action: 'editFirmwareOptions'
                     }
                 ]
             }
