@@ -12,11 +12,15 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -52,7 +56,7 @@ public class FileImportScheduleResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ImportSchedule> list = queryImportSchedules(params)
                 .stream()
-                .filter(is->applicationName!=null && ("SYS".equals(applicationName) || applicationName.equals(is.getApplicationName())))
+                .filter(is -> applicationName != null && ("SYS".equals(applicationName) || applicationName.equals(is.getApplicationName())))
                 .collect(Collectors.toList());
 
         FileImportScheduleInfos infos = new FileImportScheduleInfos(params.clipToLimit(list), thesaurus);
@@ -84,14 +88,17 @@ public class FileImportScheduleResource {
     public Response addImportSchedule(FileImportScheduleInfo info) {
         ImportScheduleBuilder builder = fileImportService.newBuilder()
                 .setName(info.name)
-                .setDestination(info.destinationName)
+                .setDestination(fileImportService.getImportFactory(info.importerInfo.name).get().getDestinationName())
+                .setPathMatcher(info.pathMatcher)
                 .setImportDirectory(new File(info.importDirectory))
                 .setFailureDirectory(new File(info.failureDirectory))
                 .setSuccessDirectory(new File(info.successDirectory))
                 .setProcessingDirectory(new File(info.inProcessDirectory))
                 .setImportDirectory(new File(info.importDirectory))
                 .setImporterName(info.importerInfo.name)
-                .setCronExpression(ScanFrequency.fromFrequency(info.scanFrequency,cronExpressionParser));
+                .setScheduleExpression(ScanFrequency.fromFrequency(info.scanFrequency, cronExpressionParser));
+                //.setScheduleExpression(getScheduleExpression(info));
+                //.setCronExpression(ScanFrequency.fromFrequency(info.scanFrequency,cronExpressionParser));
 
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
@@ -138,14 +145,16 @@ public class FileImportScheduleResource {
 
         try (TransactionContext context = transactionService.getContext()) {
             importSchedule.setName(info.name);
-            importSchedule.setDestination(info.destinationName);
+            importSchedule.setActive(info.active);
+            importSchedule.setDestination(fileImportService.getImportFactory(info.importerInfo.name).get().getDestinationName());
             importSchedule.setImportDirectory(new File(info.importDirectory));
             importSchedule.setFailureDirectory(new File(info.failureDirectory));
             importSchedule.setSuccessDirectory(new File(info.successDirectory));
             importSchedule.setProcessingDirectory(new File(info.inProcessDirectory));
             importSchedule.setImporterName(info.importerInfo.name);
             importSchedule.setPathMatcher(info.pathMatcher);
-            importSchedule.setCronExpression(ScanFrequency.fromFrequency(info.scanFrequency, cronExpressionParser));
+            //importSchedule.setScheduleExpression(getScheduleExpression(info));
+            importSchedule.setScheduleExpression(ScanFrequency.fromFrequency(info.scanFrequency, cronExpressionParser));
 
             updateProperties(info, importSchedule);
 
@@ -154,6 +163,23 @@ public class FileImportScheduleResource {
         }
         return Response.status(Response.Status.CREATED).entity(new FileImportScheduleInfo(importSchedule, thesaurus)).build();
     }
+
+    /*private ScheduleExpression getScheduleExpression(FileImportScheduleInfo info) {
+        if(info.schedule == null){
+            info.schedule = new PeriodicalExpressionInfo();
+            info.schedule.offsetSeconds = 0;
+            info.schedule.offsetMinutes = 0;
+            info.schedule.offsetHours = 0;
+            info.schedule.offsetDays = 0;
+            info.schedule.offsetMonths = 0;
+            info.schedule.lastDayOfMonth = false;
+            info.schedule.dayOfWeek = null;
+            info.schedule.count = info.scanFrequency;
+            info.schedule.timeUnit = PeriodicalScheduleExpression.Period.MINUTE.getIdentifier();
+        }
+        return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
+    }*/
+
     private void updateProperties(FileImportScheduleInfo info, ImportSchedule importSchedule) {
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
         PropertyUtils propertyUtils = new PropertyUtils();

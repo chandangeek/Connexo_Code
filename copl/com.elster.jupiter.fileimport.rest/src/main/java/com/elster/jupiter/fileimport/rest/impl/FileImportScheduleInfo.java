@@ -3,6 +3,11 @@ package com.elster.jupiter.fileimport.rest.impl;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +18,7 @@ import java.util.List;
  */
 public class FileImportScheduleInfo {
 
-    public int id;
+    public long id;
     public String name;
     public Boolean active;
     public String destinationName;
@@ -26,6 +31,7 @@ public class FileImportScheduleInfo {
     public Integer scanFrequency;
     public String application;
     public FileImporterInfo importerInfo;
+    public PeriodicalExpressionInfo schedule;
     public List<PropertyInfo> properties = new ArrayList<>();
 
     public FileImportScheduleInfo(){
@@ -33,6 +39,7 @@ public class FileImportScheduleInfo {
     }
     public FileImportScheduleInfo(ImportSchedule importSchedule, Thesaurus thesaurus) {
 
+        id = importSchedule.getId();
         active = importSchedule.isActive();
         name = importSchedule.getName();
         destinationName = importSchedule.getDestination().getName();
@@ -46,7 +53,24 @@ public class FileImportScheduleInfo {
 
         importerInfo = new FileImporterInfo(importerName,
                 thesaurus.getStringBeyondComponent(importerName, importerName), Collections.<PropertyInfo>emptyList() );
-        scanFrequency = ScanFrequency.toScanFrequency(importSchedule.getCronExpression());
+        scanFrequency = ScanFrequency.toScanFrequency(importSchedule.getScheduleExpression());
+
+        if (Never.NEVER.equals(importSchedule.getScheduleExpression())) {
+            schedule = null;
+        } else {
+            ScheduleExpression scheduleExpression = importSchedule.getScheduleExpression();
+            if (scheduleExpression instanceof TemporalExpression) {
+                schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+                scanFrequency = schedule.count;
+            } else if (scheduleExpression instanceof PeriodicalScheduleExpression) {
+                schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
+                scanFrequency = schedule.count;
+            }
+            else{
+                scanFrequency = ScanFrequency.toScanFrequency(scheduleExpression);
+            }
+        }
+
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
 
     }

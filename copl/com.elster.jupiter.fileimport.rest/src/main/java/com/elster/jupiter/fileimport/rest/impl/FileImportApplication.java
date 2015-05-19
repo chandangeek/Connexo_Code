@@ -5,8 +5,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.google.common.collect.ImmutableSet;
@@ -33,7 +32,10 @@ public class FileImportApplication extends Application implements InstallService
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 FileImportersResource.class,
-                FileImportScheduleResource.class);
+                FileImportScheduleResource.class,
+                ConstraintViolationExceptionMapper.class,
+                JsonMappingExceptionMapper.class,
+                LocalizedExceptionMapper.class);
     }
 
     @Reference
