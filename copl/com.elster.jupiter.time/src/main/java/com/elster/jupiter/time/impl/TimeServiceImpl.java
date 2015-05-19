@@ -154,7 +154,7 @@ public class TimeServiceImpl implements TimeService, InstallService {
 
     @Override
     public RelativePeriod getAllRelativePeriod() {
-        return new AllRelativePeriod();
+        return AllRelativePeriod.INSTANCE;
     }
 
     @Reference

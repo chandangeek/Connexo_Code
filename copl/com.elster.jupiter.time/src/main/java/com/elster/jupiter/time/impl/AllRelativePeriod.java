@@ -12,7 +12,9 @@ import java.util.List;
 /**
  * Created by igh on 1/04/2015.
  */
-public class AllRelativePeriod implements RelativePeriod {
+public enum AllRelativePeriod implements RelativePeriod {
+
+    INSTANCE;
 
     @Override
     public String getName() {
