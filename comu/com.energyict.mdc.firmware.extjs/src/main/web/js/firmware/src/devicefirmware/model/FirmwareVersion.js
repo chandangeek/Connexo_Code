@@ -7,6 +7,7 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
         {name: 'firmwareComTaskSessionId', type: 'number', useNull: true},
         {name: 'firmwareVersion', type: 'string', useNull: true},
         {name: 'plannedDate', type: 'date', dateFormat: 'time', useNull: true},
+        {name: 'plannedActivationDate', type: 'date', dateFormat: 'time', useNull: true, persist: false},
         {name: 'lastCheckedDate', type: 'date', dateFormat: 'time', useNull: true},
         {name: 'uploadStartDate', type: 'date', dateFormat: 'time', useNull: true},
         {
@@ -18,11 +19,11 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
             }
         },
         {
-            name: 'upgradeOption',
+            name: 'managementOption',
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.firmwareUpgradeOption ? data.firmwareUpgradeOption.localizedValue : '';
+                return data.firmwareUpgradeOption ? data.firmwareManagementOption.localizedValue : '';
             }
         }
     ],
@@ -52,8 +53,8 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
         {
             type: 'hasOne',
             model: 'Fwc.devicefirmware.model.FirmwareUpgradeOption',
-            name: 'firmwareUpgradeOption',
-            associationKey: 'firmwareUpgradeOption'
+            name: 'firmwareManagementOption',
+            associationKey: 'firmwareManagementOption'
         }
     ]
 });

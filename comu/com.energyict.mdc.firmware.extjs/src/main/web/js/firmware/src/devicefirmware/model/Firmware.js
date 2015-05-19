@@ -71,6 +71,62 @@ Ext.define('Fwc.devicefirmware.model.Firmware', {
             associatedName: 'needVerificationVersion',
             associationKey: 'needVerificationVersion',
             getterName: 'getVerificationVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'failedVerificationVersion',
+            associatedName: 'failedVerificationVersion',
+            associationKey: 'failedVerificationVersion',
+            getterName: 'getFailedVerificationVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'wrongVerificationVersion',
+            associatedName: 'wrongVerificationVersion',
+            associationKey: 'wrongVerificationVersion',
+            getterName: 'getWrongVerificationVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'needActivationVersion',
+            associatedName: 'needActivationVersion',
+            associationKey: 'needActivationVersion',
+            getterName: 'getNeedActivationVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'ongoingActivatingVersion',
+            associatedName: 'ongoingActivatingVersion',
+            associationKey: 'ongoingActivatingVersion',
+            getterName: 'getOngoingActivatingVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'failedActivatingVersion',
+            associatedName: 'failedActivatingVersion',
+            associationKey: 'failedActivatingVersion',
+            getterName: 'getFailedActivatingVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'activatingVersion',
+            associatedName: 'activatingVersion',
+            associationKey: 'activatingVersion',
+            getterName: 'getActivatingVersion'
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.devicefirmware.model.FirmwareVersion',
+            name: 'ongoingVerificationVersion',
+            associatedName: 'ongoingVerificationVersion',
+            associationKey: 'ongoingVerificationVersion',
+            getterName: 'getOngoingVerificationVersion'
         }
     ],
 
