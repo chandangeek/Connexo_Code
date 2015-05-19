@@ -43,7 +43,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +51,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.estimators.impl.EqualDistribution.ADVANCE_READINGS_SETTINGS;
 import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.cmpEq;
 import static org.mockito.Mockito.*;
@@ -101,15 +101,16 @@ public class EqualDistributionTest {
     private ReadingQualityRecord suspect1, suspect2, suspect3, suspect4;
     @Mock
     private MeteringService meteringService;
+    private ReadingQualityType readingQualityType;
 
     @Before
     public void setUp() {
-        doReturn(Arrays.asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
+        doReturn(asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
         doReturn(meterActivation).when(channel).getMeterActivation();
         doReturn(Optional.empty()).when(meterActivation).getMeter();
-        doReturn(Arrays.asList(channel, otherChannel)).when(meterActivation).getChannels();
-        doReturn(Arrays.asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
+        doReturn(asList(channel, otherChannel)).when(meterActivation).getChannels();
+        doReturn(asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
         doReturn(Collections.singletonList(advanceReadingType)).when(otherChannel).getReadingTypes();
         doReturn(Optional.of(bulkCimChannel)).when(channel).getCimChannel(bulkReadingType);
         doReturn(Optional.of(deltaCimChannel)).when(channel).getCimChannel(deltaReadingType);
@@ -146,7 +147,7 @@ public class EqualDistributionTest {
         doReturn(BigDecimal.valueOf(54897, 3)).when(intervalReadingRecord2).getValue();
 
         // for advance reading based tests
-        doReturn(Arrays.asList(deltaReading0, deltaReading1, deltaReading2, deltaReading3, deltaReading4, deltaReading7, deltaReading8, deltaReading9, deltaReading10)).when(deltaCimChannel).getReadings(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
+        doReturn(asList(deltaReading0, deltaReading1, deltaReading2, deltaReading3, deltaReading4, deltaReading7, deltaReading8, deltaReading9, deltaReading10)).when(deltaCimChannel).getReadings(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
         doReturn(BigDecimal.valueOf(5)).when(deltaReading0).getValue();
         doReturn(BigDecimal.valueOf(6)).when(deltaReading1).getValue();
         doReturn(BigDecimal.valueOf(2)).when(deltaReading2).getValue();
@@ -171,7 +172,7 @@ public class EqualDistributionTest {
         doReturn(ADVANCE_BEFORE.toInstant()).when(advanceReadingRecord1).getTimeStamp();
         doReturn(ADVANCE_AFTER.toInstant()).when(advanceReadingRecord2).getTimeStamp();
         doReturn(BigDecimal.valueOf(18957, 3)).when(advanceReadingRecord2).getValue();
-        doReturn(Arrays.asList(suspect1, suspect2, suspect3)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
+        doReturn(asList(suspect1, suspect2, suspect3)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
         doReturn(Collections.emptyList()).when(advanceCimChannel).findReadingQuality(ADVANCE_BEFORE.toInstant());
         doReturn(Collections.emptyList()).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
         doReturn(true).when(suspect1).isSuspect();
@@ -181,7 +182,7 @@ public class EqualDistributionTest {
         doReturn(ESTIMATABLE2.toInstant()).when(suspect2).getReadingTimestamp();
         doReturn(ESTIMATABLE3.toInstant()).when(suspect3).getReadingTimestamp();
         doReturn(advanceReadingType).when(advanceCimChannel).getReadingType();
-        doReturn(Arrays.asList(BEFORE_MINUS_3.toInstant(), BEFORE_MINUS_2.toInstant(), BEFORE_MINUS_1.toInstant(), BEFORE.toInstant(),
+        doReturn(asList(BEFORE_MINUS_3.toInstant(), BEFORE_MINUS_2.toInstant(), BEFORE_MINUS_1.toInstant(), BEFORE.toInstant(),
                 ESTIMATABLE1.toInstant(), ESTIMATABLE2.toInstant(), ESTIMATABLE3.toInstant(), AFTER.toInstant(), AFTER_PLUS_1.toInstant(),
                 AFTER_PLUS_2.toInstant())).when(deltaCimChannel).toList(Range.closed(ADVANCE_BEFORE.toInstant(), ADVANCE_AFTER.toInstant()));
         doReturn(AFTER_PLUS_3.toInstant()).when(deltaCimChannel).getNextDateTime(AFTER_PLUS_2.toInstant());
@@ -209,7 +210,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
         assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
@@ -230,7 +231,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
         assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
@@ -252,7 +253,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -260,7 +261,7 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenASecondGapOccursBetweenAdvanceReadings() {
-        doReturn(Arrays.asList(suspect1, suspect2, suspect3, suspect4)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
+        doReturn(asList(suspect1, suspect2, suspect3, suspect4)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
         doReturn(true).when(suspect4).isSuspect();
         doReturn(AFTER_PLUS_2.toInstant()).when(suspect4).getReadingTimestamp();
 
@@ -271,7 +272,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -279,9 +280,10 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenAdvanceReadingIsSuspect() {
-        doReturn(Arrays.asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
         doReturn(true).when(suspect4).isSuspect();
         doReturn(ADVANCE_AFTER.toInstant()).when(suspect4).getReadingTimestamp();
+        doReturn(true).when(suspect4).isActual();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
@@ -290,17 +292,18 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
     }
 
     @Test
-    public void testEqualDistributionDoesNotEstimateWhenAdvanceReadingIsEstimation() {
-        doReturn(Arrays.asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_BEFORE.toInstant());
-        doReturn(true).when(suspect4).hasEstimatedCategory();
-        doReturn(ADVANCE_BEFORE.toInstant()).when(suspect4).getReadingTimestamp();
+    public void testEqualDistributionDoesNotEstimateWhenPriorAdvanceReadingHasOverflowFlag() {
+        readingQualityType = ReadingQualityType.of(QualityCodeSystem.ENDDEVICE, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_BEFORE.toInstant());
+        doReturn(readingQualityType).when(suspect4).getType();
+        doReturn(true).when(suspect4).isActual();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
@@ -309,7 +312,67 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+    }
+
+    @Test
+    public void testEqualDistributionDoesNotEstimateWhenLaterAdvanceReadingHasOverflowFlag() {
+        readingQualityType = ReadingQualityType.of(QualityCodeSystem.ENDDEVICE, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
+        doReturn(readingQualityType).when(suspect4).getType();
+        doReturn(true).when(suspect4).isActual();
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
+        estimator.init(Logger.getAnonymousLogger());
+
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+    }
+
+    @Test
+    public void testEqualDistributionDoesNotEstimateWhenLaterAdvanceReadingHasNonActualOverflowFlag() {
+        readingQualityType = ReadingQualityType.of(QualityCodeSystem.ENDDEVICE, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
+        doReturn(false).when(suspect4).isActual();
+        doReturn(readingQualityType).when(suspect4).getType();
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
+        estimator.init(Logger.getAnonymousLogger());
+
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
+
+        assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
+        assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
+    }
+
+    @Test
+    public void testEqualDistributionDoesNotEstimateWhenAdvanceReadingIsEstimation() {
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_BEFORE.toInstant());
+        doReturn(true).when(suspect4).hasEstimatedCategory();
+        doReturn(ADVANCE_BEFORE.toInstant()).when(suspect4).getReadingTimestamp();
+        doReturn(true).when(suspect4).isActual();
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+        properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
+        estimator.init(Logger.getAnonymousLogger());
+
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -317,7 +380,7 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenConsumptionReadingIsEstimation() {
-        doReturn(Arrays.asList(suspect1, suspect2, suspect3, suspect4)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
+        doReturn(asList(suspect1, suspect2, suspect3, suspect4)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
         doReturn(true).when(suspect4).hasEstimatedCategory();
         doReturn(AFTER_PLUS_2.toInstant()).when(suspect4).getReadingTimestamp();
 
@@ -328,7 +391,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -345,7 +408,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -363,7 +426,85 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+
+    }
+
+    @Test
+    public void testEqualDistributionDoesNotEstimateWhenBeforeBulkReadingHasOverflowFlag() {
+        doReturn(ProfileStatus.of(ProfileStatus.Flag.OVERFLOW)).when(intervalReadingRecord1).getProfileStatus();
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
+        estimator.init(Logger.getAnonymousLogger());
+
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+
+    }
+
+    @Test
+    public void testEqualDistributionDoesNotEstimateWhenBeforeBulkReadingHasOverflowReadingQuality() {
+        readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
+        doReturn(asList(suspect1)).when(bulkCimChannel).findReadingQuality(ESTIMATABLE1.toInstant());
+        doReturn(true).when(suspect1).isActual();
+        doReturn(readingQualityType).when(suspect1).getType();
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
+        estimator.init(Logger.getAnonymousLogger());
+
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+
+    }
+
+    @Test
+    public void testEqualDistributionDoesNotEstimateWhenAfterBulkReadingHasOverflowReadingQuality() {
+        readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
+        doReturn(asList(suspect1)).when(bulkCimChannel).findReadingQuality(ESTIMATABLE3.toInstant());
+        doReturn(true).when(suspect1).isActual();
+        doReturn(readingQualityType).when(suspect1).getType();
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
+        estimator.init(Logger.getAnonymousLogger());
+
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+
+    }
+
+    @Test
+    public void testEqualDistributionDoesNotEstimateWhenAfterBulkReadingHasOverflowFlag() {
+        doReturn(ProfileStatus.of(ProfileStatus.Flag.OVERFLOW)).when(intervalReadingRecord2).getProfileStatus();
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
+        estimator.init(Logger.getAnonymousLogger());
+
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -381,7 +522,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -399,7 +540,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -417,7 +558,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -434,7 +575,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -453,7 +594,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -472,7 +613,7 @@ public class EqualDistributionTest {
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
         estimator.init(Logger.getAnonymousLogger());
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
