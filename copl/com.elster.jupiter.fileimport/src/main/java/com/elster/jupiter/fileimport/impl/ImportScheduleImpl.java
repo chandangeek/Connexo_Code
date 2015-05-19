@@ -215,6 +215,7 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.scheduleExpression = scheduleExpression;
+        this.cronString = scheduleExpression.encoded();
     }
 
     @Override
