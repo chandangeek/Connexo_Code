@@ -38,9 +38,10 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     if (item.action === 'run' || item.action === 'runnow') {
                         this.doRun(item.record, item.action);
                     } else {
+                        var firmwareType = menu.record.getAssociatedData().firmwareType.id;
                         this.getController('Uni.controller.history.Router')
                             .getRoute('devices/device/firmware/upload')
-                            .forward(null, {action: item.action});
+                            .forward(null, {action: item.action ,firmwareType: firmwareType});
                     }
                 }
             },
@@ -268,6 +269,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 messageSpecModel.getProxy().setUrl(mRID);
+                messageSpecModel.getProxy().extraParams.firmwareType = router.queryParams.firmwareType;
                 messageSpecModel.load(action, {
                     success: function (record) {
                         var widget = Ext.widget('device-firmware-upload', {

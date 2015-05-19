@@ -19,11 +19,11 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
             }
         },
         {
-            name: 'upgradeOption',
+            name: 'managementOption',
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.firmwareUpgradeOption ? data.firmwareUpgradeOption.localizedValue : '';
+                return data.firmwareUpgradeOption ? data.firmwareManagementOption.localizedValue : '';
             }
         }
     ],
@@ -53,8 +53,8 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
         {
             type: 'hasOne',
             model: 'Fwc.devicefirmware.model.FirmwareUpgradeOption',
-            name: 'firmwareUpgradeOption',
-            associationKey: 'firmwareUpgradeOption'
+            name: 'firmwareManagementOption',
+            associationKey: 'firmwareManagementOption'
         }
     ]
 });

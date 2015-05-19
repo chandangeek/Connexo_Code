@@ -209,7 +209,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         }
 
         if (status) {
-            upgradeOption = record.getAssociatedData().firmwareUpgradeOption;
+            upgradeOption = record.getAssociatedData().firmwareManagementOption;
         }
 
         me.title = me.record.get('type');
@@ -222,6 +222,8 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         formPending = me.down('#message-pending');
         formFailed = me.down('#message-failed');
         formOngoing = me.down('#message-ongoing');
+
+        me.getHeader().items[0].menu.record = me.record;
 
         if (status === 'pendingVersion') {
             formPending.record = record;
