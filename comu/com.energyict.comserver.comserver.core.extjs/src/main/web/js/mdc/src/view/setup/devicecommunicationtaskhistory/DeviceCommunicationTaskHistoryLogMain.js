@@ -7,13 +7,14 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTaskLogFilter',
         'Uni.form.field.Duration'
     ],
 
     initComponent: function () {
         var me = this;
 
-        this.side = [
+        me.side = [
             {
                 xtype: 'panel',
                 ui: 'medium',
@@ -26,13 +27,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
 
                     }
                 ]
-            },
-            {
-                xtype: 'deviceCommunicationTaskHistorySideFilter'
             }
         ];
 
-        this.content = [
+        me.content = [
             {
                 ui: 'large',
                 xtype: 'panel',
@@ -51,7 +49,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 xtype: 'container',
                                 layout: {
                                     type: 'column'
-//                        align: 'stretch'
                                 },
                                 items: [
                                     {
@@ -127,15 +124,14 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                         ]
                     },
                     {
-                        xtype: 'filter-top-panel',
-                        itemId: 'deviceCommunicationTaskLogFilterTopPanel'
+                        xtype: 'mdc-view-setup-devicecommunicationtaskhistory-communicationlogfilter'
                     },
                     {
                         xtype: 'preview-container',
                         itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceCommunicationTaskHistoryLogGrid',
-                            mrid: this.mrid
+                            mrid: me.mrid
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -143,7 +139,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                             reasons: [
                                 Uni.I18n.translate('devicecommunicationtaskhistory.empty.list.item1', 'MDC', 'The communication failed before communication logs could be created'),
                                 Uni.I18n.translate('devicecommunicationtaskhistory.empty.list.item2', 'MDC', 'The filter is too narrow')
-                            ]
+                            ],
+                            margin: '16 0 0 0'
                         },
                         previewComponent: {
                             xtype: 'deviceCommunicationTaskHistoryLogPreview'
@@ -153,6 +150,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });
