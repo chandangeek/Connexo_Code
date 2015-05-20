@@ -290,26 +290,6 @@ public class AverageWithSamplesEstimatorTest {
     }
 
     @Test
-    public void testEstimateFailUsingBulkToScaleSinceBlockSizeIs1() {
-        Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
-                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
-                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
-                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
-                .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
-
-        estimator.init();
-
-        EstimationResult result = estimator.estimate(asList(block));
-
-        assertThat(result.estimated()).isEmpty();
-        assertThat(result.remainingToBeEstimated()).containsExactly(block);
-    }
-
-    @Test
     public void testEstimateSuccessUsingBulkToScale() {
         doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
         BaseReadingRecord preBulkReading = mock(BaseReadingRecord.class);
