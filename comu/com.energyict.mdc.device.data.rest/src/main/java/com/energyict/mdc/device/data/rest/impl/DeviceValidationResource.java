@@ -10,7 +10,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.PagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -231,9 +231,10 @@ public class DeviceValidationResource {
         DeviceValidation deviceValidation = device.forValidation();
         DeviceValidationStatusInfo deviceValidationStatusInfo =
                 new DeviceValidationStatusInfo(
-                        deviceValidation.isValidationActive(),
-                        deviceValidation.getLastChecked(),
-                        device.hasData());
+                deviceValidation.isValidationActive(),
+                deviceValidation.isValidationOnStorage(),
+                deviceValidation.getLastChecked(),
+                device.hasData());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
@@ -298,7 +299,12 @@ public class DeviceValidationResource {
                 if (deviceValidationStatusInfo.lastChecked == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
                 }
-                device.forValidation().activateValidation(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
+                if(deviceValidationStatusInfo.isStorage){
+                    device.forValidation().activateValidationOnStorage(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
+                }
+                else{
+                    device.forValidation().activateValidation(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
+                }
             }
             else {
                 device.forValidation().deactivateValidation();

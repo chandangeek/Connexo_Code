@@ -228,10 +228,8 @@ public class DeviceComTaskInfoFactory {
 
         deviceComTasksInfo.urgency = comTaskEnablement.getPriority();
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
-        if(comTaskEnablement.getProtocolDialectConfigurationProperties().isPresent()){
-            ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties().get();
-            deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
-        }
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
+        deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
         return deviceComTasksInfo;
     }
 
