@@ -87,6 +87,15 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
             mapping: function (data) {
                 return data.ruleSet.id;
             }
+        },
+		'numberOfInactiveRules',
+        'numberOfRules',
+        {
+            name: 'activeRules',
+            persist: false,
+            mapping: function (data) {
+               return data.numberOfRules - data.numberOfInactiveRules;
+            }
         }
     ],
 

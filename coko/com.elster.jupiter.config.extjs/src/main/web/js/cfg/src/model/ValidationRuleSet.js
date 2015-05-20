@@ -4,15 +4,35 @@ Ext.define('Cfg.model.ValidationRuleSet', {
         'id',
         'name',
         'description',
-        'numberOfInactiveRules',
-        'numberOfRules',
-        {
-            name: 'active_rules',
+		'numberOfVersions',
+		{			
+			name: 'activeVersion',
             persist: false,
             mapping: function (data) {
-               return data.numberOfRules - data.numberOfInactiveRules;
+                var result, startDate, endDate;
+				
+				if (data.numberOfVersions == 0){
+					result = Uni.I18n.translate('validation.version.noVersion', 'CFG', '-')
+				}
+				else {
+					startDate = data.startDate;
+					endDate = data.endDate;
+					if (startDate && endDate) {
+						result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
+						Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
+					} else if (data.startDate) {
+						result = Uni.I18n.translate('validation.version.from', 'CFG', 'From') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(startDate));
+					} else if (data.endDate) {
+						result = Uni.I18n.translate('validation.version.until', 'CFG', 'Until') + ' ' + Uni.DateTime.formatDateTimeLong(new Date(endDate));
+					}else {
+						result = Uni.I18n.translate('validation.version.notStart', 'CFG', 'Always')
+					}
+				}
+
+                return result;
             }
-        }
+
+		}       
     ],
 
     proxy: {

@@ -69,6 +69,17 @@ Ext.define('Cfg.model.ValidationTask', {
             }
         },
 		{
+            name: 'trigger',
+            persist: false,
+            mapping: function (data) {
+                if (data.lastValidationOccurence && data.lastValidationOccurence.trigger) {
+                    return data.lastValidationOccurence.trigger;
+                } else {
+                    return '-'
+                }
+            }
+        },
+		{
             name: 'startedOn',
             persist: false,
             mapping: function (data) {

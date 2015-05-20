@@ -44,21 +44,14 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                                     labelAlign: 'right',
                                     labelWidth: 250
                                 },
-                                {
+								{
                                     xtype: 'displayfield',
-                                    itemId: 'activeRules',
-                                    name: 'active_rules',
-                                    fieldLabel: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+                                    itemId: 'activeVersion',
+                                    name: 'activeVersion',
+                                    fieldLabel: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
                                     labelAlign: 'right',
                                     labelWidth: 250
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'numberOfInactiveRules',
-                                    fieldLabel: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
-                                    labelAlign: 'right',
-                                    labelWidth: 250
-                                }
+                                }								
                             ]
                         }
                     ]

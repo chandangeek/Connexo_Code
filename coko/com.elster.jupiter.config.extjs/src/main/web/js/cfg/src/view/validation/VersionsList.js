@@ -20,25 +20,44 @@ Ext.define('Cfg.view.validation.VersionsList', {
             {
                 header: Uni.I18n.translate('validation.period', 'CFG', 'Period'),
                 dataIndex: 'versionName',
-                flex: 0.3,
+                flex: 3,				
                 sortable: false,
                 fixed: true,
                 renderer: function (value, metaData, record) {
                     metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
-                    return value;
-                    //return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>'
+                    return value;                    
                 }
             },         
             {
                 header: Uni.I18n.translate('validation.versionDescription', 'CFG', 'Description'),
                 dataIndex: 'description',
-                flex: 0.3,
+                flex: 3,
                 align: 'left',
                 sortable: false,
                 fixed: true
-            },
+            },			
+			{
+                header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+                dataIndex: 'numberOfRules',
+                flex: 1,
+                align: 'left',
+                sortable: false,
+                fixed: true,
+                renderer: function (value, b, record) {
+                    var numberOfActiveRules = record.get('numberOfRules') - record.get('numberOfInactiveRules');
+                    return numberOfActiveRules;
+                }
+            },			
+			{
+                header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+                dataIndex: 'numberOfInactiveRules',
+                flex: 1,
+                align: 'left',
+                sortable: false,
+                fixed: true
+            },	
             {
-                xtype: 'uni-actioncolumn',
+                xtype: 'uni-actioncolumn',				
                 privileges: Cfg.privileges.Validation.admin,
                 menu: {
                     itemId: 'ruleSetVersionsGridMenu',
