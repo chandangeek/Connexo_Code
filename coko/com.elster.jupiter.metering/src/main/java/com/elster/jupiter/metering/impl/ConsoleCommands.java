@@ -27,7 +27,7 @@ import org.osgi.service.component.annotations.Reference;
 }, immediate = true)
 public class ConsoleCommands {
 
-    private volatile MeteringService meteringService;
+    private volatile ServerMeteringService meteringService;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -87,9 +87,9 @@ public class ConsoleCommands {
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
+    public void setMeteringService(ServerMeteringService meteringService) {
         this.meteringService = meteringService;
-        this.dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
+        this.dataModel = meteringService.getDataModel();
     }
 
     @Reference

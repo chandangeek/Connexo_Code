@@ -38,7 +38,6 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -102,13 +101,10 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 new FiniteStateMachineModule(),
                 new NlsModule());
         when(principal.getName()).thenReturn("Test");
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(FiniteStateMachineService.class);
-                injector.getInstance(MeteringService.class);
-                return null;
-            }
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringService.class);
+            return null;
         });
     }
 
@@ -119,7 +115,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
 
     @Test
     public void testPersist() throws SQLException {
-    	final MeteringServiceImpl meteringService = (MeteringServiceImpl) injector.getInstance(MeteringService.class);
+    	final ServerMeteringService meteringService = getMeteringService();
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -132,14 +128,13 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
 
     }
 
-    private MeteringService getMeteringService() {
-        return injector.getInstance(MeteringService.class);
+    private ServerMeteringService getMeteringService() {
+        return injector.getInstance(ServerMeteringService.class);
     }
 
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-
 
     @Override
     protected boolean canBeSubclassed() {

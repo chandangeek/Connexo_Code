@@ -144,7 +144,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             protected void doPerform() {
                 when(subscriber.getClasses()).thenReturn(new Class[]{LocalEventImpl.class});
                 ((PublisherImpl) injector.getInstance(Publisher.class)).addHandler(subscriber);
-                MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
+                ServerMeteringService meteringService = getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
                 Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
@@ -177,7 +177,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
+                ServerMeteringService meteringService = getMeteringService();
                 DataModel dataModel = meteringService.getDataModel();
                 Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
@@ -199,14 +199,13 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
     }
 
-    private MeteringService getMeteringService() {
-        return injector.getInstance(MeteringService.class);
+    private ServerMeteringService getMeteringService() {
+        return injector.getInstance(ServerMeteringService.class);
     }
 
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-
 
     @Override
     protected boolean canBeSubclassed() {

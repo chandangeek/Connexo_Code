@@ -135,8 +135,8 @@ public class UsagePointDetailImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
+            ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
+            DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
             usagePoint.save();
@@ -196,8 +196,8 @@ public class UsagePointDetailImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
-            MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
+            ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
+            DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS).get();
             UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
             usagePoint.save();

@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
@@ -15,12 +14,10 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
@@ -35,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -179,6 +175,19 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         this.touch();
     }
 
+    @Override
+    public void changeStateMachine(FiniteStateMachine newStateMachine, Instant effective) {
+        this.stateMachine.set(newStateMachine);
+        String stateName = this.getState().orElseThrow(this::unmanagedStateException).getName();
+        this.closeCurrentState(effective);
+        this.createNewState(
+                effective,
+                newStateMachine
+                        .getState(stateName)
+                        .orElseThrow(() -> new StateNoLongerExistsException(stateName)));
+        this.touch();
+    }
+
     public void touch() {
         if (this.id != 0) {
             this.dataModel.touch(this);
@@ -192,8 +201,12 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
             }
         }
         else {
-            throw new UnsupportedOperationException("Changing the state of an EndDevice whose state is not managed is not possible");
+            throw unmanagedStateException();
         }
+    }
+
+    private UnsupportedOperationException unmanagedStateException() {
+        return new UnsupportedOperationException("Changing the state of an EndDevice whose state is not managed is not possible");
     }
 
     private void closeCurrentState(Instant now) {
@@ -457,4 +470,25 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         }
     }
 
+    /**
+     * Models the exceptional situation that occurs when an attempt
+     * is made to switch an EndDevice to a new {@link FiniteStateMachine}
+     * with the {@link State} in the new FiniteStateMachine
+     * with the same name as the current State does not exist.
+     * Since this was validated before, it must mean
+     * that the new FiniteStateMachine was modified since
+     * and that State was removed.
+     */
+    public static class StateNoLongerExistsException extends RuntimeException {
+        private final String stateName;
+
+        public StateNoLongerExistsException(String stateName) {
+            super();
+            this.stateName = stateName;
+        }
+
+        public String getStateName() {
+            return stateName;
+        }
+    }
 }

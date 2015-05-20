@@ -9,6 +9,9 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -45,6 +48,7 @@ public class InstallerImpl {
 
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final int SLOT_COUNT = 8;
     private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
     private static final String NOT_APPLICABLE = "n/a";
@@ -55,16 +59,18 @@ public class InstallerImpl {
     private final UserService userService;
     private final EventService eventService;
     private final Thesaurus thesaurus;
+    private final MessageService messageService;
     private final boolean createAllReadingTypes;
     private final String[] requiredReadingTypes;
 
-    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, boolean createAllReadingTypes, String[] requiredReadingTypes) {
+    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, boolean createAllReadingTypes, String[] requiredReadingTypes) {
         this.meteringService = meteringService;
         this.idsService = idsService;
         this.partyService = partyService;
         this.userService = userService;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
+        this.messageService = messageService;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes;
     }
@@ -80,6 +86,8 @@ public class InstallerImpl {
         createEndDeviceEventTypes();
         createEventTypes();
         createTranslations(serviceCategories);
+        createQueueTranslations();
+        createQueues();
     }
 
     private void createEventTypes() {
@@ -175,10 +183,10 @@ public class InstallerImpl {
         }
     }
 
-    private void createPartitions(Vault vault) {    	
+    private void createPartitions(Vault vault) {
     	Instant start = YearMonth.now().atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
     	vault.activate(start);
-    	vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));        
+    	vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
     }
 
     private void createRecordSpecs() {
@@ -263,6 +271,17 @@ public class InstallerImpl {
         thesaurus.addTranslations(translations);
     }
 
+    private void createQueueTranslations() {
+        this.thesaurus.addTranslations(
+                Arrays.asList(
+                        this.toTranslation(
+                                SimpleNlsKey.key(
+                                        MeteringService.COMPONENTNAME,
+                                        Layer.DOMAIN,
+                                        SwitchStateMachineEvent.SUBSCRIBER).defaultMessage(SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),
+                                Locale.ENGLISH, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION)));
+    }
+
     private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
         return new Translation() {
             @Override
@@ -280,6 +299,22 @@ public class InstallerImpl {
                 return translation;
             }
         };
+    }
+
+    private void createQueues() {
+        this.createQueue(SwitchStateMachineEvent.DESTINATION, SwitchStateMachineEvent.SUBSCRIBER);
+    }
+
+    private void createQueue(String queueDestination, String queueSubscriber) {
+        try {
+            QueueTableSpec defaultQueueTableSpec = this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            destinationSpec.activate();
+            destinationSpec.subscribe(queueSubscriber);
+        }
+        catch (Exception e) {
+            LOGGER.log(Level.WARNING, e.getMessage(), e);
+        }
     }
 
 }

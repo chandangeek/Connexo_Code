@@ -3,9 +3,10 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
@@ -38,7 +39,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -59,8 +60,10 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
-public class MeteringServiceImpl implements MeteringService, InstallService {
+import static com.elster.jupiter.util.conditions.Where.where;
+
+@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
+public class MeteringServiceImpl implements ServerMeteringService, InstallService {
 
     private volatile IdsService idsService;
     private volatile QueryService queryService;
@@ -70,7 +73,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     private volatile EventService eventService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
-    private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile MessageService messageService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -80,8 +83,9 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Inject
-    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, FiniteStateMachineService finiteStateMachineService,
-                               @Named("createReadingTypes") boolean createAllReadingTypes,@Named("requiredReadingTypes") String requiredReadingTypes) {
+    public MeteringServiceImpl(
+            Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService,
+            @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -92,7 +96,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         setQueryService(queryService);
         setUserService(userService);
         setNlsService(nlsService);
-        setFiniteStateMachineService(finiteStateMachineService);
+        setMessageService(messageService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -100,8 +104,8 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Reference
-    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
-        this.finiteStateMachineService = finiteStateMachineService;
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Override
@@ -121,7 +125,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, createAllReadingTypes, requiredReadingTypes).install();
+        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes).install();
     }
 
     @Override
@@ -300,6 +304,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
             protected void configure() {
                 bind(ChannelBuilder.class).to(ChannelBuilderImpl.class);
                 bind(MeteringService.class).toInstance(MeteringServiceImpl.this);
+                bind(ServerMeteringService.class).toInstance(MeteringServiceImpl.this);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(IdsService.class).toInstance(idsService);
@@ -324,9 +329,9 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Override
     public Condition hasAccountability(Instant when) {
         return
-                Where.where("accountabilities.interval").isEffective(when).and(
-                        Where.where("accountabilities.party.representations.interval").isEffective(when).and(
-                                Where.where("accountabilities.party.representations.delegate").
+                where("accountabilities.interval").isEffective(when).and(
+                        where("accountabilities.party.representations.interval").isEffective(when).and(
+                                where("accountabilities.party.representations.delegate").
                                         isEqualTo(dataModel.getPrincipal().getName())));
     }
 
@@ -371,7 +376,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Override
     public List<ReadingType> getAllReadingTypesWithoutInterval() {
-        Condition withoutIntervals = Where.where("mRID").matches("^0.[0-9]+.0", "");
+        Condition withoutIntervals = where("mRID").matches("^0.[0-9]+.0", "");
         return dataModel.mapper(ReadingType.class).select(withoutIntervals);
     }
 
@@ -380,7 +385,8 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         return dataModel.mapper(AmrSystem.class).getOptional(id);
     }
 
-    DataModel getDataModel() {
+    @Override
+    public DataModel getDataModel() {
         return dataModel;
     }
 
@@ -390,7 +396,8 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         return system;
     }
 
-    EndDeviceEventTypeImpl createEndDeviceEventType(String mRID) {
+    @Override
+    public EndDeviceEventTypeImpl createEndDeviceEventType(String mRID) {
         EndDeviceEventTypeImpl endDeviceEventType = dataModel.getInstance(EndDeviceEventTypeImpl.class).init(mRID);
         dataModel.persist(endDeviceEventType);
         return endDeviceEventType;
@@ -446,20 +453,30 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     List<Vault> registerVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
-                .map(vault -> Arrays.asList(vault))
+                .map(Arrays::asList)
                 .orElse(Collections.emptyList());
     }
 
     List<Vault> intervalVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.INTERVALVAULTID)
-                .map(vault -> Arrays.asList(vault))
+                .map(Arrays::asList)
                 .orElse(Collections.emptyList());
     }
 
     List<Vault> dailyVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.DAILYVAULTID)
-                .map(vault -> Arrays.asList(vault))
+                .map(Arrays::asList)
                 .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public void changeStateMachine(FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+        StateMachineSwitcher
+            .forValidation(this.clock, this.dataModel)
+            .validate(oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+        StateMachineSwitcher
+            .forPublishing(this.clock, this.dataModel, this.eventService)
+            .publishEvents(oldStateMachine, newStateMachine, deviceAmrIdSubquery);
     }
 
 }

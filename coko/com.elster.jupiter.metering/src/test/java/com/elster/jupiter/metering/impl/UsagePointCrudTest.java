@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.security.Principal;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +33,6 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -110,22 +106,21 @@ public class UsagePointCrudTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                Instant date = LocalDate.of(2001, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-                doTest(getMeteringService(), date);
+                doTest(getMeteringService());
             }
         });
     }
 
-    private MeteringService getMeteringService() {
-        return injector.getInstance(MeteringService.class);
+    private ServerMeteringService getMeteringService() {
+        return injector.getInstance(ServerMeteringService.class);
     }
 
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
 
-    private void doTest(MeteringService meteringService, Instant date) {
-        DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
+    private void doTest(ServerMeteringService meteringService) {
+        DataModel dataModel = meteringService.getDataModel();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
         usagePoint.save();
