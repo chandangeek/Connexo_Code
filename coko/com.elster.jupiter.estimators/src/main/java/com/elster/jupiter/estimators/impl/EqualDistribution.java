@@ -141,13 +141,23 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
 
 
     private boolean estimateUsingAdvances(EstimationBlock block, ReadingType readingType) {
+        Optional<CimChannel> advanceCimChannel = getAdvanceCimChannel(block, readingType);
+        if (!advanceCimChannel.isPresent()) {
+            String message = "Failed estimation with {rule}: Block {block} since the meter does not have readings for the reading type {0}";
+            LoggingContext.get().info(getLogger(), message, readingType.getMRID());
+            return false;
+        }
+        return advanceCimChannel
+                .map(cimChannel -> estimateUsingAdvances(block, cimChannel))
+                .orElse(false);
+    }
+
+    private Optional<CimChannel> getAdvanceCimChannel(EstimationBlock block, ReadingType readingType) {
         return block.getChannel().getMeterActivation().getChannels().stream()
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
                 .map(channel -> channel.getCimChannel(readingType))
                 .flatMap(Functions.asStream())
-                .findFirst()
-                .map(cimChannel -> estimateUsingAdvances(block, cimChannel))
-                .orElse(false);
+                .findFirst();
     }
 
     private boolean estimateUsingAdvances(EstimationBlock block, CimChannel advanceCimChannel) {

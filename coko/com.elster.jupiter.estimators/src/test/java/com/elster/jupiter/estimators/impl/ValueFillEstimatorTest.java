@@ -130,7 +130,7 @@ public class ValueFillEstimatorTest {
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule :")).atLevel(Level.INFO);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test(expected = LocalizedFieldValidationException.class)
