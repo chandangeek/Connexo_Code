@@ -8,11 +8,11 @@ import javax.ws.rs.QueryParam;
 /**
  * Created by bvn on 5/13/15.
  */
-public class FieldList {
+public class SelectedFields {
 
     private final List<String> split;
 
-    public FieldList(@QueryParam("fields") String fields) {
+    public SelectedFields(@QueryParam("fields") String fields) {
         split = fields!=null? Collections.unmodifiableList(Arrays.asList(fields.split(","))): Collections.emptyList();
     }
 
