@@ -73,8 +73,8 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam SelectedFields fields, @Context UriInfo uriInfo) {
         List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
-        UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceResource.class);
-        return Response.ok(PagedInfoList.from(infos, queryParameters, uri)).build();
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceResource.class);
+        return Response.ok(PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo)).build();
     }
 
     @POST

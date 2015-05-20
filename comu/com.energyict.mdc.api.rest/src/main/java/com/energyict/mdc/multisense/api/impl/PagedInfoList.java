@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -28,10 +29,15 @@ public class PagedInfoList {
      * @param queryParameters The original query parameters used for building the list that is being returned. This is required as it is used to page
      *                        the list of infos
      * @param uriBuilder Builder pointing to base URL for the paged resource. Template needs already to have been resolved with parameters. Additional URL (paging) parameters will be added
+     * @param uriInfo
      * @return A PagedInfoList that will be correctly serialized as JSON paging object
      */
-    public static PagedInfoList from(List<?> infos, QueryParameters queryParameters, UriBuilder uriBuilder) {
+    public static PagedInfoList from(List<?> infos, QueryParameters queryParameters, UriBuilder uriBuilder, UriInfo uriInfo) {
         PagedInfoList list = new PagedInfoList();
+        if (uriInfo.getQueryParameters().containsKey("fields")) {
+            uriBuilder.queryParam("fields", uriInfo.getQueryParameters().getFirst("fields"));
+        }
+
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             int limit = queryParameters.getLimit().get();
             int start = queryParameters.getStart().get();

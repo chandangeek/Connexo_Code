@@ -95,7 +95,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Test
     public void testJsonCallSinglePage() throws Exception {
 
-        Response response = target("/devicetypes").queryParam("start",0).queryParam("limit",10).request("application/h+json").get();
+        Response response = target("/devicetypes").queryParam("start",0).queryParam("limit",10).request("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<List>get("$.data")).hasSize(7);
         assertThat(model.<List>get("$.links")).hasSize(1);
@@ -105,7 +105,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Test
     public void testJsonCallMultiPage() throws Exception {
 
-        Response response = target("/devicetypes").queryParam("start",2).queryParam("limit",2).request("application/h+json").get();
+        Response response = target("/devicetypes").queryParam("start",2).queryParam("limit",2).request("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<List>get("$.data")).hasSize(2);
         assertThat(model.<List>get("$.links")).hasSize(3);
@@ -115,7 +115,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Test
     public void testHalJsonCallSingle() throws Exception {
 
-        Response response = target("/devicetypes/10").request("application/hal+json").get();
+        Response response = target("/devicetypes/10").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }
@@ -123,7 +123,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Test
     public void testHypermediaLinkJsonCallSingle() throws Exception {
 
-        Response response = target("/devices/XAS").request("application/h+json").get();
+        Response response = target("/devices/XAS").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }
@@ -131,7 +131,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Test
     public void testHypermediaLinkWithFieldsCallSingle() throws Exception {
 
-        Response response = target("/devices/XAS").queryParam("fields", "id,serialNumber").request("application/h+json").get();
+        Response response = target("/devices/XAS").queryParam("fields", "id,serialNumber").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }
@@ -140,7 +140,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
     @Ignore
     public void testLinkJsonCallSingleRegister() throws Exception {
 
-        Response response = target("/devices/XAS/registers/0").request("application/h+json").get();
+        Response response = target("/devices/XAS/registers/0").request("application/json").get();
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
 
     }
@@ -152,7 +152,7 @@ public class ApiTest extends DeviceDataPublicApiJerseyTest {
         Finder<DeviceType> finder = mockFinder(Arrays.asList(serial, serial2));
         when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
 
-        target("/devicetypes").queryParam("fields", "deviceConfigurations").request("application/h+json").get();
+        target("/devicetypes").queryParam("fields", "deviceConfigurations").request("application/json").get();
 
     }
 
