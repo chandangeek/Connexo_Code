@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Device;
@@ -7,19 +10,12 @@ import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
-
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.nls.Thesaurus;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceInfo {
     public long id;
     public String mRID;
