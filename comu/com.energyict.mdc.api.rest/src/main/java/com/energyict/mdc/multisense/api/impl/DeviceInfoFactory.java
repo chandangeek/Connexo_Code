@@ -1,17 +1,22 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.TopologyTimeline;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
@@ -23,6 +28,8 @@ import static java.util.stream.Collectors.toList;
  * Created by bvn on 4/30/15.
  */
 public class DeviceInfoFactory {
+
+    private static final int RECENTLY_ADDED_COUNT = 5;
 
     private final DeviceImportService deviceImportService;
     private final TopologyService topologyService;
@@ -79,6 +86,19 @@ public class DeviceInfoFactory {
                 }
             }
         });
+        map.put("slaveDevices", (deviceInfo, device, uriInfo) -> {
+            if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
+                TopologyTimeline timeline = topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT);
+                deviceInfo.slaveDevices = timeline.getAllDevices().stream()
+                        .sorted(new DeviceRecentlyAddedComparator(timeline))
+                        .map(slave -> newSlaveDeviceLinkInfo(slave, uriInfo))
+                        .collect(Collectors.toList());
+            } else {
+                deviceInfo.slaveDevices = topologyService.findPhysicalConnectedDevices(device).stream()
+                        .map(slave -> newSlaveDeviceLinkInfo(slave, uriInfo))
+                        .collect(Collectors.toList());
+            }
+        });
         map.put("logBooks", (deviceInfo, device, uriInfo) -> {
             deviceInfo.logBooks = new ArrayList<>();
             for (LogBook logBook : device.getLogBooks()) {
@@ -131,4 +151,36 @@ public class DeviceInfoFactory {
         return map;
     }
 
+    private LinkInfo newSlaveDeviceLinkInfo(Device device, Optional<UriInfo> uriInfo) {
+        LinkInfo linkInfo = new LinkInfo();
+        linkInfo.id = device.getId();
+        UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().
+                path(DeviceResource.class).
+                path(DeviceResource.class, "getDevice").
+                resolveTemplate("mrid", device.getmRID());
+        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("slave device").build();
+        return linkInfo;
+    }
+
+    private class DeviceRecentlyAddedComparator implements Comparator<Device>{
+        private TopologyTimeline timeline;
+
+        public DeviceRecentlyAddedComparator(TopologyTimeline timeline) {
+            this.timeline = timeline;
+        }
+
+        @Override
+        public int compare(Device d1, Device d2) {
+            Optional<Instant> d1AddTime = this.timeline.mostRecentlyAddedOn(d1);
+            Optional<Instant> d2AddTime = this.timeline.mostRecentlyAddedOn(d2);
+            if (d1AddTime.isPresent() && d2AddTime.isPresent()){
+                return d2AddTime.get().compareTo(d1AddTime.get());
+            } else if (d2AddTime.isPresent()){
+                return 1;
+            } else if (d1AddTime.isPresent()){
+                return -1;
+            }
+            return 0;
+        }
+    }
 }

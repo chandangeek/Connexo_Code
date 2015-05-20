@@ -2,12 +2,18 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
@@ -18,6 +24,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -40,18 +47,22 @@ public class DeviceResource {
 
     private final DeviceService deviceService;
     private final DeviceInfoFactory deviceInfoFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceImportService deviceImportService;
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceImportService deviceImportService) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceImportService = deviceImportService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{mrid}")
-    public Response getHypermediaDevice(@PathParam("mrid") String mRID, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+    public Response getDevice(@PathParam("mrid") String mRID, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
         DeviceInfo deviceInfo = deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
         return Response.ok(deviceInfo).build();
     }
@@ -59,7 +70,7 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getHypermediaDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
+    public Response getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldList fields, @Context UriInfo uriInfo) {
         List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceResource.class);
         return Response.ok(PagedInfoList.from(infos, queryParameters, uri)).build();
@@ -69,7 +80,37 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADD_DEVICE)
-    public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
+    public Response createDevice(DeviceInfo info, @Context UriInfo uriInfo, @BeanParam FieldList fields) {
+        Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
+        if (info.deviceConfiguration.id != null) {
+            deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfiguration.id);
+        }
+
+        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mIRD, info.mIRD);
+        newDevice.setSerialNumber(info.serialNumber);
+        newDevice.setYearOfCertification(info.yearOfCertification);
+        newDevice.save();
+
+        this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
+        URI uri = uriInfo.getBaseUriBuilder().
+                path(DeviceResource.class).
+                path(DeviceResource.class, "getDevice").
+                build(newDevice.getmRID());
+
+        return Response.created(uri).build();
+    }
+
+    @PUT//the method designed like 'PATCH'
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
+    public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
+        Device device = deviceService.findAndLockDeviceByIdAndVersion(id, info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+//        updateGateway(info, device);
+//        if (info.estimationStatus != null) {
+//            updateEstimationStatus(info.estimationStatus, device);
+//        }
         return null;
     }
 

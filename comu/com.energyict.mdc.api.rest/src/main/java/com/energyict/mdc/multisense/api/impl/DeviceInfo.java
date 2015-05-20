@@ -19,7 +19,6 @@ public class DeviceInfo extends LinkInfo {
     public Integer yearOfCertification;
     public String batch;
     public DeviceInfo masterDevice;
-    //    public List<DeviceTopologyInfo> slaveDevices;
     public Integer nbrOfDataCollectionIssues;
     @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
     public GatewayType gatewayType;
@@ -30,6 +29,7 @@ public class DeviceInfo extends LinkInfo {
     public List<LinkInfo> registers;
     public List<LinkInfo> logBooks;
     public List<LinkInfo> loadProfiles;
+    public List<LinkInfo> slaveDevices;
 
 
 
