@@ -1054,7 +1054,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else {
-            return propertySpec.toString();     //Works for BigDecimal, boolean and (hex)string propertyspecs
+            return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string propertyspecs
         }
     }
 }

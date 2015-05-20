@@ -424,7 +424,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
             TimeOfDay timeOfDay = (TimeOfDay) messageAttribute;
             return String.valueOf(timeOfDay.getHoursPart() + ":" + timeOfDay.getMinutesPart() + ":" + timeOfDay.getSeconds());
         } else {
-            return propertySpec.toString(); // The default fall-back option, works for (Hex)String, BigDecimal, Boolean, ...
+            return messageAttribute.toString(); // The default fall-back option, works for (Hex)String, BigDecimal, Boolean, ...
         }
     }
 }
