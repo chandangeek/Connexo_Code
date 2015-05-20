@@ -228,13 +228,6 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period, Logger logger) {
         EstimationReportImpl report = previewEstimate(meterActivation, period, logger);
-        report.getResults().values().stream()
-                .map(EstimationResult::remainingToBeEstimated)
-                .flatMap(Collection::stream)
-                .forEach(estimationBlock -> {
-                    String message = "Block {0} could not be estimated.";
-                    LoggingContext.get().warning(logger, message, EstimationBlockFormatter.getInstance().format(estimationBlock));
-                });
         estimationEngine.applyEstimations(report);
 
         long notEstimated = report.getResults().values().stream()
@@ -262,6 +255,14 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
             EstimationReport subReport = this.previewEstimate(meterActivation, period, readingType, logger);
             report.add(subReport);
         });
+
+        report.getResults().values().stream()
+                .map(EstimationResult::remainingToBeEstimated)
+                .flatMap(Collection::stream)
+                .forEach(estimationBlock -> {
+                    String message = "Block {0} could not be estimated.";
+                    LoggingContext.get().warning(logger, message, EstimationBlockFormatter.getInstance().format(estimationBlock));
+                });
 
         return report;
     }
@@ -292,7 +293,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                         estimator.init(logger);
                         EstimationResult estimationResult = result.get();
                         estimationResult.estimated().stream().forEach(block -> {
-                            loggingContext.info(logger, "Successful estimation with {rule}: block ", EstimationBlockFormatter.getInstance().format(block));
+                            loggingContext.info(logger, "Successful estimation with {rule}: block {0}", EstimationBlockFormatter.getInstance().format(block));
                             report.reportEstimated(readingType, block);
                         });
                         result.update(estimator.estimate(estimationResult.remainingToBeEstimated()));

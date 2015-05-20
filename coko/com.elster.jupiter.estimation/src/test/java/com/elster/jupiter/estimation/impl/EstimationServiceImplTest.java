@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -44,13 +45,16 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationServiceImplTest {
+    private static final Logger LOGGER = Logger.getLogger(EstimationServiceImplTest.class.getName());
 
     private final ReadingQualityType readingQualityType1 = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1);
     private final ReadingQualityType readingQualityType2 = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2);
@@ -94,6 +98,7 @@ public class EstimationServiceImplTest {
     private CimChannel cimChannel1, cimChannel2;
     @Mock
     private Meter meter;
+    private LogRecorder logRecorder;
 
     @Before
     public void setUp() {
@@ -143,6 +148,9 @@ public class EstimationServiceImplTest {
             estimationBlocks.subList(0, Math.max(0, estimationBlocks.size() - 1)).stream().forEach(builder::addRemaining);
             return builder.build();
         }).when(estimator2).estimate(any());
+
+        logRecorder = new LogRecorder(Level.ALL);
+        LOGGER.addHandler(logRecorder);
     }
 
     // these will result in 3 estimation blocks
@@ -171,12 +179,12 @@ public class EstimationServiceImplTest {
 
     @After
     public void tearDown() {
-
+        LOGGER.removeHandler(logRecorder);
     }
 
     @Test
     public void testPreviewEstimate() {
-        EstimationReport report = estimationService.previewEstimate(meterActivation, Range.<Instant>all());
+        EstimationReport report = estimationService.previewEstimate(meterActivation, Range.<Instant>all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
@@ -185,6 +193,7 @@ public class EstimationServiceImplTest {
         assertThat(estimationResult.estimated().get(0).getReadingQualityType()).isEqualTo(readingQualityType1);
         assertThat(estimationResult.estimated().get(1).getReadingQualityType()).isEqualTo(readingQualityType2);
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(1);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Successful estimation "));
     }
 
     @Test
@@ -192,13 +201,14 @@ public class EstimationServiceImplTest {
         doReturn(false).when(rule1).isActive();
         doReturn(false).when(rule2).isActive();
 
-        EstimationReport report = estimationService.previewEstimate(meterActivation, Range.<Instant>all());
+        EstimationReport report = estimationService.previewEstimate(meterActivation, Range.<Instant>all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
 
         assertThat(estimationResult.estimated()).hasSize(0);
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(3);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith(" could not be estimated."));
     }
 
 
