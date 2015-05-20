@@ -6,8 +6,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.junit.After;
@@ -41,7 +39,7 @@ public class DefaultImportScheduleBuilderTest {
     @Mock
     private DataModel dataModel;
     @Mock
-    private CronExpressionParser cronParser;
+    private ScheduleExpressionParser scheduleExpressionParser;
 
     @Mock
     private FileNameCollisionResolver nameResolver;
@@ -52,7 +50,8 @@ public class DefaultImportScheduleBuilderTest {
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem, thesaurus));
+        when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
+                new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileSystem, thesaurus));
     }
 
     @After

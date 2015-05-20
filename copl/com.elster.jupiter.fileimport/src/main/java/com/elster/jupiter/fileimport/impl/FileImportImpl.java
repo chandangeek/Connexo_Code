@@ -70,7 +70,8 @@ final class FileImportImpl implements FileImport {
         return inputStream;
     }
 
-    ImportSchedule getImportSchedule() {
+    @Override
+    public ImportSchedule getImportSchedule() {
         if (importSchedule == null) {
             importSchedule = importScheduleFactory().getExisting(importScheduleId);
         }

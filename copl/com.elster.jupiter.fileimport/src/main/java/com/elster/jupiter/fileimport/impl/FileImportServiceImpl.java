@@ -147,6 +147,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
         defaultFileSystem = new DefaultFileSystem(thesaurus);
     }
 
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(FileImporterFactory fileImporterFactory) {
         importerFactories.add(fileImporterFactory);
@@ -228,10 +229,10 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public List<FileImporterFactory> getAvailableImporters(String applicationName) {
-        return Collections.unmodifiableList(importerFactories
+        return importerFactories
                 .stream()
                 .filter(i -> "SYS".equals(applicationName) || i.getApplicationName().equals(applicationName))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
     }
 
 
@@ -247,4 +248,5 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
                 .map(FileImporterFactory::getProperties)
                 .orElse(Collections.emptyList());
     }
+
 }

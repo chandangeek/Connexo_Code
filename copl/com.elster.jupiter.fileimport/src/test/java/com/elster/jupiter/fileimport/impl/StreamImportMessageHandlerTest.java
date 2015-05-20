@@ -1,18 +1,19 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.FileImport;
-import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fileimport.*;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
+
+import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -27,6 +28,7 @@ public class StreamImportMessageHandlerTest {
 
     private static final byte[] PAYLOAD = "PAYLOAD".getBytes();
     private static final long FILE_IMPORT_ID = 17L;
+    private static final String IMPORTER_NAME = "IMPORTER1";
     private StreamImportMessageHandler streamImportMessageHandler;
 
     private FileImportMessage fileImportMessage;
@@ -45,6 +47,16 @@ public class StreamImportMessageHandlerTest {
     private JsonService jsonService;
     @Mock
     private FileImport fileImport;
+
+    @Mock
+    private ImportSchedule importSchedule;
+
+    @Mock
+    private FileImporterFactory fileImporterFactory;
+
+    @Mock
+    FileImporter importer;
+
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
 
@@ -56,8 +68,11 @@ public class StreamImportMessageHandlerTest {
         when(jsonService.deserialize(aryEq(PAYLOAD), eq(FileImportMessage.class))).thenReturn(fileImportMessage);
 //        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
         when(dataModel.mapper(FileImport.class).getOptional(FILE_IMPORT_ID)).thenReturn(Optional.of(fileImport));
-
-
+        when(importSchedule.getImporterName()).thenReturn(IMPORTER_NAME);
+        when(fileImport.getImportSchedule()).thenReturn(importSchedule);
+        when(fileImportService.getImportFactory(IMPORTER_NAME)).thenReturn(Optional.of(fileImporterFactory));
+        when(fileImport.getImportSchedule().getImporterProperties()).thenReturn(new ArrayList<>());
+        when(fileImporterFactory.createImporter(Matchers.anyMap())).thenReturn(fileImporter);
         streamImportMessageHandler = new StreamImportMessageHandler(dataModel, jsonService, thesaurus, fileImportService);
     }
 

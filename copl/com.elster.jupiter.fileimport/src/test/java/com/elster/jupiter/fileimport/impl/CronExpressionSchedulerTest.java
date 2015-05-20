@@ -5,6 +5,7 @@ import com.elster.jupiter.util.cron.CronExpression;
 import java.time.Clock;
 import java.time.Instant;
 
+import com.elster.jupiter.util.time.ScheduleExpression;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -23,26 +27,28 @@ import static org.mockito.Mockito.*;
 public class CronExpressionSchedulerTest {
 
     private CronExpressionScheduler scheduler;
-
-    private static final Instant now = Instant.ofEpochMilli(10), firstOccurrence =Instant.ofEpochMilli(20), secondOccurrence = Instant.ofEpochMilli(30);
-
+    private static final ZonedDateTime now = ZonedDateTime.ofInstant(Instant.ofEpochMilli(10),ZoneId.systemDefault()),
+            firstOccurrence = ZonedDateTime.ofInstant(Instant.ofEpochMilli(20),ZoneId.systemDefault()),
+            secondOccurrence = ZonedDateTime.ofInstant(Instant.ofEpochMilli(30), ZoneId.systemDefault());
     @Mock
     private CronJob cronJob;
     @Mock
-    private CronExpression cronExpression;
+    private ScheduleExpression scheduleExpression;
     @Mock
     private Clock clock;
+    @Mock
+    private Clock zonedTime;
 
 
 
     @Before
     public void setUp() {
         scheduler = new CronExpressionScheduler(clock, 1);
-
-        when(cronJob.getSchedule()).thenReturn(cronExpression);
-        when(cronExpression.nextAfter(now)).thenReturn(firstOccurrence);
-        when(cronExpression.nextAfter(firstOccurrence)).thenReturn(secondOccurrence);
-        when(clock.instant()).thenReturn(now, firstOccurrence, secondOccurrence);
+        when(cronJob.getSchedule()).thenReturn(scheduleExpression);
+        when(scheduleExpression.nextOccurrence(now)).thenReturn(Optional.of(firstOccurrence));
+        when(scheduleExpression.nextOccurrence(firstOccurrence)).thenReturn(Optional.of(secondOccurrence));
+        when(clock.instant()).thenReturn(now.toInstant(), firstOccurrence.toInstant(), secondOccurrence.toInstant());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
     }
 
     @After

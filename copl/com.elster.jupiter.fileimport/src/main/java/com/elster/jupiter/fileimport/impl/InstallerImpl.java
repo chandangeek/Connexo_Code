@@ -53,7 +53,7 @@ class InstallerImpl {
         userService.createResourceWithPrivileges("SYS", "fileImport.importServices", "fileImport.importServices.description", new String[]
              {Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES});
         userService.createResourceWithPrivileges("MDC", "fileImport.importServices", "fileImport.importServices.description", new String[]
-                {Privileges.VIEW_IMPORT_SERVICES});
+                {Privileges.VIEW_MDC_IMPORT_SERVICES});
     }
 
 

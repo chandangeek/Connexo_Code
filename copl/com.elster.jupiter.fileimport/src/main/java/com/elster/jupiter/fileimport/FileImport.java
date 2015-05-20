@@ -54,4 +54,7 @@ public interface FileImport {
      * @throws IllegalStateException if the current state is not NEW
      */
     void prepareProcessing();
+
+
+    ImportSchedule getImportSchedule();
 }

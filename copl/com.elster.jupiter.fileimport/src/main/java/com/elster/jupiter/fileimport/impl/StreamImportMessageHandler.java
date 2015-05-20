@@ -30,7 +30,7 @@ class StreamImportMessageHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
-        FileImportImpl fileImport = getFileImport(message);
+        FileImport fileImport = getFileImport(message);
         if (fileImport != null) {
             String importerName = fileImport.getImportSchedule().getImporterName();
             Map<String, Object> propertyMap = new HashMap<>();
@@ -51,11 +51,11 @@ class StreamImportMessageHandler implements MessageHandler {
                 .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 
-    private FileImportImpl getFileImport(Message message) {
-        FileImportImpl fileImport = null;
+    private FileImport getFileImport(Message message) {
+        FileImport fileImport = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
-            fileImport = dataModel.mapper(FileImportImpl.class).getOptional(fileImportMessage.fileImportId).get();
+            fileImport = dataModel.mapper(FileImport.class).getOptional(fileImportMessage.fileImportId).get();
         }
         return fileImport;
     }

@@ -11,6 +11,7 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+import com.google.inject.matcher.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -61,18 +63,13 @@ public class ImportScheduleImplTest {
     public void setUp() {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(new ImportScheduleImpl(dataModel, fileImportService, messageService, cronParser, nameResolver, fileSystem, thesaurus));
-
-        importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "importerName", DESTINATION_NAME, importDir,"*.*",inProcessDir, failureDir, successDir);
+        when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
+        importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "importerName", DESTINATION_NAME, importDir, ".", inProcessDir, failureDir, successDir);
     }
 
     @After
     public void tearDown() {
     }
-
-    //@Test
-    //public void testGetDestination() {
-    //    assertThat(importSchedule.getDestination()).isEqualTo(destination);
-    //}
 
     @Test
     public void testGetImportDirectory() {
@@ -114,12 +111,4 @@ public class ImportScheduleImplTest {
 
         importSchedule.createFileImport(file);
     }
-
-    @Test
-    public void testSave() {
-        importSchedule.save();
-
-        verify(importScheduleFactory).persist(importSchedule);
-    }
-
 }

@@ -8,8 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -78,6 +76,7 @@ class ImportScheduleImpl implements ImportSchedule {
     private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String importerName, String destinationName, File importDirectory, String pathMatcher, File inProcessDirectory, File failureDirectory, File successDirectory) {
         this.name = name;
         this.active = active;
+        this.scheduleExpression = scheduleExpression;
         this.cronString = scheduleExpression.toString();
         this.destinationName = destinationName;
         this.importerName = importerName;
@@ -107,6 +106,9 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public DestinationSpec getDestination() {
         if (destination == null) {
+            String destinationName = fileImportService.getImportFactory(importerName)
+                    .orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName))
+                    .getDestinationName();
             destination = messageService.getDestinationSpec(destinationName).get();
         }
         return destination;
@@ -281,10 +283,7 @@ class ImportScheduleImpl implements ImportSchedule {
     public void save() {
 
         Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
-        if (optional.isPresent()) {
-            FileImporterFactory importerFactory = optional.get();
-            importerFactory.validateProperties(properties);
-        }
+        optional.ifPresent(factory->factory.validateProperties(properties));
 
         if (id == 0) {
             persist();

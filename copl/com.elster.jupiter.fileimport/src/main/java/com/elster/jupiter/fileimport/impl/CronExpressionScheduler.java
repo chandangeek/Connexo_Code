@@ -36,14 +36,14 @@ class CronExpressionScheduler {
      * @param cronJob
      */
     public void submitOnce(CronJob cronJob) {
-        //Instant now = clock.instant();
-        //Instant next = cronJob.getSchedule().nextAfter(now);
-        ZonedDateTime now = ZonedDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
-        Optional<ZonedDateTime> nextOccurrence = cronJob.getSchedule().nextOccurrence(now);
-        if(nextOccurrence.isPresent()){
-            long delay = nextOccurrence.get().toEpochSecond()*1000 - now.toInstant().toEpochMilli();
-            scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
-        }
+        ZonedDateTime now = ZonedDateTime.now(clock);
+        cronJob.getSchedule()
+                .nextOccurrence(now)
+                .ifPresent(
+                    no->{
+                        long delay = no.toEpochSecond()*1000 - now.toInstant().toEpochMilli();
+                        scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
+                    });
     }
 
     /**
