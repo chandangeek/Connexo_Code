@@ -7,6 +7,8 @@ public class IdWithNameInfo {
     public long id;
     public String name;
 
+    public IdWithNameInfo(){}
+
     public<T extends HasId & HasName> IdWithNameInfo(T source){
         this.id = source.getId();
         this.name = source.getName();

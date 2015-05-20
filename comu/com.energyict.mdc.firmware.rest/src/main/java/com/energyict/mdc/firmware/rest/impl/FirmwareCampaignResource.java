@@ -1,5 +1,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -25,12 +26,14 @@ public class FirmwareCampaignResource {
     private final FirmwareService firmwareService;
     private final ResourceHelper resourceHelper;
     private final FirmwareCampaignInfoFactory campaignInfoFactory;
+    private final DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory;
 
     @Inject
-    public FirmwareCampaignResource(FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareCampaignInfoFactory campaignInfoFactory) {
+    public FirmwareCampaignResource(FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareCampaignInfoFactory campaignInfoFactory, DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory) {
         this.firmwareService = firmwareService;
         this.resourceHelper = resourceHelper;
         this.campaignInfoFactory = campaignInfoFactory;
+        this.deviceInCampaignInfoFactory = deviceInCampaignInfoFactory;
     }
 
     @GET
@@ -57,6 +60,7 @@ public class FirmwareCampaignResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addFirmwareCampaign(FirmwareCampaignInfo info){
         FirmwareCampaign firmwareCampaign = info.create(firmwareService, resourceHelper);
+        firmwareCampaign.save();
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
@@ -78,5 +82,13 @@ public class FirmwareCampaignResource {
         FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(firmwareCampaignId);
         firmwareCampaign.delete();
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
+    }
+
+    @GET
+    @Path("/{id}/devices")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryParameters queryParameters){
+        FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(firmwareCampaignId);
+        return Response.ok(PagedInfoList.fromPagedList("devices", deviceInCampaignInfoFactory.from(firmwareCampaign.getDevices()), queryParameters)).build();
     }
 }

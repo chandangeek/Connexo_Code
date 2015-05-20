@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -23,21 +22,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class FirmwareCampaignInfo {
     public long id;
     public String name;
-    @XmlJavaTypeAdapter(FirmwareCampaignStatusAdapter.class)
-    public FirmwareCampaignStatus status;
+    public com.energyict.mdc.common.rest.IdWithNameInfo status;
     public IdWithNameInfo deviceType;
     public IdWithNameInfo deviceGroup;
-    public String upgradeOption;
+    public ManagementOptionInfo managementOption;
     public FirmwareTypeInfo firmwareType;
+    public FirmwareVersionInfo firmwareVersion;
     public Instant plannedDate;
     public Instant startedOn;
     public Instant finishedOn;
-    public List<IdWithNameInfo> devices;
     public List<PropertyInfo> properties;
 
     public FirmwareCampaignInfo() {}
@@ -45,15 +42,17 @@ public class FirmwareCampaignInfo {
     public FirmwareCampaignInfo (FirmwareCampaign campaign, Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, FirmwareService firmwareService){
         this.id = campaign.getId();
         this.name = campaign.getName();
-        this.status = campaign.getStatus();
+        FirmwareCampaignStatus campaignStatus = campaign.getStatus();
+        this.status = new com.energyict.mdc.common.rest.IdWithNameInfo();
+        this.status.id = campaignStatus.name();
+        this.status.name = new FirmwareCampaignStatusAdapter().marshal(campaignStatus);
         this.deviceType = new IdWithNameInfo(campaign.getDeviceType());
-        String upgradeOptionId = campaign.getUpgradeOption().getId();
-        this.upgradeOption = thesaurus.getString(upgradeOptionId, upgradeOptionId);
+        String managementOptionId = campaign.getFirmwareManagementOption().getId();
+        this.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         this.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
         this.plannedDate = campaign.getPlannedDate();
         this.startedOn = campaign.getStartedOn();
         this.finishedOn = campaign.getFinishedOn();
-        this.devices = campaign.getDevices().stream().map(DeviceInFirmwareCampaign::getDevice).map(IdWithNameInfo::new).collect(Collectors.toList());
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             TypedProperties typedProperties = TypedProperties.empty();
@@ -70,15 +69,21 @@ public class FirmwareCampaignInfo {
                 }
                 return null;
             };
+            this.firmwareVersion = FirmwareVersionInfo.from(campaign.getFirmwareVersion(), thesaurus);
             this.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(firmwareMessageSpec.get().getPropertySpecs(), typedProperties, provider);
         }
     }
 
     public void writeTo(FirmwareCampaign campaign){
         campaign.setName(this.name);
-        ProtocolSupportedFirmwareOptions.from(this.upgradeOption).ifPresent(upgradeOption -> {
-            campaign.setUpgradeOption(upgradeOption);
-        });
+        if (this.managementOption != null) {
+            ProtocolSupportedFirmwareOptions.from(this.managementOption.id).ifPresent(upgradeOption ->
+                campaign.setUpgradeOption(upgradeOption)
+            );
+        }
+        if (this.firmwareType != null) {
+            campaign.setFirmwareType(this.firmwareType.id);
+        }
         campaign.setPlannedDate(this.plannedDate);
         campaign.clearProperties();
         if (this.properties != null){

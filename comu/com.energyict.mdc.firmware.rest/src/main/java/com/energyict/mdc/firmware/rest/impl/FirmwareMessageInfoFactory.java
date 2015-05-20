@@ -1,6 +1,5 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
