@@ -292,11 +292,10 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                         Estimator estimator = rule.createNewEstimator();
                         estimator.init(logger);
                         EstimationResult estimationResult = result.get();
-                        estimationResult.estimated().stream().forEach(block -> {
-                            loggingContext.info(logger, "Successful estimation with {rule}: block {0}", EstimationBlockFormatter.getInstance().format(block));
-                            report.reportEstimated(readingType, block);
-                        });
-                        result.update(estimator.estimate(estimationResult.remainingToBeEstimated()));
+                        estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
+                        EstimationResult newResult = estimator.estimate(estimationResult.remainingToBeEstimated());
+                        newResult.estimated().stream().forEach(block -> loggingContext.info(logger, "Successful estimation with {rule}: block {0}", EstimationBlockFormatter.getInstance().format(block)));
+                        result.update(newResult);
                     }
                 });
         result.get().estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
