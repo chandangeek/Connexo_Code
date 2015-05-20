@@ -16,7 +16,7 @@ Ext.define('Fim.controller.history.DataImport', {
 					title: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),                    
 					route: 'importservices',                    
 					controller: 'Fim.controller.ImportServices',
-                    privileges : Fim.privileges.DataImport.view,
+                    privileges : Fim.privileges.DataImport.canView,
                     action: 'showImportServices',
                     items: {
                         add: {
