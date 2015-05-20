@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.api.impl;
+package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;

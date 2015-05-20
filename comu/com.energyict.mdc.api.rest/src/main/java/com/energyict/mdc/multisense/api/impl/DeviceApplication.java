@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.api.impl;
+package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
@@ -9,11 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
@@ -97,11 +93,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 TransactionWrapper.class,
                 ExceptionLogger.class,
                 DeviceResource.class,
-                RegisterResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedFieldValidationExceptionMapper.class,
-                JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class
+                DeviceConfigurationResource.class,
+                DeviceTypeResource.class
         );
     }
 
@@ -294,7 +287,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
-            bind(RegisterInfoFactory.class).to(RegisterInfoFactory.class);
+            bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
+            bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class);
         }
     }
 
