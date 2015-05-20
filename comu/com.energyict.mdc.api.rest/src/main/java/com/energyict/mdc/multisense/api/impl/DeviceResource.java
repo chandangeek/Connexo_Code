@@ -92,7 +92,9 @@ public class DeviceResource {
         newDevice.setYearOfCertification(info.yearOfCertification);
         newDevice.save();
 
-        this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
+        if (info.batch!=null) {
+            deviceImportService.addDeviceToBatch(newDevice, info.batch);
+        }
         URI uri = uriInfo.getBaseUriBuilder().
                 path(DeviceResource.class).
                 path(DeviceResource.class, "getDevice").
