@@ -9,12 +9,14 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -23,6 +25,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Map;
@@ -48,6 +51,12 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         }
     }
 
+    private static final Set<FirmwareManagementDeviceStatus> FINAL_STATUSES = EnumSet.of(
+            FirmwareManagementDeviceStatus.CANCELLED,
+            FirmwareManagementDeviceStatus.CONFIGURATION_ERROR,
+            FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS
+    );
+
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<FirmwareCampaign> campaign = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -68,13 +77,15 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     private final FirmwareService firmwareService;
     private final TaskService taskService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final Provider<FirmwareManagementDeviceUtils.Factory> helperProvider;
 
     @Inject
-    public DeviceInFirmwareCampaignImpl(DataModel dataModel, FirmwareService firmwareService, TaskService taskService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public DeviceInFirmwareCampaignImpl(DataModel dataModel, FirmwareService firmwareService, TaskService taskService, DeviceMessageSpecificationService deviceMessageSpecificationService, Provider<FirmwareManagementDeviceUtils.Factory> helperProvider) {
         this.dataModel = dataModel;
         this.firmwareService = firmwareService;
         this.taskService = taskService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.helperProvider = helperProvider;
     }
 
     DeviceInFirmwareCampaign init(FirmwareCampaign campaign, Device device) {
@@ -113,9 +124,38 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
             setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
             return;
         }
-        createFirmwareMessage(firmwareMessageId);
-        scheduleFirmwareTask();
-        setStatus(FirmwareManagementDeviceStatus.PENDING);
+        if (deviceAlreadyHasTheSameVersion()){
+            setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
+        } else {
+            createFirmwareMessage(firmwareMessageId);
+            scheduleFirmwareTask();
+            setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
+        }
+        save();
+    }
+
+    @Override
+    public FirmwareManagementDeviceStatus updateStatus() {
+        FirmwareManagementDeviceStatus currentStatus = getStatus();
+        if (currentStatus != null || !FINAL_STATUSES.contains(currentStatus)) {
+            FirmwareManagementDeviceUtils helper = helperProvider.get().onDevice(getDevice());
+            Optional<DeviceMessage<Device>> firmwareMessage = helper.getFirmwareMessages()
+                    .stream()
+                    .filter(candidate -> candidate.getId() == firmwareMessageId)
+                    .findFirst();
+            if (firmwareMessage.isPresent()){
+                helper.getUploadOptionFromMessage(firmwareMessage.get()).ifPresent(uploadOption -> {
+                    FirmwareManagementDeviceStatus.Group.getStatusGroupFor(uploadOption)
+                            .get()
+                            .getStatusBasedOnMessage(firmwareMessage.get(), helper)
+                            .ifPresent(newStatus -> setStatus(newStatus));
+                });
+            } else {
+                setStatus(FirmwareManagementDeviceStatus.CANCELLED);
+            }
+            save();
+        }
+        return getStatus();
     }
 
     private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId) {
@@ -137,7 +177,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
     private boolean checkDeviceType() {
         Set<ProtocolSupportedFirmwareOptions> deviceTypeAllowedOptions = firmwareService.getAllowedFirmwareManagementOptionsFor(getDevice().getDeviceType());
-        return !deviceTypeAllowedOptions.isEmpty() && deviceTypeAllowedOptions.contains(getFirmwareCampaign().getUpgradeOption());
+        return !deviceTypeAllowedOptions.isEmpty() && deviceTypeAllowedOptions.contains(getFirmwareCampaign().getFirmwareManagementOption());
     }
 
     private boolean checkDeviceConfiguration() {
@@ -175,8 +215,20 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                 .stream()
                 .filter(firmwareMessageCandidate -> {
                     Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
-                    return firmwareOptionForCandidate.isPresent() && getFirmwareCampaign().getUpgradeOption().equals(firmwareOptionForCandidate.get());
+                    return firmwareOptionForCandidate.isPresent() && getFirmwareCampaign().getFirmwareManagementOption().equals(firmwareOptionForCandidate.get());
                 })
                 .findFirst();
+    }
+
+    private boolean deviceAlreadyHasTheSameVersion(){
+        FirmwareVersion targetFirmwareVersion = getFirmwareCampaign().getFirmwareVersion();
+        Optional<ActivatedFirmwareVersion> activeVersion = firmwareService.getActiveFirmwareVersion(getDevice(), getFirmwareCampaign().getFirmwareType());
+        return activeVersion.isPresent()
+                && targetFirmwareVersion != null
+                && activeVersion.get().getFirmwareVersion().getId() == targetFirmwareVersion.getId();
+    }
+
+    private void save(){
+        dataModel.update(this);
     }
 }

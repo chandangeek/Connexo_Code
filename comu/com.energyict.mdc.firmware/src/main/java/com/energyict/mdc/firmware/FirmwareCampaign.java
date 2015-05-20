@@ -22,7 +22,9 @@ public interface FirmwareCampaign extends HasId, HasName{
 
     void setFirmwareType(FirmwareType firmwareType);
 
-    ProtocolSupportedFirmwareOptions getUpgradeOption();
+    FirmwareVersion getFirmwareVersion();
+
+    ProtocolSupportedFirmwareOptions getFirmwareManagementOption();
 
     void setUpgradeOption(ProtocolSupportedFirmwareOptions upgradeOption);
 

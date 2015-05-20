@@ -132,7 +132,7 @@ public enum TableSpecs {
             Column campaign = table.column("CAMPAIGN").number().notNull().add();
             Column device = table.column("DEVICE").number().notNull().add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName()).add();
-            table.column("MESSAGE_ID").number().map(DeviceInFirmwareCampaignImpl.Fields.MESSAGE_ID.fieldName()).add();
+            table.column("MESSAGE_ID").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).map(DeviceInFirmwareCampaignImpl.Fields.MESSAGE_ID.fieldName()).add();
 
             table.addAuditColumns();
             table.foreignKey("FK_FWC_DEVICE_TO_CAMPAIGN")

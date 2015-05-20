@@ -1,7 +1,6 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
@@ -18,20 +17,14 @@ import java.util.Set;
  */
 public interface FirmwareService extends ReferencePropertySpecFinderProvider {
 
-    public static String COMPONENTNAME = "FWC";
+    String COMPONENTNAME = "FWC";
     
-    public final int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
+    int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
 
     // Firmware versions on a device type
-
-    Query<? extends FirmwareVersion> getFirmwareVersionQuery();
-
     Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter);
-
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
-
     Optional<FirmwareVersion> getFirmwareVersionByVersion(String version, DeviceType deviceType);
-
     FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
 
     void saveFirmwareVersion(FirmwareVersion firmwareVersion);
@@ -66,6 +59,7 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
      * @return a list of FirmwareVersions
      */
     List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device, FirmwareType firmwareType);
+    Optional<ActivatedFirmwareVersion> getActiveFirmwareVersion(Device device, FirmwareType firmwareType);
 
     Optional<ActivatedFirmwareVersion> getCurrentMeterFirmwareVersionFor(Device device);
 

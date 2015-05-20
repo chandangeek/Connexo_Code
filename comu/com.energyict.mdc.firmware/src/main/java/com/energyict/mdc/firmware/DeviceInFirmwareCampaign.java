@@ -8,4 +8,5 @@ public interface DeviceInFirmwareCampaign {
     Device getDevice();
 
     void startFirmwareProcess();
+    FirmwareManagementDeviceStatus updateStatus();
 }

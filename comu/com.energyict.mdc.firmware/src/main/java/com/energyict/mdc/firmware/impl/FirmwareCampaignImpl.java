@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceType;
@@ -15,9 +16,11 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -37,6 +40,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
@@ -72,14 +76,13 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareCampaignStatus status;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<DeviceType> deviceType;
+    private Reference<DeviceType> deviceType = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<EndDeviceGroup> deviceGroup;
+    private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private ProtocolSupportedFirmwareOptions upgradeOption;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareType firmwareType;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Instant plannedDate;
     private Instant startedOn;
     private Instant finishedOn;
@@ -124,7 +127,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         EndDeviceGroup group = this.deviceGroup.get();
         if (group instanceof QueryEndDeviceGroup){
             Condition deviceQuery = ((QueryEndDeviceGroup) group).getCondition();
-            deviceQuery = deviceQuery.and(where("deviceConfiguration.deviceType").isEqualTo(deviceType));
+            deviceQuery = deviceQuery.and(where("deviceConfiguration.deviceType").isEqualTo(deviceType.get()));
             devices = deviceService.findAllDevices(deviceQuery).find();
         } else {
             devices = group.getMembers(this.clock.instant())
@@ -187,7 +190,12 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     @Override
-    public ProtocolSupportedFirmwareOptions getUpgradeOption() {
+    public FirmwareVersion getFirmwareVersion() {
+        return (FirmwareVersion) getProperties().get(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+    }
+
+    @Override
+    public ProtocolSupportedFirmwareOptions getFirmwareManagementOption() {
         return upgradeOption;
     }
 
@@ -252,12 +260,12 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     public Optional<DeviceMessageId> getFirmwareMessageId() {
-        if (deviceType.isPresent() && getUpgradeOption() != null) {
+        if (deviceType.isPresent() && getFirmwareManagementOption() != null) {
             return deviceType.get().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages()
                     .stream()
                     .filter(firmwareMessageCandidate -> {
                         Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
-                        return firmwareOptionForCandidate.isPresent() && getUpgradeOption().equals(firmwareOptionForCandidate.get());
+                        return firmwareOptionForCandidate.isPresent() && getFirmwareManagementOption().equals(firmwareOptionForCandidate.get());
                     })
                     .findFirst();
         }
@@ -315,5 +323,15 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         setStatus(FirmwareCampaignStatus.ONGOING);
         this.devices.stream().forEach(DeviceInFirmwareCampaign::startFirmwareProcess);
         save();
+    }
+
+    public void updateStatus(){
+        List<FirmwareManagementDeviceStatus> deviceStatusList = this.devices.stream().map(DeviceInFirmwareCampaign::updateStatus).collect(Collectors.toList());
+        calculateStatusBasedOnDeviceStatuses(deviceStatusList);
+        save();
+    }
+
+    private void calculateStatusBasedOnDeviceStatuses(List<FirmwareManagementDeviceStatus> statuses){
+
     }
 }

@@ -15,7 +15,7 @@ public class FirmwareCampaignExecutor implements TaskExecutor {
     public void execute(TaskOccurrence occurrence) {
         cloneDevicesForFirmwareCampaigns();
         launchFirmwareCampaigns();
-        updateDeviceStatuses();
+        updateStatuses();
     }
 
     private void cloneDevicesForFirmwareCampaigns(){
@@ -26,7 +26,7 @@ public class FirmwareCampaignExecutor implements TaskExecutor {
         firmwareService.getFirmwareCampaignsForProcessing().stream().forEach(firmwareCampaign -> firmwareCampaign.start());
     }
 
-    private void updateDeviceStatuses(){
-
+    private void updateStatuses(){
+        firmwareService.getFirmwareCampaignsForStatusUpdate().stream().forEach(firmwareCampaign -> firmwareCampaign.updateStatus());
     }
 }

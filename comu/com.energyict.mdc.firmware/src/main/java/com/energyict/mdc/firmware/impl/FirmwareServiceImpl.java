@@ -33,6 +33,7 @@ import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -130,7 +131,6 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    @Override
     public Query<? extends FirmwareVersion> getFirmwareVersionQuery() {
         return queryService.wrap(dataModel.query(FirmwareVersion.class));
     }
@@ -144,7 +144,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         if (!filter.getFirmwareStatuses().isEmpty()) {
             condition = condition.and(createMultipleConditions(filter.getFirmwareStatuses(), FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()));
         }
-        if (!filter.getFirmwareStatuses().isEmpty()) {
+        if (!filter.getFirmwareVersions().isEmpty()) {
             condition = condition.and(createMultipleConditions(filter.getFirmwareVersions(), FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName()));
         }
         if (!filter.getFirmwareTypes().isEmpty()) {
@@ -250,6 +250,17 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
         return dataModel.mapper(FirmwareVersion.class).select(condition, Order.descending("lower(firmwareVersion)"));
     }
 
+    @Override
+    public Optional<ActivatedFirmwareVersion> getActiveFirmwareVersion(Device device, FirmwareType firmwareType) {
+        Optional<ActivatedFirmwareVersion> activeFirmwareVersion = Optional.empty();
+        if (firmwareType.equals(FirmwareType.METER)) {
+            activeFirmwareVersion = getCurrentMeterFirmwareVersionFor(device);
+        } else if (firmwareType.equals(FirmwareType.COMMUNICATION)) {
+            activeFirmwareVersion = getCurrentCommunicationFirmwareVersionFor(device);
+        }
+        return activeFirmwareVersion;
+    }
+
     private Condition getCurrentFirmwareVersionFor(Device device) {
         return where("device").isEqualTo(device).and(Where.where("interval").isEffective(Instant.now()));
     }
@@ -324,6 +335,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                 .or(where(FirmwareCampaignImpl.Fields.PLANNED_DATE.fieldName()).isLessThanOrEqual(dataModel.getInstance(Clock.class).instant()));
         return dataModel.query(FirmwareCampaignImpl.class, EndDeviceGroup.class, DeviceInFirmwareCampaignImpl.class, Device.class)
                 .select(where(FirmwareCampaignImpl.Fields.STATUS.fieldName()).isEqualTo(FirmwareCampaignStatus.SCHEDULED).and(scheduledTimePassed));
+    }
+
+    public List<FirmwareCampaignImpl> getFirmwareCampaignsForStatusUpdate(){
+        return dataModel.query(FirmwareCampaignImpl.class, EndDeviceGroup.class, DeviceInFirmwareCampaignImpl.class, Device.class)
+                .select(where(FirmwareCampaignImpl.Fields.STATUS.fieldName()).isEqualTo(FirmwareCampaignStatus.ONGOING));
     }
 
     @Activate
