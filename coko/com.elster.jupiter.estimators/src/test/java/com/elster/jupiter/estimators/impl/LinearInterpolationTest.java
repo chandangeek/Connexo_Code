@@ -2,6 +2,7 @@ package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.Estimatable;
@@ -36,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -46,6 +48,7 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LinearInterpolationTest {
+    private static final Logger LOGGER = Logger.getLogger(LinearInterpolationTest.class.getName());
 
     private static final ZonedDateTime BEFORE = ZonedDateTime.of(2015, 3, 11, 20, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime ESTIMATABLE1 = BEFORE.plusHours(1);
@@ -72,6 +75,7 @@ public class LinearInterpolationTest {
     private BaseReadingRecord readingRecord1, readingRecord2;
     @Mock
     private MeterActivation meterActivation;
+    private LogRecorder logRecorder;
 
     @Before
     public void setUp() {
@@ -92,12 +96,15 @@ public class LinearInterpolationTest {
         doReturn(BEFORE.toInstant()).when(channel).getPreviousDateTime(ESTIMATABLE1.toInstant());
         doReturn(AFTER.toInstant()).when(channel).getNextDateTime(ESTIMATABLE2.toInstant());
 
+        logRecorder = new LogRecorder(Level.ALL);
+        LOGGER.addHandler(logRecorder);
         LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
         LoggingContext.get().close();
+        LOGGER.removeHandler(logRecorder);
     }
 
     @Test
@@ -107,7 +114,7 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -126,13 +133,13 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -143,13 +150,13 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -160,13 +167,13 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -177,13 +184,13 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -194,13 +201,13 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -211,13 +218,13 @@ public class LinearInterpolationTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test(expected = LocalizedFieldValidationException.class)

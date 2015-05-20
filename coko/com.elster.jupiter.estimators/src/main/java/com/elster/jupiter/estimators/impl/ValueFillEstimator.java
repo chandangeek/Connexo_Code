@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +103,7 @@ public class ValueFillEstimator extends AbstractEstimator {
     private boolean isBlockSizeOk(EstimationBlock block) {
         boolean blockSizeOk = block.estimatables().size() <= maxNumberOfConsecutiveSuspects.intValue();
         if (!blockSizeOk) {
-            String message = "Failed estimation with {rule} : Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
+            String message = "Failed estimation with {rule}: Block {block} since it contains {0} suspects, which exceeds the maximum of {1}";
             LoggingContext.get().info(getLogger(), message, block.estimatables().size(), maxNumberOfConsecutiveSuspects);
         }
         return blockSizeOk;

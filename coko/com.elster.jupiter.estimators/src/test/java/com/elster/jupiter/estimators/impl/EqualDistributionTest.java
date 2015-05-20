@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
@@ -47,18 +48,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.estimators.impl.EqualDistribution.ADVANCE_READINGS_SETTINGS;
 import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.cmpEq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EqualDistributionTest {
-
+    private static final Logger LOGGER = Logger.getLogger(EqualDistributionTest.class.getName());
     private static final ZonedDateTime BEFORE = ZonedDateTime.of(2015, 3, 11, 20, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime ESTIMATABLE1 = BEFORE.plusHours(1);
     private static final ZonedDateTime ESTIMATABLE2 = BEFORE.plusHours(2);
@@ -102,6 +104,7 @@ public class EqualDistributionTest {
     @Mock
     private MeteringService meteringService;
     private ReadingQualityType readingQualityType;
+    private LogRecorder logRecorder;
 
     @Before
     public void setUp() {
@@ -192,12 +195,16 @@ public class EqualDistributionTest {
         doReturn(AFTER.toInstant()).when(channel).getNextDateTime(ESTIMATABLE3.toInstant());
         doReturn(BEFORE.toInstant()).when(bulkCimChannel).getPreviousDateTime(ESTIMATABLE1.toInstant());
         doReturn(AFTER.toInstant()).when(bulkCimChannel).getNextDateTime(ESTIMATABLE3.toInstant());
+
+        logRecorder = new LogRecorder(Level.ALL);
+        LOGGER.addHandler(logRecorder);
         LoggingContext.get().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
         LoggingContext.get().close();
+        LOGGER.removeHandler(logRecorder);
     }
 
     @Test
@@ -208,7 +215,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
@@ -225,11 +232,11 @@ public class EqualDistributionTest {
     public void testEqualDistributionUsingAdvances() {
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS,10L);
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
@@ -251,12 +258,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -270,12 +278,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -290,12 +299,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -310,12 +320,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -330,7 +341,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
@@ -339,7 +350,7 @@ public class EqualDistributionTest {
     }
 
     @Test
-    public void testEqualDistributionDoesNotEstimateWhenLaterAdvanceReadingHasNonActualOverflowFlag() {
+    public void testEqualDistributionDoesEstimateWhenLaterAdvanceReadingHasNonActualOverflowFlag() {
         readingQualityType = ReadingQualityType.of(QualityCodeSystem.ENDDEVICE, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
         doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
         doReturn(false).when(suspect4).isActual();
@@ -350,7 +361,7 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
@@ -370,12 +381,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -389,12 +401,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -406,13 +419,13 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -424,13 +437,13 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -442,13 +455,13 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -463,13 +476,13 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -484,13 +497,13 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -502,13 +515,13 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -520,13 +533,31 @@ public class EqualDistributionTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+    }
 
+    @Test
+    public void testEqualDistributionDoesNotEstimateWhenAfterAdvanceChannelNotFound() {
+        doReturn(Optional.empty()).when(otherChannel).getCimChannel(advanceReadingType);
+
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType));
+        properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
+        estimator.init(LOGGER);
+
+        EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -538,13 +569,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -556,12 +587,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -573,13 +605,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -592,13 +624,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -611,13 +643,13 @@ public class EqualDistributionTest {
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -667,30 +699,30 @@ public class EqualDistributionTest {
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
         return new EstimationRuleProperties() {
-                @Override
-                public String getName() {
-                    return name;
-                }
+            @Override
+            public String getName() {
+                return name;
+            }
 
-                @Override
-                public String getDisplayName() {
-                    return name;
-                }
+            @Override
+            public String getDisplayName() {
+                return name;
+            }
 
-                @Override
-                public Object getValue() {
-                    return value;
-                }
+            @Override
+            public Object getValue() {
+                return value;
+            }
 
-                @Override
-                public void setValue(Object value) {
-                }
+            @Override
+            public void setValue(Object value) {
+            }
 
-                @Override
-                public EstimationRule getRule() {
-                    return mock(EstimationRule.class);
-                }
-            };
+            @Override
+            public EstimationRule getRule() {
+                return mock(EstimationRule.class);
+            }
+        };
     }
 
 

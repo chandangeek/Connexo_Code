@@ -39,8 +39,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.estimators.impl.PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.cmpEq;
 import static org.mockito.Mockito.*;
 
@@ -132,7 +132,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -153,7 +153,7 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
@@ -173,13 +173,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -191,13 +191,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -209,13 +209,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -227,13 +227,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -245,13 +245,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -262,13 +262,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -279,13 +279,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -296,13 +296,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -313,13 +313,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -332,13 +332,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -351,13 +351,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -370,13 +370,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -389,12 +389,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
 
     }
 
@@ -407,12 +408,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
 
     }
 
@@ -425,13 +427,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
     @Test
@@ -443,13 +445,13 @@ public class PowerGapFillTest {
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
-        estimator.init(Logger.getAnonymousLogger());
+        estimator.init(LOGGER);
 
         EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-
+        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
 
