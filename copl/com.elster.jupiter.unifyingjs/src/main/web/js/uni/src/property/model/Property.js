@@ -58,7 +58,7 @@ Ext.define('Uni.property.model.Property', {
                 if (!propertyValue.get('propertyHasValue')) {
                     if (_.isEqual(value, propertyValue.get('defaultValue'))) {
                         isInheritedValue = true;
-                    } else
+                    }
 
                     if (propertyValue.get('inheritedValue') !== '') {
                         restoreValue = propertyValue.get('inheritedValue');

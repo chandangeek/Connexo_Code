@@ -29,6 +29,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.Hexstring',
         'Uni.property.view.property.Boolean',
         'Uni.property.view.property.Number',
+        'Uni.property.view.property.DecimalNumber',
         'Uni.property.view.property.NullableBoolean',
         'Uni.property.view.property.Date',
         'Uni.property.view.property.DateTime',
@@ -36,7 +37,10 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.Time',
         'Uni.property.view.property.CodeTable',
         'Uni.property.view.property.Reference',
-        'Uni.property.view.property.Multiselect'
+        'Uni.property.view.property.Multiselect',
+        'Uni.property.view.property.RelativePeriod',
+        'Uni.property.view.property.AdvanceReadingsSettings',
+        'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
     ],
 
     /**
@@ -49,7 +53,8 @@ Ext.define('Uni.property.controller.Registry', {
         PASSWORD: 'Uni.property.view.property.Password',
         HEXSTRING: 'Uni.property.view.property.Hexstring',
         BOOLEAN: 'Uni.property.view.property.Boolean',
-        NUMBER: 'Uni.property.view.property.Number',
+        NUMBER: 'Uni.property.view.property.DecimalNumber',
+        LONG: 'Uni.property.view.property.Number',
         NULLABLE_BOOLEAN: 'Uni.property.view.property.NullableBoolean',
         DATE: 'Uni.property.view.property.Date',
         CLOCK: 'Uni.property.view.property.DateTime',
@@ -67,7 +72,7 @@ Ext.define('Uni.property.controller.Registry', {
         ENCRYPTED_STRING: 'Uni.property.view.property.Password',
         UNKNOWN: 'Uni.property.view.property.Text',
         LISTVALUE: 'Uni.property.view.property.Multiselect',
-        RELATIVEPERIOD: 'Uni.property.view.property.Relativeperiod',
+        RELATIVEPERIOD: 'Uni.property.view.property.RelativePeriod',
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone'
     },

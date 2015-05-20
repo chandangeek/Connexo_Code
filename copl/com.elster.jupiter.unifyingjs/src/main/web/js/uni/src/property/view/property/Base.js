@@ -145,13 +145,14 @@ Ext.define('Uni.property.view.property.Base', {
      * setting the new (same value) on the property
      */
     showPopupEnteredValueEqualsInheritedValue: function (field, property) {
-        var me = this;
+        var me = this,
+            key = property.get('key');
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
             cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
         }).show({
-            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), property.get('key')),
-            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), property.get('key')),
+            msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), Uni.I18n.translate(key, me.translationKey, key)),
+            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), Uni.I18n.translate(key, me.translationKey, key)),
             config: {
                 property: me,
                 field: field
@@ -197,7 +198,7 @@ Ext.define('Uni.property.view.property.Base', {
      * },
      */
     getEditCmp: function () {
-        throw 'getDisplayCmp is not implemented';
+        throw 'getEditCmp is not implemented';
     },
 
     /**
@@ -224,7 +225,7 @@ Ext.define('Uni.property.view.property.Base', {
      */
     setValue: function (value) {
         if (this.isEdit) {
-            if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
+            if (this.getProperty() && this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
                 this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
             } else {
                 this.getField().emptyText = '';
@@ -306,13 +307,20 @@ Ext.define('Uni.property.view.property.Base', {
         me.on('afterrender', function () {
             me.setProperty(me.property);
             me.initListeners();
+            me.getResetButton().setHandler(me.restoreDefault, me);
         });
     },
 
     initListeners: function () {
         var me = this;
         var field = me.getField();
+        if (field) {
+            me.addFieldListeners(field);
+        }
+    },
 
+    addFieldListeners: function(field) {
+        var me = this;
         if (field) {
             field.on('change', function () {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
@@ -334,7 +342,6 @@ Ext.define('Uni.property.view.property.Base', {
                 me.customHandlerLogic();
             })
         }
-        this.getResetButton().setHandler(this.restoreDefault, this);
     },
 
     customHandlerLogic: function(){

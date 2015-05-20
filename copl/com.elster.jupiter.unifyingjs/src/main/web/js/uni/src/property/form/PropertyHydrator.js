@@ -17,8 +17,7 @@ Ext.define('Uni.property.form.PropertyHydrator', {
                     propertyValue = Ext.create('Uni.property.model.PropertyValue');
                     property.setPropertyValue(propertyValue);
                     propertyValue.set('value', value);
-                } else {
-                    property.setPropertyValue(Ext.create('Uni.property.model.PropertyValue'));
+                    propertyValue.set('defaultValue', property.get('default'));
                 }
             } else {
                 value = values[property.get('key')];

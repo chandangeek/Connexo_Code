@@ -8,7 +8,7 @@ Ext.define("Ext.ux.exporter.csvformatter.CsvFormatter", {
     extend: "Ext.ux.exporter.Formatter",
     mimeType: 'text/csv',
     charset:'UTF-8',
-    separator: ",",
+    separator: ";",
     extension: "csv",
     format: function(store, config) {
         this.columns = config.columns || (store.fields ? store.fields.items : store.model.prototype.fields.items);
