@@ -34,8 +34,8 @@ Ext.define('Est.estimationtasks.view.LogGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('estimationtasks.log.pagingtoolbartop.displayMsg', 'EST', '{0} - {1} of {2} log lines per page'),
-                displayMoreMsg: Uni.I18n.translate('estimationtasks.log.pagingtoolbartop.displayMoreMsg', 'EST', '{0} - {1} of more than {2} log lines'),
+                displayMsg: Uni.I18n.translate('estimationtasks.log.pagingtoolbartop.displayMsg', 'EST', '{0} - {1} of {1} log lines'),
+                displayMoreMsg: Uni.I18n.translate('estimationtasks.log.pagingtoolbartop.displayMoreMsg', 'EST', '{0} - {1} of more than {1} log lines'),
                 emptyMsg: Uni.I18n.translate('estimationtasks.log.pagingtoolbartop.emptyMsg', 'EST', 'There are no log lines to display')
             },
             {
