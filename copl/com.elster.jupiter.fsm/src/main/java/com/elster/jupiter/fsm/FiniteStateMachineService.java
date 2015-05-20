@@ -99,6 +99,15 @@ public interface FiniteStateMachineService {
     public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name);
 
     /**
+     * Finds the {@link FiniteStateMachine} that is uniquely identified
+     * by the specified id.
+     *
+     * @param id The unique identifier
+     * @return The FiniteStateMachine
+     */
+    public Optional<FiniteStateMachine> findFiniteStateMachineById(long id);
+
+    /**
      * Finds the {@link FiniteStateMachine} with the specified name
      * if such a FiniteStateMachine exists.
      *

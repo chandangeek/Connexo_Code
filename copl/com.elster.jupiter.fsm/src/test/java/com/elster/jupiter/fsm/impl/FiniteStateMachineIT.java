@@ -165,6 +165,58 @@ public class FiniteStateMachineIT {
 
     @Transactional
     @Test
+    public void findStateMachineById() {
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine("findStateMachineById");
+        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("Initial").complete());
+        stateMachine.save();
+
+        // Business method
+        Optional<FiniteStateMachine> found = this.getTestService().findFiniteStateMachineById(stateMachine.getId());
+
+        // Asserts
+        assertThat(found).isPresent();
+        assertThat(found.get().getId()).isEqualTo(stateMachine.getId());
+    }
+
+    @Transactional
+    @Test
+    public void findNonExistingStateMachineById() {
+        // Business method
+        Optional<FiniteStateMachine> found = this.getTestService().findFiniteStateMachineById(Long.MAX_VALUE);
+
+        // Asserts
+        assertThat(found).isEmpty();
+    }
+
+    @Transactional
+    @Test
+    public void findStateMachineByName() {
+        String expectedName = "findStateMachineByName";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("Initial").complete());
+        stateMachine.save();
+
+        // Business method
+        Optional<FiniteStateMachine> found = this.getTestService().findFiniteStateMachineByName(expectedName);
+
+        // Asserts
+        assertThat(found).isPresent();
+        assertThat(found.get().getName()).isEqualTo(expectedName);
+        assertThat(found.get().getId()).isEqualTo(stateMachine.getId());
+    }
+
+    @Transactional
+    @Test
+    public void findNonExistingStateMachineByName() {
+        // Business method
+        Optional<FiniteStateMachine> found = this.getTestService().findFiniteStateMachineByName("findNonExistingStateMachineByName");
+
+        // Asserts
+        assertThat(found).isEmpty();
+    }
+
+    @Transactional
+    @Test
     public void createTwoStateMachinesWithTheSameStateName() {
         FiniteStateMachineServiceImpl service = this.getTestService();
         String sameStateName = "Initial";

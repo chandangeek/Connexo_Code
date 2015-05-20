@@ -347,6 +347,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
+    public Optional<FiniteStateMachine> findFiniteStateMachineById(long id) {
+        return this.dataModel.mapper(FiniteStateMachine.class).getOptional(id);
+    }
+
+    @Override
     public Optional<FiniteStateMachine> findFiniteStateMachineByName(String name) {
         return this.dataModel
                 .mapper(FiniteStateMachine.class)
