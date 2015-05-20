@@ -206,7 +206,7 @@ public class DataExportTaskResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         ReadingTypeDataExportTask task = fetchDataExportTask(id);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-                .setStart(queryParameters.getStart())
+                .setStart(queryParameters.getStartInt())
                 .setLimit(queryParameters.getLimit() + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
@@ -245,7 +245,7 @@ public class DataExportTaskResource {
                 activeExportItems.add(item);
             }
         }
-        List<? extends ReadingTypeDataExportItem> exportItems = ListPager.of(activeExportItems).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        List<? extends ReadingTypeDataExportItem> exportItems = ListPager.of(activeExportItems).paged(queryParameters.getStartInt(), queryParameters.getLimit()).find();
         DataSourceInfos dataSourceInfos = new DataSourceInfos(exportItems.subList(0, Math.min(queryParameters.getLimit(), exportItems.size())));
         dataSourceInfos.total = activeExportItems.size();
 
@@ -262,7 +262,7 @@ public class DataExportTaskResource {
         ReadingTypeDataExportTask task = fetchDataExportTask(id);
         DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder()
-                .setStart(queryParameters.getStart())
+                .setStart(queryParameters.getStartInt())
                 .setLimit(queryParameters.getLimit());
 
         List<? extends LogEntry> occurrences = finder.find();
