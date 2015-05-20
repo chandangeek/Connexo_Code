@@ -4,11 +4,15 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.properties.InstantFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -21,9 +25,10 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -50,6 +55,7 @@ public class DeviceLifeCycleCommands {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile PropertySpecService propertySpecService;
 
     public DeviceLifeCycleCommands() {
         super();
@@ -97,6 +103,12 @@ public class DeviceLifeCycleCommands {
         this.finiteStateMachineService = finiteStateMachineService;
     }
 
+    @Reference
+    @SuppressWarnings("unused")
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @SuppressWarnings("unused")
     public void triggerEvent(String symbolicEventName, String mRID) {
         Optional<StateTransitionEventType> eventType = this.finiteStateMachineService.findStateTransitionEventTypeBySymbol(symbolicEventName);
@@ -136,36 +148,60 @@ public class DeviceLifeCycleCommands {
 
     @SuppressWarnings("unused")
     public void triggerAction(String symbolicEventName, String mRID) {
+        this.triggerAction(symbolicEventName, mRID, null);
+    }
+
+    @SuppressWarnings("unused")
+    public void triggerAction(String symbolicEventName, String mRID, String effectiveTimestamp) {
         Optional<StateTransitionEventType> eventType = this.finiteStateMachineService.findStateTransitionEventTypeBySymbol(symbolicEventName);
         if (eventType.isPresent()) {
-            this.triggerAction(eventType.get(), mRID);
+            this.triggerAction(eventType.get(), mRID, this.parseEffectiveTimestamp(effectiveTimestamp));
         }
         else {
             System.out.println("State transition event type " + symbolicEventName + " does not exist");
         }
     }
 
-    private void triggerAction(StateTransitionEventType eventType, String mRID) {
+    private Instant parseEffectiveTimestamp(String effectiveTimestamp) {
+        try {
+            if (effectiveTimestamp == null) {
+                return this.clock.instant();
+            }
+            else {
+                return ZonedDateTime.parse(effectiveTimestamp, DateTimeFormatter.ISO_LOCAL_DATE).toInstant();
+            }
+        }
+        catch (DateTimeParseException e) {
+            System.out.println("Please respect the following format for the effective timestamp: " + DateTimeFormatter.ISO_LOCAL_DATE.toString());
+            throw e;
+        }
+    }
+
+    private void triggerAction(StateTransitionEventType eventType, String mRID, Instant effectiveTimestamp) {
         Optional<Device> device = this.deviceService.findByUniqueMrid(mRID);
         if (device.isPresent()) {
-            this.triggerAction(eventType,  device.get());
+            this.triggerAction(eventType,  device.get(), effectiveTimestamp);
         }
         else {
             System.out.println("Device with mRID " + mRID + " does not exist");
         }
     }
 
-    private void triggerAction(StateTransitionEventType eventType, Device device) {
+    private void triggerAction(StateTransitionEventType eventType, Device device, Instant effectiveTimestamp) {
         this.executeTransaction(() -> {
             Optional<ExecutableAction> executableAction = this.deviceLifeCycleService.getExecutableActions(device, eventType);
             if (executableAction.isPresent()) {
-                executableAction.get().execute(Collections.emptyList());
+                this.execute(executableAction.get(), device, effectiveTimestamp);
             }
             else {
                 System.out.println("Current state of device with mRID " + device.getmRID() + " does not support the event type");
             }
             return null;
         });
+    }
+
+    private void execute(ExecutableAction action, Device device, Instant effectiveTimestamp) {
+        action.execute(Arrays.asList(new EffectiveTimestampPropertyValue(effectiveTimestamp)));
     }
 
     @SuppressWarnings("unused")
@@ -254,6 +290,29 @@ public class DeviceLifeCycleCommands {
 
     private Principal getPrincipal() {
         return this.userService.findUser("admin").get();
+    }
+
+    private class EffectiveTimestampPropertyValue implements ExecutableActionProperty {
+
+        private final Instant effectiveTimestamp;
+
+        public EffectiveTimestampPropertyValue(Instant effectiveTimestamp) {
+            super();
+            this.effectiveTimestamp = effectiveTimestamp;
+        }
+
+        @Override
+        public PropertySpec getPropertySpec() {
+            return propertySpecService.basicPropertySpec(
+                    DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
+                    true,
+                    new InstantFactory());
+        }
+
+        @Override
+        public Object getValue() {
+            return this.effectiveTimestamp;
+        }
     }
 
 }
