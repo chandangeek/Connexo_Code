@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
+import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -18,6 +19,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -47,7 +49,7 @@ public class FileImportScheduleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    //@RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public Response getImportSchedules(@Context UriInfo uriInfo, @QueryParam("application") String applicationName) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ImportSchedule> list = queryImportSchedules(params)
@@ -71,7 +73,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-   // @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES, Privileges.VIEW_MDC_IMPORT_SERVICES})
     public FileImportScheduleInfo getImportSchedule(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new FileImportScheduleInfo(fetchImportSchedule(id), thesaurus);
     }
@@ -80,7 +82,7 @@ public class FileImportScheduleResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    //@RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
     public Response addImportSchedule(FileImportScheduleInfo info) {
         ImportScheduleBuilder builder = fileImportService.newBuilder()
                 .setName(info.name)
@@ -118,7 +120,7 @@ public class FileImportScheduleResource {
     @DELETE
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    //@RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
     public Response removeImportSchedule(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ImportSchedule importSchedule = fetchImportSchedule(id);
 
@@ -134,7 +136,7 @@ public class FileImportScheduleResource {
     @PUT
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    //@RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
     public Response updateImportSchedule(@PathParam("id") long id, FileImportScheduleInfo info) {
 
         ImportSchedule importSchedule = fetchImportSchedule(info.id);

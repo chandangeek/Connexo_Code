@@ -32,10 +32,7 @@ public class FileImportApplication extends Application implements InstallService
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 FileImportersResource.class,
-                FileImportScheduleResource.class,
-                ConstraintViolationExceptionMapper.class,
-                JsonMappingExceptionMapper.class,
-                LocalizedExceptionMapper.class);
+                FileImportScheduleResource.class);
     }
 
     @Reference
