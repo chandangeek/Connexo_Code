@@ -22,6 +22,7 @@ import javax.validation.ElementKind;
 import javax.validation.metadata.ConstraintDescriptor;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -112,6 +113,16 @@ public class DeviceResource {
 //            updateEstimationStatus(info.estimationStatus, device);
 //        }
         return null;
+    }
+
+    @DELETE
+    @Path("/{mrid}")
+    @RolesAllowed(Privileges.REMOVE_DEVICE)
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    public Response deleteDevice(@PathParam("mrid") String mrid) {
+        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        device.delete();
+        return Response.ok().build();
     }
 
 }
