@@ -6,18 +6,25 @@ import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleProperties;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.AllRelativePeriod;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationService;
@@ -46,6 +53,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.elster.jupiter.estimators.impl.EqualDistribution.ADVANCE_READINGS_SETTINGS;
+import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +66,7 @@ public class AverageWithSamplesEstimatorTest {
     private static final ZonedDateTime ESTIMATABLE_TIME = ZonedDateTime.of(2004, 4, 13, 14, 15, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime START = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime LAST_CHECKED = ZonedDateTime.of(2004, 4, 20, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+
 
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
@@ -73,13 +83,17 @@ public class AverageWithSamplesEstimatorTest {
     private EstimationBlock block;
     private Estimatable estimatable, estimatable2;
     @Mock
-    private ReadingType readingType, bulkReadingType, advanceReadingType;
+    private ReadingType readingType, bulkReadingType, advanceReadingType, deltaReadingType;
     @Mock
-    private Channel channel;
+    private Channel channel, otherChannel;
     @Mock
     private MeterActivation meterActivation;
     @Mock
     private TimeService timeService;
+    @Mock
+    private CimChannel deltaCimChannel, bulkCimChannel, advanceCimChannel;
+    @Mock
+    private Meter meter;
 
     @Before
     public void setUp() {
@@ -90,13 +104,40 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(readingType).when(block).getReadingType();
         doReturn(channel).when(block).getChannel();
         doReturn(meterActivation).when(channel).getMeterActivation();
+
+
+        doReturn(Optional.of(meter)).when(meterActivation).getMeter();
+        doReturn(asList(channel, otherChannel)).when(meterActivation).getChannels();
+        doReturn(asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
+        doReturn(Collections.singletonList(advanceReadingType)).when(otherChannel).getReadingTypes();
+        doReturn(Optional.of(deltaCimChannel)).when(channel).getCimChannel(readingType);
+        doReturn(Optional.of(bulkCimChannel)).when(channel).getCimChannel(bulkReadingType);
+        doReturn(Optional.of(deltaCimChannel)).when(channel).getCimChannel(deltaReadingType);
+        doReturn(Optional.of(advanceCimChannel)).when(otherChannel).getCimChannel(advanceReadingType);
+
+
         doReturn(START.toInstant()).when(meterActivation).getStart();
         doReturn(Optional.of(LAST_CHECKED.toInstant())).when(validationService).getLastChecked(channel);
         doReturn(buildReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
         doReturn(TimeZoneNeutral.getMcMurdo()).when(channel).getZoneId();
         doReturn(readingType).when(block).getReadingType();
         doReturn(Optional.of(bulkReadingType)).when(readingType).getBulkReadingType();
+        doReturn(false).when(deltaReadingType).isCumulative();
+        doReturn(true).when(deltaReadingType).isRegular();
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).minus(15, ChronoUnit.MINUTES)).when(channel).getPreviousDateTime(any());
+
+        doReturn("readingType").when(readingType).getMRID();
+        doReturn("deltaReadingType").when(deltaReadingType).getMRID();
+        doReturn("bulkReadingType").when(bulkReadingType).getMRID();
+        doReturn("advanceReadingType").when(advanceReadingType).getMRID();
+        doReturn("meter").when(meter).getMRID();
+
+        doReturn(true).when(readingType).isRegular();
+        doReturn(true).when(deltaReadingType).isRegular();
+        doReturn(true).when(bulkReadingType).isCumulative();
+        doReturn(true).when(bulkReadingType).isRegular();
+
+        LoggingContext.get().with("rule", "rule");
     }
 
     private List<BaseReadingRecord> buildReadings() {
@@ -171,9 +212,10 @@ public class AverageWithSamplesEstimatorTest {
         return reading;
     }
 
+
     @After
     public void tearDown() {
-
+        LoggingContext.get().close();
     }
 
     @Test
@@ -247,6 +289,9 @@ public class AverageWithSamplesEstimatorTest {
     @Test
     public void testEstimateFailIfTooManySuspects() {
         Estimatable estimatableExtra = mock(Estimatable.class);
+
+        doReturn(ESTIMATABLE_TIME.minusMinutes(15).toInstant()).when(estimatableExtra).getTimestamp();
+
         doReturn(asList(estimatableExtra, estimatable)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L)
@@ -278,26 +323,6 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
                 .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, NoneAdvanceReadingsSettings.INSTANCE)
-                .build();
-        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
-
-        estimator.init();
-
-        EstimationResult result = estimator.estimate(asList(block));
-
-        assertThat(result.estimated()).isEmpty();
-        assertThat(result.remainingToBeEstimated()).containsExactly(block);
-    }
-
-    @Test
-    public void testEstimateFailUsingBulkToScaleSinceBlockSizeIs1() {
-        Map<String, Object> props = ImmutableMap.<String, Object>builder()
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
-                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
-                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
-                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
-                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
-                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
                 .build();
         AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
@@ -412,5 +437,60 @@ public class AverageWithSamplesEstimatorTest {
         public BigDecimal getEstimation() {
             return bigDecimal;
         }
+    }
+
+    @Test(expected = LocalizedFieldValidationException.class)
+    public void testInvalidPropertiesWhenConsecutiveIsZero() {
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
+
+        estimator.validateProperties(Collections.singletonList(property));
+    }
+
+    @Test(expected = LocalizedFieldValidationException.class)
+    public void testInvalidPropertiesWhenConsecutiveIsNegative() {
+        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, -1L);
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
+
+        estimator.validateProperties(Collections.singletonList(property));
+    }
+
+    @Test(expected = LocalizedFieldValidationException.class)
+    public void testInvalidPropertiesWhenNonCumulativeReadingTypeSpecified() {
+        EstimationRuleProperties property = estimationRuleProperty(ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(deltaReadingType));
+
+        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
+
+        estimator.validateProperties(Collections.singletonList(property));
+    }
+
+    private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
+        return new EstimationRuleProperties() {
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public String getDisplayName() {
+                return name;
+            }
+
+            @Override
+            public Object getValue() {
+                return value;
+            }
+
+            @Override
+            public void setValue(Object value) {
+            }
+
+            @Override
+            public EstimationRule getRule() {
+                return mock(EstimationRule.class);
+            }
+        };
     }
 }
