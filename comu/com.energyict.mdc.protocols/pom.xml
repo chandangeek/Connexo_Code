@@ -130,13 +130,22 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- we need version 2.5.3 for baselining
-                     but that version gives error on this bundle
-                     but 2.5.4 baselining does not work
-                     -->
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.5.4</version>
+
+                <!-- Bundle plugin 2.5.3 is needed for baselining
+                     but that version gives error on this bundle.
+                     Bundle plugin version 2.5.4 is a big fuck up so we can't use it
+                     see https://issues.apache.org/jira/browse/FELIX-4882
+                     Luckily I can introduce the dependency on the bndlib that fixes the ArrayIndexOutOfBounds
+                    -->
+                <dependencies>
+                    <dependency>
+                        <groupId>biz.aQute.bnd</groupId>
+                        <artifactId>biz.aQute.bndlib</artifactId>
+                        <version>2.4.1</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
