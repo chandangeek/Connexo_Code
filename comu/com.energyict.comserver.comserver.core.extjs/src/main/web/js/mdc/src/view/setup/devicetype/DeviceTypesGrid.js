@@ -30,7 +30,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
-                items: 'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
+                menu: {
+                    xtype: 'device-type-action-menu'
+                }
             }
         ];
         me.dockedItems = [

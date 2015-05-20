@@ -233,7 +233,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 },
                 items: [
                     {
-                        xtype: 'deviceGeneralInformationPanel'
+                        xtype: 'deviceGeneralInformationPanel',
+                        router: me.router
                     },
                     {
                         xtype: 'deviceCommunicationTopologyPanel',
@@ -249,29 +250,22 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     align: 'stretch'
                 },
                 defaults: {
+                    style: {
+                        marginRight: '20px',
+                        padding: '20px'
+                    },
                     flex: 1
                 },
                 items: [
                     {
                         xtype: 'deviceOpenIssuesPanel',
                         privileges: Isu.privileges.Issue.viewAdminDevice,
-                        router: me.router,
-                        style: {
-                            marginRight: '20px',
-                            padding: '20px'
-                        }
+                        router: me.router
                     },
                     {
-                        xtype: 'container',
-                        style: {
-                            marginRight: '20px'
-                        },
-                        items: {
-                            xtype: 'device-data-validation-panel',
-                            privileges: Cfg.privileges.Validation.fineTuneOnDevice,
-                            mRID: me.device.get('mRID')
-                        }
-
+                        xtype: 'device-data-validation-panel',
+                        privileges: Cfg.privileges.Validation.fineTuneOnDevice,
+                        mRID: me.device.get('mRID')
                     }
                 ]
             },

@@ -19,6 +19,11 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 href: '#/devices/' + mRID
             },
             {
+                text: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                itemId: 'device-history-link',
+                href: '#/devices/' + mRID + '/history'
+            },
+            {
                 title: 'Data sources',
                 xtype: 'menu',
                 items: [
@@ -129,7 +134,8 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         href: '#/devices/' + mRID + '/dataestimation',
                         showCondition: me.device.get('hasLogBooks')
                         || me.device.get('hasLoadProfiles')
-                        || me.device.get('hasRegisters')
+                        || me.device.get('hasRegisters'),
+                        privileges: Mdc.privileges.DeviceConfigurationEstimations.view
                     }
                 ]
             }

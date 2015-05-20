@@ -4,35 +4,35 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
     router: null,
     items: [
         {
-            text: 'Run',
+            text: Uni.I18n.translate('general.run', 'MDC', 'Run'),
             action: 'run',
             visible: function() {
                 return this.record.get('connectionStrategyKey') === 'minimizeConnections';
             }
         },
         {
-            text: 'Run now',
+            text: Uni.I18n.translate('general.runNow', 'MDC', 'Run now'),
             action: 'runNow',
             visible: function() {
                 return !!this.record.get('connectionStrategyKey');
             }
         },
         {
-            text: 'Activate',
+            text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
             action: 'toggleActivation',
             visible: function() {
-                return !!this.record.get('isOnHold')
+                return !!this.record.get('plannedDate') && !!this.record.get('isOnHold')
             }
         },
         {
-            text: 'Deactivate',
+            text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
             action: 'toggleActivation',
             visible: function() {
                 return !this.record.get('isOnHold')
             }
         },
         {
-            text: 'View history',
+            text: Uni.I18n.translate('general.viewHistory', 'MDC', 'View history'),
             action: 'viewHistory',
             handler: function() {
                 var me = this.parentMenu;
@@ -45,8 +45,11 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
         beforeshow: function() {
             var me = this;
             me.items.each(function(item){
-                (item.visible && !item.visible.call(me) &&
-                        !Mdc.privileges.Device.canOperateDeviceCommunication()) ? item.hide() : item.show();
+                if (item.visible == undefined) {
+                    item.show();
+                } else {
+                    item.visible.call(me) && Mdc.privileges.Device.canOperateDeviceCommunication() ? item.show() : item.hide();
+                }
             })
         }
     }
