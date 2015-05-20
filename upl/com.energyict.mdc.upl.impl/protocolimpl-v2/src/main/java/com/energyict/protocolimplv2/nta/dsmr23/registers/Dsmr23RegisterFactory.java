@@ -2,12 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -16,12 +11,7 @@ import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -40,11 +30,7 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -98,7 +84,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(validRegisters, protocol.getDlmsSessionProperties().isBulkRequest());
         for (OfflineRegister register : allRegisters) {
             if (!validRegisters.contains(register)) {
-                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
+                collectedRegisters.add(createUnsupportedRegister(register));
                 continue;
             }
             RegisterValue rv = null;
@@ -128,18 +114,18 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
                 } else {
-                    collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
+                    collectedRegisters.add(createUnsupportedRegister(register));
                 }
             } catch (IOException e) {
                 if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
                     if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                        collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
+                        collectedRegisters.add(createUnsupportedRegister(register));
                     } else {
-                        collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage()));
+                        collectedRegisters.add(createIncompatibleRegister(register, e.getMessage()));
                     }
                 }
             } catch (IndexOutOfBoundsException e) {
-                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage()));
+                collectedRegisters.add(createIncompatibleRegister(register, e.getMessage()));
             }
         }
         return collectedRegisters;
@@ -390,13 +376,15 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode());
     }
 
-    protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
+    protected CollectedRegister createUnsupportedRegister(OfflineRegister register) {
         CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
-        if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
-        } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
-        }
+        collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+        return collectedRegister;
+    }
+
+    protected CollectedRegister createIncompatibleRegister(OfflineRegister register, String errorMessage) {
+        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage));
         return collectedRegister;
     }
 }

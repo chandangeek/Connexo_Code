@@ -130,9 +130,9 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
     private void handleIOException(List<CollectedRegister> collectedRegisters, OfflineRegister register, IOException e) {
         if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
             if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
+                collectedRegisters.add(createUnsupportedRegister(register));
             } else {
-                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage()));
+                collectedRegisters.add(createIncompatibleRegister(register, e.getMessage()));
             }
         }
     }
