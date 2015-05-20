@@ -1,4 +1,4 @@
-package com.energyict.mdc.multisense.api;
+package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.domain.util.QueryParameters;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.energyict.mdc.multisense.api;
+package com.energyict.mdc.multisense.api.impl;
 
 /**
  * Created by bvn on 5/12/15.

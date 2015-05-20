@@ -1,4 +1,4 @@
-package com.energyict.mdc.multisense.api;
+package com.energyict.mdc.multisense.api.impl;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.net.URI;

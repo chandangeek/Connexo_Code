@@ -1,4 +1,4 @@
-package com.energyict.mdc.multisense;
+package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;

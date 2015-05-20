@@ -1,4 +1,4 @@
-package com.energyict.mdc.multisense.api;
+package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.conditions.Condition;
