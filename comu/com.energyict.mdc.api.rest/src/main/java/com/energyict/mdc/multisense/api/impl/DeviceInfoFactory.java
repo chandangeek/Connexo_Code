@@ -109,8 +109,6 @@ public class DeviceInfoFactory {
                     UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().
                             path(LogBookResource.class).
                             path(LogBookResource.class, "getLogBook").
-                            resolveTemplate("deviceTypeId", device.getDeviceType().getId()).
-                            resolveTemplate("deviceConfigurationId", device.getDeviceConfiguration().getId()).
                             resolveTemplate("deviceId", device.getmRID()).
                             resolveTemplate("id", logBook.getId());
                     linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("log book").build();
@@ -127,8 +125,6 @@ public class DeviceInfoFactory {
                     UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().
                             path(LoadProfileResource.class).
                             path(LoadProfileResource.class, "getLoadProfile").
-                            resolveTemplate("deviceTypeId", device.getDeviceType().getId()).
-                            resolveTemplate("deviceConfigurationId", device.getDeviceConfiguration().getId()).
                             resolveTemplate("deviceId", device.getmRID()).
                             resolveTemplate("id", loadProfile.getId());
                     linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("load profile").build();

@@ -17,7 +17,7 @@ import javax.ws.rs.core.UriInfo;
 /**
  * Created by bvn on 4/22/15.
  */
-@Path("/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigurationId}/devices/{deviceId}/loadprofiles")
+@Path("/devices/{deviceId}/loadprofiles")
 public class LoadProfileResource {
 
     @Inject
