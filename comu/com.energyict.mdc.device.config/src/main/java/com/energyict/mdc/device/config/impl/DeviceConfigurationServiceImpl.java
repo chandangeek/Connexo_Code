@@ -39,8 +39,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -58,10 +60,12 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,6 +91,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ProtocolPluggableService protocolPluggableService;
 
     private volatile DataModel dataModel;
+    private volatile Clock clock;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
@@ -108,9 +114,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setOrmService(ormService);
+        this.setClock(clock);
+        this.setThreadPrincipalService(threadPrincipalService);
         this.setUserService(userService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -153,10 +161,36 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public String changeDeviceLifeCycleTopicName() {
+        return EventType.DEVICELIFECYCLE_UPDATED.topic();
+    }
+
+    @Override
+    public void changeDeviceLifeCycle(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws IncompatibleDeviceLifeCycleChangeException {
+        if (deviceType.getDeviceLifeCycle().getId() != deviceLifeCycle.getId()) {
+            this.changeDeviceLifeCycle((ServerDeviceType) deviceType, deviceLifeCycle);
+        }
+    }
+
+    private void changeDeviceLifeCycle(ServerDeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws IncompatibleDeviceLifeCycleChangeException {
+        DeviceLifeCycleChangeEventSimpleImpl event = new DeviceLifeCycleChangeEventSimpleImpl(this.clock.instant(), deviceType, deviceLifeCycle, this.getCurrentUser());
+        this.eventService.postEvent(this.changeDeviceLifeCycleTopicName(), event);
+        deviceType.updateDeviceLifeCycle(deviceLifeCycle);
+    }
+
+    private Optional<User> getCurrentUser() {
+        Principal principal = threadPrincipalService.getPrincipal();
+        if (!(principal instanceof User)) {
+            return Optional.empty();
+        }
+        return Optional.of((User) principal);
+    }
+
+    @Override
     public Optional<DeviceConfiguration> findDeviceConfiguration(long id) {
         return this.getDataModel().mapper((DeviceConfiguration.class)).getUnique("id", id);
     }
-    
+
     @Override
     public Optional<DeviceConfiguration> findAndLockDeviceConfigurationByIdAndVersion(long id, long version) {
         return this.getDataModel().mapper(DeviceConfiguration.class).lockObjectIfVersion(version, id);
@@ -387,6 +421,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
         initPrivileges();
@@ -473,7 +517,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         // Not actively used but required for foreign keys in TableSpecs
         this.validationService = validationService;
     }
-    
+
     @Reference
     public void setEstimationService(EstimationService estimationService) {
         // Not actively used but required for foreign keys in TableSpecs
@@ -575,11 +619,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
                 select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("name"));
     }
-    
+
     @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
-        Condition condition = where(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName() + "." + 
-                                    DeviceConfigurationEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).isEqualTo(estimationRuleSet); 
+        Condition condition = where(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName() + "." +
+                                    DeviceConfigurationEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).isEqualTo(estimationRuleSet);
         return DefaultFinder.of(DeviceConfiguration.class, condition, dataModel, DeviceConfigurationEstimationRuleSetUsage.class).sorted("name", true);
     }
 

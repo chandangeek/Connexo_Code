@@ -19,6 +19,7 @@ public enum EventType {
     DEVICETYPE_CREATED("devicetype/CREATED"),
     DEVICETYPE_UPDATED("devicetype/UPDATED"),
     DEVICETYPE_DELETED("devicetype/DELETED"),
+    DEVICELIFECYCLE_UPDATED("devicetype/dlc/UPDATED"),
     DEVICECONFIGURATION_CREATED("deviceconfiguration/CREATED"),
     DEVICECONFIGURATION_UPDATED("deviceconfiguration/UPDATED"),
     DEVICECONFIGURATION_DELETED("deviceconfiguration/DELETED"),
@@ -180,7 +181,6 @@ public enum EventType {
     DEVICE_MESSAGE_ENABLEMENT_UPDATED("devicemessageenablement/UPDATED"),
     DEVICE_MESSAGE_ENABLEMENT_CREATED("devicemessageenablement/CREATED"),
     DEVICE_MESSAGE_ENABLEMENT_DELETE("devicemessageenablement/DELETED");
-
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";
     private final String topic;

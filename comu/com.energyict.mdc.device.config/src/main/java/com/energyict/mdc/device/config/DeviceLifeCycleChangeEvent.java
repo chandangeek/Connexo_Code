@@ -32,6 +32,13 @@ public interface DeviceLifeCycleChangeEvent {
     public DeviceLifeCycle getDeviceLifeCycle();
 
     /**
+     * Gets the {@link DeviceType} on which the DeviceLifeCycle was changed.
+     *
+     * @return The DeviceType
+     */
+    public DeviceType getDeviceType();
+
+    /**
      * Gets the User that triggered the change.
      *
      * @return The user

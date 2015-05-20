@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -15,6 +11,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.util.List;
 import java.util.Optional;
@@ -78,6 +79,24 @@ public interface DeviceConfigurationService {
     public Optional<DeviceType> findDeviceTypeByName(String name);
 
     /**
+     * Returns the topic onto which {@link DeviceLifeCycleChangeEvent}s are published.
+     *
+     * @return The topic
+     */
+    public String changeDeviceLifeCycleTopicName();
+
+    /**
+     * Changes the {@link DeviceLifeCycle} of the specified {@link DeviceType}
+     * to the specified DeviceLifeCycle, making sure that the switch will
+     * not cause any problems on the existing devices of this type.
+     * Note that this may throw an {@link IncompatibleDeviceLifeCycleChangeException}.
+     *
+     * @param deviceType The DeviceType
+     * @param deviceLifeCycle The new DeviceLifeCycle
+     */
+    public void changeDeviceLifeCycle(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws IncompatibleDeviceLifeCycleChangeException;
+
+    /**
      * Finds a {@link DeviceConfiguration} which is uniquely identified by the given ID.
      *
      * @param id the id of the DeviceConfiguration
@@ -86,13 +105,15 @@ public interface DeviceConfigurationService {
     public Optional<DeviceConfiguration> findDeviceConfiguration(long id);
 
     /**
-     * Finds and locks a {@link DeviceConfiguration} which is uniquely identified by the given ID and with the given VERSION
+     * Finds and locks a {@link DeviceConfiguration} which is uniquely identified by the given ID and with the given VERSION.
      *
      * @param id the id of the DeviceConfiguration
      * @param version the version of the DeviceConfiguration
-     * @return the DeviceConfiguration or <code>null</code> if there is no such DeviceConfiguration
+     * @return the DeviceConfiguration or empty if either the DeviceConfiguration does not exist
+     *         or the version of the DeviceConfiguration is not equal to the specified version
      */
     public Optional<DeviceConfiguration> findAndLockDeviceConfigurationByIdAndVersion(long id, long version);
+
     /**
      * Finds a {@link ChannelSpec} which is uniquely identified by the given ID.
      *
@@ -233,7 +254,7 @@ public interface DeviceConfigurationService {
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
 
     public List<SecurityPropertySet> findUniqueSecurityPropertySets();
-    
+
     public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 
 }

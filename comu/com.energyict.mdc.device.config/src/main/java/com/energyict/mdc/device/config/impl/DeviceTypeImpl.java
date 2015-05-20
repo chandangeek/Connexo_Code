@@ -23,11 +23,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -46,7 +43,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
-public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
+public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
@@ -66,9 +63,13 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     private Clock clock;
@@ -95,14 +96,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return this;
     }
 
-    private void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle, Instant effective) {
-        Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        this.deviceLifeCycle.add(
-                this.dataModel
-                        .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
-                        .initialize(effectivityInterval, this, deviceLifeCycle));
-    }
-
     static DeviceTypeImpl from(DataModel dataModel, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
         return dataModel.getInstance(DeviceTypeImpl.class).initialize(name, deviceProtocolPluggableClass, deviceLifeCycle);
     }
@@ -115,6 +108,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void save() {
         super.save();
         this.deviceProtocolPluggableClassChanged = false;
+    }
+
+    public void touch() {
+        if (this.getId() != 0) {
+            this.dataModel.touch(this);
+        }
     }
 
     @Override
@@ -201,6 +200,28 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return this.deviceLifeCycle
                 .effective(when)
                 .map(DeviceLifeCycleInDeviceType::getDeviceLifeCycle);
+    }
+
+    @Override
+    public void updateDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle) {
+        Instant now = this.clock.instant();
+        this.closeCurrentDeviceLifeCycle(now);
+        this.setDeviceLifeCycle(deviceLifeCycle, now);
+        this.touch();
+    }
+
+    private void closeCurrentDeviceLifeCycle(Instant now) {
+        DeviceLifeCycleInDeviceType deviceLifeCycleInDeviceType = this.deviceLifeCycle.effective(now).get();
+        deviceLifeCycleInDeviceType.close(now);
+        this.dataModel.update(deviceLifeCycleInDeviceType);
+    }
+
+    private void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle, Instant effective) {
+        Interval effectivityInterval = Interval.of(Range.atLeast(effective));
+        this.deviceLifeCycle.add(
+                this.dataModel
+                        .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
+                        .initialize(effectivityInterval, this, deviceLifeCycle));
     }
 
     @Override
@@ -294,29 +315,26 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<LogBookType> getLogBookTypes() {
-        List<LogBookType> logBookTypes = new ArrayList<>(this.logBookTypeUsages.size());
-        for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
-            logBookTypes.add(logBookTypeUsage.getLogBookType());
-        }
-        return logBookTypes;
+        return this.logBookTypeUsages
+                .stream()
+                .map(DeviceTypeLogBookTypeUsage::getLogBookType)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<RegisterType> getRegisterTypes() {
-        List<RegisterType> registerTypes = new ArrayList<>(this.registerTypeUsages.size());
-        for (DeviceTypeRegisterTypeUsage registerTypeUsage : this.registerTypeUsages) {
-            registerTypes.add(registerTypeUsage.getRegisterType());
-        }
-        return registerTypes;
+        return this.registerTypeUsages
+                .stream()
+                .map(DeviceTypeRegisterTypeUsage::getRegisterType)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<LoadProfileType> getLoadProfileTypes() {
-        List<LoadProfileType> loadProfileTypes = new ArrayList<>(this.loadProfileTypeUsages.size());
-        for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : this.loadProfileTypeUsages) {
-            loadProfileTypes.add(loadProfileTypeUsage.getLoadProfileType());
-        }
-        return loadProfileTypes;
+        return this.loadProfileTypeUsages
+                .stream()
+                .map(DeviceTypeLoadProfileTypeUsage::getLoadProfileType)
+                .collect(Collectors.toList());
     }
 
     @Override

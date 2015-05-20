@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.users.User;
@@ -31,6 +32,11 @@ public class DeviceLifeCycleChangeEventImpl implements DeviceLifeCycleChangeEven
     @Override
     public DeviceLifeCycle getDeviceLifeCycle() {
         return this.entity.getDeviceLifeCycle();
+    }
+
+    @Override
+    public DeviceType getDeviceType() {
+        return this.entity.getDeviceType();
     }
 
     @Override
