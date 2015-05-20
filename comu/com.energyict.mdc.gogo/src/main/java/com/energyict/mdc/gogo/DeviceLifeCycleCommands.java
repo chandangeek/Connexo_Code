@@ -168,7 +168,7 @@ public class DeviceLifeCycleCommands {
                 return this.clock.instant();
             }
             else {
-                return ZonedDateTime.parse(effectiveTimestamp, DateTimeFormatter.ISO_LOCAL_DATE).toInstant();
+                return ZonedDateTime.parse(effectiveTimestamp, DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.systemDefault())).toInstant();
             }
         }
         catch (DateTimeParseException e) {
