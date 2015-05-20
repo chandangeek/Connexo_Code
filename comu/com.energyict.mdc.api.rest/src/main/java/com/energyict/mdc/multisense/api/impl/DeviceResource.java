@@ -87,7 +87,7 @@ public class DeviceResource {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfiguration.id);
         }
 
-        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mIRD, info.mIRD);
+        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(info.yearOfCertification);
         newDevice.save();

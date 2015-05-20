@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
 public class DeviceInfo extends LinkInfo {
-    public String mIRD;
+    public String mRID;
     //    public DeviceEstimationStatusInfo estimationStatus;
     public Long version;
     public String serialNumber;

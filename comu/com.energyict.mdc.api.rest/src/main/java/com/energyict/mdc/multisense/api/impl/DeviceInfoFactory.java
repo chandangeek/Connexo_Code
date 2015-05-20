@@ -79,7 +79,7 @@ public class DeviceInfoFactory {
             Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
             if (physicalGateway.isPresent()) {
                 deviceInfo.masterDevice = new DeviceInfo();
-                deviceInfo.masterDevice.mIRD = physicalGateway.get().getmRID();
+                deviceInfo.masterDevice.mRID = physicalGateway.get().getmRID();
                 if (uriInfo.isPresent()) {
                     UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").resolveTemplate("mrid", physicalGateway.get().getmRID());
                     deviceInfo.masterDevice.link = Link.fromUriBuilder(uriBuilder).rel("related").title("gateway").build();
