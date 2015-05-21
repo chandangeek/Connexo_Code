@@ -19,7 +19,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetsGrid', {
                     return '<a href="' +
                         me.router.getRoute('administration/estimationrulesets/estimationruleset').buildUrl({ruleSetId: record.getId()}) +
                         '">' +
-                        value +
+                        Ext.String.htmlEncode(value) +
                         '</a>'
                 },
                 flex: 2
