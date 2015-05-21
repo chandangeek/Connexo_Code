@@ -18,12 +18,12 @@ Ext.define('Fim.view.importServices.Grid', {
                     var url = me.router.getRoute('administration/importservices/importservice').buildUrl({importServiceId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
                 },
-                flex: 1
+                flex: 2
             },
 			{
                 header: Uni.I18n.translate('importService.fileImporter', 'FIM', 'File importer'),
                 dataIndex: 'fileImporter',				
-                flex: 1
+                flex: 2
             },
 			{
                 header: Uni.I18n.translate('general.status', 'FIM', 'Status'),
@@ -43,7 +43,7 @@ Ext.define('Fim.view.importServices.Grid', {
             {
                 header: Uni.I18n.translate('general.importFolder', 'FIM', 'Imported folder'),
                 dataIndex: 'importDirectory',
-                flex: 1
+                flex: 3
             },
 			{
                 header: Uni.I18n.translate('importService.filePattern', 'FIM', 'File pattern'),
