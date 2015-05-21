@@ -51,23 +51,6 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                         Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
                                 }
                             },
-
-                            /*{
-                                itemId: 'registersField',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
-                                name: 'registerSuspectCount',
-                                renderer: function (value) {
-                                    return value + ' ' + Uni.I18n.translate('device.suspects.lastYear', 'MDC', 'suspects (last year)');
-                                }
-                            },
-                            {
-                                itemId: 'profilesField',
-                                fieldLabel: Uni.I18n.translate('deviceconfigurationmenu.loadProfiles', 'MDC', 'Load profiles'),
-                                name: 'loadProfileSuspectCount',
-                                renderer: function (value) {
-                                    return value + ' ' + Uni.I18n.translate('device.suspects.lastMonth', 'MDC', 'suspects (last month)');
-                                }
-                            },*/
                             {
                                 xtype: 'fieldcontainer',
                                 itemId: 'fld-validation-result',
