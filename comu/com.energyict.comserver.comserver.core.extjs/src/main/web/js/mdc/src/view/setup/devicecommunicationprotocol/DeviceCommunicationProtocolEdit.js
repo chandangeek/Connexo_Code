@@ -40,11 +40,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 },
 
                 items: [
-//                    {
-//                        xtype: 'component',
-//                        html: '',
-//
-//                    },
                     {
                         xtype: 'container',
                         items: [

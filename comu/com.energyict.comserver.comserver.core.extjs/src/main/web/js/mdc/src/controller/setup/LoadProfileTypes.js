@@ -157,7 +157,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 loadTypesWord = ' load profile types'
             }
             var widget = Ext.widget('container', {
-                html: loadTypeCount + loadTypesWord
+                html: Ext.String.htmlEncode(loadTypeCount + loadTypesWord)
             });
             Ext.suspendLayouts();
             numberOfLoadTypesContainer.removeAll(true);

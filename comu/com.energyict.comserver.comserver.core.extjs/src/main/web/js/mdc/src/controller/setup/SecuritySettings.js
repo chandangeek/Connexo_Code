@@ -405,7 +405,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         Ext.suspendLayouts();
         formErrorsPanel.removeAll();
         formErrorsPanel.add({
-            html: 'There are errors on this page that require your attention.'
+            html: Ext.String.htmlEncode('There are errors on this page that require your attention.')
         });
         Ext.resumeLayouts();
         formErrorsPanel.show();
