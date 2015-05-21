@@ -41,6 +41,7 @@ public class MdcAppInstaller implements InstallService {
     public static final String PRIVILEGE_VIEW_ISSUE = "privilege.view.issue";
     public static final String PRIVILEGE_VIEW_MASTER_DATA = "privilege.view.masterData";
     public static final String PRIVILEGE_VIEW_VALIDATION = "privilege.view.validationConfiguration";
+    public static final String VIEW_MDC_IMPORT_SERVICES = "privilege.view.mdc.importServices";
 
 
     private final Logger logger = Logger.getLogger(MdcAppInstaller.class.getName());
@@ -100,7 +101,7 @@ public class MdcAppInstaller implements InstallService {
                 PRIVILEGE_VIEW_COMMUNICATION, PRIVILEGE_VIEW_DEVICE,
                 PRIVILEGE_OPERATE_DEVICECOMMUNICATION, PRIVILEGE_ADMINISTRATE_DEVICEDATA, PRIVILEGE_VIEW_DEVICETYPE,
                 PRIVILEGE_ACCTION_ISSUE_ACTION, PRIVILEGE_ASSIGN_ISSUE, PRIVILEGE_CLOSE_ISSUE, PRIVILEGE_COMMENT_ISSUE, PRIVILEGE_VIEW_ISSUE,
-                PRIVILEGE_VIEW_MASTER_DATA, PRIVILEGE_VIEW_VALIDATION
+                PRIVILEGE_VIEW_MASTER_DATA, PRIVILEGE_VIEW_VALIDATION, VIEW_MDC_IMPORT_SERVICES
         };
     }
 

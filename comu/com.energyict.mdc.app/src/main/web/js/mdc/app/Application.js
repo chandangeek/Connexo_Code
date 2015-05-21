@@ -16,7 +16,8 @@ Ext.define('MdcApp.Application', {
         'Yfn.privileges.Yellowfin',
         'Isu.privileges.Issue',
         'Dxp.privileges.DataExport',
-        'Dlc.privileges.DeviceLifeCycle'
+        'Dlc.privileges.DeviceLifeCycle',
+        'Fim.privileges.DataImport'
     ],
     controllers: [
         'MdcApp.controller.Main'
