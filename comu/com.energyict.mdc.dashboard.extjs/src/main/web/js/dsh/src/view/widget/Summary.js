@@ -102,6 +102,7 @@ Ext.define('Dsh.view.widget.Summary', {
                 filter[record.get('alias')] = item.get('id');
                 var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
                 item.set('href', href);
+                item.set('itemId', 'summary-percentage-' + item.get('displayName').toLowerCase());
             }
         });
 

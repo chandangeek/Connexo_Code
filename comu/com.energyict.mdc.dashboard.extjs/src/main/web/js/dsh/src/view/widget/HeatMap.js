@@ -159,7 +159,9 @@ Ext.define('Dsh.view.widget.HeatMap', {
             store = me.store,
             chartHeight;
 
+
         if (me.parent != 'connections' || (me.getCombo() && me.getCombo().getValue())) {
+            me.setLoading();
             store.load({
                 callback: function () {
                     var cmp = me.down('#heatmapchart');
@@ -173,6 +175,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
                     } else {
                         me.hide();
                     }
+                    me.setLoading(false);
                 }
             });
         }

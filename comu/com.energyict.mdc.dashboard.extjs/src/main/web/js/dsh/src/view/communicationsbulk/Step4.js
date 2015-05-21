@@ -31,6 +31,6 @@ Ext.define('Dsh.view.communicationsbulk.Step4', {
                 break;
         }
 
-        me.update(text);
+        me.add({xtype: 'box', width: '100%', html: text, itemId: 'text-message4', text: text});
     }
 });
