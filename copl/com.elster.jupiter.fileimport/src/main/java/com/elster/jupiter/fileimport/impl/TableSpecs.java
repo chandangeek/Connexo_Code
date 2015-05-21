@@ -19,7 +19,6 @@ enum TableSpecs {
             table.map(ImportScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.setJournalTableName("FIM_IMPORT_SCHEDULEJRNL");
-            table.addAuditColumns();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.column("IMPORTERNAME").varChar(NAME_LENGTH).notNull().map("importerName").add();
@@ -30,6 +29,7 @@ enum TableSpecs {
             table.column("INPROCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2FILE).map("inProcessDirectory").add();
             table.column("SUCCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2FILE).map("successDirectory").add();
             table.column("FAILDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2FILE).map("failureDirectory").add();
+            table.addAuditColumns();
             table.primaryKey("FIM_PK_IMPORT_SCHEDULE").on(idColumn).add();
         }
 
