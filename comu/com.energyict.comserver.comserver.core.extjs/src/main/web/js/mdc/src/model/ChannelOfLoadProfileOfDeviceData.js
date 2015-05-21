@@ -190,16 +190,12 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {
             type: 'hasOne',
             name: 'deltaValidationInfo',
-            foreignKey: 'deltaValidationInfo',
-            associationKey: 'deltaValidationInfo',
             model: 'Mdc.model.ChannelReadingValidationResult',
             getterName: 'getDeltaValidationInfo'
         },
         {
             type: 'hasOne',
             name: 'bulkValidationInfo',
-            associationKey: 'bulkValidationInfo',
-            foreignKey: 'bulkValidationInfo',
             model: 'Mdc.model.ChannelReadingValidationResult',
             getterName: 'getBulkValidationInfo'
         }
