@@ -181,7 +181,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             }
         }
         if ((maxSamples != null) && (minSamples != null) && (maxSamples < minSamples)) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_SAMPLES, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_SAMPLES, "properties." + MAX_NUMBER_OF_SAMPLES);
         }
     }
 

@@ -10,11 +10,11 @@ import java.util.logging.Logger;
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_ESTIMATOR(1001, "estimator.doesnotexist", "Estimator {0} does not exist.", Level.SEVERE),
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE),
-    INVALID_NUMBER_OF_SAMPLES(1003, "property.error.maxNumberOfSamples", "The maximum number of samples cannot be smaller than the minimum number of samples", Level.SEVERE),
-    INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS(1004, "property.error.invalidMaxNumberOfConsecutiveSuspects", "The maximum number of consecutive suspects allowed should be greater dan zero", Level.SEVERE),
-    INVALID_ADVANCE_READINGTYPE(1005, "property.error.advanceReadingsSettings", "The reading type should be a cumulative reading type", Level.SEVERE),
-    INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE(1006, "property.error.maxNumberOfConsecutiveSuspectsShouldBeInteger", "The maximum should be a whole number", Level.SEVERE),
-    INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED(1007, "property.error.advanceReadingsSettings.not.none", "None is not allowed as advance reading setting.", Level.SEVERE);
+    INVALID_NUMBER_OF_SAMPLES(1003, "property.error.maxNumberOfSamples", "Maximum cannot be smaller than minimum", Level.SEVERE),
+    INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS(1004, "property.error.invalidMaxNumberOfConsecutiveSuspects", "This value should be positive", Level.SEVERE),
+    INVALID_ADVANCE_READINGTYPE(1005, "property.error.advanceReadingsSettings", "The reading type should be cumulative", Level.SEVERE),
+    INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE(1006, "property.error.maxNumberOfConsecutiveSuspectsShouldBeInteger", "This should be a whole number", Level.SEVERE),
+    INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED(1007, "property.error.advanceReadingsSettings.not.none", "None is not allowed", Level.SEVERE);
 
 
     public static final String COMPONENT_NAME = "ESR";

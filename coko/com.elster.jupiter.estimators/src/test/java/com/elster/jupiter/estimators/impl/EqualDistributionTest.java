@@ -652,15 +652,6 @@ public class EqualDistributionTest {
         assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
     }
 
-    @Test
-    public void testValidPropertiesWhenConsecutiveIsFractionalYetZeroAsFractionalPart() {
-        EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
-
-        Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
-
-        estimator.validateProperties(Collections.singletonList(property));
-    }
-
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
         EstimationRuleProperties property = estimationRuleProperty(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 0L);

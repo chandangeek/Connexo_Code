@@ -1,5 +1,7 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.devtools.tests.assertions.JupiterAssertions;
+import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
@@ -47,9 +49,12 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -63,9 +68,25 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AverageWithSamplesEstimatorTest {
 
+    private static final Logger LOGGER = Logger.getLogger(AverageWithSamplesEstimatorTest.class.getName());
+
     private static final ZonedDateTime ESTIMATABLE_TIME = ZonedDateTime.of(2004, 4, 13, 14, 15, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime START = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime LAST_CHECKED = ZonedDateTime.of(2004, 4, 20, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+
+    private static final ZonedDateTime BEFORE = ZonedDateTime.of(2015, 3, 11, 20, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+    //private static final ZonedDateTime ESTIMATABLE1 = BEFORE.plusHours(1);
+    //private static final ZonedDateTime ESTIMATABLE2 = BEFORE.plusHours(2);
+    //private static final ZonedDateTime ESTIMATABLE3 = BEFORE.plusHours(3);
+    private static final ZonedDateTime AFTER = BEFORE.plusHours(4);
+    //private static final ZonedDateTime BEFORE_MINUS_1 = BEFORE.minusHours(1);
+    //private static final ZonedDateTime BEFORE_MINUS_2 = BEFORE.minusHours(2);
+    private static final ZonedDateTime BEFORE_MINUS_3 = BEFORE.minusHours(3);
+    //private static final ZonedDateTime AFTER_PLUS_1 = AFTER.plusHours(1);
+    //private static final ZonedDateTime AFTER_PLUS_2 = AFTER.plusHours(2);
+    private static final ZonedDateTime AFTER_PLUS_3 = AFTER.plusHours(3);
+    //private static final ZonedDateTime ADVANCE_BEFORE = BEFORE_MINUS_3.minusMinutes(20);
+    private static final ZonedDateTime ADVANCE_AFTER = AFTER_PLUS_3.minusMinutes(40);
 
 
     @Rule
@@ -94,6 +115,10 @@ public class AverageWithSamplesEstimatorTest {
     private CimChannel deltaCimChannel, bulkCimChannel, advanceCimChannel;
     @Mock
     private Meter meter;
+    @Mock
+    private ReadingQualityRecord suspect1, suspect2, suspect3, suspect4;
+
+    private LogRecorder logRecorder;
 
     @Before
     public void setUp() {
@@ -137,6 +162,9 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(true).when(bulkReadingType).isCumulative();
         doReturn(true).when(bulkReadingType).isRegular();
 
+
+        logRecorder = new LogRecorder(Level.ALL);
+        LOGGER.addHandler(logRecorder);
         LoggingContext.get().with("rule", "rule");
     }
 
@@ -216,6 +244,7 @@ public class AverageWithSamplesEstimatorTest {
     @After
     public void tearDown() {
         LoggingContext.get().close();
+        LOGGER.removeHandler(logRecorder);
     }
 
     @Test
@@ -411,6 +440,111 @@ public class AverageWithSamplesEstimatorTest {
 
         assertThat(result.estimated()).contains(block);
         assertThat(estimatable.getEstimation()).isEqualTo(BigDecimal.valueOf(4000000, 6));
+    }
+
+    @Test
+    public void testEstimateFailsWhenPriorAdvanceReadingIsSuspect() {
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMATABLE_TIME.minusMinutes(35).toInstant());
+        doReturn(true).when(suspect4).isSuspect();
+        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(suspect4).getReadingTimestamp();
+        doReturn(true).when(suspect4).isActual();
+        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
+        BaseReadingRecord preAdvanceReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preAdvanceReading).getQuantity(advanceReadingType);
+        BaseReadingRecord postAdvanceReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(32))).when(postAdvanceReading).getQuantity(advanceReadingType);
+        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMATABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
+        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
+        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
+
+        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType))
+                .build();
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
+
+        estimator.init(LOGGER);
+
+        EstimationResult result = estimator.estimate(asList(block));
+
+        assertThat(result.estimated()).isEmpty();
+        assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the prior advance reading is suspect, estimated or overflow")).atLevel(Level.INFO);
+    }
+
+
+        @Test
+    public void testEstimateFailsWhenLaterAdvanceReadingIsSuspect() {
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMATABLE_TIME.plusMinutes(35).toInstant());
+        doReturn(true).when(suspect4).isSuspect();
+        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(suspect4).getReadingTimestamp();
+        doReturn(true).when(suspect4).isActual();
+        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
+        BaseReadingRecord preAdvanceReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preAdvanceReading).getQuantity(advanceReadingType);
+        BaseReadingRecord postAdvanceReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(32))).when(postAdvanceReading).getQuantity(advanceReadingType);
+        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMATABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
+        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
+        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
+
+        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType))
+                .build();
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
+
+        estimator.init(LOGGER);
+
+        EstimationResult result = estimator.estimate(asList(block));
+
+        assertThat(result.estimated()).isEmpty();
+        assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the later advance reading is suspect, estimated or overflow")).atLevel(Level.INFO);
+    }
+
+    @Test
+    public void testEstimateFailsWhenPriorAdvanceReadingIsMissing() {
+        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
+        BaseReadingRecord postAdvanceReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(32))).when(postAdvanceReading).getQuantity(advanceReadingType);
+        doReturn(asList()).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMATABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
+        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
+
+        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType))
+                .build();
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
+
+        estimator.init(LOGGER);
+
+        EstimationResult result = estimator.estimate(asList(block));
+
+        assertThat(result.estimated()).isEmpty();
+        assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the prior advance reading has no value")).atLevel(Level.INFO);
     }
 
 
