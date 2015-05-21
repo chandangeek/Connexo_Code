@@ -9,12 +9,12 @@
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>mdc.multisense.api</artifactId>
+    <artifactId>mdc.rest.api</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>[MDC] multisense.api [init MSA]</name>
+    <name>[MDC] multisense.rest.api [init MSA]</name>
     <description>
-        Contains public API implementation to interface between the client and server regarding multisense
+        Contains public REST API implementation to interface with multisense services using REST
     </description>
 
     <dependencies>

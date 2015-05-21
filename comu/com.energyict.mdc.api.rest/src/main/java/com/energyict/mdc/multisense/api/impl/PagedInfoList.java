@@ -32,7 +32,7 @@ public class PagedInfoList {
      * @param uriInfo
      * @return A PagedInfoList that will be correctly serialized as JSON paging object
      */
-    public static PagedInfoList from(List<?> infos, QueryParameters queryParameters, UriBuilder uriBuilder, UriInfo uriInfo) {
+    public static PagedInfoList from(List<?> infos, QueryParameters queryParameters, UriBuilder uriBuilder, UriInfo uriInfo)  {
         PagedInfoList list = new PagedInfoList();
         if (uriInfo.getQueryParameters().containsKey("fields")) {
             uriBuilder.queryParam("fields", uriInfo.getQueryParameters().getFirst("fields"));
