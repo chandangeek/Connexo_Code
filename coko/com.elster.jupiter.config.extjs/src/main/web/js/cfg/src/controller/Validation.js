@@ -619,14 +619,9 @@ Ext.define('Cfg.controller.Validation', {
             form;
 
 		//refresh breadcrumb 
-		var rulesSetsStore = me.getValidationRuleSetsStore();		
-		rulesSetsStore.load({
-			params: {
-				ruleSetId: ruleSetId
-			},
-			callback: function (records, operation, success) {			
-				var rulesSet = rulesSetsStore.getById(parseInt(ruleSetId));
-				me.getApplication().fireEvent('loadRuleSet', rulesSet);
+		Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+				me.getApplication().fireEvent('loadRuleSet', ruleSet);
 				
 				var versionStore = me.getValidationRuleSetVersionsStore();
 				versionStore.load({
@@ -1444,14 +1439,9 @@ Ext.define('Cfg.controller.Validation', {
         });
 
 		// refresh breadcrumb
-		var rulesSetsStore = me.getValidationRuleSetsStore();		
-		rulesSetsStore.load({
-			params: {
-				ruleSetId: ruleSetId
-			},
-			callback: function (records, operation, success) {
-				var rulesSet = rulesSetsStore.getById(parseInt(ruleSetId));
-				me.getApplication().fireEvent('loadRuleSet', rulesSet);
+		Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+				me.getApplication().fireEvent('loadRuleSet', ruleSet);
 			}
 		});
 				
@@ -1566,20 +1556,15 @@ Ext.define('Cfg.controller.Validation', {
 				ruleSetId: ruleSetId,
 				versionId: versionId
 			}
-		),
-		rulesSetsStore = me.getValidationRuleSetsStore();
+		);
+		
 		me.getApplication().fireEvent('changecontentevent', versionContainerWidget);
 	
 		versionContainerWidget.setLoading(true);
 		
-		rulesSetsStore.load({
-			params: {
-				ruleSetId: ruleSetId
-			},
-			callback: function (records, operation, success) {
-			
-				var rulesSet = rulesSetsStore.getById(parseInt(ruleSetId));
-				me.getApplication().fireEvent('loadRuleSet', rulesSet);
+		Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+				me.getApplication().fireEvent('loadRuleSet', ruleSet);
 
 				var versionStore = me.getValidationRuleSetVersionsStore();
 				versionStore.load({
@@ -1607,16 +1592,10 @@ Ext.define('Cfg.controller.Validation', {
 
     showVersionRules: function (ruleSetId, versionId) {
  		var me = this;
-			rulesSetsStore = me.getValidationRuleSetsStore();
 		
-		rulesSetsStore.load({
-			params: {
-				ruleSetId: ruleSetId
-			},
-			callback: function (records, operation, success) {
-			
-				var rulesSet = rulesSetsStore.getById(parseInt(ruleSetId));
-				me.getApplication().fireEvent('loadRuleSet', rulesSet);
+		Cfg.model.ValidationRuleSet.load(ruleSetId, {
+            success: function (ruleSet) {
+				me.getApplication().fireEvent('loadRuleSet', ruleSet);
 
 				var versionStore = me.getValidationRuleSetVersionsStore();
 				versionStore.load({
