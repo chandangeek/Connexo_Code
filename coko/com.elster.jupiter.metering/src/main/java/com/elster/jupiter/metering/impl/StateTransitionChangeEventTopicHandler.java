@@ -52,15 +52,15 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         StateTransitionChangeEvent event = (StateTransitionChangeEvent) localEvent.getSource();
-        String endDeviceId = event.getSourceId();
+        String mRID = event.getSourceId();
         try {
             this.meteringService
-                    .findEndDevice(Long.parseLong(endDeviceId))
+                    .findEndDevice(mRID)
                     .map(ServerEndDevice.class::cast)
                     .ifPresent(d -> this.handle(event, d));
         }
         catch (NumberFormatException e) {
-            this.logger.fine(() -> "Unable to parse end device id '" + endDeviceId + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
+            this.logger.fine(() -> "Unable to parse end device id '" + mRID + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
         }
     }
 
