@@ -367,7 +367,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         },
         DAY(ChronoField.DAY_OF_MONTH, "days"),
         HOUR(ChronoField.HOUR_OF_DAY, "hours"),
-        MINUTE(ChronoField.MINUTE_OF_HOUR, "seconds");
+        MINUTE(ChronoField.MINUTE_OF_HOUR, "minutes");
 
         private final TemporalField temporalField;
         private final String identifier;
