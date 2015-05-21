@@ -30,6 +30,7 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
                         xtype: 'combobox',
                         fieldLabel: '',
                         width: me.width,
+                        disabled: false,
                         displayField: 'name',
                         valueField: 'id',
                         store: 'Uni.property.store.RelativePeriods'
@@ -54,6 +55,7 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
         var field = this.getField();
         if(field.getValue().relative==='1'){
             this.down('combobox').setDisabled(true);
+            this.down('combobox').setValue(null);
         } else {
             this.down('combobox').setDisabled(false);
         }
@@ -74,8 +76,10 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
             if(value.id !== 0){
                 this.down('#relativeRadioGroup').setValue({relative:2});
                 this.down('combobox').setValue(value.id);
+                this.down('combobox').setDisabled(false);
             } else {
                 this.down('#relativeRadioGroup').setValue({relative:1});
+                this.down('combobox').setDisabled(true);
             }
         }
     },
