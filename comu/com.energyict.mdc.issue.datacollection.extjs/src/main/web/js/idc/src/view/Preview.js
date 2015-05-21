@@ -52,7 +52,7 @@ Ext.define('Idc.view.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
                         name: 'reason',
                         renderer: function (value) {
-                            return value.name ? value.name : '';
+                            return value.name ? Ext.String.htmlEncode(value.name) : '';
                         }
                     },
                     {
@@ -72,9 +72,9 @@ Ext.define('Idc.view.Preview', {
                             if (value) {
                                 if (value.serialNumber && Mdc.privileges.Device.canViewDeviceCommunication()) {
                                     url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
-                                    result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
+                                    result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + ' ' + Ext.String.htmlEncode(value.serialNumber) + '</a>';
                                 } else {
-                                    result = value.name + ' ' + value.serialNumber;
+                                    result = value.name + ' ' + Ext.String.htmlEncode(value.serialNumber);
                                 }
                             }
 
@@ -112,7 +112,7 @@ Ext.define('Idc.view.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
                         name: 'assignee',
                         renderer: function (value) {
-                            return value.name ? value.name : Uni.I18n.translate('general.none', 'ISU', 'None');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.none', 'ISU', 'None');
                         }
                     },
                     {
