@@ -20,7 +20,8 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         { ref: 'overview', selector: '#overview' },
         { ref: 'breakdown', selector: '#breakdown' },
         { ref: 'kpi', selector: '#communication-overview read-outs-over-time' },
-        { ref: 'quickLinks', selector: '#communication-overview #quick-links' }
+        { ref: 'quickLinks', selector: '#communication-overview #quick-links' },
+        { ref: 'heatmap', selector: '#communication-overview #heatmap' }
     ],
 
     init: function () {
@@ -49,7 +50,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         model.setFilter(router.filter);
         me.getCommunicationOverview().setLoading();
         me.getCommunicationServers().reload();
-
+        me.getHeatmap().reload();
         model.load(null, {
                 success: function (record) {
                     me.getSummary().setRecord(record.getSummary());
