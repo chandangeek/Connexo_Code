@@ -88,7 +88,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
             if (value.bulk){
                 this.getDisplayField().setValue('Bulk');
             } else {
-                this.getDisplayField().setValue(value.readingType.name);
+                this.getDisplayField().setValue(value.readingType.aliasName);
             }
         } else {
             if (value.bulk) {
