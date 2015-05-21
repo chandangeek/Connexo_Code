@@ -24,7 +24,7 @@ Ext.define('Bpm.view.instance.List', {
                     header: Uni.I18n.translate('bpm.instance.id', 'BPM', 'Process id'),
                     dataIndex: 'id',
                     renderer: function (value, b, record) {
-                        return '<a href="#workspace/processes/' +record.get('deploymentId')+ "/" + record.get('id') + '">' + value + '</a>';
+                        return '<a href="#workspace/processes/' +record.get('deploymentId')+ "/" + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
                     }
                 },
                 {
