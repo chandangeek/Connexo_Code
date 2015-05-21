@@ -82,7 +82,7 @@ Ext.define('Usr.view.user.Details', {
                                     name: 'language',
                                     fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language'),
                                     renderer: function (value) {
-                                        return value && value.displayValue ? value.displayValue : '';
+                                        return value && value.displayValue ? Ext.String.htmlEncode(value.displayValue) : '';
                                     }
                                 }
                             ]
