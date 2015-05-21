@@ -23,16 +23,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
 				header: Uni.I18n.translate('validationResults.result', 'MDC', 'Result'), 
 				dataIndex: 'total', 
 				sortable: false, 
-				fixed: true,
-				renderer: function (value, meta, record) {					
-					var me = this,
-						href = me.router.getRoute('devices/device/validationresultsdataversion').buildUrl(
-								{ mRID: record.get('mRID'), 
-									ruleSetId: record.get('ruleSetId'), 
-									ruleSetVersionId: record.get('id')}, 
-							me.router.queryParams );
-					return '<a href="' + href + '">' + value + '</a>'
-				}
+				fixed: true
+
             }
         ]
     }

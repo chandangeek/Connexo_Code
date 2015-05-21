@@ -173,8 +173,8 @@ Ext.define('Mdc.store.DataIntervalAndZoomLevels', {
         {
             interval: '15minutes',
             all: {
-                count: 2,
-                timeUnit: 'weeks'
+                count: 1,
+                timeUnit: 'months'
             },
             intervalInMs: 900000,
             zoomLevels: [
@@ -200,6 +200,12 @@ Ext.define('Mdc.store.DataIntervalAndZoomLevels', {
                 }
             ],
             duration: [
+                {
+                    id: '1months',
+                    count: 1,
+                    timeUnit: 'months',
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', 'month')
+                },
                 {
                     id: '2weeks',
                     count: 2,
