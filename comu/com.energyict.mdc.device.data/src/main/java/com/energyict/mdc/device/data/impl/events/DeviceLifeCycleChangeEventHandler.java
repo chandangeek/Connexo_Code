@@ -85,6 +85,7 @@ public class DeviceLifeCycleChangeEventHandler implements TopicHandler {
                     "id");  // Selects only the id field
         try {
             this.meteringService.changeStateMachine(
+                    event.getTimestamp(),
                     event.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
                     event.getDeviceLifeCycle().getFiniteStateMachine(),
                     matchDeviceType);
