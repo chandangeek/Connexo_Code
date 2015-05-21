@@ -29,6 +29,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TemporalExpression;
@@ -108,6 +109,7 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -227,8 +229,8 @@ public class PartialOutboundConnectionTaskCrudIT {
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-            ((ProtocolPluggableServiceImpl) protocolPluggableService).addLicensedProtocolService(licensedProtocolService);
-            ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(connectionTypeService);
+            protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
+            protocolPluggableService.addConnectionTypeService(connectionTypeService);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
@@ -236,6 +238,8 @@ public class PartialOutboundConnectionTaskCrudIT {
             schedulingService = injector.getInstance(SchedulingService.class);
             deviceConfigurationService = new DeviceConfigurationServiceImpl(
                     ormService,
+                    injector.getInstance(Clock.class),
+                    injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     nlsService,
                     injector.getInstance(MeteringService.class),
