@@ -51,7 +51,7 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(FileImporterPropertyImpl.class);
-            table.setJournalTableName("FMI_PROPERTY_IN_SCHEDULEJRNL");
+            table.setJournalTableName("FIM_PROPERTY_IN_SCHEDULEJRNL");
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().add();
             Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).notNull().map("name").add();
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();

@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.File;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,12 @@ class ImportScheduleImpl implements ImportSchedule {
 
     private List<FileImporterProperty> properties = new ArrayList<>();
     private boolean active;
+
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
+
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
