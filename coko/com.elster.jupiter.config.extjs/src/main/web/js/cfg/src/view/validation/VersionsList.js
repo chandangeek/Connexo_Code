@@ -25,7 +25,7 @@ Ext.define('Cfg.view.validation.VersionsList', {
                 fixed: true,
                 renderer: function (value, metaData, record) {
                     metaData.tdAttr = 'data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"';
-                    return value;                    
+                    return value;
                 }
             },         
             {
