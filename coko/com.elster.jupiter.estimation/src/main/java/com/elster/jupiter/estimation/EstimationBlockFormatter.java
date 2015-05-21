@@ -4,6 +4,7 @@ import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class EstimationBlockFormatter {
 
@@ -13,7 +14,7 @@ public class EstimationBlockFormatter {
         return INSTANCE;
     }
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.longDate().withLongTime().build().withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(Locale.ENGLISH);
 
     public String format(EstimationBlock estimationBlock) {
         return new StringBuilder().append(estimationBlock.getReadingType().getAliasName())

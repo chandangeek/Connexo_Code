@@ -59,6 +59,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -238,7 +239,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                 .map(EstimationResult::estimated)
                 .flatMap(Collection::stream)
                 .count();
-        DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(meterActivation.getZoneId());
+        DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(meterActivation.getZoneId()).withLocale(Locale.ENGLISH);
         String from = formatter.format(period.hasLowerBound() ? period.lowerEndpoint() : meterActivation.getStart());
         String to = period.hasUpperBound() ? formatter.format(period.upperEndpoint()) : "now";
         String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4}";
