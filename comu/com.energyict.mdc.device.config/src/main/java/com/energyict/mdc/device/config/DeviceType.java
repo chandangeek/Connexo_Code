@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.fsm.State;
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -11,6 +8,9 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasName;
 
 import java.time.Instant;
 import java.util.List;
