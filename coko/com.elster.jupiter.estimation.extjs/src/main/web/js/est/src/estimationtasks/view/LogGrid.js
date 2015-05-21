@@ -25,6 +25,9 @@ Ext.define('Est.estimationtasks.view.LogGrid', {
             {
                 header: Uni.I18n.translate('estimationtasks.general.message', 'EST', 'Message'),
                 dataIndex: 'message',
+                renderer: function (value) {
+                    return '<div style="white-space: pre !important;">'+ value +'</div>';
+                },
                 flex: 5
             }
         ];
