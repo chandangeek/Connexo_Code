@@ -38,7 +38,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     if (item.action === 'run' || item.action === 'runnow') {
                         this.doRun(item.record, item.action);
                     } else {
-                        var firmwareType = menu.record.getAssociatedData().firmwareType.id;
+                        var firmwareType = menu.up('form').record.getAssociatedData().firmwareType.id;
                         this.getController('Uni.controller.history.Router')
                             .getRoute('devices/device/firmware/upload')
                             .forward(null, {action: item.action ,firmwareType: firmwareType});
