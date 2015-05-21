@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface MeteringService {
     String COMPONENTNAME = "MTR";
 
