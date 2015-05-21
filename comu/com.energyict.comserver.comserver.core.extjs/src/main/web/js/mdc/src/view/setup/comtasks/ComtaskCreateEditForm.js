@@ -24,6 +24,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                 {
                     xtype: 'textfield',
                     name: 'name',
+                    itemId: 'addComtaskName',
                     fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
                     required: true,
                     width: 500

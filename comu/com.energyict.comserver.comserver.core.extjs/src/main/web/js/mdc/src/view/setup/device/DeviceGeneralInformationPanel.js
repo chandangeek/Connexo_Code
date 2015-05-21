@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
     title: Uni.I18n.translate('deviceGeneralInformation.generalInformationTitle', 'MDC', 'General information'),
     ui: 'tile',
     mRID: null,
+    router: null,
     items: [
         {
             xtype: 'form',
@@ -23,6 +24,19 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     name: 'mRID',
                     itemId: 'fld-device-mrid',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
+                },
+                {
+                    name: 'state',
+                    itemId: 'fld-device-state',
+                    fieldLabel: Uni.I18n.translate('general.state', 'MDC', 'State'),
+                    renderer: function (value) {
+                        if (value) {
+                            this.show();
+                            return value.name + ' (<a href="' + this.up('#devicegeneralinformationpanel').router.getRoute('devices/device/history').buildUrl() + '">' + Uni.I18n.translate('deviceHistory.viewHistory', 'MDC', 'View history') + ')</a>';
+                        } else {
+                            this.hide();
+                        }
+                    }
                 },
                 {
                     name: 'serialNumber',
