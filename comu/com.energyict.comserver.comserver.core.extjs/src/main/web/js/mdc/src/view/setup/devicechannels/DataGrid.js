@@ -47,18 +47,18 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 renderer: function (v, metaData, record) {
                     var validationInfo = record.getDeltaValidationInfo(),
-                        validationResult = validationInfo ? validationInfo.get('validationResult') : null;
+                        validationResult = validationInfo ? validationInfo.get('validationResult') : null,
+                        cls = 'icon-validation-cell';
                     if (validationResult) {
-                        var status = validationResult.split('.')[1],
-                            cls = 'icon-validation-cell';
+                        var status = validationResult.split('.')[1];
                         if (status === 'suspect') {
-                            cls +=  ' icon-validation-red'
+                            cls += ' icon-validation-red'
                         }
                         if (status === 'notValidated') {
-                            cls +=  ' icon-validation-black'
+                            cls += ' icon-validation-black'
                         }
-                        metaData.tdCls = cls;
                     }
+                    metaData.tdCls = cls;
                     if (!Ext.isEmpty(v)) {
                         var value = Uni.Number.formatNumber(v, -1);
                         return !Ext.isEmpty(value) ? value : '';
@@ -86,18 +86,18 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
                     var validationInfo = record.getBulkValidationInfo(),
-                        validationResult = validationInfo ? validationInfo.get('validationResult') : null;
+                        validationResult = validationInfo ? validationInfo.get('validationResult') : null,
+                        cls = 'icon-validation-cell';
                     if (validationResult) {
-                        var status = validationResult.split('.')[1],
-                            cls = 'icon-validation-cell';
+                        var status = validationResult.split('.')[1];
                         if (status === 'suspect') {
-                            cls +=  ' icon-validation-red'
+                            cls += ' icon-validation-red'
                         }
                         if (status === 'notValidated') {
-                            cls +=  ' icon-validation-black'
+                            cls += ' icon-validation-black'
                         }
-                        metaData.tdCls = cls;
                     }
+                    metaData.tdCls = cls;
                     if (!Ext.isEmpty(v)) {
                         var value = Uni.Number.formatNumber(v, -1);
                         return !Ext.isEmpty(value) ? value : '';
