@@ -36,7 +36,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         name: 'deviceGroup',
                         renderer: function (value) {
                             if (value) {
-                                return value.name;
+                                return Ext.String.htmlEncode(value.name);
                             }
                         }
                     },
@@ -124,7 +124,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         name: 'exportperiod',
                         renderer: function (value) {
                             if (value) {
-                                return value.name;
+                                return Ext.String.htmlEncode(value.name);
                             }
                         }
                     }
@@ -145,7 +145,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         name: 'dataProcessor',
                         renderer: function (value) {
                             if (value) {
-                                return value.displayName;
+                                return Ext.String.htmlEncode(value.displayName);
                             }
                         }
                     }
