@@ -109,11 +109,11 @@ public class DeviceFirmwareVersionUtils {
     }
 
     public boolean taskIsBusy(){
-        return BUSY_TASK_STATUSES.contains(this.comTaskExecution.getStatus());
+        return this.comTaskExecution != null && BUSY_TASK_STATUSES.contains(this.comTaskExecution.getStatus());
     }
 
     public boolean taskIsFailed(){
-        return getComTaskExecution().isLastExecutionFailed();
+        return this.comTaskExecution != null && getComTaskExecution().isLastExecutionFailed();
     }
 
     public Optional<DeviceMessage<Device>> getUploadMessageForActivationMessage(DeviceMessage<Device> activationMessage){
