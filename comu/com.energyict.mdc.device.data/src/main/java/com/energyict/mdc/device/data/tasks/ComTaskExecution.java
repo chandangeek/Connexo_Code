@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.tasks;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
@@ -13,9 +14,8 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
 import java.time.Instant;
-import java.util.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the execution of a ComTask in the context of a connection with a device
@@ -63,6 +63,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-09-21 (15:14)
  */
+@ProviderType
 public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     /**
      * The Default amount of seconds a ComTask should wait before retrying.

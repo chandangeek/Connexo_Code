@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
@@ -17,6 +18,7 @@ import java.util.Optional;
  * Date: 3/14/14
  * Time: 11:43 AM
  */
+@ProviderType
 public interface Channel extends BaseChannel {
 
     @Override

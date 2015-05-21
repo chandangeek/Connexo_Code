@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.kpi;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-07 (11:51)
  */
+@ProviderType
 public interface DataCollectionKpiScore extends Comparable<DataCollectionKpiScore> {
 
     /**

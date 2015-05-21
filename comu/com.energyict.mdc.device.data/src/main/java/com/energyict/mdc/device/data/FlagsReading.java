@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models a {@link Reading} for a set of flags.
  * Note that the interpretation, i.e. the semantics of the flags
@@ -8,6 +10,7 @@ package com.energyict.mdc.device.data;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-14 (13:14)
  */
+@ProviderType
 public interface FlagsReading extends Reading {
 
     public long getFlags();
