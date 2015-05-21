@@ -14,7 +14,7 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,7 +28,8 @@ import static org.mockito.Mockito.when;
 public class StateTransitionChangeEventTopicHandlerTest {
 
     private static final long END_DEVICE_ID = 121;
-    private static final long MISSING_END_DEVICE_ID = 1;
+    private static final String END_DEVICE_MRID = "MasterResourceIdentifier";
+    private static final String MISSING_END_DEVICE_MRID = "DoesNotExist";
 
     @Mock
     private FiniteStateMachineService stateMachineService;
@@ -46,11 +47,12 @@ public class StateTransitionChangeEventTopicHandlerTest {
     @Before
     public void initializeMocks() {
         when(this.localEvent.getSource()).thenReturn(this.event);
-        when(this.event.getSourceId()).thenReturn(String.valueOf(MISSING_END_DEVICE_ID));
+        when(this.event.getSourceId()).thenReturn(MISSING_END_DEVICE_MRID);
         when(this.event.getNewState()).thenReturn(this.state);
-        when(this.meteringService.findEndDevice(MISSING_END_DEVICE_ID)).thenReturn(Optional.<EndDevice>empty());
-        when(this.meteringService.findEndDevice(END_DEVICE_ID)).thenReturn(Optional.of(this.endDevice));
+        when(this.meteringService.findEndDevice(MISSING_END_DEVICE_MRID)).thenReturn(Optional.<EndDevice>empty());
+        when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
         when(this.endDevice.getId()).thenReturn(END_DEVICE_ID);
+        when(this.endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
     }
 
     @Test
@@ -59,12 +61,12 @@ public class StateTransitionChangeEventTopicHandlerTest {
         this.getTestInstance().handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyLong());
+        verify(this.meteringService).findEndDevice(anyString());
     }
 
     @Test
     public void handlerDelegatesToTheEndDevice() {
-        when(this.event.getSourceId()).thenReturn(String.valueOf(END_DEVICE_ID));
+        when(this.event.getSourceId()).thenReturn(END_DEVICE_MRID);
 
         // Business method
         this.getTestInstance().handle(this.localEvent);

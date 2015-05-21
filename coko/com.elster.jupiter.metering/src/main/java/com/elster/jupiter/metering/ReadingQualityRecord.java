@@ -46,4 +46,6 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
 	boolean hasReasonabilityCategory();
 
     boolean hasEstimatedCategory();
+
+    boolean isConfirmed();
 }
