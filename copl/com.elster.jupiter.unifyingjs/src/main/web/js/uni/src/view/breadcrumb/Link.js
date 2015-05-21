@@ -16,7 +16,7 @@ Ext.define('Uni.view.breadcrumb.Link', {
 
         // Apply the renderData to the template args
         Ext.applyIf(me.renderData, {
-            text: me.text || '&#160;',
+            text: Ext.String.htmlEncode(me.text || '&#160;'),
             href: me.href
         });
     },

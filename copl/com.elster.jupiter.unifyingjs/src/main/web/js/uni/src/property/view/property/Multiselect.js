@@ -56,7 +56,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                         cls: 'x-form-invalid-under',
                         hidden: true,
                         height: 36,
-                        html: '<div id="multiselect-invalid-id-' + me.id + '"></div>'
+                        html: '<div id="multiselect-invalid-id-' + Ext.String.htmlEncode(me.id) + '"></div>'
                     }
                 ]
             }

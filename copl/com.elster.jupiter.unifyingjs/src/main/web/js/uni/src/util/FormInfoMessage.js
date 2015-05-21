@@ -28,7 +28,7 @@ Ext.define('Uni.util.FormInfoMessage', {
             {
                 ui: 'form-error',
                 name: 'errormsgpanel',
-                html: me.text
+                html: Ext.String.htmlEncode(me.text)
             }
         ]);
 
