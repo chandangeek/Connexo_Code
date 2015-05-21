@@ -40,10 +40,10 @@ class CronExpressionScheduler {
         cronJob.getSchedule()
                 .nextOccurrence(now)
                 .ifPresent(
-                    no->{
-                        long delay = no.toEpochSecond()*1000 - now.toInstant().toEpochMilli();
-                        scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
-                    });
+                        no -> {
+                            long delay = no.toEpochSecond() * 1000 - now.toInstant().toEpochMilli();
+                            scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
+                        });
     }
 
     /**
