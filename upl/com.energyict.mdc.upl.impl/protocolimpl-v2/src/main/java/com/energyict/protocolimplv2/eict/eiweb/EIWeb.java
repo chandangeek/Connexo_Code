@@ -60,6 +60,7 @@ public class EIWeb implements DeviceProtocol {
         this.offlineDevice = offlineDevice;
     }
 
+
     @Override
     public void terminate() {
         // nothing much to do
