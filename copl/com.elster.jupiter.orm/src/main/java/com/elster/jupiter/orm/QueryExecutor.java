@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -16,6 +17,7 @@ import java.util.Optional;
  * Service layer classes (Rest) should use com.elster.jupiter.domain.util.Query.
  *
  */
+@ProviderType
 public interface QueryExecutor<T> extends BasicQuery<T> {
 
 	// creation api

@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public class History<T extends HasAuditInfo> {
 
     private final Map<Range<Instant>, T> historyMap;

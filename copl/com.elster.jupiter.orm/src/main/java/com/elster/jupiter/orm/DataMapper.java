@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -10,6 +11,7 @@ import java.util.Optional;
  * 
  * Performs persistent operations for a given type and table
  */
+@ProviderType
 public interface DataMapper<T> extends Finder<T> {
 	/**
 	 * locks the tuple with the given primary key, using select for update
