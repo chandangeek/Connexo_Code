@@ -13,7 +13,7 @@ Ext.define('Isu.view.component.AssigneeColumn', {
                 result += '<span class="isu-icon-' + value.type + ' isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('assignee.tooltip.' + value.type, 'ISU', value.type) + '"></span> ';
             }
             if (value.name) {
-                result += value.name;
+                result += Ext.String.htmlEncode(value.name);
             }
         } else {
             result = ' '

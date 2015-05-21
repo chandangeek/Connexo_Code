@@ -25,7 +25,7 @@ Ext.define('Isu.view.issues.Grid', {
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()});
 
-                    return '<a href="' + url + '">' + value + '</a>';
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
