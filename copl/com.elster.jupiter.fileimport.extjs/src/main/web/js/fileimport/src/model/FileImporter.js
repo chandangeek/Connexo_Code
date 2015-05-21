@@ -10,11 +10,11 @@ Ext.define('Fim.model.FileImporter', {
     idProperty: 'name',
     associations: [
         {
-			name: 'properties', 
-			type: 'hasMany', 
-			model: 'Uni.property.model.Property', 
-			associationKey: 'properties', 
-			foreignKey: 'properties',
+            name: 'properties',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
+            associationKey: 'properties',
+            foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
                 return 'Uni.property.model.Property';
             }

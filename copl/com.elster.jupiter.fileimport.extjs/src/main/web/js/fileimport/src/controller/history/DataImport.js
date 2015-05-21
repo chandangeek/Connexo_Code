@@ -1,6 +1,6 @@
 Ext.define('Fim.controller.history.DataImport', {
     extend: 'Uni.controller.history.Converter',
-    requires:[
+    requires: [
         'Fim.privileges.DataImport'
     ],
 
@@ -11,12 +11,12 @@ Ext.define('Fim.controller.history.DataImport', {
             title: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
             route: 'administration',
             disabled: true,
-            items: {                
-				importservices: {                    
-					title: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),                    
-					route: 'importservices',                    
-					controller: 'Fim.controller.ImportServices',
-                    privileges : Fim.privileges.DataImport.canView,
+            items: {
+                importservices: {
+                    title: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),
+                    route: 'importservices',
+                    controller: 'Fim.controller.ImportServices',
+                    privileges: Fim.privileges.DataImport.canView,
                     action: 'showImportServices',
                     items: {
                         add: {

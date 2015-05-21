@@ -3,7 +3,7 @@ Ext.define('Fim.view.importServices.Menu', {
     alias: 'widget.fim-import-service-menu',
 
     router: null,
-	importServiceId: null,
+    importServiceId: null,
     title: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),
 
     initComponent: function () {
@@ -13,12 +13,11 @@ Ext.define('Fim.view.importServices.Menu', {
             {
                 text: Uni.I18n.translate('general.overview', 'FIM', 'Overview'),
                 itemId: 'import-services-view-link',
-                href:  '#/administration/importservices/' + this.importServiceId
+                href: '#/administration/importservices/' + this.importServiceId
             }
         ];
 
-		
-		
+
         me.callParent(arguments);
     }
 });

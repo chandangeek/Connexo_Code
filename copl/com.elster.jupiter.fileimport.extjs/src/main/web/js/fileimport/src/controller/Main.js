@@ -12,16 +12,15 @@ Ext.define('Fim.controller.Main', {
         'Fim.controller.ImportServices'
     ],
 
-    stores: [
-    ],
+    stores: [],
 
-    init: function () {		
-		this.initHistorians();
+    init: function () {
+        this.initHistorians();
         this.initMenu();
-		
+
         this.callParent(arguments);
     },
-	
+
     /**
      * Forces history registration.
      */

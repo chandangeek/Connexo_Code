@@ -20,36 +20,36 @@ Ext.define('Fim.view.importServices.Grid', {
                 },
                 flex: 2
             },
-			{
+            {
                 header: Uni.I18n.translate('importService.fileImporter', 'FIM', 'File importer'),
-                dataIndex: 'fileImporter',				
+                dataIndex: 'fileImporter',
                 flex: 2
             },
-			{
+            {
                 header: Uni.I18n.translate('general.status', 'FIM', 'Status'),
                 dataIndex: 'statusDisplay',
-				renderer: function (value, metaData, record) {
-                    return record.get('active')? Uni.I18n.translate('general.active', 'FIM', 'Active'): Uni.I18n.translate('general.inactive', 'FIM', 'Inactive');
-                },				
+                renderer: function (value, metaData, record) {
+                    return record.get('active') ? Uni.I18n.translate('general.active', 'FIM', 'Active') : Uni.I18n.translate('general.inactive', 'FIM', 'Inactive');
+                },
                 flex: 1
             },
-			{
+            {
                 header: Uni.I18n.translate('general.application', 'FIM', 'Application'),
                 dataIndex: 'applicationDisplay',
-				hidden: !Fim.privileges.DataImport.getAdmin(),
+                hidden: !Fim.privileges.DataImport.getAdmin(),
                 flex: 1
             },
-            
+
             {
                 header: Uni.I18n.translate('general.importFolder', 'FIM', 'Imported folder'),
                 dataIndex: 'importDirectory',
                 flex: 3
             },
-			{
+            {
                 header: Uni.I18n.translate('importService.filePattern', 'FIM', 'File pattern'),
                 dataIndex: 'pathMatcher',
                 flex: 1
-            },			
+            },
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
