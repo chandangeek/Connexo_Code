@@ -47,7 +47,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.ddr.rest",
+@Component(name = "com.energyict.multisense.public.rest",
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/dda", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME, "version=v2.0"})
