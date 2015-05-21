@@ -106,14 +106,14 @@ public class DeviceValidationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationMonitoringConfigurationView(@PathParam("mRID") String mrid,
+    public Response getValidationMonitoringConfigurationView(@PathParam("mRID") String mRID,
                                             @QueryParam("intervalRegisterStart") Long intervalStart,
                                             @QueryParam("intervalRegisterEnd") Long intervalEnd,
                                             @QueryParam("intervalLoadProfile") ValidationLoadProfilePeriodsInfo intervalLoadProfile) {
 
         List<DataValidationStatus> lpStatuses = new ArrayList<>();
 
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         DeviceValidation deviceValidation = device.forValidation();
         ValidationStatusInfo validationStatusInfo =
                 new ValidationStatusInfo(
@@ -152,14 +152,14 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationMonitoringDataView(@PathParam("mRID") String mrid,
+    public Response getValidationMonitoringDataView(@PathParam("mRID") String mRID,
                                                        @QueryParam("intervalRegisterStart") Long intervalStart,
                                                        @QueryParam("intervalRegisterEnd") Long intervalEnd,
                                                        @QueryParam("intervalLoadProfile") ValidationLoadProfilePeriodsInfo intervalLoadProfile) {
 
         Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus = new HashMap<>();
 
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
 
         DeviceValidation deviceValidation = device.forValidation();
         ValidationStatusInfo validationStatusInfo =
