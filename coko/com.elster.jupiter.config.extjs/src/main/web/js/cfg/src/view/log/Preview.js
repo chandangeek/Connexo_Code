@@ -19,7 +19,7 @@ Ext.define('Cfg.view.log.Preview', {
                     name: 'name',
                     renderer: function (value) {
                         var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl();
-                        return '<a href="' + url + '">' + value + '</a>';
+                        return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                     }
                 },
                 {
