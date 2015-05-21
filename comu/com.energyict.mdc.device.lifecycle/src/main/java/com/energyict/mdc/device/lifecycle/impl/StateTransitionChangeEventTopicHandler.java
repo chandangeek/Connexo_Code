@@ -57,14 +57,14 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     }
 
     private void handle(StateTransitionChangeEvent event, DefaultState newState) {
-        String endDeviceId = event.getSourceId();
+        String mRID = event.getSourceId();
         try {
             this.meteringService
-                    .findEndDevice(Long.parseLong(endDeviceId))
+                    .findEndDevice(mRID)
                     .ifPresent(d -> this.handle(event, d, newState));
         }
         catch (NumberFormatException e) {
-            this.logger.fine(() -> "Unable to parse end device id '" + endDeviceId + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
+            this.logger.fine(() -> "Unable to parse end device id '" + mRID + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
         }
     }
 

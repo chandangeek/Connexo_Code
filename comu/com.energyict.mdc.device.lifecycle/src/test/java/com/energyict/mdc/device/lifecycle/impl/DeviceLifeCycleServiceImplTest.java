@@ -77,6 +77,7 @@ public class DeviceLifeCycleServiceImplTest {
     public static final long EVENT_TYPE_ID = 11L;
     public static final long STATE_ID = 97L;
     public static final long DEVICE_ID = 111L;
+    public static final String DEVICE_MRID = "MasterResourceId";
 
     @Mock
     private NlsService nlsService;
@@ -130,6 +131,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.state.getId()).thenReturn(STATE_ID);
         when(this.deviceType.getDeviceLifeCycle()).thenReturn(this.lifeCycle);
         when(this.device.getId()).thenReturn(DEVICE_ID);
+        when(this.device.getmRID()).thenReturn(DEVICE_MRID);
         when(this.device.getDeviceType()).thenReturn(this.deviceType);
         when(this.device.getState()).thenReturn(this.state);
         when(this.action.getDeviceLifeCycle()).thenReturn(this.lifeCycle);
@@ -396,7 +398,7 @@ public class DeviceLifeCycleServiceImplTest {
         service.execute(this.action, this.device, Collections.emptyList());
 
         // Asserts
-        verify(this.eventType).newInstance(eq(this.finiteStateMachine), eq(String.valueOf(DEVICE_ID)), anyString(), anyMap());
+        verify(this.eventType).newInstance(eq(this.finiteStateMachine), eq(DEVICE_MRID), anyString(), anyMap());
     }
 
     @Test

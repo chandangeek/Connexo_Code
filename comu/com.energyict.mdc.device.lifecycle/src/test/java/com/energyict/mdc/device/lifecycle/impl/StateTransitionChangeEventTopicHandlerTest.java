@@ -19,7 +19,7 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 public class StateTransitionChangeEventTopicHandlerTest {
 
     private static final long END_DEVICE_ID = 97L;
-    private static final String END_DEVICE_EVENT_ID = String.valueOf(END_DEVICE_ID);
+    private static final String END_DEVICE_MRID = "Master Resource Identifier";
 
     @Mock
     private FiniteStateMachineService stateMachineService;
@@ -61,8 +61,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.localEvent.getSource()).thenReturn(this.event);
         when(this.event.getOldState()).thenReturn(this.oldState);
         when(this.event.getNewState()).thenReturn(this.newState);
-        when(this.event.getSourceId()).thenReturn(END_DEVICE_EVENT_ID);
-        when(this.meteringService.findEndDevice(END_DEVICE_ID)).thenReturn(Optional.of(this.endDevice));
+        when(this.event.getSourceId()).thenReturn(END_DEVICE_MRID);
+        when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
         when(this.endDevice.getLifecycleDates()).thenReturn(this.lifecycleDates);
     }
 
@@ -75,7 +75,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService, never()).findEndDevice(anyLong());
+        verify(this.meteringService, never()).findEndDevice(anyString());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyLong());
+        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates).setInstalledDate(expectedInstalledDate);
         verify(this.endDevice).save();
@@ -103,13 +103,13 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.newState.isCustom()).thenReturn(false);
         when(this.newState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
         when(this.clock.instant()).thenReturn(expectedInstalledDate);
-        when(this.meteringService.findEndDevice(anyLong())).thenReturn(Optional.empty());
+        when(this.meteringService.findEndDevice(anyString())).thenReturn(Optional.empty());
 
         // Business method
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyLong());
+        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice, never()).getLifecycleDates();
         verifyNoMoreInteractions(this.lifecycleDates);
         verify(this.endDevice, never()).save();
@@ -128,7 +128,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyLong());
+        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates).setRemovedDate(expectedRemovedDate);
         verify(this.endDevice).save();
@@ -147,7 +147,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyLong());
+        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates, never()).setRemovedDate(expectedRemovedDate);
         verify(this.endDevice, never()).save();
@@ -160,13 +160,13 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.newState.isCustom()).thenReturn(false);
         when(this.newState.getName()).thenReturn(DefaultState.INACTIVE.getKey());
         when(this.clock.instant()).thenReturn(expectedRemovedDate);
-        when(this.meteringService.findEndDevice(anyLong())).thenReturn(Optional.empty());
+        when(this.meteringService.findEndDevice(anyString())).thenReturn(Optional.empty());
 
         // Business method
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyLong());
+        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice, never()).getLifecycleDates();
         verifyNoMoreInteractions(this.lifecycleDates);
         verify(this.endDevice, never()).save();
@@ -184,7 +184,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyLong());
+        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates).setRetiredDate(expectedRetiredDate);
         verify(this.endDevice).save();
@@ -197,13 +197,13 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.newState.isCustom()).thenReturn(false);
         when(this.newState.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
         when(this.clock.instant()).thenReturn(expectedRemovedDate);
-        when(this.meteringService.findEndDevice(anyLong())).thenReturn(Optional.empty());
+        when(this.meteringService.findEndDevice(anyString())).thenReturn(Optional.empty());
 
         // Business method
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyLong());
+        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice, never()).getLifecycleDates();
         verifyNoMoreInteractions(this.lifecycleDates);
         verify(this.endDevice, never()).save();

@@ -352,7 +352,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         eventType
             .newInstance(
                     device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
-                    String.valueOf(device.getId()),
+                    device.getmRID(),
                     device.getState().getName(),
                     Collections.emptyMap())
             .publish();
