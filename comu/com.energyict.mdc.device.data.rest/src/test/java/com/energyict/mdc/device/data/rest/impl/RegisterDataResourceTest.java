@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.masterdata.RegisterType;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -99,6 +100,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(deviceValidation.getValidationStatus(any(Register.class), anyListOf(ReadingRecord.class), any(Range.class))).thenReturn(new ArrayList<>());
     }
 
+    @Ignore
     @Test
     public void testGetRegisterData() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
