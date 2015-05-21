@@ -24,18 +24,6 @@ public class DeviceTypeInfoFactory {
     public DeviceTypeInfoFactory() {
     }
 
-    public DeviceTypeInfo asPlainId(DeviceType deviceType) {
-        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
-        deviceTypeInfo.id=deviceType.getId();
-        return deviceTypeInfo;
-    }
-
-    public DeviceTypeInfo plain(DeviceType deviceType, Collection<String> fields) {
-        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, Optional.empty()));
-        return deviceTypeInfo;
-    }
-
     private List<PropertyCopier<DeviceTypeInfo, DeviceType>> getSelectedFields(Collection<String> fields) {
         Map<String, PropertyCopier<DeviceTypeInfo, DeviceType>> fieldSelectionMap = buildFieldSelectionMap();
         if (fields==null || fields.isEmpty()) {
@@ -47,8 +35,6 @@ public class DeviceTypeInfoFactory {
     public DeviceTypeInfo asHypermedia(DeviceType deviceType, UriInfo uriInfo, List<String> fields) {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, Optional.of(uriInfo)));
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
-        deviceTypeInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceType.getId());
         return deviceTypeInfo;
     }
 
@@ -59,6 +45,12 @@ public class DeviceTypeInfoFactory {
         });
         map.put("name", (deviceTypeInfo, deviceType, uriInfo) -> {
             deviceTypeInfo.name = deviceType.getName();
+        });
+        map.put("link", (deviceTypeInfo, deviceType, uriInfo) -> {
+            if (uriInfo.isPresent()) {
+                UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
+                deviceTypeInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceType.getId());
+            }
         });
         map.put("description", (deviceTypeInfo, deviceType, uriInfo) -> {
             deviceTypeInfo.description = deviceType.getDescription();

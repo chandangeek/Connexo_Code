@@ -43,10 +43,9 @@ public class DeviceInfoFactory {
     }
 
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, List<String> fields) {
-        DeviceInfo DeviceInfo = new DeviceInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(DeviceInfo, device, Optional.of(uriInfo)));
-        DeviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel("self").title("self reference").build(device.getmRID());
-        return DeviceInfo;
+        DeviceInfo deviceInfo = new DeviceInfo();
+        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceInfo, device, Optional.of(uriInfo)));
+        return deviceInfo;
     }
 
     private List<PropertyCopier<DeviceInfo, Device>> getSelectedFields(Collection<String> fields) {
@@ -64,7 +63,8 @@ public class DeviceInfoFactory {
     private Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldSelectionMap() {
         Map<String, PropertyCopier<DeviceInfo, Device>> map = new HashMap<>();
         map.put("id", (deviceInfo, device, uriInfo) -> deviceInfo.id = device.getId());
-        map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
+        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo.get())).rel("self").title("self reference").build(device.getmRID()));
+        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
         map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
         map.put("deviceProtocolPluggeableClassId", (deviceInfo, device, uriInfo) -> deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId());

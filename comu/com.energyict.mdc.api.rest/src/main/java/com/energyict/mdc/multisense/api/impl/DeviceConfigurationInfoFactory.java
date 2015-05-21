@@ -22,18 +22,10 @@ public class DeviceConfigurationInfoFactory {
     public DeviceConfigurationInfoFactory() {
     }
 
-    public DeviceConfigurationInfo plain(DeviceConfiguration deviceConfiguration, Collection<String> fields) {
-        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceConfigurationInfo, deviceConfiguration, Optional.empty()));
-        return deviceConfigurationInfo;
-    }
-
     public DeviceConfigurationInfo asHypermedia(DeviceConfiguration deviceConfiguration, UriInfo uriInfo, List<String> fields) {
-        DeviceConfigurationInfo DeviceConfigurationInfo = new DeviceConfigurationInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(DeviceConfigurationInfo, deviceConfiguration, Optional.of(uriInfo)));
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}");
-        DeviceConfigurationInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getId());
-        return DeviceConfigurationInfo;
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceConfigurationInfo, deviceConfiguration, Optional.of(uriInfo)));
+        return deviceConfigurationInfo;
     }
 
     private List<PropertyCopier<DeviceConfigurationInfo, DeviceConfiguration>> getSelectedFields(Collection<String> fields) {
@@ -51,6 +43,12 @@ public class DeviceConfigurationInfoFactory {
         });
         map.put("name", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
             deviceConfigurationInfo.name = deviceConfiguration.getName();
+        });
+        map.put("link", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            if (uriInfo.isPresent()) {
+                UriBuilder uriBuilder = uriInfo.get().getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}");
+                deviceConfigurationInfo.link = Link.fromUriBuilder(uriBuilder).rel("self").title("self reference").build(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getId());
+            }
         });
         map.put("description", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
             deviceConfigurationInfo.description = deviceConfiguration.getDescription();
