@@ -178,7 +178,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         }, 1);
 
         return '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px">' +
-            (me.link ? ('<a href="' + me.link + '">' + (assembledName || value.mRID) + '</a>') :
-                (assembledName || value.mRID)) + '</span>' + icon;
+            (me.link ? ('<a href="' + me.link + '">' + (Ext.String.htmlEncode(assembledName) || Ext.String.htmlEncode(value.mRID)) + '</a>') :
+                (Ext.String.htmlEncode(assembledName) || Ext.String.htmlEncode(value.mRID))) + '</span>' + icon;
     }
 });
