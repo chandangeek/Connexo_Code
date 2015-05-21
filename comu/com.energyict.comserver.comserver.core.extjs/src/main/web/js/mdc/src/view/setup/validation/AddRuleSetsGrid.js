@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },

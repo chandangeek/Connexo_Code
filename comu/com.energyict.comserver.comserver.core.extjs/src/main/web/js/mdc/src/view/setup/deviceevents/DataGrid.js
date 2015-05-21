@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             header: Uni.I18n.translate('deviceevents.domain', 'MDC', 'Domain'),
             dataIndex: 'domain',
             renderer: function (value) {
-                return value ? value.name : '';
+                return value ? Ext.String.htmlEncode(value.name) : '';
             },
             flex: 1
         },
@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             header: Uni.I18n.translate('deviceevents.subDomain', 'MDC', 'Subdomain'),
             dataIndex: 'subDomain',
             renderer: function (value) {
-                return value ? value.name : '';
+                return value ? Ext.String.htmlEncode(value.name) : '';
             },
             flex: 1
         },
@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             header: Uni.I18n.translate('deviceevents.eventOrAction', 'MDC', 'Event or action'),
             dataIndex: 'eventOrAction',
             renderer: function (value) {
-                return value ? value.name : '';
+                return value ? Ext.String.htmlEncode(value.name) : '';
             },
             flex: 1
         },

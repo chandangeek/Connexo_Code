@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
 				sortable: false, 
 				fixed: true,
                 renderer: function (value, metaData, record) {                 					
-                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },	
             { 
@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionList', {
 									ruleSetId: record.get('ruleSetId'), 
 									ruleSetVersionId: record.get('id')}, 
 							me.router.queryParams );
-					return '<a href="' + href + '">' + value + '</a>'
+					return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
 				}
             }
         ]

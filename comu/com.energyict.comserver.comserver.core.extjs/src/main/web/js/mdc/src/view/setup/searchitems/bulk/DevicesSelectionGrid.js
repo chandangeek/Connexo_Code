@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid', {
             dataIndex: 'mRID',
             flex: 1,
             renderer: function (value) {
-                return '<a href="#devices/' + value + '">' + value + '</a>';
+                return '<a href="#devices/' + value + '">' + Ext.String.htmlEncode(value) + '</a>';
             }
         },
         {

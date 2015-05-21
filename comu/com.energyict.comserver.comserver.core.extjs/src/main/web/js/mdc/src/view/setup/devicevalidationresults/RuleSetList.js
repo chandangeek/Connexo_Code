@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetList', {
 				sortable: false, 
 				fixed: true,
                 renderer: function (value, metaData, record) {					                    
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },            
             { 
@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetList', {
 					var me = this,
 						href = me.router.getRoute('devices/device/validationresultsdataruleset').buildUrl({mRID: record.get('mRID'), ruleSetId: record.get('id')}, me.router.queryParams );
 					
-					return '<a href="' + href + '">' + value + '</a>'
+					return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
 				}
 
             }

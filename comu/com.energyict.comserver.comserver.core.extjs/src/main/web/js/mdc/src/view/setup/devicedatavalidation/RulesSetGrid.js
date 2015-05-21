@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                     if (record.raw.description) {
                         metaData.tdAttr = 'data-qtip="' + record.raw.description + '"';
                     }
-                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + value + '</a>';
+                    return '<a href="#/administration/validation/rulesets/' + record.getId() + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },
@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 renderer: function (value) {
                     return value ?
                         Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                        Uni.I18n.translate('general.inactive', 'MDC', 'Inctive');
+                        Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                 }
             },
             {

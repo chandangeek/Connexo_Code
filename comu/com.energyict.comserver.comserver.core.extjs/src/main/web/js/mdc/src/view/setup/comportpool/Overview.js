@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                             name: 'discoveryProtocolPluggableClassId',
                             renderer: function (val) {
                                 var protDetect = val ? Ext.getStore('Mdc.store.DeviceDiscoveryProtocols').getById(val) : null;
-                                return protDetect ? protDetect.get('name') : '';
+                                return protDetect ? Ext.String.htmlEncode(protDetect.get('name')) : '';
                             }
                         },
                         {

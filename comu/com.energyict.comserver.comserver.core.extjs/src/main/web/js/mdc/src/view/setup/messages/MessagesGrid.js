@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
 
                 if (Ext.isArray(value)) {
                     Ext.each(value, function (item) {
-                        result += item.name.toString();
+                        result += Ext.String.htmlEncode(item.name.toString());
                         if (value.indexOf(item) != value.length - 1) result += ' - ';
                     });
                 }
