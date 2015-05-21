@@ -62,7 +62,7 @@ public class DeviceConfigurationResource {
         List<DeviceConfigurationInfo> infos = ListPager.of(allDeviceConfigurations).from(queryParameters).find().stream().map(dc -> deviceConfigurationInfoFactory.asHypermedia(dc, uriInfo, fields.getFields())).collect(toList());
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).resolveTemplate("deviceTypeId", deviceTypeId);
 
-        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters, uri);
+        PagedInfoList infoList = PagedInfoList.from(infos, queryParameters, uri, uriInfo);
         return Response.ok(infoList).build();
     }
 

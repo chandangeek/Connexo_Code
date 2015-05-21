@@ -51,7 +51,7 @@ public class DeviceTypeResource {
         List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).collect(toList());
 
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
-        return Response.ok(PagedInfoList.from(infos, queryParameters, uri)).build();
+        return Response.ok(PagedInfoList.from(infos, queryParameters, uri, uriInfo)).build();
     }
 
 }
