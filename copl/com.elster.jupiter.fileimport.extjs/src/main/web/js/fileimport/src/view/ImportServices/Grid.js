@@ -21,6 +21,11 @@ Ext.define('Fim.view.importServices.Grid', {
                 flex: 1
             },
 			{
+                header: Uni.I18n.translate('importService.fileImporter', 'FIM', 'File importer'),
+                dataIndex: 'fileImporter',				
+                flex: 1
+            },
+			{
                 header: Uni.I18n.translate('general.status', 'FIM', 'Status'),
                 dataIndex: 'statusDisplay',
 				renderer: function (value, metaData, record) {
@@ -31,6 +36,7 @@ Ext.define('Fim.view.importServices.Grid', {
 			{
                 header: Uni.I18n.translate('general.application', 'FIM', 'Application'),
                 dataIndex: 'applicationDisplay',
+				hidden: !Fim.privileges.DataImport.getAdmin(),
                 flex: 1
             },
             

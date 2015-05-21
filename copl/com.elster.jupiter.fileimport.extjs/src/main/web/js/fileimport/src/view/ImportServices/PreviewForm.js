@@ -23,7 +23,7 @@ Ext.define('Fim.view.importServices.PreviewForm', {
             },
 			{
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('importService.importFolder', 'FIM', 'File importer'),
+                fieldLabel: Uni.I18n.translate('importService.fileImporter', 'FIM', 'File importer'),
                 name: 'fileImporter',
                 labelWidth: 250
             },
@@ -37,6 +37,7 @@ Ext.define('Fim.view.importServices.PreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('importService.application', 'FIM', 'Application'),
                 name: 'applicationDisplay',
+				hidden: !Fim.privileges.DataImport.getAdmin(),
                 labelWidth: 250
             },
 			{

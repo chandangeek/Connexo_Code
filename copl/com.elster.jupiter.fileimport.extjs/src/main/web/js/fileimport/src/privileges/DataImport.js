@@ -9,6 +9,9 @@
         'Uni.Auth'
     ],
     singleton: true,
+	view : ['privilege.administrate.importServices',
+			'privilege.view.importServices',
+			'privilege.view.mdc.importServices'],        
 	viewAdmin : ['privilege.administrate.importServices',
 			'privilege.view.importServices'],    
 	viewMdc : ['privilege.view.mdc.importServices'],    
@@ -22,7 +25,6 @@
 		return Uni.Auth.checkPrivileges(typeof(MdcApp) != 'undefined' ? Fim.privileges.DataImport.viewMdc : typeof(SystemApp) != 'undefined' ? Fim.privileges.DataImport.viewAdmin : []);				
     },
 	getAdmin:function(){
-	
-		return typeof(MdcApp) != 'undefined' ? [] : typeof(SystemApp) != 'undefined' ? Fim.privileges.DataImport.admin : [];		
+		return typeof(MdcApp) != 'undefined' ? false : typeof(SystemApp) != 'undefined' ? Uni.Auth.checkPrivileges(Fim.privileges.DataImport.admin) : false;                         
     }
 });
