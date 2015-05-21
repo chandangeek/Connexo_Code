@@ -5,7 +5,8 @@ Ext.define('SystemApp.Application', {
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
         'Yfn.privileges.Yellowfin',
-        'Tme.privileges.Period'
+        'Tme.privileges.Period',
+        'Fim.privileges.DataImport'
     ],
 
     controllers: [
