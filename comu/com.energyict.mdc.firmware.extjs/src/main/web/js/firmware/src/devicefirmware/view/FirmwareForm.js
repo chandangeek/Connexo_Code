@@ -136,7 +136,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 if (value && value.id === 'deprecated') {
                     this.infoTooltip = Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Active firmware version is deprecated. Consider firmware upgrade');
                 }
-                return value.localizedValue || null;
+                return Ext.String.htmlEncode(value.localizedValue) || null;
             },
             name: 'firmwareVersionStatus'
         },
