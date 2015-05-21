@@ -468,7 +468,7 @@ div.x-form-spinner-down {
 
 /* line 20, ../../sass/src/form/field/Trigger.scss */
 div.x-form-spinner-up {
-  background: url("images/form/trigger-up.png") no-repeat scroll center center #c9c9c9 !important;
+  background: url("images/form/trigger-up.png") no-repeat scroll center center #71adc7 !important;
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
   -ms-border-radius: 3px 3px 0 0;
@@ -478,7 +478,7 @@ div.x-form-spinner-up {
 
 /* line 25, ../../sass/src/form/field/Trigger.scss */
 div.x-form-spinner-down {
-  background: url("images/form/trigger.png") no-repeat scroll center center #c9c9c9;
+  background: url("images/form/trigger.png") no-repeat scroll center center #71adc7;
   -webkit-border-radius: 0 0 3px 3px;
   -moz-border-radius: 0 0 3px 3px;
   -ms-border-radius: 0 0 3px 3px;
@@ -491,7 +491,7 @@ div.x-form-spinner-down {
   height: 22px;
   margin: 2px 2px 2px 8px;
   width: 16px;
-  background: url("images/form/trigger.png") no-repeat scroll center center #c9c9c9 !important;
+  background: url("images/form/trigger.png") no-repeat scroll center center #71adc7 !important;
 }
 
 /* line 37, ../../sass/src/form/field/Trigger.scss */
@@ -7700,7 +7700,7 @@ div.x-form-spinner-down {
 
 /* line 20, ../../sass/src/form/field/Trigger.scss */
 div.x-form-spinner-up {
-  background: url("images/form/trigger-up.png") no-repeat scroll center center #c9c9c9 !important;
+  background: url("images/form/trigger-up.png") no-repeat scroll center center #71adc7 !important;
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
   -ms-border-radius: 3px 3px 0 0;
@@ -7710,7 +7710,7 @@ div.x-form-spinner-up {
 
 /* line 25, ../../sass/src/form/field/Trigger.scss */
 div.x-form-spinner-down {
-  background: url("images/form/trigger.png") no-repeat scroll center center #c9c9c9;
+  background: url("images/form/trigger.png") no-repeat scroll center center #71adc7;
   -webkit-border-radius: 0 0 3px 3px;
   -moz-border-radius: 0 0 3px 3px;
   -ms-border-radius: 0 0 3px 3px;
@@ -7723,7 +7723,7 @@ div.x-form-spinner-down {
   height: 22px;
   margin: 2px 2px 2px 8px;
   width: 16px;
-  background: url("images/form/trigger.png") no-repeat scroll center center #c9c9c9 !important;
+  background: url("images/form/trigger.png") no-repeat scroll center center #71adc7 !important;
 }
 
 /* line 37, ../../sass/src/form/field/Trigger.scss */

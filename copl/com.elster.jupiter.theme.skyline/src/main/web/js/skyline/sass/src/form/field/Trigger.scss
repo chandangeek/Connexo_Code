@@ -18,12 +18,12 @@ div.#{$prefix}form-spinner-down {
 }
 
 div.#{$prefix}form-spinner-up {
-  background: url("images/form/trigger-up.png") no-repeat scroll center center #C9C9C9 !important;
+  background: url("images/form/trigger-up.png") no-repeat scroll center center #71adc7 !important;
   @include border-radius(3px 3px 0 0);
 }
 
 div.#{$prefix}form-spinner-down {
-  background: url("images/form/trigger.png") no-repeat scroll center center #C9C9C9;
+  background: url("images/form/trigger.png") no-repeat scroll center center #71adc7;
   @include border-radius(0 0 3px 3px);
 }
 
@@ -31,7 +31,7 @@ div.#{$prefix}form-spinner-down {
   height: $form-field-trigger-height;
   margin: 2px 2px 2px 8px;
   width: 16px;
-  background: url("images/form/trigger.png") no-repeat scroll center center #C9C9C9 !important;
+  background: url("images/form/trigger.png") no-repeat scroll center center #71adc7 !important;
 }
 
 .#{$prefix}form-trigger-wrap, .#{$prefix}form-trigger {
