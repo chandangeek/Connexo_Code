@@ -91,11 +91,14 @@ public interface MeteringService {
      * they have the same name. This means that changing to another FiniteStateMachine
      * maps the current State of each device to the State with the same name
      * in the new FiniteStateMachine.
+     * Note that the effective timestamp cannot be in the future and if it is
+     * this will throw an IllegalArgumentException.
      *
+     * @param effective The instant in time on which the switch over was effective
      * @param oldStateMachine The old FiniteStateMachine
      * @param newStateMachine The new FiniteStateMachine
      * @param deviceAmrIdSubquery The query that returns the amrId of each device to which the change should be applied
      */
-    void changeStateMachine(FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery);
+    void changeStateMachine(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery);
 
 }

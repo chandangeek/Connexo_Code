@@ -6,7 +6,9 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
+import com.elster.jupiter.metering.events.SwitchStateMachineFailureEvent;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -21,18 +23,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
@@ -57,9 +60,8 @@ public class StateMachineSwitcherTest {
     private static final long DEVICE_ID = 107L;
     private static final int BATCH_SIZE = 2;
     public static final String NOT_MAPPED_STATE_NAME = "Not Mapped";
+    public static final Instant EFFECTIVE_TIMESTAMP = Instant.ofEpochMilli(100000L);
 
-    @Mock
-    private Clock clock;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -87,7 +89,6 @@ public class StateMachineSwitcherTest {
 
     @Before
     public void initializeMocks() throws SQLException {
-        when(this.clock.instant()).thenReturn(Instant.ofEpochMilli(100000L));
         when(this.oldStateMachine.getId()).thenReturn(OLD_STATE_MACHINE_ID);
         when(this.newStateMachine.getId()).thenReturn(NEW_STATE_MACHINE_ID);
         when(this.transactionService.getContext()).thenReturn(this.transactionContext);
@@ -106,7 +107,7 @@ public class StateMachineSwitcherTest {
 
         try {
             // Business method
-            switcher.validate(this.oldStateMachine, this.newStateMachine, this.deviceAmrIdSubquery);
+            switcher.validate(EFFECTIVE_TIMESTAMP, this.oldStateMachine, this.newStateMachine, this.deviceAmrIdSubquery);
 
         }
         catch (IncompatibleFiniteStateMachineChangeException e) {
@@ -123,7 +124,7 @@ public class StateMachineSwitcherTest {
         this.mockNoIncompatibleStates();
 
         // Business method
-        switcher.validate(this.oldStateMachine, this.newStateMachine, this.deviceAmrIdSubquery);
+        switcher.validate(EFFECTIVE_TIMESTAMP, this.oldStateMachine, this.newStateMachine, this.deviceAmrIdSubquery);
 
         // Asserts
         verify(this.resultSet).close();
@@ -137,7 +138,7 @@ public class StateMachineSwitcherTest {
         this.mockEndDevices(5);
 
         // Business method
-        publisher.publishEvents(this.oldStateMachine, this.newStateMachine, this.deviceAmrIdSubquery);
+        publisher.publishEvents(EFFECTIVE_TIMESTAMP, this.oldStateMachine, this.newStateMachine, this.deviceAmrIdSubquery);
 
         // Asserts: 5 devices in batches of 2 should create 3 batches
         verify(this.eventService, times(3)).postEvent(anyString(), any());
@@ -146,7 +147,13 @@ public class StateMachineSwitcherTest {
     @Test
     public void processWithDeviceThatNoLongerExistsDoesNotCrashUnexpectedly() {
         String payload = "processWithDeviceThatNoLongerExistsDoesNotCrashUnexpectedly";
-        when(this.jsonService.deserialize(payload.getBytes(), SwitchStateMachineEvent.class)).thenReturn(new SwitchStateMachineEvent(Instant.now().toEpochMilli(), OLD_STATE_MACHINE_ID, NEW_STATE_MACHINE_ID, Arrays.asList(DEVICE_ID)));
+        when(this.jsonService.deserialize(payload.getBytes(), SwitchStateMachineEvent.class))
+                .thenReturn(
+                        new SwitchStateMachineEvent(
+                                Instant.now().toEpochMilli(),
+                                OLD_STATE_MACHINE_ID,
+                                NEW_STATE_MACHINE_ID,
+                                Collections.singletonList(DEVICE_ID)));
         DataMapper<EndDevice> mapper = mock(DataMapper.class);
         when(this.dataModel.mapper(EndDevice.class)).thenReturn(mapper);
         when(mapper.getOptional(DEVICE_ID)).thenReturn(Optional.<EndDevice>empty());
@@ -164,7 +171,13 @@ public class StateMachineSwitcherTest {
     @Test
     public void processWithNewFiniteStateMachineNoLongerExistsDoesNotCrashUnexpectedly() {
         String payload = "processWithNewFiniteStateMachineNoLongerExistsDoesNotCrashUnexpectedly";
-        when(this.jsonService.deserialize(payload.getBytes(), SwitchStateMachineEvent.class)).thenReturn(new SwitchStateMachineEvent(Instant.now().toEpochMilli(), OLD_STATE_MACHINE_ID, NEW_STATE_MACHINE_ID, Arrays.asList(DEVICE_ID)));
+        when(this.jsonService.deserialize(payload.getBytes(), SwitchStateMachineEvent.class))
+                .thenReturn(
+                        new SwitchStateMachineEvent(
+                                Instant.now().toEpochMilli(),
+                                OLD_STATE_MACHINE_ID,
+                                NEW_STATE_MACHINE_ID,
+                                Collections.singletonList(DEVICE_ID)));
         DataMapper<EndDevice> mapper = mock(DataMapper.class);
         when(this.dataModel.mapper(EndDevice.class)).thenReturn(mapper);
         ServerEndDevice endDevice = mock(ServerEndDevice.class);
@@ -187,12 +200,21 @@ public class StateMachineSwitcherTest {
     public void processWithSuccess() {
         String payload = "processWithSuccess";
         Instant now = Instant.now();
-        when(this.clock.instant()).thenReturn(now);
-        when(this.jsonService.deserialize(payload.getBytes(), SwitchStateMachineEvent.class)).thenReturn(new SwitchStateMachineEvent(now.toEpochMilli(), OLD_STATE_MACHINE_ID, NEW_STATE_MACHINE_ID, Arrays.asList(DEVICE_ID)));
+        when(this.jsonService.deserialize(payload.getBytes(), SwitchStateMachineEvent.class))
+                .thenReturn(
+                        new SwitchStateMachineEvent(
+                                now.toEpochMilli(),
+                                OLD_STATE_MACHINE_ID,
+                                NEW_STATE_MACHINE_ID,
+                                Collections.singletonList(DEVICE_ID)));
         DataMapper<EndDevice> mapper = mock(DataMapper.class);
         when(this.dataModel.mapper(EndDevice.class)).thenReturn(mapper);
         ServerEndDevice endDevice = mock(ServerEndDevice.class);
         when(endDevice.getId()).thenReturn(DEVICE_ID);
+        State stateBeforeSwitching = mock(State.class);
+        String stateNameBeforeSwitching = "StateBeforeSwitching";
+        when(stateBeforeSwitching.getName()).thenReturn(stateNameBeforeSwitching);
+        when(endDevice.getState()).thenReturn(Optional.of(stateBeforeSwitching));
         when(mapper.getOptional(DEVICE_ID)).thenReturn(Optional.of(endDevice));
         when(this.finiteStateMachineService.findFiniteStateMachineById(NEW_STATE_MACHINE_ID)).thenReturn(Optional.of(this.newStateMachine));
         Message message = mock(Message.class);
@@ -212,12 +234,21 @@ public class StateMachineSwitcherTest {
     public void processWithMappedStateThatNoLongerExistsPublishesEvent() {
         String payload = "processWithMappedStateThatNoLongerExistsPublishesEvent";
         Instant now = Instant.now();
-        when(this.clock.instant()).thenReturn(now);
-        when(this.jsonService.deserialize(payload.getBytes(), SwitchStateMachineEvent.class)).thenReturn(new SwitchStateMachineEvent(now.toEpochMilli(), OLD_STATE_MACHINE_ID, NEW_STATE_MACHINE_ID, Arrays.asList(DEVICE_ID)));
+        when(this.jsonService.deserialize(payload.getBytes(), SwitchStateMachineEvent.class))
+                .thenReturn(
+                        new SwitchStateMachineEvent(
+                                now.toEpochMilli(),
+                                OLD_STATE_MACHINE_ID,
+                                NEW_STATE_MACHINE_ID,
+                                Collections.singletonList(DEVICE_ID)));
         DataMapper<EndDevice> mapper = mock(DataMapper.class);
         when(this.dataModel.mapper(EndDevice.class)).thenReturn(mapper);
         ServerEndDevice endDevice = mock(ServerEndDevice.class);
         when(endDevice.getId()).thenReturn(DEVICE_ID);
+        State stateBeforeSwitching = mock(State.class);
+        String stateNameBeforeSwitching = "StateBeforeSwitching";
+        when(stateBeforeSwitching.getName()).thenReturn(stateNameBeforeSwitching);
+        when(endDevice.getState()).thenReturn(Optional.of(stateBeforeSwitching));
         doThrow(AbstractEndDeviceImpl.StateNoLongerExistsException.class).when(endDevice).changeStateMachine(this.newStateMachine, now);
         when(mapper.getOptional(DEVICE_ID)).thenReturn(Optional.of(endDevice));
         when(this.finiteStateMachineService.findFiniteStateMachineById(NEW_STATE_MACHINE_ID)).thenReturn(Optional.of(this.newStateMachine));
@@ -232,7 +263,13 @@ public class StateMachineSwitcherTest {
         verify(mapper).getOptional(DEVICE_ID);
         verify(this.finiteStateMachineService).findFiniteStateMachineById(NEW_STATE_MACHINE_ID);
         verify(endDevice).changeStateMachine(this.newStateMachine, now);
-        verify(this.eventService).postEvent(anyString(), any());
+        ArgumentCaptor<SwitchStateMachineFailureEvent> eventArgumentCaptor = ArgumentCaptor.forClass(SwitchStateMachineFailureEvent.class);
+        verify(this.eventService).postEvent(eq(EventType.SWITCH_STATE_MACHINE_FAILED.topic()), eventArgumentCaptor.capture());
+        assertThat(eventArgumentCaptor.getValue()).isNotNull();
+        assertThat(eventArgumentCaptor.getValue().getEndDeviceId()).isEqualTo(DEVICE_ID);
+        assertThat(eventArgumentCaptor.getValue().getEndDeviceStateName()).isEqualTo(stateNameBeforeSwitching);
+        assertThat(eventArgumentCaptor.getValue().getNewFiniteStateMachineId()).isEqualTo(NEW_STATE_MACHINE_ID);
+        assertThat(eventArgumentCaptor.getValue().getOldFiniteStateMachineId()).isEqualTo(OLD_STATE_MACHINE_ID);
     }
 
     private void mockNoIncompatibleStates() throws SQLException {
@@ -261,11 +298,11 @@ public class StateMachineSwitcherTest {
     }
 
     private StateMachineSwitcher getValidatingTestInstance() {
-        return StateMachineSwitcher.forValidation(this.clock, this.dataModel);
+        return StateMachineSwitcher.forValidation(this.dataModel);
     }
 
     private StateMachineSwitcher getPublishingTestInstance(int batchSize) {
-        return StateMachineSwitcher.forPublishing(batchSize, this.clock, this.dataModel, this.eventService);
+        return StateMachineSwitcher.forPublishing(batchSize, this.dataModel, this.eventService);
     }
 
     private StateMachineSwitcher getHandlingTestInstance() {

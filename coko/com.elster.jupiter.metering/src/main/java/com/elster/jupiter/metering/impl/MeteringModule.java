@@ -48,5 +48,6 @@ public class MeteringModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
         bind(MeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerMeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

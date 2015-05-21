@@ -177,8 +177,8 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 
     @Override
     public void changeStateMachine(FiniteStateMachine newStateMachine, Instant effective) {
-        this.stateMachine.set(newStateMachine);
         String stateName = this.getState().orElseThrow(this::unmanagedStateException).getName();
+        this.stateMachine.set(newStateMachine);
         this.closeCurrentState(effective);
         this.createNewState(
                 effective,

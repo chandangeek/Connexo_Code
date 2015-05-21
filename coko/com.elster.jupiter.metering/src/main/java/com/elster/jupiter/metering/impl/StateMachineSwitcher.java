@@ -7,6 +7,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -21,7 +22,6 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -49,28 +49,23 @@ public class StateMachineSwitcher implements MessageHandler {
 
     private final int batchSize;
     private final DataModel dataModel;
-    private Clock clock;
     private EventService eventService;
     private FiniteStateMachineService finiteStateMachineService;
     private JsonService jsonService;
     private Logger logger;
 
-    public static StateMachineSwitcher forValidation(Clock clock, DataModel dataModel) {
-        StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel);
-        switcher.clock = clock;
-        return switcher;
+    public static StateMachineSwitcher forValidation(DataModel dataModel) {
+        return new StateMachineSwitcher(dataModel);
     }
 
-    public static StateMachineSwitcher forPublishing(Clock clock, DataModel dataModel, EventService eventService) {
+    public static StateMachineSwitcher forPublishing(DataModel dataModel, EventService eventService) {
         StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel);
-        switcher.clock = clock;
         switcher.eventService = eventService;
         return switcher;
     }
 
-    public static StateMachineSwitcher forPublishing(int batchSize, Clock clock, DataModel dataModel, EventService eventService) {
+    public static StateMachineSwitcher forPublishing(int batchSize, DataModel dataModel, EventService eventService) {
         StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel, batchSize);
-        switcher.clock = clock;
         switcher.eventService = eventService;
         return switcher;
     }
@@ -121,17 +116,36 @@ public class StateMachineSwitcher implements MessageHandler {
     private void process(SwitchStateMachineEvent event, ServerEndDevice device) {
         Optional<FiniteStateMachine> stateMachine = this.finiteStateMachineService.findFiniteStateMachineById(event.getNewFiniteStateMachineId());
         if (stateMachine.isPresent()) {
+            String stateNameBeforeSwitch = getStateName(device);
             try {
                 device.changeStateMachine(stateMachine.get(), Instant.ofEpochMilli(event.getNow()));
             }
             catch (AbstractEndDeviceImpl.StateNoLongerExistsException e) {
                 this.logger.fine(() -> "Cannot switch to new statemachine (id=" + event.getNewFiniteStateMachineId() + ") for device with id " + device.getId() + " because state with name " + e.getStateName() + " has been removed since this was verified");
-                // Todo: publish an event
+                this.eventService.postEvent(
+                        EventType.SWITCH_STATE_MACHINE_FAILED.topic(),
+                        new SwitchStateMachineFailureEventImpl(
+                                device.getId(),
+                                stateNameBeforeSwitch,
+                                event.getOldFiniteStateMachineId(),
+                                event.getNewFiniteStateMachineId()));
             }
         }
         else {
             this.logger.fine(() -> "Cannot switch to new statemachine (id=" + event.getNewFiniteStateMachineId() + ") for device with id " + device.getId() + " because statemachine no longer exists");
         }
+    }
+
+    private String getStateName(ServerEndDevice device) {
+        String stateName;
+        Optional<State> stateBeforeSwitch = device.getState();
+        if (stateBeforeSwitch.isPresent()) {
+            stateName = stateBeforeSwitch.get().getName();
+        }
+        else {
+            stateName = "Unknown";
+        }
+        return stateName;
     }
 
     /**
@@ -142,13 +156,13 @@ public class StateMachineSwitcher implements MessageHandler {
      * of at least one EndDevice cannot be mapped to a State
      * with the same name in the new FiniteStateMachine.
      *
+     * @param effective The instant in time on which the switch over was effective
      * @param oldStateMachine The old FiniteStateMachine
      * @param newStateMachine The new FiniteStateMachine
      * @param deviceAmrIdSubquery The Subquery that returns the set of EndDevice that will be switched
      */
-    public void validate(FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
-        Instant now = this.clock.instant();
-        Set<String> incompatibleStateNames = this.incompatibleStateNames(now, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+    public void validate(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+        Set<String> incompatibleStateNames = this.incompatibleStateNames(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
         if (!incompatibleStateNames.isEmpty()) {
             /* Need to veto this because there are device out there
              * whose current state no longer exists in the new finite state machine. */
@@ -159,8 +173,8 @@ public class StateMachineSwitcher implements MessageHandler {
         }
     }
 
-    private Set<String> incompatibleStateNames(Instant now, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
-        SqlBuilder sqlBuilder = this.incompatibleStateNamesSqlBuilder(now, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+    private Set<String> incompatibleStateNames(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+        SqlBuilder sqlBuilder = this.incompatibleStateNamesSqlBuilder(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
         try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 Set<String> incompatibleStateNames = new HashSet<>();
@@ -175,7 +189,7 @@ public class StateMachineSwitcher implements MessageHandler {
         }
     }
 
-    private SqlBuilder incompatibleStateNamesSqlBuilder(Instant now, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+    private SqlBuilder incompatibleStateNamesSqlBuilder(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append("select distinct(s.name) from ");
         sqlBuilder.append(TableSpecs.MTR_ENDDEVICESTATUS.name());
@@ -185,9 +199,9 @@ public class StateMachineSwitcher implements MessageHandler {
         sqlBuilder.append(" where s.fsm =");
         sqlBuilder.addLong(oldStateMachine.getId());
         sqlBuilder.append("and (ds.STARTTIME <=");
-        sqlBuilder.addLong(now.toEpochMilli());
+        sqlBuilder.addLong(effective.toEpochMilli());
         sqlBuilder.append("and ds.ENDTIME >");
-        sqlBuilder.addLong(now.toEpochMilli());
+        sqlBuilder.addLong(effective.toEpochMilli());
         sqlBuilder.append(") and ed.amrid in (");
         sqlBuilder.add(deviceAmrIdSubquery.toFragment());
         sqlBuilder.append(") and not exists (");
@@ -208,12 +222,12 @@ public class StateMachineSwitcher implements MessageHandler {
      * of the {@link EndDevice}s that match the specified {@link Subquery}.
      * These events will be handled in the background by this very component.
      *
+     * @param effective The instant in time on which the switch over was effective
      * @param oldStateMachine The old FiniteStateMachine
      * @param newStateMachine The new FiniteStateMachine
      * @param deviceAmrIdSubquery The Subquery that returns the set of EndDevice that will be switched
      */
-    public void publishEvents(FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
-        long now = this.clock.instant().toEpochMilli();
+    public void publishEvents(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
         Condition condition =
                 where("status").isEffective()
                         .and(where("status.state.finiteStateMachine").isEqualTo(oldStateMachine))
@@ -226,7 +240,7 @@ public class StateMachineSwitcher implements MessageHandler {
                     .stream()
                     .map(EndDevice::getId))
                 .partitionPer(this.batchSize)
-                .map(deviceIds -> new SwitchStateMachineEvent(now, oldStateMachine.getId(), newStateMachine.getId(), deviceIds))
+                .map(deviceIds -> new SwitchStateMachineEvent(effective.toEpochMilli(), oldStateMachine.getId(), newStateMachine.getId(), deviceIds))
                 .forEach(event -> event.publish(this.eventService));
     }
 

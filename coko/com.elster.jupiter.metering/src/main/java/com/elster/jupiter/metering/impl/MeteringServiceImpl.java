@@ -470,13 +470,16 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public void changeStateMachine(FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+    public void changeStateMachine(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+        if (effective.isAfter(this.clock.instant())) {
+            throw new IllegalArgumentException("Effective timestamp of the statemachine switch over cannot be in the future");
+        }
         StateMachineSwitcher
-            .forValidation(this.clock, this.dataModel)
-            .validate(oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+            .forValidation(this.dataModel)
+            .validate(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
         StateMachineSwitcher
-            .forPublishing(this.clock, this.dataModel, this.eventService)
-            .publishEvents(oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+            .forPublishing(this.dataModel, this.eventService)
+            .publishEvents(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
     }
 
 }
