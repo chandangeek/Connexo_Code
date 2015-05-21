@@ -65,6 +65,7 @@ public class DeviceInfoFactory {
         Map<String, PropertyCopier<DeviceInfo, Device>> map = new HashMap<>();
         map.put("id", (deviceInfo, device, uriInfo) -> deviceInfo.id = device.getId());
         map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
+        map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
         map.put("deviceProtocolPluggeableClassId", (deviceInfo, device, uriInfo) -> deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId());
         map.put("yearOfCertification", (deviceInfo, device, uriInfo) -> deviceInfo.yearOfCertification = device.getYearOfCertification());
