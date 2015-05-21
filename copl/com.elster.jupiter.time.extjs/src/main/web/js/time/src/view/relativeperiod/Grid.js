@@ -16,7 +16,7 @@ Ext.define('Tme.view.relativeperiod.Grid', {
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/relativeperiods/relativeperiod').buildUrl({periodId: record.get('id')});
-                    return '<a href="' + url + '">' + value + '</a>';
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },
