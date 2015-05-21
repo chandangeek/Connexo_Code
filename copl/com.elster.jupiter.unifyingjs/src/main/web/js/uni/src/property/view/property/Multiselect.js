@@ -77,7 +77,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                 Ext.isArray(data) && Ext.Array.each(data, function (item) {
                     var flag = store.getById(item);
 
-                    flag && (result += flag.get('name') + '<br>');
+                    flag && (result += Ext.String.htmlEncode(flag.get('name')) + '<br>');
                 });
 
                 return result;

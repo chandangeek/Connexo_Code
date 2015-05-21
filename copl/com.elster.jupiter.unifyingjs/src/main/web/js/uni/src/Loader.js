@@ -67,7 +67,8 @@ Ext.define('Uni.Loader', {
         'Uni.override.form.field.Picker',
         'Uni.form.field.ReadingTypeCombo',
         'Uni.view.grid.BulkSelection',
-        'Uni.override.ColumnOverride'
+        'Uni.override.ColumnOverride',
+        'Uni.override.DisplayFieldOverride'
     ],
 
     /**
