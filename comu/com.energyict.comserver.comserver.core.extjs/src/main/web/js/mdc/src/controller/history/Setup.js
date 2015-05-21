@@ -1406,6 +1406,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     }
                                 },
+                                channelvalidationdata: {
+                                    title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
+                                    route: '{channelId}/validationdata/{issueId}/{validationBlockId}',
+                                    controller: 'Mdc.controller.setup.DeviceChannelData',
+                                    privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    action: 'showValidationData',
+                                    filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                },
                                 channelvalidation: {
                                     title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),
                                     route: '{channelId}/validation',

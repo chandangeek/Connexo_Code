@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Mdc.view.setup.devicechannels.DataActionMenu',
         'Uni.grid.column.IntervalFlags',
         'Uni.grid.column.Edited',
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Uni.grid.column.Action'
     ],
     plugins: [
         'bufferedrenderer'
@@ -45,9 +46,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 flex: 1,
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    if (record.get('validationResult')) {
-                        var result = record.get('validationResult'),
-                            status = result.split('.')[1],
+                    var validationInfo = record.getDeltaValidationInfo(),
+                        validationResult = validationInfo ? validationInfo.get('validationResult') : null;
+                    if (validationResult) {
+                        var status = validationResult.split('.')[1],
                             cls = 'icon-validation-cell';
                         if (status === 'suspect') {
                             cls +=  ' icon-validation-red'
@@ -73,7 +75,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             {
                 xtype: 'edited-column',
                 header: '',
-                dataIndex: 'modificationState',
+                dataIndex: 'deltaModificationState',
                 width: 30
             },
             {
@@ -82,18 +84,40 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 flex: 1,
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
-                renderer: function (v) {
+                renderer: function (v, metaData, record) {
+                    var validationInfo = record.getBulkValidationInfo(),
+                        validationResult = validationInfo ? validationInfo.get('validationResult') : null;
+                    if (validationResult) {
+                        var status = validationResult.split('.')[1],
+                            cls = 'icon-validation-cell';
+                        if (status === 'suspect') {
+                            cls +=  ' icon-validation-red'
+                        }
+                        if (status === 'notValidated') {
+                            cls +=  ' icon-validation-black'
+                        }
+                        metaData.tdCls = cls;
+                    }
                     if (!Ext.isEmpty(v)) {
                         var value = Uni.Number.formatNumber(v, -1);
                         return !Ext.isEmpty(value) ? value : '';
                     }
-                }}
-            ,
+                }
+            },
+            {
+                xtype: 'edited-column',
+                header: '',
+                dataIndex: 'bulkModificationState',
+                width: 30
+            },
             {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
                 align: 'right',
                 width: 150
+            },
+            {
+                xtype: 'uni-actioncolumn'
             }
         ];
 

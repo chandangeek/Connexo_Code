@@ -8,7 +8,8 @@ Ext.define('Mdc.store.ChannelOfLoadProfileOfDeviceData', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/data',
+        urlTpl: '/apps/mdc/fakedata/DeviceChannelData.json',
+//        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/data',
         reader: {
             type: 'json',
             root: 'data'

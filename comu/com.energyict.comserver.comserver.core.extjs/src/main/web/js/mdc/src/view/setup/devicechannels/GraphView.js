@@ -106,97 +106,47 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     return {x: xValue, y: yValue}
                 },
                 formatter: function (tooltip) {
-                    console.log(tooltip);
-                    var tvalColor = 'rgba(255, 255, 255, 0.85)';
-                    var testColor = 'rgba(86, 131, 67, 0.3)';
-                    var tsusColor = 'rgba(235, 86, 66, 0.3)';
-                    var tinfColor = 'rgba(222, 220, 73, 0.3)';
-                    var tedColor = 'rgba(255, 255, 255, 0.85)';
-                    var tnvalColor = 'rgba(0, 131, 200, 0.3)';
-                    var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x);
+                    var html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x);
                     var point = this.points[0].point,
-                        bgColor = tvalColor,
-                        vicon = '',
-                        bicon = '',
-                        iconConfirm = 'icon-checkmark',
-                        iconEditedNotSaved = 'icon-starburst',
-                        iconEdited = 'icon-pencil';
+                        bgColor,
+                        iconSpan = '<span class="{icon}" ' +
+                            'style="height: 16px; ' +
+                            'width: 16px; ' +
+                            'display: inline-block; ' +
+                            'vertical-align: top; ' +
+                            'margin-left: 4px"></span>',
+                        iconMap = {
+                            suspect: 'icon-validation-red',
+                            edited: 'icon-pencil2',
+                            editedNotSaved: 'icon-pencil2',
+                            confirmed: 'icon-checkmark'
+                        };
 
-                    s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
-                    s += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
-                    s += '<table style="margin-top: 10px"><tbody>';
+                    html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
+                    html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
+                    html += '<table style="margin-top: 10px"><tbody>';
+                    bgColor = point.tooltipColor;
 
-                    switch (point.validationResult) {
-                        case 'suspect' :
-                            bgColor = tsusColor;
-                            vicon = '<span class="icon-validation-red" ' +
-                                'style="height: 16px; ' +
-                                'width: 16px; ' +
-                                'display: inline-block; ' +
-                                'vertical-align: top; ' +
-                                'margin-left: 4px"></span>';
-                            break;
-                        case 'ok' :
-                            bgColor = tvalColor;
-                            break;
-                        case 'informative' :
-                            bgColor = tinfColor;
-                            break;
-                        case 'notValidated' :
-                            bgColor = tnvalColor;
-                            break;
-                        case 'confirmed'  :
-                            bgColor = tvalColor;
-                            vicon = '<span class="icon-checkmark" ' +
-                                'style="height: 16px; ' +
-                                'width: 16px; ' +
-                                'color: #00ff00; ' +
-                                'display: inline-block; ' +
-                                'vertical-align: top; ' +
-                                'margin-left: 4px"></span>';
-                            break;
-                        case 'estimated'  :
-                            bgColor = testColor;
-                            break;
-                    }
-                    switch (point.modificationFlag) {
-                        case 'EDITED.saved' :
-                            vicon = '<span class="icon-pencil2" ' +
-                                'style="height: 16px; ' +
-                                'width: 16px; ' +
-                                'display: inline-block; ' +
-                                'vertical-align: top; ' +
-                                'margin-left: 4px"></span>';
-                            break;
-                        case 'EDITED.notSaved':
-                            vicon = '<span class="icon-checkmark" ' +
-                                'style="height: 16px; ' +
-                                'width: 16px; ' +
-                                'display: inline-block; ' +
-                                'vertical-align: top; ' +
-                                'margin-left: 4px"></span>';
-                            break;
-                    }
-                    s += '<tr><td style="highchart-tooltip-value-td"><b>' +
+                    html += '<tr><td><b>' +
                         point.series.name +
                         ':</b></td><td>' +
                         point.y + ' ' +
                         point.mesurementType +
-                        vicon +
+                        iconSpan.replace('{icon}', iconMap[point.deltaProperty]) +
                         '</td></tr>';
-                    s += '<tr><td style="highchart-tooltip-value-td"><b>' +
+                    html += '<tr><td><b>' +
                         'Bulk value:' +
                         '</b></td><td>' +
                         point.collectedValue + ' ' +
-                        point.mesurementType  +
-                        bicon +
+                        point.mesurementType +
+                        iconSpan.replace('{icon}', iconMap[point.bulkProperty]) +
                         '</td></tr>';
 
-                    s += '</tbody></table>';
-                    s = '<div style="background-color: ' +
+                    html += '</tbody></table>';
+                    html = '<div style="background-color: ' +
                         bgColor +
-                        '; padding: 8px">' + s + '</div>';
-                    return s;
+                        '; padding: 8px">' + html + '</div>';
+                    return html;
                 },
                 followPointer: false,
                 followTouchMove: false

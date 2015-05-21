@@ -79,18 +79,21 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showSpecifications: function (mRID, channelId) {
         var me = this,
-        router = me.getController('Uni.controller.history.Router');
-        me.showOverview(mRID, channelId, 0, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToList(router))
+            router = me.getController('Uni.controller.history.Router');
+        me.showOverview(mRID, channelId, 0, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToChannels(router))
     },
 
     showData: function (mRID, channelId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        me.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToList(router))
+        me.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToChannels(router))
     },
 
-    showDataFromValidationIssue: function (mRID, channelId) {
-        this.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice')
+    showValidationData: function (mRID, channelId, issueId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        // todo Replace 'Mdc.store.ChannelsOfLoadProfilesOfDevice' with validation blocks store
+        me.showOverview(mRID, channelId, 1, 'Mdc.store.ChannelsOfLoadProfilesOfDevice', me.makeLinkToIssue(router, issueId))
     },
 
     showOverview: function (mRID, channelId, activeTab, prevNextstore, prevNextListLink) {
@@ -168,11 +171,17 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
 
-    makeLinkToList: function (router) {
+    makeLinkToChannels: function (router) {
         var link = '<a href="{0}">' + Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
             filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter'),
             queryParams = filter ? {filter: filter} : null;
         return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl(null, queryParams));
+    },
+
+    makeLinkToIssue: function (router, issueId) {
+        var link = '<a href="{0}">' + Uni.I18n.translate('devicechannels.validationblocks', 'MDC', 'Validation blocks').toLowerCase() + '</a>';
+        // todo Replace 'workspace/datacollectionissues/{issueId}' with correct route to validation issue
+        return Ext.String.format(link, router.getRoute('workspace/datacollectionissues/{issueId}').buildUrl({issueId: issueId}));
     },
 
     showGraphView: function (channelRecord, dataStore) {
@@ -241,53 +250,97 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var data = [];
         var missedValues = [];
         var mesurementType = channelRecord.get('unitOfMeasure');
-        var valColor = "#70BB51"; // "#70BB51"
+
+        var missedColor = 'rgba(235, 86, 66, 0.3)';
+        var okColor = "#70BB51"; // "#70BB51"
         var estColor = "#568343"; // "#568343"
-        var susColor = "#eb5642"; // "#eb5642"
+        var susColor = 'rgba(235, 86, 66, 1)';//"#eb5642"; // "#eb5642"
         var infColor = "#dedc49"; // "#dedc49"
         var edColor = "rgba(0,0,0,0)"; //"#00aaaa"
         var nvalColor = "#71adc7";
-
+        var tokColor = 'rgba(255, 255, 255, 0.85)';
+        var testColor = 'rgba(86, 131, 67, 0.3)';
+        var tsusColor = 'rgba(235, 86, 66, 0.3)';
+        var tinfColor = 'rgba(222, 220, 73, 0.3)';
+        var tedColor = 'rgba(255, 255, 255, 0.85)';
+        var tnvalColor = 'rgba(0, 131, 200, 0.3)';
 
         dataStore.each(function (record) {
-            var validationResult = record.get('validationResult').split('.')[1];
-            var modificationFlag = record.get('modificationFlag');
-            var suspectReason = record.get('suspectReason');
             var point = {};
+            var deltaValidationInfo = record.getDeltaValidationInfo();
+            var bulkValidationInfo = record.getBulkValidationInfo();
+            var deltaModificationFlag = deltaValidationInfo ? deltaValidationInfo.get('modificationFlag') : null;
+            var bulkModificationFlag = bulkValidationInfo ? bulkValidationInfo.get('modificationFlag') : null;
+            var informative = false;
+            var suspect = false;
+            var confirmed = false;
+            var estimated = false;
+            var edited = deltaModificationFlag || bulkModificationFlag;
+            var dataValidated = (deltaValidationInfo && deltaValidationInfo.get('dataValidated')) &&
+                (bulkValidationInfo && bulkValidationInfo.get('dataValidated'));
+
+            if (deltaValidationInfo) {
+                var deltaValidationRules = deltaValidationInfo.validationRules();
+                if (deltaValidationRules && deltaValidationRules.findRecord('action', 'WARN_ONLY')) {
+                    informative = true;
+                }
+                if (deltaValidationRules && deltaValidationRules.findRecord('action', 'FAIL')) {
+                    suspect = true;
+                    point.deltaProperty ='suspect';
+                }
+            }
+            if (bulkValidationInfo) {
+                var bulkValidationRules = bulkValidationInfo.validationRules();
+                if (bulkValidationRules && bulkValidationRules.findRecord('action', 'WARN_ONLY')) {
+                    informative = true;
+                }
+                if (bulkValidationRules && bulkValidationRules.findRecord('action', 'FAIL')) {
+                    suspect = true;
+                    point.bulkProperty = 'suspect';
+                }
+            }
+
+
 
             point.x = record.get('interval').start;
             point.y = parseFloat(record.get('value'));
             point.intervalEnd = record.get('interval').end;
             point.collectedValue = record.get('collectedValue');
             point.mesurementType = mesurementType;
-            switch (validationResult) {
-                case 'suspect' :
-                    point.color = susColor;
-                    break;
-                case 'ok' :
-                    point.color = valColor;
-                    break;
-                case 'notValidated' :
-                    point.color = nvalColor;
-                    break;
+            point.color = okColor;
+            point.tooltipColor = tokColor;
+
+            if (informative) {
+                point.color = infColor;
+                point.tooltipColor = tinfColor
             }
-            if (suspectReason.length > 0) {
-                if (suspectReason[0].action == 'WARN_ONLY') {
-                    point.color = infColor;
-                    validationResult = 'informative'
-                }
+            if (suspect) {
+                point.color = susColor;
+                point.tooltipColor = tsusColor
             }
-            point.validationResult = validationResult;
-            if (modificationFlag) {
-                point.modificationFlag = 'EDITED.saved';
+            if (!dataValidated) {
+                point.color = nvalColor;
+                point.tooltipColor = tnvalColor
+            }
+            if (estimated) {
+                point.color = estColor;
+                point.tooltipColor = tnvalColor
+            }
+            if (confirmed) {
+                point.color = okColor;
+                point.tooltipColor = tokColor
+            }
+            if (edited) {
+                point.color = okColor;
+                point.tooltipColor = tokColor
             }
 
             data.unshift(point);
-            if (!data.y) {
+            if (!point.y) {
                 missedValues.push({
                     from: record.get('interval').start,
                     to: record.get('interval').end,
-                    color: 'rgba(235, 86, 66, 0.3)'
+                    color: missedColor
                 })
             }
         });

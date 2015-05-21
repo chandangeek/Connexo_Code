@@ -1,5 +1,8 @@
 Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     extend: 'Ext.data.Model',
+    requires: [
+        'Mdc.model.ChannelReadingValidationResult'
+    ],
     idgen: 'sequential',
     fields: [
         {name: 'interval', type: 'auto'},
@@ -23,7 +26,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         },
         {name: 'intervalFlags', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
-        {name: 'suspectReason', type: 'auto'},
+//        {name: 'suspectReason', type: 'auto'},
         {name: 'validationResult', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
 
@@ -137,6 +140,68 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
 
                 return result;
             }
+        },
+        {
+            name: 'deltaValidationInformation',
+            persist: false,
+            mapping: function (data) {
+                var result = {};
+                if (data.bulkValidationInfo) {
+                    result = data.bulkValidationInfo
+                }
+                return result;
+            }
+        },
+        {
+            name: 'bulkValidationInformation',
+            persist: false,
+            mapping: function (data) {
+                var result = {};
+                if (data.bulkValidationInfo) {
+                    result = data.bulkValidationInfo
+                }
+               return result;
+            }
+        },
+        {
+            name: 'deltaModificationState',
+            persist: false,
+            mapping: function (data) {
+                var result = null;
+                if (data.bulkValidationInfo) {
+                    result = data.bulkValidationInfo.modificationState
+                }
+                return result;
+            }
+        },
+        {
+            name: 'bulkModificationState',
+            persist: false,
+            mapping: function (data) {
+                var result = null;
+                if (data.bulkValidationInfo) {
+                    result = data.bulkValidationInfo.modificationState
+                }
+                return result;
+            }
+        }
+    ],
+    associations: [
+        {
+            type: 'hasOne',
+            name: 'deltaValidationInfo',
+            foreignKey: 'deltaValidationInfo',
+            associationKey: 'deltaValidationInfo',
+            model: 'Mdc.model.ChannelReadingValidationResult',
+            getterName: 'getDeltaValidationInfo'
+        },
+        {
+            type: 'hasOne',
+            name: 'bulkValidationInfo',
+            associationKey: 'bulkValidationInfo',
+            foreignKey: 'bulkValidationInfo',
+            model: 'Mdc.model.ChannelReadingValidationResult',
+            getterName: 'getBulkValidationInfo'
         }
     ]
 });
