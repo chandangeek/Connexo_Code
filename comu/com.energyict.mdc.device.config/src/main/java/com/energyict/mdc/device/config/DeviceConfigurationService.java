@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -26,6 +31,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:34)
  */
+@ProviderType
 public interface DeviceConfigurationService {
 
     public static String COMPONENTNAME = "DTC";

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -14,6 +15,7 @@ import static java.util.logging.Level.SEVERE;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-29 (16:04)
  */
+@ProviderType
 public enum MessageSeeds implements MessageSeed, TranslationKey {
     VETO_LOGBOOKTYPE_DELETION(998, "logBookType.XstillInUseByDeviceTypesY", "The log book type {0} is still used by the following device types: {1}", SEVERE),
     VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION(999, "deviceProtocolPluggableClass.XstillInUseByDeviceTypesY", "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
