@@ -88,7 +88,7 @@ Ext.define('Uni.property.view.property.DateTime', {
         }
 
         if (!this.isEdit) {
-            me.getDisplayField().setValue(value !== null && value !== '' ? date.toLocaleDateString() + ' ' + date.toLocaleTimeString() : '');
+            me.getDisplayField().setValue(value !== null && value !== '' ? Uni.DateTime.formatDateTimeShort(date) : '');
         } else {
             me.callParent([dateValue]);
             me.getHoursField().setValue(hours);

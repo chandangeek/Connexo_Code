@@ -1,7 +1,7 @@
 Ext.define('Uni.property.view.property.Date', {
     extend: 'Uni.property.view.property.Base',
 
-    format: 'd M \'y',
+    format: Uni.DateTime.dateShortDefault,
     formats: [
         'd.m.Y',
         'd m Y'
@@ -41,7 +41,7 @@ Ext.define('Uni.property.view.property.Date', {
             value = new Date(value);
 
             if (!this.isEdit) {
-                value = value.toLocaleDateString();
+                value = Uni.DateTime.formatDateShort(value);
             }
         }
         this.callParent([value]);
