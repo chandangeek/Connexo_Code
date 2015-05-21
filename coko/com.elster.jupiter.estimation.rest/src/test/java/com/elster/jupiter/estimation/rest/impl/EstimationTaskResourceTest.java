@@ -105,7 +105,7 @@ public class EstimationTaskResourceTest extends BaseEstimationRestTest {
     public void setUpMocks() {
         doReturn(query).when(estimationService).getEstimationTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
-        doReturn(Arrays.asList(estimationTask)).when(restQuery).select(any(), any());
+        doReturn(Arrays.asList(estimationTask)).when(restQuery).select(any(), any(Order.class), any(Order.class));
         when(estimationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(estimationTask.getPeriod()).thenReturn(Optional.of(period));
         when(period.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
@@ -175,7 +175,7 @@ public class EstimationTaskResourceTest extends BaseEstimationRestTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
-    
+
     private void mockEstimationRuleSets(EstimationRuleSet... estimationRuleSets) {
         Query<EstimationRuleSet> query = mock(Query.class);
         when(estimationService.getEstimationRuleSetQuery()).thenReturn(query);

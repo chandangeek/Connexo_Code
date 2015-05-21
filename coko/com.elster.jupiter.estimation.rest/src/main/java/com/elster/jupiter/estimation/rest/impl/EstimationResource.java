@@ -396,7 +396,7 @@ public class EstimationResource {
     private List<? extends EstimationTask> queryTasks(QueryParameters queryParameters) {
         Query<? extends EstimationTask> query = estimationService.getEstimationTaskQuery();
         RestQuery<? extends EstimationTask> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.descending("lastRun").nullsLast());
+        return restQuery.select(queryParameters, Order.descending("lastRun").nullsLast(), Order.ascending("name"));
     }
 
     @GET
@@ -484,12 +484,13 @@ public class EstimationResource {
     @Path("/tasks/{id}/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
     public EstimationTaskHistoryInfos getEstimationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                                @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         EstimationTask task = fetchEstimationTask(id);
 
-        EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(queryParameters.getStartInt()).setLimit(queryParameters.getLimit() + 1);
+        EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(params.getStartInt()).setLimit(params.getLimit() + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
@@ -505,8 +506,8 @@ public class EstimationResource {
 
         List<? extends TaskOccurrence> occurrences = occurrencesFinder.find();
 
-        EstimationTaskHistoryInfos infos = new EstimationTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus);
-        infos.total = queryParameters.determineTotal(occurrences.size());
+        EstimationTaskHistoryInfos infos = new EstimationTaskHistoryInfos(task, params.clipToLimit(occurrences), thesaurus);
+        infos.total = params.determineTotal(occurrences.size());
         return infos;
     }
 
@@ -514,6 +515,8 @@ public class EstimationResource {
     @GET
     @Path("/tasks/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
     public EstimationTaskOccurrenceLogInfos getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                                      @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
