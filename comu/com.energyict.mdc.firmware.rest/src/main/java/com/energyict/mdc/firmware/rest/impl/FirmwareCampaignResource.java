@@ -3,6 +3,7 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareService;
 
@@ -89,6 +90,7 @@ public class FirmwareCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryParameters queryParameters){
         FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(firmwareCampaignId);
-        return Response.ok(PagedInfoList.fromPagedList("devices", deviceInCampaignInfoFactory.from(firmwareCampaign.getDevices()), queryParameters)).build();
+        List<DeviceInFirmwareCampaign> devices = firmwareService.getDevicesForFirmwareCampaign(firmwareCampaign).from(queryParameters).find();
+        return Response.ok(PagedInfoList.fromPagedList("devices", deviceInCampaignInfoFactory.from(devices), queryParameters)).build();
     }
 }
