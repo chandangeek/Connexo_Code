@@ -13,7 +13,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 xtype: 'container',
                 itemId: 'readOutsTitle',
                 baseCls: 'x-panel-header-text-container-medium',
-                html: me.wTitle
+                html: Ext.String.htmlEncode(me.wTitle)
             },
             {
                 xtype: 'container',
@@ -29,7 +29,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 hidden: true,
                 xtype: 'container',
                 itemId: 'empty',
-                html: me.emptyMsg
+                html: Ext.String.htmlEncode(me.emptyMsg)
             },
             {
                 xtype: 'container',

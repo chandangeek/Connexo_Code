@@ -34,7 +34,7 @@ Ext.define('Dsh.view.widget.common.Bar', {
         var me = this;
         return {
             limit: !me.total ? 0 : Math.round(me.limit * 100 / me.total),
-            label: me.label,
+            label: Ext.String.htmlEncode(me.label),
             count: !me.limit ? 0 : Math.round(me.count * 100 / me.limit),
             threshold: me.threshold
         }
