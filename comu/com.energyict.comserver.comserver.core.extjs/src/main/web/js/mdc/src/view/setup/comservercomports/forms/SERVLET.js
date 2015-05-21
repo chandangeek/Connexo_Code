@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                             name: 'keyStorePassword',
                             hidden: true,
                             renderer: function (value) {
-                                return value ? value : '******';
+                                return value ? Ext.String.htmlEncode(value) : '******';
                             }
                         },
                         {
@@ -109,7 +109,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERVLET', {
                             name: 'trustStorePassword',
                             hidden: true,
                             renderer: function (value) {
-                                return value ? value : '******';
+                                return value ? Ext.String.htmlEncode(value) : '******';
                             }
                         },
                         {

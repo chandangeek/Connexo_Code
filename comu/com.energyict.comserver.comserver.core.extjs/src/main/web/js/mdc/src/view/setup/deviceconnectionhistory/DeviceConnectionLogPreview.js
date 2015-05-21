@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                             field.hide();
                         } else {
                             field.show();
-                            return value;
+                            return Ext.String.htmlEncode(value);
                         }
                     }
                 },
@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                             field.hide();
                         } else {
                             field.show();
-                            return value;
+                            return Ext.String.htmlEncode(value);
                         }
                     }
                 },

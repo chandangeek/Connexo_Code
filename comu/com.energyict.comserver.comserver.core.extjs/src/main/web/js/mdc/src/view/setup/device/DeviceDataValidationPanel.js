@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 fieldLabel: Uni.I18n.translate('deviceconfigurationmenu.loadProfiles', 'MDC', 'Load profiles'),
                                 name: 'loadProfileSuspectCount',
                                 renderer: function (value) {
-                                    return value + ' ' + Uni.I18n.translate('device.suspects.lastMonth', 'MDC', 'suspects (last month)');
+                                    return Ext.String.htmlEncode(value) + ' ' + Uni.I18n.translate('device.suspects.lastMonth', 'MDC', 'suspects (last month)');
                                 }
                             },
                             {

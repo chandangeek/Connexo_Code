@@ -118,7 +118,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                 fieldLabel: Uni.I18n.translate('deviceSecuritySetting.status', 'MDC', 'Status'),
                                 name: 'status',
                                 renderer: function (value) {
-                                    return value.name;
+                                    return Ext.String.htmlEncode(value.name);
                                 }
                             },
                             {
@@ -126,7 +126,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                 fieldLabel: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel', 'MDC', 'Authentication level'),
                                 name: 'authenticationLevel',
                                 renderer: function (value) {
-                                    return value.name;
+                                    return Ext.String.htmlEncode(value.name);
                                 }
                             },
                             {
@@ -134,7 +134,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                 fieldLabel: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel', 'MDC', 'Encryption level'),
                                 name: 'encryptionLevel',
                                 renderer: function (value) {
-                                    return value.name;
+                                    return Ext.String.htmlEncode(value.name);
                                 }
                             }
 
