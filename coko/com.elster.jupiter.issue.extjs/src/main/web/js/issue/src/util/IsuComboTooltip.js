@@ -12,7 +12,7 @@ Ext.define('Isu.util.IsuComboTooltip', {
         if (combo.tooltipText) {
             combo.tooltip = Ext.DomHelper.append(Ext.getBody(), {
                 tag: 'div',
-                html: combo.tooltipText || 'Start typing',
+                html: Ext.String.htmlEncode(combo.tooltipText || 'Start typing'),
                 cls: 'isu-combo-tooltip'
             }, true);
 
