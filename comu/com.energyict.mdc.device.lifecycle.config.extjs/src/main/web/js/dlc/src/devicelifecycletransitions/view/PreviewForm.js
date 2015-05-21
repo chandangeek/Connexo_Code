@@ -44,7 +44,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.PreviewForm', {
                             }
                         });
                     }
-                    return str;
+                    return Ext.String.htmlEncode(str);
                 }
             }
         ];

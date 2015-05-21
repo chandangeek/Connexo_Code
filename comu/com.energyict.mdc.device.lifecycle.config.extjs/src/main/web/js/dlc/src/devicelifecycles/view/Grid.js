@@ -20,7 +20,7 @@ Ext.define('Dlc.devicelifecycles.view.Grid', {
                 dataIndex: 'sorted_name',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/devicelifecycles/devicelifecycle').buildUrl({deviceLifeCycleId: record.get('id')});
-                    return '<a href="' + url + '">' + value + '</a>';
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },
