@@ -70,7 +70,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             '#loadProfileConfigurationDetailRulesGrid': {
                 selectionchange: this.previewValidationRule
             },
-            'validation-rule-actionmenu': {
+            'loadProfileConfigurationDetailSetup validation-rule-actionmenu': {
                 click: this.chooseRuleAction
             }
         });
