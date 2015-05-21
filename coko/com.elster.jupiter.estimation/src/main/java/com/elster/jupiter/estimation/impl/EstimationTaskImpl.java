@@ -233,10 +233,8 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public EstimationTaskOccurrenceFinder getOccurrencesFinder() {
-        Condition condition = where("recurrentTask").isEqualTo(getRecurrentTask())
-                .and(where("status").isNotEqual(TaskStatus.NOT_EXECUTED_YET));
-        Order order = Order.descending("triggerTime");
-        return new EstimationTaskOccurrenceFinderImpl(taskService, condition, order);
+        Condition condition = where("recurrentTask").isEqualTo(getRecurrentTask()).and(where("status").isNotEqual(TaskStatus.NOT_EXECUTED_YET));
+        return new EstimationTaskOccurrenceFinderImpl(taskService, condition, Order.descending("triggerTime"));
     }
 
     @Override

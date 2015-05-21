@@ -15,17 +15,17 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurrenceFinder {
     private TaskService taskService;
     private Condition condition;
-    private Order order;
+    private Order[] orders;
     private Integer start;
     private Integer limit;
 
     public EstimationTaskOccurrenceFinderImpl() {
     }
 
-    public EstimationTaskOccurrenceFinderImpl(TaskService taskService, Condition condition, Order order) {
+    public EstimationTaskOccurrenceFinderImpl(TaskService taskService, Condition condition, Order... orders) {
         this.taskService = taskService;
         this.condition = condition;
-        this.order = order;
+        this.orders = orders;
     }
 
     @Override
@@ -42,18 +42,18 @@ public class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurre
 
     @Override
     public EstimationTaskOccurrenceFinder withStartDateIn(Range<Instant> interval) {
-        this.condition = this.condition.and(where("startDate").in(interval));
+        this.condition = this.condition.and(where("taskOccurrence.startDate").in(interval));
         return this;
     }
 
     @Override
     public EstimationTaskOccurrenceFinder withEndDateIn(Range<Instant> interval) {
-        this.condition = this.condition.and(where("endDate").in(interval));
+        this.condition = this.condition.and(where("taskOccurrence.endDate").in(interval));
         return this;
     }
 
     @Override
     public List<? extends TaskOccurrence> find() {
-        return taskService.getTaskOccurrenceQueryExecutor().select(condition, new Order[]{order}, false, null, start, limit);
+        return taskService.getTaskOccurrenceQueryExecutor().select(condition, orders, true, null, start + 1, start + limit);
     }
 }
