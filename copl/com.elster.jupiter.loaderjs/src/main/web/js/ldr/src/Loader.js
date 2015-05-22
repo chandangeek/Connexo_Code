@@ -55,9 +55,9 @@ Ext.define('Ldr.Loader', {
      * @param {Object} scope Scope
      */
     checkAppLoadable: function (scope) {
-        if (scope.loadCallbackCounter > 2 && !scope.isAppScriptLoaded(scope)) {
+        if (scope.loadCallbackCounter > 1 && !scope.isAppScriptLoaded(scope)) {
             scope.loadApp(scope);
-        } else if (scope.loadCallbackCounter > 2 && scope.isAppScriptLoaded(scope)) {
+        } else if (scope.loadCallbackCounter > 1 && scope.isAppScriptLoaded(scope)) {
             Ldr.store.Pluggable.each(function (pluginScript) {
                 Ext.Loader.setPath(pluginScript.get('name'), pluginScript.get('basePath') + '/src');
                 _.each(pluginScript.get('scripts'),function(script){
