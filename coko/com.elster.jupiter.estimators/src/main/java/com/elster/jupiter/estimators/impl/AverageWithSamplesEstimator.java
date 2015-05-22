@@ -288,7 +288,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             return false;
         }
         if (block.getReadingType().isCumulative()) {
-            String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} is cumulative. Only delta readingtypes are allowed.";
+            String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} is cumulative. Only delta readingtypes are allowed";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
@@ -326,7 +326,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                 })
                 .orElseGet(() -> {
 
-                    String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} has no bulk reading type.";
+                    String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} has no bulk reading type";
                     LoggingContext.get().info(getLogger(), message);
                     return Optional.empty();
                 });
@@ -336,7 +336,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         Optional<BaseReadingRecord> startBulkReading = channel.getReading(channel.getPreviousDateTime(startInterval));
         Optional<BaseReadingRecord> endBulkReading = channel.getReading(endInterval);
         if ((!startBulkReading.isPresent()) || (!endBulkReading.isPresent())) {
-            String message = "Failed estimation with {rule}: Block {block} since the surrounding bulk readings are not available.";
+            String message = "Failed estimation with {rule}: Block {block} since the surrounding bulk readings are not available";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
         }

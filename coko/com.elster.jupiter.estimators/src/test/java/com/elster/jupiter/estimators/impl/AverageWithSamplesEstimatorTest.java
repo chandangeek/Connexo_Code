@@ -75,18 +75,7 @@ public class AverageWithSamplesEstimatorTest {
     private static final ZonedDateTime LAST_CHECKED = ZonedDateTime.of(2004, 4, 20, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
 
     private static final ZonedDateTime BEFORE = ZonedDateTime.of(2015, 3, 11, 20, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-    //private static final ZonedDateTime ESTIMATABLE1 = BEFORE.plusHours(1);
-    //private static final ZonedDateTime ESTIMATABLE2 = BEFORE.plusHours(2);
-    //private static final ZonedDateTime ESTIMATABLE3 = BEFORE.plusHours(3);
     private static final ZonedDateTime AFTER = BEFORE.plusHours(4);
-    //private static final ZonedDateTime BEFORE_MINUS_1 = BEFORE.minusHours(1);
-    //private static final ZonedDateTime BEFORE_MINUS_2 = BEFORE.minusHours(2);
-    private static final ZonedDateTime BEFORE_MINUS_3 = BEFORE.minusHours(3);
-    //private static final ZonedDateTime AFTER_PLUS_1 = AFTER.plusHours(1);
-    //private static final ZonedDateTime AFTER_PLUS_2 = AFTER.plusHours(2);
-    private static final ZonedDateTime AFTER_PLUS_3 = AFTER.plusHours(3);
-    //private static final ZonedDateTime ADVANCE_BEFORE = BEFORE_MINUS_3.minusMinutes(20);
-    private static final ZonedDateTime ADVANCE_AFTER = AFTER_PLUS_3.minusMinutes(40);
 
 
     @Rule
@@ -332,12 +321,14 @@ public class AverageWithSamplesEstimatorTest {
                 .build();
         AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
-        estimator.init();
+        estimator.init(LOGGER);
 
         EstimationResult result = estimator.estimate(asList(block));
 
         assertThat(result.estimated()).isEmpty();
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("suspects, which exceeds the maximum of")).atLevel(Level.INFO);
     }
 
     @Test
@@ -355,12 +346,15 @@ public class AverageWithSamplesEstimatorTest {
                 .build();
         AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
-        estimator.init();
+        estimator.init(LOGGER);
 
         EstimationResult result = estimator.estimate(asList(block));
 
         assertThat(result.estimated()).isEmpty();
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("since not enough samples are found")).atLevel(Level.INFO);
+
     }
 
     @Test
@@ -479,8 +473,7 @@ public class AverageWithSamplesEstimatorTest {
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the prior advance reading is suspect, estimated or overflow")).atLevel(Level.INFO);
     }
 
-
-        @Test
+    @Test
     public void testEstimateFailsWhenLaterAdvanceReadingIsSuspect() {
         doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMATABLE_TIME.plusMinutes(35).toInstant());
         doReturn(true).when(suspect4).isSuspect();
@@ -547,31 +540,127 @@ public class AverageWithSamplesEstimatorTest {
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the prior advance reading has no value")).atLevel(Level.INFO);
     }
 
+    @Test
+    public void testEstimateFailsWhenLaterAdvanceReadingIsMissing() {
+        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
+        BaseReadingRecord preAdvanceReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preAdvanceReading).getQuantity(advanceReadingType);
+        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
 
-    private static class EstimatableImpl implements Estimatable {
+        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType))
+                .build();
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
 
-        private final Instant timestamp;
-        private BigDecimal bigDecimal;
+        estimator.init(LOGGER);
 
-        private EstimatableImpl(Instant timestamp) {
-            this.timestamp = timestamp;
-        }
+        EstimationResult result = estimator.estimate(asList(block));
 
-        @Override
-        public Instant getTimestamp() {
-            return timestamp;
-        }
-
-        @Override
-        public void setEstimation(BigDecimal value) {
-            bigDecimal = value;
-        }
-
-        @Override
-        public BigDecimal getEstimation() {
-            return bigDecimal;
-        }
+        assertThat(result.estimated()).isEmpty();
+        assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the later advance reading has no value")).atLevel(Level.INFO);
     }
+
+    @Test
+    public void testEstimateFailsWhenSurroundingBulkReadingsNotAvailable() {
+        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
+        BaseReadingRecord preBulkReading = mock(BaseReadingRecord.class);
+        BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preBulkReading).getQuantity(bulkReadingType);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(postBulkReading).getQuantity(bulkReadingType);
+        doReturn(Optional.empty()).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.empty()).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+
+
+        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
+                .build();
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
+
+        estimator.init(LOGGER);
+
+        EstimationResult result = estimator.estimate(asList(block));
+
+        assertThat(result.estimated()).isEmpty();
+        assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the surrounding bulk readings are not available")).atLevel(Level.INFO);
+
+    }
+
+    @Test
+    public void testEstimateFailsWhenReadingTypeIsNotRegular() {
+        doReturn(false).when(readingType).isRegular();
+        doReturn(false).when(bulkReadingType).isRegular();
+
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
+                .build();
+
+        Estimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
+        estimator.init(LOGGER);
+
+        EstimationResult estimationResult = estimator.estimate(asList(block));
+
+        assertThat(estimationResult.estimated()).isEmpty();
+        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("since it has a reading type that is not regular")).atLevel(Level.INFO);
+    }
+
+    @Test
+    public void testEstimateWithBulkFailsSinceReadingTypeHasNoBulk() {
+        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
+        BaseReadingRecord preBulkReading = mock(BaseReadingRecord.class);
+        BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preBulkReading).getQuantity(bulkReadingType);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(postBulkReading).getQuantity(bulkReadingType);
+        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+        doReturn(Optional.empty()).when(readingType).getBulkReadingType();
+
+
+        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
+                .build();
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
+
+        estimator.init(LOGGER);
+
+        EstimationResult result = estimator.estimate(asList(block));
+
+        assertThat(result.estimated()).isEmpty();
+        assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("since the reading type readingType has no bulk reading type")).atLevel(Level.INFO);
+
+    }
+
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
@@ -599,6 +688,102 @@ public class AverageWithSamplesEstimatorTest {
 
         estimator.validateProperties(Collections.singletonList(property));
     }
+
+    @Test
+    public void testEstimateWithBulkFailsSinceNoPriorBulkReading() {
+        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
+        BaseReadingRecord preBulkReading = mock(BaseReadingRecord.class);
+        BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
+        doReturn(null).when(preBulkReading).getQuantity(bulkReadingType);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(postBulkReading).getQuantity(bulkReadingType);
+        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+
+
+        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
+                .build();
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
+
+        estimator.init(LOGGER);
+
+        EstimationResult result = estimator.estimate(asList(block));
+
+        assertThat(result.estimated()).isEmpty();
+        assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the prior bulk reading has no value")).atLevel(Level.INFO);
+
+    }
+
+
+    @Test
+    public void testEstimateWithBulkFailsSinceNoLaterBulkReading() {
+        doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
+        BaseReadingRecord preBulkReading = mock(BaseReadingRecord.class);
+        BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
+        doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(preBulkReading).getQuantity(bulkReadingType);
+        doReturn(null).when(postBulkReading).getQuantity(bulkReadingType);
+        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+
+
+        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        Map<String, Object> props = ImmutableMap.<String, Object>builder()
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
+                .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
+                .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_SAMPLES, 3L)
+                .put(AverageWithSamplesEstimator.ALLOW_NEGATIVE_VALUES, false)
+                .put(AverageWithSamplesEstimator.RELATIVE_PERIOD, AllRelativePeriod.INSTANCE)
+                .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE)
+                .build();
+        AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
+
+        estimator.init(LOGGER);
+
+        EstimationResult result = estimator.estimate(asList(block));
+
+        assertThat(result.estimated()).isEmpty();
+        assertThat(result.remainingToBeEstimated()).containsExactly(block);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the later bulk reading has no value")).atLevel(Level.INFO);
+
+    }
+
+
+    private static class EstimatableImpl implements Estimatable {
+
+        private final Instant timestamp;
+        private BigDecimal bigDecimal;
+
+        private EstimatableImpl(Instant timestamp) {
+            this.timestamp = timestamp;
+        }
+
+        @Override
+        public Instant getTimestamp() {
+            return timestamp;
+        }
+
+        @Override
+        public void setEstimation(BigDecimal value) {
+            bigDecimal = value;
+        }
+
+        @Override
+        public BigDecimal getEstimation() {
+            return bigDecimal;
+        }
+    }
+
+
+
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
         return new EstimationRuleProperties() {
