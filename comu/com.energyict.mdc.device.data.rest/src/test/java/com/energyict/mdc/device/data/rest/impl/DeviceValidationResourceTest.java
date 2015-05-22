@@ -6,21 +6,23 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.*;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.google.common.collect.Range;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -73,9 +75,14 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     @Mock
     private LoadProfile loadProfile1;
     @Mock
+    private LoadProfileSpec loadProfileSpec1;
+    @Mock
+    private LoadProfileType loadProfileType1;
+    @Mock
     private com.energyict.mdc.device.data.Channel ch1, ch2;
     @Mock
     private DeviceValidation deviceValidation;
+
 
     @Before
     public void setUp1() {
@@ -111,12 +118,23 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
-    @Ignore
     public void testGetValidationMonitoringConfigurationView() {
 
+        String loadProfilePeriodsInfo =
+                "[{\"id\":1," +
+                        "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
+                        "\"intervalEnd\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}," +
+                "{\"id\":2," +
+                        "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
+                        "\"intervalEnd\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}," +
+                "{\"id\":3," +
+                        "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
+                        "\"intervalEnd\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}]";
+
         MonitorValidationInfo response = target("devices/MRID/validationrulesets/validationmonitoring/configurationview")
-                .queryParam("intervalStart", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
-                .queryParam("intervalEnd", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("intervalRegisterStart", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("intervalRegisterEnd", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("intervalLoadProfile", URLEncoder.encode(loadProfilePeriodsInfo))
                 .request().get(MonitorValidationInfo.class);
 
         assertThat(response.detailedRuleSets.size()).isEqualTo(1);
@@ -126,18 +144,28 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
-    @Ignore
     public void testGetValidationMonitoringDataView() {
 
+        String loadProfilePeriodsInfo =
+                "[{\"id\":1," +
+                        "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
+                        "\"intervalEnd\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}," +
+                        "{\"id\":2," +
+                        "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
+                        "\"intervalEnd\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}," +
+                        "{\"id\":3," +
+                        "\"intervalStart\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "," +
+                        "\"intervalEnd\":" + ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli() + "}]";
+
         MonitorValidationInfo response = target("devices/MRID/validationrulesets/validationmonitoring/dataview")
-                .queryParam("intervalStart", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
-                .queryParam("intervalEnd", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
-                .queryParam("ruleSetId", 1)
+                .queryParam("intervalRegisterStart", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusMonths(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("intervalRegisterEnd", ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli())
+                .queryParam("intervalLoadProfile", URLEncoder.encode(loadProfilePeriodsInfo))
                 .request().get(MonitorValidationInfo.class);
 
-        assertThat(response.detailedValidationRegister.size()).isEqualTo(1);
-        assertThat(response.detailedValidationRegister.get(0).total).isEqualTo(1);
-        assertThat(response.detailedValidationRegister.get(0).name).isEqualTo("Sum+");
+        assertThat(response.detailedValidationLoadProfile.size()).isEqualTo(1);
+        assertThat(response.detailedValidationLoadProfile.get(0).total).isEqualTo(3);
+        assertThat(response.detailedValidationLoadProfile.get(0).name).isEqualTo("Profile1");
     }
 
     private void doModelStubbing() {
@@ -152,6 +180,11 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
 
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1));
         when(loadProfile1.getChannels()).thenReturn(Arrays.asList(ch1, ch2));
+        when(loadProfile1.getId()).thenReturn(1L);
+        when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec1);
+        when(loadProfileSpec1.getLoadProfileType()).thenReturn(loadProfileType1);
+        when(loadProfileType1.getName()).thenReturn("Profile1");
+
         when(ch1.getReadingType()).thenReturn(channelReadingType1);
         when(ch2.getReadingType()).thenReturn(channelReadingType2);
 
