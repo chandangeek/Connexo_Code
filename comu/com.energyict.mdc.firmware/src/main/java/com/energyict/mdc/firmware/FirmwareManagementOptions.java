@@ -10,4 +10,5 @@ public interface FirmwareManagementOptions {
 
     Set<ProtocolSupportedFirmwareOptions> getOptions();
 
+    void save();
 }

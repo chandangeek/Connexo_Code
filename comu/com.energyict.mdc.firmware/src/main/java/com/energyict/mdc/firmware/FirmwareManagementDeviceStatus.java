@@ -398,6 +398,7 @@ public enum FirmwareManagementDeviceStatus {
 
     protected boolean releaseDateInPast(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
         return !helper.getCurrentInstant().isBefore(message.getReleaseDate())
+                && helper.getComTaskExecution() != null
                 && helper.getComTaskExecution().getLastExecutionStartTimestamp() != null
                 && !helper.getComTaskExecution().getLastExecutionStartTimestamp().isBefore(message.getReleaseDate());
     }

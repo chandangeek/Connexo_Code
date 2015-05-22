@@ -16,9 +16,7 @@ import java.util.Set;
  * Provides Firmware related services
  */
 public interface FirmwareService extends ReferencePropertySpecFinderProvider {
-
     String COMPONENTNAME = "FWC";
-    
     int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
 
     // Firmware versions on a device type
@@ -26,29 +24,22 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
     Optional<FirmwareVersion> getFirmwareVersionByVersion(String version, DeviceType deviceType);
     FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
-
-    void saveFirmwareVersion(FirmwareVersion firmwareVersion);
-
-    void deprecateFirmwareVersion(FirmwareVersion firmwareVersion);
-
+    // TODO what this method should do???
     boolean isFirmwareVersionInUse(long firmwareVersionId);
 
-    // Firmware upgrade options on a device type
 
+    // Firmware upgrade options on a device type
     /**
      * Provides a set of ProtocolSupportedFirmwareOptions for the given DeviceType
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
-
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
-
     FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType);
-
-    void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions);
-
+    Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType);
     List<DeviceType> getDeviceTypesWhichSupportFirmwareManagement();
-    // Firmware versions on a device
 
+
+    // Firmware versions on a device
     /**
      * Provides a list of all <i>upgradable</i> FirmwareVersions for the given Device.
      * Depending on the FirmwareStatus of the FirmwareVersion and the DeviceLifeCycleStatus of the Device a filtered list will be provided.
@@ -60,24 +51,11 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
      */
     List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device, FirmwareType firmwareType);
     Optional<ActivatedFirmwareVersion> getActiveFirmwareVersion(Device device, FirmwareType firmwareType);
-
-    Optional<ActivatedFirmwareVersion> getCurrentMeterFirmwareVersionFor(Device device);
-
-    Optional<ActivatedFirmwareVersion> getCurrentCommunicationFirmwareVersionFor(Device device);
-
     ActivatedFirmwareVersion newActivatedFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
-
-    void saveActivatedFirmwareVersion(ActivatedFirmwareVersion activatedFirmwareVersion);
-
     PassiveFirmwareVersion newPassiveFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
-
-    void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion);
-
-    Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType);
 
 
     // Firmware campaigns
-
     Optional<FirmwareCampaign> getFirmwareCampaignById(long id);
     Finder<FirmwareCampaign> getFirmwareCampaigns();
     FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);

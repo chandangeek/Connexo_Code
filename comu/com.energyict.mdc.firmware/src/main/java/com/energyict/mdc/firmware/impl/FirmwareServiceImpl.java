@@ -178,18 +178,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public void saveFirmwareVersion(FirmwareVersion firmwareVersion) {
-        FirmwareVersionImpl.class.cast(firmwareVersion).save();
-    }
-
-    @Override
-    public void deprecateFirmwareVersion(FirmwareVersion firmwareVersion) {
-        FirmwareVersionImpl.class.cast(firmwareVersion).deprecate();
-    }
-
-    @Override
     public boolean isFirmwareVersionInUse(long firmwareVersionId) {
-        // TODO
+        // TODO what this method should do???
         return false;
     }
 
@@ -197,11 +187,6 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     public FirmwareManagementOptions getFirmwareManagementOptions(DeviceType deviceType) {
         Optional<FirmwareManagementOptions> ref = dataModel.mapper(FirmwareManagementOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
         return ref.isPresent() ? ref.get() : FirmwareManagementOptionsImpl.from(dataModel, deviceType);
-    }
-
-    @Override
-    public void saveFirmwareManagementOptions(FirmwareManagementOptions firmwareOptions) {
-        FirmwareManagementOptionsImpl.class.cast(firmwareOptions).save();
     }
 
     @Override
@@ -233,15 +218,10 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                 .or(where(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).isEqualTo(FirmwareStatus.TEST))
                 .and(where(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).isEqualTo(device.getDeviceType()));
         // Current firmware version is not in the list
-        Optional<ActivatedFirmwareVersion> comActiveVer = getCurrentCommunicationFirmwareVersionFor(device);
-        if (comActiveVer.isPresent()) {
+        Optional<ActivatedFirmwareVersion> activeFirmwareVersion = getActiveFirmwareVersion(device, firmwareType);
+        if (activeFirmwareVersion.isPresent()) {
             condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName())
-                    .isNotEqual(comActiveVer.get().getFirmwareVersion().getFirmwareVersion()));
-        }
-        Optional<ActivatedFirmwareVersion> meterActiveVer = getCurrentMeterFirmwareVersionFor(device);
-        if (meterActiveVer.isPresent()) {
-            condition = condition.and(where(FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName())
-                    .isNotEqual(meterActiveVer.get().getFirmwareVersion().getFirmwareVersion()));
+                    .isNotEqual(activeFirmwareVersion.get().getFirmwareVersion().getFirmwareVersion()));
         }
         // And only with specified firmware type
         if (firmwareType != null) {
@@ -252,35 +232,10 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
 
     @Override
     public Optional<ActivatedFirmwareVersion> getActiveFirmwareVersion(Device device, FirmwareType firmwareType) {
-        Optional<ActivatedFirmwareVersion> activeFirmwareVersion = Optional.empty();
-        if (firmwareType.equals(FirmwareType.METER)) {
-            activeFirmwareVersion = getCurrentMeterFirmwareVersionFor(device);
-        } else if (firmwareType.equals(FirmwareType.COMMUNICATION)) {
-            activeFirmwareVersion = getCurrentCommunicationFirmwareVersionFor(device);
-        }
-        return activeFirmwareVersion;
-    }
-
-    private Condition getCurrentFirmwareVersionFor(Device device) {
-        return where("device").isEqualTo(device).and(Where.where("interval").isEffective(Instant.now()));
-    }
-
-    @Override
-    public Optional<ActivatedFirmwareVersion> getCurrentMeterFirmwareVersionFor(Device device) {
         QueryExecutor<ActivatedFirmwareVersion> activeFirmwareVersionQuery = dataModel.query(ActivatedFirmwareVersion.class, FirmwareVersion.class);
-        activeFirmwareVersionQuery.setRestriction(where("firmwareVersion.firmwareType").isEqualTo(FirmwareType.METER));
+        activeFirmwareVersionQuery.setRestriction(where("firmwareVersion.firmwareType").isEqualTo(firmwareType));
         return activeFirmwareVersionQuery
-                .select(getCurrentFirmwareVersionFor(device))
-                .stream()
-                .findFirst();
-    }
-
-    @Override
-    public Optional<ActivatedFirmwareVersion> getCurrentCommunicationFirmwareVersionFor(Device device) {
-        QueryExecutor<ActivatedFirmwareVersion> activeFirmwareVersionQuery = dataModel.query(ActivatedFirmwareVersion.class, FirmwareVersion.class);
-        activeFirmwareVersionQuery.setRestriction(where("firmwareVersion.firmwareType").isEqualTo(FirmwareType.COMMUNICATION));
-        return activeFirmwareVersionQuery
-                .select(getCurrentFirmwareVersionFor(device))
+                .select(where("device").isEqualTo(device).and(Where.where("interval").isEffective(Instant.now())))
                 .stream()
                 .findFirst();
     }
@@ -291,18 +246,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public void saveActivatedFirmwareVersion(ActivatedFirmwareVersion activatedFirmwareVersion) {
-        ActivatedFirmwareVersionImpl.class.cast(activatedFirmwareVersion).save();
-    }
-
-    @Override
     public PassiveFirmwareVersion newPassiveFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval) {
         return PassiveFirmwareVersionImpl.from(dataModel, device, firmwareVersion, interval);
-    }
-
-    @Override
-    public void savePassiveFirmwareVersion(PassiveFirmwareVersion passiveFirmwareVersion) {
-        PassiveFirmwareVersionImpl.class.cast(passiveFirmwareVersion).save();
     }
 
     @Override

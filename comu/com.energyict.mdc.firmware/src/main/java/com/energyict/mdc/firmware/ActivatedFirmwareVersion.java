@@ -17,4 +17,5 @@ public interface ActivatedFirmwareVersion extends Effectivity {
 
     void setLastChecked(Instant lastChecked);
 
+    void save();
 }

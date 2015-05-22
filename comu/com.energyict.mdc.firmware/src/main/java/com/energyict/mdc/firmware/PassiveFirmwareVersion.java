@@ -20,4 +20,6 @@ public interface PassiveFirmwareVersion extends Effectivity {
     Instant getActivateDate();
 
     void setActivateDate(Instant activateDate);
+
+    void save();
 }

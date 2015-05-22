@@ -53,6 +53,7 @@ public class PassiveFirmwareVersionImpl implements PassiveFirmwareVersion {
         return dataModel.getInstance(PassiveFirmwareVersionImpl.class).init(device, firmwareVersion, interval);
     }
 
+    @Override
     public void save() {
         if (getId() == 0) {
             doPersist();

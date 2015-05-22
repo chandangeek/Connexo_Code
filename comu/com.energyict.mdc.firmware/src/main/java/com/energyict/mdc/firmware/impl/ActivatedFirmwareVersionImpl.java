@@ -61,6 +61,7 @@ public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
         return dataModel.getInstance(ActivatedFirmwareVersionImpl.class).init(device, firmwareVersion, interval);
     }
 
+    @Override
     public void save() {
         if (getId() == 0) {
             doPersist();
@@ -79,14 +80,8 @@ public class ActivatedFirmwareVersionImpl implements ActivatedFirmwareVersion {
     }
 
     private Optional<ActivatedFirmwareVersion> getActivatedFirmwareVersionWithTheSameType() {
-        Optional<ActivatedFirmwareVersion> activeFirmwareVersion = Optional.empty();
         FirmwareType firmwareType = this.getFirmwareVersion().getFirmwareType();
-        if (firmwareType.equals(FirmwareType.METER)) {
-            activeFirmwareVersion = this.firmwareService.getCurrentMeterFirmwareVersionFor(this.getDevice());
-        } else if (firmwareType.equals(FirmwareType.COMMUNICATION)) {
-            activeFirmwareVersion = this.firmwareService.getCurrentCommunicationFirmwareVersionFor(this.getDevice());
-        }
-        return activeFirmwareVersion;
+        return firmwareService.getActiveFirmwareVersion(this.getDevice(), firmwareType);
     }
 
     private void expiredAt(Instant end){

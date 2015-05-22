@@ -197,14 +197,9 @@ public class FirmwareManagementDeviceUtils {
     public boolean messageContainsActiveFirmwareVersion(DeviceMessage<Device> message){
         Optional<FirmwareVersion> versionFromMessage = getFirmwareVersionFromMessage(message);
         if (versionFromMessage.isPresent()){
-            List<Optional<ActivatedFirmwareVersion>> activeVersions = new ArrayList<>();
-            activeVersions.add(firmwareService.getCurrentMeterFirmwareVersionFor(this.device));
-            activeVersions.add(firmwareService.getCurrentCommunicationFirmwareVersionFor(this.device));
-            return activeVersions.stream()
-                    .filter(Optional::isPresent)
-                    .map(version -> version.get().getFirmwareVersion())
-                    .anyMatch(active -> active.getFirmwareType().equals(versionFromMessage.get().getFirmwareType()) &&
-                            active.getFirmwareVersion().equals(versionFromMessage.get().getFirmwareVersion()));
+            Optional<ActivatedFirmwareVersion> activeFirmwareVersion = firmwareService.getActiveFirmwareVersion(this.device, versionFromMessage.get().getFirmwareType());
+            return activeFirmwareVersion.isPresent()
+                    && activeFirmwareVersion.get().getFirmwareVersion().getFirmwareVersion().equals(versionFromMessage.get().getFirmwareVersion());
         }
         return false;
     }
