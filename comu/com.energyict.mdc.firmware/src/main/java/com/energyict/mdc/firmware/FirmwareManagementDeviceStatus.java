@@ -477,7 +477,8 @@ public enum FirmwareManagementDeviceStatus {
                 UPLOAD_FAILED,
                 UPLOAD_ONGOING,
                 UPLOAD_PENDING
-        )),;
+        )),
+        ;
 
         private ProtocolSupportedFirmwareOptions managementOption;
         private List<FirmwareManagementDeviceStatus> possibleStatuses;
@@ -503,7 +504,7 @@ public enum FirmwareManagementDeviceStatus {
         }
     }
 
-    private static class Constants {
+    public static class Constants {
         public static final String SUCCESS = "Success";
         public static final String FAILED = "Failed";
         public static final String ONGOING = "Ongoing";

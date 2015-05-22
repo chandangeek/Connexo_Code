@@ -81,4 +81,5 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     Optional<FirmwareCampaign> getFirmwareCampaignById(long id);
     Finder<FirmwareCampaign> getFirmwareCampaigns();
     FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);
+    Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
 }

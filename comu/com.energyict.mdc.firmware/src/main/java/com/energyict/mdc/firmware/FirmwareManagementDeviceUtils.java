@@ -108,11 +108,11 @@ public class FirmwareManagementDeviceUtils {
     }
 
     public boolean taskIsBusy(){
-        return this.comTaskExecution != null && BUSY_TASK_STATUSES.contains(this.comTaskExecution.getStatus());
+        return getComTaskExecution() != null && BUSY_TASK_STATUSES.contains(this.comTaskExecution.getStatus());
     }
 
     public boolean taskIsFailed(){
-        return this.comTaskExecution != null && getComTaskExecution().isLastExecutionFailed();
+        return getComTaskExecution() != null && getComTaskExecution().isLastExecutionFailed();
     }
 
     public Optional<DeviceMessage<Device>> getUploadMessageForActivationMessage(DeviceMessage<Device> activationMessage){
@@ -211,5 +211,23 @@ public class FirmwareManagementDeviceUtils {
 
     public Instant getCurrentInstant(){
         return Instant.now();
+    }
+
+    public boolean cancelPendingFirmwareUpdates(FirmwareType firmwareType){
+        boolean someUpdatesAreOngoing = false;
+        for (DeviceMessage<Device> firmwareMessage : getFirmwareMessages()) {
+            Optional<FirmwareVersion> targetFirmwareVersion = getFirmwareVersionFromMessage(firmwareMessage);
+            if (targetFirmwareVersion.isPresent()
+                    && firmwareType.equals(targetFirmwareVersion.get().getFirmwareType())
+                    && FirmwareManagementDeviceUtils.PENDING_STATUSES.contains(firmwareMessage.getStatus())){
+                if (!DeviceMessageStatus.WAITING.equals(firmwareMessage.getStatus()) && taskIsBusy()){
+                    someUpdatesAreOngoing = true;
+                } else {
+                    firmwareMessage.revoke();
+                    firmwareMessage.save();
+                }
+            }
+        }
+        return !someUpdatesAreOngoing;
     }
 }

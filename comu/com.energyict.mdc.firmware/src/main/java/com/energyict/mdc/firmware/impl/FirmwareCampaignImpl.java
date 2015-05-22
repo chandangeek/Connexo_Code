@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -105,14 +106,16 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private final FirmwareService firmwareService;
     private final DeviceService deviceService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final EventService eventService;
 
     @Inject
-    public FirmwareCampaignImpl(DataModel dataModel, Clock clock, FirmwareService firmwareService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public FirmwareCampaignImpl(DataModel dataModel, Clock clock, FirmwareService firmwareService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, EventService eventService) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.firmwareService = firmwareService;
         this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.eventService = eventService;
     }
 
     FirmwareCampaign init(DeviceType deviceType, EndDeviceGroup group) {
@@ -309,17 +312,22 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
             Save.UPDATE.save(dataModel, this);
         } else {
             Save.CREATE.save(dataModel, this);
+//            this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_CREATED.topic(), this);
         }
     }
 
     @Override
     public void delete(){
         dataModel.remove(this);
+//        this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_DELETED.topic(), this);
     }
 
     @Override
     public void start(){
         this.startedOn = clock.instant();
+        if (this.plannedDate == null){
+            this.plannedDate = this.startedOn;
+        }
         setStatus(FirmwareCampaignStatus.ONGOING);
         this.devices.stream().forEach(DeviceInFirmwareCampaign::startFirmwareProcess);
         save();

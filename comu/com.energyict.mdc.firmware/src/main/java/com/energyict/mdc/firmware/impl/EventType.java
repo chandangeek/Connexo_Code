@@ -19,7 +19,12 @@ public enum EventType {
     ACTIVATED_FIRMWARE_VERSION_CREATED("activatedfirmwareversion/CREATED"),
     ACTIVATED_FIRMWARE_VERSION_UPDATED("activatedfirmwareversion/UPDATED"),
     ACTIVATED_FIRMWARE_VERSION_DELETED("activatedfirmwareversion/DELETED"),
-
+    /*
+    FIRMWARE_CAMPAIGN_CREATED("firmwarecampaign/CREATED"),
+    FIRMWARE_CAMPAIGN_UPDATED("firmwarecampaign/UPDATED"),
+    FIRMWARE_CAMPAIGN_DELETED("firmwarecampaign/DELETED"),
+    FIRMWARE_CAMPAIGN_STARTED("firmwarecampaign/STARTED"),
+    */
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/firmware/";
