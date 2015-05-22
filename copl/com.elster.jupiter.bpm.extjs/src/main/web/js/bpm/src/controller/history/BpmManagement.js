@@ -27,7 +27,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                             callback: function(route) {
                                 this.getApplication().on('viewProcessInstance', function(record) {
                                     var title = Uni.I18n.translate('bpm.instance.overview.title',  'BPM', 'Process {0} of \'{1}\'');
-                                    route.setTitle(Ext.String.format(title, record.get('id'), record.get('name')));
+                                    route.setTitle(Ext.String.format(title, record.get('id'), Ext.String.htmlEncode(record.get('name'))));
                                     return true;
                                 }, {single: true});
 

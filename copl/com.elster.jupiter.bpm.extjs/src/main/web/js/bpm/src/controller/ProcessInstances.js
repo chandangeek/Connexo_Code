@@ -44,7 +44,7 @@ Ext.define('Bpm.controller.ProcessInstances', {
             success: function (record) {
                 widget.setLoading(false);
                 var title = Uni.I18n.translate('bpm.instance.overview.title',  'BPM', 'Process {0} of \'{1}\'');
-                widget.down('panel').setTitle(Ext.String.format(title, record.get('id'), record.get('name')));
+                widget.down('panel').setTitle(Ext.String.format(title, record.get('id'), Ext.String.htmlEncode(record.get('name'))));
                 widget.down('form').loadRecord(record);
 
                 var variables = me.getStore('Bpm.store.Variables'),
@@ -102,7 +102,7 @@ Ext.define('Bpm.controller.ProcessInstances', {
             var panel = grid.view.up('preview-container').down('instanceDetails'),
                 form = panel.down('form');
             var title = Uni.I18n.translate('bpm.instance.detail.title',  'BPM', 'Process {0} of \'{1}\'');
-            panel.setTitle(Ext.String.format(title, record[0].get('id'), record[0].get('name')));
+            panel.setTitle(Ext.String.format(title, Ext.String.htmlEncode(record[0].get('id')), Ext.String.htmlEncode(record[0].get('name'))));
             form.loadRecord(record[0]);
         }
     }
