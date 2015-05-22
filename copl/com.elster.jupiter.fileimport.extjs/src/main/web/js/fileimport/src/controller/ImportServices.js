@@ -4,10 +4,10 @@ Ext.define('Fim.controller.ImportServices', {
         'Fim.privileges.DataImport'
     ],
     views: [
-        'Fim.view.importServices.Setup',
-        'Fim.view.importServices.AddImportService',
-        'Fim.view.importServices.Details',
-        'Fim.view.importServices.Menu'
+        'Fim.view.importservices.Setup',
+        'Fim.view.importservices.AddImportService',
+        'Fim.view.importservices.Details',
+        'Fim.view.importservices.Menu'
     ],
     stores: [
         'Fim.store.ImportServices',
@@ -268,7 +268,7 @@ Ext.define('Fim.controller.ImportServices', {
             addImportServiceView, addImportServiceForm, returnLink;
 
         returnLink = importServicesGrid ? router.getRoute('administration/importservices').buildUrl() : router.getRoute('administration/importservices/importservice').buildUrl({importServiceId: importServiceId});
-        addImportServiceView = Ext.create('Fim.view.importServices.AddImportService', {
+        addImportServiceView = Ext.create('Fim.view.importservices.AddImportService', {
             edit: true,
             returnLink: returnLink
         });
@@ -377,7 +377,7 @@ Ext.define('Fim.controller.ImportServices', {
             addImportServiceView, addImportServiceForm, returnLink;
 
         returnLink = router.getRoute('administration/importservices').buildUrl();
-        addImportServiceView = Ext.create('Fim.view.importServices.AddImportService', {
+        addImportServiceView = Ext.create('Fim.view.importservices.AddImportService', {
             edit: false,
             returnLink: returnLink
         });

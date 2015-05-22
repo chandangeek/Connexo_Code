@@ -1,10 +1,10 @@
-Ext.define('Fim.view.importServices.Details', {
+Ext.define('Fim.view.importservices.Details', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.fin-details-import-service',
     requires: [
-        'Fim.view.importServices.Menu',
-        'Fim.view.importServices.PreviewForm',
-        'Fim.view.importServices.ActionMenu'
+        'Fim.view.importservices.Menu',
+        'Fim.view.importservices.PreviewForm',
+        'Fim.view.importservices.ActionMenu'
     ],
 
     router: null,

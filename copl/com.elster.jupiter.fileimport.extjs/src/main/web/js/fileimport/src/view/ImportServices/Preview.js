@@ -1,9 +1,9 @@
-Ext.define('Fim.view.importServices.Preview', {
+Ext.define('Fim.view.importservices.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.fim-import-service-preview',
     requires: [
-        'Fim.view.importServices.PreviewForm'
+        'Fim.view.importservices.PreviewForm'
     ],
     tools: [
         {

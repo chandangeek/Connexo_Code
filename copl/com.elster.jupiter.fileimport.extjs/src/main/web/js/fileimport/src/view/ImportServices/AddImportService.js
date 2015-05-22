@@ -1,4 +1,4 @@
-Ext.define('Fim.view.importServices.AddImportService', {
+Ext.define('Fim.view.importservices.AddImportService', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.fim-add-import-service',
     //overflowY: true,

@@ -1,4 +1,4 @@
-Ext.define('Fim.view.importServices.PreviewForm', {
+Ext.define('Fim.view.importservices.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.fim-import-service-preview-form',
 

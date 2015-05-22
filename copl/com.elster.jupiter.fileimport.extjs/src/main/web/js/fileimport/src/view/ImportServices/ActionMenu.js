@@ -1,4 +1,4 @@
-Ext.define('Fim.view.importServices.ActionMenu', {
+Ext.define('Fim.view.importservices.ActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.fim-import-service-action-menu',
     plain: true,

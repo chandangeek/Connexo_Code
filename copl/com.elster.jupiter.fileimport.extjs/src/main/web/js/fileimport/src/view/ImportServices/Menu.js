@@ -1,10 +1,10 @@
-Ext.define('Fim.view.importServices.Menu', {
+Ext.define('Fim.view.importservices.Menu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.fim-import-service-menu',
 
     router: null,
     importServiceId: null,
-    title: Uni.I18n.translate('general.importServices', 'FIM', 'Import services'),
+    title: Uni.I18n.translate('general.importservices', 'FIM', 'Import services'),
 
     initComponent: function () {
         var me = this;
