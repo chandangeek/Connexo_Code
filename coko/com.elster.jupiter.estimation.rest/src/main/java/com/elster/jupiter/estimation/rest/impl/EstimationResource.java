@@ -20,6 +20,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -34,7 +36,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -66,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -384,6 +386,7 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
     public EstimationTaskInfos getEstimationTasks(@Context UriInfo uriInfo) {
+
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends EstimationTask> list = queryTasks(params);
 
@@ -485,12 +488,11 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
-    public EstimationTaskHistoryInfos getEstimationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
-                                                               @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        EstimationTask task = fetchEstimationTask(id);
+    public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
+                                                  @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters parameters) {
 
-        EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(params.getStartInt()).setLimit(params.getLimit() + 1);
+        EstimationTask task = fetchEstimationTask(id);
+        EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
@@ -504,11 +506,12 @@ public class EstimationResource {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
 
-        List<? extends TaskOccurrence> occurrences = occurrencesFinder.find();
+        List<EstimationTaskHistoryInfo> historyList = occurrencesFinder.find()
+                .stream()
+                .map(occurrence -> new EstimationTaskHistoryInfo(task, occurrence, thesaurus))
+                .collect(Collectors.toList());
 
-        EstimationTaskHistoryInfos infos = new EstimationTaskHistoryInfos(task, params.clipToLimit(occurrences), thesaurus);
-        infos.total = params.determineTotal(occurrences.size());
-        return infos;
+        return PagedInfoList.fromPagedList("data", historyList, parameters);
     }
 
 
@@ -517,18 +520,19 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
-    public EstimationTaskOccurrenceLogInfos getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
-                                                                     @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+    public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
+                                                  @Context SecurityContext securityContext, @BeanParam JsonQueryParameters parameters) {
+
         EstimationTask task = fetchEstimationTask(id);
         TaskOccurrence occurrence = fetchTaskOccurrence(occurrenceId, task);
-        LogEntryFinder finder = occurrence.getLogsFinder().setStart(queryParameters.getStartInt()).setLimit(queryParameters.getLimit());
+        LogEntryFinder finder = occurrence.getLogsFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
-        List<? extends LogEntry> occurrences = finder.find();
+        List<EstimationTaskOccurrenceLogInfo> taskOccurrenceLogsList = finder.find()
+                .stream()
+                .map(EstimationTaskOccurrenceLogInfo::new)
+                .collect(Collectors.toList());
 
-        EstimationTaskOccurrenceLogInfos infos = new EstimationTaskOccurrenceLogInfos(queryParameters.clipToLimit(occurrences));
-        infos.total = queryParameters.determineTotal(occurrences.size());
-        return infos;
+        return PagedInfoList.fromPagedList("data", taskOccurrenceLogsList, parameters);
     }
 
     private EstimationTask findTaskOrThrowException(long id) {
