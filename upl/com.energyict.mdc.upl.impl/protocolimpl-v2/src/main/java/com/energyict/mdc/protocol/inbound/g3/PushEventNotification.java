@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimePeriod;
-import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.comserver.time.Clocks;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -22,13 +21,14 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.exceptions.ConnectionSetupException;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -180,16 +180,20 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                     String macAddress = ProtocolTools.getHexStringFromBytes((macAddressOctetString).getOctetStr(), "");
                     OfflineDevice offlineDevice = context.getInboundDAO().findOfflineDevice(new DialHomeIdDeviceIdentifier(macAddress));
 
-                    Dsmr50Properties g3MeterProperties = new Dsmr50Properties();
-                    g3MeterProperties.addProperties(offlineDevice.getAllProperties());
-                    HexString psk = g3MeterProperties.getPSK();
-                    if (psk != null && psk.getContent().length() > 0) {
-                        Structure macAndKeyPair = new Structure();
-                        macAndKeyPair.addDataType(macAddressOctetString);
-                        macAndKeyPair.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(psk.getContent(), "")));
-                        macKeyPairs.addDataType(macAndKeyPair);
+                    if (offlineDevice != null) {
+                        Dsmr50Properties g3MeterProperties = new Dsmr50Properties();
+                        g3MeterProperties.addProperties(offlineDevice.getAllProperties());
+                        HexString psk = g3MeterProperties.getPSK();
+                        if (psk != null && psk.getContent().length() > 0) {
+                            Structure macAndKeyPair = new Structure();
+                            macAndKeyPair.addDataType(macAddressOctetString);
+                            macAndKeyPair.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(psk.getContent(), "")));
+                            macKeyPairs.addDataType(macAndKeyPair);
+                        } else {
+                            context.getLogger().warning("Device with MAC address " + macAddress + " does not have a PSK property in EIServer, skipping.");
+                        }
                     } else {
-                        context.getLogger().warning("Device with MAC address " + macAddress + " does not have a PSK property in EIServer, skipping.");
+                        context.getLogger().warning("No unique device with MAC address " + macAddress + " exists in EIServer, cannot provide PSK key. Skipping.");
                     }
                 }
             }
