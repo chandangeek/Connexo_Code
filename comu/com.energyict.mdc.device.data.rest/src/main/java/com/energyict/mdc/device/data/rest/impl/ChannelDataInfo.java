@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -70,13 +71,14 @@ public class ChannelDataInfo {
             for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
                 channelIntervalInfo.isBulk = entry.getKey().getReadingType().isCumulative();
                 channelIntervalInfo.value = getRoundedBigDecimal(entry.getValue().getValue(), entry.getKey()); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
-                if (channelIntervalInfo.isBulk) {
-                    Quantity quantity = entry.getValue().getQuantity(entry.getKey().getReadingType());
-                    channelIntervalInfo.collectedValue = quantity != null ?  quantity.getValue() : null;
+                Optional<ReadingType> calculatedReadingType = entry.getKey().getReadingType().getCalculatedReadingType();
+                if (channelIntervalInfo.isBulk && calculatedReadingType.isPresent()) {
+                    channelIntervalInfo.collectedValue = channelIntervalInfo.value;
+                    Quantity quantity = entry.getValue().getQuantity(calculatedReadingType.get());
+                    channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ?  quantity.getValue() : null, entry.getKey());
                 }
                 channelIntervalInfo.modificationFlag = ReadingModificationFlag.getFlag(entry.getValue());
                 channelIntervalInfo.reportedDateTime = entry.getValue().getReportedDateTime();
-                channelIntervalInfo.collectedValue = getRoundedBigDecimal(channelIntervalInfo.collectedValue, entry.getKey());
             }
             if (loadProfileReading.getChannelValues().isEmpty() && loadProfileReading.getReadingTime() != null) {
                 channelIntervalInfo.modificationFlag = ReadingModificationFlag.REMOVED;
