@@ -16,7 +16,7 @@ class FatalExceptionGuardItemExporter implements ItemExporter {
     }
 
     @Override
-    public Range<Instant> exportItem(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
+    public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData item) {
         try {
             return decorated.exportItem(occurrence, item);
         } catch (DataExportException | FatalDataExportException e) {
@@ -24,5 +24,10 @@ class FatalExceptionGuardItemExporter implements ItemExporter {
         } catch (RuntimeException e) {
             throw new FatalDataExportException(e);
         }
+    }
+
+    @Override
+    public void done() {
+        decorated.done();
     }
 }

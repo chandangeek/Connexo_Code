@@ -19,6 +19,10 @@ public final class DefaultStructureMarker implements StructureMarker {
         this.path = parent == null ? Collections.singletonList(structure) : ImmutableList.<String>builder().addAll(parent.path).add(structure).build();
     }
 
+    public static DefaultStructureMarker createRoot(String root) {
+        return new DefaultStructureMarker(null, root);
+    }
+
     @Override
     public List<String> getStructurePath() {
         return path;
@@ -29,7 +33,7 @@ public final class DefaultStructureMarker implements StructureMarker {
         return Optional.ofNullable(parent);
     }
 
-    public StructureMarker child(String structure) {
+    public DefaultStructureMarker child(String structure) {
         return new DefaultStructureMarker(this, structure);
     }
 

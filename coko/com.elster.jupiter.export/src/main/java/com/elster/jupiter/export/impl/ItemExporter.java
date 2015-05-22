@@ -7,6 +7,8 @@ import java.time.Instant;
 
 public interface ItemExporter {
 
-    Range<Instant> exportItem(DataExportOccurrence occurrence, IReadingTypeDataExportItem item);
+    Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData item);
+
+    void done();
 
 }

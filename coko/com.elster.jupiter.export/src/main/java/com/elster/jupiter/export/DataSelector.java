@@ -1,9 +1,8 @@
 package com.elster.jupiter.export;
 
-import java.time.Instant;
-import java.util.List;
+import java.util.stream.Stream;
 
 public interface DataSelector {
 
-    List<ExportData> selectData(Instant triggerTime);
+    Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence);
 }

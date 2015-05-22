@@ -6,23 +6,21 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class DataExportTaskExecutor implements TaskExecutor {
@@ -80,35 +78,40 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
-        IReadingTypeExportTask task = occurrence.getTask();
-        Set<IReadingTypeDataExportItem> activeItems;
-        try (TransactionContext context = transactionService.getContext()) {
-            activeItems = getActiveItems(task, occurrence);
-
-            task.getExportItems().stream()
-                    .filter(item -> !activeItems.contains(item))
-                    .peek(IReadingTypeDataExportItem::deactivate)
-                    .forEach(IReadingTypeDataExportItem::update);
-            activeItems.stream()
-                    .peek(IReadingTypeDataExportItem::activate)
-                    .forEach(IReadingTypeDataExportItem::update);
-            context.commit();
-        }
+        IExportTask task = occurrence.getTask();
 
         DataProcessor dataFormatter = getDataProcessor(task);
 
-        LoggingItemExporter loggingItemExporter = getItemExporter(dataFormatter, logger);
+        Stream<ExportData> data = new ReadingTypeDataSelector(transactionService, logger).selectData(occurrence);
 
         catchingUnexpected(loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger))).run();
 
-        catchingUnexpected(() -> activeItems.forEach(item -> doProcess(loggingItemExporter, occurrence, item))).run();
+        ItemExporter itemExporter = new ItemExporter() {
+
+            private ItemExporter lazy;
+
+            @Override
+            public Range<Instant> exportItem(DataExportOccurrence occurrence, MeterReadingData item) {
+                if (lazy == null) {
+                    lazy = getItemExporter(dataFormatter, logger);
+                }
+                return lazy.exportItem(occurrence, item);
+            }
+
+            @Override
+            public void done() {
+                if (lazy != null) {
+                    lazy.done();
+                }
+            }
+        };
+
+        catchingUnexpected(() -> data.forEach(exportData -> doProcess(dataFormatter, occurrence, exportData, itemExporter))).run();
+
+        itemExporter.done();
 
         catchingUnexpected(loggingExceptions(logger, dataFormatter::endExport)).run();
 
-        try (TransactionContext transactionContext = transactionService.getContext()) {
-            activeItems.forEach(IReadingTypeDataExportItem::update);
-            transactionContext.commit();
-        }
     }
 
     private LoggingItemExporter getItemExporter(DataProcessor dataFormatter, Logger logger) {
@@ -126,16 +129,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         return new ExceptionsToFatallyFailed(decorated);
     }
 
-    private Set<IReadingTypeDataExportItem> getActiveItems(IReadingTypeExportTask task, DataExportOccurrence occurrence) {
-        return task.getEndDeviceGroup().getMembers(occurrence.getExportedDataInterval()).stream()
-                .map(EndDeviceMembership::getEndDevice)
-                .filter(device -> device instanceof Meter)
-                .map(Meter.class::cast)
-                .flatMap(meter -> readingTypeDataExportItems(task, meter))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    private DataProcessor getDataProcessor(IReadingTypeExportTask task) {
+    private DataProcessor getDataProcessor(IExportTask task) {
         Map<String, Object> propertyMap = new HashMap<>();
         List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
         DataProcessorFactory dataProcessorFactory = getDataProcessorFactory(task.getDataFormatter());
@@ -154,24 +148,20 @@ class DataExportTaskExecutor implements TaskExecutor {
         return dataExportService.getDataProcessorFactory(dataFormatter).orElseThrow(() -> new NoSuchDataProcessor(thesaurus, dataFormatter));
     }
 
-    private void doProcess(ItemExporter itemExporter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
-        item.setLastRun(occurrence.getTriggerTime());
+    private void doProcess(DataProcessor dataProcessor, DataExportOccurrence occurrence, ExportData exportData, ItemExporter itemExporter) {
+        if (exportData instanceof MeterReadingData) {
+            doProcess(occurrence, (MeterReadingData) exportData, itemExporter);
+            return;
+        }
+        dataProcessor.processData(exportData);
+    }
+
+    private void doProcess(DataExportOccurrence occurrence, MeterReadingData meterReadingData, ItemExporter itemExporter) {
         try {
-            itemExporter.exportItem(occurrence, item);
+            itemExporter.exportItem(occurrence, meterReadingData);
         } catch (DataExportException e) {
             // not fatal, we continue.
         }
-    }
-
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(IReadingTypeExportTask task, Meter meter) {
-        return task.getReadingTypes().stream()
-                .map(r -> task.getExportItems().stream()
-                                .map(IReadingTypeDataExportItem.class::cast)
-                                .filter(item -> r.equals(item.getReadingType()))
-                                .filter(i -> i.getReadingContainer().is(meter))
-                                .findAny()
-                                .orElseGet(() -> task.addExportItem(meter, r))
-                );
     }
 
     private static class ExceptionsToFatallyFailed implements Runnable {
