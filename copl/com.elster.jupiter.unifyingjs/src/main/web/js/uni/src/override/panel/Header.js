@@ -7,9 +7,9 @@ Ext.define('Uni.override.panel.Header', {
         '<tpl if="headerRole">',
         ' role="{headerRole}"',
         '</tpl>',
-        '>{title}</span>',
+        '>{title:htmlEncode}</span>',
         '<span id="{id}-subTextEl" class="{headerCls}-sub-text {cls}-sub-text {cls}-sub-text-{ui}" unselectable="on"',
-        '>{subtitle}</span>'
+        '>{subtitle:htmlEncode}</span>'
     ],
 
     initComponent: function() {
