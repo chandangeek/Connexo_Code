@@ -6,8 +6,10 @@ import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessor;
+import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.impl.MeterReadingData;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -134,8 +136,8 @@ public class StandardCsvDataProcessor implements DataProcessor {
     }
 
     @Override
-    public Optional<Instant> processData(MeterReading data) {
-
+    public Optional<Instant> processData(ExportData exportData) {
+        MeterReading data = ((MeterReadingData) exportData).getMeterReading();
         List<Reading> readings = data.getReadings();
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
         Optional<Instant> latestProcessedTimestamp = readings.stream().map(Reading::getTimeStamp).max(Comparator.naturalOrder());
@@ -191,11 +193,6 @@ public class StandardCsvDataProcessor implements DataProcessor {
         } catch (IOException ex) {
             throw new FatalDataExportException(new FileIOException(ex, thesaurus));
         }
-    }
-
-    @Override
-    public Optional<Instant> processUpdatedData(MeterReading updatedData) {
-        return Optional.empty();
     }
 
     @Override
