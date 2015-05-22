@@ -33,10 +33,7 @@ public final class DeviceLifeCyclePropertySupport {
      * @return The PropertySpec
      */
     public static PropertySpec effectiveTimestamp(PropertySpecService service) {
-        return service.basicPropertySpec(
-                DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
-                true,
-                new InstantFactory());
+        return effectiveTimestamp(service, true);
     }
 
     /**
@@ -48,9 +45,13 @@ public final class DeviceLifeCyclePropertySupport {
      * @return The PropertySpec
      */
     public static PropertySpec optionalEffectiveTimestamp(PropertySpecService service) {
+        return effectiveTimestamp(service, false);
+    }
+
+    private static PropertySpec effectiveTimestamp(PropertySpecService service, boolean required) {
         return service.basicPropertySpec(
                 DeviceLifeCycleService.MicroActionPropertyName.EFFECTIVE_TIMESTAMP.key(),
-                false,
+                required,
                 new InstantFactory());
     }
 
