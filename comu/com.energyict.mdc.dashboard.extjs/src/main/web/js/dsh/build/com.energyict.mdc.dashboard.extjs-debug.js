@@ -158,19 +158,19 @@ Ext.define('Dsh.view.widget.common.Bar', {
     trackTpl: '<div class="{baseCls}-track" style="width: {count}%;"></div>',
     renderTpl: [
         '<tpl for=".">',
-            '<span class="{baseCls}-label">{label}</span>',
-            '<div class="{baseCls}-container" style="width: 100%;">',
-                '<div class="{baseCls}-fill" style="width: {limit}%;">',
-                    '{track}',
-                '</div>',
+        '<span class="{baseCls}-label">{label}</span>',
+        '<div class="{baseCls}-container" style="width: 100%;">',
+        '<div class="{baseCls}-fill" style="width: {limit}%;">',
+        '{track}',
+        '</div>',
         '<tpl if="threshold">',
         '<div class="threshold" style="left: {threshold}%;">',
         '</tpl>',
-            '<div>',
+        '<div>',
         '</tpl>'
     ],
 
-    prepareData: function(){
+    prepareData: function () {
         var me = this;
         return {
             limit: !me.total ? 0 : Math.round(me.limit * 100 / me.total),
@@ -180,7 +180,7 @@ Ext.define('Dsh.view.widget.common.Bar', {
         }
     },
 
-    initRenderData: function() {
+    initRenderData: function () {
         var me = this;
 
         var track = new Ext.XTemplate(me.trackTpl);
@@ -192,7 +192,7 @@ Ext.define('Dsh.view.widget.common.Bar', {
 Ext.define('Dsh.view.widget.Summary', {
     extend: 'Ext.panel.Panel',
     ui: 'tile',
-    requires: [ 'Dsh.view.widget.common.Bar' ],
+    requires: ['Dsh.view.widget.common.Bar'],
     alias: 'widget.summary',
     itemId: 'summary',
     title: Uni.I18n.translate('overview.widget.summary.title', 'DSH', 'Summary'),
@@ -240,7 +240,7 @@ Ext.define('Dsh.view.widget.Summary', {
                 '</tpl>' +
                 '</tbody>' +
                 '</tpl>' +
-                    '</table>',
+                '</table>',
                 listeners: {
                     refresh: function (view) {
                         Ext.suspendLayouts();
@@ -304,7 +304,7 @@ Ext.define('Dsh.view.widget.Summary', {
         }
 
         view.bindStore(record.counters());
-        me.setTitle(Uni.I18n.translatePlural('overview.widget.' + me.parent + '.header', total, 'DSH', '<h3>' + me.wTitle + ' ({0})' + '</h3>'));
+        me.setTitle('<h3>' + Uni.I18n.translatePlural('overview.widget.' + me.parent + '.header', total, 'DSH', me.wTitle + ' ({0}))' + '</h3>');
     },
 
     initKpi: function (record) {
@@ -375,14 +375,14 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
                 '<td>{children.length} {title}</td>',
                 '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
-                                    '</tr>',
+                '</tr>',
                 '<tpl else>',
                 '<tr>',
                 '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
                 '<td>{title}</td>',
                 '<td style="padding-left: 15px;"></td>',
                 '</tr>',
-                                '</tpl>',
+                '</tpl>',
                 '<tpl else>',
                 '<tpl for="values.children">',
                 '<tr id="{comServerId}">',
@@ -391,7 +391,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 '<td style="padding-left: 15px;"><img data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
                 '</tr>',
                 '</tpl>',
-                            '</tpl>',
+                '</tpl>',
                 '</tbody>',
                 '</tpl>',
                 '</table>'
@@ -491,9 +491,9 @@ Ext.define('Dsh.view.widget.QuickLinks', {
             itemId: 'quicklinksTplPanel',
             tpl: new Ext.XTemplate(
                 '<div class="quick-links">',
-                    '<h3>' + Uni.I18n.translate('overview.widget.quicklinks.title', 'DSH', 'Quick links') + '</h3>',
+                '<h3>' + Uni.I18n.translate('overview.widget.quicklinks.title', 'DSH', 'Quick links') + '</h3>',
                 '<ul>',
-                        '<tpl for=".">',
+                '<tpl for=".">',
                 '<tpl if="href">',
                 '<li><a href="{href}"',
                 '<tpl if="target">', // yellowfin reports are shown in a new tab.
@@ -501,8 +501,8 @@ Ext.define('Dsh.view.widget.QuickLinks', {
                 '</tpl>',
                 '>{link}</a></li>',
                 '</tpl>',
-                        '</tpl>',
-                    '</ul>',
+                '</tpl>',
+                '</ul>',
                 '</div>'
             )
         }
@@ -712,7 +712,7 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
 
 Ext.define('Dsh.view.widget.Overview', {
     extend: 'Ext.panel.Panel',
-    requires: [ 'Dsh.view.widget.common.Bar' ],
+    requires: ['Dsh.view.widget.common.Bar'],
     alias: 'widget.overview',
     itemId: 'overview',
     ui: 'medium',
@@ -788,7 +788,7 @@ Ext.define('Dsh.view.widget.Overview', {
                     '</tr>' +
                     '</tbody>' +
                     '</tpl>' +
-                        '</table>',
+                    '</table>',
                     listeners: {
                         refresh: function (view) {
                             Ext.each(view.getNodes(), function (node, index) {
@@ -1167,8 +1167,8 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     xtype: 'container',
                     html: '<div class="legend">' +
                     '<ul>' +
-                        '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
-                        '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
+                    '<li><span class="color failed"></span> ' + Uni.I18n.translate('overview.widget.breakdown.failed', 'DSH', 'Failed') + '</li>' +
+                    '<li><span class="color success"></span> ' + Uni.I18n.translate('overview.widget.breakdown.success', 'DSH', 'Success') + '</li>' +
                     '<li><span class="color ongoing"></span> ' + Uni.I18n.translate('overview.widget.breakdown.ongoing', 'DSH', 'Ongoing') + '</li>' +
                     '</ul>' +
                     '</div>'
@@ -1250,7 +1250,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
                     '</tr>' +
                     '</tbody>' +
                     '</tpl>' +
-                        '</table>',
+                    '</table>',
                     listeners: {
                         refresh: function (view) {
                             Ext.each(view.getNodes(), function (node, index) {
@@ -1274,7 +1274,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
                                 var filter = me.router.filter.getWriteData(true, true);
                                 filter[item.get('alias')] = record.get('id');
                                 var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
-                                view.getEl().down('.item-' + pos + ' a').set({ href: href });
+                                view.getEl().down('.item-' + pos + ' a').set({href: href});
                             });
 
                             view.collapsed = item.counters().count() > me.itemsInCollapsedMode;
@@ -1581,11 +1581,11 @@ Ext.define('Dsh.model.communication.Overview', {
 Ext.define('Dsh.model.CommunicationServerInfo', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'comServerId', type: 'int' },
-        { name: 'comServerName', type: 'string' },
-        { name: 'comServerType', type: 'string' },
-        { name: 'running', type: 'boolean' },
-        { name: 'blocked', type: 'boolean' },
+        {name: 'comServerId', type: 'int'},
+        {name: 'comServerName', type: 'string'},
+        {name: 'comServerType', type: 'string'},
+        {name: 'running', type: 'boolean'},
+        {name: 'blocked', type: 'boolean'},
         {name: 'blockTime', type: 'auto'},
         {
             name: 'status', type: 'string', convert: function (v, record) {
@@ -1601,7 +1601,7 @@ Ext.define('Dsh.model.CommunicationServerInfo', {
         }
     ],
     associations: [
-        { name: 'blockTime', type: 'hasOne', model: 'Dsh.model.TimeInfo', associationKey: 'blockTime' }
+        {name: 'blockTime', type: 'hasOne', model: 'Dsh.model.TimeInfo', associationKey: 'blockTime'}
     ],
     proxy: {
         type: 'ajax',
@@ -1640,11 +1640,11 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         'Dsh.view.CommunicationOverview'
     ],
     refs: [
-        { ref: 'communicationOverview', selector: '#communication-overview' },
-        { ref: 'header', selector: '#header-section' },
-        { ref: 'summary', selector: '#summary' },
-        { ref: 'communicationServers', selector: '#communication-servers' },
-        { ref: 'overview', selector: '#overview' },
+        {ref: 'communicationOverview', selector: '#communication-overview'},
+        {ref: 'header', selector: '#header-section'},
+        {ref: 'summary', selector: '#summary'},
+        {ref: 'communicationServers', selector: '#communication-servers'},
+        {ref: 'overview', selector: '#overview'},
         {ref: 'breakdown', selector: '#breakdown'},
         {ref: 'kpi', selector: '#communication-overview read-outs-over-time'},
         {ref: 'quickLinks', selector: '#communication-overview #quick-links'}
@@ -1694,7 +1694,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
                 }
             }
         );
-        },
+    },
 
     updateQuickLinks: function () {
         if (Uni.Auth.hasAnyPrivilege(['privilege.view.reports'])) {
@@ -1930,11 +1930,11 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     renderer: function (val) {
                         var res = '';
                         val && (res = '<a href="#/administration/devicetypes/' +
-                            val.devType.id + '/deviceconfigurations/' +
-                            val.config.id +
-                            '">' +
-                            val.config.name +
-                            '</a>');
+                        val.devType.id + '/deviceconfigurations/' +
+                        val.config.id +
+                        '">' +
+                        val.config.name +
+                        '</a>');
                         if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType', 'privilege.view.deviceType'])) {
                             res = val.config.name;
                         }
@@ -1948,10 +1948,10 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                         var res = '';
                         if (val) {
                             res = Uni.I18n.translate('communication.widget.details.every', 'DSH', 'Every')
-                                + ' '
-                                + val.every.count
-                                + ' '
-                                + val.every.timeUnit;
+                            + ' '
+                            + val.every.count
+                            + ' '
+                            + val.every.timeUnit;
                         }
                         return res
                     }
@@ -2158,9 +2158,9 @@ Ext.define('Dsh.view.widget.common.SideFilterDateTime', {
         }
     },
     items: [
-        { xtype: 'panel', name: 'header', baseCls: 'x-form-item-label', style: 'margin: 15px 0' },
-        { label: Uni.I18n.translate('connection.widget.sideFilter.from', 'DSH', 'From'), name: 'from' },
-        { label: Uni.I18n.translate('connection.widget.sideFilter.to', 'DSH', 'To'), name: 'to' }
+        {xtype: 'panel', name: 'header', baseCls: 'x-form-item-label', style: 'margin: 15px 0'},
+        {label: Uni.I18n.translate('connection.widget.sideFilter.from', 'DSH', 'From'), name: 'from'},
+        {label: Uni.I18n.translate('connection.widget.sideFilter.to', 'DSH', 'To'), name: 'to'}
     ],
     initComponent: function () {
         this.callParent(arguments);
@@ -2587,9 +2587,9 @@ Ext.define('Dsh.model.CommunicationTask', {
         "connectionTask",
         "sessionId",
         "comTasks",
-        { name: 'startTime', type: 'date', dateFormat: 'time'},
-        { name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
-        { name: 'nextCommunication', type: 'date', dateFormat: 'time'},
+        {name: 'startTime', type: 'date', dateFormat: 'time'},
+        {name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
+        {name: 'nextCommunication', type: 'date', dateFormat: 'time'},
         {
             name: 'title',
             persist: false,
@@ -3426,8 +3426,8 @@ Ext.define('Dsh.model.connection.Overview', {
 Ext.define('Dsh.model.Combine', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'localizedValue', type: 'string' },
-        { name: 'breakdown', type: 'string' }
+        {name: 'localizedValue', type: 'string'},
+        {name: 'breakdown', type: 'string'}
     ]
 });
 
@@ -3450,9 +3450,9 @@ Ext.define('Dsh.store.CombineStore', {
 Ext.define('Dsh.model.ConnectionResults', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'displayValue', type: 'string' },
-        { name: 'alias', type: 'string' },
-        { name: 'id', type: 'int' },
+        {name: 'displayValue', type: 'string'},
+        {name: 'alias', type: 'string'},
+        {name: 'id', type: 'int'},
         'data'
     ],
     hasMany: [
@@ -3491,13 +3491,13 @@ Ext.define('Dsh.controller.ConnectionOverview', {
         'Dsh.store.CombineStore',
         'Dsh.store.ConnectionResultsStore'
     ],
-    views: [ 'Dsh.view.ConnectionOverview' ],
+    views: ['Dsh.view.ConnectionOverview'],
     refs: [
-        { ref: 'connectionOverview', selector: '#connection-overview' },
-        { ref: 'header', selector: '#header-section' },
-        { ref: 'summary', selector: '#summary' },
-        { ref: 'communicationServers', selector: '#communication-servers' },
-        { ref: 'overview', selector: '#overview' },
+        {ref: 'connectionOverview', selector: '#connection-overview'},
+        {ref: 'header', selector: '#header-section'},
+        {ref: 'summary', selector: '#summary'},
+        {ref: 'communicationServers', selector: '#communication-servers'},
+        {ref: 'overview', selector: '#overview'},
         {ref: 'breakdown', selector: '#breakdown'},
         {ref: 'kpi', selector: '#connection-overview read-outs-over-time'},
         {ref: 'quickLinks', selector: '#connection-overview #quick-links'}
@@ -4981,7 +4981,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
     alias: 'widget.flagged-devices',
     buttonAlign: 'left',
     layout: 'fit',
-    title: Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', 0, 'DSH', '<h3>' + 'My flagged devices ({0})' + '</h3>'),
+    title: '<h3>' + Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', 0, 'DSH', 'My flagged devices ({0})') + '</h3>',
     router: null,
     header: {
         ui: 'small'
@@ -5077,7 +5077,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             store = elm.getStore();
 
         store.load(function () {
-            var title = Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', store.count(), 'DSH', '<h3>' + 'My flagged devices ({0})' + '</h3>');
+            var title = '<h3>' + Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', store.count(), 'DSH', 'My flagged devices ({0})') + '</h3>';
             me.setTitle(title);
 
             store.each(function (item) {
@@ -5957,8 +5957,8 @@ Ext.define('Dsh.controller.Main', {
 Ext.define('Dsh.model.Configuration', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'id', type: 'string' },
-        { name: 'title', type: 'string' }
+        {name: 'id', type: 'string'},
+        {name: 'title', type: 'string'}
     ]
 });
 
@@ -5966,17 +5966,17 @@ Ext.define('Dsh.model.Configuration', {
 Ext.define('Dsh.model.Result', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'id', type: 'string' },
-        { name: 'displayName', type: 'string' },
-        { name: 'count', type: 'int' }
+        {name: 'id', type: 'string'},
+        {name: 'displayName', type: 'string'},
+        {name: 'count', type: 'int'}
     ]
 });
 
 Ext.define('Dsh.model.TimeInfo', {
     extend: 'Ext.data.Model',
     fields: [
-        { name: 'count', type: 'int' },
-        { name: 'timeUnit', type: 'int' }
+        {name: 'count', type: 'int'},
+        {name: 'timeUnit', type: 'int'}
     ]
 });
 
