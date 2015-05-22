@@ -107,7 +107,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     editCommunicationScheduleHistory: function (record) {
 
-        location.href = '#/administration/communicationschedules/' + this.getCommunicationSchedulesGrid().getSelectionModel().getSelection()[0].get('id') + '/edit';
+        location.href = '#/administration/communicationschedules/' + encodeURIComponent(this.getCommunicationSchedulesGrid().getSelectionModel().getSelection()[0].get('id')) + '/edit';
     },
 
     showCommunicationSchedulesEditView: function (id) {

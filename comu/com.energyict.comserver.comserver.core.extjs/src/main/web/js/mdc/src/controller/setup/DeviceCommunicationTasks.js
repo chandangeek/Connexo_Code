@@ -267,6 +267,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     },
 
     showHistory: function(){
-        location.href = '#/devices/' + this.mrid + '/communicationtasks/' + this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0].get('comTask').id + '/history';
+        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/communicationtasks/' + encodeURIComponent(this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0].get('comTask').id) + '/history';
     }
 });

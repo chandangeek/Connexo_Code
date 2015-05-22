@@ -197,7 +197,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me.deviceConfigurationId = deviceConfigurationId;
         var widget = Ext.widget('communicationTaskEdit', {
             edit: false,
-            returnLink: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements',
+            returnLink: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements',
             comTasksStore: comTasksStore,
             securityPropertySetsStore: securityPropertySetsStore,
             connectionMethodsStore: connectionMethodsStore,
@@ -266,7 +266,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             grid = me.getCommunicationTaskGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/' + lastSelected.getData().id + '/edit';
+        location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements/' + encodeURIComponent(lastSelected.getData().id) + '/edit';
     },
 
     showEditCommunicationTaskView: function (deviceTypeId, deviceConfigurationId, comTaskEnablementId) {
@@ -285,7 +285,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 me.getApplication().fireEvent('loadCommunicationTaskModel', communicationTask);
                 var widget = Ext.widget('communicationTaskEdit', {
                     edit: true,
-                    returnLink: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements',
+                    returnLink: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements',
                     comTasksStore: comTasksStore,
                     securityPropertySetsStore: securityPropertySetsStore,
                     connectionMethodsStore: connectionMethodsStore,
@@ -447,7 +447,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             communicationTaskToDelete.destroy({
                 callback: function (record, operation) {
                     if (operation.wasSuccessful()) {
-                        location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements';
+                        location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements';
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
                         me.loadCommunicationTasksStore();
                     }
@@ -463,7 +463,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
                 success: function (record) {
-                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements';
+                    location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements';
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
                 },
                 failure: function (record, operation) {

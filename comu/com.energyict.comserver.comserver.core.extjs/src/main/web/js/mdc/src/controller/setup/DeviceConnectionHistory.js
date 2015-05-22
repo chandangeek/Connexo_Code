@@ -181,7 +181,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     },
 
     showConnectionLog: function () {
-        location.href = '#/devices/' + this.deviceMrId + '/connectionmethods/' + this.connectionMethodId + '/history/' + this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog' +
+        location.href = '#/devices/' + encodeURIComponent(this.deviceMrId) + '/connectionmethods/' + encodeURIComponent(this.connectionMethodId) + '/history/' + encodeURIComponent(this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id')) + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
     },
 
@@ -234,9 +234,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     },
 
     showComTaskLog: function (item) {
-        location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' + item.action.comTask.comTaskId
-            + '/history/' + item.action.comTask.sessionId
+        location.href = '#/devices/' + encodeURIComponent(item.action.comTask.mRID)
+            + '/communicationtasks/' + encodeURIComponent(item.action.comTask.comTaskId)
+            + '/history/' + encodeURIComponent(item.action.comTask.sessionId)
             + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },

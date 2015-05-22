@@ -102,10 +102,10 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
         previewForm.loadRecord(record);
         previewForm.down('#data-sources').removeAll();
 
-        registerUrl = '#/administration/devicetypes/' + record.get('deviceTypeId') + '/deviceconfigurations/' + record.get('id') + '/registerconfigurations';
+        registerUrl = '#/administration/devicetypes/' + encodeURIComponent(record.get('deviceTypeId')) + '/deviceconfigurations/' + encodeURIComponent(record.get('id')) + '/registerconfigurations';
         dataSourcesList += '<a href="' + registerUrl + '">' + record.get('registerCount') + ' ' + Uni.I18n.translate('estimationDeviceConfigurations.registerConfigurations', 'MDC', 'register configurations') + '</a><br/>';
 
-        loadProfileUrl = '#/administration/devicetypes/' + record.get('deviceTypeId') + '/deviceconfigurations/' + record.get('id') + '/loadprofiles';
+        loadProfileUrl = '#/administration/devicetypes/' + encodeURIComponent(record.get('deviceTypeId')) + '/deviceconfigurations/' + encodeURIComponent(record.get('id')) + '/loadprofiles';
         dataSourcesList += '<a href="' + loadProfileUrl + '">' + record.get('loadProfileCount') + ' ' + Uni.I18n.translate('estimationDeviceConfigurations.loadProfileConfigurations', 'MDC', 'load profile configurations') + '</a><br/>';
 
         previewForm.down('#data-sources').add({

@@ -349,7 +349,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if (Ext.isEmpty(Ext.ComponentQuery.query('device-group-edit')[0])) {
             me.fromDeviceGroupDetails = router.queryParams.fromDetails === 'true';
             if (me.fromDeviceGroupDetails) {
-                cancelLink = '#/devices/devicegroups/' + deviceGroupId;
+                cancelLink = '#/devices/devicegroups/' + encodeURIComponent(deviceGroupId);
             } else {
                 cancelLink = '#/devices/devicegroups';
             }
