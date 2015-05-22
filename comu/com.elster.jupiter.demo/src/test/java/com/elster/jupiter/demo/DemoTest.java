@@ -21,6 +21,7 @@ import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
 import com.elster.jupiter.export.processor.impl.StandardCsvDataProcessorFactory;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
@@ -187,7 +188,6 @@ public class DemoTest {
             bind(KieResources.class).toInstance(mock(KieResources.class));
             bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class, RETURNS_DEEP_STUBS));
             bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
-            bind(FileImportService.class).toInstance(mock(FileImportService.class));
         }
 
         private License mockLicense() {
@@ -256,6 +256,7 @@ public class DemoTest {
                 new TopologyModule(),
                 new FavoritesModule(),
                 new FirmwareModule(),
+                new FileImportModule(),
                 new DemoModule()
         );
         doPreparations();
