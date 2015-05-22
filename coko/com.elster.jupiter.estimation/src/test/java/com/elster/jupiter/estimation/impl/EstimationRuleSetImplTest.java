@@ -8,6 +8,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -74,7 +75,7 @@ public class EstimationRuleSetImplTest {
     private PropertySpec maxConsecutive;
 
     private TransactionService transactionService;
-    
+
     private EstimationService estimationService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -130,6 +131,7 @@ public class EstimationRuleSetImplTest {
         when(maxConsecutive.getValueFactory()).thenReturn(valueFactory);
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(VoidTransaction.of(() -> {
+                    injector.getInstance(FiniteStateMachineService.class);
                     estimationService = injector.getInstance(EstimationService.class);
                     EstimationServiceImpl instance = (EstimationServiceImpl) estimationService;
                     injector.getInstance(MeteringService.class);

@@ -21,6 +21,7 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.Priority;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -228,6 +229,7 @@ public class ReadingEstimateTest {
         transactionService.execute(new Transaction<Void>() {
             @Override
             public Void perform() {
+                injector.getInstance(FiniteStateMachineService.class);
                 injector.getInstance(MeteringService.class);
                 estimationService = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
                 return null;
