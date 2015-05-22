@@ -1,5 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.energyict.comserver.core.extjs
+Export-Package: !com.energyict.comserver.core.extjs
 -include: -../development.bnd
 -invalidfilenames: 

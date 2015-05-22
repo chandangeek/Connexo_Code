@@ -23,6 +23,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeSetup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'empty-grid-logbooktypes',
                         title: Uni.I18n.translate('logbooktype.empty.title', 'MDC', 'No logbook types found'),
                         reasons: [
                             Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been added yet.')

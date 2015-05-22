@@ -59,7 +59,7 @@ Ext.define('Mdc.store.DataCollectionKpiRange', {
 
     associationFrequencyRange: {
         '5minutes': ['1hours', '1days', '1weeks'],
-        '15minutes': ['1hours', '1days', '1weeks', '2weeks'],
+        '15minutes': ['1hours', '1days', '1weeks', '2weeks', '1months'],
         '30minutes': ['1days', '1weeks', '2weeks'],
         '1hours': ['1days', '1weeks', '2weeks'],
         '1days': ['1weeks', '2weeks', '1months', '1years'],
