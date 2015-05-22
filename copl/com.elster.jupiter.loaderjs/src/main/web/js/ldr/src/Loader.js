@@ -44,7 +44,9 @@ Ext.define('Ldr.Loader', {
 
         scope.loadPreferences(scope.checkAppLoadable, scope);
         scope.loadTranslations(scope.checkAppLoadable, scope);
-        scope.loadPlugins(scope.checkAppLoadable, scope);
+
+        // TODO Enable again whenever pluggable classes are supported again at the back-end.
+        //scope.loadPlugins(scope.checkAppLoadable, scope);
     },
 
     /**
