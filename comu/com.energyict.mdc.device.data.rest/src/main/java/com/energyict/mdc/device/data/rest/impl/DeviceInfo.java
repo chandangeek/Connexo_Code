@@ -10,12 +10,14 @@ import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceInfo {
     public long id;
     public String mRID;
