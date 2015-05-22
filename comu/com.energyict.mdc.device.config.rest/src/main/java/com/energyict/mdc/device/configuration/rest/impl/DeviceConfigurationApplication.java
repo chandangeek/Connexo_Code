@@ -81,7 +81,6 @@ public class DeviceConfigurationApplication extends Application implements Trans
                 ReadingTypeResource.class,
                 ProtocolDialectResource.class,
                 ConnectionMethodResource.class,
-                RegisterTypeResource.class,
                 RegisterGroupResource.class,
                 SecurityPropertySetResource.class,
                 ComTaskEnablementResource.class,
