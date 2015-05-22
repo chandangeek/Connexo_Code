@@ -229,10 +229,9 @@ public class StateMachineSwitcher implements MessageHandler {
      */
     public void publishEvents(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
         Condition condition =
-                where("status").isEffective()
-                        .and(where("status.state.finiteStateMachine").isEqualTo(oldStateMachine))
-                        .and(ListOperator.IN.contains(deviceAmrIdSubquery, "amrId"))
-                        .and(ListOperator.exists(new IncompatibleStateNameSubquery(newStateMachine)).not());
+                     where("status.interval").isEffective()
+                .and(where("status.state.finiteStateMachine").isEqualTo(oldStateMachine))
+                .and(ListOperator.IN.contains(deviceAmrIdSubquery, "amrId"));
         DecoratedStream.decorate(
                 this.dataModel
                     .query(EndDevice.class, EndDeviceLifeCycleStatus.class, State.class)
@@ -242,20 +241,6 @@ public class StateMachineSwitcher implements MessageHandler {
                 .partitionPer(this.batchSize)
                 .map(deviceIds -> new SwitchStateMachineEvent(effective.toEpochMilli(), oldStateMachine.getId(), newStateMachine.getId(), deviceIds))
                 .forEach(event -> event.publish(this.eventService));
-    }
-
-    private static class IncompatibleStateNameSubquery implements Subquery {
-        private final FiniteStateMachine stateMachine;
-
-        private IncompatibleStateNameSubquery(FiniteStateMachine stateMachine) {
-            super();
-            this.stateMachine = stateMachine;
-        }
-
-        @Override
-        public SqlFragment toFragment() {
-            return new IncompatibleStateNameSqlFragment(this.stateMachine);
-        }
     }
 
     private static class IncompatibleStateNameSqlFragment implements SqlFragment {
